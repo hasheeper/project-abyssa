@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Retro RPG Hex Button</title>
+
+<style>
+  @import url(
+    "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Noto+Serif+SC:wght@500;600&display=swap"
+  );
+
+  :root {
+    --page-bg: #9cabad;
+
+    /* 三层边框 */
+    --frame-outer: #182020;
+    --frame-middle: #829294;
+    --frame-inner: #121919;
+
+    /* 按钮状态 */
+    --button-fill: #72bdc2;
+    --button-text: #172020;
+
+    /* 暗纹 */
+    --pattern-dark: rgba(25, 72, 75, 0.12);
+    --pattern-light: rgba(255, 255, 255, 0.08);
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    min-height: 100vh;
+    margin: 0;
+    padding: 48px;
+
+    display: grid;
+    place-items: center;
+
+    background: var(--page-bg);
+  }
+
+  .rpg-button {
+    display: block;
+    width: min(920px, 100%);
+    padding: 0;
+    border: 0;
+    background: none;
+
+    cursor: pointer;
+    color: inherit;
+
+    transition:
+      transform 90ms ease,
+      filter 120ms ease;
+  }
+
+  .rpg-button:hover {
+    filter: brightness(1.05);
+  }
+
+  .rpg-button:active {
+    transform: translateY(2px);
+  }
+
+  .rpg-button:focus-visible {
+    outline: 2px solid #edf2f2;
+    outline-offset: 6px;
+  }
+
+  .rpg-button svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+
+    shape-rendering: geometricPrecision;
+  }
+
+  .button-label {
+    fill: var(--button-text);
+
+    font-family:
+      "Cormorant Garamond",
+      "Noto Serif SC",
+      Georgia,
+      serif;
+
+    font-size: 43px;
+    font-weight: 600;
+    letter-spacing: 1.2px;
+
+    text-anchor: middle;
+    dominant-baseline: middle;
+  }
+
+  /* 可选主题 */
+  .theme-dark {
+    --button-fill: #202525;
+    --button-text: #edf1f1;
+    --frame-middle: #718183;
+
+    --pattern-dark: rgba(255, 255, 255, 0.055);
+    --pattern-light: rgba(255, 255, 255, 0.018);
+  }
+
+  .theme-light {
+    --button-fill: #e5eaea;
+    --button-text: #172020;
+    --frame-middle: #9ba8a9;
+
+    --pattern-dark: rgba(35, 57, 58, 0.09);
+    --pattern-light: rgba(255, 255, 255, 0.16);
+  }
+
+  .theme-teal {
+    --button-fill: #72bdc2;
+    --button-text: #172020;
+    --frame-middle: #829294;
+
+    --pattern-dark: rgba(25, 72, 75, 0.12);
+    --pattern-light: rgba(255, 255, 255, 0.08);
+  }
+</style>
+</head>
+
+<body>
+
+<button class="rpg-button theme-teal" type="button">
+  <svg
+    viewBox="0 0 920 120"
+    role="img"
+    aria-label="Load Game"
+  >
+    <defs>
+      <!-- 较大的复古菱形暗纹 -->
+      <pattern
+        id="diamond-pattern"
+        width="58"
+        height="58"
+        patternUnits="userSpaceOnUse"
+        patternTransform="translate(0 -9)"
+      >
+        <path
+          d="M29 0 L58 29 L29 58 L0 29 Z"
+          fill="var(--pattern-dark)"
+        />
+        <path
+          d="M29 13 L45 29 L29 45 L13 29 Z"
+          fill="var(--pattern-light)"
+        />
+      </pattern>
+      <!-- 中央完全淡出，左右两端逐渐显现 -->
+      <linearGradient
+        id="pattern-fade"
+        x1="0"
+        y1="0"
+        x2="1"
+        y2="0"
+      >
+        <stop
+          offset="0%"
+          stop-color="white"
+          stop-opacity="1"
+        />
+        <stop
+          offset="18%"
+          stop-color="white"
+          stop-opacity=".72"
+        />
+        <stop
+          offset="33%"
+          stop-color="white"
+          stop-opacity=".15"
+        />
+        <stop
+          offset="42%"
+          stop-color="white"
+          stop-opacity="0"
+        />
+        <stop
+          offset="58%"
+          stop-color="white"
+          stop-opacity="0"
+        />
+        <stop
+          offset="67%"
+          stop-color="white"
+          stop-opacity=".15"
+        />
+        <stop
+          offset="82%"
+          stop-color="white"
+          stop-opacity=".72"
+        />
+        <stop
+          offset="100%"
+          stop-color="white"
+          stop-opacity="1"
+        />
+      </linearGradient>
+      <mask id="pattern-mask">
+        <rect
+          x="0"
+          y="0"
+          width="920"
+          height="120"
+          fill="url(#pattern-fade)"
+        />
+      </mask>
+      <!-- 将纹理限制在按钮内部 -->
+      <clipPath id="button-clip">
+        <path
+          d="
+            M 65 15
+            H 855
+            L 894 60
+            L 855 105
+            H 65
+            L 26 60
+            Z
+          "
+        />
+      </clipPath>
+    </defs>
+    <!--
+      对称六边形主体：
+      上边和下边距离视图边缘完全相同。
+    -->
+    <path
+      d="
+        M 65 15
+        H 855
+        L 894 60
+        L 855 105
+        H 65
+        L 26 60
+        Z
+      "
+      fill="var(--button-fill)"
+    />
+    <!-- 左右渐隐菱形材质 -->
+    <rect
+      x="20"
+      y="10"
+      width="880"
+      height="100"
+      fill="url(#diamond-pattern)"
+      mask="url(#pattern-mask)"
+      clip-path="url(#button-clip)"
+    />
+    <!--
+      三重边框使用同一路径叠画：
+      10px 深色 → 5px 冷灰 → 2px 深色。
+      最终可见比例约为：
+      外暗 2.5px / 中灰 1.5px / 内暗 1px。
+    -->
+    <!-- 最外层深色粗框 -->
+    <path
+      d="
+        M 65 15
+        H 855
+        L 894 60
+        L 855 105
+        H 65
+        L 26 60
+        Z
+      "
+      fill="none"
+      stroke="var(--frame-outer)"
+      stroke-width="10"
+      stroke-linejoin="miter"
+    />
+    <!-- 中间冷灰细线 -->
+    <path
+      d="
+        M 65 15
+        H 855
+        L 894 60
+        L 855 105
+        H 65
+        L 26 60
+        Z
+      "
+      fill="none"
+      stroke="var(--frame-middle)"
+      stroke-width="5"
+      stroke-linejoin="miter"
+    />
+    <!-- 最内层深色线 -->
+    <path
+      d="
+        M 65 15
+        H 855
+        L 894 60
+        L 855 105
+        H 65
+        L 26 60
+        Z
+      "
+      fill="none"
+      stroke="var(--frame-inner)"
+      stroke-width="2"
+      stroke-linejoin="miter"
+    />
+    <!-- 下边框中央五枚装饰点 -->
+    <g>
+      <circle
+        cx="438"
+        cy="104"
+        r="1.6"
+        fill="#6d7b7c"
+      />
+      <circle
+        cx="449"
+        cy="104"
+        r="2"
+        fill="#8c999a"
+      />
+      <circle
+        cx="460"
+        cy="104"
+        r="2.4"
+        fill="#67b6bb"
+      />
+      <circle
+        cx="471"
+        cy="104"
+        r="2"
+        fill="#8c999a"
+      />
+      <circle
+        cx="482"
+        cy="104"
+        r="1.6"
+        fill="#6d7b7c"
+      />
+    </g>
+    <!-- 标题 -->
+    <text
+      class="button-label"
+      x="460"
+      y="61"
+    >
+      Load Game
+    </text>
+  </svg>
+</button>
+
+</body>
+</html>

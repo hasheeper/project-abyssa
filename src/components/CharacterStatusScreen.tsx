@@ -6,7 +6,7 @@ import { CharacterSelector } from "./CharacterSelector";
 import { Nameplate } from "./Nameplate";
 import { RpgFrame } from "./RpgFrame";
 import { RpgHeader } from "./RpgHeader";
-import { RpgMenuButton } from "./RpgMenuButton";
+import { RpgHexButton } from "./RpgHexButton";
 import { StatusPanel } from "./StatusPanel";
 import type { StatusPanelData } from "./StatusPanel";
 
@@ -130,15 +130,16 @@ export function CharacterStatusScreen({
 
       <nav className="abyssa-character-screen__menu" aria-label="角色状态菜单">
         {menuItems.map((item) => (
-          <RpgMenuButton
+          <RpgHexButton
             key={item.id}
             size="sm"
+            fullWidth
             variant={item.id === currentMenuId ? "teal" : "dark"}
             selected={item.id === currentMenuId}
             onClick={() => setCurrentMenuId(item.id)}
           >
             {item.label}
-          </RpgMenuButton>
+          </RpgHexButton>
         ))}
       </nav>
     </section>

@@ -30,8 +30,14 @@ export type {
   RetroRpgHeaderProps,
   RpgHeaderProps
 } from "./components/RpgHeader";
-export { RpgMenuButton } from "./components/RpgMenuButton";
-export type { RpgMenuButtonProps } from "./components/RpgMenuButton";
+export {
+  RetroRpgHexButton,
+  RpgHexButton
+} from "./components/RpgHexButton";
+export type {
+  RetroRpgHexButtonProps,
+  RpgHexButtonProps
+} from "./components/RpgHexButton";
 export { RpgPanel } from "./components/RpgPanel";
 export type { RpgPanelProps } from "./components/RpgPanel";
 export { SectionHeader } from "./components/SectionHeader";

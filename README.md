@@ -7,11 +7,11 @@
 - `AbyssaProvider`：主题、强调色与密度容器
 - `RpgFrame`：三层边框与角部装饰容器
 - `RibbonButton`：深色、亮色、青色燕尾按钮
+- `RpgHexButton`：精确复刻 `Retro-RPG-Hex-Button` 的对称六边形主按钮
 - `RpgPanel`：六种角色选择面板
 - `IconButton`、`ArrowButton`：圆形、方形、胶囊形图标按钮
 - `Toggle`、`Progress`：开关和进度条
 - `RpgHeader`：精确复刻 `Retro-RPG-Header` 原型的曲线燕尾标题，包含三套主题
-- `RpgMenuButton`：适合窄栏与底部导航的等高六边形菜单按钮
 - `Nameplate`：角色姓名牌
 - `CharacterSelector`：受控或非受控角色选择器
 - `StatusPanel`：数据驱动的身份、属性、特性和记录面板
@@ -140,10 +140,13 @@ src/
   hooks/          受控/非受控状态工具
   styles/         设计令牌和组件样式
   index.ts        公共导出入口
+references/
+  html/           英文命名的视觉原型 HTML
+  images/         英文命名的视觉参考图片
 ```
 
-仓库根目录原有的三个 HTML 文件继续作为视觉原型保留，不参与组件库生产构建。
+视觉原型统一归档在 `references/`，不参与组件库生产构建；根目录仅保留 Vite 的 `index.html` 应用入口。
 
 ## 素材说明
 
-`参考图/` 中的图片带有示例水印，只作为视觉方向参考，不会被打进组件包。正式项目应使用原创 SVG/CSS 或已获得授权的素材。
+`references/images/` 中的图片带有示例水印，只作为视觉方向参考，不会被打进组件包。正式项目应使用原创 SVG/CSS 或已获得授权的素材。

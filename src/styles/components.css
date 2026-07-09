@@ -1,6 +1,6 @@
 .abyssa-frame,
 .abyssa-ribbon-button,
-.abyssa-menu-button,
+.abyssa-hex-button,
 .abyssa-panel-tile,
 .abyssa-icon-button,
 .abyssa-toggle,
@@ -16,7 +16,7 @@
 }
 
 .abyssa-ribbon-button,
-.abyssa-menu-button,
+.abyssa-hex-button,
 .abyssa-panel-tile,
 .abyssa-icon-button,
 .abyssa-toggle {
@@ -25,7 +25,7 @@
 }
 
 .abyssa-ribbon-button:focus-visible,
-.abyssa-menu-button:focus-visible,
+.abyssa-hex-button:focus-visible,
 .abyssa-panel-tile:focus-visible,
 .abyssa-icon-button:focus-visible,
 .abyssa-toggle:focus-visible {
@@ -206,84 +206,94 @@
 .abyssa-ribbon-button[data-selected] { filter: drop-shadow(0 0 7px rgb(114 179 183 / 60%)); }
 .abyssa-ribbon-button:disabled { cursor: not-allowed; filter: grayscale(0.75); opacity: 0.46; }
 
-/* Compact menu button: keeps a usable height in narrow navigation grids. */
-.abyssa-menu-button {
-  --abyssa-menu-fill: var(--abyssa-panel-black, #1d2121);
-  --abyssa-menu-text: var(--abyssa-text, #edf0f0);
-  width: 100%;
+/* Wide symmetric hex button, based on the 920 × 120 visual prototype. */
+.abyssa-hex-button {
+  --abyssa-hex-fill: var(--abyssa-teal, #72b3b7);
+  --abyssa-hex-text: var(--abyssa-text-dark, #192020);
+  --abyssa-hex-frame-middle: #829294;
+  --abyssa-hex-pattern-dark: rgb(25 72 75 / 12%);
+  --abyssa-hex-pattern-light: rgb(255 255 255 / 8%);
+  --abyssa-hex-max-width: 760px;
+  --abyssa-hex-font-min: 12px;
+  --abyssa-hex-font-max: 30px;
+  position: relative;
+  display: inline-grid;
+  width: min(100%, var(--abyssa-hex-max-width));
+  height: auto;
+  aspect-ratio: 920 / 120;
   padding: 0;
   border: 0;
-  color: var(--abyssa-menu-text);
+  color: var(--abyssa-hex-text);
   background: transparent;
+  container-type: inline-size;
   cursor: pointer;
-  transition: filter 120ms ease, transform 100ms ease;
+  place-items: center;
+  transition: filter 120ms ease, transform 90ms ease;
 }
 
-.abyssa-menu-button[data-variant="light"] {
-  --abyssa-menu-fill: var(--abyssa-panel-light, #e2e7e7);
-  --abyssa-menu-text: var(--abyssa-text-dark, #192020);
+.abyssa-hex-button[data-size="sm"] {
+  --abyssa-hex-max-width: 620px;
+  --abyssa-hex-font-min: 10px;
+  --abyssa-hex-font-max: 23px;
 }
 
-.abyssa-menu-button[data-variant="teal"] {
-  --abyssa-menu-fill: var(--abyssa-teal, #72b3b7);
-  --abyssa-menu-text: var(--abyssa-text-dark, #192020);
+.abyssa-hex-button[data-size="lg"] {
+  --abyssa-hex-max-width: 920px;
+  --abyssa-hex-font-min: 14px;
+  --abyssa-hex-font-max: 36px;
 }
 
-.abyssa-menu-button__outer,
-.abyssa-menu-button__middle,
-.abyssa-menu-button__inner,
-.abyssa-menu-button__surface {
+.abyssa-hex-button[data-full-width] {
   display: grid;
   width: 100%;
-  clip-path: polygon(16px 0, calc(100% - 16px) 0, 100% 50%, calc(100% - 16px) 100%, 16px 100%, 0 50%);
-  place-items: center;
+  max-width: none;
 }
 
-.abyssa-menu-button__outer { padding: 3px; background: var(--abyssa-frame-dark, #192020); }
-.abyssa-menu-button__middle { padding: 1px; background: var(--abyssa-frame-light, #a7b3b4); }
-.abyssa-menu-button__inner { padding: 2px; background: var(--abyssa-frame-deep, #101616); }
-.abyssa-menu-button__surface {
-  position: relative;
-  min-height: 38px;
-  overflow: hidden;
-  background: var(--abyssa-menu-fill);
+.abyssa-hex-button[data-variant="dark"] {
+  --abyssa-hex-fill: var(--abyssa-panel-black, #1d2121);
+  --abyssa-hex-text: var(--abyssa-text, #edf0f0);
+  --abyssa-hex-frame-middle: #718183;
+  --abyssa-hex-pattern-dark: rgb(255 255 255 / 5.5%);
+  --abyssa-hex-pattern-light: rgb(255 255 255 / 1.8%);
 }
 
-.abyssa-menu-button[data-size="sm"] .abyssa-menu-button__surface { min-height: 30px; }
-.abyssa-menu-button[data-size="lg"] .abyssa-menu-button__surface { min-height: 46px; }
-.abyssa-menu-button__surface::before {
+.abyssa-hex-button[data-variant="light"] {
+  --abyssa-hex-fill: var(--abyssa-panel-light, #e2e7e7);
+  --abyssa-hex-text: var(--abyssa-text-dark, #192020);
+  --abyssa-hex-frame-middle: #9ba8a9;
+  --abyssa-hex-pattern-dark: rgb(35 57 58 / 9%);
+  --abyssa-hex-pattern-light: rgb(255 255 255 / 16%);
+}
+
+.abyssa-hex-button__art,
+.abyssa-hex-button__label {
   position: absolute;
   inset: 0;
-  background:
-    linear-gradient(45deg, rgb(255 255 255 / 4.5%) 25%, transparent 25% 75%, rgb(255 255 255 / 4.5%) 75%) 0 0 / 20px 20px,
-    linear-gradient(-45deg, rgb(0 0 0 / 10%) 25%, transparent 25% 75%, rgb(0 0 0 / 10%) 75%) 0 0 / 20px 20px;
-  mask-image: linear-gradient(90deg, #000, transparent 32% 68%, #000);
-  content: "";
+  width: 100%;
+  height: 100%;
 }
 
-.abyssa-menu-button__label {
-  position: relative;
-  z-index: 1;
-  font-size: 12px;
+.abyssa-hex-button__art { overflow: visible; shape-rendering: geometricPrecision; }
+.abyssa-hex-button__dots { fill: var(--abyssa-hex-frame-middle); }
+.abyssa-hex-button__dots circle:nth-child(3) { fill: var(--abyssa-teal, #72b3b7); }
+.abyssa-hex-button__label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding-inline: 72px;
+  font-family: var(--abyssa-font-display, Georgia, serif);
+  font-size: clamp(var(--abyssa-hex-font-min), 4.7cqi, var(--abyssa-hex-font-max));
   font-weight: 600;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.04em;
   line-height: 1;
 }
-
-.abyssa-menu-button[data-size="sm"] .abyssa-menu-button__label { font-size: 11px; }
-.abyssa-menu-button[data-size="lg"] .abyssa-menu-button__label { font-size: 14px; }
-.abyssa-menu-button__label small {
-  display: block;
-  margin-top: 3px;
-  font-family: var(--abyssa-font-display, Georgia, serif);
-  font-size: 0.58em;
-  font-weight: 500;
-  letter-spacing: 0.18em;
-}
-
-.abyssa-menu-button:hover:not(:disabled) { filter: brightness(1.1); }
-.abyssa-menu-button:active:not(:disabled) { transform: translateY(1px); }
-.abyssa-menu-button:disabled { cursor: not-allowed; filter: grayscale(1); opacity: 0.45; }
+.abyssa-hex-button__icon { display: inline-grid; width: 1em; height: 1em; place-items: center; }
+.abyssa-hex-button__icon svg { width: 100%; height: 100%; }
+.abyssa-hex-button:hover:not(:disabled) { filter: brightness(1.05); }
+.abyssa-hex-button:active:not(:disabled) { transform: translateY(2px); }
+.abyssa-hex-button[data-selected] { filter: drop-shadow(0 0 8px rgb(114 179 183 / 55%)); }
+.abyssa-hex-button:disabled { cursor: not-allowed; filter: grayscale(0.75); opacity: 0.46; }
 
 /* Square selection panel */
 .abyssa-panel-tile {
@@ -704,7 +714,7 @@
 }
 
 .abyssa-character-screen__portrait-column > .abyssa-nameplate { z-index: 3; margin-top: -32px; }
-.abyssa-character-screen__menu { display: grid; grid-template-columns: repeat(4, minmax(120px, 1fr)); gap: 8px; width: min(92%, 980px); margin: 22px auto 0; }
+.abyssa-character-screen__menu { display: grid; grid-template-columns: repeat(2, minmax(240px, 1fr)); gap: 8px; width: min(92%, 980px); margin: 22px auto 0; }
 
 @media (max-width: 1080px) {
   .abyssa-character-screen__layout { grid-template-columns: minmax(230px, 0.72fr) minmax(390px, 1.4fr); }
@@ -723,7 +733,7 @@
   .abyssa-character-screen__portrait-column,
   .abyssa-character-screen__layout > .abyssa-status-panel { grid-column: 1; grid-row: auto; }
   .abyssa-character-screen__portrait { min-height: min(116vw, 620px); }
-  .abyssa-character-screen__menu { grid-template-columns: repeat(2, minmax(120px, 1fr)); width: 100%; }
+  .abyssa-character-screen__menu { grid-template-columns: minmax(0, 1fr); width: 100%; }
   .abyssa-status-panel__lower { grid-template-columns: 1fr; gap: 0; }
 }
 

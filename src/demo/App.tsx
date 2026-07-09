@@ -11,7 +11,7 @@ import {
   RibbonButton,
   RpgFrame,
   RpgHeader,
-  RpgMenuButton,
+  RpgHexButton,
   RpgPanel,
   StatusPanel,
   Toggle
@@ -142,7 +142,7 @@ export function App() {
       id: "ribbon-button",
       name: "RibbonButton",
       category: "actions",
-      description: "适合主操作和宽区域导航。组件按 820 × 68 等比缩放，窄栏请改用 RpgMenuButton。",
+      description: "适合扁平主操作和宽区域导航。组件按 820 × 68 等比缩放；需要更高的六边形按钮时使用 RpgHexButton。",
       tags: ["button", "loading", "selected"],
       code: `<RibbonButton\n  variant="teal"\n  onClick={handleStart}\n>\n  Start game\n</RibbonButton>`,
       preview: (
@@ -155,19 +155,20 @@ export function App() {
       wide: true
     },
     {
-      id: "rpg-menu-button",
-      name: "RpgMenuButton",
+      id: "rpg-hex-button",
+      name: "RpgHexButton",
       category: "actions",
-      description: "用于侧栏、底栏和紧凑网格，宽度变化时仍保持可点击高度。",
-      tags: ["button", "compact"],
-      code: `<RpgMenuButton\n  variant="teal"\n  secondaryLabel="STATUS"\n>\n  状态\n</RpgMenuButton>`,
+      description: "对称六边形主按钮，严格保持 920 × 120 比例。适合开始、读取、确认等高优先级操作。",
+      tags: ["button", "loading", "selected"],
+      code: `<RpgHexButton\n  variant="teal"\n  onClick={handleLoad}\n>\n  Load Game\n</RpgHexButton>`,
       preview: (
-        <div className="demo-menu-grid">
-          <RpgMenuButton>档案</RpgMenuButton>
-          <RpgMenuButton variant="teal" selected secondaryLabel="STATUS">状态</RpgMenuButton>
-          <RpgMenuButton variant="light">设置</RpgMenuButton>
+        <div className="demo-stack demo-stack--hex-buttons">
+          <RpgHexButton variant="dark" fullWidth>New Game</RpgHexButton>
+          <RpgHexButton variant="light" fullWidth>Continue</RpgHexButton>
+          <RpgHexButton variant="teal" fullWidth>Load Game</RpgHexButton>
         </div>
-      )
+      ),
+      wide: true
     },
     {
       id: "icon-buttons",

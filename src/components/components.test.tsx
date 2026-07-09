@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import { CharacterSelector } from "./CharacterSelector";
 import { RibbonButton } from "./RibbonButton";
 import { RpgHeader } from "./RpgHeader";
+import { RpgHexButton } from "./RpgHexButton";
 import { Toggle } from "./Toggle";
 
 describe("Abyssa controls", () => {
@@ -33,6 +34,25 @@ describe("Abyssa controls", () => {
 
     expect(screen.getByRole("img", { name: "Header A" })).toBeInTheDocument();
     expect(screen.getByRole("img", { name: "Header B" })).toBeInTheDocument();
+    const ids = Array.from(container.querySelectorAll("clipPath")).map(
+      (node) => node.id
+    );
+    expect(new Set(ids).size).toBe(2);
+  });
+
+  it("renders hex buttons at the source aspect ratio with unique SVG ids", () => {
+    const { container } = render(
+      <>
+        <RpgHexButton>Load Game</RpgHexButton>
+        <RpgHexButton variant="dark">New Game</RpgHexButton>
+      </>
+    );
+
+    expect(screen.getByRole("button", { name: "Load Game" })).toBeEnabled();
+    expect(container.querySelector(".abyssa-hex-button__art")).toHaveAttribute(
+      "viewBox",
+      "0 0 920 120"
+    );
     const ids = Array.from(container.querySelectorAll("clipPath")).map(
       (node) => node.id
     );
