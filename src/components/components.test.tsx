@@ -2,6 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { CharacterSelector } from "./CharacterSelector";
 import { RibbonButton } from "./RibbonButton";
+import { RpgHeader } from "./RpgHeader";
 import { Toggle } from "./Toggle";
 
 describe("Abyssa controls", () => {
@@ -14,7 +15,27 @@ describe("Abyssa controls", () => {
     );
 
     expect(screen.getByRole("button", { name: "Start" })).toBeEnabled();
+    expect(container.querySelector(".abyssa-ribbon-button__art")).toHaveAttribute(
+      "preserveAspectRatio",
+      "xMidYMid meet"
+    );
     const ids = Array.from(container.querySelectorAll("clipPath")).map((node) => node.id);
+    expect(new Set(ids).size).toBe(2);
+  });
+
+  it("renders the exact RPG header variants with collision-free SVG ids", () => {
+    const { container } = render(
+      <>
+        <RpgHeader label="Header A" />
+        <RpgHeader label="Header B" variant="teal" />
+      </>
+    );
+
+    expect(screen.getByRole("img", { name: "Header A" })).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: "Header B" })).toBeInTheDocument();
+    const ids = Array.from(container.querySelectorAll("clipPath")).map(
+      (node) => node.id
+    );
     expect(new Set(ids).size).toBe(2);
   });
 

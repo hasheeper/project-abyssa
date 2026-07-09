@@ -25,6 +25,13 @@ export { RibbonButton } from "./components/RibbonButton";
 export type { RibbonButtonProps } from "./components/RibbonButton";
 export { RpgFrame } from "./components/RpgFrame";
 export type { RpgFrameProps } from "./components/RpgFrame";
+export { RetroRpgHeader, RpgHeader } from "./components/RpgHeader";
+export type {
+  RetroRpgHeaderProps,
+  RpgHeaderProps
+} from "./components/RpgHeader";
+export { RpgMenuButton } from "./components/RpgMenuButton";
+export type { RpgMenuButtonProps } from "./components/RpgMenuButton";
 export { RpgPanel } from "./components/RpgPanel";
 export type { RpgPanelProps } from "./components/RpgPanel";
 export { SectionHeader } from "./components/SectionHeader";

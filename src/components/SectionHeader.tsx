@@ -1,13 +1,14 @@
-import type { HTMLAttributes, ReactNode } from "react";
-import type { AbyssaVariant } from "../types";
+import type { RpgHeaderProps } from "./RpgHeader";
 import { cx } from "../utils/cx";
+import { RpgHeader } from "./RpgHeader";
 
-export interface SectionHeaderProps extends Omit<HTMLAttributes<HTMLElement>, "title"> {
-  title: ReactNode;
-  subtitle?: ReactNode;
-  variant?: AbyssaVariant;
+export interface SectionHeaderProps
+  extends Omit<RpgHeaderProps, "label" | "description"> {
+  title: string;
+  subtitle?: string;
 }
 
+/** @deprecated Use RpgHeader instead. */
 export function SectionHeader({
   title,
   subtitle,
@@ -16,21 +17,12 @@ export function SectionHeader({
   ...props
 }: SectionHeaderProps) {
   return (
-    <header
+    <RpgHeader
+      label={title}
+      description={subtitle}
+      variant={variant}
       className={cx("abyssa-section-header", className)}
-      data-variant={variant}
       {...props}
-    >
-      <span className="abyssa-section-header__line" aria-hidden="true" />
-      <div className="abyssa-section-header__copy">
-        <h2>{title}</h2>
-        {subtitle && <p>{subtitle}</p>}
-      </div>
-      <span className="abyssa-section-header__diamonds" aria-hidden="true">
-        <i />
-        <i />
-        <i />
-      </span>
-    </header>
+    />
   );
 }

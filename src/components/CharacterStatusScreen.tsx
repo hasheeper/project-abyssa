@@ -4,9 +4,9 @@ import type { PanelVariant } from "../types";
 import { cx } from "../utils/cx";
 import { CharacterSelector } from "./CharacterSelector";
 import { Nameplate } from "./Nameplate";
-import { RibbonButton } from "./RibbonButton";
 import { RpgFrame } from "./RpgFrame";
-import { SectionHeader } from "./SectionHeader";
+import { RpgHeader } from "./RpgHeader";
+import { RpgMenuButton } from "./RpgMenuButton";
 import { StatusPanel } from "./StatusPanel";
 import type { StatusPanelData } from "./StatusPanel";
 
@@ -80,7 +80,7 @@ export function CharacterStatusScreen({
   if (!currentCharacter) {
     return (
       <section className={cx("abyssa-character-screen", className)} {...props}>
-        <SectionHeader title={title} subtitle={subtitle} />
+        <RpgHeader label={title} description={subtitle} />
         <RpgFrame><p>暂无角色资料。</p></RpgFrame>
       </section>
     );
@@ -88,7 +88,7 @@ export function CharacterStatusScreen({
 
   return (
     <section className={cx("abyssa-character-screen", className)} {...props}>
-      <SectionHeader title={title} subtitle={subtitle} />
+      <RpgHeader label={title} description={subtitle} />
 
       <RpgFrame className="abyssa-character-screen__shell" padding="lg">
         <div className="abyssa-character-screen__layout">
@@ -130,7 +130,7 @@ export function CharacterStatusScreen({
 
       <nav className="abyssa-character-screen__menu" aria-label="角色状态菜单">
         {menuItems.map((item) => (
-          <RibbonButton
+          <RpgMenuButton
             key={item.id}
             size="sm"
             variant={item.id === currentMenuId ? "teal" : "dark"}
@@ -138,7 +138,7 @@ export function CharacterStatusScreen({
             onClick={() => setCurrentMenuId(item.id)}
           >
             {item.label}
-          </RibbonButton>
+          </RpgMenuButton>
         ))}
       </nav>
     </section>

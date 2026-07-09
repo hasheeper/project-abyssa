@@ -55,7 +55,7 @@ export const RibbonButton = forwardRef<HTMLButtonElement, RibbonButtonProps>(
         <svg
           className="abyssa-ribbon-button__art"
           viewBox="0 0 820 68"
-          preserveAspectRatio="none"
+          preserveAspectRatio="xMidYMid meet"
           aria-hidden="true"
         >
           <defs>

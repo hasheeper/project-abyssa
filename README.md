@@ -10,7 +10,9 @@
 - `RpgPanel`：六种角色选择面板
 - `IconButton`、`ArrowButton`：圆形、方形、胶囊形图标按钮
 - `Toggle`、`Progress`：开关和进度条
-- `SectionHeader`、`Nameplate`：标题横幅和角色姓名牌
+- `RpgHeader`：精确复刻 `Retro-RPG-Header` 原型的曲线燕尾标题，包含三套主题
+- `RpgMenuButton`：适合窄栏与底部导航的等高六边形菜单按钮
+- `Nameplate`：角色姓名牌
 - `CharacterSelector`：受控或非受控角色选择器
 - `StatusPanel`：数据驱动的身份、属性、特性和记录面板
 - `CharacterStatusScreen`：完整角色状态组合页面
@@ -22,7 +24,7 @@ npm install
 npm run dev
 ```
 
-组件实验室默认运行在 `http://127.0.0.1:5173/`。
+组件目录默认运行在 `http://127.0.0.1:5173/`。它以实际接入为主：左侧按功能分类，支持名称/能力搜索；每个组件都有独立交互预览、常用属性说明和可复制的最小调用代码。完整角色页只作为最后的组合范例。
 
 ```bash
 npm run storybook
@@ -46,6 +48,7 @@ npm run build-storybook
 ```tsx
 import {
   AbyssaProvider,
+  RpgHeader,
   RibbonButton,
   RpgPanel
 } from "@abyssa/ui";
@@ -54,6 +57,8 @@ import "@abyssa/ui/styles.css";
 export function Menu() {
   return (
     <AbyssaProvider>
+      <RpgHeader label="STATUS" variant="dark" />
+
       <RibbonButton variant="teal" onClick={() => startGame()}>
         Start Game
       </RibbonButton>
@@ -131,7 +136,7 @@ export function StatusPage() {
 ```text
 src/
   components/     组件、Storybook 用例与交互测试
-  demo/           可运行的组件组合实验室
+  demo/           可搜索、可预览、可复制调用的组件目录
   hooks/          受控/非受控状态工具
   styles/         设计令牌和组件样式
   index.ts        公共导出入口
