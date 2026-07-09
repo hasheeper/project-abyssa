@@ -6,11 +6,16 @@ import { Nameplate } from "./Nameplate";
 import { RibbonButton } from "./RibbonButton";
 import { RpgBackButton } from "./RpgBackButton";
 import { RpgCheckbox, RpgRadio } from "./RpgChoice";
+import { RpgDialogue } from "./RpgDialogue";
+import { RpgDiamondNodeTrack } from "./RpgDiamondNodeTrack";
 import { RpgHeader } from "./RpgHeader";
 import { RpgHexButton } from "./RpgHexButton";
+import { RpgNotchButton } from "./RpgNotchButton";
+import { RpgNotchedPillButton } from "./RpgNotchedPillButton";
 import { RpgShapeButton } from "./RpgShapeButton";
 import { RpgSquarePanel } from "./RpgSquarePanel";
 import { RpgTab } from "./RpgTab";
+import { RpgStatusNode } from "./RpgStatusNode";
 import { StatusPanel } from "./StatusPanel";
 import { Toggle } from "./Toggle";
 import { VerticalIndicator } from "./VerticalIndicator";
@@ -123,6 +128,30 @@ describe("Abyssa controls", () => {
     const { container } = render(<VerticalIndicator variant="teal" label="步骤轴" />);
     expect(screen.getByRole("img", { name: "步骤轴" })).toBeInTheDocument();
     expect(container.querySelector(".abyssa-vertical-indicator svg")).toHaveAttribute("viewBox", "0 0 40 170");
+  });
+
+  it("renders the new dialogue and notched controls at their reference viewBoxes", () => {
+    const { container } = render(
+      <>
+        <RpgDialogue name="Abyssa" text="Hello" />
+        <RpgNotchButton />
+        <RpgNotchedPillButton label="Auto" />
+        <RpgStatusNode label="已确认" />
+      </>
+    );
+    expect(screen.getByLabelText("Abyssa的对话")).toHaveTextContent("Hello");
+    expect(container.querySelector(".abyssa-dialogue svg")).toHaveAttribute("viewBox", "0 0 1200 260");
+    expect(container.querySelector(".abyssa-notch-button svg")).toHaveAttribute("viewBox", "0 0 120 120");
+    expect(container.querySelector(".abyssa-notched-pill svg")).toHaveAttribute("viewBox", "0 0 190 48");
+    expect(container.querySelector(".abyssa-status-node svg")).toHaveAttribute("viewBox", "0 0 86 54");
+  });
+
+  it("provides controlled native buttons for the diamond node track", () => {
+    const onValueChange = vi.fn();
+    render(<RpgDiamondNodeTrack items={[{ id: "a", label: "节点 A" }, { id: "b", label: "节点 B", variant: "teal" }]} defaultValue="a" onValueChange={onValueChange} />);
+    fireEvent.click(screen.getByRole("button", { name: "节点 B" }));
+    expect(onValueChange).toHaveBeenCalledWith("b");
+    expect(screen.getByRole("button", { name: "节点 B" })).toHaveAttribute("aria-pressed", "true");
   });
 
   it("renders the layered reference nameplate and bilingual status labels", () => {

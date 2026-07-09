@@ -13,12 +13,16 @@
 - `RpgBackButton`：190 × 190 三角返回按钮
 - `IconButton`：菱形或圆形图标按钮；标准版 86px，紧凑版 76px
 - `RpgRadio`、`RpgCheckbox`：保留参考稿外观的原生表单选择控件
+- `RpgNotchButton`、`RpgNotchedPillButton`：内部 V 形翻折的方形与胶囊按钮
+- `RpgDiamondNode`、`RpgDiamondNodeTrack`：可独立或数据驱动组合的菱形节点
 - `RpgPanel`：六种角色选择面板
 - `RpgSquarePanel`：独立的 116 × 116 简约小方块，包含六种配色
 - `ArrowButton`：基于 `IconButton` 的方向图标按钮
 - `Toggle`、`Progress`：开关和进度条
 - `VerticalIndicator`：40 × 170 的纵向装饰指示条
+- `RpgStatusNode`：86 × 54 的紧凑状态节点
 - `RpgHeader`：精确复刻 `Retro-RPG-Header` 原型的曲线燕尾标题，包含三套主题
+- `RpgDialogue`：支持姓名、正文和空壳状态的响应式对话面板
 - `Nameplate`：角色姓名牌
 - `CharacterSelector`：受控或非受控角色选择器
 - `StatusPanel`：数据驱动的身份、属性、特性和记录面板

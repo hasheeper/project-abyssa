@@ -11,7 +11,12 @@
 .abyssa-nameplate,
 .abyssa-character-selector,
 .abyssa-status-panel,
-.abyssa-character-screen {
+.abyssa-character-screen,
+.abyssa-dialogue,
+.abyssa-diamond-track,
+.abyssa-notch-button,
+.abyssa-notched-pill,
+.abyssa-status-node {
   box-sizing: border-box;
   font-family: var(--abyssa-font-body, "Songti SC", serif);
 }
@@ -21,7 +26,11 @@
 .abyssa-panel-tile,
 .abyssa-square-panel,
 .abyssa-icon-button,
-.abyssa-toggle {
+.abyssa-toggle,
+.abyssa-diamond-node,
+.abyssa-notch-button,
+.abyssa-notched-pill,
+.abyssa-status-node {
   -webkit-tap-highlight-color: transparent;
   font: inherit;
 }
@@ -31,7 +40,11 @@
 .abyssa-panel-tile:focus-visible,
 .abyssa-square-panel:focus-visible,
 .abyssa-icon-button:focus-visible,
-.abyssa-toggle:focus-visible {
+.abyssa-toggle:focus-visible,
+.abyssa-diamond-node:focus-visible,
+.abyssa-notch-button:focus-visible,
+.abyssa-notched-pill:focus-visible,
+.abyssa-status-node:focus-visible {
   outline: 2px solid var(--abyssa-focus, #e9eeee);
   outline-offset: 4px;
 }
@@ -714,12 +727,133 @@
 }
 .abyssa-vertical-indicator svg { display: block; width: 100%; height: 100%; overflow: visible; shape-rendering: geometricPrecision; }
 
+/* Dialogue panel with a layered dark name tag. */
+.abyssa-dialogue {
+  --abyssa-dialogue-fill: #1c2020;
+  --abyssa-dialogue-text: #dfe5e5;
+  --abyssa-dialogue-middle: #6f7d7e;
+  --abyssa-dialogue-ornament: #596465;
+  --abyssa-dialogue-pattern-main: rgb(255 255 255 / 2.6%);
+  --abyssa-dialogue-pattern-second: rgb(255 255 255 / 1.2%);
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 1200 / 260;
+  color: var(--abyssa-dialogue-text);
+  container-type: inline-size;
+}
+.abyssa-dialogue[data-variant="light"] {
+  --abyssa-dialogue-fill: #e8ecec;
+  --abyssa-dialogue-text: #252d2d;
+  --abyssa-dialogue-middle: #a1adae;
+  --abyssa-dialogue-ornament: #626d6e;
+  --abyssa-dialogue-pattern-main: rgb(38 57 58 / 4.5%);
+  --abyssa-dialogue-pattern-second: rgb(255 255 255 / 18%);
+}
+.abyssa-dialogue > svg { position: absolute; inset: 0; display: block; width: 100%; height: 100%; overflow: visible; shape-rendering: geometricPrecision; }
+.abyssa-dialogue__name {
+  position: absolute;
+  top: 4.5%;
+  left: 3%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38%;
+  height: 18%;
+  padding-inline: 3%;
+  overflow: hidden;
+  color: #e8eded;
+  font-family: var(--abyssa-font-display, Georgia, serif);
+  font-size: clamp(15px, 2.25cqi, 27px);
+  font-weight: 600;
+  letter-spacing: .16em;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.abyssa-dialogue__content {
+  position: absolute;
+  top: 45%;
+  right: 8%;
+  bottom: 13%;
+  left: 9.5%;
+  overflow: hidden;
+  color: var(--abyssa-dialogue-text);
+  font-family: var(--abyssa-font-body, Georgia, serif);
+  font-size: clamp(14px, 2.25cqi, 27px);
+  font-weight: 500;
+  letter-spacing: .055em;
+  line-height: 1.75;
+  white-space: pre-line;
+  pointer-events: none;
+}
+
+/* Internal-notch square and pill buttons. */
+.abyssa-notch-button,
+.abyssa-notched-pill,
+.abyssa-status-node,
+.abyssa-diamond-node {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  transition: filter 100ms ease, transform 80ms ease;
+}
+.abyssa-notch-button,
+.abyssa-notched-pill {
+  --abyssa-notch-fill: #1d2121;
+  --abyssa-notch-middle: #718081;
+  --abyssa-notch-ornament: #596465;
+  --abyssa-notch-icon: #96a2a3;
+  --abyssa-notch-pattern-dark: rgb(255 255 255 / 4%);
+  --abyssa-notch-pattern-light: rgb(255 255 255 / 1.2%);
+  --abyssa-notched-fill: #1c2020;
+  --abyssa-notched-text: #eef2f2;
+  --abyssa-notched-middle: #718081;
+  --abyssa-notched-ornament: #515c5d;
+  --abyssa-notched-pattern-dark: rgb(255 255 255 / 3.5%);
+  --abyssa-notched-pattern-light: rgb(255 255 255 / 1%);
+}
+.abyssa-notch-button[data-variant="light"], .abyssa-notched-pill[data-variant="light"] {
+  --abyssa-notch-fill: #e4e8e8; --abyssa-notch-middle: #9ba7a8; --abyssa-notch-ornament: #667273; --abyssa-notch-icon: #202727; --abyssa-notch-pattern-dark: rgb(38 58 59 / 7%); --abyssa-notch-pattern-light: rgb(255 255 255 / 22%);
+  --abyssa-notched-fill: #e4e8e8; --abyssa-notched-text: #323939; --abyssa-notched-middle: #9ba7a8; --abyssa-notched-ornament: #687374; --abyssa-notched-pattern-dark: rgb(38 58 59 / 7%); --abyssa-notched-pattern-light: rgb(255 255 255 / 20%);
+}
+.abyssa-notch-button[data-variant="teal"], .abyssa-notched-pill[data-variant="teal"] {
+  --abyssa-notch-fill: #73b8bc; --abyssa-notch-middle: #778f90; --abyssa-notch-ornament: #315253; --abyssa-notch-icon: #173536; --abyssa-notch-pattern-dark: rgb(26 70 73 / 9.5%); --abyssa-notch-pattern-light: rgb(255 255 255 / 8%);
+  --abyssa-notched-fill: #70b7bb; --abyssa-notched-text: #203334; --abyssa-notched-middle: #778f90; --abyssa-notched-ornament: #315253; --abyssa-notched-pattern-dark: rgb(26 70 73 / 9.5%); --abyssa-notched-pattern-light: rgb(255 255 255 / 8%);
+}
+.abyssa-notch-button { position: relative; display: block; width: 100px; height: 100px; }
+.abyssa-notch-button svg, .abyssa-notched-pill svg, .abyssa-status-node svg, .abyssa-diamond-node svg { display: block; width: 100%; height: 100%; overflow: visible; shape-rendering: geometricPrecision; }
+.abyssa-notch-button__custom { position: absolute; inset: 27%; display: grid; color: var(--abyssa-notch-icon); place-items: center; }
+.abyssa-notch-button__custom > svg { width: 100%; height: 100%; }
+.abyssa-notched-pill { display: block; width: 190px; height: 48px; }
+.abyssa-notched-pill__label { fill: var(--abyssa-notched-text); font-family: var(--abyssa-font-display, Georgia, serif); font-size: 22px; font-weight: 600; letter-spacing: .7px; text-anchor: middle; dominant-baseline: middle; }
+.abyssa-notch-button:hover:not(:disabled), .abyssa-notched-pill:hover:not(:disabled), .abyssa-status-node:hover:not(:disabled), .abyssa-diamond-node:hover:not(:disabled) { filter: brightness(1.08); }
+.abyssa-notch-button:active:not(:disabled), .abyssa-status-node:active:not(:disabled), .abyssa-diamond-node:active:not(:disabled) { transform: scale(.97); }
+.abyssa-notched-pill:active:not(:disabled) { transform: translateY(1px) scale(.99); }
+.abyssa-notch-button:disabled, .abyssa-notched-pill:disabled, .abyssa-status-node:disabled, .abyssa-diamond-node:disabled { cursor: not-allowed; filter: grayscale(1); opacity: .45; }
+.abyssa-notched-pill[data-selected], .abyssa-diamond-node[data-selected] { filter: drop-shadow(0 0 6px rgb(114 179 183 / 55%)); }
+
+/* Diamond node track. */
+.abyssa-diamond-track { position: relative; display: flex; align-items: center; justify-content: space-between; width: 280px; max-width: 100%; height: 80px; padding-inline: 25px; }
+.abyssa-diamond-track__line { position: absolute; right: 0; left: 0; top: 50%; height: 4px; border-top: 1px solid rgb(167 179 180 / 40%); background: #1f2626; transform: translateY(-50%); }
+.abyssa-diamond-node { --abyssa-node-fill: #222525; --abyssa-node-middle: #5a6465; --abyssa-node-arrow: #4d5758; --abyssa-node-pattern-dark: rgb(255 255 255 / 2%); --abyssa-node-pattern-light: transparent; position: relative; z-index: 1; flex: 0 0 50px; width: 50px; height: 50px; }
+.abyssa-diamond-node[data-variant="active"] { --abyssa-node-fill: #0a0c0c; --abyssa-node-middle: #ced5d5; --abyssa-node-arrow: #e2e8e8; --abyssa-node-pattern-dark: rgb(255 255 255 / 4%); --abyssa-node-pattern-light: rgb(255 255 255 / 1%); }
+.abyssa-diamond-node[data-variant="teal"] { --abyssa-node-fill: #6fb2b6; --abyssa-node-middle: #7ba2a4; --abyssa-node-arrow: #264a4c; --abyssa-node-pattern-dark: rgb(26 70 73 / 10%); --abyssa-node-pattern-light: rgb(255 255 255 / 10%); }
+
+/* Compact status nodes. */
+.abyssa-status-node { --abyssa-status-node-fill: #747a7a; --abyssa-status-node-middle: #626d6e; --abyssa-status-node-inner: #535c5d; --abyssa-status-node-icon: #515a5b; display: block; width: 86px; height: 54px; }
+.abyssa-status-node[data-variant="dark"] { --abyssa-status-node-fill: #1a1f1f; --abyssa-status-node-middle: #a5b0b1; --abyssa-status-node-inner: #606c6d; --abyssa-status-node-icon: #edf1f1; }
+.abyssa-status-node[data-variant="teal"] { --abyssa-status-node-fill: #63b5ba; --abyssa-status-node-middle: #718d8f; --abyssa-status-node-inner: #356466; --abyssa-status-node-icon: #183f41; }
+
 @media (max-width: 720px) {
   .abyssa-shape-button[data-shape="circle"],
   .abyssa-shape-button[data-shape="square"] { width: 104px; }
   .abyssa-shape-button[data-shape="chamfer"],
   .abyssa-shape-button[data-shape="pill"] { width: 31%; min-width: 105px; }
   .abyssa-back-button { width: min(31vw, 145px); height: min(31vw, 145px); }
+  .abyssa-dialogue { min-height: 170px; aspect-ratio: auto; }
+  .abyssa-dialogue__name { top: 4%; font-size: 15px; }
+  .abyssa-dialogue__content { top: 40%; right: 7%; left: 8%; font-size: 14px; line-height: 1.55; }
 }
 
 @media (max-width: 420px) {

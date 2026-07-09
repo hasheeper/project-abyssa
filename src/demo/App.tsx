@@ -12,13 +12,18 @@ import {
   RpgBackButton,
   RpgCheckbox,
   RpgCircleButton,
+  RpgDialogue,
+  RpgDiamondNodeTrack,
   RpgHeader,
   RpgHexButton,
+  RpgNotchButton,
+  RpgNotchedPillButton,
   RpgPanel,
   RpgRadio,
   RpgShapeButton,
   RpgSquarePanel,
   RpgTab,
+  RpgStatusNode,
   StatusPanel,
   Toggle,
   VerticalIndicator
@@ -106,6 +111,7 @@ export function App() {
   const [selectedTab, setSelectedTab] = useState("archive");
   const [selectedRadio, setSelectedRadio] = useState("dark");
   const [checkedChoice, setCheckedChoice] = useState(true);
+  const [selectedNode, setSelectedNode] = useState("center");
 
   const items: CatalogItem[] = useMemo(() => [
     {
@@ -137,6 +143,21 @@ export function App() {
           <RpgFrame variant="light" padding="sm">Light frame</RpgFrame>
         </div>
       )
+    },
+    {
+      id: "rpg-dialogue",
+      name: "RpgDialogue",
+      category: "structure",
+      description: "1200 × 260 对话容器，姓名牌与正文分离；支持暗色、亮色外壳以及空正文状态。",
+      tags: ["dialogue", "container", "2 variants"],
+      code: `<RpgDialogue\n  name="Abyssa"\n  text="……太阳的光，感觉舒服的时候，就醒了。"\n/>`,
+      preview: (
+        <div className="demo-reference-rows demo-dialogues">
+          <RpgDialogue name="Abyssa" text={"……太阳的光，感觉舒服的时候，就醒了。\n这里的阳光，味道最好。"} />
+          <RpgDialogue name="name tag" variant="light" />
+        </div>
+      ),
+      wide: true
     },
     {
       id: "ribbon-button",
@@ -295,6 +316,34 @@ export function App() {
       )
     },
     {
+      id: "rpg-notch-buttons",
+      name: "RpgNotchButton / RpgNotchedPillButton",
+      category: "actions",
+      description: "外轮廓保持完整，仅内部装饰线形成 V 形翻折。方按钮支持自定义图标，胶囊按钮用于紧凑文字操作。",
+      tags: ["button", "internal notch", "3 variants"],
+      code: `<RpgNotchButton label="上传" variant="teal" />\n\n<RpgNotchedPillButton label="Auto" variant="dark" />`,
+      preview: (
+        <div className="demo-reference-rows">
+          <div className="demo-inline">
+            <RpgNotchButton variant="dark" /><RpgNotchButton variant="light" /><RpgNotchButton variant="teal" />
+          </div>
+          <div className="demo-inline">
+            <RpgNotchedPillButton label="Auto" variant="dark" /><RpgNotchedPillButton label="Auto" variant="light" /><RpgNotchedPillButton label="Auto" variant="teal" />
+          </div>
+        </div>
+      ),
+      wide: true
+    },
+    {
+      id: "rpg-diamond-node-track",
+      name: "RpgDiamondNodeTrack",
+      category: "actions",
+      description: "数据驱动的菱形节点选择轨道。每个节点都是真实按钮，支持受控状态、禁用项和独立标签。",
+      tags: ["controlled", "data-driven", "button group"],
+      code: `<RpgDiamondNodeTrack\n  items={nodes}\n  value={selectedId}\n  onValueChange={setSelectedId}\n/>`,
+      preview: <RpgDiamondNodeTrack items={[{ id: "left", label: "左侧" }, { id: "center", label: "中间" }, { id: "right", label: "右侧", variant: "teal" }]} value={selectedNode} onValueChange={setSelectedNode} />
+    },
+    {
       id: "toggle",
       name: "Toggle",
       category: "actions",
@@ -334,6 +383,21 @@ export function App() {
           <VerticalIndicator variant="dark" />
           <VerticalIndicator variant="light" />
           <VerticalIndicator variant="teal" />
+        </div>
+      )
+    },
+    {
+      id: "rpg-status-nodes",
+      name: "RpgStatusNode",
+      category: "display",
+      description: "86 × 54 紧凑状态节点，提供禁用、暗色确认和青色确认三种外观。",
+      tags: ["status", "button", "3 variants"],
+      code: `<RpgStatusNode\n  label="已确认"\n  icon="check"\n  variant="dark"\n/>`,
+      preview: (
+        <div className="demo-inline">
+          <RpgStatusNode label="不可用" icon="close" variant="disabled" />
+          <RpgStatusNode label="已确认" icon="check" variant="dark" />
+          <RpgStatusNode label="已选中" icon="check" variant="teal" />
         </div>
       )
     },
@@ -430,7 +494,7 @@ export function App() {
       preview: <CharacterStatusScreen characters={demoCharacters} defaultSelectedId="abyssa" />,
       wide: true
     }
-  ], [checkedChoice, enabled, selectedPanel, selectedRadio, selectedSquarePanel, selectedTab]);
+  ], [checkedChoice, enabled, selectedNode, selectedPanel, selectedRadio, selectedSquarePanel, selectedTab]);
 
   const normalizedQuery = query.trim().toLowerCase();
   const visibleItems = normalizedQuery

@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Retro RPG Diamond Nodes (Arrows)</title>
+
+<style>
+  :root {
+    --page-bg: #9cabad;
+
+    /* 全局边框材质 */
+    --frame-outer: #151919;
+    --frame-middle: #8b999a;
+    --frame-inner: #111515;
+
+    /* 各状态配色 */
+    --fill-inactive: #222525;
+    --fill-active: #0a0c0c;
+    --fill-teal: #6fb2b6;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    min-height: 100vh;
+    margin: 0;
+    padding: 40px;
+
+    display: grid;
+    place-items: center;
+
+    background-color: var(--page-bg);
+  }
+
+  .node-slider {
+    display: block;
+    width: 280px;
+    height: 80px;
+  }
+
+  .node-slider svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+
+    shape-rendering: geometricPrecision;
+  }
+
+  /* ========================================
+     节点状态主题
+     ======================================== */
+
+  /* 1. 未激活节点（偏暗、对比度低） */
+  .node-inactive {
+    --node-fill: var(--fill-inactive);
+    --node-middle: #5a6465;
+    --node-arrow: #4d5758;
+
+    --pattern-dark: rgba(255, 255, 255, 0.02);
+    --pattern-light: transparent;
+  }
+
+  /* 2. 激活/选中节点（极暗底色，高亮边框与箭头） */
+  .node-active {
+    --node-fill: var(--fill-active);
+    --node-middle: #ced5d5;
+    --node-arrow: #e2e8e8;
+
+    --pattern-dark: rgba(255, 255, 255, 0.04);
+    --pattern-light: rgba(255, 255, 255, 0.01);
+  }
+
+  /* 3. 青色节点 */
+  .node-teal {
+    --node-fill: var(--fill-teal);
+    --node-middle: #7ba2a4;
+    --node-arrow: #264a4c;
+
+    --pattern-dark: rgba(26, 70, 73, 0.1);
+    --pattern-light: rgba(255, 255, 255, 0.1);
+  }
+
+  /* 悬停与点击交互 */
+  .node-group {
+    cursor: pointer;
+    transition: transform 0.1s, filter 0.1s;
+  }
+  .node-group:hover {
+    filter: brightness(1.15);
+  }
+  .node-group:active {
+    transform: scale(0.95);
+  }
+</style>
+</head>
+
+<body>
+
+<div class="node-slider">
+  <svg
+    viewBox="0 0 280 80"
+    role="img"
+    aria-label="滑动节点选择器"
+  >
+    <defs>
+      <!-- 通用菱形材质暗纹 -->
+      <pattern
+        id="node-pattern"
+        width="16"
+        height="16"
+        patternUnits="userSpaceOnUse"
+      >
+        <path
+          d="M8 0 L16 8 L8 16 L0 8 Z"
+          fill="var(--pattern-dark)"
+        />
+        <path
+          d="M8 4 L12 8 L8 12 L4 8 Z"
+          fill="var(--pattern-light)"
+        />
+      </pattern>
+    </defs>
+    <!-- 
+      背景贯穿线 
+      由于 SVG 是后来居上渲染，先画线，再画节点，
+      线就会自然隐藏在菱形背后。
+    -->
+    <path
+      d="M0 40 H280"
+      fill="none"
+      stroke="#1f2626"
+      stroke-width="3.5"
+    />
+    <path
+      d="M0 40 H280"
+      fill="none"
+      stroke="#a7b3b4"
+      stroke-width="1"
+      opacity="0.4"
+    />
+    <!-- ========================================
+         左侧：未激活节点 (Inactive)
+         ======================================== -->
+    <g
+      class="node-group node-inactive"
+      transform="translate(50 40)"
+      tabindex="0"
+    >
+      <!-- 菱形底色 -->
+      <path
+        d="M0 -22 L22 0 L0 22 L-22 0 Z"
+        fill="var(--node-fill)"
+      />
+      <!-- 材质暗纹 -->
+      <path
+        d="M0 -22 L22 0 L0 22 L-22 0 Z"
+        fill="url(#node-pattern)"
+      />
+      <!-- 三重边框叠画 -->
+      <path d="M0 -22 L22 0 L0 22 L-22 0 Z" fill="none" stroke="var(--frame-outer)" stroke-width="7" stroke-linejoin="miter"/>
+      <path d="M0 -22 L22 0 L0 22 L-22 0 Z" fill="none" stroke="var(--node-middle)" stroke-width="3" stroke-linejoin="miter"/>
+      <path d="M0 -22 L22 0 L0 22 L-22 0 Z" fill="none" stroke="var(--frame-inner)" stroke-width="1" stroke-linejoin="miter"/>
+      <!-- 内部左右箭头 < > -->
+      <path
+        d="
+          M -7 -6 L -13 0 L -7 6
+          M 7 -6 L 13 0 L 7 6
+        "
+        fill="none"
+        stroke="var(--node-arrow)"
+        stroke-width="1.8"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+    </g>
+    <!-- ========================================
+         中间：激活节点 (Active)
+         ======================================== -->
+    <g
+      class="node-group node-active"
+      transform="translate(140 40)"
+      tabindex="0"
+    >
+      <path
+        d="M0 -22 L22 0 L0 22 L-22 0 Z"
+        fill="var(--node-fill)"
+      />
+      <path
+        d="M0 -22 L22 0 L0 22 L-22 0 Z"
+        fill="url(#node-pattern)"
+      />
+      <path d="M0 -22 L22 0 L0 22 L-22 0 Z" fill="none" stroke="var(--frame-outer)" stroke-width="7" stroke-linejoin="miter"/>
+      <path d="M0 -22 L22 0 L0 22 L-22 0 Z" fill="none" stroke="var(--node-middle)" stroke-width="3.5" stroke-linejoin="miter"/>
+      <path d="M0 -22 L22 0 L0 22 L-22 0 Z" fill="none" stroke="var(--frame-inner)" stroke-width="1.2" stroke-linejoin="miter"/>
+      <!-- 高亮左右箭头 < > -->
+      <path
+        d="
+          M -7 -6 L -13 0 L -7 6
+          M 7 -6 L 13 0 L 7 6
+        "
+        fill="none"
+        stroke="var(--node-arrow)"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+    </g>
+    <!-- ========================================
+         右侧：青色节点 (Teal)
+         ======================================== -->
+    <g
+      class="node-group node-teal"
+      transform="translate(230 40)"
+      tabindex="0"
+    >
+      <path
+        d="M0 -22 L22 0 L0 22 L-22 0 Z"
+        fill="var(--node-fill)"
+      />
+      <path
+        d="M0 -22 L22 0 L0 22 L-22 0 Z"
+        fill="url(#node-pattern)"
+      />
+      <path d="M0 -22 L22 0 L0 22 L-22 0 Z" fill="none" stroke="var(--frame-outer)" stroke-width="7" stroke-linejoin="miter"/>
+      <path d="M0 -22 L22 0 L0 22 L-22 0 Z" fill="none" stroke="var(--node-middle)" stroke-width="3" stroke-linejoin="miter"/>
+      <path d="M0 -22 L22 0 L0 22 L-22 0 Z" fill="none" stroke="var(--frame-inner)" stroke-width="1" stroke-linejoin="miter"/>
+      <!-- 青色左右箭头 < > -->
+      <path
+        d="
+          M -7 -6 L -13 0 L -7 6
+          M 7 -6 L 13 0 L 7 6
+        "
+        fill="none"
+        stroke="var(--node-arrow)"
+        stroke-width="1.8"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+    </g>
+  </svg>
+</div>
+
+</body>
+</html>

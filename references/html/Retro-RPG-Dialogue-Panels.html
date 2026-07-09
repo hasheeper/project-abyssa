@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Retro RPG Dialogue Panels</title>
+
+<style>
+  @import url(
+    "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Noto+Serif+SC:wght@400;500&display=swap"
+  );
+
+  :root {
+    --page-bg: #a2adae;
+
+    /* 全局框体材质 */
+    --frame-outer: #171d1d;
+    --frame-middle: #829091;
+    --frame-inner: #101515;
+
+    /* 姓名牌固定为暗色 */
+    --name-fill: #111515;
+    --name-text: #e8eded;
+    --name-ornament: #596465;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    min-height: 100vh;
+    margin: 0;
+    padding: 48px 24px;
+
+    display: grid;
+    place-items: center;
+
+    background-color: var(--page-bg);
+  }
+
+  .dialogue-showcase {
+    width: min(1160px, 100%);
+
+    display: grid;
+    gap: 48px;
+  }
+
+  /* ========================================
+     对话框组件
+     ======================================== */
+
+  rpg-dialogue {
+    display: block;
+    width: 100%;
+  }
+
+  .dialogue-panel {
+    --panel-fill: #1c2020;
+    --panel-text: #dfe5e5;
+    --panel-middle: #6f7d7e;
+    --panel-ornament: #5d6869;
+
+    --pattern-main: rgba(255, 255, 255, 0.026);
+    --pattern-second: rgba(255, 255, 255, 0.012);
+
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1200 / 260;
+
+    color: var(--panel-text);
+  }
+
+  /* 黑色主体 */
+  .theme-dark {
+    --panel-fill: #1c2020;
+    --panel-text: #dfe5e5;
+    --panel-middle: #6f7d7e;
+    --panel-ornament: #596465;
+
+    --pattern-main: rgba(255, 255, 255, 0.026);
+    --pattern-second: rgba(255, 255, 255, 0.012);
+  }
+
+  /* 白色主体；姓名牌仍然保持黑色 */
+  .theme-light {
+    --panel-fill: #e8ecec;
+    --panel-text: #252d2d;
+    --panel-middle: #a1adae;
+    --panel-ornament: #626d6e;
+
+    --pattern-main: rgba(38, 57, 58, 0.045);
+    --pattern-second: rgba(255, 255, 255, 0.18);
+  }
+
+  .dialogue-panel svg {
+    position: absolute;
+    inset: 0;
+
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+
+    shape-rendering: geometricPrecision;
+  }
+
+  /* ========================================
+     姓名文本
+     ======================================== */
+
+  .dialogue-name {
+    position: absolute;
+
+    left: 3%;
+    top: 4.5%;
+
+    width: 38%;
+    height: 18%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0 3%;
+
+    color: var(--name-text);
+
+    font-family:
+      "Cormorant Garamond",
+      "Noto Serif SC",
+      Georgia,
+      serif;
+
+    font-size: clamp(15px, 2.1vw, 27px);
+    font-weight: 600;
+    letter-spacing: 0.16em;
+
+    white-space: nowrap;
+    pointer-events: none;
+  }
+
+  /* ========================================
+     对话正文
+     ======================================== */
+
+  .dialogue-content {
+    position: absolute;
+
+    left: 9.5%;
+    right: 8%;
+    top: 45%;
+    bottom: 13%;
+
+    display: flex;
+    align-items: flex-start;
+
+    color: var(--panel-text);
+
+    font-family:
+      "Cormorant Garamond",
+      "Noto Serif SC",
+      Georgia,
+      serif;
+
+    font-size: clamp(14px, 2vw, 27px);
+    font-weight: 500;
+    line-height: 1.75;
+    letter-spacing: 0.055em;
+
+    white-space: pre-line;
+    overflow: hidden;
+
+    pointer-events: none;
+  }
+
+  /* 空白版本不保留正文布局痕迹 */
+  .dialogue-content:empty {
+    display: none;
+  }
+
+  @media (max-width: 720px) {
+    body {
+      padding: 28px 12px;
+    }
+
+    .dialogue-showcase {
+      gap: 28px;
+    }
+
+    .dialogue-panel {
+      min-height: 170px;
+      aspect-ratio: auto;
+    }
+
+    .dialogue-name {
+      top: 4%;
+      font-size: 15px;
+    }
+
+    .dialogue-content {
+      top: 40%;
+      left: 8%;
+      right: 7%;
+
+      font-size: 14px;
+      line-height: 1.55;
+    }
+  }
+</style>
+</head>
+
+<body>
+
+<main class="dialogue-showcase">
+
+  <!-- 黑色对话框 -->
+  <rpg-dialogue
+    variant="dark"
+    name="Abyssa"
+    text="……太阳的光，感觉舒服的时候，就醒了。
+这里的阳光，味道最好。这里就是世界的中心。"
+  ></rpg-dialogue>
+
+  <!-- 白色对话框：仅展示外壳 -->
+  <rpg-dialogue
+    variant="light"
+    name="name tag"
+    text=""
+  ></rpg-dialogue>
+
+</main>
+
+<script>
+  class RPGDialogue extends HTMLElement {
+    connectedCallback() {
+      const variant = this.getAttribute("variant") || "dark";
+      const name = this.getAttribute("name") || "name tag";
+      const text = this.getAttribute("text") || "";
+
+      const uid = `dialogue-${Math.random()
+        .toString(36)
+        .slice(2)}`;
+
+      /*
+       * 顶部姓名牌。
+       *
+       * 右端不是直线斜切，而是：
+       * 顶边 → 斜向下 → 短曲线 → 底边。
+       *
+       * 姓名牌底边压在主面板顶边之后，
+       * 形成参考图中的层叠关系。
+       */
+      const nameTagPath = `
+        M 18 64
+        V 11
+        H 458
+
+        L 468 43
+
+        C 472 56
+          484 63
+          505 64
+
+        Z
+      `;
+
+      /*
+       * 主对话框主体。
+       * 保持完整矩形，不使用切角。
+       */
+      const panelPath = `
+        M 10 63
+        H 1190
+        V 250
+        H 10
+        Z
+      `;
+
+      this.innerHTML = `
+        <section
+          class="dialogue-panel theme-${variant}"
+          aria-label="${this.escapeHTML(name)}的对话"
+        >
+          <svg
+            viewBox="0 0 1200 260"
+            preserveAspectRatio="none"
+            aria-hidden="true"
+          >
+            <defs>
+              <!-- 大尺寸菱形材质 -->
+              <pattern
+                id="${uid}-panel-pattern"
+                width="94"
+                height="94"
+                patternUnits="userSpaceOnUse"
+                patternTransform="translate(0 -12)"
+              >
+                <path
+                  d="
+                    M 47 0
+                    L 94 47
+                    L 47 94
+                    L 0 47
+                    Z
+                  "
+                  fill="var(--pattern-main)"
+                />
+                <path
+                  d="
+                    M 47 21
+                    L 73 47
+                    L 47 73
+                    L 21 47
+                    Z
+                  "
+                  fill="var(--pattern-second)"
+                />
+              </pattern>
+              <!-- 姓名牌暗纹 -->
+              <pattern
+                id="${uid}-name-pattern"
+                width="64"
+                height="64"
+                patternUnits="userSpaceOnUse"
+              >
+                <path
+                  d="
+                    M 32 0
+                    L 64 32
+                    L 32 64
+                    L 0 32
+                    Z
+                  "
+                  fill="rgba(255,255,255,.022)"
+                />
+              </pattern>
+              <clipPath id="${uid}-panel-clip">
+                <path d="${panelPath}"/>
+              </clipPath>
+              <clipPath id="${uid}-name-clip">
+                <path d="${nameTagPath}"/>
+              </clipPath>
+            </defs>
+            <!-- =================================
+                 顶部姓名牌
+                 先绘制，后由主体顶框覆盖底边
+                 ================================= -->
+            <path
+              d="${nameTagPath}"
+              fill="var(--name-fill)"
+            />
+            <rect
+              x="14"
+              y="7"
+              width="500"
+              height="61"
+              fill="url(#${uid}-name-pattern)"
+              clip-path="url(#${uid}-name-clip)"
+            />
+            <!-- 姓名牌三重边框 -->
+            <path
+              d="${nameTagPath}"
+              fill="none"
+              stroke="var(--frame-outer)"
+              stroke-width="8"
+              stroke-linejoin="round"
+            />
+            <path
+              d="${nameTagPath}"
+              fill="none"
+              stroke="#667475"
+              stroke-width="4"
+              stroke-linejoin="round"
+            />
+            <path
+              d="${nameTagPath}"
+              fill="none"
+              stroke="var(--frame-inner)"
+              stroke-width="1.5"
+              stroke-linejoin="round"
+            />
+            <!-- 姓名牌内部上侧装饰线 -->
+            <path
+              d="
+                M 29 18
+                H 447
+                L 454 42
+                C 458 54 466 58 480 60
+              "
+              fill="none"
+              stroke="var(--name-ornament)"
+              stroke-width="1.15"
+              stroke-linejoin="round"
+              opacity=".8"
+            />
+            <!-- 姓名牌底部左侧三个小点 -->
+            <g fill="var(--name-ornament)">
+              <circle cx="87" cy="57" r="1.1"/>
+              <circle cx="96" cy="57" r="1.45"/>
+              <circle cx="105" cy="57" r="1.1"/>
+            </g>
+            <!-- =================================
+                 主对话框主体
+                 ================================= -->
+            <path
+              d="${panelPath}"
+              fill="var(--panel-fill)"
+            />
+            <!-- 大尺寸低对比度暗纹 -->
+            <rect
+              x="7"
+              y="60"
+              width="1186"
+              height="193"
+              fill="url(#${uid}-panel-pattern)"
+              clip-path="url(#${uid}-panel-clip)"
+            />
+            <!-- =================================
+                 主框深—浅—深三层外边
+                 ================================= -->
+            <path
+              d="${panelPath}"
+              fill="none"
+              stroke="var(--frame-outer)"
+              stroke-width="9"
+              stroke-linejoin="miter"
+            />
+            <path
+              d="${panelPath}"
+              fill="none"
+              stroke="var(--panel-middle)"
+              stroke-width="5"
+              stroke-linejoin="miter"
+            />
+            <path
+              d="${panelPath}"
+              fill="none"
+              stroke="var(--frame-inner)"
+              stroke-width="2"
+              stroke-linejoin="miter"
+            />
+            <!-- =================================
+                 内部双层细框
+                 ================================= -->
+            <rect
+              x="19"
+              y="72"
+              width="1162"
+              height="167"
+              fill="none"
+              stroke="var(--panel-ornament)"
+              stroke-width="1.35"
+              opacity=".92"
+            />
+            <rect
+              x="24"
+              y="77"
+              width="1152"
+              height="157"
+              fill="none"
+              stroke="var(--panel-ornament)"
+              stroke-width=".65"
+              opacity=".52"
+            />
+            <!-- =================================
+                 四角直角装饰
+                 ================================= -->
+            <g
+              fill="none"
+              stroke="var(--panel-ornament)"
+              stroke-linecap="square"
+            >
+              <!-- 左上 -->
+              <path
+                d="M 24 94 V 77 H 41"
+                stroke-width="1.5"
+              />
+              <path
+                d="M 29 90 V 82 H 37"
+                stroke-width=".85"
+              />
+              <!-- 右上 -->
+              <path
+                d="M 1159 77 H 1176 V 94"
+                stroke-width="1.5"
+              />
+              <path
+                d="M 1163 82 H 1171 V 90"
+                stroke-width=".85"
+              />
+              <!-- 左下 -->
+              <path
+                d="M 24 217 V 234 H 41"
+                stroke-width="1.5"
+              />
+              <path
+                d="M 29 221 V 229 H 37"
+                stroke-width=".85"
+              />
+              <!-- 右下 -->
+              <path
+                d="M 1159 234 H 1176 V 217"
+                stroke-width="1.5"
+              />
+              <path
+                d="M 1163 229 H 1171 V 221"
+                stroke-width=".85"
+              />
+            </g>
+            <!-- =================================
+                 四角方形铆钉
+                 ================================= -->
+            <g fill="var(--panel-ornament)">
+              <!-- 左上 -->
+              <rect x="28" y="81" width="4" height="4"/>
+              <rect x="35" y="81" width="2" height="2" opacity=".65"/>
+              <!-- 右上 -->
+              <rect x="1168" y="81" width="4" height="4"/>
+              <rect x="1163" y="81" width="2" height="2" opacity=".65"/>
+              <!-- 左下 -->
+              <rect x="28" y="226" width="4" height="4"/>
+              <rect x="35" y="228" width="2" height="2" opacity=".65"/>
+              <!-- 右下 -->
+              <rect x="1168" y="226" width="4" height="4"/>
+              <rect x="1163" y="228" width="2" height="2" opacity=".65"/>
+            </g>
+          </svg>
+
+          <div class="dialogue-name">
+            ${this.escapeHTML(name)}
+          </div>
+
+          <div class="dialogue-content">${this.escapeHTML(text)}</div>
+        </section>
+      `;
+    }
+
+    escapeHTML(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+  }
+
+  customElements.define("rpg-dialogue", RPGDialogue);
+</script>
+
+</body>
+</html>

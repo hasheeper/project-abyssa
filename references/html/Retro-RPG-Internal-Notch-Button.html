@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Retro RPG Internal Notch Button</title>
+
+<style>
+  :root {
+    --page-bg: #9cabad;
+
+    /* 统一的深—浅—深边框 */
+    --frame-outer: #182020;
+    --frame-middle: #899697;
+    --frame-inner: #111717;
+
+    --fill-dark: #1d2121;
+    --fill-light: #e4e8e8;
+    --fill-teal: #73b8bc;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    min-height: 100vh;
+    margin: 0;
+    padding: 40px;
+
+    display: grid;
+    place-items: center;
+
+    background: var(--page-bg);
+  }
+
+  .component-showcase {
+    display: grid;
+    gap: 12px;
+  }
+
+  /* ========================================
+     带内部 V 形翻折的方形按钮
+     ======================================== */
+
+  .notch-icon-button {
+    --button-fill: var(--fill-dark);
+    --button-middle: #718081;
+    --button-ornament: #566162;
+    --icon-color: #96a2a3;
+
+    --pattern-dark: rgba(255, 255, 255, 0.035);
+    --pattern-light: rgba(255, 255, 255, 0.012);
+
+    display: block;
+    width: 100px;
+    height: 100px;
+
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+
+    cursor: pointer;
+
+    transition:
+      transform 80ms ease,
+      filter 100ms ease;
+  }
+
+  .notch-icon-button:hover {
+    filter: brightness(1.08);
+  }
+
+  .notch-icon-button:active {
+    transform: translateY(1px) scale(0.98);
+  }
+
+  .notch-icon-button:focus-visible {
+    outline: 2px solid #eef2f2;
+    outline-offset: 4px;
+  }
+
+  .notch-icon-button svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+
+    shape-rendering: geometricPrecision;
+  }
+
+  /* ========================================
+     三种配色
+     ======================================== */
+
+  .theme-dark {
+    --button-fill: #1d2121;
+    --button-middle: #718081;
+    --button-ornament: #596465;
+    --icon-color: #96a2a3;
+
+    --pattern-dark: rgba(255, 255, 255, 0.04);
+    --pattern-light: rgba(255, 255, 255, 0.012);
+  }
+
+  .theme-light {
+    --button-fill: #e4e8e8;
+    --button-middle: #9ba7a8;
+    --button-ornament: #667273;
+    --icon-color: #202727;
+
+    --pattern-dark: rgba(38, 58, 59, 0.07);
+    --pattern-light: rgba(255, 255, 255, 0.22);
+  }
+
+  .theme-teal {
+    --button-fill: #73b8bc;
+    --button-middle: #778f90;
+    --button-ornament: #315253;
+    --icon-color: #173536;
+
+    --pattern-dark: rgba(26, 70, 73, 0.095);
+    --pattern-light: rgba(255, 255, 255, 0.08);
+  }
+</style>
+</head>
+
+<body>
+
+<main class="component-showcase">
+
+  <rpg-notch-icon variant="dark"></rpg-notch-icon>
+
+  <rpg-notch-icon variant="light"></rpg-notch-icon>
+
+  <rpg-notch-icon variant="teal"></rpg-notch-icon>
+
+</main>
+
+<script>
+  class RPGNotchIcon extends HTMLElement {
+    connectedCallback() {
+      const variant = this.getAttribute("variant") || "dark";
+      const uid = `notch-${Math.random().toString(36).slice(2)}`;
+
+      /*
+       * 外部轮廓始终是完整方形。
+       * 不包含任何向下突出的三角形。
+       */
+      const outerPath = `
+        M 9 9
+        H 111
+        V 111
+        H 9
+        Z
+      `;
+
+      /*
+       * 内侧装饰框：
+       *
+       * 顶部和两侧保持普通矩形；
+       * 底边中央从 X=48 开始向下翻折；
+       * 在 (60,103) 形成尖端；
+       * 再回到 X=72, Y=94。
+       *
+       * 外部最底边位于 Y=111，
+       * 所以 V 形完全留在按钮内部。
+       */
+      const ornamentPath = `
+        M 18 18
+        H 102
+        V 94
+        H 72
+        L 60 103
+        L 48 94
+        H 18
+        Z
+      `;
+
+      /*
+       * 第二圈更浅的内部细线。
+       * 同样只在内部形成 V，不影响外框。
+       */
+      const secondaryOrnamentPath = `
+        M 22 22
+        H 98
+        V 90
+        H 70
+        L 60 98
+        L 50 90
+        H 22
+        Z
+      `;
+
+      this.innerHTML = `
+        <button
+          class="notch-icon-button theme-${variant}"
+          type="button"
+          aria-label="操作按钮"
+        >
+          <svg
+            viewBox="0 0 120 120"
+            aria-hidden="true"
+          >
+            <defs>
+              <!-- 低对比度菱形材质 -->
+              <pattern
+                id="${uid}-pattern"
+                width="28"
+                height="28"
+                patternUnits="userSpaceOnUse"
+              >
+                <path
+                  d="M14 0 L28 14 L14 28 L0 14 Z"
+                  fill="var(--pattern-dark)"
+                />
+                <path
+                  d="M14 6 L22 14 L14 22 L6 14 Z"
+                  fill="var(--pattern-light)"
+                />
+              </pattern>
+              <!-- 中央淡出，只在边缘保留纹理 -->
+              <radialGradient
+                id="${uid}-fade"
+                cx="50%"
+                cy="48%"
+                r="58%"
+              >
+                <stop
+                  offset="18%"
+                  stop-color="white"
+                  stop-opacity="0"
+                />
+                <stop
+                  offset="58%"
+                  stop-color="white"
+                  stop-opacity=".25"
+                />
+                <stop
+                  offset="100%"
+                  stop-color="white"
+                  stop-opacity="1"
+                />
+              </radialGradient>
+              <mask id="${uid}-mask">
+                <rect
+                  width="120"
+                  height="120"
+                  fill="url(#${uid}-fade)"
+                />
+              </mask>
+              <clipPath id="${uid}-clip">
+                <path d="${outerPath}"/>
+              </clipPath>
+            </defs>
+            <!-- =================================
+                 完整方形主体
+                 ================================= -->
+            <path
+              d="${outerPath}"
+              fill="var(--button-fill)"
+            />
+            <!-- 边缘菱形材质 -->
+            <rect
+              x="5"
+              y="5"
+              width="110"
+              height="110"
+              fill="url(#${uid}-pattern)"
+              mask="url(#${uid}-mask)"
+              clip-path="url(#${uid}-clip)"
+            />
+            <!-- =================================
+                 三重外框
+                 底边全部保持水平
+                 ================================= -->
+            <path
+              d="${outerPath}"
+              fill="none"
+              stroke="var(--frame-outer)"
+              stroke-width="8"
+              stroke-linejoin="round"
+            />
+            <path
+              d="${outerPath}"
+              fill="none"
+              stroke="var(--button-middle)"
+              stroke-width="4.2"
+              stroke-linejoin="round"
+            />
+            <path
+              d="${outerPath}"
+              fill="none"
+              stroke="var(--frame-inner)"
+              stroke-width="1.6"
+              stroke-linejoin="round"
+            />
+            <!-- =================================
+                 内部翻折装饰框
+                 只有这一层出现 V 形
+                 ================================= -->
+            <path
+              d="${ornamentPath}"
+              fill="none"
+              stroke="var(--button-ornament)"
+              stroke-width="1.3"
+              stroke-linejoin="round"
+              stroke-linecap="round"
+              opacity=".94"
+            />
+            <!-- 第二圈较淡的翻折线 -->
+            <path
+              d="${secondaryOrnamentPath}"
+              fill="none"
+              stroke="var(--button-ornament)"
+              stroke-width=".7"
+              stroke-linejoin="round"
+              stroke-linecap="round"
+              opacity=".48"
+            />
+            <!-- =================================
+                 中央上传/返回图标
+                 ================================= -->
+            <g
+              fill="none"
+              stroke="var(--icon-color)"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <!-- 开口圆环 -->
+              <path
+                d="
+                  M 43 43
+                  A 24 24 0 1 0 77 43
+                "
+                stroke-width="3.4"
+              />
+              <!-- 向上箭头 -->
+              <path
+                d="M 60 65 V 26"
+                stroke-width="3.4"
+              />
+              <path
+                d="M 50 36 L 60 26 L 70 36"
+                stroke-width="3.4"
+              />
+            </g>
+            <!-- 三个圆点 -->
+            <g fill="var(--icon-color)">
+              <circle
+                cx="49"
+                cy="75"
+                r="2.1"
+              />
+              <circle
+                cx="60"
+                cy="75"
+                r="2.1"
+              />
+              <circle
+                cx="71"
+                cy="75"
+                r="2.1"
+              />
+            </g>
+          </svg>
+        </button>
+      `;
+    }
+  }
+
+  customElements.define(
+    "rpg-notch-icon",
+    RPGNotchIcon
+  );
+</script>
+
+</body>
+</html>

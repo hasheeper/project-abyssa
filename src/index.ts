@@ -52,6 +52,11 @@ export type {
   RetroRpgHeaderProps,
   RpgHeaderProps
 } from "./components/RpgHeader";
+export { RetroRpgDialogue, RpgDialogue } from "./components/RpgDialogue";
+export type {
+  RpgDialogueProps,
+  RpgDialogueVariant
+} from "./components/RpgDialogue";
 export {
   RetroRpgHexButton,
   RpgHexButton
@@ -60,6 +65,25 @@ export type {
   RetroRpgHexButtonProps,
   RpgHexButtonProps
 } from "./components/RpgHexButton";
+export {
+  RetroRpgDiamondNode,
+  RetroRpgDiamondNodeTrack,
+  RpgDiamondNode,
+  RpgDiamondNodeTrack
+} from "./components/RpgDiamondNodeTrack";
+export type {
+  RpgDiamondNodeItem,
+  RpgDiamondNodeProps,
+  RpgDiamondNodeTrackProps,
+  RpgDiamondNodeVariant
+} from "./components/RpgDiamondNodeTrack";
+export { RetroRpgNotchButton, RpgNotchButton } from "./components/RpgNotchButton";
+export type { RpgNotchButtonProps } from "./components/RpgNotchButton";
+export {
+  RetroRpgNotchedPillButton,
+  RpgNotchedPillButton
+} from "./components/RpgNotchedPillButton";
+export type { RpgNotchedPillButtonProps } from "./components/RpgNotchedPillButton";
 export {
   RetroRpgCircleButton,
   RetroRpgShapeButton,
@@ -83,6 +107,12 @@ export type {
   RetroRpgSquarePanelProps,
   RpgSquarePanelProps
 } from "./components/RpgSquarePanel";
+export { RetroRpgStatusNode, RpgStatusNode } from "./components/RpgStatusNode";
+export type {
+  RpgStatusNodeIcon,
+  RpgStatusNodeProps,
+  RpgStatusNodeVariant
+} from "./components/RpgStatusNode";
 export { SectionHeader } from "./components/SectionHeader";
 export type { SectionHeaderProps } from "./components/SectionHeader";
 export { StatusPanel } from "./components/StatusPanel";
