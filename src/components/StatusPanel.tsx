@@ -1,14 +1,15 @@
 import type { HTMLAttributes, ReactNode } from "react";
 import { cx } from "../utils/cx";
-import { RpgFrame } from "./RpgFrame";
 
 export interface StatusField {
-  label: string;
+  label: ReactNode;
+  secondaryLabel?: ReactNode;
   value: ReactNode;
 }
 
 export interface StatusStat {
-  label: string;
+  label: ReactNode;
+  secondaryLabel?: ReactNode;
   value: ReactNode;
   accent?: boolean;
 }
@@ -25,6 +26,9 @@ export interface StatusPanelData {
   fields?: StatusField[];
   stats?: StatusStat[];
   traits?: StatusTrait[];
+  parametersTitle?: ReactNode;
+  archiveTitle?: ReactNode;
+  traitsTitle?: ReactNode;
   recordTitle?: ReactNode;
   record?: ReactNode;
   quote?: ReactNode;
@@ -36,74 +40,119 @@ export interface StatusPanelProps extends HTMLAttributes<HTMLDivElement> {
 
 export function StatusPanel({ data, className, ...props }: StatusPanelProps) {
   return (
-    <RpgFrame
+    <div
       className={cx("abyssa-status-panel", className)}
-      padding="lg"
       {...props}
     >
-      <div className="abyssa-status-panel__heading">
-        <div>
-          <h3>{data.title}</h3>
-          {data.subtitle && <p>{data.subtitle}</p>}
-        </div>
-        {data.state && <span className="abyssa-status-panel__state">{data.state}</span>}
-      </div>
+      <div className="abyssa-status-panel__middle">
+        <div className="abyssa-status-panel__inner">
+          <div className="abyssa-status-panel__content">
+            <span className="abyssa-status-panel__edge-pattern" aria-hidden="true" />
 
-      {!!data.fields?.length && (
-        <dl className="abyssa-status-panel__fields">
-          {data.fields.map((field) => (
-            <div key={field.label}>
-              <dt>{field.label}</dt>
-              <i aria-hidden="true" />
-              <dd>{field.value}</dd>
+            <span className="abyssa-status-panel__corner" data-corner="tl" aria-hidden="true" />
+            <span className="abyssa-status-panel__corner" data-corner="tr" aria-hidden="true" />
+            <span className="abyssa-status-panel__corner" data-corner="bl" aria-hidden="true" />
+            <span className="abyssa-status-panel__corner" data-corner="br" aria-hidden="true" />
+
+            <span className="abyssa-status-panel__rivet" data-rivet="tl" aria-hidden="true" />
+            <span className="abyssa-status-panel__rivet" data-rivet="tr" aria-hidden="true" />
+            <span className="abyssa-status-panel__rivet" data-rivet="br" aria-hidden="true" />
+            <span className="abyssa-status-panel__rivet" data-rivet="bl" aria-hidden="true" />
+
+            <div className="abyssa-status-panel__information">
+              <section className="abyssa-status-panel__identity">
+                <div className="abyssa-status-panel__heading">
+                  <div>
+                    <h3>{data.title}</h3>
+                    {data.subtitle && <p>{data.subtitle}</p>}
+                  </div>
+                  {data.state && (
+                    <span className="abyssa-status-panel__state">{data.state}</span>
+                  )}
+                </div>
+
+                {!!data.fields?.length && (
+                  <dl className="abyssa-status-panel__fields">
+                    {data.fields.map((field, index) => (
+                      <div key={`${String(field.label)}-${index}`}>
+                        <dt>
+                          {field.label}
+                          {field.secondaryLabel && <small>{field.secondaryLabel}</small>}
+                        </dt>
+                        <i aria-hidden="true" />
+                        <dd>{field.value}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                )}
+              </section>
+
+              {!!data.stats?.length && (
+                <section className="abyssa-status-panel__parameters" aria-label="参数">
+                  <div className="abyssa-status-panel__divider">
+                    <span>{data.parametersTitle ?? "PARAMETERS"}</span>
+                  </div>
+                  <dl className="abyssa-status-panel__stats">
+                    {data.stats.map((stat, index) => (
+                      <div key={`${String(stat.label)}-${index}`}>
+                        <dt>
+                          {stat.label}
+                          {stat.secondaryLabel && <small>{stat.secondaryLabel}</small>}
+                        </dt>
+                        <i aria-hidden="true" />
+                        <dd data-accent={stat.accent || undefined}>{stat.value}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                  {(!!data.traits?.length || data.record) && (
+                    <div className="abyssa-status-panel__divider">
+                      <span>{data.archiveTitle ?? "ARCHIVE RECORD"}</span>
+                    </div>
+                  )}
+                </section>
+              )}
+
+              {(!!data.traits?.length || data.record) && (
+                <>
+                  {!data.stats?.length && (
+                    <div className="abyssa-status-panel__divider">
+                      <span>{data.archiveTitle ?? "ARCHIVE RECORD"}</span>
+                    </div>
+                  )}
+
+                  <div className="abyssa-status-panel__lower">
+                    {!!data.traits?.length && (
+                      <section>
+                        <h4 className="abyssa-status-panel__subsection-title">
+                          {data.traitsTitle ?? "INHERENT TRAITS"}
+                        </h4>
+                        <div className="abyssa-status-panel__traits">
+                          {data.traits.map((trait, index) => (
+                            <article key={`${String(trait.name)}-${index}`}>
+                              <h5>{trait.name}</h5>
+                              {trait.description && <p>{trait.description}</p>}
+                            </article>
+                          ))}
+                        </div>
+                      </section>
+                    )}
+
+                    {data.record && (
+                      <section>
+                        <h4 className="abyssa-status-panel__subsection-title">
+                          {data.recordTitle ?? "BIOGRAPHY"}
+                        </h4>
+                        <div className="abyssa-status-panel__record">{data.record}</div>
+                        {data.quote && <blockquote>{data.quote}</blockquote>}
+                      </section>
+                    )}
+                  </div>
+                </>
+              )}
             </div>
-          ))}
-        </dl>
-      )}
-
-      {!!data.stats?.length && (
-        <section className="abyssa-status-panel__section" aria-label="参数">
-          <h4><span>参数</span><small>PARAMETERS</small></h4>
-          <dl className="abyssa-status-panel__stats">
-            {data.stats.map((stat) => (
-              <div key={stat.label}>
-                <dt>{stat.label}</dt>
-                <i aria-hidden="true" />
-                <dd data-accent={stat.accent || undefined}>{stat.value}</dd>
-              </div>
-            ))}
-          </dl>
-        </section>
-      )}
-
-      {(!!data.traits?.length || data.record) && (
-        <div className="abyssa-status-panel__lower">
-          {!!data.traits?.length && (
-            <section className="abyssa-status-panel__section">
-              <h4><span>特性</span><small>TRAITS</small></h4>
-              <div className="abyssa-status-panel__traits">
-                {data.traits.map((trait, index) => (
-                  <article key={`${String(trait.name)}-${index}`}>
-                    <h5>{trait.name}</h5>
-                    {trait.description && <p>{trait.description}</p>}
-                  </article>
-                ))}
-              </div>
-            </section>
-          )}
-
-          {data.record && (
-            <section className="abyssa-status-panel__section">
-              <h4>
-                <span>{data.recordTitle ?? "人物记录"}</span>
-                <small>ARCHIVE</small>
-              </h4>
-              <div className="abyssa-status-panel__record">{data.record}</div>
-              {data.quote && <blockquote>{data.quote}</blockquote>}
-            </section>
-          )}
+          </div>
         </div>
-      )}
-    </RpgFrame>
+      </div>
+    </div>
   );
 }

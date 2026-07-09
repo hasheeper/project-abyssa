@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Retro RPG Circle Buttons</title>
+
+<style>
+  @import url(
+    "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&display=swap"
+  );
+
+  :root {
+    --page-bg: #9cabad;
+
+    /* 与此前组件统一的边框材质 */
+    --frame-outer: #192020;
+    --frame-middle: #899697;
+    --frame-inner: #111717;
+
+    --fill-dark: #1d2121;
+    --fill-light: #e4e8e8;
+    --fill-teal: #73b8bc;
+
+    --text-light: #f0f3f3;
+    --text-dark: #202727;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    min-height: 100vh;
+    margin: 0;
+    padding: 48px;
+
+    display: grid;
+    place-items: center;
+
+    background-color: var(--page-bg);
+  }
+
+  .button-showcase {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+  }
+
+  /* =========================================
+     圆形按钮基础样式
+     ========================================= */
+
+  .circle-button {
+    --button-fill: var(--fill-dark);
+    --button-text: var(--text-light);
+    --button-middle: var(--frame-middle);
+    --button-ornament: #626d6e;
+
+    --pattern-dark: rgba(255, 255, 255, 0.035);
+    --pattern-light: rgba(255, 255, 255, 0.012);
+
+    display: block;
+    width: 150px;
+    height: 150px;
+
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+
+    cursor: pointer;
+    font: inherit;
+
+    transition:
+      transform 80ms ease,
+      filter 100ms ease;
+  }
+
+  .circle-button:hover {
+    filter: brightness(1.06);
+  }
+
+  .circle-button:active {
+    transform: translateY(2px) scale(0.985);
+  }
+
+  .circle-button:focus-visible {
+    outline: 2px solid #eef2f2;
+    outline-offset: 5px;
+    border-radius: 50%;
+  }
+
+  .circle-button svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+
+    shape-rendering: geometricPrecision;
+  }
+
+  .button-label {
+    fill: var(--button-text);
+
+    font-family:
+      "Cormorant Garamond",
+      Georgia,
+      "Times New Roman",
+      serif;
+
+    font-size: 27px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+
+    text-anchor: middle;
+    dominant-baseline: middle;
+  }
+
+  /* =========================================
+     三种颜色主题
+     ========================================= */
+
+  .theme-dark {
+    --button-fill: #1d2121;
+    --button-text: #f0f3f3;
+    --button-middle: #718081;
+    --button-ornament: #566162;
+
+    --pattern-dark: rgba(255, 255, 255, 0.035);
+    --pattern-light: rgba(255, 255, 255, 0.01);
+  }
+
+  .theme-light {
+    --button-fill: #e4e8e8;
+    --button-text: #333a3a;
+    --button-middle: #9ba7a8;
+    --button-ornament: #687374;
+
+    --pattern-dark: rgba(38, 58, 59, 0.075);
+    --pattern-light: rgba(255, 255, 255, 0.22);
+  }
+
+  .theme-teal {
+    --button-fill: #73b8bc;
+    --button-text: #263031;
+    --button-middle: #778f90;
+    --button-ornament: #315253;
+
+    --pattern-dark: rgba(26, 70, 73, 0.095);
+    --pattern-light: rgba(255, 255, 255, 0.08);
+  }
+
+  @media (max-width: 560px) {
+    body {
+      padding: 24px;
+    }
+
+    .button-showcase {
+      gap: 12px;
+    }
+
+    .circle-button {
+      width: 100px;
+      height: 100px;
+    }
+  }
+</style>
+</head>
+
+<body>
+
+<main class="button-showcase">
+  <rpg-circle-button
+    variant="dark"
+    label="Button"
+  ></rpg-circle-button>
+
+  <rpg-circle-button
+    variant="light"
+    label="Button"
+  ></rpg-circle-button>
+
+  <rpg-circle-button
+    variant="teal"
+    label="Button"
+  ></rpg-circle-button>
+</main>
+
+<script>
+  class RPGCircleButton extends HTMLElement {
+    connectedCallback() {
+      const label = this.getAttribute("label") || "Button";
+      const variant = this.getAttribute("variant") || "dark";
+      const uid = `circle-${Math.random().toString(36).slice(2)}`;
+
+      this.innerHTML = `
+        <button
+          class="circle-button theme-${variant}"
+          type="button"
+          aria-label="${label}"
+        >
+          <svg
+            viewBox="0 0 150 150"
+            aria-hidden="true"
+          >
+            <defs>
+              <!-- 低对比度菱形材质 -->
+              <pattern
+                id="${uid}-pattern"
+                width="42"
+                height="42"
+                patternUnits="userSpaceOnUse"
+                patternTransform="translate(5 5)"
+              >
+                <path
+                  d="M21 0 L42 21 L21 42 L0 21 Z"
+                  fill="var(--pattern-dark)"
+                />
+                <path
+                  d="M21 10 L32 21 L21 32 L10 21 Z"
+                  fill="var(--pattern-light)"
+                />
+              </pattern>
+              <clipPath id="${uid}-clip">
+                <circle cx="75" cy="75" r="64"/>
+              </clipPath>
+            </defs>
+            <!-- 按钮主体 -->
+            <circle
+              cx="75"
+              cy="75"
+              r="64"
+              fill="var(--button-fill)"
+            />
+            <!-- 菱形暗纹 -->
+            <rect
+              x="11"
+              y="11"
+              width="128"
+              height="128"
+              fill="url(#${uid}-pattern)"
+              clip-path="url(#${uid}-clip)"
+            />
+            <!--
+              三层外框：
+              深色粗框 → 冷灰细线 → 深色内线
+            -->
+            <circle
+              cx="75"
+              cy="75"
+              r="64"
+              fill="none"
+              stroke="var(--frame-outer)"
+              stroke-width="9"
+            />
+            <circle
+              cx="75"
+              cy="75"
+              r="64"
+              fill="none"
+              stroke="var(--button-middle)"
+              stroke-width="5"
+            />
+            <circle
+              cx="75"
+              cy="75"
+              r="64"
+              fill="none"
+              stroke="var(--frame-inner)"
+              stroke-width="2"
+            />
+            <!-- 内侧装饰圆环 -->
+            <circle
+              cx="75"
+              cy="75"
+              r="56.5"
+              fill="none"
+              stroke="var(--button-ornament)"
+              stroke-width="1.15"
+              opacity=".9"
+            />
+            <!-- 左右两侧细小定位点 -->
+            <g fill="var(--button-ornament)" opacity=".72">
+              <circle cx="18.5" cy="75" r="1"/>
+              <circle cx="131.5" cy="75" r="1"/>
+            </g>
+            <!-- 底部中央三个小圆点 -->
+            <g fill="var(--button-ornament)">
+              <circle
+                cx="68"
+                cy="131.5"
+                r="1.15"
+              />
+              <circle
+                cx="75"
+                cy="132"
+                r="1.65"
+              />
+              <circle
+                cx="82"
+                cy="131.5"
+                r="1.15"
+              />
+            </g>
+            <!-- 按钮文字 -->
+            <text
+              class="button-label"
+              x="75"
+              y="75"
+            >
+              ${label}
+            </text>
+          </svg>
+        </button>
+      `;
+    }
+  }
+
+  customElements.define(
+    "rpg-circle-button",
+    RPGCircleButton
+  );
+</script>
+
+</body>
+</html>

@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Retro RPG Tabs</title>
+
+<style>
+  @import url(
+    "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&display=swap"
+  );
+
+  :root {
+    --page-bg: #9cabad;
+
+    /* 统一边框材质 */
+    --frame-outer: #192020;
+    --frame-middle: #879596;
+    --frame-inner: #111717;
+
+    --fill-dark: #1d2121;
+    --fill-light: #e3e7e7;
+    --fill-teal: #75b7bb;
+
+    --text-light: #f0f3f3;
+    --text-dark: #202727;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    min-height: 100vh;
+    margin: 0;
+    padding: 48px;
+
+    display: grid;
+    place-items: center;
+
+    background-color: var(--page-bg);
+  }
+
+  .tab-showcase {
+    width: min(800px, 100%);
+
+    display: grid;
+    grid-template-columns: repeat(4, minmax(120px, 1fr));
+    align-items: end;
+    gap: 14px;
+
+    /* 模拟下方内容面板的上边缘 */
+    border-bottom: 5px solid var(--frame-outer);
+  }
+
+  /* =========================================
+     TAB 基础样式
+     ========================================= */
+
+  .rpg-tab {
+    --tab-fill: var(--fill-dark);
+    --tab-text: var(--text-light);
+    --tab-middle: var(--frame-middle);
+    --tab-ornament: #667273;
+
+    --pattern-dark: rgba(255, 255, 255, 0.04);
+    --pattern-light: rgba(255, 255, 255, 0.015);
+
+    display: block;
+    width: 100%;
+
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+
+    cursor: pointer;
+    font: inherit;
+
+    transition:
+      transform 80ms ease,
+      filter 100ms ease;
+  }
+
+  .rpg-tab:hover {
+    filter: brightness(1.06);
+  }
+
+  .rpg-tab:active {
+    transform: translateY(1px);
+  }
+
+  .rpg-tab:focus-visible {
+    outline: 2px solid #eef2f2;
+    outline-offset: 4px;
+  }
+
+  .rpg-tab svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+
+    shape-rendering: geometricPrecision;
+  }
+
+  .tab-label {
+    fill: var(--tab-text);
+
+    font-family:
+      "Cormorant Garamond",
+      Georgia,
+      "Times New Roman",
+      serif;
+
+    font-size: 30px;
+    font-weight: 600;
+    letter-spacing: 2px;
+
+    text-anchor: middle;
+    dominant-baseline: middle;
+  }
+
+  /* =========================================
+     四种参考样式
+     ========================================= */
+
+  /* 01：普通暗色 */
+  .variant-dark {
+    --tab-fill: #1c2020;
+    --tab-text: #f0f3f3;
+    --tab-middle: #748283;
+    --tab-ornament: #555f60;
+
+    --pattern-dark: rgba(255, 255, 255, 0.025);
+    --pattern-light: transparent;
+  }
+
+  /* 02：亮色、菱形底纹 */
+  .variant-light {
+    --tab-fill: #e3e7e7;
+    --tab-text: #343a3a;
+    --tab-middle: #9ba7a8;
+    --tab-ornament: #697474;
+
+    --pattern-dark: rgba(38, 56, 57, 0.075);
+    --pattern-light: rgba(255, 255, 255, 0.22);
+  }
+
+  /* 03：暗色、装饰强调 */
+  .variant-decorated {
+    --tab-fill: #1d2121;
+    --tab-text: #f0f3f3;
+    --tab-middle: #718081;
+    --tab-ornament: #899798;
+
+    --pattern-dark: rgba(255, 255, 255, 0.035);
+    --pattern-light: rgba(255, 255, 255, 0.012);
+  }
+
+  /* 04：青色、菱形底纹 */
+  .variant-teal {
+    --tab-fill: #75b7bb;
+    --tab-text: #f3f5f5;
+    --tab-middle: #789293;
+    --tab-ornament: #345456;
+
+    --pattern-dark: rgba(26, 70, 73, 0.09);
+    --pattern-light: rgba(255, 255, 255, 0.09);
+  }
+
+  @media (max-width: 620px) {
+    body {
+      padding: 24px;
+    }
+
+    .tab-showcase {
+      grid-template-columns: repeat(2, minmax(120px, 1fr));
+      gap: 12px;
+      border-bottom: 0;
+    }
+  }
+</style>
+</head>
+
+<body>
+
+<main class="tab-showcase">
+  <rpg-tab variant="dark" label="tab"></rpg-tab>
+  <rpg-tab variant="light" label="tab"></rpg-tab>
+  <rpg-tab variant="decorated" label="tab"></rpg-tab>
+  <rpg-tab variant="teal" label="tab"></rpg-tab>
+</main>
+
+<script>
+  class RPGTab extends HTMLElement {
+    connectedCallback() {
+      const label = this.getAttribute("label") || "tab";
+      const variant = this.getAttribute("variant") || "dark";
+
+      const uid = `tab-${Math.random().toString(36).slice(2)}`;
+
+      this.innerHTML = `
+        <button
+          class="rpg-tab variant-${variant}"
+          type="button"
+          aria-label="${label}"
+        >
+          <svg
+            viewBox="0 0 180 78"
+            aria-hidden="true"
+          >
+            <defs>
+              <!-- 低对比度菱形暗纹 -->
+              <pattern
+                id="${uid}-pattern"
+                width="42"
+                height="42"
+                patternUnits="userSpaceOnUse"
+                patternTransform="translate(0 -4)"
+              >
+                <path
+                  d="M21 0 L42 21 L21 42 L0 21 Z"
+                  fill="var(--pattern-dark)"
+                />
+                <path
+                  d="M21 10 L32 21 L21 32 L10 21 Z"
+                  fill="var(--pattern-light)"
+                />
+              </pattern>
+              <!-- TAB 主体裁切 -->
+              <clipPath id="${uid}-clip">
+                <path
+                  d="
+                    M 7 78
+                    V 20
+                    Q 7 7 20 7
+                    H 160
+                    Q 173 7 173 20
+                    V 78
+                    Z
+                  "
+                />
+              </clipPath>
+            </defs>
+            <!--
+              TAB 填色主体。
+              底部延伸到 SVG 边缘，与下方面板连接。
+            -->
+            <path
+              d="
+                M 7 78
+                V 20
+                Q 7 7 20 7
+                H 160
+                Q 173 7 173 20
+                V 78
+                Z
+              "
+              fill="var(--tab-fill)"
+            />
+            <!-- 菱形材质 -->
+            <rect
+              x="5"
+              y="5"
+              width="170"
+              height="73"
+              fill="url(#${uid}-pattern)"
+              clip-path="url(#${uid}-clip)"
+            />
+            <!--
+              三重边框。
+              所有路径底部均保持开放，不绘制底边。
+            -->
+            <!-- 外层深色粗边 -->
+            <path
+              d="
+                M 7 78
+                V 20
+                Q 7 7 20 7
+                H 160
+                Q 173 7 173 20
+                V 78
+              "
+              fill="none"
+              stroke="var(--frame-outer)"
+              stroke-width="9"
+              stroke-linecap="butt"
+              stroke-linejoin="round"
+            />
+            <!-- 中间冷灰线 -->
+            <path
+              d="
+                M 7 78
+                V 20
+                Q 7 7 20 7
+                H 160
+                Q 173 7 173 20
+                V 78
+              "
+              fill="none"
+              stroke="var(--tab-middle)"
+              stroke-width="5"
+              stroke-linecap="butt"
+              stroke-linejoin="round"
+            />
+            <!-- 内层深色线 -->
+            <path
+              d="
+                M 7 78
+                V 20
+                Q 7 7 20 7
+                H 160
+                Q 173 7 173 20
+                V 78
+              "
+              fill="none"
+              stroke="var(--frame-inner)"
+              stroke-width="2"
+              stroke-linecap="butt"
+              stroke-linejoin="round"
+            />
+            <!-- 内部装饰线：同样不画底边 -->
+            <path
+              d="
+                M 15 78
+                V 23
+                Q 15 15 24 15
+                H 156
+                Q 165 15 165 23
+                V 78
+              "
+              fill="none"
+              stroke="var(--tab-ornament)"
+              stroke-width="1.2"
+              stroke-linecap="butt"
+              opacity=".9"
+            />
+            <!-- 左上、右上短角线 -->
+            <path
+              d="
+                M 20 31
+                V 21
+                H 31
+                M 149 21
+                H 160
+                V 31
+              "
+              fill="none"
+              stroke="var(--tab-ornament)"
+              stroke-width="1"
+              opacity=".75"
+            />
+            <!-- 顶部中央三枚定位点 -->
+            <g fill="var(--tab-ornament)">
+              <circle cx="84" cy="15" r="1.1"/>
+              <circle cx="90" cy="15" r="1.45"/>
+              <circle cx="96" cy="15" r="1.1"/>
+            </g>
+            ${
+              variant === "decorated" || variant === "teal"
+                ? `
+                  <!-- 右上角附加定位点 -->
+                  <g fill="var(--tab-ornament)">
+                    <circle cx="145" cy="16" r="1"/>
+                    <circle cx="153" cy="16" r="1.5"/>
+                    <circle cx="160" cy="20" r="1"/>
+                  </g>
+                `
+                : ""
+            }
+            <!-- TAB 文本 -->
+            <text
+              class="tab-label"
+              x="90"
+              y="48"
+            >
+              ${label}
+            </text>
+          </svg>
+        </button>
+      `;
+    }
+  }
+
+  customElements.define("rpg-tab", RPGTab);
+</script>
+
+</body>
+</html>

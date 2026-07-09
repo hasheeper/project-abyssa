@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Retro RPG Shape Buttons</title>
+
+<style>
+  @import url(
+    "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&display=swap"
+  );
+
+  :root {
+    --page-bg: #9cabad;
+
+    /* 统一的三层边框材质 */
+    --frame-outer: #192020;
+    --frame-middle: #899697;
+    --frame-inner: #111717;
+
+    /* 三种主体颜色 */
+    --fill-dark: #1d2121;
+    --fill-light: #e4e8e8;
+    --fill-teal: #73b8bc;
+
+    --text-light: #f0f3f3;
+    --text-dark: #202727;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    min-height: 100vh;
+    margin: 0;
+    padding: 48px;
+
+    display: grid;
+    place-items: center;
+
+    background-color: var(--page-bg);
+  }
+
+  .component-showcase {
+    width: min(820px, 100%);
+    display: grid;
+    gap: 30px;
+  }
+
+  .component-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+  }
+
+  /* ========================================
+     通用按钮
+     ======================================== */
+
+  .rpg-shape-button {
+    --button-fill: var(--fill-dark);
+    --button-text: var(--text-light);
+    --button-middle: #718081;
+    --button-ornament: #566162;
+
+    --pattern-dark: rgba(255, 255, 255, 0.035);
+    --pattern-light: rgba(255, 255, 255, 0.012);
+
+    display: block;
+    flex: 0 1 auto;
+
+    padding: 0;
+    border: 0;
+    margin: 0;
+    background: transparent;
+
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+
+    transition:
+      transform 80ms ease,
+      filter 100ms ease;
+  }
+
+  .rpg-shape-button:hover {
+    filter: brightness(1.06);
+  }
+
+  .rpg-shape-button:active {
+    transform: translateY(1px) scale(0.99);
+  }
+
+  .rpg-shape-button:focus-visible {
+    outline: 2px solid #eef2f2;
+    outline-offset: 5px;
+  }
+
+  .rpg-shape-button svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+
+    shape-rendering: geometricPrecision;
+  }
+
+  /* 四种尺寸 */
+
+  .shape-circle {
+    width: 145px;
+  }
+
+  .shape-square {
+    width: 145px;
+  }
+
+  .shape-chamfer {
+    width: 240px;
+  }
+
+  .shape-pill {
+    width: 240px;
+  }
+
+  /* ========================================
+     配色主题
+     ======================================== */
+
+  .theme-dark {
+    --button-fill: #1d2121;
+    --button-text: #f0f3f3;
+    --button-middle: #718081;
+    --button-ornament: #566162;
+
+    --pattern-dark: rgba(255, 255, 255, 0.04);
+    --pattern-light: rgba(255, 255, 255, 0.012);
+  }
+
+  .theme-light {
+    --button-fill: #e4e8e8;
+    --button-text: #303737;
+    --button-middle: #9ba7a8;
+    --button-ornament: #667273;
+
+    --pattern-dark: rgba(38, 58, 59, 0.075);
+    --pattern-light: rgba(255, 255, 255, 0.22);
+  }
+
+  .theme-teal {
+    --button-fill: #73b8bc;
+    --button-text: #263031;
+    --button-middle: #778f90;
+    --button-ornament: #315253;
+
+    --pattern-dark: rgba(26, 70, 73, 0.095);
+    --pattern-light: rgba(255, 255, 255, 0.08);
+  }
+
+  .button-label {
+    fill: var(--button-text);
+
+    font-family:
+      "Cormorant Garamond",
+      Georgia,
+      "Times New Roman",
+      serif;
+
+    font-size: 29px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+
+    text-anchor: middle;
+    dominant-baseline: middle;
+  }
+
+  .shape-square .button-label {
+    font-size: 27px;
+  }
+
+  .shape-chamfer .button-label,
+  .shape-pill .button-label {
+    font-size: 25px;
+  }
+
+  @media (max-width: 720px) {
+    body {
+      padding: 24px 12px;
+    }
+
+    .component-row {
+      gap: 8px;
+    }
+
+    .shape-circle,
+    .shape-square {
+      width: 104px;
+    }
+
+    .shape-chamfer,
+    .shape-pill {
+      width: 31%;
+      min-width: 105px;
+    }
+  }
+</style>
+</head>
+
+<body>
+
+<main class="component-showcase">
+
+  <!-- 01：圆形 -->
+  <section class="component-row">
+    <rpg-shape-button
+      shape="circle"
+      variant="dark"
+      label="Button"
+    ></rpg-shape-button>
+
+    <rpg-shape-button
+      shape="circle"
+      variant="light"
+      label="Button"
+    ></rpg-shape-button>
+
+    <rpg-shape-button
+      shape="circle"
+      variant="teal"
+      label="Button"
+    ></rpg-shape-button>
+  </section>
+
+  <!-- 02：切角方形 -->
+  <section class="component-row">
+    <rpg-shape-button
+      shape="square"
+      variant="dark"
+      label="Button"
+    ></rpg-shape-button>
+
+    <rpg-shape-button
+      shape="square"
+      variant="light"
+      label="Button"
+    ></rpg-shape-button>
+
+    <rpg-shape-button
+      shape="square"
+      variant="teal"
+      label="Button"
+    ></rpg-shape-button>
+  </section>
+
+  <!-- 03：切角横向按钮 -->
+  <section class="component-row">
+    <rpg-shape-button
+      shape="chamfer"
+      variant="dark"
+      label="Button"
+    ></rpg-shape-button>
+
+    <rpg-shape-button
+      shape="chamfer"
+      variant="light"
+      label="Button"
+    ></rpg-shape-button>
+
+    <rpg-shape-button
+      shape="chamfer"
+      variant="teal"
+      label="Button"
+    ></rpg-shape-button>
+  </section>
+
+  <!-- 04：胶囊形按钮 -->
+  <section class="component-row">
+    <rpg-shape-button
+      shape="pill"
+      variant="dark"
+      label="Button"
+    ></rpg-shape-button>
+
+    <rpg-shape-button
+      shape="pill"
+      variant="light"
+      label="Button"
+    ></rpg-shape-button>
+
+    <rpg-shape-button
+      shape="pill"
+      variant="teal"
+      label="Button"
+    ></rpg-shape-button>
+  </section>
+
+</main>
+
+<script>
+  class RPGShapeButton extends HTMLElement {
+    connectedCallback() {
+      const shape = this.getAttribute("shape") || "chamfer";
+      const variant = this.getAttribute("variant") || "dark";
+      const label = this.getAttribute("label") || "Button";
+
+      const uid = `rpg-${Math.random().toString(36).slice(2)}`;
+      const geometry = this.getGeometry(shape);
+
+      this.innerHTML = `
+        <button
+          class="
+            rpg-shape-button
+            shape-${shape}
+            theme-${variant}
+          "
+          type="button"
+          aria-label="${label}"
+        >
+          <svg
+            viewBox="${geometry.viewBox}"
+            aria-hidden="true"
+          >
+            <defs>
+              <!-- 通用菱形暗纹 -->
+              <pattern
+                id="${uid}-pattern"
+                width="${geometry.patternSize}"
+                height="${geometry.patternSize}"
+                patternUnits="userSpaceOnUse"
+              >
+                <path
+                  d="
+                    M ${geometry.patternHalf} 0
+                    L ${geometry.patternSize} ${geometry.patternHalf}
+                    L ${geometry.patternHalf} ${geometry.patternSize}
+                    L 0 ${geometry.patternHalf}
+                    Z
+                  "
+                  fill="var(--pattern-dark)"
+                />
+                <path
+                  d="
+                    M ${geometry.patternHalf} ${geometry.patternInner}
+                    L ${geometry.patternOuter} ${geometry.patternHalf}
+                    L ${geometry.patternHalf} ${geometry.patternOuter}
+                    L ${geometry.patternInner} ${geometry.patternHalf}
+                    Z
+                  "
+                  fill="var(--pattern-light)"
+                />
+              </pattern>
+              <clipPath id="${uid}-clip">
+                ${geometry.clipShape}
+              </clipPath>
+            </defs>
+            <!-- 主体填色 -->
+            ${geometry.fillShape}
+            <!-- 菱形材质 -->
+            <rect
+              x="${geometry.texture.x}"
+              y="${geometry.texture.y}"
+              width="${geometry.texture.width}"
+              height="${geometry.texture.height}"
+              fill="url(#${uid}-pattern)"
+              clip-path="url(#${uid}-clip)"
+            />
+            <!-- 外层深色边框 -->
+            ${geometry.strokeShape
+              .replace(
+                "{COLOR}",
+                "var(--frame-outer)"
+              )
+              .replace(
+                "{WIDTH}",
+                geometry.outerWidth
+              )
+            }
+            <!-- 中间冷灰细线 -->
+            ${geometry.strokeShape
+              .replace(
+                "{COLOR}",
+                "var(--button-middle)"
+              )
+              .replace(
+                "{WIDTH}",
+                geometry.middleWidth
+              )
+            }
+            <!-- 内层深色边框 -->
+            ${geometry.strokeShape
+              .replace(
+                "{COLOR}",
+                "var(--frame-inner)"
+              )
+              .replace(
+                "{WIDTH}",
+                geometry.innerWidth
+              )
+            }
+            <!-- 内侧装饰线 -->
+            ${geometry.ornamentShape}
+            <!-- 底部三个圆点 -->
+            <g fill="var(--button-ornament)">
+              <circle
+                cx="${geometry.dots.left.x}"
+                cy="${geometry.dots.left.y}"
+                r="${geometry.dots.sideRadius}"
+              />
+              <circle
+                cx="${geometry.dots.center.x}"
+                cy="${geometry.dots.center.y}"
+                r="${geometry.dots.centerRadius}"
+              />
+              <circle
+                cx="${geometry.dots.right.x}"
+                cy="${geometry.dots.right.y}"
+                r="${geometry.dots.sideRadius}"
+              />
+            </g>
+            <!-- 按钮文字 -->
+            <text
+              class="button-label"
+              x="${geometry.text.x}"
+              y="${geometry.text.y}"
+            >
+              ${label}
+            </text>
+          </svg>
+        </button>
+      `;
+    }
+
+    getGeometry(shape) {
+      const commonPattern = {
+        patternSize: 42,
+        patternHalf: 21,
+        patternInner: 10,
+        patternOuter: 32
+      };
+
+      /* ============================
+         圆形
+         ============================ */
+
+      if (shape === "circle") {
+        return {
+          ...commonPattern,
+
+          viewBox: "0 0 150 150",
+
+          outerWidth: 9,
+          middleWidth: 5,
+          innerWidth: 2,
+
+          clipShape: `
+            <circle cx="75" cy="75" r="64"/>
+          `,
+
+          fillShape: `
+            <circle
+              cx="75"
+              cy="75"
+              r="64"
+              fill="var(--button-fill)"
+            />
+          `,
+
+          strokeShape: `
+            <circle
+              cx="75"
+              cy="75"
+              r="64"
+              fill="none"
+              stroke="{COLOR}"
+              stroke-width="{WIDTH}"
+            />
+          `,
+
+          ornamentShape: `
+            <circle
+              cx="75"
+              cy="75"
+              r="56.5"
+              fill="none"
+              stroke="var(--button-ornament)"
+              stroke-width="1.15"
+              opacity=".9"
+            />
+          `,
+
+          texture: {
+            x: 11,
+            y: 11,
+            width: 128,
+            height: 128
+          },
+
+          text: {
+            x: 75,
+            y: 75
+          },
+
+          dots: {
+            left: { x: 68, y: 131.5 },
+            center: { x: 75, y: 132 },
+            right: { x: 82, y: 131.5 },
+
+            sideRadius: 1.15,
+            centerRadius: 1.65
+          }
+        };
+      }
+
+      /* ============================
+         左上、右下切角方形
+         ============================ */
+
+      if (shape === "square") {
+        const path = `
+          M 22 8
+          H 137
+          V 122
+          L 122 137
+          H 8
+          V 22
+          Z
+        `;
+
+        const innerPath = `
+          M 24 16
+          H 129
+          V 118
+          L 118 129
+          H 16
+          V 24
+          Z
+        `;
+
+        return {
+          ...commonPattern,
+
+          viewBox: "0 0 145 145",
+
+          outerWidth: 9,
+          middleWidth: 5,
+          innerWidth: 2,
+
+          clipShape: `<path d="${path}"/>`,
+
+          fillShape: `
+            <path
+              d="${path}"
+              fill="var(--button-fill)"
+            />
+          `,
+
+          strokeShape: `
+            <path
+              d="${path}"
+              fill="none"
+              stroke="{COLOR}"
+              stroke-width="{WIDTH}"
+              stroke-linejoin="miter"
+            />
+          `,
+
+          ornamentShape: `
+            <path
+              d="${innerPath}"
+              fill="none"
+              stroke="var(--button-ornament)"
+              stroke-width="1.15"
+              stroke-linejoin="miter"
+              opacity=".9"
+            />
+
+            <!-- 左上、右下的小角部装饰 -->
+            <path
+              d="
+                M 20 34
+                V 20
+                H 34
+
+                M 111 129
+                H 125
+                V 115
+              "
+              fill="none"
+              stroke="var(--button-ornament)"
+              stroke-width="1"
+              opacity=".75"
+            />
+          `,
+
+          texture: {
+            x: 8,
+            y: 8,
+            width: 129,
+            height: 129
+          },
+
+          text: {
+            x: 72.5,
+            y: 72.5
+          },
+
+          dots: {
+            left: { x: 65, y: 132 },
+            center: { x: 72.5, y: 132.5 },
+            right: { x: 80, y: 132 },
+
+            sideRadius: 1.1,
+            centerRadius: 1.55
+          }
+        };
+      }
+
+      /* ============================
+         左上、右下切角横向按钮
+         ============================ */
+
+      if (shape === "chamfer") {
+        const path = `
+          M 20 7
+          H 233
+          V 49
+          L 221 61
+          H 7
+          V 20
+          Z
+        `;
+
+        const innerPath = `
+          M 21 14
+          H 226
+          V 46
+          L 218 54
+          H 14
+          V 22
+          Z
+        `;
+
+        return {
+          ...commonPattern,
+
+          viewBox: "0 0 240 68",
+
+          outerWidth: 8,
+          middleWidth: 4,
+          innerWidth: 2,
+
+          clipShape: `<path d="${path}"/>`,
+
+          fillShape: `
+            <path
+              d="${path}"
+              fill="var(--button-fill)"
+            />
+          `,
+
+          strokeShape: `
+            <path
+              d="${path}"
+              fill="none"
+              stroke="{COLOR}"
+              stroke-width="{WIDTH}"
+              stroke-linejoin="miter"
+            />
+          `,
+
+          ornamentShape: `
+            <path
+              d="${innerPath}"
+              fill="none"
+              stroke="var(--button-ornament)"
+              stroke-width="1"
+              stroke-linejoin="miter"
+              opacity=".9"
+            />
+          `,
+
+          texture: {
+            x: 6,
+            y: 6,
+            width: 228,
+            height: 56
+          },
+
+          text: {
+            x: 120,
+            y: 34
+          },
+
+          dots: {
+            left: { x: 111, y: 58 },
+            center: { x: 120, y: 58.5 },
+            right: { x: 129, y: 58 },
+
+            sideRadius: 1,
+            centerRadius: 1.45
+          }
+        };
+      }
+
+      /* ============================
+         胶囊形按钮
+         ============================ */
+
+      const pillPath = `
+        M 28 7
+        H 212
+        C 225 7 233 18 233 34
+        C 233 50 225 61 212 61
+        H 28
+        C 15 61 7 50 7 34
+        C 7 18 15 7 28 7
+        Z
+      `;
+
+      const pillInnerPath = `
+        M 29 14
+        H 211
+        C 220 14 226 22 226 34
+        C 226 46 220 54 211 54
+        H 29
+        C 20 54 14 46 14 34
+        C 14 22 20 14 29 14
+        Z
+      `;
+
+      return {
+        ...commonPattern,
+
+        viewBox: "0 0 240 68",
+
+        outerWidth: 8,
+        middleWidth: 4,
+        innerWidth: 2,
+
+        clipShape: `<path d="${pillPath}"/>`,
+
+        fillShape: `
+          <path
+            d="${pillPath}"
+            fill="var(--button-fill)"
+          />
+        `,
+
+        strokeShape: `
+          <path
+            d="${pillPath}"
+            fill="none"
+            stroke="{COLOR}"
+            stroke-width="{WIDTH}"
+            stroke-linejoin="round"
+          />
+        `,
+
+        ornamentShape: `
+          <path
+            d="${pillInnerPath}"
+            fill="none"
+            stroke="var(--button-ornament)"
+            stroke-width="1"
+            opacity=".9"
+          />
+        `,
+
+        texture: {
+          x: 7,
+          y: 7,
+          width: 226,
+          height: 54
+        },
+
+        text: {
+          x: 120,
+          y: 34
+        },
+
+        dots: {
+          left: { x: 111, y: 58 },
+          center: { x: 120, y: 58.5 },
+          right: { x: 129, y: 58 },
+
+          sideRadius: 1,
+          centerRadius: 1.45
+        }
+      };
+    }
+  }
+
+  customElements.define(
+    "rpg-shape-button",
+    RPGShapeButton
+  );
+</script>
+
+</body>
+</html>

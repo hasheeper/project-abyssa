@@ -1,10 +1,12 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { CharacterSelector } from "./CharacterSelector";
+import { Nameplate } from "./Nameplate";
 import { RibbonButton } from "./RibbonButton";
 import { RpgHeader } from "./RpgHeader";
 import { RpgHexButton } from "./RpgHexButton";
 import { RpgSquarePanel } from "./RpgSquarePanel";
+import { StatusPanel } from "./StatusPanel";
 import { Toggle } from "./Toggle";
 
 describe("Abyssa controls", () => {
@@ -71,6 +73,48 @@ describe("Abyssa controls", () => {
       "0 0 116 116"
     );
     expect(container.querySelector(".abyssa-panel-tile")).not.toBeInTheDocument();
+  });
+
+  it("renders the layered reference nameplate and bilingual status labels", () => {
+    const { container } = render(
+      <>
+        <Nameplate
+          name="艾比希斯·贝尔泽兰"
+          secondaryName="ABYSSA BEELZERAN"
+        />
+        <StatusPanel
+          data={{
+            title: "当代魔王",
+            subtitle: "THE VESSEL OF CHAOS",
+            state: "状态：安定",
+            stats: [
+              {
+                label: "生命",
+                secondaryLabel: "LIFE",
+                value: "EX",
+                accent: true
+              }
+            ],
+            traits: [{ name: "我的平静" }],
+            record: "人物资料"
+          }}
+        />
+      </>
+    );
+
+    expect(container.querySelector(".abyssa-nameplate")).toHaveAttribute(
+      "data-variant",
+      "dark"
+    );
+    expect(container.querySelector(".abyssa-nameplate__middle")).toBeInTheDocument();
+    expect(container.querySelector(".abyssa-nameplate__inner")).toBeInTheDocument();
+    expect(container.querySelector(".abyssa-nameplate__content")).toBeInTheDocument();
+    expect(container.querySelectorAll(".abyssa-status-panel__corner")).toHaveLength(4);
+    expect(container.querySelectorAll(".abyssa-status-panel__rivet")).toHaveLength(4);
+    expect(screen.getByText("LIFE")).toBeInTheDocument();
+    expect(screen.getByText("ARCHIVE RECORD")).toBeInTheDocument();
+    expect(screen.getByText("INHERENT TRAITS")).toBeInTheDocument();
+    expect(screen.getByText("BIOGRAPHY")).toBeInTheDocument();
   });
 
   it("updates an uncontrolled toggle and reports its state", () => {

@@ -152,13 +152,14 @@ button, input { font: inherit; }
 .demo-panel-grid .abyssa-panel-tile { container-type: inline-size; }
 .demo-square-panel-grid { display: grid; grid-template-columns: repeat(3, 116px); justify-content: center; gap: 8px; width: 100%; }
 .demo-selector { width: min(100%, 460px); margin: auto; }
-.demo-status { width: min(100%, 760px); margin: auto; }
+.demo-status { width: min(100%, 598px); min-height: 495px; margin: auto; }
 .demo-status .abyssa-status-panel__lower { grid-template-columns: 1fr 1fr; }
 
 .demo-component[data-wide] .demo-component__body { grid-template-columns: minmax(0, 1.55fr) minmax(300px, 0.45fr); }
 #character-status-screen .demo-preview { align-items: start; overflow: auto; padding-inline: clamp(20px, 3vw, 48px); }
 #character-status-screen .demo-preview__content { width: min(1180px, 100%); }
-#character-status-screen .abyssa-character-screen__portrait { min-height: 430px; }
+#character-status-screen .demo-component__body { grid-template-columns: 1fr; }
+#character-status-screen .demo-code { border-top: 1px solid #303b3b; border-left: 0; }
 
 .demo-empty { padding: 60px 20px; border: 1px solid #3a4646; text-align: center; }
 .demo-empty strong { font-size: 1rem; font-weight: 500; }

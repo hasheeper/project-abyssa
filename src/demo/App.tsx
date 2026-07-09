@@ -268,8 +268,8 @@ export function App() {
       category: "display",
       description: "独立姓名牌，可放在立绘下方，也可作为列表或详情页的身份标识。",
       tags: ["identity"],
-      code: `<Nameplate\n  name="艾比希斯"\n  secondaryName="ABYSSA"\n/>`,
-      preview: <Nameplate name="艾比希斯" secondaryName="ABYSSA · BEELZERAN" />
+      code: `<Nameplate\n  name="艾比希斯·贝尔泽兰"\n  secondaryName="ABYSSA BEELZERAN"\n/>`,
+      preview: <Nameplate name="艾比希斯·贝尔泽兰" secondaryName="ABYSSA BEELZERAN" />
     },
     {
       id: "character-selector",
@@ -295,7 +295,7 @@ export function App() {
       category: "display",
       description: "完全数据驱动的详情面板。字段、参数、特性和记录都可以按需省略。",
       tags: ["data-driven", "sections"],
-      code: `<StatusPanel\n  data={{\n    title: "艾比希斯",\n    fields: [{ label: "种族", value: "根源存在" }],\n    stats: [{ label: "力量", value: "EX" }]\n  }}\n/>`,
+      code: `<StatusPanel\n  data={{\n    title: "当代魔王",\n    subtitle: "THE VESSEL OF CHAOS",\n    fields: [{ label: "种族", value: "根源存在" }],\n    stats: [{ label: "生命", secondaryLabel: "LIFE", value: "EX" }]\n  }}\n/>`,
       preview: <StatusPanel className="demo-status" data={demoCharacters[2].status} />,
       wide: true
     },
@@ -303,7 +303,7 @@ export function App() {
       id: "character-status-screen",
       name: "CharacterStatusScreen",
       category: "compositions",
-      description: "由 Header、Frame、Selector、Nameplate、StatusPanel 和 MenuButton 拼成的参考实现，不是不可拆分的大组件。",
+      description: "由 Header、Frame、Selector、Nameplate、StatusPanel 和 HexButton 拼成的参考实现，不是不可拆分的大组件。",
       tags: ["composition", "data-driven"],
       code: `<CharacterStatusScreen\n  characters={characters}\n  selectedId={selectedId}\n  onSelectedIdChange={setSelectedId}\n/>`,
       preview: <CharacterStatusScreen characters={demoCharacters} defaultSelectedId="abyssa" />,

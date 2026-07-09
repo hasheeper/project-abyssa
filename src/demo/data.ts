@@ -66,13 +66,13 @@ export const demoCharacters: CharacterProfile[] = [
   {
     id: "abyssa",
     number: "06",
-    name: "艾比希斯",
-    secondaryName: "ABYSSA · BEELZERAN",
+    name: "艾比希斯·贝尔泽兰",
+    secondaryName: "ABYSSA BEELZERAN",
     selectorVariant: "teal-outline",
     status: {
-      title: "艾比希斯",
-      subtitle: "ABYSSA · BEELZERAN",
-      state: "稳定性 83%",
+      title: "当代魔王",
+      subtitle: "THE VESSEL OF CHAOS",
+      state: "状态：安定",
       fields: [
         { label: "种族", value: "根源存在" },
         { label: "职能", value: "混沌容器" },
@@ -80,20 +80,20 @@ export const demoCharacters: CharacterProfile[] = [
         { label: "所在地", value: "守望者之崖" }
       ],
       stats: [
-        { label: "力量", value: "EX", accent: true },
-        { label: "耐久", value: "EX", accent: true },
-        { label: "敏捷", value: "EX", accent: true },
-        { label: "魔力", value: "EX", accent: true },
-        { label: "幸运", value: "D" },
-        { label: "领域", value: "A" }
+        { label: "生命", secondaryLabel: "LIFE", value: "EX", accent: true },
+        { label: "源力", secondaryLabel: "MANA", value: "EX", accent: true },
+        { label: "力量", secondaryLabel: "POWER", value: "EX", accent: true },
+        { label: "抗性", secondaryLabel: "WARD", value: "EX", accent: true },
+        { label: "敏捷", secondaryLabel: "AGILITY", value: "D" },
+        { label: "控制", secondaryLabel: "CONTROL", value: "A" }
       ],
       traits: [
-        { name: "我的平静", description: "以近乎静止的方式容纳不断扩张的混沌。" },
-        { name: "万象原生质", description: "形态与属性会回应观察者的认知。" },
-        { name: "静谧之楔", description: "锚定周围空间，抑制异常扩散。" }
+        { name: "我的平静", description: "作为容纳混沌的堤岸，维持周围源力与现实结构的稳定。" },
+        { name: "万象原生质", description: "操纵由自身延伸出的黑色原生质，使其化为触手、衣装或屏障。" },
+        { name: "静谧之楔", description: "凯尔在场时，混沌波动受到持续中和，安定状态大幅提升。" }
       ],
-      record: "被记录为深渊本身的投影。她仍以人的名字生活，并拒绝所有预设的结局。",
-      quote: "若深渊凝视你，那或许只是我在确认你仍然存在。"
+      record: "大天平指定的当代魔王，也是容纳现世灾厄的活体器皿。她平日慵懒而寡言，以直觉和感官理解世界，对阳光、安静的环境，以及凯尔平稳的体温抱有明显依赖。",
+      quote: "太阳的光，感觉舒服的时候，就醒了。这里的阳光，味道最好。"
     }
   }
 ];

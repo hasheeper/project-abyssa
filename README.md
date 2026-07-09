@@ -86,18 +86,19 @@ const characters: CharacterProfile[] = [
   {
     id: "abyssa",
     number: "06",
-    name: "艾比希斯",
-    secondaryName: "ABYSSA · BEELZERAN",
+    name: "艾比希斯·贝尔泽兰",
+    secondaryName: "ABYSSA BEELZERAN",
     status: {
-      title: "艾比希斯",
-      state: "稳定性 83%",
+      title: "当代魔王",
+      subtitle: "THE VESSEL OF CHAOS",
+      state: "状态：安定",
       fields: [
         { label: "种族", value: "根源存在" },
         { label: "职能", value: "混沌容器" }
       ],
       stats: [
-        { label: "力量", value: "EX", accent: true },
-        { label: "幸运", value: "D" }
+        { label: "生命", secondaryLabel: "LIFE", value: "EX", accent: true },
+        { label: "敏捷", secondaryLabel: "AGILITY", value: "D" }
       ]
     }
   }

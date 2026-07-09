@@ -11,7 +11,7 @@ export interface NameplateProps extends HTMLAttributes<HTMLDivElement> {
 export function Nameplate({
   name,
   secondaryName,
-  variant = "teal",
+  variant = "dark",
   className,
   ...props
 }: NameplateProps) {
@@ -21,12 +21,14 @@ export function Nameplate({
       data-variant={variant}
       {...props}
     >
-      <span className="abyssa-nameplate__wing" data-side="left" aria-hidden="true" />
-      <div className="abyssa-nameplate__copy">
-        <strong>{name}</strong>
-        {secondaryName && <span>{secondaryName}</span>}
+      <div className="abyssa-nameplate__middle">
+        <div className="abyssa-nameplate__inner">
+          <div className="abyssa-nameplate__content">
+            <strong>{name}</strong>
+            {secondaryName && <span>{secondaryName}</span>}
+          </div>
+        </div>
       </div>
-      <span className="abyssa-nameplate__wing" data-side="right" aria-hidden="true" />
     </div>
   );
 }
