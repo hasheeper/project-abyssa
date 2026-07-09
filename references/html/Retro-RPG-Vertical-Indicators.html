@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Retro RPG Vertical Indicators</title>
+
+<style>
+  :root {
+    --page-bg: #9cabad;
+
+    /* 统一的三层边框材质 */
+    --frame-outer: #192020;
+    --frame-middle: #899697;
+    --frame-inner: #111717;
+
+    --fill-dark: #1d2121;
+    --fill-light: #e4e8e8;
+    --fill-teal: #73b8bc;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    min-height: 100vh;
+    margin: 0;
+    padding: 40px;
+
+    display: grid;
+    place-items: center;
+
+    background-color: var(--page-bg);
+  }
+
+  .indicator-showcase {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  /* ========================================
+     纵向窄条指示器
+     ======================================== */
+
+  .vertical-indicator {
+    --indicator-fill: var(--fill-dark);
+    --indicator-middle: #718081;
+    --indicator-ornament: #566162;
+    --axis-color: #202727;
+
+    --pattern-dark: rgba(255, 255, 255, 0.035);
+    --pattern-light: rgba(255, 255, 255, 0.012);
+
+    display: block;
+    width: 40px;
+    height: 170px;
+  }
+
+  .vertical-indicator svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+
+    shape-rendering: geometricPrecision;
+  }
+
+  /* 暗色 */
+  .theme-dark {
+    --indicator-fill: #1d2121;
+    --indicator-middle: #718081;
+    --indicator-ornament: #596465;
+    --axis-color: #252c2c;
+
+    --pattern-dark: rgba(255, 255, 255, 0.035);
+    --pattern-light: rgba(255, 255, 255, 0.01);
+  }
+
+  /* 亮色 */
+  .theme-light {
+    --indicator-fill: #e4e8e8;
+    --indicator-middle: #9ba7a8;
+    --indicator-ornament: #667273;
+    --axis-color: #303737;
+
+    --pattern-dark: rgba(38, 58, 59, 0.07);
+    --pattern-light: rgba(255, 255, 255, 0.22);
+  }
+
+  /* 青色 */
+  .theme-teal {
+    --indicator-fill: #73b8bc;
+    --indicator-middle: #778f90;
+    --indicator-ornament: #315253;
+    --axis-color: #244344;
+
+    --pattern-dark: rgba(26, 70, 73, 0.09);
+    --pattern-light: rgba(255, 255, 255, 0.08);
+  }
+</style>
+</head>
+
+<body>
+
+<main class="indicator-showcase">
+  <rpg-vertical-indicator variant="dark"></rpg-vertical-indicator>
+
+  <rpg-vertical-indicator variant="light"></rpg-vertical-indicator>
+
+  <rpg-vertical-indicator variant="teal"></rpg-vertical-indicator>
+</main>
+
+<script>
+  class RPGVerticalIndicator extends HTMLElement {
+    connectedCallback() {
+      const variant = this.getAttribute("variant") || "dark";
+      const uid = `indicator-${Math.random()
+        .toString(36)
+        .slice(2)}`;
+
+      /*
+       * 窄长六边形主体：
+       *
+       *       /────\
+       *      /      \
+       *      │      │
+       *      │      │
+       *      \      /
+       *       \────/
+       *
+       * 中轴线从主体上下两端继续延伸。
+       */
+      const outerPath = `
+        M 20 20
+        L 33 30
+        V 140
+        L 20 150
+        L 7 140
+        V 30
+        Z
+      `;
+
+      const innerPath = `
+        M 20 27
+        L 27 33
+        V 137
+        L 20 143
+        L 13 137
+        V 33
+        Z
+      `;
+
+      this.innerHTML = `
+        <div class="vertical-indicator theme-${variant}">
+          <svg
+            viewBox="0 0 40 170"
+            role="img"
+            aria-label="纵向指示器"
+          >
+            <defs>
+              <!-- 低对比度菱形底纹 -->
+              <pattern
+                id="${uid}-pattern"
+                width="20"
+                height="20"
+                patternUnits="userSpaceOnUse"
+              >
+                <path
+                  d="M10 0 L20 10 L10 20 L0 10 Z"
+                  fill="var(--pattern-dark)"
+                />
+                <path
+                  d="M10 5 L15 10 L10 15 L5 10 Z"
+                  fill="var(--pattern-light)"
+                />
+              </pattern>
+              <clipPath id="${uid}-clip">
+                <path d="${outerPath}"/>
+              </clipPath>
+            </defs>
+            <!--
+              贯穿主体的中轴线。
+              它在主体顶部和底部各延伸20px。
+            -->
+            <path
+              d="M20 0 V170"
+              fill="none"
+              stroke="var(--axis-color)"
+              stroke-width="3"
+              stroke-linecap="square"
+            />
+            <!-- 指示条主体 -->
+            <path
+              d="${outerPath}"
+              fill="var(--indicator-fill)"
+            />
+            <!-- 低对比度材质 -->
+            <rect
+              x="5"
+              y="18"
+              width="30"
+              height="134"
+              fill="url(#${uid}-pattern)"
+              clip-path="url(#${uid}-clip)"
+            />
+            <!-- 外层深色粗框 -->
+            <path
+              d="${outerPath}"
+              fill="none"
+              stroke="var(--frame-outer)"
+              stroke-width="6"
+              stroke-linejoin="round"
+            />
+            <!-- 中间冷灰细线 -->
+            <path
+              d="${outerPath}"
+              fill="none"
+              stroke="var(--indicator-middle)"
+              stroke-width="3.2"
+              stroke-linejoin="round"
+            />
+            <!-- 内层深色线 -->
+            <path
+              d="${outerPath}"
+              fill="none"
+              stroke="var(--frame-inner)"
+              stroke-width="1.3"
+              stroke-linejoin="round"
+            />
+            <!-- 内侧装饰轮廓 -->
+            <path
+              d="${innerPath}"
+              fill="none"
+              stroke="var(--indicator-ornament)"
+              stroke-width="1"
+              stroke-linejoin="round"
+              opacity=".92"
+            />
+            <!-- 顶部小圆点 -->
+            <circle
+              cx="20"
+              cy="34"
+              r="1.35"
+              fill="var(--indicator-ornament)"
+            />
+            <!-- 底部小圆点 -->
+            <circle
+              cx="20"
+              cy="136"
+              r="1.35"
+              fill="var(--indicator-ornament)"
+            />
+          </svg>
+        </div>
+      `;
+    }
+  }
+
+  customElements.define(
+    "rpg-vertical-indicator",
+    RPGVerticalIndicator
+  );
+</script>
+
+</body>
+</html>

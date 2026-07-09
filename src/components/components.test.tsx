@@ -1,13 +1,19 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { CharacterSelector } from "./CharacterSelector";
+import { IconButton } from "./IconButton";
 import { Nameplate } from "./Nameplate";
 import { RibbonButton } from "./RibbonButton";
+import { RpgBackButton } from "./RpgBackButton";
+import { RpgCheckbox, RpgRadio } from "./RpgChoice";
 import { RpgHeader } from "./RpgHeader";
 import { RpgHexButton } from "./RpgHexButton";
+import { RpgShapeButton } from "./RpgShapeButton";
 import { RpgSquarePanel } from "./RpgSquarePanel";
+import { RpgTab } from "./RpgTab";
 import { StatusPanel } from "./StatusPanel";
 import { Toggle } from "./Toggle";
+import { VerticalIndicator } from "./VerticalIndicator";
 
 describe("Abyssa controls", () => {
   it("uses native button semantics and unique SVG definition ids", () => {
@@ -73,6 +79,50 @@ describe("Abyssa controls", () => {
       "0 0 116 116"
     );
     expect(container.querySelector(".abyssa-panel-tile")).not.toBeInTheDocument();
+  });
+
+  it("renders the new reference button geometries with collision-free SVG ids", () => {
+    const { container } = render(
+      <>
+        <RpgShapeButton label="Circle" shape="circle" />
+        <RpgShapeButton label="Pill" shape="pill" variant="teal" />
+        <RpgTab label="Archive" variant="decorated" />
+        <RpgBackButton />
+        <IconButton label="关闭" icon="close" shape="diamond" />
+      </>
+    );
+
+    expect(screen.getByRole("button", { name: "Circle" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "Archive" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "Back" })).toBeEnabled();
+    expect(container.querySelector(".abyssa-back-button svg")).toHaveAttribute("viewBox", "0 0 190 190");
+    expect(container.querySelector(".abyssa-icon-button__art")).toHaveAttribute("viewBox", "0 0 120 120");
+    const ids = Array.from(container.querySelectorAll("pattern, clipPath")).map((node) => node.id);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it("uses native radio and checkbox behavior", () => {
+    const onRadioChange = vi.fn();
+    const onCheckboxChange = vi.fn();
+    render(
+      <>
+        <RpgRadio name="theme" label="暗色主题" onCheckedChange={onRadioChange} />
+        <RpgCheckbox label="启用选项" onCheckedChange={onCheckboxChange} />
+      </>
+    );
+
+    fireEvent.click(screen.getByRole("radio", { name: "暗色主题" }));
+    fireEvent.click(screen.getByRole("checkbox", { name: "启用选项" }));
+    expect(screen.getByRole("radio", { name: "暗色主题" })).toBeChecked();
+    expect(screen.getByRole("checkbox", { name: "启用选项" })).toBeChecked();
+    expect(onRadioChange).toHaveBeenCalledWith(true);
+    expect(onCheckboxChange).toHaveBeenCalledWith(true);
+  });
+
+  it("renders the vertical indicator at the reference viewBox", () => {
+    const { container } = render(<VerticalIndicator variant="teal" label="步骤轴" />);
+    expect(screen.getByRole("img", { name: "步骤轴" })).toBeInTheDocument();
+    expect(container.querySelector(".abyssa-vertical-indicator svg")).toHaveAttribute("viewBox", "0 0 40 170");
   });
 
   it("renders the layered reference nameplate and bilingual status labels", () => {

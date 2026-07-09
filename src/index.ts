@@ -16,7 +16,12 @@ export type {
   CharacterStatusScreenProps
 } from "./components/CharacterStatusScreen";
 export { IconButton } from "./components/IconButton";
-export type { IconButtonProps } from "./components/IconButton";
+export { RetroRpgIconButton } from "./components/IconButton";
+export type {
+  IconButtonIcon,
+  IconButtonProps,
+  IconButtonShape
+} from "./components/IconButton";
 export { Nameplate } from "./components/Nameplate";
 export type { NameplateProps } from "./components/Nameplate";
 export { Progress } from "./components/Progress";
@@ -25,6 +30,23 @@ export { RibbonButton } from "./components/RibbonButton";
 export type { RibbonButtonProps } from "./components/RibbonButton";
 export { RpgFrame } from "./components/RpgFrame";
 export type { RpgFrameProps } from "./components/RpgFrame";
+export {
+  RetroRpgBackButton,
+  RpgBackButton
+} from "./components/RpgBackButton";
+export type { RpgBackButtonProps } from "./components/RpgBackButton";
+export {
+  RetroRpgCheckbox,
+  RetroRpgRadio,
+  RpgCheckbox,
+  RpgRadio
+} from "./components/RpgChoice";
+export type {
+  RpgCheckboxProps,
+  RpgCheckboxVariant,
+  RpgRadioProps,
+  RpgRadioVariant
+} from "./components/RpgChoice";
 export { RetroRpgHeader, RpgHeader } from "./components/RpgHeader";
 export type {
   RetroRpgHeaderProps,
@@ -38,6 +60,19 @@ export type {
   RetroRpgHexButtonProps,
   RpgHexButtonProps
 } from "./components/RpgHexButton";
+export {
+  RetroRpgCircleButton,
+  RetroRpgShapeButton,
+  RpgCircleButton,
+  RpgShapeButton
+} from "./components/RpgShapeButton";
+export type {
+  RpgCircleButtonProps,
+  RpgShapeButtonProps,
+  RpgShapeButtonShape
+} from "./components/RpgShapeButton";
+export { RetroRpgTab, RpgTab } from "./components/RpgTab";
+export type { RpgTabProps, RpgTabVariant } from "./components/RpgTab";
 export { RpgPanel } from "./components/RpgPanel";
 export type { RpgPanelProps } from "./components/RpgPanel";
 export {
@@ -60,4 +95,9 @@ export type {
 } from "./components/StatusPanel";
 export { Toggle } from "./components/Toggle";
 export type { ToggleProps } from "./components/Toggle";
+export {
+  RetroRpgVerticalIndicator,
+  VerticalIndicator
+} from "./components/VerticalIndicator";
+export type { VerticalIndicatorProps } from "./components/VerticalIndicator";
 export type { AbyssaSize, AbyssaVariant, PanelVariant } from "./types";

@@ -2,7 +2,6 @@ import { useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import {
   AbyssaProvider,
-  ArrowButton,
   CharacterSelector,
   CharacterStatusScreen,
   IconButton,
@@ -10,12 +9,19 @@ import {
   Progress,
   RibbonButton,
   RpgFrame,
+  RpgBackButton,
+  RpgCheckbox,
+  RpgCircleButton,
   RpgHeader,
   RpgHexButton,
   RpgPanel,
+  RpgRadio,
+  RpgShapeButton,
   RpgSquarePanel,
+  RpgTab,
   StatusPanel,
-  Toggle
+  Toggle,
+  VerticalIndicator
 } from "../index";
 import { demoCharacters } from "./data";
 
@@ -38,17 +44,6 @@ const categories: Array<{ id: CategoryId; label: string; description: string }> 
   { id: "display", label: "数据展示", description: "状态与选择内容" },
   { id: "compositions", label: "组合范例", description: "可拆解的业务组合" }
 ];
-
-function MenuIcon() {
-  return (
-    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.5">
-      <path d="M5 7h14M5 12h14M5 17h14" />
-      <circle cx="3" cy="7" r=".8" fill="currentColor" />
-      <circle cx="3" cy="12" r=".8" fill="currentColor" />
-      <circle cx="3" cy="17" r=".8" fill="currentColor" />
-    </svg>
-  );
-}
 
 function CopyButton({ value }: { value: string }) {
   const [copied, setCopied] = useState(false);
@@ -108,6 +103,9 @@ export function App() {
   const [enabled, setEnabled] = useState(true);
   const [selectedPanel, setSelectedPanel] = useState("02");
   const [selectedSquarePanel, setSelectedSquarePanel] = useState("04");
+  const [selectedTab, setSelectedTab] = useState("archive");
+  const [selectedRadio, setSelectedRadio] = useState("dark");
+  const [checkedChoice, setCheckedChoice] = useState(true);
 
   const items: CatalogItem[] = useMemo(() => [
     {
@@ -173,18 +171,126 @@ export function App() {
       wide: true
     },
     {
-      id: "icon-buttons",
-      name: "IconButton / ArrowButton",
+      id: "rpg-shape-buttons",
+      name: "RpgShapeButton / RpgCircleButton",
       category: "actions",
-      description: "小面积图标操作。label 是必填的无障碍名称，ArrowButton 是方向操作的快捷封装。",
-      tags: ["icon", "aria-label"],
-      code: `<IconButton label="打开菜单">\n  <MenuIcon />\n</IconButton>\n\n<ArrowButton\n  label="下一项"\n  direction="right"\n/>`,
+      description: "四类独立形状按钮：圆形、切角方形、切角横条和胶囊。几何、三层描边与底部定位点均来自参考原型。",
+      tags: ["4 shapes", "button", "selected"],
+      code: `<RpgShapeButton\n  label="Confirm"\n  shape="chamfer"\n  variant="teal"\n/>\n\n<RpgCircleButton label="Open" />`,
+      preview: (
+        <div className="demo-reference-rows">
+          <div className="demo-inline">
+            <RpgCircleButton label="Button" variant="dark" />
+            <RpgCircleButton label="Button" variant="light" />
+            <RpgCircleButton label="Button" variant="teal" />
+          </div>
+          <div className="demo-inline">
+            <RpgShapeButton label="Button" shape="square" variant="dark" />
+            <RpgShapeButton label="Button" shape="square" variant="light" />
+            <RpgShapeButton label="Button" shape="square" variant="teal" />
+          </div>
+          <div className="demo-inline">
+            <RpgShapeButton label="Button" shape="chamfer" variant="dark" />
+            <RpgShapeButton label="Button" shape="chamfer" variant="light" />
+            <RpgShapeButton label="Button" shape="chamfer" variant="teal" />
+          </div>
+          <div className="demo-inline">
+            <RpgShapeButton label="Button" shape="pill" variant="dark" />
+            <RpgShapeButton label="Button" shape="pill" variant="light" />
+            <RpgShapeButton label="Button" shape="pill" variant="teal" />
+          </div>
+        </div>
+      ),
+      wide: true
+    },
+    {
+      id: "rpg-tabs",
+      name: "RpgTab",
+      category: "actions",
+      description: "底边开放、用于连接内容面板的标签按钮。支持受控选中态和四种参考主题。",
+      tags: ["tab", "controlled", "4 variants"],
+      code: `<RpgTab\n  label="Archive"\n  variant="decorated"\n  selected={activeTab === "archive"}\n  onClick={() => setActiveTab("archive")}\n/>`,
+      preview: (
+        <div className="demo-tabs" role="tablist" aria-label="资料分类">
+          {(["status", "items", "archive", "map"] as const).map((id, index) => (
+            <RpgTab
+              key={id}
+              label={id}
+              variant={(["dark", "light", "decorated", "teal"] as const)[index]}
+              selected={selectedTab === id}
+              onClick={() => setSelectedTab(id)}
+              role="tab"
+            />
+          ))}
+        </div>
+      ),
+      wide: true
+    },
+    {
+      id: "rpg-back-buttons",
+      name: "RpgBackButton",
+      category: "actions",
+      description: "190 × 190 的三角返回按钮，包含完整三重轮廓、两层内饰线和定位点。",
+      tags: ["back", "button", "3 variants"],
+      code: `<RpgBackButton\n  label="Back"\n  variant="dark"\n  onClick={goBack}\n/>`,
       preview: (
         <div className="demo-inline">
-          <IconButton label="打开菜单"><MenuIcon /></IconButton>
-          <IconButton label="亮色菜单" variant="light" shape="circle"><MenuIcon /></IconButton>
-          <ArrowButton label="上一项" direction="left" variant="dark" shape="circle" />
-          <ArrowButton label="下一页" direction="right" double variant="teal" shape="circle" />
+          <RpgBackButton variant="dark" />
+          <RpgBackButton variant="light" />
+          <RpgBackButton variant="teal" />
+        </div>
+      ),
+      wide: true
+    },
+    {
+      id: "icon-buttons",
+      name: "IconButton",
+      category: "actions",
+      description: "严格对应标准 86px 与紧凑 76px 两套图标按钮；内置关闭、增加、减少图标，并保留无障碍名称。",
+      tags: ["icon", "regular", "compact"],
+      code: `<IconButton\n  label="关闭"\n  icon="close"\n  shape="diamond"\n  variant="dark"\n/>\n\n<IconButton label="增加" icon="plus" size="md" />`,
+      preview: (
+        <div className="demo-reference-rows">
+          <div className="demo-inline">
+            <IconButton label="关闭" icon="close" shape="diamond" variant="dark" />
+            <IconButton label="关闭" icon="close" shape="diamond" variant="light" />
+            <IconButton label="关闭" icon="close" shape="diamond" variant="teal" />
+          </div>
+          <div className="demo-inline">
+            <IconButton label="增加" icon="plus" size="md" variant="dark" />
+            <IconButton label="增加" icon="plus" size="md" variant="light" />
+            <IconButton label="减少" icon="minus" size="md" variant="teal" />
+          </div>
+        </div>
+      ),
+      wide: true
+    },
+    {
+      id: "rpg-choices",
+      name: "RpgRadio / RpgCheckbox",
+      category: "actions",
+      description: "使用原生 radio 与 checkbox 语义，支持键盘、表单和受控状态；SVG 只负责参考稿外观。",
+      tags: ["native input", "controlled", "accessible"],
+      code: `<RpgRadio\n  name="theme"\n  label="暗色"\n  checked={theme === "dark"}\n  onCheckedChange={() => setTheme("dark")}\n/>\n\n<RpgCheckbox label="启用" checked={enabled} onCheckedChange={setEnabled} />`,
+      preview: (
+        <div className="demo-reference-rows demo-choices">
+          <div className="demo-inline" role="radiogroup" aria-label="主题选择">
+            {(["gray", "dark", "teal"] as const).map((variant) => (
+              <RpgRadio
+                key={variant}
+                name="demo-theme"
+                label={`${variant} 主题`}
+                variant={variant}
+                checked={selectedRadio === variant}
+                onCheckedChange={(next) => next && setSelectedRadio(variant)}
+              />
+            ))}
+          </div>
+          <div className="demo-inline">
+            <RpgCheckbox label="空白选项" variant="empty" />
+            <RpgCheckbox label="暗色选项" variant="dark" checked={checkedChoice} onCheckedChange={setCheckedChoice} />
+            <RpgCheckbox label="青色选项" variant="teal" defaultChecked />
+          </div>
         </div>
       )
     },
@@ -213,6 +319,21 @@ export function App() {
         <div className="demo-stack demo-stack--progress">
           <Progress label="Stability" value={83} showValue />
           <Progress label="Resonance" value={52} variant="light" size="sm" showValue />
+        </div>
+      )
+    },
+    {
+      id: "vertical-indicators",
+      name: "VerticalIndicator",
+      category: "display",
+      description: "40 × 170 的纵向装饰指示条，适合侧边导航、步骤轴和面板之间的视觉连接。",
+      tags: ["indicator", "ornament", "3 variants"],
+      code: `<VerticalIndicator variant="teal" label="当前步骤" />`,
+      preview: (
+        <div className="demo-inline demo-indicators">
+          <VerticalIndicator variant="dark" />
+          <VerticalIndicator variant="light" />
+          <VerticalIndicator variant="teal" />
         </div>
       )
     },
@@ -309,7 +430,7 @@ export function App() {
       preview: <CharacterStatusScreen characters={demoCharacters} defaultSelectedId="abyssa" />,
       wide: true
     }
-  ], [enabled, selectedPanel, selectedSquarePanel]);
+  ], [checkedChoice, enabled, selectedPanel, selectedRadio, selectedSquarePanel, selectedTab]);
 
   const normalizedQuery = query.trim().toLowerCase();
   const visibleItems = normalizedQuery

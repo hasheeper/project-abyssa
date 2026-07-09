@@ -145,6 +145,11 @@ button, input { font: inherit; }
 .demo-stack--hex-buttons { max-width: 760px; margin: auto; }
 .demo-stack--progress { max-width: 560px; margin: auto; }
 .demo-inline { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 13px; }
+.demo-reference-rows { display: grid; gap: 18px; width: 100%; }
+.demo-tabs { display: grid; width: min(100%, 800px); margin: auto; border-bottom: 5px solid var(--abyssa-frame-dark); grid-template-columns: repeat(4, minmax(120px, 1fr)); gap: 14px; align-items: end; }
+.demo-choices { width: max-content; max-width: 100%; margin: auto; gap: 12px; }
+.demo-choices .demo-inline { gap: 7px; }
+.demo-indicators { gap: 10px; }
 .demo-live-value { padding: 6px 9px; border: 1px solid #425050; color: var(--abyssa-text-muted); background: #171d1d; font-family: ui-monospace, monospace; font-size: 0.7rem; }
 .demo-frame-grid { display: grid; grid-template-columns: repeat(3, minmax(120px, 1fr)); gap: 16px; width: 100%; text-align: center; }
 .demo-frame-grid .abyssa-frame__content { font-size: 0.7rem; }
@@ -156,6 +161,10 @@ button, input { font: inherit; }
 .demo-status .abyssa-status-panel__lower { grid-template-columns: 1fr 1fr; }
 
 .demo-component[data-wide] .demo-component__body { grid-template-columns: minmax(0, 1.55fr) minmax(300px, 0.45fr); }
+:is(#rpg-shape-buttons, #rpg-tabs, #rpg-back-buttons, #icon-buttons) .demo-component__body { grid-template-columns: 1fr; }
+:is(#rpg-shape-buttons, #rpg-tabs, #rpg-back-buttons, #icon-buttons) .demo-code { border-top: 1px solid #303b3b; border-left: 0; }
+#rpg-shape-buttons .demo-preview__content { width: min(820px, 100%); }
+#rpg-tabs .demo-preview__content { width: min(800px, 100%); }
 #character-status-screen .demo-preview { align-items: start; overflow: auto; padding-inline: clamp(20px, 3vw, 48px); }
 #character-status-screen .demo-preview__content { width: min(1180px, 100%); }
 #character-status-screen .demo-component__body { grid-template-columns: 1fr; }
@@ -190,6 +199,7 @@ button, input { font: inherit; }
   .demo-frame-grid { grid-template-columns: 1fr; }
   .demo-panel-grid { grid-template-columns: repeat(3, minmax(70px, 1fr)); }
   .demo-square-panel-grid { grid-template-columns: repeat(3, minmax(70px, 116px)); gap: 6px; }
+  .demo-tabs { border-bottom: 0; grid-template-columns: repeat(2, minmax(120px, 1fr)); gap: 12px; }
   .demo-status .abyssa-status-panel__lower { grid-template-columns: 1fr; }
   #character-status-screen .demo-preview { padding-inline: 10px; }
 }

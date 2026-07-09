@@ -1,16 +1,20 @@
-import { forwardRef } from "react";
+import { forwardRef, useId } from "react";
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 import type { AbyssaSize, AbyssaVariant } from "../types";
 import { cx } from "../utils/cx";
+
+export type IconButtonIcon = "close" | "plus" | "minus";
+export type IconButtonShape = "diamond" | "circle";
 
 export interface IconButtonProps
   extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "aria-label"> {
   label: string;
   variant?: AbyssaVariant;
   size?: AbyssaSize;
-  shape?: "circle" | "square" | "pill";
+  shape?: IconButtonShape;
+  icon?: IconButtonIcon;
   selected?: boolean;
-  children: ReactNode;
+  children?: ReactNode;
 }
 
 export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
@@ -18,8 +22,9 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
     {
       label,
       variant = "dark",
-      size = "md",
-      shape = "square",
+      size = "lg",
+      shape = "circle",
+      icon = "plus",
       selected,
       className,
       children,
@@ -28,6 +33,21 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
     },
     ref
   ) {
+    const uid = useId().replace(/:/g, "");
+    const patternId = `abyssa-icon-pattern-${uid}`;
+    const clipId = `abyssa-icon-clip-${uid}`;
+    const compact = size !== "lg";
+    const circleRadius = compact ? 53 : 52;
+    const circleOrnamentRadius = compact ? 47 : 44;
+    const diamondPath = "M60 7 L113 60 L60 113 L7 60 Z";
+    const diamondOrnament = compact
+      ? "M60 14 L106 60 L60 106 L14 60 Z"
+      : "M60 17 L103 60 L60 103 L17 60 Z";
+    const iconStart = compact ? 39 : 43;
+    const iconEnd = compact ? 81 : 77;
+    const closeStart = compact ? 44 : 46;
+    const closeEnd = compact ? 76 : 74;
+
     return (
       <button
         ref={ref}
@@ -36,15 +56,63 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
         data-variant={variant}
         data-size={size}
         data-shape={shape}
+        data-density={compact ? "compact" : "regular"}
         data-selected={selected || undefined}
         aria-label={label}
         aria-pressed={selected === undefined ? undefined : selected}
         {...props}
       >
-        <span className="abyssa-icon-button__surface" aria-hidden="true">
-          {children}
-        </span>
+        <svg className="abyssa-icon-button__art" viewBox="0 0 120 120" aria-hidden="true">
+          <defs>
+            <pattern id={patternId} width={compact ? 30 : 34} height={compact ? 30 : 34} patternUnits="userSpaceOnUse">
+              <path d={compact ? "M15 0 L30 15 L15 30 L0 15 Z" : "M17 0 L34 17 L17 34 L0 17 Z"} fill="var(--abyssa-icon-pattern-dark)" />
+              <path d={compact ? "M15 7 L23 15 L15 23 L7 15 Z" : "M17 8 L26 17 L17 26 L8 17 Z"} fill="var(--abyssa-icon-pattern-light)" />
+            </pattern>
+            <clipPath id={clipId}>
+              {shape === "diamond" ? <path d={diamondPath} /> : <circle cx="60" cy="60" r={circleRadius} />}
+            </clipPath>
+          </defs>
+
+          {shape === "diamond" ? (
+            <path d={diamondPath} fill="var(--abyssa-icon-fill)" />
+          ) : (
+            <circle cx="60" cy="60" r={circleRadius} fill="var(--abyssa-icon-fill)" />
+          )}
+          <rect x={compact ? 4 : 5} y={compact ? 4 : 5} width={compact ? 112 : 110} height={compact ? 112 : 110} fill={`url(#${patternId})`} clipPath={`url(#${clipId})`} />
+
+          {[9, 5, 2].map((strokeWidth, index) => {
+            const stroke = index === 0 ? "var(--abyssa-frame-dark)" : index === 1 ? "var(--abyssa-icon-middle)" : "var(--abyssa-frame-deep)";
+            return shape === "diamond" ? (
+              <path key={strokeWidth} d={diamondPath} fill="none" stroke={stroke} strokeWidth={strokeWidth} strokeLinejoin={compact ? "round" : "miter"} />
+            ) : (
+              <circle key={strokeWidth} cx="60" cy="60" r={circleRadius} fill="none" stroke={stroke} strokeWidth={strokeWidth} />
+            );
+          })}
+
+          {shape === "diamond" ? (
+            <path d={diamondOrnament} fill="none" stroke="var(--abyssa-icon-ornament)" strokeWidth={compact ? 1.35 : 1.25} strokeLinejoin={compact ? "round" : "miter"} opacity={compact ? .92 : .9} />
+          ) : (
+            <circle cx="60" cy="60" r={circleOrnamentRadius} fill="none" stroke="var(--abyssa-icon-ornament)" strokeWidth={compact ? 1.35 : 1.25} opacity={compact ? .92 : .9} />
+          )}
+
+          {!children && (
+            <g
+              fill="none"
+              stroke="var(--abyssa-icon-ink)"
+              strokeWidth={compact ? (icon === "close" && shape === "diamond" ? 6.5 : 7.5) : 6}
+              strokeLinecap={compact ? "round" : "square"}
+              strokeLinejoin={compact ? "round" : "miter"}
+            >
+              {icon === "close" && <><path d={`M${closeStart} ${closeStart} L${closeEnd} ${closeEnd}`} /><path d={`M${closeEnd} ${closeStart} L${closeStart} ${closeEnd}`} /></>}
+              {icon === "minus" && <path d={`M${iconStart} 60 H${iconEnd}`} />}
+              {icon === "plus" && <><path d={`M${iconStart} 60 H${iconEnd}`} /><path d={`M60 ${iconStart} V${iconEnd}`} /></>}
+            </g>
+          )}
+        </svg>
+        {children && <span className="abyssa-icon-button__custom" aria-hidden="true">{children}</span>}
       </button>
     );
   }
 );
+
+export const RetroRpgIconButton = IconButton;

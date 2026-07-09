@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Retro RPG Back Buttons</title>
+
+<style>
+  @import url(
+    "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&display=swap"
+  );
+
+  :root {
+    --page-bg: #9cabad;
+
+    /* 与前面组件统一的边框材质 */
+    --frame-outer: #192020;
+    --frame-middle: #899697;
+    --frame-inner: #111717;
+
+    --fill-dark: #1d2121;
+    --fill-light: #e4e8e8;
+    --fill-teal: #73b8bc;
+
+    --text-light: #f0f3f3;
+    --text-dark: #202727;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    min-height: 100vh;
+    margin: 0;
+    padding: 48px;
+
+    display: grid;
+    place-items: center;
+
+    background-color: var(--page-bg);
+  }
+
+  .button-showcase {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 18px;
+  }
+
+  /* ========================================
+     三角形返回按钮
+     ======================================== */
+
+  .back-button {
+    --button-fill: var(--fill-dark);
+    --button-text: var(--text-light);
+    --button-middle: #718081;
+    --button-ornament: #566162;
+
+    --pattern-dark: rgba(255, 255, 255, 0.035);
+    --pattern-light: rgba(255, 255, 255, 0.012);
+
+    display: block;
+    width: 190px;
+    height: 190px;
+
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+
+    cursor: pointer;
+    font: inherit;
+
+    transition:
+      transform 80ms ease,
+      filter 100ms ease;
+  }
+
+  .back-button:hover {
+    filter: brightness(1.06);
+  }
+
+  .back-button:active {
+    transform: translate(1px, 1px) scale(0.99);
+  }
+
+  .back-button:focus-visible {
+    outline: 2px solid #eef2f2;
+    outline-offset: 5px;
+  }
+
+  .back-button svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+
+    shape-rendering: geometricPrecision;
+  }
+
+  .back-label {
+    fill: var(--button-text);
+
+    font-family:
+      "Cormorant Garamond",
+      Georgia,
+      "Times New Roman",
+      serif;
+
+    font-size: 29px;
+    font-weight: 600;
+    letter-spacing: 0.4px;
+
+    text-anchor: middle;
+    dominant-baseline: middle;
+  }
+
+  /* ========================================
+     三种配色
+     ======================================== */
+
+  .theme-dark {
+    --button-fill: #1d2121;
+    --button-text: #f0f3f3;
+    --button-middle: #718081;
+    --button-ornament: #566162;
+
+    --pattern-dark: rgba(255, 255, 255, 0.035);
+    --pattern-light: rgba(255, 255, 255, 0.01);
+  }
+
+  .theme-light {
+    --button-fill: #e4e8e8;
+    --button-text: #303737;
+    --button-middle: #9ba7a8;
+    --button-ornament: #667273;
+
+    --pattern-dark: rgba(38, 58, 59, 0.075);
+    --pattern-light: rgba(255, 255, 255, 0.22);
+  }
+
+  .theme-teal {
+    --button-fill: #73b8bc;
+    --button-text: #263031;
+    --button-middle: #778f90;
+    --button-ornament: #315253;
+
+    --pattern-dark: rgba(26, 70, 73, 0.095);
+    --pattern-light: rgba(255, 255, 255, 0.08);
+  }
+
+  @media (max-width: 680px) {
+    body {
+      padding: 24px 12px;
+    }
+
+    .button-showcase {
+      gap: 6px;
+    }
+
+    .back-button {
+      width: min(31vw, 145px);
+      height: min(31vw, 145px);
+    }
+  }
+</style>
+</head>
+
+<body>
+
+<main class="button-showcase">
+  <rpg-back-button
+    variant="dark"
+    label="Back"
+  ></rpg-back-button>
+
+  <rpg-back-button
+    variant="light"
+    label="Back"
+  ></rpg-back-button>
+
+  <rpg-back-button
+    variant="teal"
+    label="Back"
+  ></rpg-back-button>
+</main>
+
+<script>
+  class RPGBackButton extends HTMLElement {
+    connectedCallback() {
+      const variant = this.getAttribute("variant") || "dark";
+      const label = this.getAttribute("label") || "Back";
+      const uid = `back-${Math.random().toString(36).slice(2)}`;
+
+      /*
+       * 外部三角形：
+       *
+       *  A────────────────B
+       *    ╲              │
+       *      ╲            │
+       *        ╲          │
+       *          ╲        │
+       *            ╲      │
+       *              ╲    │
+       *                ╲  │
+       *                  ╲│
+       *                   C
+       */
+
+      const outerPath = `
+        M 16 14
+        H 176
+        V 174
+        Z
+      `;
+
+      /*
+       * 内部装饰三角形。
+       * 三条边与外部轮廓保持平行。
+       */
+      const ornamentPath = `
+        M 51 35
+        H 155
+        V 139
+        Z
+      `;
+
+      this.innerHTML = `
+        <button
+          class="back-button theme-${variant}"
+          type="button"
+          aria-label="${label}"
+        >
+          <svg
+            viewBox="0 0 190 190"
+            aria-hidden="true"
+          >
+            <defs>
+              <!-- 低对比度菱形暗纹 -->
+              <pattern
+                id="${uid}-pattern"
+                width="42"
+                height="42"
+                patternUnits="userSpaceOnUse"
+                patternTransform="translate(4 4)"
+              >
+                <path
+                  d="M21 0 L42 21 L21 42 L0 21 Z"
+                  fill="var(--pattern-dark)"
+                />
+                <path
+                  d="M21 10 L32 21 L21 32 L10 21 Z"
+                  fill="var(--pattern-light)"
+                />
+              </pattern>
+              <clipPath id="${uid}-clip">
+                <path d="${outerPath}"/>
+              </clipPath>
+            </defs>
+            <!-- 三角形主体 -->
+            <path
+              d="${outerPath}"
+              fill="var(--button-fill)"
+            />
+            <!-- 菱形暗纹 -->
+            <rect
+              x="12"
+              y="10"
+              width="168"
+              height="168"
+              fill="url(#${uid}-pattern)"
+              clip-path="url(#${uid}-clip)"
+            />
+            <!--
+              深—浅—深三重边框。
+              三条描边共享同一路径，确保顶边、右边和斜边等宽。
+            -->
+            <!-- 外层深色粗框 -->
+            <path
+              d="${outerPath}"
+              fill="none"
+              stroke="var(--frame-outer)"
+              stroke-width="10"
+              stroke-linejoin="miter"
+            />
+            <!-- 中间冷灰细线 -->
+            <path
+              d="${outerPath}"
+              fill="none"
+              stroke="var(--button-middle)"
+              stroke-width="5"
+              stroke-linejoin="miter"
+            />
+            <!-- 内层深色线 -->
+            <path
+              d="${outerPath}"
+              fill="none"
+              stroke="var(--frame-inner)"
+              stroke-width="2"
+              stroke-linejoin="miter"
+            />
+            <!-- 内部三角装饰线 -->
+            <path
+              d="${ornamentPath}"
+              fill="none"
+              stroke="var(--button-ornament)"
+              stroke-width="1.5"
+              stroke-linejoin="miter"
+              opacity=".92"
+            />
+            <!-- 内部第二圈细线 -->
+            <path
+              d="
+                M 58 41
+                H 149
+                V 132
+                Z
+              "
+              fill="none"
+              stroke="var(--button-ornament)"
+              stroke-width=".75"
+              stroke-linejoin="miter"
+              opacity=".55"
+            />
+            <!-- 顶边和右边的小型装饰点 -->
+            <g fill="var(--button-ornament)">
+              <circle cx="136" cy="21" r="1"/>
+              <circle cx="148" cy="21" r="1.35"/>
+              <circle cx="160" cy="21" r="1"/>
+              <circle cx="169" cy="43" r="1"/>
+              <circle cx="169" cy="55" r="1.35"/>
+              <circle cx="169" cy="67" r="1"/>
+            </g>
+            <!-- Back 文字位于有效三角区域的视觉中心 -->
+            <text
+              class="back-label"
+              x="127"
+              y="69"
+            >
+              ${label}
+            </text>
+          </svg>
+        </button>
+      `;
+    }
+  }
+
+  customElements.define(
+    "rpg-back-button",
+    RPGBackButton
+  );
+</script>
+
+</body>
+</html>

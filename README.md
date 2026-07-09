@@ -8,10 +8,16 @@
 - `RpgFrame`：三层边框与角部装饰容器
 - `RibbonButton`：深色、亮色、青色燕尾按钮
 - `RpgHexButton`：精确复刻 `Retro-RPG-Hex-Button` 的对称六边形主按钮
+- `RpgShapeButton`、`RpgCircleButton`：圆形、切角方形、切角横条与胶囊按钮
+- `RpgTab`：四套主题、可受控选中、底边开放的内容标签
+- `RpgBackButton`：190 × 190 三角返回按钮
+- `IconButton`：菱形或圆形图标按钮；标准版 86px，紧凑版 76px
+- `RpgRadio`、`RpgCheckbox`：保留参考稿外观的原生表单选择控件
 - `RpgPanel`：六种角色选择面板
 - `RpgSquarePanel`：独立的 116 × 116 简约小方块，包含六种配色
-- `IconButton`、`ArrowButton`：圆形、方形、胶囊形图标按钮
+- `ArrowButton`：基于 `IconButton` 的方向图标按钮
 - `Toggle`、`Progress`：开关和进度条
+- `VerticalIndicator`：40 × 170 的纵向装饰指示条
 - `RpgHeader`：精确复刻 `Retro-RPG-Header` 原型的曲线燕尾标题，包含三套主题
 - `Nameplate`：角色姓名牌
 - `CharacterSelector`：受控或非受控角色选择器
@@ -74,7 +80,7 @@ export function Menu() {
 }
 ```
 
-所有交互组件都基于原生 `button`，可以直接使用 `onClick`、`disabled`、`aria-*`、`className` 和 `style`。
+按钮组件基于原生 `button`，`RpgRadio` 与 `RpgCheckbox` 使用真实的原生 `input`。它们可以直接接入键盘操作、表单、`disabled`、`aria-*`、`className` 和 `style`；选择控件同时支持受控与非受控状态。
 
 ## 角色页面
 

@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Retro RPG Icon Buttons</title>
+
+<style>
+  :root {
+    --page-bg: #9cabad;
+
+    /* 与此前组件统一的三层边框 */
+    --frame-outer: #192020;
+    --frame-middle: #899697;
+    --frame-inner: #111717;
+
+    --fill-dark: #1d2121;
+    --fill-light: #e4e8e8;
+    --fill-teal: #73b8bc;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    min-height: 100vh;
+    margin: 0;
+    padding: 48px;
+
+    display: grid;
+    place-items: center;
+
+    background-color: var(--page-bg);
+  }
+
+  .component-showcase {
+    display: grid;
+    gap: 30px;
+  }
+
+  .component-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+  }
+
+  /* ========================================
+     图标按钮基础样式
+     ======================================== */
+
+  .rpg-icon-button {
+    --button-fill: var(--fill-dark);
+    --button-middle: #718081;
+    --button-ornament: #566162;
+    --icon-color: #aeb9ba;
+
+    --pattern-dark: rgba(255, 255, 255, 0.035);
+    --pattern-light: rgba(255, 255, 255, 0.012);
+
+    display: block;
+    width: 86px;
+    height: 86px;
+
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+
+    cursor: pointer;
+
+    transition:
+      transform 80ms ease,
+      filter 100ms ease;
+  }
+
+  .rpg-icon-button:hover {
+    filter: brightness(1.07);
+  }
+
+  .rpg-icon-button:active {
+    transform: translateY(1px) scale(0.975);
+  }
+
+  .rpg-icon-button:focus-visible {
+    outline: 2px solid #eef2f2;
+    outline-offset: 5px;
+  }
+
+  .rpg-icon-button.shape-circle:focus-visible {
+    border-radius: 50%;
+  }
+
+  .rpg-icon-button svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+
+    shape-rendering: geometricPrecision;
+  }
+
+  /* ========================================
+     三种主题
+     ======================================== */
+
+  .theme-dark {
+    --button-fill: #1d2121;
+    --button-middle: #718081;
+    --button-ornament: #566162;
+    --icon-color: #8f9b9c;
+
+    --pattern-dark: rgba(255, 255, 255, 0.04);
+    --pattern-light: rgba(255, 255, 255, 0.012);
+  }
+
+  .theme-light {
+    --button-fill: #e4e8e8;
+    --button-middle: #9ba7a8;
+    --button-ornament: #667273;
+    --icon-color: #202727;
+
+    --pattern-dark: rgba(38, 58, 59, 0.07);
+    --pattern-light: rgba(255, 255, 255, 0.22);
+  }
+
+  .theme-teal {
+    --button-fill: #73b8bc;
+    --button-middle: #778f90;
+    --button-ornament: #315253;
+    --icon-color: #183536;
+
+    --pattern-dark: rgba(26, 70, 73, 0.095);
+    --pattern-light: rgba(255, 255, 255, 0.08);
+  }
+
+  @media (max-width: 420px) {
+    body {
+      padding: 24px;
+    }
+
+    .component-row {
+      gap: 10px;
+    }
+
+    .rpg-icon-button {
+      width: 72px;
+      height: 72px;
+    }
+  }
+</style>
+</head>
+
+<body>
+
+<main class="component-showcase">
+
+  <!-- 菱形关闭按钮 -->
+  <section class="component-row">
+    <rpg-icon-button
+      shape="diamond"
+      icon="close"
+      variant="dark"
+    ></rpg-icon-button>
+
+    <rpg-icon-button
+      shape="diamond"
+      icon="close"
+      variant="light"
+    ></rpg-icon-button>
+
+    <rpg-icon-button
+      shape="diamond"
+      icon="close"
+      variant="teal"
+    ></rpg-icon-button>
+  </section>
+
+  <!-- 圆形加号按钮 -->
+  <section class="component-row">
+    <rpg-icon-button
+      shape="circle"
+      icon="plus"
+      variant="dark"
+    ></rpg-icon-button>
+
+    <rpg-icon-button
+      shape="circle"
+      icon="plus"
+      variant="light"
+    ></rpg-icon-button>
+
+    <rpg-icon-button
+      shape="circle"
+      icon="plus"
+      variant="teal"
+    ></rpg-icon-button>
+  </section>
+
+  <!-- 圆形减号按钮 -->
+  <section class="component-row">
+    <rpg-icon-button
+      shape="circle"
+      icon="minus"
+      variant="dark"
+    ></rpg-icon-button>
+
+    <rpg-icon-button
+      shape="circle"
+      icon="minus"
+      variant="light"
+    ></rpg-icon-button>
+
+    <rpg-icon-button
+      shape="circle"
+      icon="minus"
+      variant="teal"
+    ></rpg-icon-button>
+  </section>
+
+</main>
+
+<script>
+  class RPGIconButton extends HTMLElement {
+    connectedCallback() {
+      const shape = this.getAttribute("shape") || "circle";
+      const icon = this.getAttribute("icon") || "plus";
+      const variant = this.getAttribute("variant") || "dark";
+
+      const uid = `icon-${Math.random().toString(36).slice(2)}`;
+      const geometry = this.getGeometry(shape);
+      const iconMarkup = this.getIcon(icon);
+
+      const accessibleLabel = {
+        close: "关闭",
+        plus: "增加",
+        minus: "减少"
+      }[icon] || "图标按钮";
+
+      this.innerHTML = `
+        <button
+          class="
+            rpg-icon-button
+            shape-${shape}
+            theme-${variant}
+          "
+          type="button"
+          aria-label="${accessibleLabel}"
+        >
+          <svg
+            viewBox="0 0 120 120"
+            aria-hidden="true"
+          >
+            <defs>
+              <!-- 统一的低对比度菱形材质 -->
+              <pattern
+                id="${uid}-pattern"
+                width="34"
+                height="34"
+                patternUnits="userSpaceOnUse"
+              >
+                <path
+                  d="M17 0 L34 17 L17 34 L0 17 Z"
+                  fill="var(--pattern-dark)"
+                />
+                <path
+                  d="M17 8 L26 17 L17 26 L8 17 Z"
+                  fill="var(--pattern-light)"
+                />
+              </pattern>
+              <clipPath id="${uid}-clip">
+                ${geometry.clipShape}
+              </clipPath>
+            </defs>
+            <!-- 按钮主体 -->
+            ${geometry.fillShape}
+            <!-- 菱形暗纹 -->
+            <rect
+              x="5"
+              y="5"
+              width="110"
+              height="110"
+              fill="url(#${uid}-pattern)"
+              clip-path="url(#${uid}-clip)"
+            />
+            <!-- 外层深色粗框 -->
+            ${geometry.strokeShape
+              .replace("{COLOR}", "var(--frame-outer)")
+              .replace("{WIDTH}", "9")
+            }
+            <!-- 中间冷灰线 -->
+            ${geometry.strokeShape
+              .replace("{COLOR}", "var(--button-middle)")
+              .replace("{WIDTH}", "5")
+            }
+            <!-- 内层深色线 -->
+            ${geometry.strokeShape
+              .replace("{COLOR}", "var(--frame-inner)")
+              .replace("{WIDTH}", "2")
+            }
+            <!-- 内侧装饰线 -->
+            ${geometry.ornamentShape}
+            <!-- 严格居中的图标 -->
+            <g
+              fill="none"
+              stroke="var(--icon-color)"
+              stroke-width="6"
+              stroke-linecap="square"
+              stroke-linejoin="miter"
+            >
+              ${iconMarkup}
+            </g>
+          </svg>
+        </button>
+      `;
+    }
+
+    getGeometry(shape) {
+      if (shape === "diamond") {
+        const outerPath = `
+          M 60 7
+          L 113 60
+          L 60 113
+          L 7 60
+          Z
+        `;
+
+        const innerPath = `
+          M 60 17
+          L 103 60
+          L 60 103
+          L 17 60
+          Z
+        `;
+
+        return {
+          clipShape: `
+            <path d="${outerPath}"/>
+          `,
+
+          fillShape: `
+            <path
+              d="${outerPath}"
+              fill="var(--button-fill)"
+            />
+          `,
+
+          strokeShape: `
+            <path
+              d="${outerPath}"
+              fill="none"
+              stroke="{COLOR}"
+              stroke-width="{WIDTH}"
+              stroke-linejoin="miter"
+            />
+          `,
+
+          ornamentShape: `
+            <path
+              d="${innerPath}"
+              fill="none"
+              stroke="var(--button-ornament)"
+              stroke-width="1.25"
+              stroke-linejoin="miter"
+              opacity=".9"
+            />
+          `
+        };
+      }
+
+      return {
+        clipShape: `
+          <circle
+            cx="60"
+            cy="60"
+            r="52"
+          />
+        `,
+
+        fillShape: `
+          <circle
+            cx="60"
+            cy="60"
+            r="52"
+            fill="var(--button-fill)"
+          />
+        `,
+
+        strokeShape: `
+          <circle
+            cx="60"
+            cy="60"
+            r="52"
+            fill="none"
+            stroke="{COLOR}"
+            stroke-width="{WIDTH}"
+          />
+        `,
+
+        ornamentShape: `
+          <circle
+            cx="60"
+            cy="60"
+            r="44"
+            fill="none"
+            stroke="var(--button-ornament)"
+            stroke-width="1.25"
+            opacity=".9"
+          />
+        `
+      };
+    }
+
+    getIcon(icon) {
+      /*
+       * 所有坐标都围绕 (60, 60) 对称，
+       * 不使用字体字符，避免基线导致视觉偏移。
+       */
+
+      if (icon === "close") {
+        return `
+          <path d="M46 46 L74 74"/>
+          <path d="M74 46 L46 74"/>
+        `;
+      }
+
+      if (icon === "minus") {
+        return `
+          <path d="M43 60 H77"/>
+        `;
+      }
+
+      return `
+        <path d="M43 60 H77"/>
+        <path d="M60 43 V77"/>
+      `;
+    }
+  }
+
+  customElements.define(
+    "rpg-icon-button",
+    RPGIconButton
+  );
+</script>
+
+</body>
+</html>

@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Retro RPG Radio & Checkbox</title>
+
+<style>
+  :root {
+    --page-bg: #9cabad;
+
+    /* 统一材质 */
+    --frame-outer: #192020;
+    --frame-middle: #8d9a9b;
+    --frame-inner: #111717;
+
+    --fill-gray: #777d7d;
+    --fill-dark: #1c2020;
+    --fill-light: #e3e7e7;
+    --fill-teal: #6eb5ba;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    min-height: 100vh;
+    margin: 0;
+    padding: 32px;
+
+    display: grid;
+    place-items: center;
+
+    background: var(--page-bg);
+  }
+
+  .control-showcase {
+    display: grid;
+    gap: 12px;
+  }
+
+  .control-row {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  /* 隐藏原生输入，但保留可访问性 */
+  .rpg-control input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .rpg-control {
+    --control-fill: var(--fill-gray);
+    --control-accent: #555e5f;
+    --control-core: transparent;
+    --check-color: #e9eeee;
+
+    position: relative;
+    display: block;
+
+    width: 42px;
+    height: 42px;
+
+    cursor: pointer;
+  }
+
+  .rpg-control svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+
+    transition:
+      transform 80ms ease,
+      filter 100ms ease;
+
+    shape-rendering: geometricPrecision;
+  }
+
+  .rpg-control:hover svg {
+    filter: brightness(1.08);
+  }
+
+  .rpg-control:active svg {
+    transform: scale(0.95);
+  }
+
+  .rpg-control input:focus-visible + svg {
+    outline: 2px solid #edf2f2;
+    outline-offset: 3px;
+  }
+
+  .radio-control input:focus-visible + svg {
+    border-radius: 50%;
+  }
+
+  /* ========================================
+     圆形选项主题
+     ======================================== */
+
+  .radio-gray {
+    --control-fill: #737979;
+    --control-accent: #596263;
+    --control-core: transparent;
+  }
+
+  .radio-dark {
+    --control-fill: #dfe4e4;
+    --control-accent: #667374;
+    --control-core: #1b2020;
+  }
+
+  .radio-teal {
+    --control-fill: #70b6ba;
+    --control-accent: #376264;
+    --control-core: #173536;
+  }
+
+  /* ========================================
+     方形复选框主题
+     ======================================== */
+
+  .checkbox-empty {
+    --control-fill: #171b1b;
+    --control-accent: #4f595a;
+    --check-color: transparent;
+  }
+
+  .checkbox-dark {
+    --control-fill: #242929;
+    --control-accent: #697677;
+    --check-color: #e7ecec;
+  }
+
+  .checkbox-teal {
+    --control-fill: #6eb5ba;
+    --control-accent: #345d5f;
+    --check-color: #173536;
+  }
+</style>
+</head>
+
+<body>
+
+<main class="control-showcase">
+
+  <!-- 圆形选择控件 -->
+  <div class="control-row" role="radiogroup" aria-label="颜色选项">
+
+    <label class="rpg-control radio-control radio-gray">
+      <input
+        type="radio"
+        name="theme"
+        aria-label="灰色"
+      >
+
+      <svg viewBox="0 0 48 48" aria-hidden="true">
+        <!-- 主体 -->
+        <circle
+          cx="24"
+          cy="24"
+          r="18"
+          fill="var(--control-fill)"
+        />
+        <!-- 深—浅—深三层边框 -->
+        <circle
+          cx="24"
+          cy="24"
+          r="18"
+          fill="none"
+          stroke="var(--frame-outer)"
+          stroke-width="5"
+        />
+        <circle
+          cx="24"
+          cy="24"
+          r="18"
+          fill="none"
+          stroke="var(--frame-middle)"
+          stroke-width="2.8"
+        />
+        <circle
+          cx="24"
+          cy="24"
+          r="18"
+          fill="none"
+          stroke="var(--frame-inner)"
+          stroke-width="1.2"
+        />
+        <!-- 轻微内圈 -->
+        <circle
+          cx="24"
+          cy="24"
+          r="14.5"
+          fill="none"
+          stroke="var(--control-accent)"
+          stroke-width="0.9"
+          opacity=".7"
+        />
+        <!-- 当前主题的中心 -->
+        <circle
+          cx="24"
+          cy="24"
+          r="10.5"
+          fill="var(--control-core)"
+        />
+      </svg>
+    </label>
+
+    <label class="rpg-control radio-control radio-dark">
+      <input
+        type="radio"
+        name="theme"
+        aria-label="暗色"
+        checked
+      >
+
+      <svg viewBox="0 0 48 48" aria-hidden="true">
+        <circle cx="24" cy="24" r="18" fill="var(--control-fill)"/>
+        <circle
+          cx="24" cy="24" r="18"
+          fill="none"
+          stroke="var(--frame-outer)"
+          stroke-width="5"
+        />
+        <circle
+          cx="24" cy="24" r="18"
+          fill="none"
+          stroke="var(--frame-middle)"
+          stroke-width="2.8"
+        />
+        <circle
+          cx="24" cy="24" r="18"
+          fill="none"
+          stroke="var(--frame-inner)"
+          stroke-width="1.2"
+        />
+        <circle
+          cx="24" cy="24" r="14.5"
+          fill="none"
+          stroke="var(--control-accent)"
+          stroke-width="0.9"
+          opacity=".7"
+        />
+        <circle
+          cx="24"
+          cy="24"
+          r="10.5"
+          fill="var(--control-core)"
+        />
+      </svg>
+    </label>
+
+    <label class="rpg-control radio-control radio-teal">
+      <input
+        type="radio"
+        name="theme"
+        aria-label="青色"
+      >
+
+      <svg viewBox="0 0 48 48" aria-hidden="true">
+        <circle cx="24" cy="24" r="18" fill="var(--control-fill)"/>
+        <circle
+          cx="24" cy="24" r="18"
+          fill="none"
+          stroke="var(--frame-outer)"
+          stroke-width="5"
+        />
+        <circle
+          cx="24" cy="24" r="18"
+          fill="none"
+          stroke="var(--frame-middle)"
+          stroke-width="2.8"
+        />
+        <circle
+          cx="24" cy="24" r="18"
+          fill="none"
+          stroke="var(--frame-inner)"
+          stroke-width="1.2"
+        />
+        <circle
+          cx="24" cy="24" r="14.5"
+          fill="none"
+          stroke="var(--control-accent)"
+          stroke-width="0.9"
+          opacity=".7"
+        />
+        <circle
+          cx="24"
+          cy="24"
+          r="10.5"
+          fill="var(--control-core)"
+        />
+      </svg>
+    </label>
+
+  </div>
+
+  <!-- 方形复选框 -->
+  <div class="control-row">
+
+    <label class="rpg-control checkbox-control checkbox-empty">
+      <input
+        type="checkbox"
+        aria-label="空白选项"
+      >
+
+      <svg viewBox="0 0 48 48" aria-hidden="true">
+        <rect
+          x="6"
+          y="6"
+          width="36"
+          height="36"
+          fill="var(--control-fill)"
+        />
+        <rect
+          x="6"
+          y="6"
+          width="36"
+          height="36"
+          fill="none"
+          stroke="var(--frame-outer)"
+          stroke-width="5"
+        />
+        <rect
+          x="6"
+          y="6"
+          width="36"
+          height="36"
+          fill="none"
+          stroke="var(--frame-middle)"
+          stroke-width="2.8"
+        />
+        <rect
+          x="6"
+          y="6"
+          width="36"
+          height="36"
+          fill="none"
+          stroke="var(--frame-inner)"
+          stroke-width="1.2"
+        />
+        <rect
+          x="10"
+          y="10"
+          width="28"
+          height="28"
+          fill="none"
+          stroke="var(--control-accent)"
+          stroke-width="0.9"
+          opacity=".75"
+        />
+      </svg>
+    </label>
+
+    <label class="rpg-control checkbox-control checkbox-dark">
+      <input
+        type="checkbox"
+        aria-label="暗色选项"
+        checked
+      >
+
+      <svg viewBox="0 0 48 48" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" fill="var(--control-fill)"/>
+        <rect
+          x="6" y="6"
+          width="36" height="36"
+          fill="none"
+          stroke="var(--frame-outer)"
+          stroke-width="5"
+        />
+        <rect
+          x="6" y="6"
+          width="36" height="36"
+          fill="none"
+          stroke="var(--frame-middle)"
+          stroke-width="2.8"
+        />
+        <rect
+          x="6" y="6"
+          width="36" height="36"
+          fill="none"
+          stroke="var(--frame-inner)"
+          stroke-width="1.2"
+        />
+        <rect
+          x="10" y="10"
+          width="28" height="28"
+          fill="none"
+          stroke="var(--control-accent)"
+          stroke-width="0.9"
+          opacity=".75"
+        />
+        <!-- 圆润且居中的勾号 -->
+        <path
+          d="M15.5 24.5 L21.5 30.5 L33 18"
+          fill="none"
+          stroke="var(--check-color)"
+          stroke-width="4"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+    </label>
+
+    <label class="rpg-control checkbox-control checkbox-teal">
+      <input
+        type="checkbox"
+        aria-label="青色选项"
+        checked
+      >
+
+      <svg viewBox="0 0 48 48" aria-hidden="true">
+        <rect x="6" y="6" width="36" height="36" fill="var(--control-fill)"/>
+        <rect
+          x="6" y="6"
+          width="36" height="36"
+          fill="none"
+          stroke="var(--frame-outer)"
+          stroke-width="5"
+        />
+        <rect
+          x="6" y="6"
+          width="36" height="36"
+          fill="none"
+          stroke="var(--frame-middle)"
+          stroke-width="2.8"
+        />
+        <rect
+          x="6" y="6"
+          width="36" height="36"
+          fill="none"
+          stroke="var(--frame-inner)"
+          stroke-width="1.2"
+        />
+        <rect
+          x="10" y="10"
+          width="28" height="28"
+          fill="none"
+          stroke="var(--control-accent)"
+          stroke-width="0.9"
+          opacity=".75"
+        />
+        <path
+          d="M15.5 24.5 L21.5 30.5 L33 18"
+          fill="none"
+          stroke="var(--check-color)"
+          stroke-width="4"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+    </label>
+
+  </div>
+
+</main>
+
+</body>
+</html>
