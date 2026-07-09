@@ -40,6 +40,14 @@ export type {
 } from "./components/RpgHexButton";
 export { RpgPanel } from "./components/RpgPanel";
 export type { RpgPanelProps } from "./components/RpgPanel";
+export {
+  RetroRpgSquarePanel,
+  RpgSquarePanel
+} from "./components/RpgSquarePanel";
+export type {
+  RetroRpgSquarePanelProps,
+  RpgSquarePanelProps
+} from "./components/RpgSquarePanel";
 export { SectionHeader } from "./components/SectionHeader";
 export type { SectionHeaderProps } from "./components/SectionHeader";
 export { StatusPanel } from "./components/StatusPanel";

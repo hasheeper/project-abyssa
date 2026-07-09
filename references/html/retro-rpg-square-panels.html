@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Retro RPG Square Panels</title>
+
+<style>
+  @import url(
+    "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500&display=swap"
+  );
+
+  :root {
+    --page-bg: #9cabad;
+
+    /* 与此前组件统一的三层边框 */
+    --frame-outer: #192020;
+    --frame-middle: #899798;
+    --frame-inner: #111717;
+
+    /* 六种基础填色 */
+    --fill-dark: #1d2020;
+    --fill-gray: #5d6262;
+    --fill-teal: #78b8bc;
+    --fill-light: #dfe3e3;
+
+    --text-light: #f0f3f3;
+    --text-dark: #202727;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    min-height: 100vh;
+    margin: 0;
+    padding: 48px;
+
+    display: grid;
+    place-items: center;
+
+    background-color: var(--page-bg);
+  }
+
+  .panel-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 116px);
+    gap: 8px;
+  }
+
+  /* =========================================
+     方形面板组件
+     ========================================= */
+
+  .square-panel {
+    /* 每种主题可以覆盖这些变量 */
+    --panel-fill: var(--fill-dark);
+    --panel-text: var(--text-light);
+    --panel-middle: var(--frame-middle);
+    --panel-ornament: #606b6b;
+
+    width: 116px;
+    height: 116px;
+
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+
+    cursor: pointer;
+    font: inherit;
+
+    transition:
+      transform 80ms ease,
+      filter 100ms ease;
+  }
+
+  .square-panel:hover {
+    filter: brightness(1.05);
+  }
+
+  .square-panel:active {
+    transform: translateY(1px);
+  }
+
+  .square-panel:focus-visible {
+    outline: 2px solid #edf1f1;
+    outline-offset: 4px;
+  }
+
+  .square-panel svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+
+    shape-rendering: geometricPrecision;
+  }
+
+  .panel-number {
+    fill: var(--panel-text);
+
+    font-family:
+      "Cormorant Garamond",
+      Georgia,
+      "Times New Roman",
+      serif;
+
+    font-size: 37px;
+    font-weight: 500;
+    letter-spacing: 1.5px;
+
+    text-anchor: middle;
+    dominant-baseline: middle;
+  }
+
+  /* =========================================
+     六种配色
+     ========================================= */
+
+  /* 01：标准深色 */
+  .variant-dark {
+    --panel-fill: #1b1f1f;
+    --panel-text: #f0f3f3;
+    --panel-middle: #798687;
+    --panel-ornament: #667171;
+  }
+
+  /* 02：灰色 */
+  .variant-gray {
+    --panel-fill: #606565;
+    --panel-text: #f2f3f3;
+    --panel-middle: #879293;
+    --panel-ornament: #252c2c;
+  }
+
+  /* 03：另一种深色，装饰更暗 */
+  .variant-deep {
+    --panel-fill: #202323;
+    --panel-text: #f0f3f3;
+    --panel-middle: #687475;
+    --panel-ornament: #3f4949;
+  }
+
+  /* 04：青色底 */
+  .variant-teal {
+    --panel-fill: #79b9bd;
+    --panel-text: #f5f7f7;
+    --panel-middle: #879899;
+    --panel-ornament: #304344;
+  }
+
+  /* 05：深色底、青色边框 */
+  .variant-teal-outline {
+    --panel-fill: #1b2020;
+    --panel-text: #f1f4f4;
+    --panel-middle: #64aeb2;
+    --panel-ornament: #65b3b7;
+  }
+
+  /* 06：亮色底 */
+  .variant-light {
+    --panel-fill: #e0e3e3;
+    --panel-text: #ffffff;
+    --panel-middle: #939e9f;
+    --panel-ornament: #535e5e;
+  }
+
+  @media (max-width: 430px) {
+    body {
+      padding: 24px;
+    }
+
+    .panel-grid {
+      grid-template-columns: repeat(3, 92px);
+      gap: 6px;
+    }
+
+    .square-panel {
+      width: 92px;
+      height: 92px;
+    }
+  }
+</style>
+</head>
+
+<body>
+
+<main class="panel-grid">
+
+  <!-- 01 -->
+  <button class="square-panel variant-dark" type="button" aria-label="Panel 01">
+    <svg viewBox="0 0 116 116" aria-hidden="true">
+      <use href="#panel-base"></use>
+      <text class="panel-number" x="58" y="60">01</text>
+    </svg>
+  </button>
+
+  <!-- 02 -->
+  <button class="square-panel variant-gray" type="button" aria-label="Panel 02">
+    <svg viewBox="0 0 116 116" aria-hidden="true">
+      <use href="#panel-base"></use>
+      <text class="panel-number" x="58" y="60">02</text>
+    </svg>
+  </button>
+
+  <!-- 03 -->
+  <button class="square-panel variant-deep" type="button" aria-label="Panel 03">
+    <svg viewBox="0 0 116 116" aria-hidden="true">
+      <use href="#panel-base"></use>
+      <text class="panel-number" x="58" y="60">03</text>
+    </svg>
+  </button>
+
+  <!-- 04 -->
+  <button class="square-panel variant-teal" type="button" aria-label="Panel 04">
+    <svg viewBox="0 0 116 116" aria-hidden="true">
+      <use href="#panel-base"></use>
+      <text class="panel-number" x="58" y="60">04</text>
+    </svg>
+  </button>
+
+  <!-- 05 -->
+  <button class="square-panel variant-teal-outline" type="button" aria-label="Panel 05">
+    <svg viewBox="0 0 116 116" aria-hidden="true">
+      <use href="#panel-base"></use>
+      <text class="panel-number" x="58" y="60">05</text>
+    </svg>
+  </button>
+
+  <!-- 06 -->
+  <button class="square-panel variant-light" type="button" aria-label="Panel 06">
+    <svg viewBox="0 0 116 116" aria-hidden="true">
+      <use href="#panel-base"></use>
+      <text class="panel-number" x="58" y="60">06</text>
+    </svg>
+  </button>
+
+</main>
+
+<!--
+  公共 SVG 模板。
+  放在不可见 SVG 中，六个方块通过 <use> 复用。
+-->
+<svg
+  width="0"
+  height="0"
+  style="position:absolute; overflow:hidden"
+  aria-hidden="true"
+>
+  <defs>
+    <g id="panel-base">
+      <!-- 面板主体 -->
+      <rect
+        x="7"
+        y="7"
+        width="102"
+        height="102"
+        fill="var(--panel-fill)"
+      />
+      <!--
+        三重外框：
+        宽深色 → 较窄浅色 → 最窄深色
+      -->
+      <rect
+        x="7"
+        y="7"
+        width="102"
+        height="102"
+        fill="none"
+        stroke="var(--frame-outer)"
+        stroke-width="8"
+      />
+      <rect
+        x="7"
+        y="7"
+        width="102"
+        height="102"
+        fill="none"
+        stroke="var(--panel-middle)"
+        stroke-width="4"
+      />
+      <rect
+        x="7"
+        y="7"
+        width="102"
+        height="102"
+        fill="none"
+        stroke="var(--frame-inner)"
+        stroke-width="2"
+      />
+      <!-- 内侧细框 -->
+      <rect
+        x="14"
+        y="14"
+        width="88"
+        height="88"
+        fill="none"
+        stroke="var(--panel-ornament)"
+        stroke-width="1.25"
+      />
+      <!-- 左上角小三角 -->
+      <path
+        d="
+          M 17 17
+          H 27
+          L 17 27
+          Z
+        "
+        fill="var(--panel-ornament)"
+      />
+      <!-- 右下角小三角 -->
+      <path
+        d="
+          M 99 99
+          H 89
+          L 99 89
+          Z
+        "
+        fill="var(--panel-ornament)"
+      />
+    </g>
+  </defs>
+</svg>
+
+</body>
+</html>

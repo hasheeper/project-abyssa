@@ -4,6 +4,7 @@ import { CharacterSelector } from "./CharacterSelector";
 import { RibbonButton } from "./RibbonButton";
 import { RpgHeader } from "./RpgHeader";
 import { RpgHexButton } from "./RpgHexButton";
+import { RpgSquarePanel } from "./RpgSquarePanel";
 import { Toggle } from "./Toggle";
 
 describe("Abyssa controls", () => {
@@ -57,6 +58,19 @@ describe("Abyssa controls", () => {
       (node) => node.id
     );
     expect(new Set(ids).size).toBe(2);
+  });
+
+  it("keeps the simple square panel separate from the ornamented RPG panel", () => {
+    const { container } = render(
+      <RpgSquarePanel number="04" variant="teal" aria-label="小面板 04" />
+    );
+
+    expect(screen.getByRole("button", { name: "小面板 04" })).toBeEnabled();
+    expect(container.querySelector(".abyssa-square-panel svg")).toHaveAttribute(
+      "viewBox",
+      "0 0 116 116"
+    );
+    expect(container.querySelector(".abyssa-panel-tile")).not.toBeInTheDocument();
   });
 
   it("updates an uncontrolled toggle and reports its state", () => {

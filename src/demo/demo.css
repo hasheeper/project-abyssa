@@ -148,8 +148,9 @@ button, input { font: inherit; }
 .demo-live-value { padding: 6px 9px; border: 1px solid #425050; color: var(--abyssa-text-muted); background: #171d1d; font-family: ui-monospace, monospace; font-size: 0.7rem; }
 .demo-frame-grid { display: grid; grid-template-columns: repeat(3, minmax(120px, 1fr)); gap: 16px; width: 100%; text-align: center; }
 .demo-frame-grid .abyssa-frame__content { font-size: 0.7rem; }
-.demo-panel-grid { display: grid; grid-template-columns: repeat(6, minmax(72px, 1fr)); gap: 10px; width: 100%; }
+.demo-panel-grid { display: grid; grid-template-columns: repeat(3, minmax(120px, 160px)); justify-content: center; gap: 10px; width: 100%; }
 .demo-panel-grid .abyssa-panel-tile { container-type: inline-size; }
+.demo-square-panel-grid { display: grid; grid-template-columns: repeat(3, 116px); justify-content: center; gap: 8px; width: 100%; }
 .demo-selector { width: min(100%, 460px); margin: auto; }
 .demo-status { width: min(100%, 760px); margin: auto; }
 .demo-status .abyssa-status-panel__lower { grid-template-columns: 1fr 1fr; }
@@ -187,6 +188,7 @@ button, input { font: inherit; }
   .demo-preview { min-height: 190px; padding: 48px 18px 28px; }
   .demo-frame-grid { grid-template-columns: 1fr; }
   .demo-panel-grid { grid-template-columns: repeat(3, minmax(70px, 1fr)); }
+  .demo-square-panel-grid { grid-template-columns: repeat(3, minmax(70px, 116px)); gap: 6px; }
   .demo-status .abyssa-status-panel__lower { grid-template-columns: 1fr; }
   #character-status-screen .demo-preview { padding-inline: 10px; }
 }

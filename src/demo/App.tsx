@@ -13,6 +13,7 @@ import {
   RpgHeader,
   RpgHexButton,
   RpgPanel,
+  RpgSquarePanel,
   StatusPanel,
   Toggle
 } from "../index";
@@ -106,6 +107,7 @@ export function App() {
   const [query, setQuery] = useState("");
   const [enabled, setEnabled] = useState(true);
   const [selectedPanel, setSelectedPanel] = useState("02");
+  const [selectedSquarePanel, setSelectedSquarePanel] = useState("04");
 
   const items: CatalogItem[] = useMemo(() => [
     {
@@ -238,6 +240,29 @@ export function App() {
       wide: true
     },
     {
+      id: "rpg-square-panel",
+      name: "RpgSquarePanel",
+      category: "display",
+      description: "与复杂 RpgPanel 分开的简约小方块。固定最大 116 × 116，适合紧凑选择、快捷入口和小型网格。",
+      tags: ["compact", "selectable", "6 variants"],
+      code: `<RpgSquarePanel\n  number="04"\n  variant="teal"\n  selected={selected}\n  onClick={select}\n  aria-label="选择 04"\n/>`,
+      preview: (
+        <div className="demo-square-panel-grid">
+          {(["01", "02", "03", "04", "05", "06"] as const).map((number, index) => (
+            <RpgSquarePanel
+              key={number}
+              number={number}
+              variant={(["dark", "gray", "deep", "teal", "teal-outline", "light"] as const)[index]}
+              selected={selectedSquarePanel === number}
+              onClick={() => setSelectedSquarePanel(number)}
+              aria-label={`选择小面板 ${number}`}
+            />
+          ))}
+        </div>
+      ),
+      wide: true
+    },
+    {
       id: "nameplate",
       name: "Nameplate",
       category: "display",
@@ -284,7 +309,7 @@ export function App() {
       preview: <CharacterStatusScreen characters={demoCharacters} defaultSelectedId="abyssa" />,
       wide: true
     }
-  ], [enabled, selectedPanel]);
+  ], [enabled, selectedPanel, selectedSquarePanel]);
 
   const normalizedQuery = query.trim().toLowerCase();
   const visibleItems = normalizedQuery
