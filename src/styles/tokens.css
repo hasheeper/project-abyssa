@@ -1,0 +1,53 @@
+:root {
+  --abyssa-page: #98a7a9;
+  --abyssa-frame-dark: #192020;
+  --abyssa-frame-deep: #101616;
+  --abyssa-frame-light: #a7b3b4;
+  --abyssa-panel-black: #1d2121;
+  --abyssa-panel-dark: #242929;
+  --abyssa-panel-soft: #313737;
+  --abyssa-panel-gray: #5b6262;
+  --abyssa-panel-light: #e2e7e7;
+  --abyssa-teal: #72b3b7;
+  --abyssa-teal-dark: #3d7477;
+  --abyssa-teal-soft: #91c3c6;
+  --abyssa-ornament: #647171;
+  --abyssa-ornament-dark: #364142;
+  --abyssa-ornament-light: #839091;
+  --abyssa-text: #edf0f0;
+  --abyssa-text-soft: #c2cbcb;
+  --abyssa-text-muted: #8f9b9b;
+  --abyssa-text-dark: #192020;
+  --abyssa-focus: #e9eeee;
+  --abyssa-danger: #ce7772;
+  --abyssa-font-display: "Cinzel", "Times New Roman", serif;
+  --abyssa-font-body: "Noto Serif SC", "Songti SC", serif;
+  --abyssa-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --abyssa-shadow: 0 12px 28px rgb(9 14 14 / 24%);
+}
+
+.abyssa-theme {
+  color: var(--abyssa-text);
+  font-family: var(--abyssa-font-body);
+  color-scheme: dark;
+}
+
+.abyssa-theme[data-accent="silver"] {
+  --abyssa-teal: #a8b4b5;
+  --abyssa-teal-dark: #687373;
+  --abyssa-teal-soft: #d7dddd;
+}
+
+.abyssa-theme[data-density="compact"] {
+  --abyssa-control-scale: 0.86;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .abyssa-theme,
+  .abyssa-theme * {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

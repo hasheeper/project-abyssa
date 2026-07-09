@@ -1,0 +1,2179 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0"
+>
+<title>Abyssa Beelzeran - Character Status</title>
+
+<style>
+/* =========================================================
+   01. 字体与设计变量
+   ========================================================= */
+
+@import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Noto+Serif+SC:wght@400;500;600;700&display=swap");
+
+:root {
+  /* 场景底色 */
+  --page-bg: #98a7a9;
+  --page-pattern: rgba(29, 39, 40, 0.035);
+
+  /* 已统一的三重边框 */
+  --frame-dark: #192020;
+  --frame-deep: #101616;
+  --frame-light: #a7b3b4;
+
+  /* 面板 */
+  --panel-black: #1d2121;
+  --panel-dark: #242929;
+  --panel-soft: #313737;
+  --panel-gray: #5b6262;
+  --panel-light: #e2e7e7;
+
+  /* 强调色 */
+  --teal: #72b3b7;
+  --teal-dark: #3d7477;
+  --teal-soft: #91c3c6;
+
+  /* 装饰线 */
+  --ornament: #647171;
+  --ornament-dark: #364142;
+  --ornament-light: #839091;
+
+  /* 文字 */
+  --text-main: #edf0f0;
+  --text-soft: #c2cbcb;
+  --text-muted: #8f9b9b;
+  --text-dark: #192020;
+
+  --font-title: "Cinzel", "Times New Roman", serif;
+  --font-cn: "Noto Serif SC", "Songti SC", serif;
+}
+
+/* =========================================================
+   02. 全局基础
+   ========================================================= */
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  padding: 28px;
+
+  display: grid;
+  place-items: center;
+
+  color: var(--text-main);
+  font-family: var(--font-cn);
+
+  background-color: var(--page-bg);
+  background-image:
+    linear-gradient(
+      45deg,
+      var(--page-pattern) 25%,
+      transparent 25%,
+      transparent 75%,
+      var(--page-pattern) 75%
+    ),
+    linear-gradient(
+      -45deg,
+      var(--page-pattern) 25%,
+      transparent 25%,
+      transparent 75%,
+      var(--page-pattern) 75%
+    );
+  background-position:
+    0 0,
+    16px 16px;
+  background-size: 32px 32px;
+}
+
+button {
+  font: inherit;
+}
+
+/* =========================================================
+   03. 游戏界面总容器
+   ========================================================= */
+
+.game-screen {
+  position: relative;
+
+  width: min(1240px, 96vw);
+  height: min(700px, calc(100vh - 42px));
+  min-height: 650px;
+
+  isolation: isolate;
+}
+
+/* 主菜单底板：暗—浅—暗三层 */
+.screen-frame-outer,
+.screen-frame-middle,
+.screen-frame-inner {
+  position: absolute;
+  inset: 0;
+}
+
+.screen-frame-outer {
+  padding: 4px;
+  background: var(--frame-dark);
+  clip-path: polygon(
+    14px 0,
+    calc(100% - 14px) 0,
+    100% 14px,
+    100% calc(100% - 14px),
+    calc(100% - 14px) 100%,
+    14px 100%,
+    0 calc(100% - 14px),
+    0 14px
+  );
+}
+
+.screen-frame-middle {
+  position: relative;
+  padding: 1.5px;
+  background: var(--frame-light);
+  clip-path: polygon(
+    11px 0,
+    calc(100% - 11px) 0,
+    100% 11px,
+    100% calc(100% - 11px),
+    calc(100% - 11px) 100%,
+    11px 100%,
+    0 calc(100% - 11px),
+    0 11px
+  );
+}
+
+.screen-frame-inner {
+  position: relative;
+  padding: 3px;
+  background: var(--frame-deep);
+  clip-path: polygon(
+    10px 0,
+    calc(100% - 10px) 0,
+    100% 10px,
+    100% calc(100% - 10px),
+    calc(100% - 10px) 100%,
+    10px 100%,
+    0 calc(100% - 10px),
+    0 10px
+  );
+}
+
+.screen-content {
+  position: relative;
+  width: 100%;
+  height: 100%;
+
+  padding: 68px 30px 62px;
+
+  background-color: var(--panel-dark);
+  overflow: hidden;
+
+  clip-path: polygon(
+    7px 0,
+    calc(100% - 7px) 0,
+    100% 7px,
+    100% calc(100% - 7px),
+    calc(100% - 7px) 100%,
+    7px 100%,
+    0 calc(100% - 7px),
+    0 7px
+  );
+}
+
+/* 主底板边缘的轻微菱形纹理 */
+.screen-content::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+
+  opacity: 0.34;
+
+  background-image:
+    linear-gradient(
+      45deg,
+      rgba(255, 255, 255, 0.028) 25%,
+      transparent 25%,
+      transparent 75%,
+      rgba(255, 255, 255, 0.028) 75%
+    ),
+    linear-gradient(
+      -45deg,
+      rgba(0, 0, 0, 0.045) 25%,
+      transparent 25%,
+      transparent 75%,
+      rgba(0, 0, 0, 0.045) 75%
+    );
+  background-size: 34px 34px;
+
+  -webkit-mask-image: linear-gradient(
+    to right,
+    #000 0%,
+    transparent 14%,
+    transparent 86%,
+    #000 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    #000 0%,
+    transparent 14%,
+    transparent 86%,
+    #000 100%
+  );
+}
+
+/* 主框内部的细线 */
+.screen-content::after {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  z-index: 0;
+  pointer-events: none;
+
+  border: 1px solid rgba(139, 153, 154, 0.3);
+}
+
+/* =========================================================
+   04. 顶部燕尾 Header
+   ========================================================= */
+
+.status-header {
+  position: absolute;
+  z-index: 20;
+
+  top: -13px;
+  left: 50%;
+
+  width: min(650px, 58%);
+  transform: translateX(-50%);
+
+  pointer-events: none;
+}
+
+.status-header svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  shape-rendering: geometricPrecision;
+}
+
+/* =========================================================
+   05. 主内容布局
+   ========================================================= */
+
+.status-layout {
+  position: relative;
+  z-index: 2;
+
+  display: grid;
+  grid-template-columns: 74px minmax(320px, 370px) minmax(480px, 1fr);
+  gap: 22px;
+
+  height: 100%;
+}
+
+/* =========================================================
+   06. 左侧角色选择栏
+   ========================================================= */
+
+.character-selector {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 9px;
+}
+
+.character-slot {
+  position: relative;
+
+  width: 66px;
+  height: 66px;
+
+  padding: 3px;
+  border: 0;
+  color: var(--text-main);
+  cursor: pointer;
+
+  background: var(--frame-dark);
+
+  transition:
+    transform 100ms ease,
+    filter 120ms ease;
+}
+
+.character-slot:hover {
+  filter: brightness(1.08);
+}
+
+.character-slot:active {
+  transform: translateY(1px);
+}
+
+.character-slot.is-active {
+  transform: translateX(7px);
+}
+
+.character-slot-middle {
+  width: 100%;
+  height: 100%;
+  padding: 1px;
+
+  background: var(--frame-light);
+}
+
+.character-slot-inner {
+  position: relative;
+
+  width: 100%;
+  height: 100%;
+  padding: 2px;
+
+  background: var(--frame-deep);
+}
+
+.character-slot-content {
+  position: relative;
+
+  width: 100%;
+  height: 100%;
+
+  display: grid;
+  place-items: center;
+
+  overflow: hidden;
+  background-color: #202424;
+}
+
+.character-slot.is-disabled .character-slot-content {
+  background-color: #555c5c;
+}
+
+.character-slot.is-active .character-slot-content {
+  color: var(--text-dark);
+  background-color: var(--teal);
+}
+
+/* 小方框菱形底纹 */
+.character-slot-content::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  opacity: 0.65;
+
+  background-image:
+    linear-gradient(
+      45deg,
+      rgba(0, 0, 0, 0.08) 25%,
+      transparent 25%,
+      transparent 75%,
+      rgba(0, 0, 0, 0.08) 75%
+    ),
+    linear-gradient(
+      -45deg,
+      rgba(255, 255, 255, 0.035) 25%,
+      transparent 25%,
+      transparent 75%,
+      rgba(255, 255, 255, 0.035) 75%
+    );
+  background-size: 20px 20px;
+}
+
+/* 双层角饰 */
+.character-slot-content::after {
+  content: "";
+  position: absolute;
+  inset: 5px;
+
+  border: 1px solid var(--ornament);
+}
+
+.character-slot.is-active .character-slot-content::after {
+  border-color: var(--ornament-dark);
+}
+
+.slot-number {
+  position: relative;
+  z-index: 2;
+
+  font-family: var(--font-title);
+  font-size: 21px;
+  font-weight: 400;
+  letter-spacing: 1px;
+}
+
+/* 四角小括线 */
+.slot-corner {
+  position: absolute;
+  z-index: 3;
+
+  width: 11px;
+  height: 11px;
+
+  opacity: 0.9;
+}
+
+.slot-corner::after {
+  content: "";
+  position: absolute;
+
+  width: 6px;
+  height: 6px;
+
+  opacity: 0.65;
+}
+
+.slot-corner.tl {
+  top: 3px;
+  left: 3px;
+  border-top: 1px solid var(--ornament);
+  border-left: 1px solid var(--ornament);
+}
+
+.slot-corner.tl::after {
+  top: 3px;
+  left: 3px;
+  border-top: 1px solid var(--ornament);
+  border-left: 1px solid var(--ornament);
+}
+
+.slot-corner.tr {
+  top: 3px;
+  right: 3px;
+  border-top: 1px solid var(--ornament);
+  border-right: 1px solid var(--ornament);
+}
+
+.slot-corner.tr::after {
+  top: 3px;
+  right: 3px;
+  border-top: 1px solid var(--ornament);
+  border-right: 1px solid var(--ornament);
+}
+
+.slot-corner.bl {
+  bottom: 3px;
+  left: 3px;
+  border-bottom: 1px solid var(--ornament);
+  border-left: 1px solid var(--ornament);
+}
+
+.slot-corner.bl::after {
+  bottom: 3px;
+  left: 3px;
+  border-bottom: 1px solid var(--ornament);
+  border-left: 1px solid var(--ornament);
+}
+
+.slot-corner.br {
+  right: 3px;
+  bottom: 3px;
+  border-right: 1px solid var(--ornament);
+  border-bottom: 1px solid var(--ornament);
+}
+
+.slot-corner.br::after {
+  right: 3px;
+  bottom: 3px;
+  border-right: 1px solid var(--ornament);
+  border-bottom: 1px solid var(--ornament);
+}
+
+/* 当前选择指针 */
+.selection-marker {
+  position: absolute;
+  top: 50%;
+  right: -17px;
+
+  width: 10px;
+  height: 10px;
+
+  background: var(--frame-dark);
+  transform: translateY(-50%) rotate(45deg);
+}
+
+.selection-marker::before {
+  content: "";
+  position: absolute;
+  inset: 2px;
+
+  border: 1px solid var(--teal-soft);
+}
+
+/* =========================================================
+   07. 通用古典面板结构
+   ========================================================= */
+
+.classic-panel {
+  position: relative;
+
+  padding: 3px;
+  background: var(--frame-dark);
+}
+
+.classic-panel-middle {
+  width: 100%;
+  height: 100%;
+  padding: 1px;
+
+  background: var(--frame-light);
+}
+
+.classic-panel-inner {
+  width: 100%;
+  height: 100%;
+  padding: 2px;
+
+  background: var(--frame-deep);
+}
+
+.classic-panel-content {
+  position: relative;
+
+  width: 100%;
+  height: 100%;
+
+  overflow: hidden;
+  background: var(--panel-black);
+}
+
+/* 内外两圈细线 */
+.classic-panel-content::before {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  z-index: 4;
+
+  border: 1px solid rgba(112, 125, 126, 0.88);
+  pointer-events: none;
+}
+
+.classic-panel-content::after {
+  content: "";
+  position: absolute;
+  inset: 10px;
+  z-index: 4;
+
+  border: 1px solid rgba(112, 125, 126, 0.35);
+  pointer-events: none;
+}
+
+/* 面板四角装饰 */
+.panel-corner {
+  position: absolute;
+  z-index: 7;
+
+  width: 27px;
+  height: 27px;
+
+  pointer-events: none;
+}
+
+.panel-corner::before {
+  content: "";
+  position: absolute;
+
+  width: 17px;
+  height: 17px;
+
+  opacity: 0.58;
+}
+
+.panel-corner.tl {
+  top: 7px;
+  left: 7px;
+  border-top: 2px solid var(--ornament);
+  border-left: 2px solid var(--ornament);
+}
+
+.panel-corner.tl::before {
+  top: 5px;
+  left: 5px;
+  border-top: 1px solid var(--ornament);
+  border-left: 1px solid var(--ornament);
+}
+
+.panel-corner.tr {
+  top: 7px;
+  right: 7px;
+  border-top: 2px solid var(--ornament);
+  border-right: 2px solid var(--ornament);
+}
+
+.panel-corner.tr::before {
+  top: 5px;
+  right: 5px;
+  border-top: 1px solid var(--ornament);
+  border-right: 1px solid var(--ornament);
+}
+
+.panel-corner.bl {
+  bottom: 7px;
+  left: 7px;
+  border-bottom: 2px solid var(--ornament);
+  border-left: 2px solid var(--ornament);
+}
+
+.panel-corner.bl::before {
+  bottom: 5px;
+  left: 5px;
+  border-bottom: 1px solid var(--ornament);
+  border-left: 1px solid var(--ornament);
+}
+
+.panel-corner.br {
+  right: 7px;
+  bottom: 7px;
+  border-right: 2px solid var(--ornament);
+  border-bottom: 2px solid var(--ornament);
+}
+
+.panel-corner.br::before {
+  right: 5px;
+  bottom: 5px;
+  border-right: 1px solid var(--ornament);
+  border-bottom: 1px solid var(--ornament);
+}
+
+/* 面板铆钉 */
+.panel-rivet {
+  position: absolute;
+  z-index: 8;
+
+  width: 3px;
+  height: 3px;
+
+  border-radius: 50%;
+  background: var(--ornament-light);
+  pointer-events: none;
+}
+
+.panel-rivet.r1 {
+  top: 17px;
+  left: 42px;
+}
+
+.panel-rivet.r2 {
+  top: 17px;
+  right: 42px;
+}
+
+.panel-rivet.r3 {
+  right: 42px;
+  bottom: 17px;
+}
+
+.panel-rivet.r4 {
+  bottom: 17px;
+  left: 42px;
+}
+
+/* =========================================================
+   08. 立绘区域
+   ========================================================= */
+
+.portrait-column {
+  position: relative;
+
+  min-width: 0;
+  padding-bottom: 30px;
+}
+
+.portrait-panel {
+  width: 100%;
+  height: 100%;
+}
+
+.portrait-panel .classic-panel-content {
+  background: #171b1b;
+}
+
+.portrait-image {
+  position: absolute;
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+  object-position: 50% 12%;
+
+  display: block;
+}
+
+/* 立绘底部轻微暗幕，只用于保证姓名牌与画面区分 */
+.portrait-bottom-shade {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+
+  height: 72px;
+
+  background: rgba(15, 19, 19, 0.44);
+  pointer-events: none;
+}
+
+/* =========================================================
+   09. 悬浮姓名牌
+   ========================================================= */
+
+.nameplate {
+  position: absolute;
+  z-index: 12;
+
+  right: -12px;
+  bottom: 4px;
+  left: -12px;
+
+  padding: 3px;
+
+  background: var(--frame-dark);
+
+  clip-path: polygon(
+    18px 0,
+    calc(100% - 18px) 0,
+    100% 50%,
+    calc(100% - 18px) 100%,
+    18px 100%,
+    0 50%
+  );
+}
+
+.nameplate-middle {
+  width: 100%;
+  height: 100%;
+  padding: 1px;
+
+  background: var(--frame-light);
+
+  clip-path: polygon(
+    15px 0,
+    calc(100% - 15px) 0,
+    100% 50%,
+    calc(100% - 15px) 100%,
+    15px 100%,
+    0 50%
+  );
+}
+
+.nameplate-inner {
+  width: 100%;
+  height: 100%;
+  padding: 2px;
+
+  background: var(--frame-deep);
+
+  clip-path: polygon(
+    14px 0,
+    calc(100% - 14px) 0,
+    100% 50%,
+    calc(100% - 14px) 100%,
+    14px 100%,
+    0 50%
+  );
+}
+
+.nameplate-content {
+  position: relative;
+
+  min-height: 58px;
+  padding: 8px 34px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  overflow: hidden;
+  text-align: center;
+  background: #202424;
+
+  clip-path: polygon(
+    12px 0,
+    calc(100% - 12px) 0,
+    100% 50%,
+    calc(100% - 12px) 100%,
+    12px 100%,
+    0 50%
+  );
+}
+
+/* 姓名牌两侧渐隐纹理 */
+.nameplate-content::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  background-image:
+    linear-gradient(
+      45deg,
+      rgba(255, 255, 255, 0.045) 25%,
+      transparent 25%,
+      transparent 75%,
+      rgba(255, 255, 255, 0.045) 75%
+    ),
+    linear-gradient(
+      -45deg,
+      rgba(0, 0, 0, 0.1) 25%,
+      transparent 25%,
+      transparent 75%,
+      rgba(0, 0, 0, 0.1) 75%
+    );
+  background-size: 22px 22px;
+
+  -webkit-mask-image: linear-gradient(
+    to right,
+    #000 0%,
+    transparent 34%,
+    transparent 66%,
+    #000 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    #000 0%,
+    transparent 34%,
+    transparent 66%,
+    #000 100%
+  );
+}
+
+.name-cn,
+.name-en {
+  position: relative;
+  z-index: 2;
+}
+
+.name-cn {
+  color: var(--text-main);
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: 3px;
+}
+
+.name-en {
+  margin-top: 3px;
+
+  color: var(--teal-soft);
+  font-family: var(--font-title);
+  font-size: 10px;
+  letter-spacing: 2.2px;
+}
+
+/* =========================================================
+   10. 右侧状态主面板
+   ========================================================= */
+
+.status-panel {
+  min-width: 0;
+  height: 100%;
+}
+
+.status-panel .classic-panel-content {
+  padding: 28px 32px 24px;
+}
+
+/* 右侧面板边缘纹理，不进入中央正文 */
+.status-panel .classic-panel-content > .edge-pattern {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+
+  opacity: 0.72;
+  pointer-events: none;
+
+  background-image:
+    linear-gradient(
+      45deg,
+      rgba(255, 255, 255, 0.025) 25%,
+      transparent 25%,
+      transparent 75%,
+      rgba(255, 255, 255, 0.025) 75%
+    ),
+    linear-gradient(
+      -45deg,
+      rgba(0, 0, 0, 0.06) 25%,
+      transparent 25%,
+      transparent 75%,
+      rgba(0, 0, 0, 0.06) 75%
+    );
+  background-size: 30px 30px;
+
+  -webkit-mask-image: linear-gradient(
+    to right,
+    #000 0%,
+    transparent 13%,
+    transparent 87%,
+    #000 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    #000 0%,
+    transparent 13%,
+    transparent 87%,
+    #000 100%
+  );
+}
+
+.status-information {
+  position: relative;
+  z-index: 3;
+
+  height: 100%;
+
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
+}
+
+/* =========================================================
+   11. 身份区域
+   ========================================================= */
+
+.identity-section {
+  padding: 1px 2px 16px;
+}
+
+.identity-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.identity-title-cn {
+  color: var(--text-main);
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: 5px;
+}
+
+.identity-title-en {
+  margin-top: 4px;
+
+  color: var(--teal-soft);
+  font-family: var(--font-title);
+  font-size: 11px;
+  letter-spacing: 2.2px;
+}
+
+.stability-state {
+  flex: none;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+
+  padding-bottom: 3px;
+
+  color: var(--teal-soft);
+  font-size: 13px;
+  letter-spacing: 2px;
+}
+
+.stability-state::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+
+  border: 1px solid var(--teal-soft);
+  background: var(--teal-dark);
+  transform: rotate(45deg);
+}
+
+.identity-details {
+  margin-top: 15px;
+
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 28px;
+}
+
+.detail-row {
+  min-width: 0;
+
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: baseline;
+  gap: 8px;
+
+  color: var(--text-soft);
+  font-size: 12px;
+}
+
+.detail-label {
+  color: var(--text-muted);
+  letter-spacing: 1px;
+  white-space: nowrap;
+}
+
+.detail-leader {
+  min-width: 16px;
+  height: 1px;
+
+  border-bottom: 1px dotted rgba(148, 162, 163, 0.34);
+}
+
+.detail-value {
+  color: var(--text-main);
+  white-space: nowrap;
+}
+
+/* =========================================================
+   12. 古典分隔标题
+   ========================================================= */
+
+.section-divider {
+  position: relative;
+
+  height: 31px;
+  margin: 0 -5px 12px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.section-divider::before,
+.section-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+
+  background: rgba(124, 139, 140, 0.52);
+}
+
+.section-divider span {
+  position: relative;
+
+  min-width: 156px;
+  padding: 0 22px;
+
+  color: var(--text-soft);
+  font-family: var(--font-title);
+  font-size: 11px;
+  letter-spacing: 2.2px;
+  text-align: center;
+}
+
+.section-divider span::before,
+.section-divider span::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+
+  width: 6px;
+  height: 6px;
+
+  border: 1px solid var(--ornament);
+  transform: translateY(-50%) rotate(45deg);
+}
+
+.section-divider span::before {
+  left: 6px;
+}
+
+.section-divider span::after {
+  right: 6px;
+}
+
+/* =========================================================
+   13. 参数区域
+   ========================================================= */
+
+.parameters-section {
+  padding-bottom: 15px;
+}
+
+.parameter-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 32px;
+  row-gap: 8px;
+}
+
+.parameter-row {
+  display: grid;
+  grid-template-columns: auto 1fr 31px;
+  align-items: baseline;
+  gap: 9px;
+}
+
+.parameter-name {
+  color: var(--text-soft);
+  font-size: 12px;
+  letter-spacing: 1px;
+  white-space: nowrap;
+}
+
+.parameter-name small {
+  margin-left: 4px;
+  color: var(--text-muted);
+  font-family: var(--font-title);
+  font-size: 8px;
+  letter-spacing: 1px;
+}
+
+.parameter-leader {
+  height: 1px;
+  border-bottom: 1px dotted rgba(148, 162, 163, 0.39);
+}
+
+.parameter-rank {
+  color: var(--text-main);
+  font-family: var(--font-title);
+  font-size: 15px;
+  font-weight: 500;
+  text-align: right;
+}
+
+.parameter-rank.rank-ex {
+  color: var(--teal-soft);
+}
+
+/* =========================================================
+   14. 下方特性与人物记录
+   ========================================================= */
+
+.lower-information {
+  min-height: 0;
+
+  display: grid;
+  grid-template-columns: 1.08fr 0.92fr;
+  gap: 28px;
+
+  padding-top: 3px;
+}
+
+.lower-column {
+  min-width: 0;
+}
+
+.subsection-title {
+  margin-bottom: 11px;
+
+  display: flex;
+  align-items: center;
+  gap: 9px;
+
+  color: var(--teal-soft);
+  font-family: var(--font-title);
+  font-size: 10px;
+  letter-spacing: 2px;
+}
+
+.subsection-title::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+
+  border: 1px solid var(--teal-dark);
+  transform: rotate(45deg);
+}
+
+/* 特性列表 */
+.trait-list {
+  display: grid;
+  gap: 11px;
+}
+
+.trait-item {
+  position: relative;
+  padding-left: 16px;
+}
+
+.trait-item::before {
+  content: "";
+  position: absolute;
+  top: 7px;
+  left: 1px;
+
+  width: 6px;
+  height: 6px;
+
+  background: var(--ornament);
+  transform: rotate(45deg);
+}
+
+.trait-name {
+  color: var(--text-main);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+.trait-description {
+  margin-top: 3px;
+
+  color: var(--text-muted);
+  font-size: 10px;
+  line-height: 1.65;
+}
+
+/* 人物记录 */
+.archive-text {
+  margin: 0;
+
+  color: var(--text-soft);
+  font-size: 11px;
+  line-height: 1.85;
+  text-align: justify;
+}
+
+.archive-quote {
+  position: relative;
+
+  margin-top: 13px;
+  padding: 10px 13px 9px;
+
+  color: var(--teal-soft);
+  font-size: 10px;
+  line-height: 1.75;
+
+  border-top: 1px solid rgba(114, 179, 183, 0.28);
+  border-bottom: 1px solid rgba(114, 179, 183, 0.28);
+}
+
+.archive-quote::before {
+  content: "“";
+  position: absolute;
+  top: -4px;
+  left: 4px;
+
+  color: var(--ornament);
+  font-family: Georgia, serif;
+  font-size: 21px;
+}
+
+/* =========================================================
+   15. 底部操作按钮
+   ========================================================= */
+
+.bottom-menu {
+  position: absolute;
+  z-index: 18;
+
+  right: 40px;
+  bottom: -16px;
+  left: 126px;
+
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+
+.rpg-button {
+  width: 100%;
+  padding: 0;
+  border: 0;
+
+  color: var(--text-main);
+  background: transparent;
+  cursor: pointer;
+
+  transition:
+    transform 100ms ease,
+    filter 120ms ease;
+}
+
+.rpg-button:hover {
+  filter: brightness(1.1);
+}
+
+.rpg-button:active {
+  transform: translateY(1px);
+}
+
+.button-outer {
+  padding: 3px;
+  background: var(--frame-dark);
+
+  clip-path: polygon(
+    16px 0,
+    calc(100% - 16px) 0,
+    100% 50%,
+    calc(100% - 16px) 100%,
+    16px 100%,
+    0 50%
+  );
+}
+
+.button-middle {
+  padding: 1px;
+  background: var(--frame-light);
+
+  clip-path: polygon(
+    13px 0,
+    calc(100% - 13px) 0,
+    100% 50%,
+    calc(100% - 13px) 100%,
+    13px 100%,
+    0 50%
+  );
+}
+
+.button-inner {
+  padding: 2px;
+  background: var(--frame-deep);
+
+  clip-path: polygon(
+    12px 0,
+    calc(100% - 12px) 0,
+    100% 50%,
+    calc(100% - 12px) 100%,
+    12px 100%,
+    0 50%
+  );
+}
+
+.button-content {
+  position: relative;
+
+  height: 38px;
+
+  display: grid;
+  place-items: center;
+
+  overflow: hidden;
+  color: var(--text-main);
+  background: #202424;
+
+  clip-path: polygon(
+    10px 0,
+    calc(100% - 10px) 0,
+    100% 50%,
+    calc(100% - 10px) 100%,
+    10px 100%,
+    0 50%
+  );
+}
+
+/* 两侧暗纹 */
+.button-content::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  background-image:
+    linear-gradient(
+      45deg,
+      rgba(255, 255, 255, 0.045) 25%,
+      transparent 25%,
+      transparent 75%,
+      rgba(255, 255, 255, 0.045) 75%
+    ),
+    linear-gradient(
+      -45deg,
+      rgba(0, 0, 0, 0.1) 25%,
+      transparent 25%,
+      transparent 75%,
+      rgba(0, 0, 0, 0.1) 75%
+    );
+  background-size: 20px 20px;
+
+  -webkit-mask-image: linear-gradient(
+    to right,
+    #000 0%,
+    transparent 32%,
+    transparent 68%,
+    #000 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    #000 0%,
+    transparent 32%,
+    transparent 68%,
+    #000 100%
+  );
+}
+
+.rpg-button.is-active .button-content {
+  color: var(--text-dark);
+  background: var(--teal);
+}
+
+.button-label {
+  position: relative;
+  z-index: 2;
+
+  font-family: var(--font-cn);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 2px;
+}
+
+.button-label small {
+  display: block;
+  margin-top: 1px;
+
+  font-family: var(--font-title);
+  font-size: 7px;
+  font-weight: 500;
+  letter-spacing: 1.4px;
+}
+
+/* =========================================================
+   16. 辅助角饰
+   ========================================================= */
+
+.screen-rivet {
+  position: absolute;
+  z-index: 4;
+
+  width: 4px;
+  height: 4px;
+
+  border-radius: 50%;
+  background: var(--ornament);
+}
+
+.screen-rivet.a {
+  top: 22px;
+  left: 24px;
+}
+
+.screen-rivet.b {
+  top: 22px;
+  right: 24px;
+}
+
+.screen-rivet.c {
+  right: 24px;
+  bottom: 22px;
+}
+
+.screen-rivet.d {
+  bottom: 22px;
+  left: 24px;
+}
+
+/* =========================================================
+   17. 响应式概念适配
+   ========================================================= */
+
+@media (max-width: 1050px) {
+  body {
+    padding: 16px;
+  }
+
+  .game-screen {
+    width: 1180px;
+    min-width: 1180px;
+    transform: scale(calc((100vw - 32px) / 1180));
+    transform-origin: center;
+  }
+}
+
+@media (max-height: 720px) and (min-width: 1051px) {
+  .game-screen {
+    transform: scale(0.9);
+    transform-origin: center;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<main class="game-screen">
+
+  <!-- =====================================================
+       顶部标题：燕尾 Header
+       ===================================================== -->
+  <div class="status-header" aria-hidden="true">
+    <svg viewBox="0 0 660 116">
+      <defs>
+        <pattern
+          id="header-pattern"
+          width="42"
+          height="42"
+          patternUnits="userSpaceOnUse"
+        >
+          <path
+            d="M21 0 L42 21 L21 42 L0 21 Z"
+            fill="rgba(255,255,255,.04)"
+          />
+          <path
+            d="M21 10 L32 21 L21 32 L10 21 Z"
+            fill="rgba(0,0,0,.06)"
+          />
+        </pattern>
+        <linearGradient
+          id="header-mask-gradient"
+          x1="0"
+          y1="0"
+          x2="1"
+          y2="0"
+        >
+          <stop offset="0%" stop-color="#fff" stop-opacity="1"/>
+          <stop offset="27%" stop-color="#fff" stop-opacity=".35"/>
+          <stop offset="42%" stop-color="#fff" stop-opacity="0"/>
+          <stop offset="58%" stop-color="#fff" stop-opacity="0"/>
+          <stop offset="73%" stop-color="#fff" stop-opacity=".35"/>
+          <stop offset="100%" stop-color="#fff" stop-opacity="1"/>
+        </linearGradient>
+        <mask id="header-fade-mask">
+          <rect
+            width="660"
+            height="116"
+            fill="url(#header-mask-gradient)"
+          />
+        </mask>
+        <clipPath id="header-clip">
+          <path
+            d="
+              M18 9
+              H642
+              C624 14 612 24 603 40
+              C596 52 593 63 592 73
+              H383
+              L330 103
+              L277 73
+              H68
+              C67 62 64 51 57 39
+              C48 23 36 14 18 9
+              Z
+            "
+          />
+        </clipPath>
+      </defs>
+      <!-- 下沿暗托 -->
+      <path
+        d="
+          M18 13
+          H642
+          C624 18 612 28 603 44
+          C596 56 593 67 592 77
+          H383
+          L330 107
+          L277 77
+          H68
+          C67 66 64 55 57 43
+          C48 27 36 18 18 13
+          Z
+        "
+        fill="#0d1212"
+        opacity=".78"
+      />
+      <!-- 主体 -->
+      <path
+        d="
+          M18 9
+          H642
+          C624 14 612 24 603 40
+          C596 52 593 63 592 73
+          H383
+          L330 103
+          L277 73
+          H68
+          C67 62 64 51 57 39
+          C48 23 36 14 18 9
+          Z
+        "
+        fill="#202424"
+      />
+      <!-- 两侧菱形纹理 -->
+      <rect
+        x="12"
+        y="6"
+        width="636"
+        height="102"
+        fill="url(#header-pattern)"
+        mask="url(#header-fade-mask)"
+        clip-path="url(#header-clip)"
+      />
+      <!-- 暗—浅—暗三重边框 -->
+      <path
+        d="
+          M18 9 H642
+          C624 14 612 24 603 40
+          C596 52 593 63 592 73
+          H383 L330 103 L277 73 H68
+          C67 62 64 51 57 39
+          C48 23 36 14 18 9 Z
+        "
+        fill="none"
+        stroke="#192020"
+        stroke-width="7"
+        stroke-linejoin="miter"
+      />
+      <path
+        d="
+          M18 9 H642
+          C624 14 612 24 603 40
+          C596 52 593 63 592 73
+          H383 L330 103 L277 73 H68
+          C67 62 64 51 57 39
+          C48 23 36 14 18 9 Z
+        "
+        fill="none"
+        stroke="#899596"
+        stroke-width="4"
+        stroke-linejoin="miter"
+      />
+      <path
+        d="
+          M18 9 H642
+          C624 14 612 24 603 40
+          C596 52 593 63 592 73
+          H383 L330 103 L277 73 H68
+          C67 62 64 51 57 39
+          C48 23 36 14 18 9 Z
+        "
+        fill="none"
+        stroke="#101616"
+        stroke-width="2"
+        stroke-linejoin="miter"
+      />
+      <!-- 内部装饰线 -->
+      <path
+        d="
+          M39 15 H621
+          M39 15
+          C52 22 61 33 67 47
+          C71 56 73 64 73 68
+          H283
+          L330 94
+          L377 68
+          H587
+          C587 64 589 56 593 47
+          C599 33 608 22 621 15
+        "
+        fill="none"
+        stroke="#667273"
+        stroke-width="1.15"
+      />
+      <!-- 中央三枚菱形 -->
+      <g fill="#748182">
+        <path d="M316 80 L320 84 L316 88 L312 84 Z"/>
+        <path d="M330 88 L334 92 L330 96 L326 92 Z"/>
+        <path d="M344 80 L348 84 L344 88 L340 84 Z"/>
+      </g>
+      <!-- 标题 -->
+      <text
+        x="330"
+        y="44"
+        fill="#eef1f1"
+        font-family="Cinzel, Georgia, serif"
+        font-size="24"
+        font-weight="500"
+        letter-spacing="4"
+        text-anchor="middle"
+        dominant-baseline="middle"
+      >
+        STATUS
+      </text>
+    </svg>
+  </div>
+
+  <!-- =====================================================
+       主界面三重框
+       ===================================================== -->
+  <div class="screen-frame-outer">
+    <div class="screen-frame-middle">
+      <div class="screen-frame-inner">
+        <div class="screen-content">
+
+          <span class="screen-rivet a"></span>
+          <span class="screen-rivet b"></span>
+          <span class="screen-rivet c"></span>
+          <span class="screen-rivet d"></span>
+
+          <div class="status-layout">
+
+            <!-- =============================================
+                 左侧角色选择栏
+                 ============================================= -->
+            <nav
+              class="character-selector"
+              aria-label="角色选择"
+            >
+              <button
+                class="character-slot"
+                type="button"
+                aria-label="角色 01：凯尔"
+              >
+                <span class="character-slot-middle">
+                  <span class="character-slot-inner">
+                    <span class="character-slot-content">
+                      <i class="slot-corner tl"></i>
+                      <i class="slot-corner tr"></i>
+                      <i class="slot-corner bl"></i>
+                      <i class="slot-corner br"></i>
+                      <span class="slot-number">01</span>
+                    </span>
+                  </span>
+                </span>
+              </button>
+
+              <button
+                class="character-slot"
+                type="button"
+                aria-label="角色 02：尤斯缇丝"
+              >
+                <span class="character-slot-middle">
+                  <span class="character-slot-inner">
+                    <span class="character-slot-content">
+                      <i class="slot-corner tl"></i>
+                      <i class="slot-corner tr"></i>
+                      <i class="slot-corner bl"></i>
+                      <i class="slot-corner br"></i>
+                      <span class="slot-number">02</span>
+                    </span>
+                  </span>
+                </span>
+              </button>
+
+              <button
+                class="character-slot"
+                type="button"
+                aria-label="角色 03：艾洛拉"
+              >
+                <span class="character-slot-middle">
+                  <span class="character-slot-inner">
+                    <span class="character-slot-content">
+                      <i class="slot-corner tl"></i>
+                      <i class="slot-corner tr"></i>
+                      <i class="slot-corner bl"></i>
+                      <i class="slot-corner br"></i>
+                      <span class="slot-number">03</span>
+                    </span>
+                  </span>
+                </span>
+              </button>
+
+              <button
+                class="character-slot"
+                type="button"
+                aria-label="角色 04：柯萝萝"
+              >
+                <span class="character-slot-middle">
+                  <span class="character-slot-inner">
+                    <span class="character-slot-content">
+                      <i class="slot-corner tl"></i>
+                      <i class="slot-corner tr"></i>
+                      <i class="slot-corner bl"></i>
+                      <i class="slot-corner br"></i>
+                      <span class="slot-number">04</span>
+                    </span>
+                  </span>
+                </span>
+              </button>
+
+              <button
+                class="character-slot"
+                type="button"
+                aria-label="角色 05：诺玛"
+              >
+                <span class="character-slot-middle">
+                  <span class="character-slot-inner">
+                    <span class="character-slot-content">
+                      <i class="slot-corner tl"></i>
+                      <i class="slot-corner tr"></i>
+                      <i class="slot-corner bl"></i>
+                      <i class="slot-corner br"></i>
+                      <span class="slot-number">05</span>
+                    </span>
+                  </span>
+                </span>
+              </button>
+
+              <button
+                class="character-slot is-active"
+                type="button"
+                aria-current="true"
+                aria-label="当前角色 06：艾比希斯"
+              >
+                <span class="character-slot-middle">
+                  <span class="character-slot-inner">
+                    <span class="character-slot-content">
+                      <i class="slot-corner tl"></i>
+                      <i class="slot-corner tr"></i>
+                      <i class="slot-corner bl"></i>
+                      <i class="slot-corner br"></i>
+                      <span class="slot-number">06</span>
+                    </span>
+                  </span>
+                </span>
+
+                <span
+                  class="selection-marker"
+                  aria-hidden="true"
+                ></span>
+              </button>
+            </nav>
+
+            <!-- =============================================
+                 中央立绘
+                 ============================================= -->
+            <section
+              class="portrait-column"
+              aria-label="艾比希斯角色立绘"
+            >
+              <div class="classic-panel portrait-panel">
+                <div class="classic-panel-middle">
+                  <div class="classic-panel-inner">
+                    <div class="classic-panel-content">
+
+                      <img
+                        class="portrait-image"
+                        src="https://files.catbox.moe/8fnveh.png"
+                        alt="魔王艾比希斯·贝尔泽兰"
+                      >
+
+                      <div class="portrait-bottom-shade"></div>
+
+                      <span class="panel-corner tl"></span>
+                      <span class="panel-corner tr"></span>
+                      <span class="panel-corner bl"></span>
+                      <span class="panel-corner br"></span>
+
+                      <span class="panel-rivet r1"></span>
+                      <span class="panel-rivet r2"></span>
+                      <span class="panel-rivet r3"></span>
+                      <span class="panel-rivet r4"></span>
+
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 悬浮姓名牌 -->
+              <div class="nameplate">
+                <div class="nameplate-middle">
+                  <div class="nameplate-inner">
+                    <div class="nameplate-content">
+                      <div class="name-cn">
+                        艾比希斯·贝尔泽兰
+                      </div>
+                      <div class="name-en">
+                        ABYSSA BEELZERAN
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- =============================================
+                 右侧状态信息
+                 ============================================= -->
+            <section
+              class="classic-panel status-panel"
+              aria-label="角色状态资料"
+            >
+              <div class="classic-panel-middle">
+                <div class="classic-panel-inner">
+                  <div class="classic-panel-content">
+
+                    <div class="edge-pattern"></div>
+
+                    <span class="panel-corner tl"></span>
+                    <span class="panel-corner tr"></span>
+                    <span class="panel-corner bl"></span>
+                    <span class="panel-corner br"></span>
+
+                    <span class="panel-rivet r1"></span>
+                    <span class="panel-rivet r2"></span>
+                    <span class="panel-rivet r3"></span>
+                    <span class="panel-rivet r4"></span>
+
+                    <div class="status-information">
+
+                      <!-- 身份 -->
+                      <section class="identity-section">
+                        <div class="identity-heading">
+                          <div>
+                            <div class="identity-title-cn">
+                              当代魔王
+                            </div>
+                            <div class="identity-title-en">
+                              THE VESSEL OF CHAOS
+                            </div>
+                          </div>
+
+                          <div class="stability-state">
+                            状态：安定
+                          </div>
+                        </div>
+
+                        <div class="identity-details">
+                          <div class="detail-row">
+                            <span class="detail-label">种族</span>
+                            <span class="detail-leader"></span>
+                            <span class="detail-value">根源存在</span>
+                          </div>
+
+                          <div class="detail-row">
+                            <span class="detail-label">职能</span>
+                            <span class="detail-leader"></span>
+                            <span class="detail-value">混沌容器</span>
+                          </div>
+
+                          <div class="detail-row">
+                            <span class="detail-label">躯壳</span>
+                            <span class="detail-leader"></span>
+                            <span class="detail-value">人类</span>
+                          </div>
+
+                          <div class="detail-row">
+                            <span class="detail-label">所在地</span>
+                            <span class="detail-leader"></span>
+                            <span class="detail-value">守望者之崖</span>
+                          </div>
+                        </div>
+                      </section>
+
+                      <!-- 参数 -->
+                      <section class="parameters-section">
+                        <div class="section-divider">
+                          <span>PARAMETERS</span>
+                        </div>
+
+                        <div class="parameter-grid">
+                          <div class="parameter-row">
+                            <span class="parameter-name">
+                              生命 <small>LIFE</small>
+                            </span>
+                            <span class="parameter-leader"></span>
+                            <span class="parameter-rank rank-ex">EX</span>
+                          </div>
+
+                          <div class="parameter-row">
+                            <span class="parameter-name">
+                              源力 <small>MANA</small>
+                            </span>
+                            <span class="parameter-leader"></span>
+                            <span class="parameter-rank rank-ex">EX</span>
+                          </div>
+
+                          <div class="parameter-row">
+                            <span class="parameter-name">
+                              力量 <small>POWER</small>
+                            </span>
+                            <span class="parameter-leader"></span>
+                            <span class="parameter-rank rank-ex">EX</span>
+                          </div>
+
+                          <div class="parameter-row">
+                            <span class="parameter-name">
+                              抗性 <small>WARD</small>
+                            </span>
+                            <span class="parameter-leader"></span>
+                            <span class="parameter-rank rank-ex">EX</span>
+                          </div>
+
+                          <div class="parameter-row">
+                            <span class="parameter-name">
+                              敏捷 <small>AGILITY</small>
+                            </span>
+                            <span class="parameter-leader"></span>
+                            <span class="parameter-rank">D</span>
+                          </div>
+
+                          <div class="parameter-row">
+                            <span class="parameter-name">
+                              控制 <small>CONTROL</small>
+                            </span>
+                            <span class="parameter-leader"></span>
+                            <span class="parameter-rank">A</span>
+                          </div>
+                        </div>
+
+                        <div class="section-divider">
+                          <span>ARCHIVE RECORD</span>
+                        </div>
+                      </section>
+
+                      <!-- 特性与简介 -->
+                      <section class="lower-information">
+
+                        <div class="lower-column">
+                          <div class="subsection-title">
+                            INHERENT TRAITS
+                          </div>
+
+                          <div class="trait-list">
+                            <article class="trait-item">
+                              <div class="trait-name">我的平静</div>
+                              <div class="trait-description">
+                                作为容纳混沌的堤岸，维持周围源力与现实结构的稳定。
+                              </div>
+                            </article>
+
+                            <article class="trait-item">
+                              <div class="trait-name">万象原生质</div>
+                              <div class="trait-description">
+                                操纵由自身延伸出的黑色原生质，使其化为触手、衣装或屏障。
+                              </div>
+                            </article>
+
+                            <article class="trait-item">
+                              <div class="trait-name">静谧之楔</div>
+                              <div class="trait-description">
+                                凯尔在场时，混沌波动受到持续中和，安定状态大幅提升。
+                              </div>
+                            </article>
+                          </div>
+                        </div>
+
+                        <div class="lower-column">
+                          <div class="subsection-title">
+                            BIOGRAPHY
+                          </div>
+
+                          <p class="archive-text">
+                            大天平指定的当代魔王，也是容纳现世灾厄的活体器皿。
+                            她平日慵懒而寡言，以直觉和感官理解世界，对阳光、安静的环境，
+                            以及凯尔平稳的体温抱有明显依赖。
+                          </p>
+
+                          <div class="archive-quote">
+                            太阳的光，感觉舒服的时候，就醒了。这里的阳光，味道最好。
+                          </div>
+                        </div>
+
+                      </section>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =====================================================
+       底部菜单
+       ===================================================== -->
+  <nav
+    class="bottom-menu"
+    aria-label="状态菜单功能"
+  >
+    <button class="rpg-button" type="button">
+      <span class="button-outer">
+        <span class="button-middle">
+          <span class="button-inner">
+            <span class="button-content">
+              <span class="button-label">
+                装备
+                <small>EQUIPMENT</small>
+              </span>
+            </span>
+          </span>
+        </span>
+      </span>
+    </button>
+
+    <button class="rpg-button" type="button">
+      <span class="button-outer">
+        <span class="button-middle">
+          <span class="button-inner">
+            <span class="button-content">
+              <span class="button-label">
+                能力
+                <small>ABILITIES</small>
+              </span>
+            </span>
+          </span>
+        </span>
+      </span>
+    </button>
+
+    <button
+      class="rpg-button is-active"
+      type="button"
+      aria-current="page"
+    >
+      <span class="button-outer">
+        <span class="button-middle">
+          <span class="button-inner">
+            <span class="button-content">
+              <span class="button-label">
+                档案
+                <small>ARCHIVE</small>
+              </span>
+            </span>
+          </span>
+        </span>
+      </span>
+    </button>
+
+    <button class="rpg-button" type="button">
+      <span class="button-outer">
+        <span class="button-middle">
+          <span class="button-inner">
+            <span class="button-content">
+              <span class="button-label">
+                返回
+                <small>RETURN</small>
+              </span>
+            </span>
+          </span>
+        </span>
+      </span>
+    </button>
+  </nav>
+
+</main>
+
+<script>
+/* =========================================================
+   简单的概念交互：
+   这里只处理选择状态，不加载其他角色资料。
+   ========================================================= */
+
+const characterSlots = document.querySelectorAll(".character-slot");
+
+characterSlots.forEach((slot) => {
+  slot.addEventListener("click", () => {
+    characterSlots.forEach((item) => {
+      item.classList.remove("is-active");
+      item.removeAttribute("aria-current");
+
+      const oldMarker = item.querySelector(".selection-marker");
+      if (oldMarker) oldMarker.remove();
+    });
+
+    slot.classList.add("is-active");
+    slot.setAttribute("aria-current", "true");
+
+    const marker = document.createElement("span");
+    marker.className = "selection-marker";
+    marker.setAttribute("aria-hidden", "true");
+    slot.appendChild(marker);
+  });
+});
+
+const menuButtons = document.querySelectorAll(".bottom-menu .rpg-button");
+
+menuButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    menuButtons.forEach((item) => {
+      item.classList.remove("is-active");
+      item.removeAttribute("aria-current");
+    });
+
+    button.classList.add("is-active");
+    button.setAttribute("aria-current", "page");
+  });
+});
+</script>
+
+</body>
+</html>

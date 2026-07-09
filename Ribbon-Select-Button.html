@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ribbon Select Button</title>
+
+<style>
+  @import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&display=swap");
+
+  :root {
+    --page-bg: #9babad;
+
+    /* 与前一个组件统一的材质 */
+    --frame-dark: #1a2020;
+    --frame-light: #a8b4b5;
+
+    --dark-fill: #202424;
+    --light-fill: #e5eaea;
+    --teal-fill: #72b2b7;
+
+    --dark-text: #182020;
+    --light-text: #f0f3f3;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    min-height: 100vh;
+    margin: 0;
+    padding: 48px;
+    display: grid;
+    place-items: center;
+    background: var(--page-bg);
+  }
+
+  .component-list {
+    width: min(820px, 100%);
+    display: grid;
+    gap: 26px;
+  }
+
+  /* 按钮本体 */
+  .ribbon-button {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+    cursor: pointer;
+
+    /* 避免放大时线条模糊得过于严重 */
+    shape-rendering: geometricPrecision;
+
+    transition:
+      transform 100ms ease,
+      filter 120ms ease;
+  }
+
+  .ribbon-button:hover {
+    filter: brightness(1.05);
+  }
+
+  .ribbon-button:active {
+    transform: translateY(1px);
+  }
+
+  .ribbon-button:focus-visible {
+    outline: 2px solid #e9eeee;
+    outline-offset: 5px;
+  }
+
+  /* 主体填色 */
+  .theme-dark {
+    --button-fill: var(--dark-fill);
+    --button-text: var(--light-text);
+    --pattern-color: rgba(255, 255, 255, 0.045);
+  }
+
+  .theme-light {
+    --button-fill: var(--light-fill);
+    --button-text: var(--dark-text);
+    --pattern-color: rgba(31, 42, 42, 0.075);
+  }
+
+  .theme-teal {
+    --button-fill: var(--teal-fill);
+    --button-text: var(--dark-text);
+    --pattern-color: rgba(24, 56, 58, 0.085);
+  }
+
+  .button-label {
+    fill: var(--button-text);
+    font-family: "Cinzel", serif;
+    font-size: 20px;
+    font-weight: 500;
+    letter-spacing: 3px;
+    text-anchor: middle;
+    dominant-baseline: middle;
+  }
+</style>
+</head>
+
+<body>
+<main class="component-list">
+
+  <!-- 暗色 -->
+  <svg
+    class="ribbon-button theme-dark"
+    viewBox="0 0 820 68"
+    role="button"
+    tabindex="0"
+    aria-label="Select Button B"
+  >
+    <defs>
+      <!-- 菱形纹理 -->
+      <pattern
+        id="argyle-dark"
+        width="44"
+        height="44"
+        patternUnits="userSpaceOnUse"
+        patternTransform="translate(0 -10)"
+      >
+        <rect width="44" height="44" fill="transparent"/>
+        <path
+          d="M22 0 L44 22 L22 44 L0 22 Z"
+          fill="var(--pattern-color)"
+        />
+        <path
+          d="M22 10 L34 22 L22 34 L10 22 Z"
+          fill="rgba(255,255,255,.018)"
+        />
+      </pattern>
+      <!-- 两端明显、中央消失 -->
+      <linearGradient id="fade-dark" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="white" stop-opacity="1"/>
+        <stop offset="27%" stop-color="white" stop-opacity=".22"/>
+        <stop offset="40%" stop-color="white" stop-opacity="0"/>
+        <stop offset="60%" stop-color="white" stop-opacity="0"/>
+        <stop offset="73%" stop-color="white" stop-opacity=".22"/>
+        <stop offset="100%" stop-color="white" stop-opacity="1"/>
+      </linearGradient>
+      <mask id="mask-dark">
+        <rect width="820" height="68" fill="url(#fade-dark)"/>
+      </mask>
+      <!-- 限制纹理不越出按钮 -->
+      <clipPath id="clip-dark">
+        <path d="
+          M 34 7
+          H 786
+          L 765 34
+          L 786 61
+          H 34
+          L 55 34
+          Z
+        "/>
+      </clipPath>
+    </defs>
+    <!-- 下沿底托/投影 -->
+    <path
+      d="
+        M 35 11
+        H 788
+        L 769 38
+        L 788 65
+        H 35
+        L 56 38
+        Z
+      "
+      fill="#111616"
+      opacity=".72"
+    />
+    <!-- 主体底色 -->
+    <path
+      d="
+        M 34 7
+        H 786
+        L 765 34
+        L 786 61
+        H 34
+        L 55 34
+        Z
+      "
+      fill="var(--button-fill)"
+    />
+    <!-- 两侧渐隐菱形纹理 -->
+    <rect
+      x="30"
+      y="4"
+      width="760"
+      height="60"
+      fill="url(#argyle-dark)"
+      mask="url(#mask-dark)"
+      clip-path="url(#clip-dark)"
+    />
+    <!--
+      三重边框：
+      先画最宽暗线，再画较窄浅线，最后画最窄暗线。
+      最终视觉顺序即为：暗—浅—暗。
+    -->
+    <path
+      d="
+        M 34 7
+        H 786
+        L 765 34
+        L 786 61
+        H 34
+        L 55 34
+        Z
+      "
+      fill="none"
+      stroke="var(--frame-dark)"
+      stroke-width="7"
+      stroke-linejoin="miter"
+    />
+    <path
+      d="
+        M 34 7
+        H 786
+        L 765 34
+        L 786 61
+        H 34
+        L 55 34
+        Z
+      "
+      fill="none"
+      stroke="var(--frame-light)"
+      stroke-width="4"
+      stroke-linejoin="miter"
+    />
+    <path
+      d="
+        M 34 7
+        H 786
+        L 765 34
+        L 786 61
+        H 34
+        L 55 34
+        Z
+      "
+      fill="none"
+      stroke="var(--frame-dark)"
+      stroke-width="2"
+      stroke-linejoin="miter"
+    />
+    <!-- 两侧独立菱形装饰 -->
+    <g>
+      <path
+        d="M8 34 L18 24 L28 34 L18 44 Z"
+        fill="var(--frame-dark)"
+      />
+      <path
+        d="M12 34 L18 28 L24 34 L18 40 Z"
+        fill="var(--frame-light)"
+      />
+      <path
+        d="M14 34 L18 30 L22 34 L18 38 Z"
+        fill="var(--frame-dark)"
+      />
+      <path
+        d="M792 34 L802 24 L812 34 L802 44 Z"
+        fill="var(--frame-dark)"
+      />
+      <path
+        d="M796 34 L802 28 L808 34 L802 40 Z"
+        fill="var(--frame-light)"
+      />
+      <path
+        d="M798 34 L802 30 L806 34 L802 38 Z"
+        fill="var(--frame-dark)"
+      />
+    </g>
+    <text class="button-label" x="410" y="35">
+      SELECT BUTTON B
+    </text>
+  </svg>
+
+
+  <!-- 亮色 -->
+  <svg
+    class="ribbon-button theme-light"
+    viewBox="0 0 820 68"
+    role="button"
+    tabindex="0"
+    aria-label="Select Button B"
+  >
+    <defs>
+      <pattern id="argyle-light" width="44" height="44" patternUnits="userSpaceOnUse">
+        <path
+          d="M22 0 L44 22 L22 44 L0 22 Z"
+          fill="var(--pattern-color)"
+        />
+        <path
+          d="M22 10 L34 22 L22 34 L10 22 Z"
+          fill="rgba(255,255,255,.16)"
+        />
+      </pattern>
+      <linearGradient id="fade-light" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="white" stop-opacity="1"/>
+        <stop offset="27%" stop-color="white" stop-opacity=".22"/>
+        <stop offset="40%" stop-color="white" stop-opacity="0"/>
+        <stop offset="60%" stop-color="white" stop-opacity="0"/>
+        <stop offset="73%" stop-color="white" stop-opacity=".22"/>
+        <stop offset="100%" stop-color="white" stop-opacity="1"/>
+      </linearGradient>
+      <mask id="mask-light">
+        <rect width="820" height="68" fill="url(#fade-light)"/>
+      </mask>
+      <clipPath id="clip-light">
+        <path d="M34 7 H786 L765 34 L786 61 H34 L55 34 Z"/>
+      </clipPath>
+    </defs>
+    <path
+      d="M35 11 H788 L769 38 L788 65 H35 L56 38 Z"
+      fill="#111616"
+      opacity=".72"
+    />
+    <path
+      d="M34 7 H786 L765 34 L786 61 H34 L55 34 Z"
+      fill="var(--button-fill)"
+    />
+    <rect
+      x="30"
+      y="4"
+      width="760"
+      height="60"
+      fill="url(#argyle-light)"
+      mask="url(#mask-light)"
+      clip-path="url(#clip-light)"
+    />
+    <path
+      d="M34 7 H786 L765 34 L786 61 H34 L55 34 Z"
+      fill="none"
+      stroke="var(--frame-dark)"
+      stroke-width="7"
+      stroke-linejoin="miter"
+    />
+    <path
+      d="M34 7 H786 L765 34 L786 61 H34 L55 34 Z"
+      fill="none"
+      stroke="var(--frame-light)"
+      stroke-width="4"
+      stroke-linejoin="miter"
+    />
+    <path
+      d="M34 7 H786 L765 34 L786 61 H34 L55 34 Z"
+      fill="none"
+      stroke="var(--frame-dark)"
+      stroke-width="2"
+      stroke-linejoin="miter"
+    />
+    <g>
+      <path d="M8 34 L18 24 L28 34 L18 44 Z" fill="var(--frame-dark)"/>
+      <path d="M12 34 L18 28 L24 34 L18 40 Z" fill="var(--frame-light)"/>
+      <path d="M14 34 L18 30 L22 34 L18 38 Z" fill="var(--frame-dark)"/>
+      <path d="M792 34 L802 24 L812 34 L802 44 Z" fill="var(--frame-dark)"/>
+      <path d="M796 34 L802 28 L808 34 L802 40 Z" fill="var(--frame-light)"/>
+      <path d="M798 34 L802 30 L806 34 L802 38 Z" fill="var(--frame-dark)"/>
+    </g>
+    <text class="button-label" x="410" y="35">
+      SELECT BUTTON B
+    </text>
+  </svg>
+
+
+  <!-- 青色 -->
+  <svg
+    class="ribbon-button theme-teal"
+    viewBox="0 0 820 68"
+    role="button"
+    tabindex="0"
+    aria-label="Select Button B"
+  >
+    <defs>
+      <pattern id="argyle-teal" width="44" height="44" patternUnits="userSpaceOnUse">
+        <path
+          d="M22 0 L44 22 L22 44 L0 22 Z"
+          fill="var(--pattern-color)"
+        />
+        <path
+          d="M22 10 L34 22 L22 34 L10 22 Z"
+          fill="rgba(255,255,255,.08)"
+        />
+      </pattern>
+      <linearGradient id="fade-teal" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="white" stop-opacity="1"/>
+        <stop offset="27%" stop-color="white" stop-opacity=".22"/>
+        <stop offset="40%" stop-color="white" stop-opacity="0"/>
+        <stop offset="60%" stop-color="white" stop-opacity="0"/>
+        <stop offset="73%" stop-color="white" stop-opacity=".22"/>
+        <stop offset="100%" stop-color="white" stop-opacity="1"/>
+      </linearGradient>
+      <mask id="mask-teal">
+        <rect width="820" height="68" fill="url(#fade-teal)"/>
+      </mask>
+      <clipPath id="clip-teal">
+        <path d="M34 7 H786 L765 34 L786 61 H34 L55 34 Z"/>
+      </clipPath>
+    </defs>
+    <path
+      d="M35 11 H788 L769 38 L788 65 H35 L56 38 Z"
+      fill="#111616"
+      opacity=".72"
+    />
+    <path
+      d="M34 7 H786 L765 34 L786 61 H34 L55 34 Z"
+      fill="var(--button-fill)"
+    />
+    <rect
+      x="30"
+      y="4"
+      width="760"
+      height="60"
+      fill="url(#argyle-teal)"
+      mask="url(#mask-teal)"
+      clip-path="url(#clip-teal)"
+    />
+    <path
+      d="M34 7 H786 L765 34 L786 61 H34 L55 34 Z"
+      fill="none"
+      stroke="var(--frame-dark)"
+      stroke-width="7"
+      stroke-linejoin="miter"
+    />
+    <path
+      d="M34 7 H786 L765 34 L786 61 H34 L55 34 Z"
+      fill="none"
+      stroke="var(--frame-light)"
+      stroke-width="4"
+      stroke-linejoin="miter"
+    />
+    <path
+      d="M34 7 H786 L765 34 L786 61 H34 L55 34 Z"
+      fill="none"
+      stroke="var(--frame-dark)"
+      stroke-width="2"
+      stroke-linejoin="miter"
+    />
+    <g>
+      <path d="M8 34 L18 24 L28 34 L18 44 Z" fill="var(--frame-dark)"/>
+      <path d="M12 34 L18 28 L24 34 L18 40 Z" fill="var(--frame-light)"/>
+      <path d="M14 34 L18 30 L22 34 L18 38 Z" fill="var(--frame-dark)"/>
+      <path d="M792 34 L802 24 L812 34 L802 44 Z" fill="var(--frame-dark)"/>
+      <path d="M796 34 L802 28 L808 34 L802 40 Z" fill="var(--frame-light)"/>
+      <path d="M798 34 L802 30 L806 34 L802 38 Z" fill="var(--frame-dark)"/>
+    </g>
+    <text class="button-label" x="410" y="35">
+      SELECT BUTTON B
+    </text>
+  </svg>
+
+</main>
+</body>
+</html>

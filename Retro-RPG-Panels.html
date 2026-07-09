@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Retro RPG Panels</title>
+
+<style>
+  @import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500&display=swap");
+
+  :root {
+    /* 与前一个按钮统一的边框材质 */
+    --frame-dark: #1a2020;
+    --frame-deep: #101515;
+    --frame-light: #a8b4b5;
+
+    --page-bg: #9cabad;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    min-height: 100vh;
+    margin: 0;
+    padding: 48px;
+
+    display: grid;
+    place-items: center;
+
+    background-color: var(--page-bg);
+  }
+
+  .panel-showcase {
+    width: min(1180px, 100%);
+
+    display: grid;
+    grid-template-columns: repeat(6, minmax(120px, 1fr));
+    gap: 10px;
+  }
+
+  /* ==============================
+     RPG Panel 基础组件
+     ============================== */
+
+  rpg-panel {
+    --panel-fill: #202323;
+    --ornament-color: #697373;
+    --number-color: #f1f3f3;
+    --middle-frame: var(--frame-light);
+
+    display: block;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+
+    cursor: pointer;
+
+    transition:
+      transform 100ms ease,
+      filter 120ms ease;
+  }
+
+  rpg-panel:hover {
+    filter: brightness(1.06);
+  }
+
+  rpg-panel:active {
+    transform: translateY(1px);
+  }
+
+  rpg-panel svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+
+    shape-rendering: geometricPrecision;
+  }
+
+  /* ==============================
+     六种样式
+     ============================== */
+
+  /* 01：标准暗色 */
+  rpg-panel[variant="dark"] {
+    --panel-fill: #1d2020;
+    --ornament-color: #626c6c;
+    --number-color: #f0f2f2;
+    --middle-frame: #7f8b8c;
+  }
+
+  /* 02：灰色/非激活 */
+  rpg-panel[variant="gray"] {
+    --panel-fill: #575d5d;
+    --ornament-color: #282e2e;
+    --number-color: #f0f1f1;
+    --middle-frame: #7f8989;
+  }
+
+  /* 03：深色强调版 */
+  rpg-panel[variant="deep"] {
+    --panel-fill: #1e2020;
+    --ornament-color: #505959;
+    --number-color: #f0f2f2;
+    --middle-frame: #687373;
+  }
+
+  /* 04：青色底 */
+  rpg-panel[variant="teal"] {
+    --panel-fill: #7ab5b9;
+    --ornament-color: #263b3c;
+    --number-color: #f2f4f4;
+    --middle-frame: #798f90;
+  }
+
+  /* 05：暗底、青色装饰线 */
+  rpg-panel[variant="teal-outline"] {
+    --panel-fill: #1d2020;
+    --ornament-color: #65aeb2;
+    --number-color: #f0f3f3;
+    --middle-frame: #4f969a;
+  }
+
+  /* 06：亮色 */
+  rpg-panel[variant="light"] {
+    --panel-fill: #d9dddd;
+    --ornament-color: #626b6b;
+    --number-color: #ffffff;
+    --middle-frame: #8d9898;
+  }
+
+  /* 小屏幕自动换行，仅影响展示 */
+  @media (max-width: 820px) {
+    .panel-showcase {
+      grid-template-columns: repeat(3, minmax(120px, 1fr));
+    }
+  }
+
+  @media (max-width: 440px) {
+    body {
+      padding: 24px;
+    }
+
+    .panel-showcase {
+      grid-template-columns: repeat(2, minmax(110px, 1fr));
+    }
+  }
+</style>
+</head>
+
+<body>
+
+<main class="panel-showcase">
+  <rpg-panel variant="dark" number="01"></rpg-panel>
+  <rpg-panel variant="gray" number="02"></rpg-panel>
+  <rpg-panel variant="deep" number="03"></rpg-panel>
+  <rpg-panel variant="teal" number="04"></rpg-panel>
+  <rpg-panel variant="teal-outline" number="05"></rpg-panel>
+  <rpg-panel variant="light" number="06"></rpg-panel>
+</main>
+
+<script>
+  class RPGPanel extends HTMLElement {
+    connectedCallback() {
+      const number = this.getAttribute("number") ?? "01";
+
+      this.innerHTML = `
+        <svg
+          viewBox="0 0 180 180"
+          role="img"
+          aria-label="RPG panel ${number}"
+        >
+          <!--
+            面板整体保留少量外边距，
+            避免最外层描边被 SVG 视口裁掉。
+          -->
+          <!-- 底部轻微暗托 -->
+          <rect
+            x="8"
+            y="9.5"
+            width="164"
+            height="164"
+            fill="#0d1212"
+            opacity="0.52"
+          />
+          <!-- 面板主体 -->
+          <rect
+            x="8"
+            y="7"
+            width="164"
+            height="164"
+            fill="var(--panel-fill)"
+          />
+          <!-- =================================
+               黑—浅—黑三层外框
+               ================================= -->
+          <!-- 最外层暗色粗框 -->
+          <rect
+            x="8"
+            y="7"
+            width="164"
+            height="164"
+            fill="none"
+            stroke="var(--frame-dark)"
+            stroke-width="7"
+          />
+          <!-- 中间浅色细框 -->
+          <rect
+            x="8"
+            y="7"
+            width="164"
+            height="164"
+            fill="none"
+            stroke="var(--middle-frame)"
+            stroke-width="4"
+          />
+          <!-- 最内层暗色框 -->
+          <rect
+            x="8"
+            y="7"
+            width="164"
+            height="164"
+            fill="none"
+            stroke="var(--frame-deep)"
+            stroke-width="2"
+          />
+          <!-- =================================
+               内部主装饰框
+               ================================= -->
+          <rect
+            x="15"
+            y="14"
+            width="150"
+            height="150"
+            fill="none"
+            stroke="var(--ornament-color)"
+            stroke-width="1.25"
+            opacity="0.94"
+          />
+          <!-- 第二圈极细框 -->
+          <rect
+            x="18"
+            y="17"
+            width="144"
+            height="144"
+            fill="none"
+            stroke="var(--ornament-color)"
+            stroke-width="0.7"
+            opacity="0.55"
+          />
+          <!-- =================================
+               四角双层直角装饰
+               ================================= -->
+          <!-- 左上 -->
+          <g
+            fill="none"
+            stroke="var(--ornament-color)"
+            stroke-linecap="square"
+          >
+            <path
+              d="M16 39 V16 H39"
+              stroke-width="2"
+            />
+            <path
+              d="M21 34 V21 H34"
+              stroke-width="1"
+            />
+            <!-- 右上 -->
+            <path
+              d="M141 16 H164 V39"
+              stroke-width="2"
+            />
+            <path
+              d="M146 21 H159 V34"
+              stroke-width="1"
+            />
+            <!-- 左下 -->
+            <path
+              d="M16 141 V164 H39"
+              stroke-width="2"
+            />
+            <path
+              d="M21 146 V159 H34"
+              stroke-width="1"
+            />
+            <!-- 右下 -->
+            <path
+              d="M141 164 H164 V141"
+              stroke-width="2"
+            />
+            <path
+              d="M146 159 H159 V146"
+              stroke-width="1"
+            />
+          </g>
+          <!-- =================================
+               小型角部短线
+               ================================= -->
+          <g
+            fill="none"
+            stroke="var(--ornament-color)"
+            stroke-width="1"
+            opacity="0.9"
+          >
+            <!-- 左上横竖短线 -->
+            <path d="M25 16 H45"/>
+            <path d="M16 25 V45"/>
+            <!-- 右上 -->
+            <path d="M135 16 H155"/>
+            <path d="M164 25 V45"/>
+            <!-- 左下 -->
+            <path d="M25 164 H45"/>
+            <path d="M16 135 V155"/>
+            <!-- 右下 -->
+            <path d="M135 164 H155"/>
+            <path d="M164 135 V155"/>
+          </g>
+          <!-- =================================
+               铆钉与定位点
+               ================================= -->
+          <g fill="var(--ornament-color)">
+            <!-- 四个主要铆钉 -->
+            <circle cx="24" cy="24" r="1.75"/>
+            <circle cx="156" cy="24" r="1.75"/>
+            <circle cx="24" cy="156" r="1.75"/>
+            <circle cx="156" cy="156" r="1.75"/>
+            <!-- 上边定位点 -->
+            <circle cx="48" cy="17" r="1"/>
+            <circle cx="90" cy="17" r="1"/>
+            <circle cx="132" cy="17" r="1"/>
+            <!-- 下边定位点 -->
+            <circle cx="48" cy="163" r="1"/>
+            <circle cx="90" cy="163" r="1"/>
+            <circle cx="132" cy="163" r="1"/>
+            <!-- 左右边定位点 -->
+            <circle cx="17" cy="64" r="1"/>
+            <circle cx="17" cy="116" r="1"/>
+            <circle cx="163" cy="64" r="1"/>
+            <circle cx="163" cy="116" r="1"/>
+          </g>
+          <!-- 中央编号 -->
+          <text
+            x="90"
+            y="92"
+            fill="var(--number-color)"
+            font-family="Cinzel, Georgia, serif"
+            font-size="31"
+            font-weight="400"
+            letter-spacing="2"
+            text-anchor="middle"
+            dominant-baseline="middle"
+          >
+            ${number}
+          </text>
+        </svg>
+      `;
+    }
+  }
+
+  customElements.define("rpg-panel", RPGPanel);
+</script>
+
+</body>
+</html>
