@@ -2,6 +2,7 @@ import { forwardRef, useId } from "react";
 import type { ButtonHTMLAttributes } from "react";
 import type { AbyssaVariant } from "../types";
 import { cx } from "../utils/cx";
+import { DiamondWatermark } from "./DiamondWatermark";
 
 export interface RpgBackButtonProps
   extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children"> {
@@ -31,10 +32,7 @@ export const RpgBackButton = forwardRef<HTMLButtonElement, RpgBackButtonProps>(
       >
         <svg viewBox="0 0 190 190" aria-hidden="true">
           <defs>
-            <pattern id={patternId} width="42" height="42" patternUnits="userSpaceOnUse" patternTransform="translate(4 4)">
-              <path d="M21 0 L42 21 L21 42 L0 21 Z" fill="var(--abyssa-back-pattern-dark)" />
-              <path d="M21 10 L32 21 L21 32 L10 21 Z" fill="var(--abyssa-back-pattern-light)" />
-            </pattern>
+            <DiamondWatermark as="pattern" id={patternId} size={42} outerFill="var(--abyssa-back-pattern-dark)" innerFill="var(--abyssa-back-pattern-light)" innerInset={10} patternTransform="translate(4 4)" />
             <clipPath id={clipId}><path d={outerPath} /></clipPath>
           </defs>
 

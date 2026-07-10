@@ -1,6 +1,7 @@
 import type { HTMLAttributes } from "react";
 import type { AbyssaVariant } from "../types";
 import { cx } from "../utils/cx";
+import { DiamondWatermark } from "./DiamondWatermark";
 
 export interface RpgFrameProps extends HTMLAttributes<HTMLDivElement> {
   variant?: AbyssaVariant | "transparent";
@@ -32,6 +33,7 @@ export function RpgFrame({
           <i data-corner="br" />
         </span>
       )}
+      <DiamondWatermark className="abyssa-frame__watermark" size={48} />
       <div className="abyssa-frame__content">{children}</div>
     </div>
   );

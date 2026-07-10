@@ -2,6 +2,7 @@ import { forwardRef, useId } from "react";
 import type { ButtonHTMLAttributes, HTMLAttributes } from "react";
 import { useControllableState } from "../hooks/useControllableState";
 import { cx } from "../utils/cx";
+import { DiamondWatermark } from "./DiamondWatermark";
 
 export type RpgDiamondNodeVariant = "inactive" | "active" | "teal";
 
@@ -23,7 +24,7 @@ export const RpgDiamondNode = forwardRef<HTMLButtonElement, RpgDiamondNodeProps>
     return (
       <button ref={ref} type={type} className={cx("abyssa-diamond-node", className)} data-variant={variant} data-selected={selected || undefined} aria-label={label} aria-pressed={selected === undefined ? undefined : selected} {...props}>
         <svg viewBox="0 0 50 50" aria-hidden="true">
-          <defs><pattern id={patternId} width="16" height="16" patternUnits="userSpaceOnUse"><path d="M8 0 L16 8 L8 16 L0 8 Z" fill="var(--abyssa-node-pattern-dark)" /><path d="M8 4 L12 8 L8 12 L4 8 Z" fill="var(--abyssa-node-pattern-light)" /></pattern></defs>
+          <defs><DiamondWatermark as="pattern" id={patternId} size={16} outerFill="var(--abyssa-node-pattern-dark)" innerFill="var(--abyssa-node-pattern-light)" innerInset={4} /></defs>
           <path d={diamond} fill="var(--abyssa-node-fill)" /><path d={diamond} fill={`url(#${patternId})`} />
           <path d={diamond} fill="none" stroke="var(--abyssa-frame-dark)" strokeWidth="7" /><path d={diamond} fill="none" stroke="var(--abyssa-node-middle)" strokeWidth={variant === "active" ? 3.5 : 3} /><path d={diamond} fill="none" stroke="var(--abyssa-frame-deep)" strokeWidth={variant === "active" ? 1.2 : 1} />
           <path d="M18 19 L12 25 L18 31 M32 19 L38 25 L32 31" fill="none" stroke="var(--abyssa-node-arrow)" strokeWidth={variant === "active" ? 2 : 1.8} strokeLinecap="round" strokeLinejoin="round" />

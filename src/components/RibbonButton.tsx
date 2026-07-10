@@ -2,6 +2,7 @@ import { forwardRef, useId } from "react";
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 import type { AbyssaSize, AbyssaVariant } from "../types";
 import { cx } from "../utils/cx";
+import { DiamondWatermark } from "./DiamondWatermark";
 
 export interface RibbonButtonProps
   extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -59,23 +60,15 @@ export const RibbonButton = forwardRef<HTMLButtonElement, RibbonButtonProps>(
           aria-hidden="true"
         >
           <defs>
-            <pattern
+            <DiamondWatermark
+              as="pattern"
               id={patternId}
-              width="44"
-              height="44"
-              patternUnits="userSpaceOnUse"
+              size={44}
+              outerFill="var(--abyssa-ribbon-pattern)"
+              innerFill="rgb(255 255 255 / 2%)"
+              innerInset={10}
               patternTransform="translate(0 -10)"
-            >
-              <rect width="44" height="44" fill="transparent" />
-              <path
-                d="M22 0 L44 22 L22 44 L0 22 Z"
-                fill="var(--abyssa-ribbon-pattern)"
-              />
-              <path
-                d="M22 10 L34 22 L22 34 L10 22 Z"
-                fill="rgb(255 255 255 / 2%)"
-              />
-            </pattern>
+            />
             <linearGradient id={fadeId} x1="0" y1="0" x2="1" y2="0">
               <stop offset="0%" stopColor="white" stopOpacity="1" />
               <stop offset="27%" stopColor="white" stopOpacity=".22" />

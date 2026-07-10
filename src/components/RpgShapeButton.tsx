@@ -2,6 +2,7 @@ import { forwardRef, useId } from "react";
 import type { ButtonHTMLAttributes } from "react";
 import type { AbyssaVariant } from "../types";
 import { cx } from "../utils/cx";
+import { DiamondWatermark } from "./DiamondWatermark";
 
 export type RpgShapeButtonShape = "circle" | "square" | "chamfer" | "pill";
 
@@ -139,10 +140,7 @@ export const RpgShapeButton = forwardRef<HTMLButtonElement, RpgShapeButtonProps>
       >
         <svg viewBox={geometry.viewBox} aria-hidden="true">
           <defs>
-            <pattern id={patternId} width={geometry.patternSize} height={geometry.patternSize} patternUnits="userSpaceOnUse">
-              <path d="M21 0 L42 21 L21 42 L0 21 Z" fill="var(--abyssa-shape-pattern-dark)" />
-              <path d="M21 10 L32 21 L21 32 L10 21 Z" fill="var(--abyssa-shape-pattern-light)" />
-            </pattern>
+            <DiamondWatermark as="pattern" id={patternId} size={geometry.patternSize} outerFill="var(--abyssa-shape-pattern-dark)" innerFill="var(--abyssa-shape-pattern-light)" innerInset={10} />
             <clipPath id={clipId}>{shapeElement("#fff")}</clipPath>
           </defs>
 

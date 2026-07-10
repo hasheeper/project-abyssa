@@ -2,6 +2,7 @@ import { forwardRef, useId } from "react";
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 import type { AbyssaSize, AbyssaVariant } from "../types";
 import { cx } from "../utils/cx";
+import { DiamondWatermark } from "./DiamondWatermark";
 
 export interface RpgHexButtonProps
   extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -60,22 +61,15 @@ export const RpgHexButton = forwardRef<HTMLButtonElement, RpgHexButtonProps>(
           aria-hidden="true"
         >
           <defs>
-            <pattern
+            <DiamondWatermark
+              as="pattern"
               id={patternId}
-              width="58"
-              height="58"
-              patternUnits="userSpaceOnUse"
+              size={58}
+              outerFill="var(--abyssa-hex-pattern-dark)"
+              innerFill="var(--abyssa-hex-pattern-light)"
+              innerInset={13}
               patternTransform="translate(0 -9)"
-            >
-              <path
-                d="M29 0 L58 29 L29 58 L0 29 Z"
-                fill="var(--abyssa-hex-pattern-dark)"
-              />
-              <path
-                d="M29 13 L45 29 L29 45 L13 29 Z"
-                fill="var(--abyssa-hex-pattern-light)"
-              />
-            </pattern>
+            />
             <linearGradient id={fadeId} x1="0" y1="0" x2="1" y2="0">
               <stop offset="0%" stopColor="white" stopOpacity="1" />
               <stop offset="18%" stopColor="white" stopOpacity=".72" />

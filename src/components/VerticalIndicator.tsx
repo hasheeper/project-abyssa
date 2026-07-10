@@ -2,6 +2,7 @@ import { useId } from "react";
 import type { HTMLAttributes } from "react";
 import type { AbyssaVariant } from "../types";
 import { cx } from "../utils/cx";
+import { DiamondWatermark } from "./DiamondWatermark";
 
 export interface VerticalIndicatorProps extends HTMLAttributes<HTMLDivElement> {
   variant?: AbyssaVariant;
@@ -25,10 +26,7 @@ export function VerticalIndicator({
     <div className={cx("abyssa-vertical-indicator", className)} data-variant={variant} {...props}>
       <svg viewBox="0 0 40 170" role="img" aria-label={label}>
         <defs>
-          <pattern id={patternId} width="20" height="20" patternUnits="userSpaceOnUse">
-            <path d="M10 0 L20 10 L10 20 L0 10 Z" fill="var(--abyssa-indicator-pattern-dark)" />
-            <path d="M10 5 L15 10 L10 15 L5 10 Z" fill="var(--abyssa-indicator-pattern-light)" />
-          </pattern>
+          <DiamondWatermark as="pattern" id={patternId} size={20} outerFill="var(--abyssa-indicator-pattern-dark)" innerFill="var(--abyssa-indicator-pattern-light)" innerInset={5} />
           <clipPath id={clipId}><path d={outerPath} /></clipPath>
         </defs>
 

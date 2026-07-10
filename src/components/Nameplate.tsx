@@ -1,6 +1,7 @@
 import type { HTMLAttributes, ReactNode } from "react";
 import type { AbyssaVariant } from "../types";
 import { cx } from "../utils/cx";
+import { DiamondWatermark } from "./DiamondWatermark";
 
 export interface NameplateProps extends HTMLAttributes<HTMLDivElement> {
   name: ReactNode;
@@ -24,6 +25,7 @@ export function Nameplate({
       <div className="abyssa-nameplate__middle">
         <div className="abyssa-nameplate__inner">
           <div className="abyssa-nameplate__content">
+            <DiamondWatermark className="abyssa-nameplate__watermark" size={34} />
             <strong>{name}</strong>
             {secondaryName && <span>{secondaryName}</span>}
           </div>

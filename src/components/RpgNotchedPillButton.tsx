@@ -2,6 +2,7 @@ import { forwardRef, useId } from "react";
 import type { ButtonHTMLAttributes } from "react";
 import type { AbyssaVariant } from "../types";
 import { cx } from "../utils/cx";
+import { DiamondWatermark } from "./DiamondWatermark";
 
 export interface RpgNotchedPillButtonProps
   extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children"> {
@@ -28,10 +29,7 @@ export const RpgNotchedPillButton = forwardRef<HTMLButtonElement, RpgNotchedPill
       <button ref={ref} type={type} className={cx("abyssa-notched-pill", className)} data-variant={variant} data-selected={selected || undefined} aria-label={label} aria-pressed={selected === undefined ? undefined : selected} {...props}>
         <svg viewBox="0 0 190 48" aria-hidden="true">
           <defs>
-            <pattern id={patternId} width="26" height="26" patternUnits="userSpaceOnUse" patternTransform="translate(0 -2)">
-              <path d="M13 0 L26 13 L13 26 L0 13 Z" fill="var(--abyssa-notched-pattern-dark)" />
-              <path d="M13 6 L20 13 L13 20 L6 13 Z" fill="var(--abyssa-notched-pattern-light)" />
-            </pattern>
+            <DiamondWatermark as="pattern" id={patternId} size={26} outerFill="var(--abyssa-notched-pattern-dark)" innerFill="var(--abyssa-notched-pattern-light)" innerInset={6} patternTransform="translate(0 -2)" />
             <linearGradient id={fadeId} x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="white" /><stop offset="25%" stopColor="white" stopOpacity=".45" /><stop offset="40%" stopColor="white" stopOpacity="0" /><stop offset="60%" stopColor="white" stopOpacity="0" /><stop offset="75%" stopColor="white" stopOpacity=".45" /><stop offset="100%" stopColor="white" /></linearGradient>
             <mask id={maskId}><rect width="190" height="48" fill={`url(#${fadeId})`} /></mask>
             <clipPath id={clipId}><path d={outerPath} /></clipPath>

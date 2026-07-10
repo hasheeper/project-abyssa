@@ -1,6 +1,7 @@
 import { forwardRef, useId } from "react";
 import type { HTMLAttributes, ReactNode } from "react";
 import { cx } from "../utils/cx";
+import { DiamondWatermark } from "./DiamondWatermark";
 
 export type RpgDialogueVariant = "dark" | "light";
 
@@ -38,13 +39,8 @@ export const RpgDialogue = forwardRef<HTMLElement, RpgDialogueProps>(
       >
         <svg viewBox="0 0 1200 260" preserveAspectRatio="none" aria-hidden="true">
           <defs>
-            <pattern id={panelPatternId} width="94" height="94" patternUnits="userSpaceOnUse" patternTransform="translate(0 -12)">
-              <path d="M47 0 L94 47 L47 94 L0 47 Z" fill="var(--abyssa-dialogue-pattern-main)" />
-              <path d="M47 21 L73 47 L47 73 L21 47 Z" fill="var(--abyssa-dialogue-pattern-second)" />
-            </pattern>
-            <pattern id={namePatternId} width="64" height="64" patternUnits="userSpaceOnUse">
-              <path d="M32 0 L64 32 L32 64 L0 32 Z" fill="rgb(255 255 255 / 2.2%)" />
-            </pattern>
+            <DiamondWatermark as="pattern" id={panelPatternId} size={94} outerFill="var(--abyssa-dialogue-pattern-main)" innerFill="var(--abyssa-dialogue-pattern-second)" innerInset={21} patternTransform="translate(0 -12)" />
+            <DiamondWatermark as="pattern" id={namePatternId} size={64} outerFill="rgb(255 255 255 / 2.2%)" innerFill="rgb(255 255 255 / 1.1%)" innerInset={15} />
             <clipPath id={panelClipId}><path d={panelPath} /></clipPath>
             <clipPath id={nameClipId}><path d={namePath} /></clipPath>
           </defs>

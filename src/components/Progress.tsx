@@ -1,6 +1,7 @@
 import type { HTMLAttributes } from "react";
 import type { AbyssaSize, AbyssaVariant } from "../types";
 import { cx } from "../utils/cx";
+import { DiamondWatermark } from "./DiamondWatermark";
 
 export interface ProgressProps extends HTMLAttributes<HTMLDivElement> {
   value: number;
@@ -43,6 +44,7 @@ export function Progress({
         aria-valuemax={safeMax}
         aria-valuenow={safeValue}
       >
+        <DiamondWatermark className="abyssa-progress__watermark" size={18} />
         <span style={{ width: `${percent}%` }} />
       </div>
     </div>

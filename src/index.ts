@@ -15,6 +15,8 @@ export type {
   CharacterProfile,
   CharacterStatusScreenProps
 } from "./components/CharacterStatusScreen";
+export { DiamondWatermark } from "./components/DiamondWatermark";
+export type { DiamondWatermarkProps } from "./components/DiamondWatermark";
 export { IconButton } from "./components/IconButton";
 export { RetroRpgIconButton } from "./components/IconButton";
 export type {

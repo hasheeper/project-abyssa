@@ -1,7 +1,8 @@
-import { forwardRef } from "react";
+import { forwardRef, useId } from "react";
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 import type { PanelVariant } from "../types";
 import { cx } from "../utils/cx";
+import { DiamondWatermark } from "./DiamondWatermark";
 
 export interface RpgSquarePanelProps
   extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -26,6 +27,9 @@ export const RpgSquarePanel = forwardRef<
   },
   ref
 ) {
+  const uid = useId().replace(/:/g, "");
+  const patternId = `abyssa-square-watermark-${uid}`;
+
   return (
     <button
       ref={ref}
@@ -41,7 +45,11 @@ export const RpgSquarePanel = forwardRef<
         preserveAspectRatio="xMidYMid meet"
         aria-hidden="true"
       >
+        <defs>
+          <DiamondWatermark as="pattern" id={patternId} size={34} outerFill="var(--abyssa-square-pattern-outer)" innerFill="var(--abyssa-square-pattern-inner)" />
+        </defs>
         <rect x="7" y="7" width="102" height="102" fill="var(--abyssa-square-fill)" />
+        <rect x="7" y="7" width="102" height="102" fill={`url(#${patternId})`} />
         <rect x="7" y="7" width="102" height="102" fill="none" stroke="var(--abyssa-frame-dark)" strokeWidth="8" />
         <rect x="7" y="7" width="102" height="102" fill="none" stroke="var(--abyssa-square-middle)" strokeWidth="4" />
         <rect x="7" y="7" width="102" height="102" fill="none" stroke="var(--abyssa-frame-deep)" strokeWidth="2" />

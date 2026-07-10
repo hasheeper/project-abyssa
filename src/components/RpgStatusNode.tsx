@@ -1,6 +1,7 @@
-import { forwardRef } from "react";
+import { forwardRef, useId } from "react";
 import type { ButtonHTMLAttributes } from "react";
 import { cx } from "../utils/cx";
+import { DiamondWatermark } from "./DiamondWatermark";
 
 export type RpgStatusNodeVariant = "disabled" | "dark" | "teal";
 export type RpgStatusNodeIcon = "close" | "check";
@@ -17,12 +18,19 @@ export const RpgStatusNode = forwardRef<HTMLButtonElement, RpgStatusNodeProps>(
     { label, variant = "disabled", icon = "check", className, type = "button", ...props },
     ref
   ) {
+    const uid = useId().replace(/:/g, "");
+    const patternId = `abyssa-status-node-watermark-${uid}`;
+
     return (
       <button ref={ref} type={type} className={cx("abyssa-status-node", className)} data-variant={variant} aria-label={label} {...props}>
         <svg viewBox="0 0 86 54" aria-hidden="true">
+          <defs>
+            <DiamondWatermark as="pattern" id={patternId} size={14} outerFill="var(--abyssa-status-node-pattern-outer)" innerFill="var(--abyssa-status-node-pattern-inner)" />
+          </defs>
           <path d="M2 27 H84" fill="none" stroke="var(--abyssa-frame-dark)" strokeWidth="3.2" strokeLinecap="round" />
           <path d="M2 25.8 H84" fill="none" stroke="#c3cccc" strokeWidth=".8" strokeLinecap="round" opacity=".58" />
           <circle cx="43" cy="27" r="20" fill="var(--abyssa-status-node-fill)" />
+          <circle cx="43" cy="27" r="20" fill={`url(#${patternId})`} />
           <circle cx="43" cy="27" r="20" fill="none" stroke="var(--abyssa-frame-dark)" strokeWidth="6" />
           <circle cx="43" cy="27" r="20" fill="none" stroke="var(--abyssa-status-node-middle)" strokeWidth="3.2" />
           <circle cx="43" cy="27" r="20" fill="none" stroke="var(--abyssa-frame-deep)" strokeWidth="1.3" />

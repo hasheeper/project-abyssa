@@ -1,5 +1,6 @@
 import type { HTMLAttributes, ReactNode } from "react";
 import { cx } from "../utils/cx";
+import { DiamondWatermark } from "./DiamondWatermark";
 
 export interface StatusField {
   label: ReactNode;
@@ -47,7 +48,7 @@ export function StatusPanel({ data, className, ...props }: StatusPanelProps) {
       <div className="abyssa-status-panel__middle">
         <div className="abyssa-status-panel__inner">
           <div className="abyssa-status-panel__content">
-            <span className="abyssa-status-panel__edge-pattern" aria-hidden="true" />
+            <DiamondWatermark className="abyssa-status-panel__watermark" size={52} />
 
             <span className="abyssa-status-panel__corner" data-corner="tl" aria-hidden="true" />
             <span className="abyssa-status-panel__corner" data-corner="tr" aria-hidden="true" />

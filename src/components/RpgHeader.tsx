@@ -2,6 +2,7 @@ import { useId } from "react";
 import type { HTMLAttributes } from "react";
 import type { AbyssaVariant } from "../types";
 import { cx } from "../utils/cx";
+import { DiamondWatermark } from "./DiamondWatermark";
 
 const mainPath = [
   "M18 9 H642",
@@ -53,21 +54,14 @@ export function RpgHeader({
         aria-label={description ? `${label}，${description}` : label}
       >
         <defs>
-          <pattern
+          <DiamondWatermark
+            as="pattern"
             id={patternId}
-            width="42"
-            height="42"
-            patternUnits="userSpaceOnUse"
-          >
-            <path
-              d="M21 0 L42 21 L21 42 L0 21 Z"
-              fill="var(--abyssa-header-pattern)"
-            />
-            <path
-              d="M21 10 L32 21 L21 32 L10 21 Z"
-              fill="rgb(255 255 255 / 3.5%)"
-            />
-          </pattern>
+            size={42}
+            outerFill="var(--abyssa-header-pattern)"
+            innerFill="rgb(255 255 255 / 3.5%)"
+            innerInset={10}
+          />
           <linearGradient id={fadeId} x1="0" y1="0" x2="1" y2="0">
             <stop offset="0%" stopColor="white" stopOpacity="1" />
             <stop offset="24%" stopColor="white" stopOpacity=".55" />

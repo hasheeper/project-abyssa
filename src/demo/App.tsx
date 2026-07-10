@@ -4,6 +4,7 @@ import {
   AbyssaProvider,
   CharacterSelector,
   CharacterStatusScreen,
+  DiamondWatermark,
   IconButton,
   Nameplate,
   Progress,
@@ -159,6 +160,23 @@ export function App() {
         </div>
       ),
       wide: true
+    },
+    {
+      id: "diamond-watermark",
+      name: "DiamondWatermark",
+      category: "structure",
+      description: "统一的双层菱形底纹原语。可直接覆盖普通容器，也可用 pattern 模式嵌入自定义 SVG。",
+      tags: ["primitive", "overlay", "svg pattern"],
+      code: `<div style={{ position: "relative" }}>
+  <DiamondWatermark size={48} />
+  <YourContent />
+</div>`,
+      preview: (
+        <div className="demo-watermark-sample">
+          <DiamondWatermark size={48} outerFill="rgb(255 255 255 / 7%)" innerFill="rgb(255 255 255 / 3.5%)" />
+          <span>DOUBLE-DIAMOND WATERMARK</span>
+        </div>
+      )
     },
     {
       id: "ribbon-button",

@@ -1,6 +1,7 @@
-import { forwardRef } from "react";
+import { forwardRef, useId } from "react";
 import type { ChangeEvent, InputHTMLAttributes } from "react";
 import { cx } from "../utils/cx";
+import { DiamondWatermark } from "./DiamondWatermark";
 
 export type RpgRadioVariant = "gray" | "dark" | "teal";
 export type RpgCheckboxVariant = "empty" | "dark" | "teal";
@@ -37,6 +38,9 @@ export const RpgRadio = forwardRef<HTMLInputElement, RpgRadioProps>(
     },
     ref
   ) {
+    const uid = useId().replace(/:/g, "");
+    const patternId = `abyssa-radio-watermark-${uid}`;
+
     return (
       <label className={cx("abyssa-choice", "abyssa-choice--radio", className)} data-variant={variant} data-disabled={disabled || undefined}>
         <input
@@ -53,7 +57,9 @@ export const RpgRadio = forwardRef<HTMLInputElement, RpgRadioProps>(
           {...props}
         />
         <svg viewBox="0 0 48 48" aria-hidden="true">
+          <defs><DiamondWatermark as="pattern" id={patternId} size={16} outerFill="var(--abyssa-choice-pattern-outer)" innerFill="var(--abyssa-choice-pattern-inner)" /></defs>
           <circle cx="24" cy="24" r="18" fill="var(--abyssa-choice-fill)" />
+          <circle cx="24" cy="24" r="18" fill={`url(#${patternId})`} />
           <circle cx="24" cy="24" r="18" fill="none" stroke="var(--abyssa-frame-dark)" strokeWidth="5" />
           <circle cx="24" cy="24" r="18" fill="none" stroke="var(--abyssa-choice-middle)" strokeWidth="2.8" />
           <circle cx="24" cy="24" r="18" fill="none" stroke="var(--abyssa-frame-deep)" strokeWidth="1.2" />
@@ -80,6 +86,9 @@ export const RpgCheckbox = forwardRef<HTMLInputElement, RpgCheckboxProps>(
     },
     ref
   ) {
+    const uid = useId().replace(/:/g, "");
+    const patternId = `abyssa-checkbox-watermark-${uid}`;
+
     return (
       <label className={cx("abyssa-choice", "abyssa-choice--checkbox", className)} data-variant={variant} data-disabled={disabled || undefined}>
         <input
@@ -96,7 +105,9 @@ export const RpgCheckbox = forwardRef<HTMLInputElement, RpgCheckboxProps>(
           {...props}
         />
         <svg viewBox="0 0 48 48" aria-hidden="true">
+          <defs><DiamondWatermark as="pattern" id={patternId} size={16} outerFill="var(--abyssa-choice-pattern-outer)" innerFill="var(--abyssa-choice-pattern-inner)" /></defs>
           <rect x="6" y="6" width="36" height="36" fill="var(--abyssa-choice-fill)" />
+          <rect x="6" y="6" width="36" height="36" fill={`url(#${patternId})`} />
           <rect x="6" y="6" width="36" height="36" fill="none" stroke="var(--abyssa-frame-dark)" strokeWidth="5" />
           <rect x="6" y="6" width="36" height="36" fill="none" stroke="var(--abyssa-choice-middle)" strokeWidth="2.8" />
           <rect x="6" y="6" width="36" height="36" fill="none" stroke="var(--abyssa-frame-deep)" strokeWidth="1.2" />

@@ -1,6 +1,7 @@
 import { forwardRef, useId } from "react";
 import type { ButtonHTMLAttributes } from "react";
 import { cx } from "../utils/cx";
+import { DiamondWatermark } from "./DiamondWatermark";
 
 export type RpgTabVariant = "dark" | "light" | "decorated" | "teal";
 
@@ -37,10 +38,7 @@ export const RpgTab = forwardRef<HTMLButtonElement, RpgTabProps>(
       >
         <svg viewBox="0 0 180 78" aria-hidden="true">
           <defs>
-            <pattern id={patternId} width="42" height="42" patternUnits="userSpaceOnUse" patternTransform="translate(0 -4)">
-              <path d="M21 0 L42 21 L21 42 L0 21 Z" fill="var(--abyssa-tab-pattern-dark)" />
-              <path d="M21 10 L32 21 L21 32 L10 21 Z" fill="var(--abyssa-tab-pattern-light)" />
-            </pattern>
+            <DiamondWatermark as="pattern" id={patternId} size={42} outerFill="var(--abyssa-tab-pattern-dark)" innerFill="var(--abyssa-tab-pattern-light)" innerInset={10} patternTransform="translate(0 -4)" />
             <clipPath id={clipId}><path d={tabShape} /></clipPath>
           </defs>
 

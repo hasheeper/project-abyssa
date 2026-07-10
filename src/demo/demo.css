@@ -154,6 +154,20 @@ button, input { font: inherit; }
 .demo-live-value { padding: 6px 9px; border: 1px solid #425050; color: var(--abyssa-text-muted); background: #171d1d; font-family: ui-monospace, monospace; font-size: 0.7rem; }
 .demo-frame-grid { display: grid; grid-template-columns: repeat(3, minmax(120px, 1fr)); gap: 16px; width: 100%; text-align: center; }
 .demo-frame-grid .abyssa-frame__content { font-size: 0.7rem; }
+.demo-watermark-sample {
+  position: relative;
+  display: grid;
+  min-height: 120px;
+  overflow: hidden;
+  border: 1px solid var(--abyssa-ornament);
+  background: var(--abyssa-panel-black);
+  color: var(--abyssa-text-soft);
+  font-family: var(--abyssa-font-display);
+  font-size: .72rem;
+  letter-spacing: .18em;
+  place-items: center;
+}
+.demo-watermark-sample > span { position: relative; z-index: 1; }
 .demo-panel-grid { display: grid; grid-template-columns: repeat(3, minmax(120px, 160px)); justify-content: center; gap: 10px; width: 100%; }
 .demo-panel-grid .abyssa-panel-tile { container-type: inline-size; }
 .demo-square-panel-grid { display: grid; grid-template-columns: repeat(3, 116px); justify-content: center; gap: 8px; width: 100%; }

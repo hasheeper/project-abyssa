@@ -1,17 +1,21 @@
-import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { CharacterSelector } from "./CharacterSelector";
+import { DiamondWatermark } from "./DiamondWatermark";
 import { IconButton } from "./IconButton";
 import { Nameplate } from "./Nameplate";
+import { Progress } from "./Progress";
 import { RibbonButton } from "./RibbonButton";
 import { RpgBackButton } from "./RpgBackButton";
 import { RpgCheckbox, RpgRadio } from "./RpgChoice";
 import { RpgDialogue } from "./RpgDialogue";
-import { RpgDiamondNodeTrack } from "./RpgDiamondNodeTrack";
+import { RpgDiamondNode, RpgDiamondNodeTrack } from "./RpgDiamondNodeTrack";
+import { RpgFrame } from "./RpgFrame";
 import { RpgHeader } from "./RpgHeader";
 import { RpgHexButton } from "./RpgHexButton";
 import { RpgNotchButton } from "./RpgNotchButton";
 import { RpgNotchedPillButton } from "./RpgNotchedPillButton";
+import { RpgPanel } from "./RpgPanel";
 import { RpgShapeButton } from "./RpgShapeButton";
 import { RpgSquarePanel } from "./RpgSquarePanel";
 import { RpgTab } from "./RpgTab";
@@ -20,7 +24,49 @@ import { StatusPanel } from "./StatusPanel";
 import { Toggle } from "./Toggle";
 import { VerticalIndicator } from "./VerticalIndicator";
 
+afterEach(cleanup);
+
 describe("Abyssa controls", () => {
+  it("routes every component watermark through the shared double-diamond structure", () => {
+    const { container } = render(
+      <>
+        <DiamondWatermark />
+        <RibbonButton>Ribbon</RibbonButton>
+        <RpgHexButton>Hex</RpgHexButton>
+        <RpgHeader label="Header" />
+        <RpgShapeButton label="Shape" />
+        <RpgTab label="Tab" />
+        <RpgBackButton />
+        <IconButton label="Icon" />
+        <VerticalIndicator label="Indicator" />
+        <RpgNotchButton label="Notch" />
+        <RpgNotchedPillButton label="Pill" />
+        <RpgDiamondNode label="Node" />
+        <RpgDialogue name="Abyssa" text="Dialogue" />
+        <RpgPanel aria-label="Panel" />
+        <RpgSquarePanel aria-label="Square panel" />
+        <RpgStatusNode label="Status" />
+        <RpgRadio label="Radio" />
+        <RpgCheckbox label="Checkbox" />
+        <RpgFrame>Frame</RpgFrame>
+        <Toggle />
+        <Progress value={40} />
+        <Nameplate name="Name" />
+        <StatusPanel data={{ title: "Status panel" }} />
+      </>
+    );
+
+    const patterns = container.querySelectorAll(
+      'pattern[data-watermark="double-diamond"]'
+    );
+
+    expect(patterns).toHaveLength(24);
+    patterns.forEach((pattern) => {
+      expect(pattern.querySelectorAll('[data-layer="outer"]')).toHaveLength(1);
+      expect(pattern.querySelectorAll('[data-layer="inner"]')).toHaveLength(1);
+    });
+  });
+
   it("uses native button semantics and unique SVG definition ids", () => {
     const { container } = render(
       <>

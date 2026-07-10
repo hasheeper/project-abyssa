@@ -2,6 +2,7 @@ import { forwardRef, useId } from "react";
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 import type { AbyssaSize, AbyssaVariant } from "../types";
 import { cx } from "../utils/cx";
+import { DiamondWatermark } from "./DiamondWatermark";
 
 export type IconButtonIcon = "close" | "plus" | "minus";
 export type IconButtonShape = "diamond" | "circle";
@@ -64,10 +65,7 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
       >
         <svg className="abyssa-icon-button__art" viewBox="0 0 120 120" aria-hidden="true">
           <defs>
-            <pattern id={patternId} width={compact ? 30 : 34} height={compact ? 30 : 34} patternUnits="userSpaceOnUse">
-              <path d={compact ? "M15 0 L30 15 L15 30 L0 15 Z" : "M17 0 L34 17 L17 34 L0 17 Z"} fill="var(--abyssa-icon-pattern-dark)" />
-              <path d={compact ? "M15 7 L23 15 L15 23 L7 15 Z" : "M17 8 L26 17 L17 26 L8 17 Z"} fill="var(--abyssa-icon-pattern-light)" />
-            </pattern>
+            <DiamondWatermark as="pattern" id={patternId} size={compact ? 30 : 34} outerFill="var(--abyssa-icon-pattern-dark)" innerFill="var(--abyssa-icon-pattern-light)" innerInset={compact ? 7 : 8} />
             <clipPath id={clipId}>
               {shape === "diamond" ? <path d={diamondPath} /> : <circle cx="60" cy="60" r={circleRadius} />}
             </clipPath>

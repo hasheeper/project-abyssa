@@ -2,6 +2,7 @@ import { forwardRef, useId } from "react";
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 import type { AbyssaVariant } from "../types";
 import { cx } from "../utils/cx";
+import { DiamondWatermark } from "./DiamondWatermark";
 
 export interface RpgNotchButtonProps
   extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children"> {
@@ -29,7 +30,7 @@ export const RpgNotchButton = forwardRef<HTMLButtonElement, RpgNotchButtonProps>
       <button ref={ref} type={type} className={cx("abyssa-notch-button", className)} data-variant={variant} aria-label={label} {...props}>
         <svg viewBox="0 0 120 120" aria-hidden="true">
           <defs>
-            <pattern id={patternId} width="28" height="28" patternUnits="userSpaceOnUse"><path d="M14 0 L28 14 L14 28 L0 14 Z" fill="var(--abyssa-notch-pattern-dark)" /><path d="M14 6 L22 14 L14 22 L6 14 Z" fill="var(--abyssa-notch-pattern-light)" /></pattern>
+            <DiamondWatermark as="pattern" id={patternId} size={28} outerFill="var(--abyssa-notch-pattern-dark)" innerFill="var(--abyssa-notch-pattern-light)" innerInset={6} />
             <radialGradient id={fadeId} cx="50%" cy="48%" r="58%"><stop offset="18%" stopColor="white" stopOpacity="0" /><stop offset="58%" stopColor="white" stopOpacity=".25" /><stop offset="100%" stopColor="white" /></radialGradient>
             <mask id={maskId}><rect width="120" height="120" fill={`url(#${fadeId})`} /></mask>
             <clipPath id={clipId}><path d={outerPath} /></clipPath>

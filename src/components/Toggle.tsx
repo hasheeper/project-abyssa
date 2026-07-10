@@ -2,6 +2,7 @@ import type { ButtonHTMLAttributes } from "react";
 import { useControllableState } from "../hooks/useControllableState";
 import type { AbyssaSize, AbyssaVariant } from "../types";
 import { cx } from "../utils/cx";
+import { DiamondWatermark } from "./DiamondWatermark";
 
 export interface ToggleProps
   extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "onChange"> {
@@ -50,6 +51,7 @@ export function Toggle({
       }}
       {...props}
     >
+      <DiamondWatermark className="abyssa-toggle__watermark" size={22} />
       <span className="abyssa-toggle__label">
         {isChecked ? onLabel : offLabel}
       </span>
