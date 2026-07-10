@@ -42,7 +42,7 @@ export interface StatusPanelProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 export function StatusPanel({ data, watermark, className, ...props }: StatusPanelProps) {
-  const watermarkOptions = resolveDiamondWatermark(watermark, { size: 52, outerOpacity: 0.48, innerOpacity: 0.38 });
+  const watermarkOptions = resolveDiamondWatermark(watermark, { size: 52, outerOpacity: 0.28, innerOpacity: 0.18 });
   return (
     <div
       className={cx("abyssa-status-panel", className)}
