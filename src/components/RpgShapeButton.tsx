@@ -2,7 +2,8 @@ import { forwardRef, useId } from "react";
 import type { ButtonHTMLAttributes } from "react";
 import type { AbyssaVariant } from "../types";
 import { cx } from "../utils/cx";
-import { DiamondWatermark } from "./DiamondWatermark";
+import { DiamondWatermark, resolveDiamondWatermark } from "./DiamondWatermark";
+import type { DiamondWatermarkConfig } from "./DiamondWatermark";
 
 export type RpgShapeButtonShape = "circle" | "square" | "chamfer" | "pill";
 
@@ -12,6 +13,7 @@ export interface RpgShapeButtonProps
   shape?: RpgShapeButtonShape;
   variant?: AbyssaVariant;
   selected?: boolean;
+  watermark?: DiamondWatermarkConfig;
 }
 
 interface ShapeGeometry {
@@ -101,6 +103,7 @@ export const RpgShapeButton = forwardRef<HTMLButtonElement, RpgShapeButtonProps>
       shape = "chamfer",
       variant = "dark",
       selected,
+      watermark,
       className,
       type = "button",
       ...props
@@ -112,6 +115,7 @@ export const RpgShapeButton = forwardRef<HTMLButtonElement, RpgShapeButtonProps>
     const clipId = `abyssa-shape-clip-${uid}`;
     const geometry = geometries[shape];
     const isCircle = shape === "circle";
+    const watermarkOptions = resolveDiamondWatermark(watermark, { size: geometry.patternSize, outerOpacity: 0.72, innerOpacity: 0.62, innerInset: 10 });
 
     const shapeElement = (fill: string, stroke?: string, strokeWidth?: number) =>
       isCircle ? (
@@ -140,12 +144,12 @@ export const RpgShapeButton = forwardRef<HTMLButtonElement, RpgShapeButtonProps>
       >
         <svg viewBox={geometry.viewBox} aria-hidden="true">
           <defs>
-            <DiamondWatermark as="pattern" id={patternId} size={geometry.patternSize} outerFill="var(--abyssa-shape-pattern-dark)" innerFill="var(--abyssa-shape-pattern-light)" innerInset={10} />
+            {watermarkOptions && <DiamondWatermark as="pattern" id={patternId} outerFill="var(--abyssa-shape-pattern-dark)" innerFill="var(--abyssa-shape-pattern-light)" {...watermarkOptions} />}
             <clipPath id={clipId}>{shapeElement("#fff")}</clipPath>
           </defs>
 
           {shapeElement("var(--abyssa-shape-fill)")}
-          <rect {...geometry.texture} fill={`url(#${patternId})`} clipPath={`url(#${clipId})`} />
+          {watermarkOptions && <rect {...geometry.texture} fill={`url(#${patternId})`} clipPath={`url(#${clipId})`} />}
           {shapeElement("none", "var(--abyssa-frame-dark)", geometry.outerWidth)}
           {shapeElement("none", "var(--abyssa-shape-middle)", geometry.middleWidth)}
           {shapeElement("none", "var(--abyssa-frame-deep)", geometry.innerWidth)}

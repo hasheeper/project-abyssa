@@ -168,7 +168,11 @@ export function App() {
       description: "统一的双层菱形底纹原语。可直接覆盖普通容器，也可用 pattern 模式嵌入自定义 SVG。",
       tags: ["primitive", "overlay", "svg pattern"],
       code: `<div style={{ position: "relative" }}>
-  <DiamondWatermark size={48} />
+  <DiamondWatermark
+    size={48}
+    outerOpacity={0.45}
+    innerOpacity={0.3}
+  />
   <YourContent />
 </div>`,
       preview: (

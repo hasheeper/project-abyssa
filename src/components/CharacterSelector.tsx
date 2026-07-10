@@ -61,6 +61,7 @@ export function CharacterSelector({
             disabled={item.disabled}
             aria-label={item.label}
             aria-current={isSelected ? "true" : undefined}
+            watermark={false}
             onClick={() => setSelectedId(item.id)}
           />
         );

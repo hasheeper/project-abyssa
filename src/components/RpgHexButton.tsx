@@ -2,7 +2,8 @@ import { forwardRef, useId } from "react";
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 import type { AbyssaSize, AbyssaVariant } from "../types";
 import { cx } from "../utils/cx";
-import { DiamondWatermark } from "./DiamondWatermark";
+import { DiamondWatermark, resolveDiamondWatermark } from "./DiamondWatermark";
+import type { DiamondWatermarkConfig } from "./DiamondWatermark";
 
 export interface RpgHexButtonProps
   extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -13,6 +14,7 @@ export interface RpgHexButtonProps
   fullWidth?: boolean;
   leadingIcon?: ReactNode;
   trailingIcon?: ReactNode;
+  watermark?: DiamondWatermarkConfig;
 }
 
 export const RpgHexButton = forwardRef<HTMLButtonElement, RpgHexButtonProps>(
@@ -25,6 +27,7 @@ export const RpgHexButton = forwardRef<HTMLButtonElement, RpgHexButtonProps>(
       fullWidth = false,
       leadingIcon,
       trailingIcon,
+      watermark,
       disabled,
       className,
       children,
@@ -33,6 +36,7 @@ export const RpgHexButton = forwardRef<HTMLButtonElement, RpgHexButtonProps>(
     },
     ref
   ) {
+    const watermarkOptions = resolveDiamondWatermark(watermark, { size: 58, outerOpacity: 0.72, innerOpacity: 0.62, innerInset: 13 });
     const id = useId().replace(/:/g, "");
     const patternId = `abyssa-hex-pattern-${id}`;
     const fadeId = `abyssa-hex-fade-${id}`;
@@ -61,15 +65,14 @@ export const RpgHexButton = forwardRef<HTMLButtonElement, RpgHexButtonProps>(
           aria-hidden="true"
         >
           <defs>
-            <DiamondWatermark
+            {watermarkOptions && <DiamondWatermark
               as="pattern"
               id={patternId}
-              size={58}
               outerFill="var(--abyssa-hex-pattern-dark)"
               innerFill="var(--abyssa-hex-pattern-light)"
-              innerInset={13}
               patternTransform="translate(0 -9)"
-            />
+              {...watermarkOptions}
+            />}
             <linearGradient id={fadeId} x1="0" y1="0" x2="1" y2="0">
               <stop offset="0%" stopColor="white" stopOpacity="1" />
               <stop offset="18%" stopColor="white" stopOpacity=".72" />
@@ -89,7 +92,7 @@ export const RpgHexButton = forwardRef<HTMLButtonElement, RpgHexButtonProps>(
           </defs>
 
           <path d={shape} fill="var(--abyssa-hex-fill)" />
-          <rect
+          {watermarkOptions && <rect
             x="20"
             y="10"
             width="880"
@@ -97,7 +100,7 @@ export const RpgHexButton = forwardRef<HTMLButtonElement, RpgHexButtonProps>(
             fill={`url(#${patternId})`}
             mask={`url(#${maskId})`}
             clipPath={`url(#${clipId})`}
-          />
+          />}
           <path
             d={shape}
             fill="none"

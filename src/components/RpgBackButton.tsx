@@ -2,21 +2,24 @@ import { forwardRef, useId } from "react";
 import type { ButtonHTMLAttributes } from "react";
 import type { AbyssaVariant } from "../types";
 import { cx } from "../utils/cx";
-import { DiamondWatermark } from "./DiamondWatermark";
+import { DiamondWatermark, resolveDiamondWatermark } from "./DiamondWatermark";
+import type { DiamondWatermarkConfig } from "./DiamondWatermark";
 
 export interface RpgBackButtonProps
   extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children"> {
   label?: string;
   variant?: AbyssaVariant;
+  watermark?: DiamondWatermarkConfig;
 }
 
 const outerPath = "M16 14 H176 V174 Z";
 
 export const RpgBackButton = forwardRef<HTMLButtonElement, RpgBackButtonProps>(
   function RpgBackButton(
-    { label = "Back", variant = "dark", className, type = "button", ...props },
+    { label = "Back", variant = "dark", watermark, className, type = "button", ...props },
     ref
   ) {
+    const watermarkOptions = resolveDiamondWatermark(watermark, { size: 42, outerOpacity: 0.72, innerOpacity: 0.62, innerInset: 10 });
     const uid = useId().replace(/:/g, "");
     const patternId = `abyssa-back-pattern-${uid}`;
     const clipId = `abyssa-back-clip-${uid}`;
@@ -32,12 +35,12 @@ export const RpgBackButton = forwardRef<HTMLButtonElement, RpgBackButtonProps>(
       >
         <svg viewBox="0 0 190 190" aria-hidden="true">
           <defs>
-            <DiamondWatermark as="pattern" id={patternId} size={42} outerFill="var(--abyssa-back-pattern-dark)" innerFill="var(--abyssa-back-pattern-light)" innerInset={10} patternTransform="translate(4 4)" />
+            {watermarkOptions && <DiamondWatermark as="pattern" id={patternId} outerFill="var(--abyssa-back-pattern-dark)" innerFill="var(--abyssa-back-pattern-light)" patternTransform="translate(4 4)" {...watermarkOptions} />}
             <clipPath id={clipId}><path d={outerPath} /></clipPath>
           </defs>
 
           <path d={outerPath} fill="var(--abyssa-back-fill)" />
-          <rect x="12" y="10" width="168" height="168" fill={`url(#${patternId})`} clipPath={`url(#${clipId})`} />
+          {watermarkOptions && <rect x="12" y="10" width="168" height="168" fill={`url(#${patternId})`} clipPath={`url(#${clipId})`} />}
           <path d={outerPath} fill="none" stroke="var(--abyssa-frame-dark)" strokeWidth="10" strokeLinejoin="miter" />
           <path d={outerPath} fill="none" stroke="var(--abyssa-back-middle)" strokeWidth="5" strokeLinejoin="miter" />
           <path d={outerPath} fill="none" stroke="var(--abyssa-frame-deep)" strokeWidth="2" strokeLinejoin="miter" />

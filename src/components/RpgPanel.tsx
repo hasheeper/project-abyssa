@@ -2,13 +2,15 @@ import { forwardRef, useId } from "react";
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 import type { PanelVariant } from "../types";
 import { cx } from "../utils/cx";
-import { DiamondWatermark } from "./DiamondWatermark";
+import { DiamondWatermark, resolveDiamondWatermark } from "./DiamondWatermark";
+import type { DiamondWatermarkConfig } from "./DiamondWatermark";
 
 export interface RpgPanelProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: PanelVariant;
   number?: string;
   selected?: boolean;
   children?: ReactNode;
+  watermark?: DiamondWatermarkConfig;
 }
 
 export const RpgPanel = forwardRef<HTMLButtonElement, RpgPanelProps>(
@@ -17,6 +19,7 @@ export const RpgPanel = forwardRef<HTMLButtonElement, RpgPanelProps>(
       variant = "dark",
       number = "01",
       selected,
+      watermark,
       className,
       children,
       type = "button",
@@ -24,6 +27,7 @@ export const RpgPanel = forwardRef<HTMLButtonElement, RpgPanelProps>(
     },
     ref
   ) {
+    const watermarkOptions = resolveDiamondWatermark(watermark, { size: 48, outerOpacity: 0.68, innerOpacity: 0.58 });
     const uid = useId().replace(/:/g, "");
     const patternId = `abyssa-panel-watermark-${uid}`;
 
@@ -38,12 +42,12 @@ export const RpgPanel = forwardRef<HTMLButtonElement, RpgPanelProps>(
         {...props}
       >
         <svg viewBox="0 0 180 180" aria-hidden="true">
-          <defs>
-            <DiamondWatermark as="pattern" id={patternId} size={48} outerFill="var(--abyssa-tile-pattern-outer)" innerFill="var(--abyssa-tile-pattern-inner)" />
-          </defs>
+          {watermarkOptions && <defs>
+            <DiamondWatermark as="pattern" id={patternId} outerFill="var(--abyssa-tile-pattern-outer)" innerFill="var(--abyssa-tile-pattern-inner)" {...watermarkOptions} />
+          </defs>}
           <rect x="8" y="9.5" width="164" height="164" fill="#0d1212" opacity=".52" />
           <rect x="8" y="7" width="164" height="164" fill="var(--abyssa-tile-fill)" />
-          <rect x="8" y="7" width="164" height="164" fill={`url(#${patternId})`} />
+          {watermarkOptions && <rect x="8" y="7" width="164" height="164" fill={`url(#${patternId})`} />}
           <rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-dark)" strokeWidth="7" />
           <rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-tile-middle)" strokeWidth="4" />
           <rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-deep)" strokeWidth="2" />

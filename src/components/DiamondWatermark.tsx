@@ -2,17 +2,45 @@ import { useId } from "react";
 import type { SVGAttributes } from "react";
 import { cx } from "../utils/cx";
 
+export interface DiamondWatermarkOptions {
+  size?: number;
+  outerOpacity?: number;
+  innerOpacity?: number;
+  innerInset?: number;
+}
+
+export type DiamondWatermarkConfig = DiamondWatermarkOptions | false;
+
 export interface DiamondWatermarkProps
-  extends Omit<SVGAttributes<SVGSVGElement>, "id"> {
+  extends Omit<SVGAttributes<SVGSVGElement>, "id">,
+    DiamondWatermarkOptions {
   /** Render a reusable SVG pattern definition or a standalone HTML overlay. */
   as?: "overlay" | "pattern";
   /** Required by consumers that reference pattern mode with url(#id). */
   id?: string;
-  size?: number;
   outerFill?: string;
   innerFill?: string;
-  innerInset?: number;
   patternTransform?: string;
+}
+
+export interface ResolvedDiamondWatermarkOptions {
+  size: number;
+  outerOpacity: number;
+  innerOpacity: number;
+  innerInset?: number;
+}
+
+export function resolveDiamondWatermark(
+  config: DiamondWatermarkConfig | undefined,
+  defaults: ResolvedDiamondWatermarkOptions
+): ResolvedDiamondWatermarkOptions | null {
+  if (config === false) return null;
+  return {
+    size: config?.size ?? defaults.size,
+    outerOpacity: config?.outerOpacity ?? defaults.outerOpacity,
+    innerOpacity: config?.innerOpacity ?? defaults.innerOpacity,
+    innerInset: config?.innerInset ?? defaults.innerInset
+  };
 }
 
 /** Shared two-layer diamond watermark for SVG and HTML-backed components. */
@@ -22,6 +50,8 @@ export function DiamondWatermark({
   size = 48,
   outerFill = "var(--abyssa-watermark-outer, rgb(255 255 255 / 3.5%))",
   innerFill = "var(--abyssa-watermark-inner, rgb(255 255 255 / 1.8%))",
+  outerOpacity = 1,
+  innerOpacity = 1,
   innerInset = size * 0.24,
   patternTransform,
   className,
@@ -45,11 +75,13 @@ export function DiamondWatermark({
       <path
         d={`M${half} 0 L${size} ${half} L${half} ${size} L0 ${half} Z`}
         fill={outerFill}
+        opacity={Math.min(Math.max(outerOpacity, 0), 1)}
         data-layer="outer"
       />
       <path
         d={`M${half} ${innerStart} L${innerEnd} ${half} L${half} ${innerEnd} L${innerStart} ${half} Z`}
         fill={innerFill}
+        opacity={Math.min(Math.max(innerOpacity, 0), 1)}
         data-layer="inner"
       />
     </pattern>

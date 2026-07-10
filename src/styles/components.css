@@ -444,8 +444,6 @@
   --abyssa-square-text: #f0f3f3;
   --abyssa-square-middle: #798687;
   --abyssa-square-ornament: #667171;
-  --abyssa-square-pattern-outer: rgb(255 255 255 / 3.5%);
-  --abyssa-square-pattern-inner: rgb(255 255 255 / 1.4%);
   position: relative;
   display: inline-grid;
   width: min(100%, 116px);
@@ -478,8 +476,6 @@
   --abyssa-square-text: #f5f7f7;
   --abyssa-square-middle: #879899;
   --abyssa-square-ornament: #304344;
-  --abyssa-square-pattern-outer: rgb(22 63 65 / 9%);
-  --abyssa-square-pattern-inner: rgb(255 255 255 / 7%);
 }
 
 .abyssa-square-panel[data-variant="teal-outline"] {
@@ -493,8 +489,6 @@
   --abyssa-square-text: #fff;
   --abyssa-square-middle: #939e9f;
   --abyssa-square-ornament: #535e5e;
-  --abyssa-square-pattern-outer: rgb(29 49 50 / 7%);
-  --abyssa-square-pattern-inner: rgb(255 255 255 / 19%);
 }
 
 .abyssa-square-panel > svg {

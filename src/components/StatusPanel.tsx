@@ -1,6 +1,7 @@
 import type { HTMLAttributes, ReactNode } from "react";
 import { cx } from "../utils/cx";
-import { DiamondWatermark } from "./DiamondWatermark";
+import { DiamondWatermark, resolveDiamondWatermark } from "./DiamondWatermark";
+import type { DiamondWatermarkConfig } from "./DiamondWatermark";
 
 export interface StatusField {
   label: ReactNode;
@@ -37,9 +38,11 @@ export interface StatusPanelData {
 
 export interface StatusPanelProps extends HTMLAttributes<HTMLDivElement> {
   data: StatusPanelData;
+  watermark?: DiamondWatermarkConfig;
 }
 
-export function StatusPanel({ data, className, ...props }: StatusPanelProps) {
+export function StatusPanel({ data, watermark, className, ...props }: StatusPanelProps) {
+  const watermarkOptions = resolveDiamondWatermark(watermark, { size: 52, outerOpacity: 0.48, innerOpacity: 0.38 });
   return (
     <div
       className={cx("abyssa-status-panel", className)}
@@ -48,7 +51,7 @@ export function StatusPanel({ data, className, ...props }: StatusPanelProps) {
       <div className="abyssa-status-panel__middle">
         <div className="abyssa-status-panel__inner">
           <div className="abyssa-status-panel__content">
-            <DiamondWatermark className="abyssa-status-panel__watermark" size={52} />
+            {watermarkOptions && <DiamondWatermark className="abyssa-status-panel__watermark" {...watermarkOptions} />}
 
             <span className="abyssa-status-panel__corner" data-corner="tl" aria-hidden="true" />
             <span className="abyssa-status-panel__corner" data-corner="tr" aria-hidden="true" />

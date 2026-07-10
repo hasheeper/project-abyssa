@@ -2,7 +2,8 @@ import { useId } from "react";
 import type { HTMLAttributes } from "react";
 import type { AbyssaVariant } from "../types";
 import { cx } from "../utils/cx";
-import { DiamondWatermark } from "./DiamondWatermark";
+import { DiamondWatermark, resolveDiamondWatermark } from "./DiamondWatermark";
+import type { DiamondWatermarkConfig } from "./DiamondWatermark";
 
 const mainPath = [
   "M18 9 H642",
@@ -27,15 +28,18 @@ export interface RpgHeaderProps
   label: string;
   description?: string;
   variant?: AbyssaVariant;
+  watermark?: DiamondWatermarkConfig;
 }
 
 export function RpgHeader({
   label,
   description,
   variant = "dark",
+  watermark,
   className,
   ...props
 }: RpgHeaderProps) {
+  const watermarkOptions = resolveDiamondWatermark(watermark, { size: 42, outerOpacity: 0.7, innerOpacity: 0.6, innerInset: 10 });
   const id = useId().replace(/:/g, "");
   const patternId = `abyssa-header-pattern-${id}`;
   const fadeId = `abyssa-header-fade-${id}`;
@@ -54,14 +58,13 @@ export function RpgHeader({
         aria-label={description ? `${label}，${description}` : label}
       >
         <defs>
-          <DiamondWatermark
+          {watermarkOptions && <DiamondWatermark
             as="pattern"
             id={patternId}
-            size={42}
             outerFill="var(--abyssa-header-pattern)"
             innerFill="rgb(255 255 255 / 3.5%)"
-            innerInset={10}
-          />
+            {...watermarkOptions}
+          />}
           <linearGradient id={fadeId} x1="0" y1="0" x2="1" y2="0">
             <stop offset="0%" stopColor="white" stopOpacity="1" />
             <stop offset="24%" stopColor="white" stopOpacity=".55" />
@@ -80,7 +83,7 @@ export function RpgHeader({
 
         <path d={shadowPath} fill="#0d1212" opacity=".72" />
         <path d={mainPath} fill="var(--abyssa-header-fill)" />
-        <rect
+        {watermarkOptions && <rect
           x="12"
           y="6"
           width="636"
@@ -88,7 +91,7 @@ export function RpgHeader({
           fill={`url(#${patternId})`}
           mask={`url(#${maskId})`}
           clipPath={`url(#${clipId})`}
-        />
+        />}
 
         <path
           d={mainPath}

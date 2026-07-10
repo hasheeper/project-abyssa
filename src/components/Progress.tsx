@@ -1,7 +1,8 @@
 import type { HTMLAttributes } from "react";
 import type { AbyssaSize, AbyssaVariant } from "../types";
 import { cx } from "../utils/cx";
-import { DiamondWatermark } from "./DiamondWatermark";
+import { DiamondWatermark, resolveDiamondWatermark } from "./DiamondWatermark";
+import type { DiamondWatermarkConfig } from "./DiamondWatermark";
 
 export interface ProgressProps extends HTMLAttributes<HTMLDivElement> {
   value: number;
@@ -10,6 +11,7 @@ export interface ProgressProps extends HTMLAttributes<HTMLDivElement> {
   size?: AbyssaSize;
   label?: string;
   showValue?: boolean;
+  watermark?: DiamondWatermarkConfig;
 }
 
 export function Progress({
@@ -19,9 +21,11 @@ export function Progress({
   size = "md",
   label,
   showValue = false,
+  watermark,
   className,
   ...props
 }: ProgressProps) {
+  const watermarkOptions = resolveDiamondWatermark(watermark, { size: 18, outerOpacity: 0.7, innerOpacity: 0.6 });
   const safeMax = max > 0 ? max : 100;
   const safeValue = Math.min(Math.max(value, 0), safeMax);
   const percent = (safeValue / safeMax) * 100;
@@ -44,7 +48,7 @@ export function Progress({
         aria-valuemax={safeMax}
         aria-valuenow={safeValue}
       >
-        <DiamondWatermark className="abyssa-progress__watermark" size={18} />
+        {watermarkOptions && <DiamondWatermark className="abyssa-progress__watermark" {...watermarkOptions} />}
         <span style={{ width: `${percent}%` }} />
       </div>
     </div>

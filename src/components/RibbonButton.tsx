@@ -2,7 +2,8 @@ import { forwardRef, useId } from "react";
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 import type { AbyssaSize, AbyssaVariant } from "../types";
 import { cx } from "../utils/cx";
-import { DiamondWatermark } from "./DiamondWatermark";
+import { DiamondWatermark, resolveDiamondWatermark } from "./DiamondWatermark";
+import type { DiamondWatermarkConfig } from "./DiamondWatermark";
 
 export interface RibbonButtonProps
   extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -13,6 +14,7 @@ export interface RibbonButtonProps
   fullWidth?: boolean;
   leadingIcon?: ReactNode;
   trailingIcon?: ReactNode;
+  watermark?: DiamondWatermarkConfig;
 }
 
 export const RibbonButton = forwardRef<HTMLButtonElement, RibbonButtonProps>(
@@ -25,6 +27,7 @@ export const RibbonButton = forwardRef<HTMLButtonElement, RibbonButtonProps>(
       fullWidth = false,
       leadingIcon,
       trailingIcon,
+      watermark,
       disabled,
       className,
       children,
@@ -33,6 +36,7 @@ export const RibbonButton = forwardRef<HTMLButtonElement, RibbonButtonProps>(
     },
     ref
   ) {
+    const watermarkOptions = resolveDiamondWatermark(watermark, { size: 44, outerOpacity: 0.72, innerOpacity: 0.62, innerInset: 10 });
     const id = useId().replace(/:/g, "");
     const patternId = `abyssa-pattern-${id}`;
     const fadeId = `abyssa-fade-${id}`;
@@ -60,15 +64,14 @@ export const RibbonButton = forwardRef<HTMLButtonElement, RibbonButtonProps>(
           aria-hidden="true"
         >
           <defs>
-            <DiamondWatermark
+            {watermarkOptions && <DiamondWatermark
               as="pattern"
               id={patternId}
-              size={44}
               outerFill="var(--abyssa-ribbon-pattern)"
               innerFill="rgb(255 255 255 / 2%)"
-              innerInset={10}
               patternTransform="translate(0 -10)"
-            />
+              {...watermarkOptions}
+            />}
             <linearGradient id={fadeId} x1="0" y1="0" x2="1" y2="0">
               <stop offset="0%" stopColor="white" stopOpacity="1" />
               <stop offset="27%" stopColor="white" stopOpacity=".22" />
@@ -94,7 +97,7 @@ export const RibbonButton = forwardRef<HTMLButtonElement, RibbonButtonProps>(
             d="M34 7 H786 L765 34 L786 61 H34 L55 34 Z"
             fill="var(--abyssa-ribbon-fill)"
           />
-          <rect
+          {watermarkOptions && <rect
             x="30"
             y="4"
             width="760"
@@ -102,7 +105,7 @@ export const RibbonButton = forwardRef<HTMLButtonElement, RibbonButtonProps>(
             fill={`url(#${patternId})`}
             mask={`url(#${maskId})`}
             clipPath={`url(#${clipId})`}
-          />
+          />}
           <path
             className="abyssa-ribbon-button__frame-dark"
             d="M34 7 H786 L765 34 L786 61 H34 L55 34 Z"

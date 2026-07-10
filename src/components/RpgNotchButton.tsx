@@ -2,13 +2,15 @@ import { forwardRef, useId } from "react";
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 import type { AbyssaVariant } from "../types";
 import { cx } from "../utils/cx";
-import { DiamondWatermark } from "./DiamondWatermark";
+import { DiamondWatermark, resolveDiamondWatermark } from "./DiamondWatermark";
+import type { DiamondWatermarkConfig } from "./DiamondWatermark";
 
 export interface RpgNotchButtonProps
   extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children"> {
   label?: string;
   variant?: AbyssaVariant;
   children?: ReactNode;
+  watermark?: DiamondWatermarkConfig;
 }
 
 const outerPath = "M9 9 H111 V111 H9 Z";
@@ -17,9 +19,10 @@ const secondaryPath = "M22 22 H98 V90 H70 L60 98 L50 90 H22 Z";
 
 export const RpgNotchButton = forwardRef<HTMLButtonElement, RpgNotchButtonProps>(
   function RpgNotchButton(
-    { label = "操作按钮", variant = "dark", children, className, type = "button", ...props },
+    { label = "操作按钮", variant = "dark", children, watermark, className, type = "button", ...props },
     ref
   ) {
+    const watermarkOptions = resolveDiamondWatermark(watermark, { size: 28, outerOpacity: 0.72, innerOpacity: 0.62, innerInset: 6 });
     const uid = useId().replace(/:/g, "");
     const patternId = `abyssa-notch-pattern-${uid}`;
     const fadeId = `abyssa-notch-fade-${uid}`;
@@ -30,13 +33,13 @@ export const RpgNotchButton = forwardRef<HTMLButtonElement, RpgNotchButtonProps>
       <button ref={ref} type={type} className={cx("abyssa-notch-button", className)} data-variant={variant} aria-label={label} {...props}>
         <svg viewBox="0 0 120 120" aria-hidden="true">
           <defs>
-            <DiamondWatermark as="pattern" id={patternId} size={28} outerFill="var(--abyssa-notch-pattern-dark)" innerFill="var(--abyssa-notch-pattern-light)" innerInset={6} />
+            {watermarkOptions && <DiamondWatermark as="pattern" id={patternId} outerFill="var(--abyssa-notch-pattern-dark)" innerFill="var(--abyssa-notch-pattern-light)" {...watermarkOptions} />}
             <radialGradient id={fadeId} cx="50%" cy="48%" r="58%"><stop offset="18%" stopColor="white" stopOpacity="0" /><stop offset="58%" stopColor="white" stopOpacity=".25" /><stop offset="100%" stopColor="white" /></radialGradient>
             <mask id={maskId}><rect width="120" height="120" fill={`url(#${fadeId})`} /></mask>
             <clipPath id={clipId}><path d={outerPath} /></clipPath>
           </defs>
           <path d={outerPath} fill="var(--abyssa-notch-fill)" />
-          <rect x="5" y="5" width="110" height="110" fill={`url(#${patternId})`} mask={`url(#${maskId})`} clipPath={`url(#${clipId})`} />
+          {watermarkOptions && <rect x="5" y="5" width="110" height="110" fill={`url(#${patternId})`} mask={`url(#${maskId})`} clipPath={`url(#${clipId})`} />}
           <path d={outerPath} fill="none" stroke="var(--abyssa-frame-dark)" strokeWidth="8" strokeLinejoin="round" />
           <path d={outerPath} fill="none" stroke="var(--abyssa-notch-middle)" strokeWidth="4.2" strokeLinejoin="round" />
           <path d={outerPath} fill="none" stroke="var(--abyssa-frame-deep)" strokeWidth="1.6" strokeLinejoin="round" />

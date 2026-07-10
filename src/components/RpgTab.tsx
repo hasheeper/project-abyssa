@@ -1,7 +1,8 @@
 import { forwardRef, useId } from "react";
 import type { ButtonHTMLAttributes } from "react";
 import { cx } from "../utils/cx";
-import { DiamondWatermark } from "./DiamondWatermark";
+import { DiamondWatermark, resolveDiamondWatermark } from "./DiamondWatermark";
+import type { DiamondWatermarkConfig } from "./DiamondWatermark";
 
 export type RpgTabVariant = "dark" | "light" | "decorated" | "teal";
 
@@ -10,6 +11,7 @@ export interface RpgTabProps
   label: string;
   variant?: RpgTabVariant;
   selected?: boolean;
+  watermark?: DiamondWatermarkConfig;
 }
 
 const tabShape = "M7 78 V20 Q7 7 20 7 H160 Q173 7 173 20 V78 Z";
@@ -18,9 +20,10 @@ const ornamentOutline = "M15 78 V23 Q15 15 24 15 H156 Q165 15 165 23 V78";
 
 export const RpgTab = forwardRef<HTMLButtonElement, RpgTabProps>(
   function RpgTab(
-    { label, variant = "dark", selected, className, type = "button", ...props },
+    { label, variant = "dark", selected, watermark, className, type = "button", ...props },
     ref
   ) {
+    const watermarkOptions = resolveDiamondWatermark(watermark, { size: 42, outerOpacity: 0.72, innerOpacity: 0.62, innerInset: 10 });
     const uid = useId().replace(/:/g, "");
     const patternId = `abyssa-tab-pattern-${uid}`;
     const clipId = `abyssa-tab-clip-${uid}`;
@@ -38,12 +41,12 @@ export const RpgTab = forwardRef<HTMLButtonElement, RpgTabProps>(
       >
         <svg viewBox="0 0 180 78" aria-hidden="true">
           <defs>
-            <DiamondWatermark as="pattern" id={patternId} size={42} outerFill="var(--abyssa-tab-pattern-dark)" innerFill="var(--abyssa-tab-pattern-light)" innerInset={10} patternTransform="translate(0 -4)" />
+            {watermarkOptions && <DiamondWatermark as="pattern" id={patternId} outerFill="var(--abyssa-tab-pattern-dark)" innerFill="var(--abyssa-tab-pattern-light)" patternTransform="translate(0 -4)" {...watermarkOptions} />}
             <clipPath id={clipId}><path d={tabShape} /></clipPath>
           </defs>
 
           <path d={tabShape} fill="var(--abyssa-tab-fill)" />
-          <rect x="5" y="5" width="170" height="73" fill={`url(#${patternId})`} clipPath={`url(#${clipId})`} />
+          {watermarkOptions && <rect x="5" y="5" width="170" height="73" fill={`url(#${patternId})`} clipPath={`url(#${clipId})`} />}
           <path d={tabOutline} fill="none" stroke="var(--abyssa-frame-dark)" strokeWidth="9" strokeLinecap="butt" strokeLinejoin="round" />
           <path d={tabOutline} fill="none" stroke="var(--abyssa-tab-middle)" strokeWidth="5" strokeLinecap="butt" strokeLinejoin="round" />
           <path d={tabOutline} fill="none" stroke="var(--abyssa-frame-deep)" strokeWidth="2" strokeLinecap="butt" strokeLinejoin="round" />

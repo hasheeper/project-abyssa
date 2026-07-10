@@ -2,7 +2,8 @@ import { forwardRef, useId } from "react";
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 import type { AbyssaSize, AbyssaVariant } from "../types";
 import { cx } from "../utils/cx";
-import { DiamondWatermark } from "./DiamondWatermark";
+import { DiamondWatermark, resolveDiamondWatermark } from "./DiamondWatermark";
+import type { DiamondWatermarkConfig } from "./DiamondWatermark";
 
 export type IconButtonIcon = "close" | "plus" | "minus";
 export type IconButtonShape = "diamond" | "circle";
@@ -16,6 +17,7 @@ export interface IconButtonProps
   icon?: IconButtonIcon;
   selected?: boolean;
   children?: ReactNode;
+  watermark?: DiamondWatermarkConfig;
 }
 
 export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
@@ -29,6 +31,7 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
       selected,
       className,
       children,
+      watermark,
       type = "button",
       ...props
     },
@@ -38,6 +41,7 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
     const patternId = `abyssa-icon-pattern-${uid}`;
     const clipId = `abyssa-icon-clip-${uid}`;
     const compact = size !== "lg";
+    const watermarkOptions = resolveDiamondWatermark(watermark, { size: compact ? 30 : 34, outerOpacity: 0.72, innerOpacity: 0.62, innerInset: compact ? 7 : 8 });
     const circleRadius = compact ? 53 : 52;
     const circleOrnamentRadius = compact ? 47 : 44;
     const diamondPath = "M60 7 L113 60 L60 113 L7 60 Z";
@@ -65,7 +69,7 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
       >
         <svg className="abyssa-icon-button__art" viewBox="0 0 120 120" aria-hidden="true">
           <defs>
-            <DiamondWatermark as="pattern" id={patternId} size={compact ? 30 : 34} outerFill="var(--abyssa-icon-pattern-dark)" innerFill="var(--abyssa-icon-pattern-light)" innerInset={compact ? 7 : 8} />
+            {watermarkOptions && <DiamondWatermark as="pattern" id={patternId} outerFill="var(--abyssa-icon-pattern-dark)" innerFill="var(--abyssa-icon-pattern-light)" {...watermarkOptions} />}
             <clipPath id={clipId}>
               {shape === "diamond" ? <path d={diamondPath} /> : <circle cx="60" cy="60" r={circleRadius} />}
             </clipPath>
@@ -76,7 +80,7 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
           ) : (
             <circle cx="60" cy="60" r={circleRadius} fill="var(--abyssa-icon-fill)" />
           )}
-          <rect x={compact ? 4 : 5} y={compact ? 4 : 5} width={compact ? 112 : 110} height={compact ? 112 : 110} fill={`url(#${patternId})`} clipPath={`url(#${clipId})`} />
+          {watermarkOptions && <rect x={compact ? 4 : 5} y={compact ? 4 : 5} width={compact ? 112 : 110} height={compact ? 112 : 110} fill={`url(#${patternId})`} clipPath={`url(#${clipId})`} />}
 
           {[9, 5, 2].map((strokeWidth, index) => {
             const stroke = index === 0 ? "var(--abyssa-frame-dark)" : index === 1 ? "var(--abyssa-icon-middle)" : "var(--abyssa-frame-deep)";

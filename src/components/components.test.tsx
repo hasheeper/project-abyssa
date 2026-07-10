@@ -60,7 +60,7 @@ describe("Abyssa controls", () => {
       'pattern[data-watermark="double-diamond"]'
     );
 
-    expect(patterns).toHaveLength(24);
+    expect(patterns).toHaveLength(23);
     patterns.forEach((pattern) => {
       expect(pattern.querySelectorAll('[data-layer="outer"]')).toHaveLength(1);
       expect(pattern.querySelectorAll('[data-layer="inner"]')).toHaveLength(1);
@@ -130,6 +130,22 @@ describe("Abyssa controls", () => {
       "0 0 116 116"
     );
     expect(container.querySelector(".abyssa-panel-tile")).not.toBeInTheDocument();
+    expect(container.querySelector("pattern[data-watermark]")).not.toBeInTheDocument();
+  });
+
+  it("allows each component watermark to adjust size and opacity or be disabled", () => {
+    const { container } = render(
+      <>
+        <RpgFrame watermark={{ size: 72, outerOpacity: 0.24, innerOpacity: 0.12 }}>Frame</RpgFrame>
+        <RpgHexButton watermark={false}>No watermark</RpgHexButton>
+      </>
+    );
+
+    const pattern = container.querySelector('pattern[data-watermark="double-diamond"]');
+    expect(pattern).toHaveAttribute("width", "72");
+    expect(pattern?.querySelector('[data-layer="outer"]')).toHaveAttribute("opacity", "0.24");
+    expect(pattern?.querySelector('[data-layer="inner"]')).toHaveAttribute("opacity", "0.12");
+    expect(container.querySelector(".abyssa-hex-button pattern[data-watermark]")).not.toBeInTheDocument();
   });
 
   it("renders the new reference button geometries with collision-free SVG ids", () => {
@@ -254,7 +270,7 @@ describe("Abyssa controls", () => {
 
   it("reports character selection changes", () => {
     const onValueChange = vi.fn();
-    render(
+    const { container } = render(
       <CharacterSelector
         items={[
           { id: "one", number: "01", label: "角色一" },
@@ -268,5 +284,6 @@ describe("Abyssa controls", () => {
     fireEvent.click(screen.getByRole("button", { name: "角色二" }));
     expect(onValueChange).toHaveBeenCalledWith("two");
     expect(screen.getByRole("button", { name: "角色二" })).toHaveAttribute("aria-pressed", "true");
+    expect(container.querySelector("pattern[data-watermark]")).not.toBeInTheDocument();
   });
 });
