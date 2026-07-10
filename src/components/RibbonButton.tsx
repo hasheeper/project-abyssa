@@ -125,12 +125,12 @@ export const RibbonButton = forwardRef<HTMLButtonElement, RibbonButtonProps>(
             strokeWidth="2"
           />
           <g>
-            <path d="M8 34 L18 24 L28 34 L18 44 Z" fill="var(--abyssa-frame-dark)" />
-            <path d="M12 34 L18 28 L24 34 L18 40 Z" fill="var(--abyssa-frame-light)" />
-            <path d="M14 34 L18 30 L22 34 L18 38 Z" fill="var(--abyssa-frame-dark)" />
-            <path d="M792 34 L802 24 L812 34 L802 44 Z" fill="var(--abyssa-frame-dark)" />
-            <path d="M796 34 L802 28 L808 34 L802 40 Z" fill="var(--abyssa-frame-light)" />
-            <path d="M798 34 L802 30 L806 34 L802 38 Z" fill="var(--abyssa-frame-dark)" />
+            <path d="M11 34 L24 21 L37 34 L24 47 Z" fill="var(--abyssa-frame-dark)" />
+            <path d="M16 34 L24 26 L32 34 L24 42 Z" fill="var(--abyssa-frame-light)" />
+            <path d="M19 34 L24 29 L29 34 L24 39 Z" fill="var(--abyssa-frame-dark)" />
+            <path d="M783 34 L796 21 L809 34 L796 47 Z" fill="var(--abyssa-frame-dark)" />
+            <path d="M788 34 L796 26 L804 34 L796 42 Z" fill="var(--abyssa-frame-light)" />
+            <path d="M791 34 L796 29 L801 34 L796 39 Z" fill="var(--abyssa-frame-dark)" />
           </g>
         </svg>
         <span className="abyssa-ribbon-button__label">
