@@ -22,7 +22,9 @@
   ],
   "scripts": {
     "dev": "vite",
+    "preview:components": "npm run build:preview && vite static-preview",
     "build": "vite build && tsc -p tsconfig.build.json",
+    "build:preview": "node scripts/build-static-preview.mjs",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",

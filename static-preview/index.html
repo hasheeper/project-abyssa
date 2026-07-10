@@ -1,0 +1,4116 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#111717" />
+    <meta name="description" content="Abyssa UI 静态组件预览" />
+    <title>Abyssa UI Components</title>
+  </head>
+  <body>
+    <div id="root">
+<div class="abyssa-theme static-catalog" data-accent="teal" data-density="comfortable">
+<header class="catalog-bar">
+<a class="catalog-bar__brand" href="#structure">ABYSSA UI</a>
+<nav aria-label="组件分类">
+<a href="#structure">结构</a>
+<a href="#actions">操作</a>
+<a href="#inputs">输入</a>
+<a href="#status">状态</a>
+<a href="#screens">完整界面</a>
+</nav>
+</header>
+<main class="catalog-main">
+<section class="catalog-section" id="structure">
+<header class="catalog-section__header">
+<h2>结构</h2>
+<span aria-hidden="true">
+</span>
+</header>
+<div class="catalog-grid">
+<article class="catalog-card" data-wide="true" id="rpgheader">
+<header class="catalog-card__header">
+<h3>RpgHeader</h3>
+<a href="#rpgheader">#</a>
+</header>
+<div class="catalog-card__stage">
+<div class="stack headers">
+<header class="abyssa-rpg-header" data-variant="dark">
+<svg viewBox="0 0 660 116" role="img" aria-label="CHARACTER STATUS">
+<defs>
+<pattern id="abyssa-header-pattern-_R_666_" width="42" height="42" patternUnits="userSpaceOnUse" data-watermark="double-diamond">
+<path d="M21 0 L42 21 L21 42 L0 21 Z" fill="var(--abyssa-header-pattern)" opacity="0.7" data-layer="outer">
+</path>
+<path d="M21 10 L32 21 L21 32 L10 21 Z" fill="rgb(255 255 255 / 3.5%)" opacity="0.6" data-layer="inner">
+</path>
+</pattern>
+<linearGradient id="abyssa-header-fade-_R_666_" x1="0" y1="0" x2="1" y2="0">
+<stop offset="0%" stop-color="white" stop-opacity="1">
+</stop>
+<stop offset="24%" stop-color="white" stop-opacity=".55">
+</stop>
+<stop offset="39%" stop-color="white" stop-opacity="0">
+</stop>
+<stop offset="61%" stop-color="white" stop-opacity="0">
+</stop>
+<stop offset="76%" stop-color="white" stop-opacity=".55">
+</stop>
+<stop offset="100%" stop-color="white" stop-opacity="1">
+</stop>
+</linearGradient>
+<mask id="abyssa-header-mask-_R_666_">
+<rect width="660" height="116" fill="url(#abyssa-header-fade-_R_666_)">
+</rect>
+</mask>
+<clipPath id="abyssa-header-clip-_R_666_">
+<path d="M18 9 H642 C624 14 612 24 603 40 C596 52 593 63 592 73 H383 L330 103 L277 73 H68 C67 62 64 51 57 39 C48 23 36 14 18 9 Z">
+</path>
+</clipPath>
+</defs>
+<path d="M18 13 H642 C624 18 612 28 603 44 C596 56 593 67 592 77 H383 L330 107 L277 77 H68 C67 66 64 55 57 43 C48 27 36 18 18 13 Z" fill="#0d1212" opacity=".72">
+</path>
+<path d="M18 9 H642 C624 14 612 24 603 40 C596 52 593 63 592 73 H383 L330 103 L277 73 H68 C67 62 64 51 57 39 C48 23 36 14 18 9 Z" fill="var(--abyssa-header-fill)">
+</path>
+<rect x="12" y="6" width="636" height="102" fill="url(#abyssa-header-pattern-_R_666_)" mask="url(#abyssa-header-mask-_R_666_)" clip-path="url(#abyssa-header-clip-_R_666_)">
+</rect>
+<path d="M18 9 H642 C624 14 612 24 603 40 C596 52 593 63 592 73 H383 L330 103 L277 73 H68 C67 62 64 51 57 39 C48 23 36 14 18 9 Z" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="7" stroke-linejoin="miter">
+</path>
+<path d="M18 9 H642 C624 14 612 24 603 40 C596 52 593 63 592 73 H383 L330 103 L277 73 H68 C67 62 64 51 57 39 C48 23 36 14 18 9 Z" fill="none" stroke="var(--abyssa-header-middle-frame)" stroke-width="4" stroke-linejoin="miter">
+</path>
+<path d="M18 9 H642 C624 14 612 24 603 40 C596 52 593 63 592 73 H383 L330 103 L277 73 H68 C67 62 64 51 57 39 C48 23 36 14 18 9 Z" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2" stroke-linejoin="miter">
+</path>
+<path d="M39 15 H621" fill="none" stroke="var(--abyssa-header-ornament)" stroke-width="1" opacity=".72">
+</path>
+<path d="M39 15 C52 22 61 33 67 47 C71 56 73 64 73 68" fill="none" stroke="var(--abyssa-header-ornament)" stroke-width="1.25" opacity=".88">
+</path>
+<path d="M621 15 C608 22 599 33 593 47 C589 56 587 64 587 68" fill="none" stroke="var(--abyssa-header-ornament)" stroke-width="1.25" opacity=".88">
+</path>
+<path d="M73 68 H283 L330 94 L377 68 H587" fill="none" stroke="var(--abyssa-header-ornament)" stroke-width="1.25" stroke-linejoin="miter" opacity=".9">
+</path>
+<path d="M293 72 L330 92 L367 72" fill="none" stroke="var(--abyssa-header-ornament)" stroke-width=".8" stroke-linejoin="miter" opacity=".62">
+</path>
+<g fill="var(--abyssa-header-ornament)">
+<circle cx="91" cy="15" r="1.25">
+</circle>
+<circle cx="569" cy="15" r="1.25">
+</circle>
+<circle cx="73" cy="68" r="1.25">
+</circle>
+<circle cx="587" cy="68" r="1.25">
+</circle>
+<path d="M316 80 L320 84 L316 88 L312 84 Z">
+</path>
+<path d="M330 88 L334 92 L330 96 L326 92 Z">
+</path>
+<path d="M344 80 L348 84 L344 88 L340 84 Z">
+</path>
+</g>
+<text x="330" y="47" fill="var(--abyssa-header-text)" font-family="var(--abyssa-font-display)" font-size="24" font-weight="500" letter-spacing="2.5" text-anchor="middle" dominant-baseline="middle">CHARACTER STATUS</text>
+</svg>
+</header>
+<header class="abyssa-rpg-header" data-variant="teal">
+<svg viewBox="0 0 660 116" role="img" aria-label="SYSTEM CONFIG">
+<defs>
+<pattern id="abyssa-header-pattern-_R_a66_" width="42" height="42" patternUnits="userSpaceOnUse" data-watermark="double-diamond">
+<path d="M21 0 L42 21 L21 42 L0 21 Z" fill="var(--abyssa-header-pattern)" opacity="0.7" data-layer="outer">
+</path>
+<path d="M21 10 L32 21 L21 32 L10 21 Z" fill="rgb(255 255 255 / 3.5%)" opacity="0.6" data-layer="inner">
+</path>
+</pattern>
+<linearGradient id="abyssa-header-fade-_R_a66_" x1="0" y1="0" x2="1" y2="0">
+<stop offset="0%" stop-color="white" stop-opacity="1">
+</stop>
+<stop offset="24%" stop-color="white" stop-opacity=".55">
+</stop>
+<stop offset="39%" stop-color="white" stop-opacity="0">
+</stop>
+<stop offset="61%" stop-color="white" stop-opacity="0">
+</stop>
+<stop offset="76%" stop-color="white" stop-opacity=".55">
+</stop>
+<stop offset="100%" stop-color="white" stop-opacity="1">
+</stop>
+</linearGradient>
+<mask id="abyssa-header-mask-_R_a66_">
+<rect width="660" height="116" fill="url(#abyssa-header-fade-_R_a66_)">
+</rect>
+</mask>
+<clipPath id="abyssa-header-clip-_R_a66_">
+<path d="M18 9 H642 C624 14 612 24 603 40 C596 52 593 63 592 73 H383 L330 103 L277 73 H68 C67 62 64 51 57 39 C48 23 36 14 18 9 Z">
+</path>
+</clipPath>
+</defs>
+<path d="M18 13 H642 C624 18 612 28 603 44 C596 56 593 67 592 77 H383 L330 107 L277 77 H68 C67 66 64 55 57 43 C48 27 36 18 18 13 Z" fill="#0d1212" opacity=".72">
+</path>
+<path d="M18 9 H642 C624 14 612 24 603 40 C596 52 593 63 592 73 H383 L330 103 L277 73 H68 C67 62 64 51 57 39 C48 23 36 14 18 9 Z" fill="var(--abyssa-header-fill)">
+</path>
+<rect x="12" y="6" width="636" height="102" fill="url(#abyssa-header-pattern-_R_a66_)" mask="url(#abyssa-header-mask-_R_a66_)" clip-path="url(#abyssa-header-clip-_R_a66_)">
+</rect>
+<path d="M18 9 H642 C624 14 612 24 603 40 C596 52 593 63 592 73 H383 L330 103 L277 73 H68 C67 62 64 51 57 39 C48 23 36 14 18 9 Z" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="7" stroke-linejoin="miter">
+</path>
+<path d="M18 9 H642 C624 14 612 24 603 40 C596 52 593 63 592 73 H383 L330 103 L277 73 H68 C67 62 64 51 57 39 C48 23 36 14 18 9 Z" fill="none" stroke="var(--abyssa-header-middle-frame)" stroke-width="4" stroke-linejoin="miter">
+</path>
+<path d="M18 9 H642 C624 14 612 24 603 40 C596 52 593 63 592 73 H383 L330 103 L277 73 H68 C67 62 64 51 57 39 C48 23 36 14 18 9 Z" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2" stroke-linejoin="miter">
+</path>
+<path d="M39 15 H621" fill="none" stroke="var(--abyssa-header-ornament)" stroke-width="1" opacity=".72">
+</path>
+<path d="M39 15 C52 22 61 33 67 47 C71 56 73 64 73 68" fill="none" stroke="var(--abyssa-header-ornament)" stroke-width="1.25" opacity=".88">
+</path>
+<path d="M621 15 C608 22 599 33 593 47 C589 56 587 64 587 68" fill="none" stroke="var(--abyssa-header-ornament)" stroke-width="1.25" opacity=".88">
+</path>
+<path d="M73 68 H283 L330 94 L377 68 H587" fill="none" stroke="var(--abyssa-header-ornament)" stroke-width="1.25" stroke-linejoin="miter" opacity=".9">
+</path>
+<path d="M293 72 L330 92 L367 72" fill="none" stroke="var(--abyssa-header-ornament)" stroke-width=".8" stroke-linejoin="miter" opacity=".62">
+</path>
+<g fill="var(--abyssa-header-ornament)">
+<circle cx="91" cy="15" r="1.25">
+</circle>
+<circle cx="569" cy="15" r="1.25">
+</circle>
+<circle cx="73" cy="68" r="1.25">
+</circle>
+<circle cx="587" cy="68" r="1.25">
+</circle>
+<path d="M316 80 L320 84 L316 88 L312 84 Z">
+</path>
+<path d="M330 88 L334 92 L330 96 L326 92 Z">
+</path>
+<path d="M344 80 L348 84 L344 88 L340 84 Z">
+</path>
+</g>
+<text x="330" y="47" fill="var(--abyssa-header-text)" font-family="var(--abyssa-font-display)" font-size="24" font-weight="500" letter-spacing="2.5" text-anchor="middle" dominant-baseline="middle">SYSTEM CONFIG</text>
+</svg>
+</header>
+</div>
+</div>
+</article>
+<article class="catalog-card" data-wide="true" id="rpgframe">
+<header class="catalog-card__header">
+<h3>RpgFrame</h3>
+<a href="#rpgframe">#</a>
+</header>
+<div class="catalog-card__stage">
+<div class="frame-grid">
+<div class="abyssa-frame" data-variant="dark" data-padding="sm" data-ornamented="true">
+<span class="abyssa-frame__ornaments" aria-hidden="true">
+<i data-corner="tl">
+</i>
+<i data-corner="tr">
+</i>
+<i data-corner="bl">
+</i>
+<i data-corner="br">
+</i>
+</span>
+<svg class="abyssa-diamond-watermark abyssa-frame__watermark" aria-hidden="true" focusable="false" data-watermark="double-diamond">
+<defs>
+<pattern id="abyssa-diamond-watermark-_R_16a6_" width="48" height="48" patternUnits="userSpaceOnUse" data-watermark="double-diamond">
+<path d="M24 0 L48 24 L24 48 L0 24 Z" fill="var(--abyssa-watermark-outer, rgb(255 255 255 / 3.5%))" opacity="0.5" data-layer="outer">
+</path>
+<path d="M24 11.52 L36.48 24 L24 36.48 L11.52 24 Z" fill="var(--abyssa-watermark-inner, rgb(255 255 255 / 1.8%))" opacity="0.4" data-layer="inner">
+</path>
+</pattern>
+</defs>
+<rect width="100%" height="100%" fill="url(#abyssa-diamond-watermark-_R_16a6_)">
+</rect>
+</svg>
+<div class="abyssa-frame__content">Dark</div>
+</div>
+<div class="abyssa-frame" data-variant="teal" data-padding="sm" data-ornamented="true">
+<span class="abyssa-frame__ornaments" aria-hidden="true">
+<i data-corner="tl">
+</i>
+<i data-corner="tr">
+</i>
+<i data-corner="bl">
+</i>
+<i data-corner="br">
+</i>
+</span>
+<svg class="abyssa-diamond-watermark abyssa-frame__watermark" aria-hidden="true" focusable="false" data-watermark="double-diamond">
+<defs>
+<pattern id="abyssa-diamond-watermark-_R_1aa6_" width="48" height="48" patternUnits="userSpaceOnUse" data-watermark="double-diamond">
+<path d="M24 0 L48 24 L24 48 L0 24 Z" fill="var(--abyssa-watermark-outer, rgb(255 255 255 / 3.5%))" opacity="0.5" data-layer="outer">
+</path>
+<path d="M24 11.52 L36.48 24 L24 36.48 L11.52 24 Z" fill="var(--abyssa-watermark-inner, rgb(255 255 255 / 1.8%))" opacity="0.4" data-layer="inner">
+</path>
+</pattern>
+</defs>
+<rect width="100%" height="100%" fill="url(#abyssa-diamond-watermark-_R_1aa6_)">
+</rect>
+</svg>
+<div class="abyssa-frame__content">Teal</div>
+</div>
+<div class="abyssa-frame" data-variant="light" data-padding="sm" data-ornamented="true">
+<span class="abyssa-frame__ornaments" aria-hidden="true">
+<i data-corner="tl">
+</i>
+<i data-corner="tr">
+</i>
+<i data-corner="bl">
+</i>
+<i data-corner="br">
+</i>
+</span>
+<svg class="abyssa-diamond-watermark abyssa-frame__watermark" aria-hidden="true" focusable="false" data-watermark="double-diamond">
+<defs>
+<pattern id="abyssa-diamond-watermark-_R_1ea6_" width="48" height="48" patternUnits="userSpaceOnUse" data-watermark="double-diamond">
+<path d="M24 0 L48 24 L24 48 L0 24 Z" fill="var(--abyssa-watermark-outer, rgb(255 255 255 / 3.5%))" opacity="0.5" data-layer="outer">
+</path>
+<path d="M24 11.52 L36.48 24 L24 36.48 L11.52 24 Z" fill="var(--abyssa-watermark-inner, rgb(255 255 255 / 1.8%))" opacity="0.4" data-layer="inner">
+</path>
+</pattern>
+</defs>
+<rect width="100%" height="100%" fill="url(#abyssa-diamond-watermark-_R_1ea6_)">
+</rect>
+</svg>
+<div class="abyssa-frame__content">Light</div>
+</div>
+</div>
+</div>
+</article>
+<article class="catalog-card" id="diamondwatermark">
+<header class="catalog-card__header">
+<h3>DiamondWatermark</h3>
+<a href="#diamondwatermark">#</a>
+</header>
+<div class="catalog-card__stage">
+<div class="watermark-sample">
+<svg class="abyssa-diamond-watermark" aria-hidden="true" focusable="false" data-watermark="double-diamond">
+<defs>
+<pattern id="abyssa-diamond-watermark-_R_6e6_" width="50" height="50" patternUnits="userSpaceOnUse" data-watermark="double-diamond">
+<path d="M25 0 L50 25 L25 50 L0 25 Z" fill="rgb(255 255 255 / 8%)" opacity="1" data-layer="outer">
+</path>
+<path d="M25 12 L38 25 L25 38 L12 25 Z" fill="rgb(255 255 255 / 4%)" opacity="1" data-layer="inner">
+</path>
+</pattern>
+</defs>
+<rect width="100%" height="100%" fill="url(#abyssa-diamond-watermark-_R_6e6_)">
+</rect>
+</svg>
+<span>DOUBLE DIAMOND</span>
+</div>
+</div>
+</article>
+<article class="catalog-card" data-wide="true" id="rpgpanel">
+<header class="catalog-card__header">
+<h3>RpgPanel</h3>
+<a href="#rpgpanel">#</a>
+</header>
+<div class="catalog-card__stage">
+<div class="panel-grid">
+<button type="button" class="abyssa-panel-tile" data-variant="dark" aria-pressed="false" aria-label="选择面板 01">
+<svg viewBox="0 0 180 180" aria-hidden="true">
+<defs>
+<pattern id="abyssa-panel-watermark-_R_6i6_" width="48" height="48" patternUnits="userSpaceOnUse" data-watermark="double-diamond">
+<path d="M24 0 L48 24 L24 48 L0 24 Z" fill="var(--abyssa-tile-pattern-outer)" opacity="0.68" data-layer="outer">
+</path>
+<path d="M24 11.52 L36.48 24 L24 36.48 L11.52 24 Z" fill="var(--abyssa-tile-pattern-inner)" opacity="0.58" data-layer="inner">
+</path>
+</pattern>
+</defs>
+<rect x="8" y="9.5" width="164" height="164" fill="#0d1212" opacity=".52">
+</rect>
+<rect x="8" y="7" width="164" height="164" fill="var(--abyssa-tile-fill)">
+</rect>
+<rect x="8" y="7" width="164" height="164" fill="url(#abyssa-panel-watermark-_R_6i6_)">
+</rect>
+<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="7">
+</rect>
+<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-tile-middle)" stroke-width="4">
+</rect>
+<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2">
+</rect>
+<rect x="15" y="14" width="150" height="150" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1.25" opacity=".94">
+</rect>
+<rect x="18" y="17" width="144" height="144" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width=".7" opacity=".55">
+</rect>
+<g fill="none" stroke="var(--abyssa-tile-ornament)" stroke-linecap="square">
+<path d="M16 39 V16 H39 M21 34 V21 H34" stroke-width="2">
+</path>
+<path d="M141 16 H164 V39 M146 21 H159 V34" stroke-width="2">
+</path>
+<path d="M16 141 V164 H39 M21 146 V159 H34" stroke-width="2">
+</path>
+<path d="M141 164 H164 V141 M146 159 H159 V146" stroke-width="2">
+</path>
+</g>
+<g fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1" opacity=".9">
+<path d="M25 16 H45 M16 25 V45 M135 16 H155 M164 25 V45">
+</path>
+<path d="M25 164 H45 M16 135 V155 M135 164 H155 M164 135 V155">
+</path>
+</g>
+<g fill="var(--abyssa-tile-ornament)">
+<circle cx="24" cy="24" r="1.75">
+</circle>
+<circle cx="156" cy="24" r="1.75">
+</circle>
+<circle cx="24" cy="156" r="1.75">
+</circle>
+<circle cx="156" cy="156" r="1.75">
+</circle>
+<circle cx="48" cy="17" r="1">
+</circle>
+<circle cx="90" cy="17" r="1">
+</circle>
+<circle cx="132" cy="17" r="1">
+</circle>
+<circle cx="48" cy="163" r="1">
+</circle>
+<circle cx="90" cy="163" r="1">
+</circle>
+<circle cx="132" cy="163" r="1">
+</circle>
+<circle cx="17" cy="64" r="1">
+</circle>
+<circle cx="17" cy="116" r="1">
+</circle>
+<circle cx="163" cy="64" r="1">
+</circle>
+<circle cx="163" cy="116" r="1">
+</circle>
+</g>
+</svg>
+<span class="abyssa-panel-tile__content">01</span>
+</button>
+<button type="button" class="abyssa-panel-tile" data-variant="gray" aria-pressed="false" aria-label="选择面板 02">
+<svg viewBox="0 0 180 180" aria-hidden="true">
+<defs>
+<pattern id="abyssa-panel-watermark-_R_ai6_" width="48" height="48" patternUnits="userSpaceOnUse" data-watermark="double-diamond">
+<path d="M24 0 L48 24 L24 48 L0 24 Z" fill="var(--abyssa-tile-pattern-outer)" opacity="0.68" data-layer="outer">
+</path>
+<path d="M24 11.52 L36.48 24 L24 36.48 L11.52 24 Z" fill="var(--abyssa-tile-pattern-inner)" opacity="0.58" data-layer="inner">
+</path>
+</pattern>
+</defs>
+<rect x="8" y="9.5" width="164" height="164" fill="#0d1212" opacity=".52">
+</rect>
+<rect x="8" y="7" width="164" height="164" fill="var(--abyssa-tile-fill)">
+</rect>
+<rect x="8" y="7" width="164" height="164" fill="url(#abyssa-panel-watermark-_R_ai6_)">
+</rect>
+<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="7">
+</rect>
+<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-tile-middle)" stroke-width="4">
+</rect>
+<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2">
+</rect>
+<rect x="15" y="14" width="150" height="150" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1.25" opacity=".94">
+</rect>
+<rect x="18" y="17" width="144" height="144" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width=".7" opacity=".55">
+</rect>
+<g fill="none" stroke="var(--abyssa-tile-ornament)" stroke-linecap="square">
+<path d="M16 39 V16 H39 M21 34 V21 H34" stroke-width="2">
+</path>
+<path d="M141 16 H164 V39 M146 21 H159 V34" stroke-width="2">
+</path>
+<path d="M16 141 V164 H39 M21 146 V159 H34" stroke-width="2">
+</path>
+<path d="M141 164 H164 V141 M146 159 H159 V146" stroke-width="2">
+</path>
+</g>
+<g fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1" opacity=".9">
+<path d="M25 16 H45 M16 25 V45 M135 16 H155 M164 25 V45">
+</path>
+<path d="M25 164 H45 M16 135 V155 M135 164 H155 M164 135 V155">
+</path>
+</g>
+<g fill="var(--abyssa-tile-ornament)">
+<circle cx="24" cy="24" r="1.75">
+</circle>
+<circle cx="156" cy="24" r="1.75">
+</circle>
+<circle cx="24" cy="156" r="1.75">
+</circle>
+<circle cx="156" cy="156" r="1.75">
+</circle>
+<circle cx="48" cy="17" r="1">
+</circle>
+<circle cx="90" cy="17" r="1">
+</circle>
+<circle cx="132" cy="17" r="1">
+</circle>
+<circle cx="48" cy="163" r="1">
+</circle>
+<circle cx="90" cy="163" r="1">
+</circle>
+<circle cx="132" cy="163" r="1">
+</circle>
+<circle cx="17" cy="64" r="1">
+</circle>
+<circle cx="17" cy="116" r="1">
+</circle>
+<circle cx="163" cy="64" r="1">
+</circle>
+<circle cx="163" cy="116" r="1">
+</circle>
+</g>
+</svg>
+<span class="abyssa-panel-tile__content">02</span>
+</button>
+<button type="button" class="abyssa-panel-tile" data-variant="deep" aria-pressed="false" aria-label="选择面板 03">
+<svg viewBox="0 0 180 180" aria-hidden="true">
+<defs>
+<pattern id="abyssa-panel-watermark-_R_ei6_" width="48" height="48" patternUnits="userSpaceOnUse" data-watermark="double-diamond">
+<path d="M24 0 L48 24 L24 48 L0 24 Z" fill="var(--abyssa-tile-pattern-outer)" opacity="0.68" data-layer="outer">
+</path>
+<path d="M24 11.52 L36.48 24 L24 36.48 L11.52 24 Z" fill="var(--abyssa-tile-pattern-inner)" opacity="0.58" data-layer="inner">
+</path>
+</pattern>
+</defs>
+<rect x="8" y="9.5" width="164" height="164" fill="#0d1212" opacity=".52">
+</rect>
+<rect x="8" y="7" width="164" height="164" fill="var(--abyssa-tile-fill)">
+</rect>
+<rect x="8" y="7" width="164" height="164" fill="url(#abyssa-panel-watermark-_R_ei6_)">
+</rect>
+<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="7">
+</rect>
+<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-tile-middle)" stroke-width="4">
+</rect>
+<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2">
+</rect>
+<rect x="15" y="14" width="150" height="150" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1.25" opacity=".94">
+</rect>
+<rect x="18" y="17" width="144" height="144" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width=".7" opacity=".55">
+</rect>
+<g fill="none" stroke="var(--abyssa-tile-ornament)" stroke-linecap="square">
+<path d="M16 39 V16 H39 M21 34 V21 H34" stroke-width="2">
+</path>
+<path d="M141 16 H164 V39 M146 21 H159 V34" stroke-width="2">
+</path>
+<path d="M16 141 V164 H39 M21 146 V159 H34" stroke-width="2">
+</path>
+<path d="M141 164 H164 V141 M146 159 H159 V146" stroke-width="2">
+</path>
+</g>
+<g fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1" opacity=".9">
+<path d="M25 16 H45 M16 25 V45 M135 16 H155 M164 25 V45">
+</path>
+<path d="M25 164 H45 M16 135 V155 M135 164 H155 M164 135 V155">
+</path>
+</g>
+<g fill="var(--abyssa-tile-ornament)">
+<circle cx="24" cy="24" r="1.75">
+</circle>
+<circle cx="156" cy="24" r="1.75">
+</circle>
+<circle cx="24" cy="156" r="1.75">
+</circle>
+<circle cx="156" cy="156" r="1.75">
+</circle>
+<circle cx="48" cy="17" r="1">
+</circle>
+<circle cx="90" cy="17" r="1">
+</circle>
+<circle cx="132" cy="17" r="1">
+</circle>
+<circle cx="48" cy="163" r="1">
+</circle>
+<circle cx="90" cy="163" r="1">
+</circle>
+<circle cx="132" cy="163" r="1">
+</circle>
+<circle cx="17" cy="64" r="1">
+</circle>
+<circle cx="17" cy="116" r="1">
+</circle>
+<circle cx="163" cy="64" r="1">
+</circle>
+<circle cx="163" cy="116" r="1">
+</circle>
+</g>
+</svg>
+<span class="abyssa-panel-tile__content">03</span>
+</button>
+<button type="button" class="abyssa-panel-tile" data-variant="teal" data-selected="true" aria-pressed="true" aria-label="选择面板 04">
+<svg viewBox="0 0 180 180" aria-hidden="true">
+<defs>
+<pattern id="abyssa-panel-watermark-_R_ii6_" width="48" height="48" patternUnits="userSpaceOnUse" data-watermark="double-diamond">
+<path d="M24 0 L48 24 L24 48 L0 24 Z" fill="var(--abyssa-tile-pattern-outer)" opacity="0.68" data-layer="outer">
+</path>
+<path d="M24 11.52 L36.48 24 L24 36.48 L11.52 24 Z" fill="var(--abyssa-tile-pattern-inner)" opacity="0.58" data-layer="inner">
+</path>
+</pattern>
+</defs>
+<rect x="8" y="9.5" width="164" height="164" fill="#0d1212" opacity=".52">
+</rect>
+<rect x="8" y="7" width="164" height="164" fill="var(--abyssa-tile-fill)">
+</rect>
+<rect x="8" y="7" width="164" height="164" fill="url(#abyssa-panel-watermark-_R_ii6_)">
+</rect>
+<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="7">
+</rect>
+<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-tile-middle)" stroke-width="4">
+</rect>
+<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2">
+</rect>
+<rect x="15" y="14" width="150" height="150" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1.25" opacity=".94">
+</rect>
+<rect x="18" y="17" width="144" height="144" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width=".7" opacity=".55">
+</rect>
+<g fill="none" stroke="var(--abyssa-tile-ornament)" stroke-linecap="square">
+<path d="M16 39 V16 H39 M21 34 V21 H34" stroke-width="2">
+</path>
+<path d="M141 16 H164 V39 M146 21 H159 V34" stroke-width="2">
+</path>
+<path d="M16 141 V164 H39 M21 146 V159 H34" stroke-width="2">
+</path>
+<path d="M141 164 H164 V141 M146 159 H159 V146" stroke-width="2">
+</path>
+</g>
+<g fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1" opacity=".9">
+<path d="M25 16 H45 M16 25 V45 M135 16 H155 M164 25 V45">
+</path>
+<path d="M25 164 H45 M16 135 V155 M135 164 H155 M164 135 V155">
+</path>
+</g>
+<g fill="var(--abyssa-tile-ornament)">
+<circle cx="24" cy="24" r="1.75">
+</circle>
+<circle cx="156" cy="24" r="1.75">
+</circle>
+<circle cx="24" cy="156" r="1.75">
+</circle>
+<circle cx="156" cy="156" r="1.75">
+</circle>
+<circle cx="48" cy="17" r="1">
+</circle>
+<circle cx="90" cy="17" r="1">
+</circle>
+<circle cx="132" cy="17" r="1">
+</circle>
+<circle cx="48" cy="163" r="1">
+</circle>
+<circle cx="90" cy="163" r="1">
+</circle>
+<circle cx="132" cy="163" r="1">
+</circle>
+<circle cx="17" cy="64" r="1">
+</circle>
+<circle cx="17" cy="116" r="1">
+</circle>
+<circle cx="163" cy="64" r="1">
+</circle>
+<circle cx="163" cy="116" r="1">
+</circle>
+</g>
+</svg>
+<span class="abyssa-panel-tile__content">04</span>
+<span class="abyssa-panel-tile__marker" aria-hidden="true">
+</span>
+</button>
+<button type="button" class="abyssa-panel-tile" data-variant="teal-outline" aria-pressed="false" aria-label="选择面板 05">
+<svg viewBox="0 0 180 180" aria-hidden="true">
+<defs>
+<pattern id="abyssa-panel-watermark-_R_mi6_" width="48" height="48" patternUnits="userSpaceOnUse" data-watermark="double-diamond">
+<path d="M24 0 L48 24 L24 48 L0 24 Z" fill="var(--abyssa-tile-pattern-outer)" opacity="0.68" data-layer="outer">
+</path>
+<path d="M24 11.52 L36.48 24 L24 36.48 L11.52 24 Z" fill="var(--abyssa-tile-pattern-inner)" opacity="0.58" data-layer="inner">
+</path>
+</pattern>
+</defs>
+<rect x="8" y="9.5" width="164" height="164" fill="#0d1212" opacity=".52">
+</rect>
+<rect x="8" y="7" width="164" height="164" fill="var(--abyssa-tile-fill)">
+</rect>
+<rect x="8" y="7" width="164" height="164" fill="url(#abyssa-panel-watermark-_R_mi6_)">
+</rect>
+<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="7">
+</rect>
+<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-tile-middle)" stroke-width="4">
+</rect>
+<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2">
+</rect>
+<rect x="15" y="14" width="150" height="150" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1.25" opacity=".94">
+</rect>
+<rect x="18" y="17" width="144" height="144" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width=".7" opacity=".55">
+</rect>
+<g fill="none" stroke="var(--abyssa-tile-ornament)" stroke-linecap="square">
+<path d="M16 39 V16 H39 M21 34 V21 H34" stroke-width="2">
+</path>
+<path d="M141 16 H164 V39 M146 21 H159 V34" stroke-width="2">
+</path>
+<path d="M16 141 V164 H39 M21 146 V159 H34" stroke-width="2">
+</path>
+<path d="M141 164 H164 V141 M146 159 H159 V146" stroke-width="2">
+</path>
+</g>
+<g fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1" opacity=".9">
+<path d="M25 16 H45 M16 25 V45 M135 16 H155 M164 25 V45">
+</path>
+<path d="M25 164 H45 M16 135 V155 M135 164 H155 M164 135 V155">
+</path>
+</g>
+<g fill="var(--abyssa-tile-ornament)">
+<circle cx="24" cy="24" r="1.75">
+</circle>
+<circle cx="156" cy="24" r="1.75">
+</circle>
+<circle cx="24" cy="156" r="1.75">
+</circle>
+<circle cx="156" cy="156" r="1.75">
+</circle>
+<circle cx="48" cy="17" r="1">
+</circle>
+<circle cx="90" cy="17" r="1">
+</circle>
+<circle cx="132" cy="17" r="1">
+</circle>
+<circle cx="48" cy="163" r="1">
+</circle>
+<circle cx="90" cy="163" r="1">
+</circle>
+<circle cx="132" cy="163" r="1">
+</circle>
+<circle cx="17" cy="64" r="1">
+</circle>
+<circle cx="17" cy="116" r="1">
+</circle>
+<circle cx="163" cy="64" r="1">
+</circle>
+<circle cx="163" cy="116" r="1">
+</circle>
+</g>
+</svg>
+<span class="abyssa-panel-tile__content">05</span>
+</button>
+<button type="button" class="abyssa-panel-tile" data-variant="light" aria-pressed="false" aria-label="选择面板 06">
+<svg viewBox="0 0 180 180" aria-hidden="true">
+<defs>
+<pattern id="abyssa-panel-watermark-_R_qi6_" width="48" height="48" patternUnits="userSpaceOnUse" data-watermark="double-diamond">
+<path d="M24 0 L48 24 L24 48 L0 24 Z" fill="var(--abyssa-tile-pattern-outer)" opacity="0.68" data-layer="outer">
+</path>
+<path d="M24 11.52 L36.48 24 L24 36.48 L11.52 24 Z" fill="var(--abyssa-tile-pattern-inner)" opacity="0.58" data-layer="inner">
+</path>
+</pattern>
+</defs>
+<rect x="8" y="9.5" width="164" height="164" fill="#0d1212" opacity=".52">
+</rect>
+<rect x="8" y="7" width="164" height="164" fill="var(--abyssa-tile-fill)">
+</rect>
+<rect x="8" y="7" width="164" height="164" fill="url(#abyssa-panel-watermark-_R_qi6_)">
+</rect>
+<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="7">
+</rect>
+<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-tile-middle)" stroke-width="4">
+</rect>
+<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2">
+</rect>
+<rect x="15" y="14" width="150" height="150" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1.25" opacity=".94">
+</rect>
+<rect x="18" y="17" width="144" height="144" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width=".7" opacity=".55">
+</rect>
+<g fill="none" stroke="var(--abyssa-tile-ornament)" stroke-linecap="square">
+<path d="M16 39 V16 H39 M21 34 V21 H34" stroke-width="2">
+</path>
+<path d="M141 16 H164 V39 M146 21 H159 V34" stroke-width="2">
+</path>
+<path d="M16 141 V164 H39 M21 146 V159 H34" stroke-width="2">
+</path>
+<path d="M141 164 H164 V141 M146 159 H159 V146" stroke-width="2">
+</path>
+</g>
+<g fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1" opacity=".9">
+<path d="M25 16 H45 M16 25 V45 M135 16 H155 M164 25 V45">
+</path>
+<path d="M25 164 H45 M16 135 V155 M135 164 H155 M164 135 V155">
+</path>
+</g>
+<g fill="var(--abyssa-tile-ornament)">
+<circle cx="24" cy="24" r="1.75">
+</circle>
+<circle cx="156" cy="24" r="1.75">
+</circle>
+<circle cx="24" cy="156" r="1.75">
+</circle>
+<circle cx="156" cy="156" r="1.75">
+</circle>
+<circle cx="48" cy="17" r="1">
+</circle>
+<circle cx="90" cy="17" r="1">
+</circle>
+<circle cx="132" cy="17" r="1">
+</circle>
+<circle cx="48" cy="163" r="1">
+</circle>
+<circle cx="90" cy="163" r="1">
+</circle>
+<circle cx="132" cy="163" r="1">
+</circle>
+<circle cx="17" cy="64" r="1">
+</circle>
+<circle cx="17" cy="116" r="1">
+</circle>
+<circle cx="163" cy="64" r="1">
+</circle>
+<circle cx="163" cy="116" r="1">
+</circle>
+</g>
+</svg>
+<span class="abyssa-panel-tile__content">06</span>
+</button>
+</div>
+</div>
+</article>
+<article class="catalog-card" data-wide="true" id="rpgsquarepanel">
+<header class="catalog-card__header">
+<h3>RpgSquarePanel</h3>
+<a href="#rpgsquarepanel">#</a>
+</header>
+<div class="catalog-card__stage">
+<div class="square-panel-grid">
+<button type="button" class="abyssa-square-panel" data-variant="dark" aria-pressed="false" aria-label="选择小面板 01">
+<svg viewBox="0 0 116 116" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+<rect x="7" y="7" width="102" height="102" fill="var(--abyssa-square-fill)">
+</rect>
+<rect x="7" y="7" width="102" height="102" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="8">
+</rect>
+<rect x="7" y="7" width="102" height="102" fill="none" stroke="var(--abyssa-square-middle)" stroke-width="4">
+</rect>
+<rect x="7" y="7" width="102" height="102" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2">
+</rect>
+<rect x="14" y="14" width="88" height="88" fill="none" stroke="var(--abyssa-square-ornament)" stroke-width="1.25">
+</rect>
+<path d="M17 17 H27 L17 27 Z" fill="var(--abyssa-square-ornament)">
+</path>
+<path d="M99 99 H89 L99 89 Z" fill="var(--abyssa-square-ornament)">
+</path>
+</svg>
+<span class="abyssa-square-panel__content">01</span>
+</button>
+<button type="button" class="abyssa-square-panel" data-variant="gray" aria-pressed="false" aria-label="选择小面板 02">
+<svg viewBox="0 0 116 116" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+<rect x="7" y="7" width="102" height="102" fill="var(--abyssa-square-fill)">
+</rect>
+<rect x="7" y="7" width="102" height="102" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="8">
+</rect>
+<rect x="7" y="7" width="102" height="102" fill="none" stroke="var(--abyssa-square-middle)" stroke-width="4">
+</rect>
+<rect x="7" y="7" width="102" height="102" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2">
+</rect>
+<rect x="14" y="14" width="88" height="88" fill="none" stroke="var(--abyssa-square-ornament)" stroke-width="1.25">
+</rect>
+<path d="M17 17 H27 L17 27 Z" fill="var(--abyssa-square-ornament)">
+</path>
+<path d="M99 99 H89 L99 89 Z" fill="var(--abyssa-square-ornament)">
+</path>
+</svg>
+<span class="abyssa-square-panel__content">02</span>
+</button>
+<button type="button" class="abyssa-square-panel" data-variant="teal" data-selected="true" aria-pressed="true" aria-label="选择小面板 03">
+<svg viewBox="0 0 116 116" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+<rect x="7" y="7" width="102" height="102" fill="var(--abyssa-square-fill)">
+</rect>
+<rect x="7" y="7" width="102" height="102" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="8">
+</rect>
+<rect x="7" y="7" width="102" height="102" fill="none" stroke="var(--abyssa-square-middle)" stroke-width="4">
+</rect>
+<rect x="7" y="7" width="102" height="102" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2">
+</rect>
+<rect x="14" y="14" width="88" height="88" fill="none" stroke="var(--abyssa-square-ornament)" stroke-width="1.25">
+</rect>
+<path d="M17 17 H27 L17 27 Z" fill="var(--abyssa-square-ornament)">
+</path>
+<path d="M99 99 H89 L99 89 Z" fill="var(--abyssa-square-ornament)">
+</path>
+</svg>
+<span class="abyssa-square-panel__content">03</span>
+</button>
+<button type="button" class="abyssa-square-panel" data-variant="teal-outline" aria-pressed="false" aria-label="选择小面板 04">
+<svg viewBox="0 0 116 116" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+<rect x="7" y="7" width="102" height="102" fill="var(--abyssa-square-fill)">
+</rect>
+<rect x="7" y="7" width="102" height="102" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="8">
+</rect>
+<rect x="7" y="7" width="102" height="102" fill="none" stroke="var(--abyssa-square-middle)" stroke-width="4">
+</rect>
+<rect x="7" y="7" width="102" height="102" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2">
+</rect>
+<rect x="14" y="14" width="88" height="88" fill="none" stroke="var(--abyssa-square-ornament)" stroke-width="1.25">
+</rect>
+<path d="M17 17 H27 L17 27 Z" fill="var(--abyssa-square-ornament)">
+</path>
+<path d="M99 99 H89 L99 89 Z" fill="var(--abyssa-square-ornament)">
+</path>
+</svg>
+<span class="abyssa-square-panel__content">04</span>
+</button>
+<button type="button" class="abyssa-square-panel" data-variant="deep" aria-pressed="false" aria-label="选择小面板 05">
+<svg viewBox="0 0 116 116" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+<rect x="7" y="7" width="102" height="102" fill="var(--abyssa-square-fill)">
+</rect>
+<rect x="7" y="7" width="102" height="102" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="8">
+</rect>
+<rect x="7" y="7" width="102" height="102" fill="none" stroke="var(--abyssa-square-middle)" stroke-width="4">
+</rect>
+<rect x="7" y="7" width="102" height="102" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2">
+</rect>
+<rect x="14" y="14" width="88" height="88" fill="none" stroke="var(--abyssa-square-ornament)" stroke-width="1.25">
+</rect>
+<path d="M17 17 H27 L17 27 Z" fill="var(--abyssa-square-ornament)">
+</path>
+<path d="M99 99 H89 L99 89 Z" fill="var(--abyssa-square-ornament)">
+</path>
+</svg>
+<span class="abyssa-square-panel__content">05</span>
+</button>
+<button type="button" class="abyssa-square-panel" data-variant="light" aria-pressed="false" aria-label="选择小面板 06">
+<svg viewBox="0 0 116 116" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+<rect x="7" y="7" width="102" height="102" fill="var(--abyssa-square-fill)">
+</rect>
+<rect x="7" y="7" width="102" height="102" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="8">
+</rect>
+<rect x="7" y="7" width="102" height="102" fill="none" stroke="var(--abyssa-square-middle)" stroke-width="4">
+</rect>
+<rect x="7" y="7" width="102" height="102" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2">
+</rect>
+<rect x="14" y="14" width="88" height="88" fill="none" stroke="var(--abyssa-square-ornament)" stroke-width="1.25">
+</rect>
+<path d="M17 17 H27 L17 27 Z" fill="var(--abyssa-square-ornament)">
+</path>
+<path d="M99 99 H89 L99 89 Z" fill="var(--abyssa-square-ornament)">
+</path>
+</svg>
+<span class="abyssa-square-panel__content">06</span>
+</button>
+</div>
+</div>
+</article>
+</div>
+</section>
+<section class="catalog-section" id="actions">
+<header class="catalog-section__header">
+<h2>操作</h2>
+<span aria-hidden="true">
+</span>
+</header>
+<div class="catalog-grid">
+<article class="catalog-card" data-wide="true" id="ribbonbutton">
+<header class="catalog-card__header">
+<h3>RibbonButton</h3>
+<a href="#ribbonbutton">#</a>
+</header>
+<div class="catalog-card__stage">
+<div class="stack ribbons">
+<button type="button" class="abyssa-ribbon-button" data-variant="dark" data-size="md" data-full-width="true">
+<svg class="abyssa-ribbon-button__art" viewBox="0 0 820 68" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+<defs>
+<pattern id="abyssa-pattern-_R_66a_" width="44" height="44" patternUnits="userSpaceOnUse" patternTransform="translate(0 -10)" data-watermark="double-diamond">
+<path d="M22 0 L44 22 L22 44 L0 22 Z" fill="var(--abyssa-ribbon-pattern)" opacity="0.72" data-layer="outer">
+</path>
+<path d="M22 10 L34 22 L22 34 L10 22 Z" fill="rgb(255 255 255 / 2%)" opacity="0.62" data-layer="inner">
+</path>
+</pattern>
+<linearGradient id="abyssa-fade-_R_66a_" x1="0" y1="0" x2="1" y2="0">
+<stop offset="0%" stop-color="white" stop-opacity="1">
+</stop>
+<stop offset="27%" stop-color="white" stop-opacity=".22">
+</stop>
+<stop offset="40%" stop-color="white" stop-opacity="0">
+</stop>
+<stop offset="60%" stop-color="white" stop-opacity="0">
+</stop>
+<stop offset="73%" stop-color="white" stop-opacity=".22">
+</stop>
+<stop offset="100%" stop-color="white" stop-opacity="1">
+</stop>
+</linearGradient>
+<mask id="abyssa-mask-_R_66a_">
+<rect width="820" height="68" fill="url(#abyssa-fade-_R_66a_)">
+</rect>
+</mask>
+<clipPath id="abyssa-clip-_R_66a_">
+<path d="M34 7 H786 L765 34 L786 61 H34 L55 34 Z">
+</path>
+</clipPath>
+</defs>
+<path d="M35 11 H788 L769 38 L788 65 H35 L56 38 Z" fill="#111616" opacity=".72">
+</path>
+<path d="M34 7 H786 L765 34 L786 61 H34 L55 34 Z" fill="var(--abyssa-ribbon-fill)">
+</path>
+<rect x="30" y="4" width="760" height="60" fill="url(#abyssa-pattern-_R_66a_)" mask="url(#abyssa-mask-_R_66a_)" clip-path="url(#abyssa-clip-_R_66a_)">
+</rect>
+<path class="abyssa-ribbon-button__frame-dark" d="M34 7 H786 L765 34 L786 61 H34 L55 34 Z" fill="none" stroke-width="7">
+</path>
+<path d="M34 7 H786 L765 34 L786 61 H34 L55 34 Z" fill="none" stroke="var(--abyssa-frame-light)" stroke-width="4">
+</path>
+<path class="abyssa-ribbon-button__frame-dark" d="M34 7 H786 L765 34 L786 61 H34 L55 34 Z" fill="none" stroke-width="2">
+</path>
+<g>
+<path d="M11 34 L24 21 L37 34 L24 47 Z" fill="var(--abyssa-frame-dark)">
+</path>
+<path d="M16 34 L24 26 L32 34 L24 42 Z" fill="var(--abyssa-frame-light)">
+</path>
+<path d="M19 34 L24 29 L29 34 L24 39 Z" fill="var(--abyssa-frame-dark)">
+</path>
+<path d="M783 34 L796 21 L809 34 L796 47 Z" fill="var(--abyssa-frame-dark)">
+</path>
+<path d="M788 34 L796 26 L804 34 L796 42 Z" fill="var(--abyssa-frame-light)">
+</path>
+<path d="M791 34 L796 29 L801 34 L796 39 Z" fill="var(--abyssa-frame-dark)">
+</path>
+</g>
+</svg>
+<span class="abyssa-ribbon-button__label">
+<span>Dark action</span>
+</span>
+</button>
+<button type="button" class="abyssa-ribbon-button" data-variant="light" data-size="md" data-full-width="true">
+<svg class="abyssa-ribbon-button__art" viewBox="0 0 820 68" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+<defs>
+<pattern id="abyssa-pattern-_R_a6a_" width="44" height="44" patternUnits="userSpaceOnUse" patternTransform="translate(0 -10)" data-watermark="double-diamond">
+<path d="M22 0 L44 22 L22 44 L0 22 Z" fill="var(--abyssa-ribbon-pattern)" opacity="0.72" data-layer="outer">
+</path>
+<path d="M22 10 L34 22 L22 34 L10 22 Z" fill="rgb(255 255 255 / 2%)" opacity="0.62" data-layer="inner">
+</path>
+</pattern>
+<linearGradient id="abyssa-fade-_R_a6a_" x1="0" y1="0" x2="1" y2="0">
+<stop offset="0%" stop-color="white" stop-opacity="1">
+</stop>
+<stop offset="27%" stop-color="white" stop-opacity=".22">
+</stop>
+<stop offset="40%" stop-color="white" stop-opacity="0">
+</stop>
+<stop offset="60%" stop-color="white" stop-opacity="0">
+</stop>
+<stop offset="73%" stop-color="white" stop-opacity=".22">
+</stop>
+<stop offset="100%" stop-color="white" stop-opacity="1">
+</stop>
+</linearGradient>
+<mask id="abyssa-mask-_R_a6a_">
+<rect width="820" height="68" fill="url(#abyssa-fade-_R_a6a_)">
+</rect>
+</mask>
+<clipPath id="abyssa-clip-_R_a6a_">
+<path d="M34 7 H786 L765 34 L786 61 H34 L55 34 Z">
+</path>
+</clipPath>
+</defs>
+<path d="M35 11 H788 L769 38 L788 65 H35 L56 38 Z" fill="#111616" opacity=".72">
+</path>
+<path d="M34 7 H786 L765 34 L786 61 H34 L55 34 Z" fill="var(--abyssa-ribbon-fill)">
+</path>
+<rect x="30" y="4" width="760" height="60" fill="url(#abyssa-pattern-_R_a6a_)" mask="url(#abyssa-mask-_R_a6a_)" clip-path="url(#abyssa-clip-_R_a6a_)">
+</rect>
+<path class="abyssa-ribbon-button__frame-dark" d="M34 7 H786 L765 34 L786 61 H34 L55 34 Z" fill="none" stroke-width="7">
+</path>
+<path d="M34 7 H786 L765 34 L786 61 H34 L55 34 Z" fill="none" stroke="var(--abyssa-frame-light)" stroke-width="4">
+</path>
+<path class="abyssa-ribbon-button__frame-dark" d="M34 7 H786 L765 34 L786 61 H34 L55 34 Z" fill="none" stroke-width="2">
+</path>
+<g>
+<path d="M11 34 L24 21 L37 34 L24 47 Z" fill="var(--abyssa-frame-dark)">
+</path>
+<path d="M16 34 L24 26 L32 34 L24 42 Z" fill="var(--abyssa-frame-light)">
+</path>
+<path d="M19 34 L24 29 L29 34 L24 39 Z" fill="var(--abyssa-frame-dark)">
+</path>
+<path d="M783 34 L796 21 L809 34 L796 47 Z" fill="var(--abyssa-frame-dark)">
+</path>
+<path d="M788 34 L796 26 L804 34 L796 42 Z" fill="var(--abyssa-frame-light)">
+</path>
+<path d="M791 34 L796 29 L801 34 L796 39 Z" fill="var(--abyssa-frame-dark)">
+</path>
+</g>
+</svg>
+<span class="abyssa-ribbon-button__label">
+<span>Light action</span>
+</span>
+</button>
+<button type="button" class="abyssa-ribbon-button" data-variant="teal" data-size="md" data-full-width="true">
+<svg class="abyssa-ribbon-button__art" viewBox="0 0 820 68" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+<defs>
+<pattern id="abyssa-pattern-_R_e6a_" width="44" height="44" patternUnits="userSpaceOnUse" patternTransform="translate(0 -10)" data-watermark="double-diamond">
+<path d="M22 0 L44 22 L22 44 L0 22 Z" fill="var(--abyssa-ribbon-pattern)" opacity="0.72" data-layer="outer">
+</path>
+<path d="M22 10 L34 22 L22 34 L10 22 Z" fill="rgb(255 255 255 / 2%)" opacity="0.62" data-layer="inner">
+</path>
+</pattern>
+<linearGradient id="abyssa-fade-_R_e6a_" x1="0" y1="0" x2="1" y2="0">
+<stop offset="0%" stop-color="white" stop-opacity="1">
+</stop>
+<stop offset="27%" stop-color="white" stop-opacity=".22">
+</stop>
+<stop offset="40%" stop-color="white" stop-opacity="0">
+</stop>
+<stop offset="60%" stop-color="white" stop-opacity="0">
+</stop>
+<stop offset="73%" stop-color="white" stop-opacity=".22">
+</stop>
+<stop offset="100%" stop-color="white" stop-opacity="1">
+</stop>
+</linearGradient>
+<mask id="abyssa-mask-_R_e6a_">
+<rect width="820" height="68" fill="url(#abyssa-fade-_R_e6a_)">
+</rect>
+</mask>
+<clipPath id="abyssa-clip-_R_e6a_">
+<path d="M34 7 H786 L765 34 L786 61 H34 L55 34 Z">
+</path>
+</clipPath>
+</defs>
+<path d="M35 11 H788 L769 38 L788 65 H35 L56 38 Z" fill="#111616" opacity=".72">
+</path>
+<path d="M34 7 H786 L765 34 L786 61 H34 L55 34 Z" fill="var(--abyssa-ribbon-fill)">
+</path>
+<rect x="30" y="4" width="760" height="60" fill="url(#abyssa-pattern-_R_e6a_)" mask="url(#abyssa-mask-_R_e6a_)" clip-path="url(#abyssa-clip-_R_e6a_)">
+</rect>
+<path class="abyssa-ribbon-button__frame-dark" d="M34 7 H786 L765 34 L786 61 H34 L55 34 Z" fill="none" stroke-width="7">
+</path>
+<path d="M34 7 H786 L765 34 L786 61 H34 L55 34 Z" fill="none" stroke="var(--abyssa-frame-light)" stroke-width="4">
+</path>
+<path class="abyssa-ribbon-button__frame-dark" d="M34 7 H786 L765 34 L786 61 H34 L55 34 Z" fill="none" stroke-width="2">
+</path>
+<g>
+<path d="M11 34 L24 21 L37 34 L24 47 Z" fill="var(--abyssa-frame-dark)">
+</path>
+<path d="M16 34 L24 26 L32 34 L24 42 Z" fill="var(--abyssa-frame-light)">
+</path>
+<path d="M19 34 L24 29 L29 34 L24 39 Z" fill="var(--abyssa-frame-dark)">
+</path>
+<path d="M783 34 L796 21 L809 34 L796 47 Z" fill="var(--abyssa-frame-dark)">
+</path>
+<path d="M788 34 L796 26 L804 34 L796 42 Z" fill="var(--abyssa-frame-light)">
+</path>
+<path d="M791 34 L796 29 L801 34 L796 39 Z" fill="var(--abyssa-frame-dark)">
+</path>
+</g>
+</svg>
+<span class="abyssa-ribbon-button__label">
+<span>Primary action</span>
+</span>
+</button>
+</div>
+</div>
+</article>
+<article class="catalog-card" data-wide="true" id="rpghexbutton">
+<header class="catalog-card__header">
+<h3>RpgHexButton</h3>
+<a href="#rpghexbutton">#</a>
+</header>
+<div class="catalog-card__stage">
+<div class="stack hex-buttons">
+<button type="button" class="abyssa-hex-button" data-variant="dark" data-size="md" data-full-width="true">
+<svg class="abyssa-hex-button__art" viewBox="0 0 920 120" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+<defs>
+<pattern id="abyssa-hex-pattern-_R_6aa_" width="58" height="58" patternUnits="userSpaceOnUse" patternTransform="translate(0 -9)" data-watermark="double-diamond">
+<path d="M29 0 L58 29 L29 58 L0 29 Z" fill="var(--abyssa-hex-pattern-dark)" opacity="0.72" data-layer="outer">
+</path>
+<path d="M29 13 L45 29 L29 45 L13 29 Z" fill="var(--abyssa-hex-pattern-light)" opacity="0.62" data-layer="inner">
+</path>
+</pattern>
+<linearGradient id="abyssa-hex-fade-_R_6aa_" x1="0" y1="0" x2="1" y2="0">
+<stop offset="0%" stop-color="white" stop-opacity="1">
+</stop>
+<stop offset="18%" stop-color="white" stop-opacity=".72">
+</stop>
+<stop offset="33%" stop-color="white" stop-opacity=".15">
+</stop>
+<stop offset="42%" stop-color="white" stop-opacity="0">
+</stop>
+<stop offset="58%" stop-color="white" stop-opacity="0">
+</stop>
+<stop offset="67%" stop-color="white" stop-opacity=".15">
+</stop>
+<stop offset="82%" stop-color="white" stop-opacity=".72">
+</stop>
+<stop offset="100%" stop-color="white" stop-opacity="1">
+</stop>
+</linearGradient>
+<mask id="abyssa-hex-mask-_R_6aa_">
+<rect width="920" height="120" fill="url(#abyssa-hex-fade-_R_6aa_)">
+</rect>
+</mask>
+<clipPath id="abyssa-hex-clip-_R_6aa_">
+<path d="M65 15 H855 L894 60 L855 105 H65 L26 60 Z">
+</path>
+</clipPath>
+</defs>
+<path d="M65 15 H855 L894 60 L855 105 H65 L26 60 Z" fill="var(--abyssa-hex-fill)">
+</path>
+<rect x="20" y="10" width="880" height="100" fill="url(#abyssa-hex-pattern-_R_6aa_)" mask="url(#abyssa-hex-mask-_R_6aa_)" clip-path="url(#abyssa-hex-clip-_R_6aa_)">
+</rect>
+<path d="M65 15 H855 L894 60 L855 105 H65 L26 60 Z" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="10" stroke-linejoin="miter">
+</path>
+<path d="M65 15 H855 L894 60 L855 105 H65 L26 60 Z" fill="none" stroke="var(--abyssa-hex-frame-middle)" stroke-width="5" stroke-linejoin="miter">
+</path>
+<path d="M65 15 H855 L894 60 L855 105 H65 L26 60 Z" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2" stroke-linejoin="miter">
+</path>
+<g class="abyssa-hex-button__dots">
+<circle cx="438" cy="104" r="1.6">
+</circle>
+<circle cx="449" cy="104" r="2">
+</circle>
+<circle cx="460" cy="104" r="2.4">
+</circle>
+<circle cx="471" cy="104" r="2">
+</circle>
+<circle cx="482" cy="104" r="1.6">
+</circle>
+</g>
+</svg>
+<span class="abyssa-hex-button__label">
+<span class="abyssa-hex-button__copy">New Game</span>
+</span>
+</button>
+<button type="button" class="abyssa-hex-button" data-variant="light" data-size="md" data-full-width="true">
+<svg class="abyssa-hex-button__art" viewBox="0 0 920 120" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+<defs>
+<pattern id="abyssa-hex-pattern-_R_aaa_" width="58" height="58" patternUnits="userSpaceOnUse" patternTransform="translate(0 -9)" data-watermark="double-diamond">
+<path d="M29 0 L58 29 L29 58 L0 29 Z" fill="var(--abyssa-hex-pattern-dark)" opacity="0.72" data-layer="outer">
+</path>
+<path d="M29 13 L45 29 L29 45 L13 29 Z" fill="var(--abyssa-hex-pattern-light)" opacity="0.62" data-layer="inner">
+</path>
+</pattern>
+<linearGradient id="abyssa-hex-fade-_R_aaa_" x1="0" y1="0" x2="1" y2="0">
+<stop offset="0%" stop-color="white" stop-opacity="1">
+</stop>
+<stop offset="18%" stop-color="white" stop-opacity=".72">
+</stop>
+<stop offset="33%" stop-color="white" stop-opacity=".15">
+</stop>
+<stop offset="42%" stop-color="white" stop-opacity="0">
+</stop>
+<stop offset="58%" stop-color="white" stop-opacity="0">
+</stop>
+<stop offset="67%" stop-color="white" stop-opacity=".15">
+</stop>
+<stop offset="82%" stop-color="white" stop-opacity=".72">
+</stop>
+<stop offset="100%" stop-color="white" stop-opacity="1">
+</stop>
+</linearGradient>
+<mask id="abyssa-hex-mask-_R_aaa_">
+<rect width="920" height="120" fill="url(#abyssa-hex-fade-_R_aaa_)">
+</rect>
+</mask>
+<clipPath id="abyssa-hex-clip-_R_aaa_">
+<path d="M65 15 H855 L894 60 L855 105 H65 L26 60 Z">
+</path>
+</clipPath>
+</defs>
+<path d="M65 15 H855 L894 60 L855 105 H65 L26 60 Z" fill="var(--abyssa-hex-fill)">
+</path>
+<rect x="20" y="10" width="880" height="100" fill="url(#abyssa-hex-pattern-_R_aaa_)" mask="url(#abyssa-hex-mask-_R_aaa_)" clip-path="url(#abyssa-hex-clip-_R_aaa_)">
+</rect>
+<path d="M65 15 H855 L894 60 L855 105 H65 L26 60 Z" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="10" stroke-linejoin="miter">
+</path>
+<path d="M65 15 H855 L894 60 L855 105 H65 L26 60 Z" fill="none" stroke="var(--abyssa-hex-frame-middle)" stroke-width="5" stroke-linejoin="miter">
+</path>
+<path d="M65 15 H855 L894 60 L855 105 H65 L26 60 Z" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2" stroke-linejoin="miter">
+</path>
+<g class="abyssa-hex-button__dots">
+<circle cx="438" cy="104" r="1.6">
+</circle>
+<circle cx="449" cy="104" r="2">
+</circle>
+<circle cx="460" cy="104" r="2.4">
+</circle>
+<circle cx="471" cy="104" r="2">
+</circle>
+<circle cx="482" cy="104" r="1.6">
+</circle>
+</g>
+</svg>
+<span class="abyssa-hex-button__label">
+<span class="abyssa-hex-button__copy">Continue</span>
+</span>
+</button>
+<button type="button" class="abyssa-hex-button" data-variant="teal" data-size="md" data-full-width="true">
+<svg class="abyssa-hex-button__art" viewBox="0 0 920 120" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+<defs>
+<pattern id="abyssa-hex-pattern-_R_eaa_" width="58" height="58" patternUnits="userSpaceOnUse" patternTransform="translate(0 -9)" data-watermark="double-diamond">
+<path d="M29 0 L58 29 L29 58 L0 29 Z" fill="var(--abyssa-hex-pattern-dark)" opacity="0.72" data-layer="outer">
+</path>
+<path d="M29 13 L45 29 L29 45 L13 29 Z" fill="var(--abyssa-hex-pattern-light)" opacity="0.62" data-layer="inner">
+</path>
+</pattern>
+<linearGradient id="abyssa-hex-fade-_R_eaa_" x1="0" y1="0" x2="1" y2="0">
+<stop offset="0%" stop-color="white" stop-opacity="1">
+</stop>
+<stop offset="18%" stop-color="white" stop-opacity=".72">
+</stop>
+<stop offset="33%" stop-color="white" stop-opacity=".15">
+</stop>
+<stop offset="42%" stop-color="white" stop-opacity="0">
+</stop>
+<stop offset="58%" stop-color="white" stop-opacity="0">
+</stop>
+<stop offset="67%" stop-color="white" stop-opacity=".15">
+</stop>
+<stop offset="82%" stop-color="white" stop-opacity=".72">
+</stop>
+<stop offset="100%" stop-color="white" stop-opacity="1">
+</stop>
+</linearGradient>
+<mask id="abyssa-hex-mask-_R_eaa_">
+<rect width="920" height="120" fill="url(#abyssa-hex-fade-_R_eaa_)">
+</rect>
+</mask>
+<clipPath id="abyssa-hex-clip-_R_eaa_">
+<path d="M65 15 H855 L894 60 L855 105 H65 L26 60 Z">
+</path>
+</clipPath>
+</defs>
+<path d="M65 15 H855 L894 60 L855 105 H65 L26 60 Z" fill="var(--abyssa-hex-fill)">
+</path>
+<rect x="20" y="10" width="880" height="100" fill="url(#abyssa-hex-pattern-_R_eaa_)" mask="url(#abyssa-hex-mask-_R_eaa_)" clip-path="url(#abyssa-hex-clip-_R_eaa_)">
+</rect>
+<path d="M65 15 H855 L894 60 L855 105 H65 L26 60 Z" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="10" stroke-linejoin="miter">
+</path>
+<path d="M65 15 H855 L894 60 L855 105 H65 L26 60 Z" fill="none" stroke="var(--abyssa-hex-frame-middle)" stroke-width="5" stroke-linejoin="miter">
+</path>
+<path d="M65 15 H855 L894 60 L855 105 H65 L26 60 Z" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2" stroke-linejoin="miter">
+</path>
+<g class="abyssa-hex-button__dots">
+<circle cx="438" cy="104" r="1.6">
+</circle>
+<circle cx="449" cy="104" r="2">
+</circle>
+<circle cx="460" cy="104" r="2.4">
+</circle>
+<circle cx="471" cy="104" r="2">
+</circle>
+<circle cx="482" cy="104" r="1.6">
+</circle>
+</g>
+</svg>
+<span class="abyssa-hex-button__label">
+<span class="abyssa-hex-button__copy">Load Game</span>
+</span>
+</button>
+</div>
+</div>
+</article>
+<article class="catalog-card" data-wide="true" id="rpgshapebutton-rpgcirclebutton">
+<header class="catalog-card__header">
+<h3>RpgShapeButton / RpgCircleButton</h3>
+<a href="#rpgshapebutton-rpgcirclebutton">#</a>
+</header>
+<div class="catalog-card__stage">
+<div class="shape-grid">
+<button type="button" class="abyssa-shape-button" data-shape="circle" data-variant="dark" aria-label="Open">
+<svg viewBox="0 0 150 150" aria-hidden="true">
+<defs>
+<pattern id="abyssa-shape-pattern-_R_6ea_" width="42" height="42" patternUnits="userSpaceOnUse" data-watermark="double-diamond">
+<path d="M21 0 L42 21 L21 42 L0 21 Z" fill="var(--abyssa-shape-pattern-dark)" opacity="0.72" data-layer="outer">
+</path>
+<path d="M21 10 L32 21 L21 32 L10 21 Z" fill="var(--abyssa-shape-pattern-light)" opacity="0.62" data-layer="inner">
+</path>
+</pattern>
+<clipPath id="abyssa-shape-clip-_R_6ea_">
+<circle cx="75" cy="75" r="64" fill="#fff">
+</circle>
+</clipPath>
+</defs>
+<circle cx="75" cy="75" r="64" fill="var(--abyssa-shape-fill)">
+</circle>
+<rect x="11" y="11" width="128" height="128" fill="url(#abyssa-shape-pattern-_R_6ea_)" clip-path="url(#abyssa-shape-clip-_R_6ea_)">
+</rect>
+<circle cx="75" cy="75" r="64" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="9">
+</circle>
+<circle cx="75" cy="75" r="64" fill="none" stroke="var(--abyssa-shape-middle)" stroke-width="5">
+</circle>
+<circle cx="75" cy="75" r="64" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2">
+</circle>
+<circle cx="75" cy="75" r="56.5" fill="none" stroke="var(--abyssa-shape-ornament)" stroke-width="1.15" opacity=".9">
+</circle>
+<g fill="var(--abyssa-shape-ornament)">
+<circle cx="68" cy="131.5" r="1.15">
+</circle>
+<circle cx="75" cy="132" r="1.65">
+</circle>
+<circle cx="82" cy="131.5" r="1.15">
+</circle>
+</g>
+<text class="abyssa-shape-button__label" x="75" y="75">Open</text>
+</svg>
+</button>
+<button type="button" class="abyssa-shape-button" data-shape="circle" data-variant="teal" aria-label="Open">
+<svg viewBox="0 0 150 150" aria-hidden="true">
+<defs>
+<pattern id="abyssa-shape-pattern-_R_aea_" width="42" height="42" patternUnits="userSpaceOnUse" data-watermark="double-diamond">
+<path d="M21 0 L42 21 L21 42 L0 21 Z" fill="var(--abyssa-shape-pattern-dark)" opacity="0.72" data-layer="outer">
+</path>
+<path d="M21 10 L32 21 L21 32 L10 21 Z" fill="var(--abyssa-shape-pattern-light)" opacity="0.62" data-layer="inner">
+</path>
+</pattern>
+<clipPath id="abyssa-shape-clip-_R_aea_">
+<circle cx="75" cy="75" r="64" fill="#fff">
+</circle>
+</clipPath>
+</defs>
+<circle cx="75" cy="75" r="64" fill="var(--abyssa-shape-fill)">
+</circle>
+<rect x="11" y="11" width="128" height="128" fill="url(#abyssa-shape-pattern-_R_aea_)" clip-path="url(#abyssa-shape-clip-_R_aea_)">
+</rect>
+<circle cx="75" cy="75" r="64" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="9">
+</circle>
+<circle cx="75" cy="75" r="64" fill="none" stroke="var(--abyssa-shape-middle)" stroke-width="5">
+</circle>
+<circle cx="75" cy="75" r="64" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2">
+</circle>
+<circle cx="75" cy="75" r="56.5" fill="none" stroke="var(--abyssa-shape-ornament)" stroke-width="1.15" opacity=".9">
+</circle>
+<g fill="var(--abyssa-shape-ornament)">
+<circle cx="68" cy="131.5" r="1.15">
+</circle>
+<circle cx="75" cy="132" r="1.65">
+</circle>
+<circle cx="82" cy="131.5" r="1.15">
+</circle>
+</g>
+<text class="abyssa-shape-button__label" x="75" y="75">Open</text>
+</svg>
+</button>
+<button type="button" class="abyssa-shape-button" data-shape="square" data-variant="light" aria-label="Select">
+<svg viewBox="0 0 145 145" aria-hidden="true">
+<defs>
+<pattern id="abyssa-shape-pattern-_R_eea_" width="42" height="42" patternUnits="userSpaceOnUse" data-watermark="double-diamond">
+<path d="M21 0 L42 21 L21 42 L0 21 Z" fill="var(--abyssa-shape-pattern-dark)" opacity="0.72" data-layer="outer">
+</path>
+<path d="M21 10 L32 21 L21 32 L10 21 Z" fill="var(--abyssa-shape-pattern-light)" opacity="0.62" data-layer="inner">
+</path>
+</pattern>
+<clipPath id="abyssa-shape-clip-_R_eea_">
+<path d="M22 8 H137 V122 L122 137 H8 V22 Z" fill="#fff" stroke-linejoin="miter">
+</path>
+</clipPath>
+</defs>
+<path d="M22 8 H137 V122 L122 137 H8 V22 Z" fill="var(--abyssa-shape-fill)" stroke-linejoin="miter">
+</path>
+<rect x="8" y="8" width="129" height="129" fill="url(#abyssa-shape-pattern-_R_eea_)" clip-path="url(#abyssa-shape-clip-_R_eea_)">
+</rect>
+<path d="M22 8 H137 V122 L122 137 H8 V22 Z" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="9" stroke-linejoin="miter">
+</path>
+<path d="M22 8 H137 V122 L122 137 H8 V22 Z" fill="none" stroke="var(--abyssa-shape-middle)" stroke-width="5" stroke-linejoin="miter">
+</path>
+<path d="M22 8 H137 V122 L122 137 H8 V22 Z" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2" stroke-linejoin="miter">
+</path>
+<path d="M24 16 H129 V118 L118 129 H16 V24 Z" fill="none" stroke="var(--abyssa-shape-ornament)" stroke-width="1.15" stroke-linejoin="miter" opacity=".9">
+</path>
+<path d="M20 34 V20 H34 M111 129 H125 V115" fill="none" stroke="var(--abyssa-shape-ornament)" stroke-width="1" opacity=".75">
+</path>
+<g fill="var(--abyssa-shape-ornament)">
+<circle cx="65" cy="132" r="1.1">
+</circle>
+<circle cx="72.5" cy="132.5" r="1.55">
+</circle>
+<circle cx="80" cy="132" r="1.1">
+</circle>
+</g>
+<text class="abyssa-shape-button__label" x="72.5" y="72.5">Select</text>
+</svg>
+</button>
+<button type="button" class="abyssa-shape-button" data-shape="chamfer" data-variant="teal" aria-label="Confirm">
+<svg viewBox="0 0 240 68" aria-hidden="true">
+<defs>
+<pattern id="abyssa-shape-pattern-_R_iea_" width="42" height="42" patternUnits="userSpaceOnUse" data-watermark="double-diamond">
+<path d="M21 0 L42 21 L21 42 L0 21 Z" fill="var(--abyssa-shape-pattern-dark)" opacity="0.72" data-layer="outer">
+</path>
+<path d="M21 10 L32 21 L21 32 L10 21 Z" fill="var(--abyssa-shape-pattern-light)" opacity="0.62" data-layer="inner">
+</path>
+</pattern>
+<clipPath id="abyssa-shape-clip-_R_iea_">
+<path d="M20 7 H233 V49 L221 61 H7 V20 Z" fill="#fff" stroke-linejoin="miter">
+</path>
+</clipPath>
+</defs>
+<path d="M20 7 H233 V49 L221 61 H7 V20 Z" fill="var(--abyssa-shape-fill)" stroke-linejoin="miter">
+</path>
+<rect x="6" y="6" width="228" height="56" fill="url(#abyssa-shape-pattern-_R_iea_)" clip-path="url(#abyssa-shape-clip-_R_iea_)">
+</rect>
+<path d="M20 7 H233 V49 L221 61 H7 V20 Z" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="8" stroke-linejoin="miter">
+</path>
+<path d="M20 7 H233 V49 L221 61 H7 V20 Z" fill="none" stroke="var(--abyssa-shape-middle)" stroke-width="4" stroke-linejoin="miter">
+</path>
+<path d="M20 7 H233 V49 L221 61 H7 V20 Z" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2" stroke-linejoin="miter">
+</path>
+<path d="M21 14 H226 V46 L218 54 H14 V22 Z" fill="none" stroke="var(--abyssa-shape-ornament)" stroke-width="1" stroke-linejoin="miter" opacity=".9">
+</path>
+<g fill="var(--abyssa-shape-ornament)">
+<circle cx="111" cy="58" r="1">
+</circle>
+<circle cx="120" cy="58.5" r="1.45">
+</circle>
+<circle cx="129" cy="58" r="1">
+</circle>
+</g>
+<text class="abyssa-shape-button__label" x="120" y="34">Confirm</text>
+</svg>
+</button>
+<button type="button" class="abyssa-shape-button" data-shape="pill" data-variant="dark" aria-label="Continue">
+<svg viewBox="0 0 240 68" aria-hidden="true">
+<defs>
+<pattern id="abyssa-shape-pattern-_R_mea_" width="42" height="42" patternUnits="userSpaceOnUse" data-watermark="double-diamond">
+<path d="M21 0 L42 21 L21 42 L0 21 Z" fill="var(--abyssa-shape-pattern-dark)" opacity="0.72" data-layer="outer">
+</path>
+<path d="M21 10 L32 21 L21 32 L10 21 Z" fill="var(--abyssa-shape-pattern-light)" opacity="0.62" data-layer="inner">
+</path>
+</pattern>
+<clipPath id="abyssa-shape-clip-_R_mea_">
+<path d="M28 7 H212 C225 7 233 18 233 34 C233 50 225 61 212 61 H28 C15 61 7 50 7 34 C7 18 15 7 28 7 Z" fill="#fff" stroke-linejoin="round">
+</path>
+</clipPath>
+</defs>
+<path d="M28 7 H212 C225 7 233 18 233 34 C233 50 225 61 212 61 H28 C15 61 7 50 7 34 C7 18 15 7 28 7 Z" fill="var(--abyssa-shape-fill)" stroke-linejoin="round">
+</path>
+<rect x="7" y="7" width="226" height="54" fill="url(#abyssa-shape-pattern-_R_mea_)" clip-path="url(#abyssa-shape-clip-_R_mea_)">
+</rect>
+<path d="M28 7 H212 C225 7 233 18 233 34 C233 50 225 61 212 61 H28 C15 61 7 50 7 34 C7 18 15 7 28 7 Z" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="8" stroke-linejoin="round">
+</path>
+<path d="M28 7 H212 C225 7 233 18 233 34 C233 50 225 61 212 61 H28 C15 61 7 50 7 34 C7 18 15 7 28 7 Z" fill="none" stroke="var(--abyssa-shape-middle)" stroke-width="4" stroke-linejoin="round">
+</path>
+<path d="M28 7 H212 C225 7 233 18 233 34 C233 50 225 61 212 61 H28 C15 61 7 50 7 34 C7 18 15 7 28 7 Z" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2" stroke-linejoin="round">
+</path>
+<path d="M29 14 H211 C220 14 226 22 226 34 C226 46 220 54 211 54 H29 C20 54 14 46 14 34 C14 22 20 14 29 14 Z" fill="none" stroke="var(--abyssa-shape-ornament)" stroke-width="1" stroke-linejoin="round" opacity=".9">
+</path>
+<g fill="var(--abyssa-shape-ornament)">
+<circle cx="111" cy="58" r="1">
+</circle>
+<circle cx="120" cy="58.5" r="1.45">
+</circle>
+<circle cx="129" cy="58" r="1">
+</circle>
+</g>
+<text class="abyssa-shape-button__label" x="120" y="34">Continue</text>
+</svg>
+</button>
+</div>
+</div>
+</article>
+<article class="catalog-card" data-wide="true" id="rpgnotchbutton-rpgnotchedpillbutton">
+<header class="catalog-card__header">
+<h3>RpgNotchButton / RpgNotchedPillButton</h3>
+<a href="#rpgnotchbutton-rpgnotchedpillbutton">#</a>
+</header>
+<div class="catalog-card__stage">
+<div class="action-pairs">
+<button type="button" class="abyssa-notch-button" data-variant="dark" aria-label="操作按钮">
+<svg viewBox="0 0 120 120" aria-hidden="true">
+<defs>
+<pattern id="abyssa-notch-pattern-_R_6ia_" width="28" height="28" patternUnits="userSpaceOnUse" data-watermark="double-diamond">
+<path d="M14 0 L28 14 L14 28 L0 14 Z" fill="var(--abyssa-notch-pattern-dark)" opacity="0.72" data-layer="outer">
+</path>
+<path d="M14 6 L22 14 L14 22 L6 14 Z" fill="var(--abyssa-notch-pattern-light)" opacity="0.62" data-layer="inner">
+</path>
+</pattern>
+<radialGradient id="abyssa-notch-fade-_R_6ia_" cx="50%" cy="48%" r="58%">
+<stop offset="18%" stop-color="white" stop-opacity="0">
+</stop>
+<stop offset="58%" stop-color="white" stop-opacity=".25">
+</stop>
+<stop offset="100%" stop-color="white">
+</stop>
+</radialGradient>
+<mask id="abyssa-notch-mask-_R_6ia_">
+<rect width="120" height="120" fill="url(#abyssa-notch-fade-_R_6ia_)">
+</rect>
+</mask>
+<clipPath id="abyssa-notch-clip-_R_6ia_">
+<path d="M9 9 H111 V111 H9 Z">
+</path>
+</clipPath>
+</defs>
+<path d="M9 9 H111 V111 H9 Z" fill="var(--abyssa-notch-fill)">
+</path>
+<rect x="5" y="5" width="110" height="110" fill="url(#abyssa-notch-pattern-_R_6ia_)" mask="url(#abyssa-notch-mask-_R_6ia_)" clip-path="url(#abyssa-notch-clip-_R_6ia_)">
+</rect>
+<path d="M9 9 H111 V111 H9 Z" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="8" stroke-linejoin="round">
+</path>
+<path d="M9 9 H111 V111 H9 Z" fill="none" stroke="var(--abyssa-notch-middle)" stroke-width="4.2" stroke-linejoin="round">
+</path>
+<path d="M9 9 H111 V111 H9 Z" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="1.6" stroke-linejoin="round">
+</path>
+<path d="M18 18 H102 V94 H72 L60 103 L48 94 H18 Z" fill="none" stroke="var(--abyssa-notch-ornament)" stroke-width="1.3" stroke-linejoin="round" stroke-linecap="round" opacity=".94">
+</path>
+<path d="M22 22 H98 V90 H70 L60 98 L50 90 H22 Z" fill="none" stroke="var(--abyssa-notch-ornament)" stroke-width=".7" stroke-linejoin="round" stroke-linecap="round" opacity=".48">
+</path>
+<g fill="none" stroke="var(--abyssa-notch-icon)" stroke-linecap="round" stroke-linejoin="round">
+<path d="M43 43 A24 24 0 1 0 77 43" stroke-width="3.4">
+</path>
+<path d="M60 65 V26 M50 36 L60 26 L70 36" stroke-width="3.4">
+</path>
+<g fill="var(--abyssa-notch-icon)" stroke="none">
+<circle cx="49" cy="75" r="2.1">
+</circle>
+<circle cx="60" cy="75" r="2.1">
+</circle>
+<circle cx="71" cy="75" r="2.1">
+</circle>
+</g>
+</g>
+</svg>
+</button>
+<button type="button" class="abyssa-notch-button" data-variant="teal" aria-label="操作按钮">
+<svg viewBox="0 0 120 120" aria-hidden="true">
+<defs>
+<pattern id="abyssa-notch-pattern-_R_aia_" width="28" height="28" patternUnits="userSpaceOnUse" data-watermark="double-diamond">
+<path d="M14 0 L28 14 L14 28 L0 14 Z" fill="var(--abyssa-notch-pattern-dark)" opacity="0.72" data-layer="outer">
+</path>
+<path d="M14 6 L22 14 L14 22 L6 14 Z" fill="var(--abyssa-notch-pattern-light)" opacity="0.62" data-layer="inner">
+</path>
+</pattern>
+<radialGradient id="abyssa-notch-fade-_R_aia_" cx="50%" cy="48%" r="58%">
+<stop offset="18%" stop-color="white" stop-opacity="0">
+</stop>
+<stop offset="58%" stop-color="white" stop-opacity=".25">
+</stop>
+<stop offset="100%" stop-color="white">
+</stop>
+</radialGradient>
+<mask id="abyssa-notch-mask-_R_aia_">
+<rect width="120" height="120" fill="url(#abyssa-notch-fade-_R_aia_)">
+</rect>
+</mask>
+<clipPath id="abyssa-notch-clip-_R_aia_">
+<path d="M9 9 H111 V111 H9 Z">
+</path>
+</clipPath>
+</defs>
+<path d="M9 9 H111 V111 H9 Z" fill="var(--abyssa-notch-fill)">
+</path>
+<rect x="5" y="5" width="110" height="110" fill="url(#abyssa-notch-pattern-_R_aia_)" mask="url(#abyssa-notch-mask-_R_aia_)" clip-path="url(#abyssa-notch-clip-_R_aia_)">
+</rect>
+<path d="M9 9 H111 V111 H9 Z" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="8" stroke-linejoin="round">
+</path>
+<path d="M9 9 H111 V111 H9 Z" fill="none" stroke="var(--abyssa-notch-middle)" stroke-width="4.2" stroke-linejoin="round">
+</path>
+<path d="M9 9 H111 V111 H9 Z" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="1.6" stroke-linejoin="round">
+</path>
+<path d="M18 18 H102 V94 H72 L60 103 L48 94 H18 Z" fill="none" stroke="var(--abyssa-notch-ornament)" stroke-width="1.3" stroke-linejoin="round" stroke-linecap="round" opacity=".94">
+</path>
+<path d="M22 22 H98 V90 H70 L60 98 L50 90 H22 Z" fill="none" stroke="var(--abyssa-notch-ornament)" stroke-width=".7" stroke-linejoin="round" stroke-linecap="round" opacity=".48">
+</path>
+<g fill="none" stroke="var(--abyssa-notch-icon)" stroke-linecap="round" stroke-linejoin="round">
+<path d="M43 43 A24 24 0 1 0 77 43" stroke-width="3.4">
+</path>
+<path d="M60 65 V26 M50 36 L60 26 L70 36" stroke-width="3.4">
+</path>
+<g fill="var(--abyssa-notch-icon)" stroke="none">
+<circle cx="49" cy="75" r="2.1">
+</circle>
+<circle cx="60" cy="75" r="2.1">
+</circle>
+<circle cx="71" cy="75" r="2.1">
+</circle>
+</g>
+</g>
+</svg>
+</button>
+<button type="button" class="abyssa-notched-pill" data-variant="dark" aria-label="Previous">
+<svg viewBox="0 0 190 48" aria-hidden="true">
+<defs>
+<pattern id="abyssa-notched-pill-pattern-_R_eia_" width="26" height="26" patternUnits="userSpaceOnUse" patternTransform="translate(0 -2)" data-watermark="double-diamond">
+<path d="M13 0 L26 13 L13 26 L0 13 Z" fill="var(--abyssa-notched-pattern-dark)" opacity="0.72" data-layer="outer">
+</path>
+<path d="M13 6 L20 13 L13 20 L6 13 Z" fill="var(--abyssa-notched-pattern-light)" opacity="0.62" data-layer="inner">
+</path>
+</pattern>
+<linearGradient id="abyssa-notched-pill-fade-_R_eia_" x1="0" y1="0" x2="1" y2="0">
+<stop offset="0%" stop-color="white">
+</stop>
+<stop offset="25%" stop-color="white" stop-opacity=".45">
+</stop>
+<stop offset="40%" stop-color="white" stop-opacity="0">
+</stop>
+<stop offset="60%" stop-color="white" stop-opacity="0">
+</stop>
+<stop offset="75%" stop-color="white" stop-opacity=".45">
+</stop>
+<stop offset="100%" stop-color="white">
+</stop>
+</linearGradient>
+<mask id="abyssa-notched-pill-mask-_R_eia_">
+<rect width="190" height="48" fill="url(#abyssa-notched-pill-fade-_R_eia_)">
+</rect>
+</mask>
+<clipPath id="abyssa-notched-pill-clip-_R_eia_">
+<path d="M24 5 H166 A19 19 0 0 1 185 24 A19 19 0 0 1 166 43 H24 A19 19 0 0 1 5 24 A19 19 0 0 1 24 5 Z">
+</path>
+</clipPath>
+</defs>
+<path d="M24 5 H166 A19 19 0 0 1 185 24 A19 19 0 0 1 166 43 H24 A19 19 0 0 1 5 24 A19 19 0 0 1 24 5 Z" fill="var(--abyssa-notched-fill)">
+</path>
+<rect x="3" y="3" width="184" height="42" fill="url(#abyssa-notched-pill-pattern-_R_eia_)" mask="url(#abyssa-notched-pill-mask-_R_eia_)" clip-path="url(#abyssa-notched-pill-clip-_R_eia_)">
+</rect>
+<path d="M24 5 H166 A19 19 0 0 1 185 24 A19 19 0 0 1 166 43 H24 A19 19 0 0 1 5 24 A19 19 0 0 1 24 5 Z" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="7" stroke-linejoin="round">
+</path>
+<path d="M24 5 H166 A19 19 0 0 1 185 24 A19 19 0 0 1 166 43 H24 A19 19 0 0 1 5 24 A19 19 0 0 1 24 5 Z" fill="none" stroke="var(--abyssa-notched-middle)" stroke-width="3.7" stroke-linejoin="round">
+</path>
+<path d="M24 5 H166 A19 19 0 0 1 185 24 A19 19 0 0 1 166 43 H24 A19 19 0 0 1 5 24 A19 19 0 0 1 24 5 Z" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="1.3" stroke-linejoin="round">
+</path>
+<path d="M25 11 H165 A13 13 0 0 1 178 24 A13 13 0 0 1 165 37 H102 L95 41 L88 37 H25 A13 13 0 0 1 12 24 A13 13 0 0 1 25 11 Z" fill="none" stroke="var(--abyssa-notched-ornament)" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" opacity=".88">
+</path>
+<text class="abyssa-notched-pill__label" x="95" y="24">Previous</text>
+</svg>
+</button>
+<button type="button" class="abyssa-notched-pill" data-variant="teal" aria-label="Continue">
+<svg viewBox="0 0 190 48" aria-hidden="true">
+<defs>
+<pattern id="abyssa-notched-pill-pattern-_R_iia_" width="26" height="26" patternUnits="userSpaceOnUse" patternTransform="translate(0 -2)" data-watermark="double-diamond">
+<path d="M13 0 L26 13 L13 26 L0 13 Z" fill="var(--abyssa-notched-pattern-dark)" opacity="0.72" data-layer="outer">
+</path>
+<path d="M13 6 L20 13 L13 20 L6 13 Z" fill="var(--abyssa-notched-pattern-light)" opacity="0.62" data-layer="inner">
+</path>
+</pattern>
+<linearGradient id="abyssa-notched-pill-fade-_R_iia_" x1="0" y1="0" x2="1" y2="0">
+<stop offset="0%" stop-color="white">
+</stop>
+<stop offset="25%" stop-color="white" stop-opacity=".45">
+</stop>
+<stop offset="40%" stop-color="white" stop-opacity="0">
+</stop>
+<stop offset="60%" stop-color="white" stop-opacity="0">
+</stop>
+<stop offset="75%" stop-color="white" stop-opacity=".45">
+</stop>
+<stop offset="100%" stop-color="white">
+</stop>
+</linearGradient>
+<mask id="abyssa-notched-pill-mask-_R_iia_">
+<rect width="190" height="48" fill="url(#abyssa-notched-pill-fade-_R_iia_)">
+</rect>
+</mask>
+<clipPath id="abyssa-notched-pill-clip-_R_iia_">
+<path d="M24 5 H166 A19 19 0 0 1 185 24 A19 19 0 0 1 166 43 H24 A19 19 0 0 1 5 24 A19 19 0 0 1 24 5 Z">
+</path>
+</clipPath>
+</defs>
+<path d="M24 5 H166 A19 19 0 0 1 185 24 A19 19 0 0 1 166 43 H24 A19 19 0 0 1 5 24 A19 19 0 0 1 24 5 Z" fill="var(--abyssa-notched-fill)">
+</path>
+<rect x="3" y="3" width="184" height="42" fill="url(#abyssa-notched-pill-pattern-_R_iia_)" mask="url(#abyssa-notched-pill-mask-_R_iia_)" clip-path="url(#abyssa-notched-pill-clip-_R_iia_)">
+</rect>
+<path d="M24 5 H166 A19 19 0 0 1 185 24 A19 19 0 0 1 166 43 H24 A19 19 0 0 1 5 24 A19 19 0 0 1 24 5 Z" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="7" stroke-linejoin="round">
+</path>
+<path d="M24 5 H166 A19 19 0 0 1 185 24 A19 19 0 0 1 166 43 H24 A19 19 0 0 1 5 24 A19 19 0 0 1 24 5 Z" fill="none" stroke="var(--abyssa-notched-middle)" stroke-width="3.7" stroke-linejoin="round">
+</path>
+<path d="M24 5 H166 A19 19 0 0 1 185 24 A19 19 0 0 1 166 43 H24 A19 19 0 0 1 5 24 A19 19 0 0 1 24 5 Z" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="1.3" stroke-linejoin="round">
+</path>
+<path d="M25 11 H165 A13 13 0 0 1 178 24 A13 13 0 0 1 165 37 H102 L95 41 L88 37 H25 A13 13 0 0 1 12 24 A13 13 0 0 1 25 11 Z" fill="none" stroke="var(--abyssa-notched-ornament)" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" opacity=".88">
+</path>
+<text class="abyssa-notched-pill__label" x="95" y="24">Continue</text>
+</svg>
+</button>
+</div>
+</div>
+</article>
+<article class="catalog-card" id="rpgbackbutton">
+<header class="catalog-card__header">
+<h3>RpgBackButton</h3>
+<a href="#rpgbackbutton">#</a>
+</header>
+<div class="catalog-card__stage">
+<div class="inline centered">
+<button type="button" class="abyssa-back-button" data-variant="dark" aria-label="Back">
+<svg viewBox="0 0 190 190" aria-hidden="true">
+<defs>
+<pattern id="abyssa-back-pattern-_R_6ma_" width="42" height="42" patternUnits="userSpaceOnUse" patternTransform="translate(4 4)" data-watermark="double-diamond">
+<path d="M21 0 L42 21 L21 42 L0 21 Z" fill="var(--abyssa-back-pattern-dark)" opacity="0.72" data-layer="outer">
+</path>
+<path d="M21 10 L32 21 L21 32 L10 21 Z" fill="var(--abyssa-back-pattern-light)" opacity="0.62" data-layer="inner">
+</path>
+</pattern>
+<clipPath id="abyssa-back-clip-_R_6ma_">
+<path d="M16 14 H176 V174 Z">
+</path>
+</clipPath>
+</defs>
+<path d="M16 14 H176 V174 Z" fill="var(--abyssa-back-fill)">
+</path>
+<rect x="12" y="10" width="168" height="168" fill="url(#abyssa-back-pattern-_R_6ma_)" clip-path="url(#abyssa-back-clip-_R_6ma_)">
+</rect>
+<path d="M16 14 H176 V174 Z" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="10" stroke-linejoin="miter">
+</path>
+<path d="M16 14 H176 V174 Z" fill="none" stroke="var(--abyssa-back-middle)" stroke-width="5" stroke-linejoin="miter">
+</path>
+<path d="M16 14 H176 V174 Z" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2" stroke-linejoin="miter">
+</path>
+<path d="M51 35 H155 V139 Z" fill="none" stroke="var(--abyssa-back-ornament)" stroke-width="1.5" stroke-linejoin="miter" opacity=".92">
+</path>
+<path d="M58 41 H149 V132 Z" fill="none" stroke="var(--abyssa-back-ornament)" stroke-width=".75" stroke-linejoin="miter" opacity=".55">
+</path>
+<g fill="var(--abyssa-back-ornament)">
+<circle cx="136" cy="21" r="1">
+</circle>
+<circle cx="148" cy="21" r="1.35">
+</circle>
+<circle cx="160" cy="21" r="1">
+</circle>
+<circle cx="169" cy="43" r="1">
+</circle>
+<circle cx="169" cy="55" r="1.35">
+</circle>
+<circle cx="169" cy="67" r="1">
+</circle>
+</g>
+<text class="abyssa-back-button__label" x="127" y="69">Back</text>
+</svg>
+</button>
+<button type="button" class="abyssa-back-button" data-variant="teal" aria-label="Back">
+<svg viewBox="0 0 190 190" aria-hidden="true">
+<defs>
+<pattern id="abyssa-back-pattern-_R_ama_" width="42" height="42" patternUnits="userSpaceOnUse" patternTransform="translate(4 4)" data-watermark="double-diamond">
+<path d="M21 0 L42 21 L21 42 L0 21 Z" fill="var(--abyssa-back-pattern-dark)" opacity="0.72" data-layer="outer">
+</path>
+<path d="M21 10 L32 21 L21 32 L10 21 Z" fill="var(--abyssa-back-pattern-light)" opacity="0.62" data-layer="inner">
+</path>
+</pattern>
+<clipPath id="abyssa-back-clip-_R_ama_">
+<path d="M16 14 H176 V174 Z">
+</path>
+</clipPath>
+</defs>
+<path d="M16 14 H176 V174 Z" fill="var(--abyssa-back-fill)">
+</path>
+<rect x="12" y="10" width="168" height="168" fill="url(#abyssa-back-pattern-_R_ama_)" clip-path="url(#abyssa-back-clip-_R_ama_)">
+</rect>
+<path d="M16 14 H176 V174 Z" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="10" stroke-linejoin="miter">
+</path>
+<path d="M16 14 H176 V174 Z" fill="none" stroke="var(--abyssa-back-middle)" stroke-width="5" stroke-linejoin="miter">
+</path>
+<path d="M16 14 H176 V174 Z" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2" stroke-linejoin="miter">
+</path>
+<path d="M51 35 H155 V139 Z" fill="none" stroke="var(--abyssa-back-ornament)" stroke-width="1.5" stroke-linejoin="miter" opacity=".92">
+</path>
+<path d="M58 41 H149 V132 Z" fill="none" stroke="var(--abyssa-back-ornament)" stroke-width=".75" stroke-linejoin="miter" opacity=".55">
+</path>
+<g fill="var(--abyssa-back-ornament)">
+<circle cx="136" cy="21" r="1">
+</circle>
+<circle cx="148" cy="21" r="1.35">
+</circle>
+<circle cx="160" cy="21" r="1">
+</circle>
+<circle cx="169" cy="43" r="1">
+</circle>
+<circle cx="169" cy="55" r="1.35">
+</circle>
+<circle cx="169" cy="67" r="1">
+</circle>
+</g>
+<text class="abyssa-back-button__label" x="127" y="69">Back</text>
+</svg>
+</button>
+</div>
+</div>
+</article>
+<article class="catalog-card" id="iconbutton-arrowbutton">
+<header class="catalog-card__header">
+<h3>IconButton / ArrowButton</h3>
+<a href="#iconbutton-arrowbutton">#</a>
+</header>
+<div class="catalog-card__stage">
+<div class="icon-grid">
+<button type="button" class="abyssa-icon-button" data-variant="dark" data-size="lg" data-shape="diamond" data-density="regular" aria-label="关闭">
+<svg class="abyssa-icon-button__art" viewBox="0 0 120 120" aria-hidden="true">
+<defs>
+<pattern id="abyssa-icon-pattern-_R_6qa_" width="34" height="34" patternUnits="userSpaceOnUse" data-watermark="double-diamond">
+<path d="M17 0 L34 17 L17 34 L0 17 Z" fill="var(--abyssa-icon-pattern-dark)" opacity="0.72" data-layer="outer">
+</path>
+<path d="M17 8 L26 17 L17 26 L8 17 Z" fill="var(--abyssa-icon-pattern-light)" opacity="0.62" data-layer="inner">
+</path>
+</pattern>
+<clipPath id="abyssa-icon-clip-_R_6qa_">
+<path d="M60 7 L113 60 L60 113 L7 60 Z">
+</path>
+</clipPath>
+</defs>
+<path d="M60 7 L113 60 L60 113 L7 60 Z" fill="var(--abyssa-icon-fill)">
+</path>
+<rect x="5" y="5" width="110" height="110" fill="url(#abyssa-icon-pattern-_R_6qa_)" clip-path="url(#abyssa-icon-clip-_R_6qa_)">
+</rect>
+<path d="M60 7 L113 60 L60 113 L7 60 Z" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="9" stroke-linejoin="miter">
+</path>
+<path d="M60 7 L113 60 L60 113 L7 60 Z" fill="none" stroke="var(--abyssa-icon-middle)" stroke-width="5" stroke-linejoin="miter">
+</path>
+<path d="M60 7 L113 60 L60 113 L7 60 Z" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2" stroke-linejoin="miter">
+</path>
+<path d="M60 17 L103 60 L60 103 L17 60 Z" fill="none" stroke="var(--abyssa-icon-ornament)" stroke-width="1.25" stroke-linejoin="miter" opacity="0.9">
+</path>
+<g fill="none" stroke="var(--abyssa-icon-ink)" stroke-width="6" stroke-linecap="square" stroke-linejoin="miter">
+<path d="M46 46 L74 74">
+</path>
+<path d="M74 46 L46 74">
+</path>
+</g>
+</svg>
+</button>
+<button type="button" class="abyssa-icon-button" data-variant="light" data-size="md" data-shape="circle" data-density="compact" aria-label="增加">
+<svg class="abyssa-icon-button__art" viewBox="0 0 120 120" aria-hidden="true">
+<defs>
+<pattern id="abyssa-icon-pattern-_R_aqa_" width="30" height="30" patternUnits="userSpaceOnUse" data-watermark="double-diamond">
+<path d="M15 0 L30 15 L15 30 L0 15 Z" fill="var(--abyssa-icon-pattern-dark)" opacity="0.72" data-layer="outer">
+</path>
+<path d="M15 7 L23 15 L15 23 L7 15 Z" fill="var(--abyssa-icon-pattern-light)" opacity="0.62" data-layer="inner">
+</path>
+</pattern>
+<clipPath id="abyssa-icon-clip-_R_aqa_">
+<circle cx="60" cy="60" r="53">
+</circle>
+</clipPath>
+</defs>
+<circle cx="60" cy="60" r="53" fill="var(--abyssa-icon-fill)">
+</circle>
+<rect x="4" y="4" width="112" height="112" fill="url(#abyssa-icon-pattern-_R_aqa_)" clip-path="url(#abyssa-icon-clip-_R_aqa_)">
+</rect>
+<circle cx="60" cy="60" r="53" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="9">
+</circle>
+<circle cx="60" cy="60" r="53" fill="none" stroke="var(--abyssa-icon-middle)" stroke-width="5">
+</circle>
+<circle cx="60" cy="60" r="53" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2">
+</circle>
+<circle cx="60" cy="60" r="47" fill="none" stroke="var(--abyssa-icon-ornament)" stroke-width="1.35" opacity="0.92">
+</circle>
+<g fill="none" stroke="var(--abyssa-icon-ink)" stroke-width="7.5" stroke-linecap="round" stroke-linejoin="round">
+<path d="M39 60 H81">
+</path>
+<path d="M60 39 V81">
+</path>
+</g>
+</svg>
+</button>
+<button type="button" class="abyssa-icon-button" data-variant="teal" data-size="md" data-shape="circle" data-density="compact" aria-label="减少">
+<svg class="abyssa-icon-button__art" viewBox="0 0 120 120" aria-hidden="true">
+<defs>
+<pattern id="abyssa-icon-pattern-_R_eqa_" width="30" height="30" patternUnits="userSpaceOnUse" data-watermark="double-diamond">
+<path d="M15 0 L30 15 L15 30 L0 15 Z" fill="var(--abyssa-icon-pattern-dark)" opacity="0.72" data-layer="outer">
+</path>
+<path d="M15 7 L23 15 L15 23 L7 15 Z" fill="var(--abyssa-icon-pattern-light)" opacity="0.62" data-layer="inner">
+</path>
+</pattern>
+<clipPath id="abyssa-icon-clip-_R_eqa_">
+<circle cx="60" cy="60" r="53">
+</circle>
+</clipPath>
+</defs>
+<circle cx="60" cy="60" r="53" fill="var(--abyssa-icon-fill)">
+</circle>
+<rect x="4" y="4" width="112" height="112" fill="url(#abyssa-icon-pattern-_R_eqa_)" clip-path="url(#abyssa-icon-clip-_R_eqa_)">
+</rect>
+<circle cx="60" cy="60" r="53" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="9">
+</circle>
+<circle cx="60" cy="60" r="53" fill="none" stroke="var(--abyssa-icon-middle)" stroke-width="5">
+</circle>
+<circle cx="60" cy="60" r="53" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2">
+</circle>
+<circle cx="60" cy="60" r="47" fill="none" stroke="var(--abyssa-icon-ornament)" stroke-width="1.35" opacity="0.92">
+</circle>
+<g fill="none" stroke="var(--abyssa-icon-ink)" stroke-width="7.5" stroke-linecap="round" stroke-linejoin="round">
+<path d="M39 60 H81">
+</path>
+</g>
+</svg>
+</button>
+<button type="button" class="abyssa-icon-button" data-variant="dark" data-size="md" data-shape="circle" data-density="compact" aria-label="向左">
+<svg class="abyssa-icon-button__art" viewBox="0 0 120 120" aria-hidden="true">
+<defs>
+<pattern id="abyssa-icon-pattern-_R_iqa_" width="30" height="30" patternUnits="userSpaceOnUse" data-watermark="double-diamond">
+<path d="M15 0 L30 15 L15 30 L0 15 Z" fill="var(--abyssa-icon-pattern-dark)" opacity="0.72" data-layer="outer">
+</path>
+<path d="M15 7 L23 15 L15 23 L7 15 Z" fill="var(--abyssa-icon-pattern-light)" opacity="0.62" data-layer="inner">
+</path>
+</pattern>
+<clipPath id="abyssa-icon-clip-_R_iqa_">
+<circle cx="60" cy="60" r="53">
+</circle>
+</clipPath>
+</defs>
+<circle cx="60" cy="60" r="53" fill="var(--abyssa-icon-fill)">
+</circle>
+<rect x="4" y="4" width="112" height="112" fill="url(#abyssa-icon-pattern-_R_iqa_)" clip-path="url(#abyssa-icon-clip-_R_iqa_)">
+</rect>
+<circle cx="60" cy="60" r="53" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="9">
+</circle>
+<circle cx="60" cy="60" r="53" fill="none" stroke="var(--abyssa-icon-middle)" stroke-width="5">
+</circle>
+<circle cx="60" cy="60" r="53" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2">
+</circle>
+<circle cx="60" cy="60" r="47" fill="none" stroke="var(--abyssa-icon-ornament)" stroke-width="1.35" opacity="0.92">
+</circle>
+</svg>
+<span class="abyssa-icon-button__custom" aria-hidden="true">
+<svg class="abyssa-arrow-icon" viewBox="0 0 32 32" style="transform:rotate(180deg)">
+<path d="M7 5 L18 16 L7 27">
+</path>
+</svg>
+</span>
+</button>
+<button type="button" class="abyssa-icon-button" data-variant="teal" data-size="md" data-shape="circle" data-density="compact" aria-label="向右">
+<svg class="abyssa-icon-button__art" viewBox="0 0 120 120" aria-hidden="true">
+<defs>
+<pattern id="abyssa-icon-pattern-_R_mqa_" width="30" height="30" patternUnits="userSpaceOnUse" data-watermark="double-diamond">
+<path d="M15 0 L30 15 L15 30 L0 15 Z" fill="var(--abyssa-icon-pattern-dark)" opacity="0.72" data-layer="outer">
+</path>
+<path d="M15 7 L23 15 L15 23 L7 15 Z" fill="var(--abyssa-icon-pattern-light)" opacity="0.62" data-layer="inner">
+</path>
+</pattern>
+<clipPath id="abyssa-icon-clip-_R_mqa_">
+<circle cx="60" cy="60" r="53">
+</circle>
+</clipPath>
+</defs>
+<circle cx="60" cy="60" r="53" fill="var(--abyssa-icon-fill)">
+</circle>
+<rect x="4" y="4" width="112" height="112" fill="url(#abyssa-icon-pattern-_R_mqa_)" clip-path="url(#abyssa-icon-clip-_R_mqa_)">
+</rect>
+<circle cx="60" cy="60" r="53" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="9">
+</circle>
+<circle cx="60" cy="60" r="53" fill="none" stroke="var(--abyssa-icon-middle)" stroke-width="5">
+</circle>
+<circle cx="60" cy="60" r="53" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2">
+</circle>
+<circle cx="60" cy="60" r="47" fill="none" stroke="var(--abyssa-icon-ornament)" stroke-width="1.35" opacity="0.92">
+</circle>
+</svg>
+<span class="abyssa-icon-button__custom" aria-hidden="true">
+<svg class="abyssa-arrow-icon" viewBox="0 0 32 32" style="transform:rotate(0deg)">
+<path d="M7 5 L18 16 L7 27">
+</path>
+<path d="M14 5 L25 16 L14 27">
+</path>
+</svg>
+</span>
+</button>
+</div>
+</div>
+</article>
+</div>
+</section>
+<section class="catalog-section" id="inputs">
+<header class="catalog-section__header">
+<h2>输入与导航</h2>
+<span aria-hidden="true">
+</span>
+</header>
+<div class="catalog-grid">
+<article class="catalog-card" data-wide="true" id="rpgtab">
+<header class="catalog-card__header">
+<h3>RpgTab</h3>
+<a href="#rpgtab">#</a>
+</header>
+<div class="catalog-card__stage">
+<div class="tab-row" role="tablist" aria-label="状态分类">
+<button type="button" class="abyssa-rpg-tab" data-variant="dark" data-selected="true" aria-label="status" aria-pressed="true" role="tab" aria-selected="true">
+<svg viewBox="0 0 180 78" aria-hidden="true">
+<defs>
+<pattern id="abyssa-tab-pattern-_R_66e_" width="42" height="42" patternUnits="userSpaceOnUse" patternTransform="translate(0 -4)" data-watermark="double-diamond">
+<path d="M21 0 L42 21 L21 42 L0 21 Z" fill="var(--abyssa-tab-pattern-dark)" opacity="0.72" data-layer="outer">
+</path>
+<path d="M21 10 L32 21 L21 32 L10 21 Z" fill="var(--abyssa-tab-pattern-light)" opacity="0.62" data-layer="inner">
+</path>
+</pattern>
+<clipPath id="abyssa-tab-clip-_R_66e_">
+<path d="M7 78 V20 Q7 7 20 7 H160 Q173 7 173 20 V78 Z">
+</path>
+</clipPath>
+</defs>
+<path d="M7 78 V20 Q7 7 20 7 H160 Q173 7 173 20 V78 Z" fill="var(--abyssa-tab-fill)">
+</path>
+<rect x="5" y="5" width="170" height="73" fill="url(#abyssa-tab-pattern-_R_66e_)" clip-path="url(#abyssa-tab-clip-_R_66e_)">
+</rect>
+<path d="M7 78 V20 Q7 7 20 7 H160 Q173 7 173 20 V78" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="9" stroke-linecap="butt" stroke-linejoin="round">
+</path>
+<path d="M7 78 V20 Q7 7 20 7 H160 Q173 7 173 20 V78" fill="none" stroke="var(--abyssa-tab-middle)" stroke-width="5" stroke-linecap="butt" stroke-linejoin="round">
+</path>
+<path d="M7 78 V20 Q7 7 20 7 H160 Q173 7 173 20 V78" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round">
+</path>
+<path d="M15 78 V23 Q15 15 24 15 H156 Q165 15 165 23 V78" fill="none" stroke="var(--abyssa-tab-ornament)" stroke-width="1.2" stroke-linecap="butt" opacity=".9">
+</path>
+<path d="M20 31 V21 H31 M149 21 H160 V31" fill="none" stroke="var(--abyssa-tab-ornament)" stroke-width="1" opacity=".75">
+</path>
+<g fill="var(--abyssa-tab-ornament)">
+<circle cx="84" cy="15" r="1.1">
+</circle>
+<circle cx="90" cy="15" r="1.45">
+</circle>
+<circle cx="96" cy="15" r="1.1">
+</circle>
+</g>
+<text class="abyssa-rpg-tab__label" x="90" y="48">status</text>
+</svg>
+</button>
+<button type="button" class="abyssa-rpg-tab" data-variant="light" aria-label="items" aria-pressed="false" role="tab" aria-selected="false">
+<svg viewBox="0 0 180 78" aria-hidden="true">
+<defs>
+<pattern id="abyssa-tab-pattern-_R_a6e_" width="42" height="42" patternUnits="userSpaceOnUse" patternTransform="translate(0 -4)" data-watermark="double-diamond">
+<path d="M21 0 L42 21 L21 42 L0 21 Z" fill="var(--abyssa-tab-pattern-dark)" opacity="0.72" data-layer="outer">
+</path>
+<path d="M21 10 L32 21 L21 32 L10 21 Z" fill="var(--abyssa-tab-pattern-light)" opacity="0.62" data-layer="inner">
+</path>
+</pattern>
+<clipPath id="abyssa-tab-clip-_R_a6e_">
+<path d="M7 78 V20 Q7 7 20 7 H160 Q173 7 173 20 V78 Z">
+</path>
+</clipPath>
+</defs>
+<path d="M7 78 V20 Q7 7 20 7 H160 Q173 7 173 20 V78 Z" fill="var(--abyssa-tab-fill)">
+</path>
+<rect x="5" y="5" width="170" height="73" fill="url(#abyssa-tab-pattern-_R_a6e_)" clip-path="url(#abyssa-tab-clip-_R_a6e_)">
+</rect>
+<path d="M7 78 V20 Q7 7 20 7 H160 Q173 7 173 20 V78" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="9" stroke-linecap="butt" stroke-linejoin="round">
+</path>
+<path d="M7 78 V20 Q7 7 20 7 H160 Q173 7 173 20 V78" fill="none" stroke="var(--abyssa-tab-middle)" stroke-width="5" stroke-linecap="butt" stroke-linejoin="round">
+</path>
+<path d="M7 78 V20 Q7 7 20 7 H160 Q173 7 173 20 V78" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round">
+</path>
+<path d="M15 78 V23 Q15 15 24 15 H156 Q165 15 165 23 V78" fill="none" stroke="var(--abyssa-tab-ornament)" stroke-width="1.2" stroke-linecap="butt" opacity=".9">
+</path>
+<path d="M20 31 V21 H31 M149 21 H160 V31" fill="none" stroke="var(--abyssa-tab-ornament)" stroke-width="1" opacity=".75">
+</path>
+<g fill="var(--abyssa-tab-ornament)">
+<circle cx="84" cy="15" r="1.1">
+</circle>
+<circle cx="90" cy="15" r="1.45">
+</circle>
+<circle cx="96" cy="15" r="1.1">
+</circle>
+</g>
+<text class="abyssa-rpg-tab__label" x="90" y="48">items</text>
+</svg>
+</button>
+<button type="button" class="abyssa-rpg-tab" data-variant="decorated" aria-label="archive" aria-pressed="false" role="tab" aria-selected="false">
+<svg viewBox="0 0 180 78" aria-hidden="true">
+<defs>
+<pattern id="abyssa-tab-pattern-_R_e6e_" width="42" height="42" patternUnits="userSpaceOnUse" patternTransform="translate(0 -4)" data-watermark="double-diamond">
+<path d="M21 0 L42 21 L21 42 L0 21 Z" fill="var(--abyssa-tab-pattern-dark)" opacity="0.72" data-layer="outer">
+</path>
+<path d="M21 10 L32 21 L21 32 L10 21 Z" fill="var(--abyssa-tab-pattern-light)" opacity="0.62" data-layer="inner">
+</path>
+</pattern>
+<clipPath id="abyssa-tab-clip-_R_e6e_">
+<path d="M7 78 V20 Q7 7 20 7 H160 Q173 7 173 20 V78 Z">
+</path>
+</clipPath>
+</defs>
+<path d="M7 78 V20 Q7 7 20 7 H160 Q173 7 173 20 V78 Z" fill="var(--abyssa-tab-fill)">
+</path>
+<rect x="5" y="5" width="170" height="73" fill="url(#abyssa-tab-pattern-_R_e6e_)" clip-path="url(#abyssa-tab-clip-_R_e6e_)">
+</rect>
+<path d="M7 78 V20 Q7 7 20 7 H160 Q173 7 173 20 V78" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="9" stroke-linecap="butt" stroke-linejoin="round">
+</path>
+<path d="M7 78 V20 Q7 7 20 7 H160 Q173 7 173 20 V78" fill="none" stroke="var(--abyssa-tab-middle)" stroke-width="5" stroke-linecap="butt" stroke-linejoin="round">
+</path>
+<path d="M7 78 V20 Q7 7 20 7 H160 Q173 7 173 20 V78" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round">
+</path>
+<path d="M15 78 V23 Q15 15 24 15 H156 Q165 15 165 23 V78" fill="none" stroke="var(--abyssa-tab-ornament)" stroke-width="1.2" stroke-linecap="butt" opacity=".9">
+</path>
+<path d="M20 31 V21 H31 M149 21 H160 V31" fill="none" stroke="var(--abyssa-tab-ornament)" stroke-width="1" opacity=".75">
+</path>
+<g fill="var(--abyssa-tab-ornament)">
+<circle cx="84" cy="15" r="1.1">
+</circle>
+<circle cx="90" cy="15" r="1.45">
+</circle>
+<circle cx="96" cy="15" r="1.1">
+</circle>
+</g>
+<g fill="var(--abyssa-tab-ornament)">
+<circle cx="145" cy="16" r="1">
+</circle>
+<circle cx="153" cy="16" r="1.5">
+</circle>
+<circle cx="160" cy="20" r="1">
+</circle>
+</g>
+<text class="abyssa-rpg-tab__label" x="90" y="48">archive</text>
+</svg>
+</button>
+<button type="button" class="abyssa-rpg-tab" data-variant="teal" aria-label="map" aria-pressed="false" role="tab" aria-selected="false">
+<svg viewBox="0 0 180 78" aria-hidden="true">
+<defs>
+<pattern id="abyssa-tab-pattern-_R_i6e_" width="42" height="42" patternUnits="userSpaceOnUse" patternTransform="translate(0 -4)" data-watermark="double-diamond">
+<path d="M21 0 L42 21 L21 42 L0 21 Z" fill="var(--abyssa-tab-pattern-dark)" opacity="0.72" data-layer="outer">
+</path>
+<path d="M21 10 L32 21 L21 32 L10 21 Z" fill="var(--abyssa-tab-pattern-light)" opacity="0.62" data-layer="inner">
+</path>
+</pattern>
+<clipPath id="abyssa-tab-clip-_R_i6e_">
+<path d="M7 78 V20 Q7 7 20 7 H160 Q173 7 173 20 V78 Z">
+</path>
+</clipPath>
+</defs>
+<path d="M7 78 V20 Q7 7 20 7 H160 Q173 7 173 20 V78 Z" fill="var(--abyssa-tab-fill)">
+</path>
+<rect x="5" y="5" width="170" height="73" fill="url(#abyssa-tab-pattern-_R_i6e_)" clip-path="url(#abyssa-tab-clip-_R_i6e_)">
+</rect>
+<path d="M7 78 V20 Q7 7 20 7 H160 Q173 7 173 20 V78" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="9" stroke-linecap="butt" stroke-linejoin="round">
+</path>
+<path d="M7 78 V20 Q7 7 20 7 H160 Q173 7 173 20 V78" fill="none" stroke="var(--abyssa-tab-middle)" stroke-width="5" stroke-linecap="butt" stroke-linejoin="round">
+</path>
+<path d="M7 78 V20 Q7 7 20 7 H160 Q173 7 173 20 V78" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round">
+</path>
+<path d="M15 78 V23 Q15 15 24 15 H156 Q165 15 165 23 V78" fill="none" stroke="var(--abyssa-tab-ornament)" stroke-width="1.2" stroke-linecap="butt" opacity=".9">
+</path>
+<path d="M20 31 V21 H31 M149 21 H160 V31" fill="none" stroke="var(--abyssa-tab-ornament)" stroke-width="1" opacity=".75">
+</path>
+<g fill="var(--abyssa-tab-ornament)">
+<circle cx="84" cy="15" r="1.1">
+</circle>
+<circle cx="90" cy="15" r="1.45">
+</circle>
+<circle cx="96" cy="15" r="1.1">
+</circle>
+</g>
+<g fill="var(--abyssa-tab-ornament)">
+<circle cx="145" cy="16" r="1">
+</circle>
+<circle cx="153" cy="16" r="1.5">
+</circle>
+<circle cx="160" cy="20" r="1">
+</circle>
+</g>
+<text class="abyssa-rpg-tab__label" x="90" y="48">map</text>
+</svg>
+</button>
+</div>
+</div>
+</article>
+<article class="catalog-card" id="toggle">
+<header class="catalog-card__header">
+<h3>Toggle</h3>
+<a href="#toggle">#</a>
+</header>
+<div class="catalog-card__stage">
+<div class="control-line">
+<button type="button" role="switch" aria-checked="true" class="abyssa-toggle" data-variant="teal" data-size="md" data-checked="true">
+<svg class="abyssa-diamond-watermark abyssa-toggle__watermark" aria-hidden="true" focusable="false" data-watermark="double-diamond">
+<defs>
+<pattern id="abyssa-diamond-watermark-_R_mae_" width="22" height="22" patternUnits="userSpaceOnUse" data-watermark="double-diamond">
+<path d="M11 0 L22 11 L11 22 L0 11 Z" fill="var(--abyssa-watermark-outer, rgb(255 255 255 / 3.5%))" opacity="0.72" data-layer="outer">
+</path>
+<path d="M11 5.28 L16.72 11 L11 16.72 L5.28 11 Z" fill="var(--abyssa-watermark-inner, rgb(255 255 255 / 1.8%))" opacity="0.62" data-layer="inner">
+</path>
+</pattern>
+</defs>
+<rect width="100%" height="100%" fill="url(#abyssa-diamond-watermark-_R_mae_)">
+</rect>
+</svg>
+<span class="abyssa-toggle__label">On</span>
+<span class="abyssa-toggle__marker" aria-hidden="true">
+</span>
+</button>
+<output>ON</output>
+</div>
+</div>
+</article>
+<article class="catalog-card" id="rpgradio-rpgcheckbox">
+<header class="catalog-card__header">
+<h3>RpgRadio / RpgCheckbox</h3>
+<a href="#rpgradio-rpgcheckbox">#</a>
+</header>
+<div class="catalog-card__stage">
+<div class="choice-grid">
+<div role="radiogroup" aria-label="主题">
+<label>
+<label class="abyssa-choice abyssa-choice--radio" data-variant="gray">
+<input type="radio" aria-label="gray theme" name="preview-theme"/>
+<svg viewBox="0 0 48 48" aria-hidden="true">
+<defs>
+<pattern id="abyssa-radio-watermark-_R_2mee_" width="16" height="16" patternUnits="userSpaceOnUse" data-watermark="double-diamond">
+<path d="M8 0 L16 8 L8 16 L0 8 Z" fill="var(--abyssa-choice-pattern-outer)" opacity="0.72" data-layer="outer">
+</path>
+<path d="M8 3.84 L12.16 8 L8 12.16 L3.84 8 Z" fill="var(--abyssa-choice-pattern-inner)" opacity="0.62" data-layer="inner">
+</path>
+</pattern>
+</defs>
+<circle cx="24" cy="24" r="18" fill="var(--abyssa-choice-fill)">
+</circle>
+<circle cx="24" cy="24" r="18" fill="url(#abyssa-radio-watermark-_R_2mee_)">
+</circle>
+<circle cx="24" cy="24" r="18" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="5">
+</circle>
+<circle cx="24" cy="24" r="18" fill="none" stroke="var(--abyssa-choice-middle)" stroke-width="2.8">
+</circle>
+<circle cx="24" cy="24" r="18" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="1.2">
+</circle>
+<circle cx="24" cy="24" r="14.5" fill="none" stroke="var(--abyssa-choice-accent)" stroke-width=".9" opacity=".7">
+</circle>
+<circle class="abyssa-choice__mark" cx="24" cy="24" r="10.5" fill="var(--abyssa-choice-core)">
+</circle>
+</svg>
+</label>
+<span>gray</span>
+</label>
+<label>
+<label class="abyssa-choice abyssa-choice--radio" data-variant="dark">
+<input type="radio" aria-label="dark theme" name="preview-theme" checked=""/>
+<svg viewBox="0 0 48 48" aria-hidden="true">
+<defs>
+<pattern id="abyssa-radio-watermark-_R_36ee_" width="16" height="16" patternUnits="userSpaceOnUse" data-watermark="double-diamond">
+<path d="M8 0 L16 8 L8 16 L0 8 Z" fill="var(--abyssa-choice-pattern-outer)" opacity="0.72" data-layer="outer">
+</path>
+<path d="M8 3.84 L12.16 8 L8 12.16 L3.84 8 Z" fill="var(--abyssa-choice-pattern-inner)" opacity="0.62" data-layer="inner">
+</path>
+</pattern>
+</defs>
+<circle cx="24" cy="24" r="18" fill="var(--abyssa-choice-fill)">
+</circle>
+<circle cx="24" cy="24" r="18" fill="url(#abyssa-radio-watermark-_R_36ee_)">
+</circle>
+<circle cx="24" cy="24" r="18" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="5">
+</circle>
+<circle cx="24" cy="24" r="18" fill="none" stroke="var(--abyssa-choice-middle)" stroke-width="2.8">
+</circle>
+<circle cx="24" cy="24" r="18" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="1.2">
+</circle>
+<circle cx="24" cy="24" r="14.5" fill="none" stroke="var(--abyssa-choice-accent)" stroke-width=".9" opacity=".7">
+</circle>
+<circle class="abyssa-choice__mark" cx="24" cy="24" r="10.5" fill="var(--abyssa-choice-core)">
+</circle>
+</svg>
+</label>
+<span>dark</span>
+</label>
+<label>
+<label class="abyssa-choice abyssa-choice--radio" data-variant="teal">
+<input type="radio" aria-label="teal theme" name="preview-theme"/>
+<svg viewBox="0 0 48 48" aria-hidden="true">
+<defs>
+<pattern id="abyssa-radio-watermark-_R_3mee_" width="16" height="16" patternUnits="userSpaceOnUse" data-watermark="double-diamond">
+<path d="M8 0 L16 8 L8 16 L0 8 Z" fill="var(--abyssa-choice-pattern-outer)" opacity="0.72" data-layer="outer">
+</path>
+<path d="M8 3.84 L12.16 8 L8 12.16 L3.84 8 Z" fill="var(--abyssa-choice-pattern-inner)" opacity="0.62" data-layer="inner">
+</path>
+</pattern>
+</defs>
+<circle cx="24" cy="24" r="18" fill="var(--abyssa-choice-fill)">
+</circle>
+<circle cx="24" cy="24" r="18" fill="url(#abyssa-radio-watermark-_R_3mee_)">
+</circle>
+<circle cx="24" cy="24" r="18" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="5">
+</circle>
+<circle cx="24" cy="24" r="18" fill="none" stroke="var(--abyssa-choice-middle)" stroke-width="2.8">
+</circle>
+<circle cx="24" cy="24" r="18" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="1.2">
+</circle>
+<circle cx="24" cy="24" r="14.5" fill="none" stroke="var(--abyssa-choice-accent)" stroke-width=".9" opacity=".7">
+</circle>
+<circle class="abyssa-choice__mark" cx="24" cy="24" r="10.5" fill="var(--abyssa-choice-core)">
+</circle>
+</svg>
+</label>
+<span>teal</span>
+</label>
+</div>
+<div>
+<label>
+<label class="abyssa-choice abyssa-choice--checkbox" data-variant="empty">
+<input type="checkbox" aria-label="空白"/>
+<svg viewBox="0 0 48 48" aria-hidden="true">
+<defs>
+<pattern id="abyssa-checkbox-watermark-_R_2qee_" width="16" height="16" patternUnits="userSpaceOnUse" data-watermark="double-diamond">
+<path d="M8 0 L16 8 L8 16 L0 8 Z" fill="var(--abyssa-choice-pattern-outer)" opacity="0.72" data-layer="outer">
+</path>
+<path d="M8 3.84 L12.16 8 L8 12.16 L3.84 8 Z" fill="var(--abyssa-choice-pattern-inner)" opacity="0.62" data-layer="inner">
+</path>
+</pattern>
+</defs>
+<rect x="6" y="6" width="36" height="36" fill="var(--abyssa-choice-fill)">
+</rect>
+<rect x="6" y="6" width="36" height="36" fill="url(#abyssa-checkbox-watermark-_R_2qee_)">
+</rect>
+<rect x="6" y="6" width="36" height="36" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="5">
+</rect>
+<rect x="6" y="6" width="36" height="36" fill="none" stroke="var(--abyssa-choice-middle)" stroke-width="2.8">
+</rect>
+<rect x="6" y="6" width="36" height="36" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="1.2">
+</rect>
+<rect x="10" y="10" width="28" height="28" fill="none" stroke="var(--abyssa-choice-accent)" stroke-width=".9" opacity=".75">
+</rect>
+<path class="abyssa-choice__mark" d="M15.5 24.5 L21.5 30.5 L33 18" fill="none" stroke="var(--abyssa-choice-check)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+</path>
+</svg>
+</label>
+<span>empty</span>
+</label>
+<label>
+<label class="abyssa-choice abyssa-choice--checkbox" data-variant="dark">
+<input type="checkbox" aria-label="暗色" checked=""/>
+<svg viewBox="0 0 48 48" aria-hidden="true">
+<defs>
+<pattern id="abyssa-checkbox-watermark-_R_3aee_" width="16" height="16" patternUnits="userSpaceOnUse" data-watermark="double-diamond">
+<path d="M8 0 L16 8 L8 16 L0 8 Z" fill="var(--abyssa-choice-pattern-outer)" opacity="0.72" data-layer="outer">
+</path>
+<path d="M8 3.84 L12.16 8 L8 12.16 L3.84 8 Z" fill="var(--abyssa-choice-pattern-inner)" opacity="0.62" data-layer="inner">
+</path>
+</pattern>
+</defs>
+<rect x="6" y="6" width="36" height="36" fill="var(--abyssa-choice-fill)">
+</rect>
+<rect x="6" y="6" width="36" height="36" fill="url(#abyssa-checkbox-watermark-_R_3aee_)">
+</rect>
+<rect x="6" y="6" width="36" height="36" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="5">
+</rect>
+<rect x="6" y="6" width="36" height="36" fill="none" stroke="var(--abyssa-choice-middle)" stroke-width="2.8">
+</rect>
+<rect x="6" y="6" width="36" height="36" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="1.2">
+</rect>
+<rect x="10" y="10" width="28" height="28" fill="none" stroke="var(--abyssa-choice-accent)" stroke-width=".9" opacity=".75">
+</rect>
+<path class="abyssa-choice__mark" d="M15.5 24.5 L21.5 30.5 L33 18" fill="none" stroke="var(--abyssa-choice-check)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+</path>
+</svg>
+</label>
+<span>dark</span>
+</label>
+<label>
+<label class="abyssa-choice abyssa-choice--checkbox" data-variant="teal">
+<input type="checkbox" aria-label="青色" checked=""/>
+<svg viewBox="0 0 48 48" aria-hidden="true">
+<defs>
+<pattern id="abyssa-checkbox-watermark-_R_3qee_" width="16" height="16" patternUnits="userSpaceOnUse" data-watermark="double-diamond">
+<path d="M8 0 L16 8 L8 16 L0 8 Z" fill="var(--abyssa-choice-pattern-outer)" opacity="0.72" data-layer="outer">
+</path>
+<path d="M8 3.84 L12.16 8 L8 12.16 L3.84 8 Z" fill="var(--abyssa-choice-pattern-inner)" opacity="0.62" data-layer="inner">
+</path>
+</pattern>
+</defs>
+<rect x="6" y="6" width="36" height="36" fill="var(--abyssa-choice-fill)">
+</rect>
+<rect x="6" y="6" width="36" height="36" fill="url(#abyssa-checkbox-watermark-_R_3qee_)">
+</rect>
+<rect x="6" y="6" width="36" height="36" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="5">
+</rect>
+<rect x="6" y="6" width="36" height="36" fill="none" stroke="var(--abyssa-choice-middle)" stroke-width="2.8">
+</rect>
+<rect x="6" y="6" width="36" height="36" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="1.2">
+</rect>
+<rect x="10" y="10" width="28" height="28" fill="none" stroke="var(--abyssa-choice-accent)" stroke-width=".9" opacity=".75">
+</rect>
+<path class="abyssa-choice__mark" d="M15.5 24.5 L21.5 30.5 L33 18" fill="none" stroke="var(--abyssa-choice-check)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+</path>
+</svg>
+</label>
+<span>teal</span>
+</label>
+</div>
+</div>
+</div>
+</article>
+<article class="catalog-card" data-wide="true" id="rpgdiamondnodetrack">
+<header class="catalog-card__header">
+<h3>RpgDiamondNodeTrack</h3>
+<a href="#rpgdiamondnodetrack">#</a>
+</header>
+<div class="catalog-card__stage">
+<div class="abyssa-diamond-track" role="group" aria-label="响应级别">
+<span class="abyssa-diamond-track__line" aria-hidden="true">
+</span>
+<button type="button" class="abyssa-diamond-node" data-variant="inactive" aria-label="安静" aria-pressed="false">
+<svg viewBox="0 0 50 50" aria-hidden="true">
+<defs>
+<pattern id="abyssa-diamond-node-pattern-_R_qie_" width="16" height="16" patternUnits="userSpaceOnUse" data-watermark="double-diamond">
+<path d="M8 0 L16 8 L8 16 L0 8 Z" fill="var(--abyssa-node-pattern-dark)" opacity="0.72" data-layer="outer">
+</path>
+<path d="M8 4 L12 8 L8 12 L4 8 Z" fill="var(--abyssa-node-pattern-light)" opacity="0.62" data-layer="inner">
+</path>
+</pattern>
+</defs>
+<path d="M25 3 L47 25 L25 47 L3 25 Z" fill="var(--abyssa-node-fill)">
+</path>
+<path d="M25 3 L47 25 L25 47 L3 25 Z" fill="url(#abyssa-diamond-node-pattern-_R_qie_)">
+</path>
+<path d="M25 3 L47 25 L25 47 L3 25 Z" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="7">
+</path>
+<path d="M25 3 L47 25 L25 47 L3 25 Z" fill="none" stroke="var(--abyssa-node-middle)" stroke-width="3">
+</path>
+<path d="M25 3 L47 25 L25 47 L3 25 Z" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="1">
+</path>
+<path d="M18 19 L12 25 L18 31 M32 19 L38 25 L32 31" fill="none" stroke="var(--abyssa-node-arrow)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+</path>
+</svg>
+</button>
+<button type="button" class="abyssa-diamond-node" data-variant="active" data-selected="true" aria-label="均衡" aria-pressed="true">
+<svg viewBox="0 0 50 50" aria-hidden="true">
+<defs>
+<pattern id="abyssa-diamond-node-pattern-_R_1aie_" width="16" height="16" patternUnits="userSpaceOnUse" data-watermark="double-diamond">
+<path d="M8 0 L16 8 L8 16 L0 8 Z" fill="var(--abyssa-node-pattern-dark)" opacity="0.72" data-layer="outer">
+</path>
+<path d="M8 4 L12 8 L8 12 L4 8 Z" fill="var(--abyssa-node-pattern-light)" opacity="0.62" data-layer="inner">
+</path>
+</pattern>
+</defs>
+<path d="M25 3 L47 25 L25 47 L3 25 Z" fill="var(--abyssa-node-fill)">
+</path>
+<path d="M25 3 L47 25 L25 47 L3 25 Z" fill="url(#abyssa-diamond-node-pattern-_R_1aie_)">
+</path>
+<path d="M25 3 L47 25 L25 47 L3 25 Z" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="7">
+</path>
+<path d="M25 3 L47 25 L25 47 L3 25 Z" fill="none" stroke="var(--abyssa-node-middle)" stroke-width="3.5">
+</path>
+<path d="M25 3 L47 25 L25 47 L3 25 Z" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="1.2">
+</path>
+<path d="M18 19 L12 25 L18 31 M32 19 L38 25 L32 31" fill="none" stroke="var(--abyssa-node-arrow)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+</path>
+</svg>
+</button>
+<button type="button" class="abyssa-diamond-node" data-variant="teal" aria-label="鲜明" aria-pressed="false">
+<svg viewBox="0 0 50 50" aria-hidden="true">
+<defs>
+<pattern id="abyssa-diamond-node-pattern-_R_1qie_" width="16" height="16" patternUnits="userSpaceOnUse" data-watermark="double-diamond">
+<path d="M8 0 L16 8 L8 16 L0 8 Z" fill="var(--abyssa-node-pattern-dark)" opacity="0.72" data-layer="outer">
+</path>
+<path d="M8 4 L12 8 L8 12 L4 8 Z" fill="var(--abyssa-node-pattern-light)" opacity="0.62" data-layer="inner">
+</path>
+</pattern>
+</defs>
+<path d="M25 3 L47 25 L25 47 L3 25 Z" fill="var(--abyssa-node-fill)">
+</path>
+<path d="M25 3 L47 25 L25 47 L3 25 Z" fill="url(#abyssa-diamond-node-pattern-_R_1qie_)">
+</path>
+<path d="M25 3 L47 25 L25 47 L3 25 Z" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="7">
+</path>
+<path d="M25 3 L47 25 L25 47 L3 25 Z" fill="none" stroke="var(--abyssa-node-middle)" stroke-width="3">
+</path>
+<path d="M25 3 L47 25 L25 47 L3 25 Z" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="1">
+</path>
+<path d="M18 19 L12 25 L18 31 M32 19 L38 25 L32 31" fill="none" stroke="var(--abyssa-node-arrow)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+</path>
+</svg>
+</button>
+</div>
+</div>
+</article>
+</div>
+</section>
+<section class="catalog-section" id="status">
+<header class="catalog-section__header">
+<h2>状态与信息</h2>
+<span aria-hidden="true">
+</span>
+</header>
+<div class="catalog-grid">
+<article class="catalog-card" id="nameplate">
+<header class="catalog-card__header">
+<h3>Nameplate</h3>
+<a href="#nameplate">#</a>
+</header>
+<div class="catalog-card__stage">
+<div class="abyssa-nameplate" data-variant="dark">
+<div class="abyssa-nameplate__middle">
+<div class="abyssa-nameplate__inner">
+<div class="abyssa-nameplate__content">
+<svg class="abyssa-diamond-watermark abyssa-nameplate__watermark" aria-hidden="true" focusable="false" data-watermark="double-diamond">
+<defs>
+<pattern id="abyssa-diamond-watermark-_R_66i_" width="34" height="34" patternUnits="userSpaceOnUse" data-watermark="double-diamond">
+<path d="M17 0 L34 17 L17 34 L0 17 Z" fill="var(--abyssa-watermark-outer, rgb(255 255 255 / 3.5%))" opacity="0.55" data-layer="outer">
+</path>
+<path d="M17 8.16 L25.84 17 L17 25.84 L8.16 17 Z" fill="var(--abyssa-watermark-inner, rgb(255 255 255 / 1.8%))" opacity="0.45" data-layer="inner">
+</path>
+</pattern>
+</defs>
+<rect width="100%" height="100%" fill="url(#abyssa-diamond-watermark-_R_66i_)">
+</rect>
+</svg>
+<strong>艾比希斯·贝尔泽兰</strong>
+<span>ABYSSA BEELZERAN</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</article>
+<article class="catalog-card" id="progress">
+<header class="catalog-card__header">
+<h3>Progress</h3>
+<a href="#progress">#</a>
+</header>
+<div class="catalog-card__stage">
+<div class="stack progress-list">
+<div class="abyssa-progress-group">
+<span class="abyssa-progress-group__meta">
+<span>Stability</span>
+<span>83%</span>
+</span>
+<div class="abyssa-progress" data-variant="teal" data-size="md" role="progressbar" aria-label="Stability" aria-valuemin="0" aria-valuemax="100" aria-valuenow="83">
+<svg class="abyssa-diamond-watermark abyssa-progress__watermark" aria-hidden="true" focusable="false" data-watermark="double-diamond">
+<defs>
+<pattern id="abyssa-diamond-watermark-_R_36ai_" width="18" height="18" patternUnits="userSpaceOnUse" data-watermark="double-diamond">
+<path d="M9 0 L18 9 L9 18 L0 9 Z" fill="var(--abyssa-watermark-outer, rgb(255 255 255 / 3.5%))" opacity="0.7" data-layer="outer">
+</path>
+<path d="M9 4.32 L13.68 9 L9 13.68 L4.32 9 Z" fill="var(--abyssa-watermark-inner, rgb(255 255 255 / 1.8%))" opacity="0.6" data-layer="inner">
+</path>
+</pattern>
+</defs>
+<rect width="100%" height="100%" fill="url(#abyssa-diamond-watermark-_R_36ai_)">
+</rect>
+</svg>
+<span style="width:83%">
+</span>
+</div>
+</div>
+<div class="abyssa-progress-group">
+<span class="abyssa-progress-group__meta">
+<span>Resonance</span>
+<span>52%</span>
+</span>
+<div class="abyssa-progress" data-variant="light" data-size="sm" role="progressbar" aria-label="Resonance" aria-valuemin="0" aria-valuemax="100" aria-valuenow="52">
+<svg class="abyssa-diamond-watermark abyssa-progress__watermark" aria-hidden="true" focusable="false" data-watermark="double-diamond">
+<defs>
+<pattern id="abyssa-diamond-watermark-_R_3aai_" width="18" height="18" patternUnits="userSpaceOnUse" data-watermark="double-diamond">
+<path d="M9 0 L18 9 L9 18 L0 9 Z" fill="var(--abyssa-watermark-outer, rgb(255 255 255 / 3.5%))" opacity="0.7" data-layer="outer">
+</path>
+<path d="M9 4.32 L13.68 9 L9 13.68 L4.32 9 Z" fill="var(--abyssa-watermark-inner, rgb(255 255 255 / 1.8%))" opacity="0.6" data-layer="inner">
+</path>
+</pattern>
+</defs>
+<rect width="100%" height="100%" fill="url(#abyssa-diamond-watermark-_R_3aai_)">
+</rect>
+</svg>
+<span style="width:52%">
+</span>
+</div>
+</div>
+</div>
+</div>
+</article>
+<article class="catalog-card" id="rpgstatusnode">
+<header class="catalog-card__header">
+<h3>RpgStatusNode</h3>
+<a href="#rpgstatusnode">#</a>
+</header>
+<div class="catalog-card__stage">
+<div class="inline centered">
+<button type="button" class="abyssa-status-node" data-variant="disabled" aria-label="不可用">
+<svg viewBox="0 0 86 54" aria-hidden="true">
+<defs>
+<pattern id="abyssa-status-node-watermark-_R_6ei_" width="14" height="14" patternUnits="userSpaceOnUse" data-watermark="double-diamond">
+<path d="M7 0 L14 7 L7 14 L0 7 Z" fill="var(--abyssa-status-node-pattern-outer)" opacity="0.72" data-layer="outer">
+</path>
+<path d="M7 3.36 L10.64 7 L7 10.64 L3.36 7 Z" fill="var(--abyssa-status-node-pattern-inner)" opacity="0.62" data-layer="inner">
+</path>
+</pattern>
+</defs>
+<path d="M2 27 H84" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="3.2" stroke-linecap="round">
+</path>
+<path d="M2 25.8 H84" fill="none" stroke="#c3cccc" stroke-width=".8" stroke-linecap="round" opacity=".58">
+</path>
+<circle cx="43" cy="27" r="20" fill="var(--abyssa-status-node-fill)">
+</circle>
+<circle cx="43" cy="27" r="20" fill="url(#abyssa-status-node-watermark-_R_6ei_)">
+</circle>
+<circle cx="43" cy="27" r="20" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="6">
+</circle>
+<circle cx="43" cy="27" r="20" fill="none" stroke="var(--abyssa-status-node-middle)" stroke-width="3.2">
+</circle>
+<circle cx="43" cy="27" r="20" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="1.3">
+</circle>
+<circle cx="43" cy="27" r="15.5" fill="none" stroke="var(--abyssa-status-node-inner)" stroke-width="1" opacity=".85">
+</circle>
+<g fill="none" stroke="var(--abyssa-status-node-icon)" stroke-width="2.8" stroke-linecap="round">
+<path d="M37 21 L49 33">
+</path>
+<path d="M49 21 L37 33">
+</path>
+</g>
+</svg>
+</button>
+<button type="button" class="abyssa-status-node" data-variant="dark" aria-label="已确认">
+<svg viewBox="0 0 86 54" aria-hidden="true">
+<defs>
+<pattern id="abyssa-status-node-watermark-_R_aei_" width="14" height="14" patternUnits="userSpaceOnUse" data-watermark="double-diamond">
+<path d="M7 0 L14 7 L7 14 L0 7 Z" fill="var(--abyssa-status-node-pattern-outer)" opacity="0.72" data-layer="outer">
+</path>
+<path d="M7 3.36 L10.64 7 L7 10.64 L3.36 7 Z" fill="var(--abyssa-status-node-pattern-inner)" opacity="0.62" data-layer="inner">
+</path>
+</pattern>
+</defs>
+<path d="M2 27 H84" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="3.2" stroke-linecap="round">
+</path>
+<path d="M2 25.8 H84" fill="none" stroke="#c3cccc" stroke-width=".8" stroke-linecap="round" opacity=".58">
+</path>
+<circle cx="43" cy="27" r="20" fill="var(--abyssa-status-node-fill)">
+</circle>
+<circle cx="43" cy="27" r="20" fill="url(#abyssa-status-node-watermark-_R_aei_)">
+</circle>
+<circle cx="43" cy="27" r="20" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="6">
+</circle>
+<circle cx="43" cy="27" r="20" fill="none" stroke="var(--abyssa-status-node-middle)" stroke-width="3.2">
+</circle>
+<circle cx="43" cy="27" r="20" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="1.3">
+</circle>
+<circle cx="43" cy="27" r="15.5" fill="none" stroke="var(--abyssa-status-node-inner)" stroke-width="1" opacity=".85">
+</circle>
+<path d="M34.5 27 L40.5 33 L51.5 21.5" fill="none" stroke="var(--abyssa-status-node-icon)" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round">
+</path>
+</svg>
+</button>
+<button type="button" class="abyssa-status-node" data-variant="teal" aria-label="已选中">
+<svg viewBox="0 0 86 54" aria-hidden="true">
+<defs>
+<pattern id="abyssa-status-node-watermark-_R_eei_" width="14" height="14" patternUnits="userSpaceOnUse" data-watermark="double-diamond">
+<path d="M7 0 L14 7 L7 14 L0 7 Z" fill="var(--abyssa-status-node-pattern-outer)" opacity="0.72" data-layer="outer">
+</path>
+<path d="M7 3.36 L10.64 7 L7 10.64 L3.36 7 Z" fill="var(--abyssa-status-node-pattern-inner)" opacity="0.62" data-layer="inner">
+</path>
+</pattern>
+</defs>
+<path d="M2 27 H84" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="3.2" stroke-linecap="round">
+</path>
+<path d="M2 25.8 H84" fill="none" stroke="#c3cccc" stroke-width=".8" stroke-linecap="round" opacity=".58">
+</path>
+<circle cx="43" cy="27" r="20" fill="var(--abyssa-status-node-fill)">
+</circle>
+<circle cx="43" cy="27" r="20" fill="url(#abyssa-status-node-watermark-_R_eei_)">
+</circle>
+<circle cx="43" cy="27" r="20" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="6">
+</circle>
+<circle cx="43" cy="27" r="20" fill="none" stroke="var(--abyssa-status-node-middle)" stroke-width="3.2">
+</circle>
+<circle cx="43" cy="27" r="20" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="1.3">
+</circle>
+<circle cx="43" cy="27" r="15.5" fill="none" stroke="var(--abyssa-status-node-inner)" stroke-width="1" opacity=".85">
+</circle>
+<path d="M34.5 27 L40.5 33 L51.5 21.5" fill="none" stroke="var(--abyssa-status-node-icon)" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round">
+</path>
+</svg>
+</button>
+</div>
+</div>
+</article>
+<article class="catalog-card" id="verticalindicator">
+<header class="catalog-card__header">
+<h3>VerticalIndicator</h3>
+<a href="#verticalindicator">#</a>
+</header>
+<div class="catalog-card__stage">
+<div class="inline indicators">
+<div class="abyssa-vertical-indicator" data-variant="dark">
+<svg viewBox="0 0 40 170" role="img" aria-label="纵向指示器">
+<defs>
+<pattern id="abyssa-indicator-pattern-_R_6ii_" width="20" height="20" patternUnits="userSpaceOnUse" data-watermark="double-diamond">
+<path d="M10 0 L20 10 L10 20 L0 10 Z" fill="var(--abyssa-indicator-pattern-dark)" opacity="0.72" data-layer="outer">
+</path>
+<path d="M10 5 L15 10 L10 15 L5 10 Z" fill="var(--abyssa-indicator-pattern-light)" opacity="0.62" data-layer="inner">
+</path>
+</pattern>
+<clipPath id="abyssa-indicator-clip-_R_6ii_">
+<path d="M20 20 L33 30 V140 L20 150 L7 140 V30 Z">
+</path>
+</clipPath>
+</defs>
+<path d="M20 0 V170" fill="none" stroke="var(--abyssa-indicator-axis)" stroke-width="3" stroke-linecap="square">
+</path>
+<path d="M20 20 L33 30 V140 L20 150 L7 140 V30 Z" fill="var(--abyssa-indicator-fill)">
+</path>
+<rect x="5" y="18" width="30" height="134" fill="url(#abyssa-indicator-pattern-_R_6ii_)" clip-path="url(#abyssa-indicator-clip-_R_6ii_)">
+</rect>
+<path d="M20 20 L33 30 V140 L20 150 L7 140 V30 Z" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="6" stroke-linejoin="round">
+</path>
+<path d="M20 20 L33 30 V140 L20 150 L7 140 V30 Z" fill="none" stroke="var(--abyssa-indicator-middle)" stroke-width="3.2" stroke-linejoin="round">
+</path>
+<path d="M20 20 L33 30 V140 L20 150 L7 140 V30 Z" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="1.3" stroke-linejoin="round">
+</path>
+<path d="M20 27 L27 33 V137 L20 143 L13 137 V33 Z" fill="none" stroke="var(--abyssa-indicator-ornament)" stroke-width="1" stroke-linejoin="round" opacity=".92">
+</path>
+<circle cx="20" cy="34" r="1.35" fill="var(--abyssa-indicator-ornament)">
+</circle>
+<circle cx="20" cy="136" r="1.35" fill="var(--abyssa-indicator-ornament)">
+</circle>
+</svg>
+</div>
+<div class="abyssa-vertical-indicator" data-variant="light">
+<svg viewBox="0 0 40 170" role="img" aria-label="纵向指示器">
+<defs>
+<pattern id="abyssa-indicator-pattern-_R_aii_" width="20" height="20" patternUnits="userSpaceOnUse" data-watermark="double-diamond">
+<path d="M10 0 L20 10 L10 20 L0 10 Z" fill="var(--abyssa-indicator-pattern-dark)" opacity="0.72" data-layer="outer">
+</path>
+<path d="M10 5 L15 10 L10 15 L5 10 Z" fill="var(--abyssa-indicator-pattern-light)" opacity="0.62" data-layer="inner">
+</path>
+</pattern>
+<clipPath id="abyssa-indicator-clip-_R_aii_">
+<path d="M20 20 L33 30 V140 L20 150 L7 140 V30 Z">
+</path>
+</clipPath>
+</defs>
+<path d="M20 0 V170" fill="none" stroke="var(--abyssa-indicator-axis)" stroke-width="3" stroke-linecap="square">
+</path>
+<path d="M20 20 L33 30 V140 L20 150 L7 140 V30 Z" fill="var(--abyssa-indicator-fill)">
+</path>
+<rect x="5" y="18" width="30" height="134" fill="url(#abyssa-indicator-pattern-_R_aii_)" clip-path="url(#abyssa-indicator-clip-_R_aii_)">
+</rect>
+<path d="M20 20 L33 30 V140 L20 150 L7 140 V30 Z" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="6" stroke-linejoin="round">
+</path>
+<path d="M20 20 L33 30 V140 L20 150 L7 140 V30 Z" fill="none" stroke="var(--abyssa-indicator-middle)" stroke-width="3.2" stroke-linejoin="round">
+</path>
+<path d="M20 20 L33 30 V140 L20 150 L7 140 V30 Z" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="1.3" stroke-linejoin="round">
+</path>
+<path d="M20 27 L27 33 V137 L20 143 L13 137 V33 Z" fill="none" stroke="var(--abyssa-indicator-ornament)" stroke-width="1" stroke-linejoin="round" opacity=".92">
+</path>
+<circle cx="20" cy="34" r="1.35" fill="var(--abyssa-indicator-ornament)">
+</circle>
+<circle cx="20" cy="136" r="1.35" fill="var(--abyssa-indicator-ornament)">
+</circle>
+</svg>
+</div>
+<div class="abyssa-vertical-indicator" data-variant="teal">
+<svg viewBox="0 0 40 170" role="img" aria-label="纵向指示器">
+<defs>
+<pattern id="abyssa-indicator-pattern-_R_eii_" width="20" height="20" patternUnits="userSpaceOnUse" data-watermark="double-diamond">
+<path d="M10 0 L20 10 L10 20 L0 10 Z" fill="var(--abyssa-indicator-pattern-dark)" opacity="0.72" data-layer="outer">
+</path>
+<path d="M10 5 L15 10 L10 15 L5 10 Z" fill="var(--abyssa-indicator-pattern-light)" opacity="0.62" data-layer="inner">
+</path>
+</pattern>
+<clipPath id="abyssa-indicator-clip-_R_eii_">
+<path d="M20 20 L33 30 V140 L20 150 L7 140 V30 Z">
+</path>
+</clipPath>
+</defs>
+<path d="M20 0 V170" fill="none" stroke="var(--abyssa-indicator-axis)" stroke-width="3" stroke-linecap="square">
+</path>
+<path d="M20 20 L33 30 V140 L20 150 L7 140 V30 Z" fill="var(--abyssa-indicator-fill)">
+</path>
+<rect x="5" y="18" width="30" height="134" fill="url(#abyssa-indicator-pattern-_R_eii_)" clip-path="url(#abyssa-indicator-clip-_R_eii_)">
+</rect>
+<path d="M20 20 L33 30 V140 L20 150 L7 140 V30 Z" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="6" stroke-linejoin="round">
+</path>
+<path d="M20 20 L33 30 V140 L20 150 L7 140 V30 Z" fill="none" stroke="var(--abyssa-indicator-middle)" stroke-width="3.2" stroke-linejoin="round">
+</path>
+<path d="M20 20 L33 30 V140 L20 150 L7 140 V30 Z" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="1.3" stroke-linejoin="round">
+</path>
+<path d="M20 27 L27 33 V137 L20 143 L13 137 V33 Z" fill="none" stroke="var(--abyssa-indicator-ornament)" stroke-width="1" stroke-linejoin="round" opacity=".92">
+</path>
+<circle cx="20" cy="34" r="1.35" fill="var(--abyssa-indicator-ornament)">
+</circle>
+<circle cx="20" cy="136" r="1.35" fill="var(--abyssa-indicator-ornament)">
+</circle>
+</svg>
+</div>
+</div>
+</div>
+</article>
+<article class="catalog-card" data-wide="true" id="rpgdialogue">
+<header class="catalog-card__header">
+<h3>RpgDialogue</h3>
+<a href="#rpgdialogue">#</a>
+</header>
+<div class="catalog-card__stage">
+<div class="stack dialogues">
+<section class="abyssa-dialogue" data-variant="dark" aria-label="Abyssa的对话">
+<svg viewBox="0 0 1200 260" preserveAspectRatio="none" aria-hidden="true">
+<defs>
+<pattern id="abyssa-dialogue-panel-pattern-_R_6mi_" width="94" height="94" patternUnits="userSpaceOnUse" patternTransform="translate(0 -12)" data-watermark="double-diamond">
+<path d="M47 0 L94 47 L47 94 L0 47 Z" fill="var(--abyssa-dialogue-pattern-main)" opacity="0.48" data-layer="outer">
+</path>
+<path d="M47 21 L73 47 L47 73 L21 47 Z" fill="var(--abyssa-dialogue-pattern-second)" opacity="0.38" data-layer="inner">
+</path>
+</pattern>
+<pattern id="abyssa-dialogue-name-pattern-_R_6mi_" width="64" height="64" patternUnits="userSpaceOnUse" data-watermark="double-diamond">
+<path d="M32 0 L64 32 L32 64 L0 32 Z" fill="rgb(255 255 255 / 2.2%)" opacity="0.48" data-layer="outer">
+</path>
+<path d="M32 15 L49 32 L32 49 L15 32 Z" fill="rgb(255 255 255 / 1.1%)" opacity="0.38" data-layer="inner">
+</path>
+</pattern>
+<clipPath id="abyssa-dialogue-panel-clip-_R_6mi_">
+<path d="M10 63 H1190 V250 H10 Z">
+</path>
+</clipPath>
+<clipPath id="abyssa-dialogue-name-clip-_R_6mi_">
+<path d="M18 64 V11 H458 L468 43 C472 56 484 63 505 64 Z">
+</path>
+</clipPath>
+</defs>
+<path d="M18 64 V11 H458 L468 43 C472 56 484 63 505 64 Z" fill="#111515">
+</path>
+<rect x="14" y="7" width="500" height="61" fill="url(#abyssa-dialogue-name-pattern-_R_6mi_)" clip-path="url(#abyssa-dialogue-name-clip-_R_6mi_)">
+</rect>
+<path d="M18 64 V11 H458 L468 43 C472 56 484 63 505 64 Z" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="8" stroke-linejoin="round">
+</path>
+<path d="M18 64 V11 H458 L468 43 C472 56 484 63 505 64 Z" fill="none" stroke="#667475" stroke-width="4" stroke-linejoin="round">
+</path>
+<path d="M18 64 V11 H458 L468 43 C472 56 484 63 505 64 Z" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="1.5" stroke-linejoin="round">
+</path>
+<path d="M29 18 H447 L454 42 C458 54 466 58 480 60" fill="none" stroke="#596465" stroke-width="1.15" stroke-linejoin="round" opacity=".8">
+</path>
+<g fill="#596465">
+<circle cx="87" cy="57" r="1.1">
+</circle>
+<circle cx="96" cy="57" r="1.45">
+</circle>
+<circle cx="105" cy="57" r="1.1">
+</circle>
+</g>
+<path d="M10 63 H1190 V250 H10 Z" fill="var(--abyssa-dialogue-fill)">
+</path>
+<rect x="7" y="60" width="1186" height="193" fill="url(#abyssa-dialogue-panel-pattern-_R_6mi_)" clip-path="url(#abyssa-dialogue-panel-clip-_R_6mi_)">
+</rect>
+<path d="M10 63 H1190 V250 H10 Z" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="9">
+</path>
+<path d="M10 63 H1190 V250 H10 Z" fill="none" stroke="var(--abyssa-dialogue-middle)" stroke-width="5">
+</path>
+<path d="M10 63 H1190 V250 H10 Z" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2">
+</path>
+<rect x="19" y="72" width="1162" height="167" fill="none" stroke="var(--abyssa-dialogue-ornament)" stroke-width="1.35" opacity=".92">
+</rect>
+<rect x="24" y="77" width="1152" height="157" fill="none" stroke="var(--abyssa-dialogue-ornament)" stroke-width=".65" opacity=".52">
+</rect>
+<g fill="none" stroke="var(--abyssa-dialogue-ornament)" stroke-linecap="square">
+<path d="M24 94 V77 H41 M1159 77 H1176 V94 M24 217 V234 H41 M1159 234 H1176 V217" stroke-width="1.5">
+</path>
+<path d="M29 90 V82 H37 M1163 82 H1171 V90 M29 221 V229 H37 M1163 229 H1171 V221" stroke-width=".85">
+</path>
+</g>
+<g fill="var(--abyssa-dialogue-ornament)">
+<rect x="28" y="81" width="4" height="4">
+</rect>
+<rect x="35" y="81" width="2" height="2" opacity=".65">
+</rect>
+<rect x="1168" y="81" width="4" height="4">
+</rect>
+<rect x="1163" y="81" width="2" height="2" opacity=".65">
+</rect>
+<rect x="28" y="226" width="4" height="4">
+</rect>
+<rect x="35" y="228" width="2" height="2" opacity=".65">
+</rect>
+<rect x="1168" y="226" width="4" height="4">
+</rect>
+<rect x="1163" y="228" width="2" height="2" opacity=".65">
+</rect>
+</g>
+</svg>
+<div class="abyssa-dialogue__name">Abyssa</div>
+<div class="abyssa-dialogue__content">……太阳的光，感觉舒服的时候，就醒了。
+这里的阳光，味道最好。</div>
+</section>
+<section class="abyssa-dialogue" data-variant="light" aria-label="name tag的对话">
+<svg viewBox="0 0 1200 260" preserveAspectRatio="none" aria-hidden="true">
+<defs>
+<pattern id="abyssa-dialogue-panel-pattern-_R_ami_" width="94" height="94" patternUnits="userSpaceOnUse" patternTransform="translate(0 -12)" data-watermark="double-diamond">
+<path d="M47 0 L94 47 L47 94 L0 47 Z" fill="var(--abyssa-dialogue-pattern-main)" opacity="0.48" data-layer="outer">
+</path>
+<path d="M47 21 L73 47 L47 73 L21 47 Z" fill="var(--abyssa-dialogue-pattern-second)" opacity="0.38" data-layer="inner">
+</path>
+</pattern>
+<pattern id="abyssa-dialogue-name-pattern-_R_ami_" width="64" height="64" patternUnits="userSpaceOnUse" data-watermark="double-diamond">
+<path d="M32 0 L64 32 L32 64 L0 32 Z" fill="rgb(255 255 255 / 2.2%)" opacity="0.48" data-layer="outer">
+</path>
+<path d="M32 15 L49 32 L32 49 L15 32 Z" fill="rgb(255 255 255 / 1.1%)" opacity="0.38" data-layer="inner">
+</path>
+</pattern>
+<clipPath id="abyssa-dialogue-panel-clip-_R_ami_">
+<path d="M10 63 H1190 V250 H10 Z">
+</path>
+</clipPath>
+<clipPath id="abyssa-dialogue-name-clip-_R_ami_">
+<path d="M18 64 V11 H458 L468 43 C472 56 484 63 505 64 Z">
+</path>
+</clipPath>
+</defs>
+<path d="M18 64 V11 H458 L468 43 C472 56 484 63 505 64 Z" fill="#111515">
+</path>
+<rect x="14" y="7" width="500" height="61" fill="url(#abyssa-dialogue-name-pattern-_R_ami_)" clip-path="url(#abyssa-dialogue-name-clip-_R_ami_)">
+</rect>
+<path d="M18 64 V11 H458 L468 43 C472 56 484 63 505 64 Z" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="8" stroke-linejoin="round">
+</path>
+<path d="M18 64 V11 H458 L468 43 C472 56 484 63 505 64 Z" fill="none" stroke="#667475" stroke-width="4" stroke-linejoin="round">
+</path>
+<path d="M18 64 V11 H458 L468 43 C472 56 484 63 505 64 Z" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="1.5" stroke-linejoin="round">
+</path>
+<path d="M29 18 H447 L454 42 C458 54 466 58 480 60" fill="none" stroke="#596465" stroke-width="1.15" stroke-linejoin="round" opacity=".8">
+</path>
+<g fill="#596465">
+<circle cx="87" cy="57" r="1.1">
+</circle>
+<circle cx="96" cy="57" r="1.45">
+</circle>
+<circle cx="105" cy="57" r="1.1">
+</circle>
+</g>
+<path d="M10 63 H1190 V250 H10 Z" fill="var(--abyssa-dialogue-fill)">
+</path>
+<rect x="7" y="60" width="1186" height="193" fill="url(#abyssa-dialogue-panel-pattern-_R_ami_)" clip-path="url(#abyssa-dialogue-panel-clip-_R_ami_)">
+</rect>
+<path d="M10 63 H1190 V250 H10 Z" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="9">
+</path>
+<path d="M10 63 H1190 V250 H10 Z" fill="none" stroke="var(--abyssa-dialogue-middle)" stroke-width="5">
+</path>
+<path d="M10 63 H1190 V250 H10 Z" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2">
+</path>
+<rect x="19" y="72" width="1162" height="167" fill="none" stroke="var(--abyssa-dialogue-ornament)" stroke-width="1.35" opacity=".92">
+</rect>
+<rect x="24" y="77" width="1152" height="157" fill="none" stroke="var(--abyssa-dialogue-ornament)" stroke-width=".65" opacity=".52">
+</rect>
+<g fill="none" stroke="var(--abyssa-dialogue-ornament)" stroke-linecap="square">
+<path d="M24 94 V77 H41 M1159 77 H1176 V94 M24 217 V234 H41 M1159 234 H1176 V217" stroke-width="1.5">
+</path>
+<path d="M29 90 V82 H37 M1163 82 H1171 V90 M29 221 V229 H37 M1163 229 H1171 V221" stroke-width=".85">
+</path>
+</g>
+<g fill="var(--abyssa-dialogue-ornament)">
+<rect x="28" y="81" width="4" height="4">
+</rect>
+<rect x="35" y="81" width="2" height="2" opacity=".65">
+</rect>
+<rect x="1168" y="81" width="4" height="4">
+</rect>
+<rect x="1163" y="81" width="2" height="2" opacity=".65">
+</rect>
+<rect x="28" y="226" width="4" height="4">
+</rect>
+<rect x="35" y="228" width="2" height="2" opacity=".65">
+</rect>
+<rect x="1168" y="226" width="4" height="4">
+</rect>
+<rect x="1163" y="228" width="2" height="2" opacity=".65">
+</rect>
+</g>
+</svg>
+<div class="abyssa-dialogue__name">name tag</div>
+</section>
+</div>
+</div>
+</article>
+<article class="catalog-card" data-wide="true" data-tall="true" id="statuspanel">
+<header class="catalog-card__header">
+<h3>StatusPanel</h3>
+<a href="#statuspanel">#</a>
+</header>
+<div class="catalog-card__stage">
+<div class="abyssa-status-panel">
+<div class="abyssa-status-panel__middle">
+<div class="abyssa-status-panel__inner">
+<div class="abyssa-status-panel__content">
+<svg class="abyssa-diamond-watermark abyssa-status-panel__watermark" aria-hidden="true" focusable="false" data-watermark="double-diamond">
+<defs>
+<pattern id="abyssa-diamond-watermark-_R_6qi_" width="52" height="52" patternUnits="userSpaceOnUse" data-watermark="double-diamond">
+<path d="M26 0 L52 26 L26 52 L0 26 Z" fill="var(--abyssa-watermark-outer, rgb(255 255 255 / 3.5%))" opacity="0.36" data-layer="outer">
+</path>
+<path d="M26 12.48 L39.52 26 L26 39.52 L12.48 26 Z" fill="var(--abyssa-watermark-inner, rgb(255 255 255 / 1.8%))" opacity="0.18" data-layer="inner">
+</path>
+</pattern>
+</defs>
+<rect width="100%" height="100%" fill="url(#abyssa-diamond-watermark-_R_6qi_)">
+</rect>
+</svg>
+<span class="abyssa-status-panel__corner" data-corner="tl" aria-hidden="true">
+</span>
+<span class="abyssa-status-panel__corner" data-corner="tr" aria-hidden="true">
+</span>
+<span class="abyssa-status-panel__corner" data-corner="bl" aria-hidden="true">
+</span>
+<span class="abyssa-status-panel__corner" data-corner="br" aria-hidden="true">
+</span>
+<span class="abyssa-status-panel__rivet" data-rivet="tl" aria-hidden="true">
+</span>
+<span class="abyssa-status-panel__rivet" data-rivet="tr" aria-hidden="true">
+</span>
+<span class="abyssa-status-panel__rivet" data-rivet="br" aria-hidden="true">
+</span>
+<span class="abyssa-status-panel__rivet" data-rivet="bl" aria-hidden="true">
+</span>
+<div class="abyssa-status-panel__information">
+<section class="abyssa-status-panel__identity">
+<div class="abyssa-status-panel__heading">
+<div>
+<h3>当代魔王</h3>
+<p>THE VESSEL OF CHAOS</p>
+</div>
+<span class="abyssa-status-panel__state">状态：安定</span>
+</div>
+<dl class="abyssa-status-panel__fields">
+<div>
+<dt>种族</dt>
+<i aria-hidden="true">
+</i>
+<dd>根源存在</dd>
+</div>
+<div>
+<dt>职能</dt>
+<i aria-hidden="true">
+</i>
+<dd>混沌容器</dd>
+</div>
+<div>
+<dt>躯壳</dt>
+<i aria-hidden="true">
+</i>
+<dd>人类</dd>
+</div>
+<div>
+<dt>所在地</dt>
+<i aria-hidden="true">
+</i>
+<dd>守望者之崖</dd>
+</div>
+</dl>
+</section>
+<section class="abyssa-status-panel__parameters" aria-label="参数">
+<div class="abyssa-status-panel__divider">
+<span>PARAMETERS</span>
+</div>
+<dl class="abyssa-status-panel__stats">
+<div>
+<dt>生命<small>LIFE</small>
+</dt>
+<i aria-hidden="true">
+</i>
+<dd data-accent="true">EX</dd>
+</div>
+<div>
+<dt>源力<small>MANA</small>
+</dt>
+<i aria-hidden="true">
+</i>
+<dd data-accent="true">EX</dd>
+</div>
+<div>
+<dt>力量<small>POWER</small>
+</dt>
+<i aria-hidden="true">
+</i>
+<dd data-accent="true">EX</dd>
+</div>
+<div>
+<dt>抗性<small>WARD</small>
+</dt>
+<i aria-hidden="true">
+</i>
+<dd data-accent="true">EX</dd>
+</div>
+<div>
+<dt>敏捷<small>AGILITY</small>
+</dt>
+<i aria-hidden="true">
+</i>
+<dd>D</dd>
+</div>
+<div>
+<dt>控制<small>CONTROL</small>
+</dt>
+<i aria-hidden="true">
+</i>
+<dd>A</dd>
+</div>
+</dl>
+<div class="abyssa-status-panel__divider">
+<span>ARCHIVE RECORD</span>
+</div>
+</section>
+<div class="abyssa-status-panel__lower">
+<section>
+<h4 class="abyssa-status-panel__subsection-title">INHERENT TRAITS</h4>
+<div class="abyssa-status-panel__traits">
+<article>
+<h5>我的平静</h5>
+<p>作为容纳混沌的堤岸，维持周围源力与现实结构的稳定。</p>
+</article>
+<article>
+<h5>万象原生质</h5>
+<p>操纵由自身延伸出的黑色原生质，使其化为触手、衣装或屏障。</p>
+</article>
+<article>
+<h5>静谧之楔</h5>
+<p>凯尔在场时，混沌波动受到持续中和，安定状态大幅提升。</p>
+</article>
+</div>
+</section>
+<section>
+<h4 class="abyssa-status-panel__subsection-title">BIOGRAPHY</h4>
+<div class="abyssa-status-panel__record">大天平指定的当代魔王，也是容纳现世灾厄的活体器皿。她平日慵懒而寡言，以直觉和感官理解世界，对阳光、安静的环境，以及凯尔平稳的体温抱有明显依赖。</div>
+<blockquote>太阳的光，感觉舒服的时候，就醒了。这里的阳光，味道最好。</blockquote>
+</section>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</article>
+</div>
+</section>
+<section class="catalog-section" id="screens">
+<header class="catalog-section__header">
+<h2>完整界面</h2>
+<span aria-hidden="true">
+</span>
+</header>
+<div class="catalog-grid">
+<article class="catalog-card" data-wide="true" id="characterselector">
+<header class="catalog-card__header">
+<h3>CharacterSelector</h3>
+<a href="#characterselector">#</a>
+</header>
+<div class="catalog-card__stage">
+<div class="abyssa-character-selector character-selector" role="group" aria-label="角色选择" style="--abyssa-selector-columns:3">
+<button type="button" class="abyssa-panel-tile" data-variant="dark" aria-pressed="false" aria-label="凯尔">
+<svg viewBox="0 0 180 180" aria-hidden="true">
+<rect x="8" y="9.5" width="164" height="164" fill="#0d1212" opacity=".52">
+</rect>
+<rect x="8" y="7" width="164" height="164" fill="var(--abyssa-tile-fill)">
+</rect>
+<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="7">
+</rect>
+<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-tile-middle)" stroke-width="4">
+</rect>
+<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2">
+</rect>
+<rect x="15" y="14" width="150" height="150" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1.25" opacity=".94">
+</rect>
+<rect x="18" y="17" width="144" height="144" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width=".7" opacity=".55">
+</rect>
+<g fill="none" stroke="var(--abyssa-tile-ornament)" stroke-linecap="square">
+<path d="M16 39 V16 H39 M21 34 V21 H34" stroke-width="2">
+</path>
+<path d="M141 16 H164 V39 M146 21 H159 V34" stroke-width="2">
+</path>
+<path d="M16 141 V164 H39 M21 146 V159 H34" stroke-width="2">
+</path>
+<path d="M141 164 H164 V141 M146 159 H159 V146" stroke-width="2">
+</path>
+</g>
+<g fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1" opacity=".9">
+<path d="M25 16 H45 M16 25 V45 M135 16 H155 M164 25 V45">
+</path>
+<path d="M25 164 H45 M16 135 V155 M135 164 H155 M164 135 V155">
+</path>
+</g>
+<g fill="var(--abyssa-tile-ornament)">
+<circle cx="24" cy="24" r="1.75">
+</circle>
+<circle cx="156" cy="24" r="1.75">
+</circle>
+<circle cx="24" cy="156" r="1.75">
+</circle>
+<circle cx="156" cy="156" r="1.75">
+</circle>
+<circle cx="48" cy="17" r="1">
+</circle>
+<circle cx="90" cy="17" r="1">
+</circle>
+<circle cx="132" cy="17" r="1">
+</circle>
+<circle cx="48" cy="163" r="1">
+</circle>
+<circle cx="90" cy="163" r="1">
+</circle>
+<circle cx="132" cy="163" r="1">
+</circle>
+<circle cx="17" cy="64" r="1">
+</circle>
+<circle cx="17" cy="116" r="1">
+</circle>
+<circle cx="163" cy="64" r="1">
+</circle>
+<circle cx="163" cy="116" r="1">
+</circle>
+</g>
+</svg>
+<span class="abyssa-panel-tile__content">01</span>
+</button>
+<button type="button" class="abyssa-panel-tile" data-variant="gray" aria-pressed="false" aria-label="尤斯缇丝">
+<svg viewBox="0 0 180 180" aria-hidden="true">
+<rect x="8" y="9.5" width="164" height="164" fill="#0d1212" opacity=".52">
+</rect>
+<rect x="8" y="7" width="164" height="164" fill="var(--abyssa-tile-fill)">
+</rect>
+<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="7">
+</rect>
+<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-tile-middle)" stroke-width="4">
+</rect>
+<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2">
+</rect>
+<rect x="15" y="14" width="150" height="150" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1.25" opacity=".94">
+</rect>
+<rect x="18" y="17" width="144" height="144" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width=".7" opacity=".55">
+</rect>
+<g fill="none" stroke="var(--abyssa-tile-ornament)" stroke-linecap="square">
+<path d="M16 39 V16 H39 M21 34 V21 H34" stroke-width="2">
+</path>
+<path d="M141 16 H164 V39 M146 21 H159 V34" stroke-width="2">
+</path>
+<path d="M16 141 V164 H39 M21 146 V159 H34" stroke-width="2">
+</path>
+<path d="M141 164 H164 V141 M146 159 H159 V146" stroke-width="2">
+</path>
+</g>
+<g fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1" opacity=".9">
+<path d="M25 16 H45 M16 25 V45 M135 16 H155 M164 25 V45">
+</path>
+<path d="M25 164 H45 M16 135 V155 M135 164 H155 M164 135 V155">
+</path>
+</g>
+<g fill="var(--abyssa-tile-ornament)">
+<circle cx="24" cy="24" r="1.75">
+</circle>
+<circle cx="156" cy="24" r="1.75">
+</circle>
+<circle cx="24" cy="156" r="1.75">
+</circle>
+<circle cx="156" cy="156" r="1.75">
+</circle>
+<circle cx="48" cy="17" r="1">
+</circle>
+<circle cx="90" cy="17" r="1">
+</circle>
+<circle cx="132" cy="17" r="1">
+</circle>
+<circle cx="48" cy="163" r="1">
+</circle>
+<circle cx="90" cy="163" r="1">
+</circle>
+<circle cx="132" cy="163" r="1">
+</circle>
+<circle cx="17" cy="64" r="1">
+</circle>
+<circle cx="17" cy="116" r="1">
+</circle>
+<circle cx="163" cy="64" r="1">
+</circle>
+<circle cx="163" cy="116" r="1">
+</circle>
+</g>
+</svg>
+<span class="abyssa-panel-tile__content">02</span>
+</button>
+<button type="button" class="abyssa-panel-tile" data-variant="teal" data-selected="true" aria-pressed="true" aria-label="艾比希斯·贝尔泽兰" aria-current="true">
+<svg viewBox="0 0 180 180" aria-hidden="true">
+<rect x="8" y="9.5" width="164" height="164" fill="#0d1212" opacity=".52">
+</rect>
+<rect x="8" y="7" width="164" height="164" fill="var(--abyssa-tile-fill)">
+</rect>
+<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="7">
+</rect>
+<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-tile-middle)" stroke-width="4">
+</rect>
+<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2">
+</rect>
+<rect x="15" y="14" width="150" height="150" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1.25" opacity=".94">
+</rect>
+<rect x="18" y="17" width="144" height="144" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width=".7" opacity=".55">
+</rect>
+<g fill="none" stroke="var(--abyssa-tile-ornament)" stroke-linecap="square">
+<path d="M16 39 V16 H39 M21 34 V21 H34" stroke-width="2">
+</path>
+<path d="M141 16 H164 V39 M146 21 H159 V34" stroke-width="2">
+</path>
+<path d="M16 141 V164 H39 M21 146 V159 H34" stroke-width="2">
+</path>
+<path d="M141 164 H164 V141 M146 159 H159 V146" stroke-width="2">
+</path>
+</g>
+<g fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1" opacity=".9">
+<path d="M25 16 H45 M16 25 V45 M135 16 H155 M164 25 V45">
+</path>
+<path d="M25 164 H45 M16 135 V155 M135 164 H155 M164 135 V155">
+</path>
+</g>
+<g fill="var(--abyssa-tile-ornament)">
+<circle cx="24" cy="24" r="1.75">
+</circle>
+<circle cx="156" cy="24" r="1.75">
+</circle>
+<circle cx="24" cy="156" r="1.75">
+</circle>
+<circle cx="156" cy="156" r="1.75">
+</circle>
+<circle cx="48" cy="17" r="1">
+</circle>
+<circle cx="90" cy="17" r="1">
+</circle>
+<circle cx="132" cy="17" r="1">
+</circle>
+<circle cx="48" cy="163" r="1">
+</circle>
+<circle cx="90" cy="163" r="1">
+</circle>
+<circle cx="132" cy="163" r="1">
+</circle>
+<circle cx="17" cy="64" r="1">
+</circle>
+<circle cx="17" cy="116" r="1">
+</circle>
+<circle cx="163" cy="64" r="1">
+</circle>
+<circle cx="163" cy="116" r="1">
+</circle>
+</g>
+</svg>
+<span class="abyssa-panel-tile__content">06</span>
+<span class="abyssa-panel-tile__marker" aria-hidden="true">
+</span>
+</button>
+</div>
+</div>
+</article>
+<article class="catalog-card" data-wide="true" data-tall="true" id="characterstatusscreen">
+<header class="catalog-card__header">
+<h3>CharacterStatusScreen</h3>
+<a href="#characterstatusscreen">#</a>
+</header>
+<div class="catalog-card__stage">
+<section class="abyssa-character-screen">
+<header class="abyssa-rpg-header" data-variant="dark">
+<svg viewBox="0 0 660 116" role="img" aria-label="STATUS，CHARACTER ARCHIVE">
+<defs>
+<pattern id="abyssa-header-pattern-_R_3am_" width="42" height="42" patternUnits="userSpaceOnUse" data-watermark="double-diamond">
+<path d="M21 0 L42 21 L21 42 L0 21 Z" fill="var(--abyssa-header-pattern)" opacity="0.7" data-layer="outer">
+</path>
+<path d="M21 10 L32 21 L21 32 L10 21 Z" fill="rgb(255 255 255 / 3.5%)" opacity="0.6" data-layer="inner">
+</path>
+</pattern>
+<linearGradient id="abyssa-header-fade-_R_3am_" x1="0" y1="0" x2="1" y2="0">
+<stop offset="0%" stop-color="white" stop-opacity="1">
+</stop>
+<stop offset="24%" stop-color="white" stop-opacity=".55">
+</stop>
+<stop offset="39%" stop-color="white" stop-opacity="0">
+</stop>
+<stop offset="61%" stop-color="white" stop-opacity="0">
+</stop>
+<stop offset="76%" stop-color="white" stop-opacity=".55">
+</stop>
+<stop offset="100%" stop-color="white" stop-opacity="1">
+</stop>
+</linearGradient>
+<mask id="abyssa-header-mask-_R_3am_">
+<rect width="660" height="116" fill="url(#abyssa-header-fade-_R_3am_)">
+</rect>
+</mask>
+<clipPath id="abyssa-header-clip-_R_3am_">
+<path d="M18 9 H642 C624 14 612 24 603 40 C596 52 593 63 592 73 H383 L330 103 L277 73 H68 C67 62 64 51 57 39 C48 23 36 14 18 9 Z">
+</path>
+</clipPath>
+</defs>
+<path d="M18 13 H642 C624 18 612 28 603 44 C596 56 593 67 592 77 H383 L330 107 L277 77 H68 C67 66 64 55 57 43 C48 27 36 18 18 13 Z" fill="#0d1212" opacity=".72">
+</path>
+<path d="M18 9 H642 C624 14 612 24 603 40 C596 52 593 63 592 73 H383 L330 103 L277 73 H68 C67 62 64 51 57 39 C48 23 36 14 18 9 Z" fill="var(--abyssa-header-fill)">
+</path>
+<rect x="12" y="6" width="636" height="102" fill="url(#abyssa-header-pattern-_R_3am_)" mask="url(#abyssa-header-mask-_R_3am_)" clip-path="url(#abyssa-header-clip-_R_3am_)">
+</rect>
+<path d="M18 9 H642 C624 14 612 24 603 40 C596 52 593 63 592 73 H383 L330 103 L277 73 H68 C67 62 64 51 57 39 C48 23 36 14 18 9 Z" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="7" stroke-linejoin="miter">
+</path>
+<path d="M18 9 H642 C624 14 612 24 603 40 C596 52 593 63 592 73 H383 L330 103 L277 73 H68 C67 62 64 51 57 39 C48 23 36 14 18 9 Z" fill="none" stroke="var(--abyssa-header-middle-frame)" stroke-width="4" stroke-linejoin="miter">
+</path>
+<path d="M18 9 H642 C624 14 612 24 603 40 C596 52 593 63 592 73 H383 L330 103 L277 73 H68 C67 62 64 51 57 39 C48 23 36 14 18 9 Z" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2" stroke-linejoin="miter">
+</path>
+<path d="M39 15 H621" fill="none" stroke="var(--abyssa-header-ornament)" stroke-width="1" opacity=".72">
+</path>
+<path d="M39 15 C52 22 61 33 67 47 C71 56 73 64 73 68" fill="none" stroke="var(--abyssa-header-ornament)" stroke-width="1.25" opacity=".88">
+</path>
+<path d="M621 15 C608 22 599 33 593 47 C589 56 587 64 587 68" fill="none" stroke="var(--abyssa-header-ornament)" stroke-width="1.25" opacity=".88">
+</path>
+<path d="M73 68 H283 L330 94 L377 68 H587" fill="none" stroke="var(--abyssa-header-ornament)" stroke-width="1.25" stroke-linejoin="miter" opacity=".9">
+</path>
+<path d="M293 72 L330 92 L367 72" fill="none" stroke="var(--abyssa-header-ornament)" stroke-width=".8" stroke-linejoin="miter" opacity=".62">
+</path>
+<g fill="var(--abyssa-header-ornament)">
+<circle cx="91" cy="15" r="1.25">
+</circle>
+<circle cx="569" cy="15" r="1.25">
+</circle>
+<circle cx="73" cy="68" r="1.25">
+</circle>
+<circle cx="587" cy="68" r="1.25">
+</circle>
+<path d="M316 80 L320 84 L316 88 L312 84 Z">
+</path>
+<path d="M330 88 L334 92 L330 96 L326 92 Z">
+</path>
+<path d="M344 80 L348 84 L344 88 L340 84 Z">
+</path>
+</g>
+<text x="330" y="47" fill="var(--abyssa-header-text)" font-family="var(--abyssa-font-display)" font-size="24" font-weight="500" letter-spacing="2.5" text-anchor="middle" dominant-baseline="middle">STATUS</text>
+</svg>
+</header>
+<div class="abyssa-frame abyssa-character-screen__shell" data-variant="dark" data-padding="lg" data-ornamented="true">
+<span class="abyssa-frame__ornaments" aria-hidden="true">
+<i data-corner="tl">
+</i>
+<i data-corner="tr">
+</i>
+<i data-corner="bl">
+</i>
+<i data-corner="br">
+</i>
+</span>
+<svg class="abyssa-diamond-watermark abyssa-frame__watermark" aria-hidden="true" focusable="false" data-watermark="double-diamond">
+<defs>
+<pattern id="abyssa-diamond-watermark-_R_lam_" width="48" height="48" patternUnits="userSpaceOnUse" data-watermark="double-diamond">
+<path d="M24 0 L48 24 L24 48 L0 24 Z" fill="var(--abyssa-watermark-outer, rgb(255 255 255 / 3.5%))" opacity="0.5" data-layer="outer">
+</path>
+<path d="M24 11.52 L36.48 24 L24 36.48 L11.52 24 Z" fill="var(--abyssa-watermark-inner, rgb(255 255 255 / 1.8%))" opacity="0.4" data-layer="inner">
+</path>
+</pattern>
+</defs>
+<rect width="100%" height="100%" fill="url(#abyssa-diamond-watermark-_R_lam_)">
+</rect>
+</svg>
+<div class="abyssa-frame__content">
+<div class="abyssa-character-screen__layout">
+<div class="abyssa-character-selector abyssa-character-screen__selector" role="group" aria-label="角色选择" style="--abyssa-selector-columns:1">
+<button type="button" class="abyssa-panel-tile" data-variant="dark" aria-pressed="false" aria-label="凯尔">
+<svg viewBox="0 0 180 180" aria-hidden="true">
+<rect x="8" y="9.5" width="164" height="164" fill="#0d1212" opacity=".52">
+</rect>
+<rect x="8" y="7" width="164" height="164" fill="var(--abyssa-tile-fill)">
+</rect>
+<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="7">
+</rect>
+<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-tile-middle)" stroke-width="4">
+</rect>
+<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2">
+</rect>
+<rect x="15" y="14" width="150" height="150" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1.25" opacity=".94">
+</rect>
+<rect x="18" y="17" width="144" height="144" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width=".7" opacity=".55">
+</rect>
+<g fill="none" stroke="var(--abyssa-tile-ornament)" stroke-linecap="square">
+<path d="M16 39 V16 H39 M21 34 V21 H34" stroke-width="2">
+</path>
+<path d="M141 16 H164 V39 M146 21 H159 V34" stroke-width="2">
+</path>
+<path d="M16 141 V164 H39 M21 146 V159 H34" stroke-width="2">
+</path>
+<path d="M141 164 H164 V141 M146 159 H159 V146" stroke-width="2">
+</path>
+</g>
+<g fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1" opacity=".9">
+<path d="M25 16 H45 M16 25 V45 M135 16 H155 M164 25 V45">
+</path>
+<path d="M25 164 H45 M16 135 V155 M135 164 H155 M164 135 V155">
+</path>
+</g>
+<g fill="var(--abyssa-tile-ornament)">
+<circle cx="24" cy="24" r="1.75">
+</circle>
+<circle cx="156" cy="24" r="1.75">
+</circle>
+<circle cx="24" cy="156" r="1.75">
+</circle>
+<circle cx="156" cy="156" r="1.75">
+</circle>
+<circle cx="48" cy="17" r="1">
+</circle>
+<circle cx="90" cy="17" r="1">
+</circle>
+<circle cx="132" cy="17" r="1">
+</circle>
+<circle cx="48" cy="163" r="1">
+</circle>
+<circle cx="90" cy="163" r="1">
+</circle>
+<circle cx="132" cy="163" r="1">
+</circle>
+<circle cx="17" cy="64" r="1">
+</circle>
+<circle cx="17" cy="116" r="1">
+</circle>
+<circle cx="163" cy="64" r="1">
+</circle>
+<circle cx="163" cy="116" r="1">
+</circle>
+</g>
+</svg>
+<span class="abyssa-panel-tile__content">01</span>
+</button>
+<button type="button" class="abyssa-panel-tile" data-variant="gray" aria-pressed="false" aria-label="尤斯缇丝">
+<svg viewBox="0 0 180 180" aria-hidden="true">
+<rect x="8" y="9.5" width="164" height="164" fill="#0d1212" opacity=".52">
+</rect>
+<rect x="8" y="7" width="164" height="164" fill="var(--abyssa-tile-fill)">
+</rect>
+<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="7">
+</rect>
+<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-tile-middle)" stroke-width="4">
+</rect>
+<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2">
+</rect>
+<rect x="15" y="14" width="150" height="150" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1.25" opacity=".94">
+</rect>
+<rect x="18" y="17" width="144" height="144" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width=".7" opacity=".55">
+</rect>
+<g fill="none" stroke="var(--abyssa-tile-ornament)" stroke-linecap="square">
+<path d="M16 39 V16 H39 M21 34 V21 H34" stroke-width="2">
+</path>
+<path d="M141 16 H164 V39 M146 21 H159 V34" stroke-width="2">
+</path>
+<path d="M16 141 V164 H39 M21 146 V159 H34" stroke-width="2">
+</path>
+<path d="M141 164 H164 V141 M146 159 H159 V146" stroke-width="2">
+</path>
+</g>
+<g fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1" opacity=".9">
+<path d="M25 16 H45 M16 25 V45 M135 16 H155 M164 25 V45">
+</path>
+<path d="M25 164 H45 M16 135 V155 M135 164 H155 M164 135 V155">
+</path>
+</g>
+<g fill="var(--abyssa-tile-ornament)">
+<circle cx="24" cy="24" r="1.75">
+</circle>
+<circle cx="156" cy="24" r="1.75">
+</circle>
+<circle cx="24" cy="156" r="1.75">
+</circle>
+<circle cx="156" cy="156" r="1.75">
+</circle>
+<circle cx="48" cy="17" r="1">
+</circle>
+<circle cx="90" cy="17" r="1">
+</circle>
+<circle cx="132" cy="17" r="1">
+</circle>
+<circle cx="48" cy="163" r="1">
+</circle>
+<circle cx="90" cy="163" r="1">
+</circle>
+<circle cx="132" cy="163" r="1">
+</circle>
+<circle cx="17" cy="64" r="1">
+</circle>
+<circle cx="17" cy="116" r="1">
+</circle>
+<circle cx="163" cy="64" r="1">
+</circle>
+<circle cx="163" cy="116" r="1">
+</circle>
+</g>
+</svg>
+<span class="abyssa-panel-tile__content">02</span>
+</button>
+<button type="button" class="abyssa-panel-tile" data-variant="teal" data-selected="true" aria-pressed="true" aria-label="艾比希斯·贝尔泽兰" aria-current="true">
+<svg viewBox="0 0 180 180" aria-hidden="true">
+<rect x="8" y="9.5" width="164" height="164" fill="#0d1212" opacity=".52">
+</rect>
+<rect x="8" y="7" width="164" height="164" fill="var(--abyssa-tile-fill)">
+</rect>
+<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="7">
+</rect>
+<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-tile-middle)" stroke-width="4">
+</rect>
+<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2">
+</rect>
+<rect x="15" y="14" width="150" height="150" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1.25" opacity=".94">
+</rect>
+<rect x="18" y="17" width="144" height="144" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width=".7" opacity=".55">
+</rect>
+<g fill="none" stroke="var(--abyssa-tile-ornament)" stroke-linecap="square">
+<path d="M16 39 V16 H39 M21 34 V21 H34" stroke-width="2">
+</path>
+<path d="M141 16 H164 V39 M146 21 H159 V34" stroke-width="2">
+</path>
+<path d="M16 141 V164 H39 M21 146 V159 H34" stroke-width="2">
+</path>
+<path d="M141 164 H164 V141 M146 159 H159 V146" stroke-width="2">
+</path>
+</g>
+<g fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1" opacity=".9">
+<path d="M25 16 H45 M16 25 V45 M135 16 H155 M164 25 V45">
+</path>
+<path d="M25 164 H45 M16 135 V155 M135 164 H155 M164 135 V155">
+</path>
+</g>
+<g fill="var(--abyssa-tile-ornament)">
+<circle cx="24" cy="24" r="1.75">
+</circle>
+<circle cx="156" cy="24" r="1.75">
+</circle>
+<circle cx="24" cy="156" r="1.75">
+</circle>
+<circle cx="156" cy="156" r="1.75">
+</circle>
+<circle cx="48" cy="17" r="1">
+</circle>
+<circle cx="90" cy="17" r="1">
+</circle>
+<circle cx="132" cy="17" r="1">
+</circle>
+<circle cx="48" cy="163" r="1">
+</circle>
+<circle cx="90" cy="163" r="1">
+</circle>
+<circle cx="132" cy="163" r="1">
+</circle>
+<circle cx="17" cy="64" r="1">
+</circle>
+<circle cx="17" cy="116" r="1">
+</circle>
+<circle cx="163" cy="64" r="1">
+</circle>
+<circle cx="163" cy="116" r="1">
+</circle>
+</g>
+</svg>
+<span class="abyssa-panel-tile__content">06</span>
+<span class="abyssa-panel-tile__marker" aria-hidden="true">
+</span>
+</button>
+</div>
+<div class="abyssa-character-screen__portrait-column">
+<div class="abyssa-frame abyssa-character-screen__portrait" data-variant="dark" data-padding="none" data-ornamented="true">
+<span class="abyssa-frame__ornaments" aria-hidden="true">
+<i data-corner="tl">
+</i>
+<i data-corner="tr">
+</i>
+<i data-corner="bl">
+</i>
+<i data-corner="br">
+</i>
+</span>
+<svg class="abyssa-diamond-watermark abyssa-frame__watermark" aria-hidden="true" focusable="false" data-watermark="double-diamond">
+<defs>
+<pattern id="abyssa-diamond-watermark-_R_16tam_" width="48" height="48" patternUnits="userSpaceOnUse" data-watermark="double-diamond">
+<path d="M24 0 L48 24 L24 48 L0 24 Z" fill="var(--abyssa-watermark-outer, rgb(255 255 255 / 3.5%))" opacity="0.5" data-layer="outer">
+</path>
+<path d="M24 11.52 L36.48 24 L24 36.48 L11.52 24 Z" fill="var(--abyssa-watermark-inner, rgb(255 255 255 / 1.8%))" opacity="0.4" data-layer="inner">
+</path>
+</pattern>
+</defs>
+<rect width="100%" height="100%" fill="url(#abyssa-diamond-watermark-_R_16tam_)">
+</rect>
+</svg>
+<div class="abyssa-frame__content">
+<div class="abyssa-character-screen__portrait-placeholder" role="img" aria-label="艾比希斯·贝尔泽兰暂无立绘">
+<span>06</span>
+</div>
+</div>
+</div>
+<div class="abyssa-nameplate" data-variant="dark">
+<div class="abyssa-nameplate__middle">
+<div class="abyssa-nameplate__inner">
+<div class="abyssa-nameplate__content">
+<svg class="abyssa-diamond-watermark abyssa-nameplate__watermark" aria-hidden="true" focusable="false" data-watermark="double-diamond">
+<defs>
+<pattern id="abyssa-diamond-watermark-_R_qtam_" width="34" height="34" patternUnits="userSpaceOnUse" data-watermark="double-diamond">
+<path d="M17 0 L34 17 L17 34 L0 17 Z" fill="var(--abyssa-watermark-outer, rgb(255 255 255 / 3.5%))" opacity="0.55" data-layer="outer">
+</path>
+<path d="M17 8.16 L25.84 17 L17 25.84 L8.16 17 Z" fill="var(--abyssa-watermark-inner, rgb(255 255 255 / 1.8%))" opacity="0.45" data-layer="inner">
+</path>
+</pattern>
+</defs>
+<rect width="100%" height="100%" fill="url(#abyssa-diamond-watermark-_R_qtam_)">
+</rect>
+</svg>
+<strong>艾比希斯·贝尔泽兰</strong>
+<span>ABYSSA BEELZERAN</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="abyssa-status-panel">
+<div class="abyssa-status-panel__middle">
+<div class="abyssa-status-panel__inner">
+<div class="abyssa-status-panel__content">
+<svg class="abyssa-diamond-watermark abyssa-status-panel__watermark" aria-hidden="true" focusable="false" data-watermark="double-diamond">
+<defs>
+<pattern id="abyssa-diamond-watermark-_R_7tam_" width="52" height="52" patternUnits="userSpaceOnUse" data-watermark="double-diamond">
+<path d="M26 0 L52 26 L26 52 L0 26 Z" fill="var(--abyssa-watermark-outer, rgb(255 255 255 / 3.5%))" opacity="0.36" data-layer="outer">
+</path>
+<path d="M26 12.48 L39.52 26 L26 39.52 L12.48 26 Z" fill="var(--abyssa-watermark-inner, rgb(255 255 255 / 1.8%))" opacity="0.18" data-layer="inner">
+</path>
+</pattern>
+</defs>
+<rect width="100%" height="100%" fill="url(#abyssa-diamond-watermark-_R_7tam_)">
+</rect>
+</svg>
+<span class="abyssa-status-panel__corner" data-corner="tl" aria-hidden="true">
+</span>
+<span class="abyssa-status-panel__corner" data-corner="tr" aria-hidden="true">
+</span>
+<span class="abyssa-status-panel__corner" data-corner="bl" aria-hidden="true">
+</span>
+<span class="abyssa-status-panel__corner" data-corner="br" aria-hidden="true">
+</span>
+<span class="abyssa-status-panel__rivet" data-rivet="tl" aria-hidden="true">
+</span>
+<span class="abyssa-status-panel__rivet" data-rivet="tr" aria-hidden="true">
+</span>
+<span class="abyssa-status-panel__rivet" data-rivet="br" aria-hidden="true">
+</span>
+<span class="abyssa-status-panel__rivet" data-rivet="bl" aria-hidden="true">
+</span>
+<div class="abyssa-status-panel__information">
+<section class="abyssa-status-panel__identity">
+<div class="abyssa-status-panel__heading">
+<div>
+<h3>当代魔王</h3>
+<p>THE VESSEL OF CHAOS</p>
+</div>
+<span class="abyssa-status-panel__state">状态：安定</span>
+</div>
+<dl class="abyssa-status-panel__fields">
+<div>
+<dt>种族</dt>
+<i aria-hidden="true">
+</i>
+<dd>根源存在</dd>
+</div>
+<div>
+<dt>职能</dt>
+<i aria-hidden="true">
+</i>
+<dd>混沌容器</dd>
+</div>
+<div>
+<dt>躯壳</dt>
+<i aria-hidden="true">
+</i>
+<dd>人类</dd>
+</div>
+<div>
+<dt>所在地</dt>
+<i aria-hidden="true">
+</i>
+<dd>守望者之崖</dd>
+</div>
+</dl>
+</section>
+<section class="abyssa-status-panel__parameters" aria-label="参数">
+<div class="abyssa-status-panel__divider">
+<span>PARAMETERS</span>
+</div>
+<dl class="abyssa-status-panel__stats">
+<div>
+<dt>生命<small>LIFE</small>
+</dt>
+<i aria-hidden="true">
+</i>
+<dd data-accent="true">EX</dd>
+</div>
+<div>
+<dt>源力<small>MANA</small>
+</dt>
+<i aria-hidden="true">
+</i>
+<dd data-accent="true">EX</dd>
+</div>
+<div>
+<dt>力量<small>POWER</small>
+</dt>
+<i aria-hidden="true">
+</i>
+<dd data-accent="true">EX</dd>
+</div>
+<div>
+<dt>抗性<small>WARD</small>
+</dt>
+<i aria-hidden="true">
+</i>
+<dd data-accent="true">EX</dd>
+</div>
+<div>
+<dt>敏捷<small>AGILITY</small>
+</dt>
+<i aria-hidden="true">
+</i>
+<dd>D</dd>
+</div>
+<div>
+<dt>控制<small>CONTROL</small>
+</dt>
+<i aria-hidden="true">
+</i>
+<dd>A</dd>
+</div>
+</dl>
+<div class="abyssa-status-panel__divider">
+<span>ARCHIVE RECORD</span>
+</div>
+</section>
+<div class="abyssa-status-panel__lower">
+<section>
+<h4 class="abyssa-status-panel__subsection-title">INHERENT TRAITS</h4>
+<div class="abyssa-status-panel__traits">
+<article>
+<h5>我的平静</h5>
+<p>作为容纳混沌的堤岸，维持周围源力与现实结构的稳定。</p>
+</article>
+<article>
+<h5>万象原生质</h5>
+<p>操纵由自身延伸出的黑色原生质，使其化为触手、衣装或屏障。</p>
+</article>
+<article>
+<h5>静谧之楔</h5>
+<p>凯尔在场时，混沌波动受到持续中和，安定状态大幅提升。</p>
+</article>
+</div>
+</section>
+<section>
+<h4 class="abyssa-status-panel__subsection-title">BIOGRAPHY</h4>
+<div class="abyssa-status-panel__record">大天平指定的当代魔王，也是容纳现世灾厄的活体器皿。她平日慵懒而寡言，以直觉和感官理解世界，对阳光、安静的环境，以及凯尔平稳的体温抱有明显依赖。</div>
+<blockquote>太阳的光，感觉舒服的时候，就醒了。这里的阳光，味道最好。</blockquote>
+</section>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<nav class="abyssa-character-screen__menu" aria-label="角色状态菜单">
+<button type="button" class="abyssa-hex-button" data-variant="teal" data-size="sm" data-selected="true" data-full-width="true" aria-pressed="true">
+<svg class="abyssa-hex-button__art" viewBox="0 0 920 120" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+<defs>
+<pattern id="abyssa-hex-pattern-_R_fam_" width="58" height="58" patternUnits="userSpaceOnUse" patternTransform="translate(0 -9)" data-watermark="double-diamond">
+<path d="M29 0 L58 29 L29 58 L0 29 Z" fill="var(--abyssa-hex-pattern-dark)" opacity="0.72" data-layer="outer">
+</path>
+<path d="M29 13 L45 29 L29 45 L13 29 Z" fill="var(--abyssa-hex-pattern-light)" opacity="0.62" data-layer="inner">
+</path>
+</pattern>
+<linearGradient id="abyssa-hex-fade-_R_fam_" x1="0" y1="0" x2="1" y2="0">
+<stop offset="0%" stop-color="white" stop-opacity="1">
+</stop>
+<stop offset="18%" stop-color="white" stop-opacity=".72">
+</stop>
+<stop offset="33%" stop-color="white" stop-opacity=".15">
+</stop>
+<stop offset="42%" stop-color="white" stop-opacity="0">
+</stop>
+<stop offset="58%" stop-color="white" stop-opacity="0">
+</stop>
+<stop offset="67%" stop-color="white" stop-opacity=".15">
+</stop>
+<stop offset="82%" stop-color="white" stop-opacity=".72">
+</stop>
+<stop offset="100%" stop-color="white" stop-opacity="1">
+</stop>
+</linearGradient>
+<mask id="abyssa-hex-mask-_R_fam_">
+<rect width="920" height="120" fill="url(#abyssa-hex-fade-_R_fam_)">
+</rect>
+</mask>
+<clipPath id="abyssa-hex-clip-_R_fam_">
+<path d="M65 15 H855 L894 60 L855 105 H65 L26 60 Z">
+</path>
+</clipPath>
+</defs>
+<path d="M65 15 H855 L894 60 L855 105 H65 L26 60 Z" fill="var(--abyssa-hex-fill)">
+</path>
+<rect x="20" y="10" width="880" height="100" fill="url(#abyssa-hex-pattern-_R_fam_)" mask="url(#abyssa-hex-mask-_R_fam_)" clip-path="url(#abyssa-hex-clip-_R_fam_)">
+</rect>
+<path d="M65 15 H855 L894 60 L855 105 H65 L26 60 Z" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="10" stroke-linejoin="miter">
+</path>
+<path d="M65 15 H855 L894 60 L855 105 H65 L26 60 Z" fill="none" stroke="var(--abyssa-hex-frame-middle)" stroke-width="5" stroke-linejoin="miter">
+</path>
+<path d="M65 15 H855 L894 60 L855 105 H65 L26 60 Z" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2" stroke-linejoin="miter">
+</path>
+<g class="abyssa-hex-button__dots">
+<circle cx="438" cy="104" r="1.6">
+</circle>
+<circle cx="449" cy="104" r="2">
+</circle>
+<circle cx="460" cy="104" r="2.4">
+</circle>
+<circle cx="471" cy="104" r="2">
+</circle>
+<circle cx="482" cy="104" r="1.6">
+</circle>
+</g>
+</svg>
+<span class="abyssa-hex-button__label">
+<span class="abyssa-hex-button__copy">概要</span>
+</span>
+</button>
+<button type="button" class="abyssa-hex-button" data-variant="dark" data-size="sm" data-full-width="true" aria-pressed="false">
+<svg class="abyssa-hex-button__art" viewBox="0 0 920 120" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+<defs>
+<pattern id="abyssa-hex-pattern-_R_nam_" width="58" height="58" patternUnits="userSpaceOnUse" patternTransform="translate(0 -9)" data-watermark="double-diamond">
+<path d="M29 0 L58 29 L29 58 L0 29 Z" fill="var(--abyssa-hex-pattern-dark)" opacity="0.72" data-layer="outer">
+</path>
+<path d="M29 13 L45 29 L29 45 L13 29 Z" fill="var(--abyssa-hex-pattern-light)" opacity="0.62" data-layer="inner">
+</path>
+</pattern>
+<linearGradient id="abyssa-hex-fade-_R_nam_" x1="0" y1="0" x2="1" y2="0">
+<stop offset="0%" stop-color="white" stop-opacity="1">
+</stop>
+<stop offset="18%" stop-color="white" stop-opacity=".72">
+</stop>
+<stop offset="33%" stop-color="white" stop-opacity=".15">
+</stop>
+<stop offset="42%" stop-color="white" stop-opacity="0">
+</stop>
+<stop offset="58%" stop-color="white" stop-opacity="0">
+</stop>
+<stop offset="67%" stop-color="white" stop-opacity=".15">
+</stop>
+<stop offset="82%" stop-color="white" stop-opacity=".72">
+</stop>
+<stop offset="100%" stop-color="white" stop-opacity="1">
+</stop>
+</linearGradient>
+<mask id="abyssa-hex-mask-_R_nam_">
+<rect width="920" height="120" fill="url(#abyssa-hex-fade-_R_nam_)">
+</rect>
+</mask>
+<clipPath id="abyssa-hex-clip-_R_nam_">
+<path d="M65 15 H855 L894 60 L855 105 H65 L26 60 Z">
+</path>
+</clipPath>
+</defs>
+<path d="M65 15 H855 L894 60 L855 105 H65 L26 60 Z" fill="var(--abyssa-hex-fill)">
+</path>
+<rect x="20" y="10" width="880" height="100" fill="url(#abyssa-hex-pattern-_R_nam_)" mask="url(#abyssa-hex-mask-_R_nam_)" clip-path="url(#abyssa-hex-clip-_R_nam_)">
+</rect>
+<path d="M65 15 H855 L894 60 L855 105 H65 L26 60 Z" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="10" stroke-linejoin="miter">
+</path>
+<path d="M65 15 H855 L894 60 L855 105 H65 L26 60 Z" fill="none" stroke="var(--abyssa-hex-frame-middle)" stroke-width="5" stroke-linejoin="miter">
+</path>
+<path d="M65 15 H855 L894 60 L855 105 H65 L26 60 Z" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2" stroke-linejoin="miter">
+</path>
+<g class="abyssa-hex-button__dots">
+<circle cx="438" cy="104" r="1.6">
+</circle>
+<circle cx="449" cy="104" r="2">
+</circle>
+<circle cx="460" cy="104" r="2.4">
+</circle>
+<circle cx="471" cy="104" r="2">
+</circle>
+<circle cx="482" cy="104" r="1.6">
+</circle>
+</g>
+</svg>
+<span class="abyssa-hex-button__label">
+<span class="abyssa-hex-button__copy">装备</span>
+</span>
+</button>
+<button type="button" class="abyssa-hex-button" data-variant="dark" data-size="sm" data-full-width="true" aria-pressed="false">
+<svg class="abyssa-hex-button__art" viewBox="0 0 920 120" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+<defs>
+<pattern id="abyssa-hex-pattern-_R_vam_" width="58" height="58" patternUnits="userSpaceOnUse" patternTransform="translate(0 -9)" data-watermark="double-diamond">
+<path d="M29 0 L58 29 L29 58 L0 29 Z" fill="var(--abyssa-hex-pattern-dark)" opacity="0.72" data-layer="outer">
+</path>
+<path d="M29 13 L45 29 L29 45 L13 29 Z" fill="var(--abyssa-hex-pattern-light)" opacity="0.62" data-layer="inner">
+</path>
+</pattern>
+<linearGradient id="abyssa-hex-fade-_R_vam_" x1="0" y1="0" x2="1" y2="0">
+<stop offset="0%" stop-color="white" stop-opacity="1">
+</stop>
+<stop offset="18%" stop-color="white" stop-opacity=".72">
+</stop>
+<stop offset="33%" stop-color="white" stop-opacity=".15">
+</stop>
+<stop offset="42%" stop-color="white" stop-opacity="0">
+</stop>
+<stop offset="58%" stop-color="white" stop-opacity="0">
+</stop>
+<stop offset="67%" stop-color="white" stop-opacity=".15">
+</stop>
+<stop offset="82%" stop-color="white" stop-opacity=".72">
+</stop>
+<stop offset="100%" stop-color="white" stop-opacity="1">
+</stop>
+</linearGradient>
+<mask id="abyssa-hex-mask-_R_vam_">
+<rect width="920" height="120" fill="url(#abyssa-hex-fade-_R_vam_)">
+</rect>
+</mask>
+<clipPath id="abyssa-hex-clip-_R_vam_">
+<path d="M65 15 H855 L894 60 L855 105 H65 L26 60 Z">
+</path>
+</clipPath>
+</defs>
+<path d="M65 15 H855 L894 60 L855 105 H65 L26 60 Z" fill="var(--abyssa-hex-fill)">
+</path>
+<rect x="20" y="10" width="880" height="100" fill="url(#abyssa-hex-pattern-_R_vam_)" mask="url(#abyssa-hex-mask-_R_vam_)" clip-path="url(#abyssa-hex-clip-_R_vam_)">
+</rect>
+<path d="M65 15 H855 L894 60 L855 105 H65 L26 60 Z" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="10" stroke-linejoin="miter">
+</path>
+<path d="M65 15 H855 L894 60 L855 105 H65 L26 60 Z" fill="none" stroke="var(--abyssa-hex-frame-middle)" stroke-width="5" stroke-linejoin="miter">
+</path>
+<path d="M65 15 H855 L894 60 L855 105 H65 L26 60 Z" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2" stroke-linejoin="miter">
+</path>
+<g class="abyssa-hex-button__dots">
+<circle cx="438" cy="104" r="1.6">
+</circle>
+<circle cx="449" cy="104" r="2">
+</circle>
+<circle cx="460" cy="104" r="2.4">
+</circle>
+<circle cx="471" cy="104" r="2">
+</circle>
+<circle cx="482" cy="104" r="1.6">
+</circle>
+</g>
+</svg>
+<span class="abyssa-hex-button__label">
+<span class="abyssa-hex-button__copy">状态</span>
+</span>
+</button>
+<button type="button" class="abyssa-hex-button" data-variant="dark" data-size="sm" data-full-width="true" aria-pressed="false">
+<svg class="abyssa-hex-button__art" viewBox="0 0 920 120" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+<defs>
+<pattern id="abyssa-hex-pattern-_R_17am_" width="58" height="58" patternUnits="userSpaceOnUse" patternTransform="translate(0 -9)" data-watermark="double-diamond">
+<path d="M29 0 L58 29 L29 58 L0 29 Z" fill="var(--abyssa-hex-pattern-dark)" opacity="0.72" data-layer="outer">
+</path>
+<path d="M29 13 L45 29 L29 45 L13 29 Z" fill="var(--abyssa-hex-pattern-light)" opacity="0.62" data-layer="inner">
+</path>
+</pattern>
+<linearGradient id="abyssa-hex-fade-_R_17am_" x1="0" y1="0" x2="1" y2="0">
+<stop offset="0%" stop-color="white" stop-opacity="1">
+</stop>
+<stop offset="18%" stop-color="white" stop-opacity=".72">
+</stop>
+<stop offset="33%" stop-color="white" stop-opacity=".15">
+</stop>
+<stop offset="42%" stop-color="white" stop-opacity="0">
+</stop>
+<stop offset="58%" stop-color="white" stop-opacity="0">
+</stop>
+<stop offset="67%" stop-color="white" stop-opacity=".15">
+</stop>
+<stop offset="82%" stop-color="white" stop-opacity=".72">
+</stop>
+<stop offset="100%" stop-color="white" stop-opacity="1">
+</stop>
+</linearGradient>
+<mask id="abyssa-hex-mask-_R_17am_">
+<rect width="920" height="120" fill="url(#abyssa-hex-fade-_R_17am_)">
+</rect>
+</mask>
+<clipPath id="abyssa-hex-clip-_R_17am_">
+<path d="M65 15 H855 L894 60 L855 105 H65 L26 60 Z">
+</path>
+</clipPath>
+</defs>
+<path d="M65 15 H855 L894 60 L855 105 H65 L26 60 Z" fill="var(--abyssa-hex-fill)">
+</path>
+<rect x="20" y="10" width="880" height="100" fill="url(#abyssa-hex-pattern-_R_17am_)" mask="url(#abyssa-hex-mask-_R_17am_)" clip-path="url(#abyssa-hex-clip-_R_17am_)">
+</rect>
+<path d="M65 15 H855 L894 60 L855 105 H65 L26 60 Z" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="10" stroke-linejoin="miter">
+</path>
+<path d="M65 15 H855 L894 60 L855 105 H65 L26 60 Z" fill="none" stroke="var(--abyssa-hex-frame-middle)" stroke-width="5" stroke-linejoin="miter">
+</path>
+<path d="M65 15 H855 L894 60 L855 105 H65 L26 60 Z" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2" stroke-linejoin="miter">
+</path>
+<g class="abyssa-hex-button__dots">
+<circle cx="438" cy="104" r="1.6">
+</circle>
+<circle cx="449" cy="104" r="2">
+</circle>
+<circle cx="460" cy="104" r="2.4">
+</circle>
+<circle cx="471" cy="104" r="2">
+</circle>
+<circle cx="482" cy="104" r="1.6">
+</circle>
+</g>
+</svg>
+<span class="abyssa-hex-button__label">
+<span class="abyssa-hex-button__copy">记录</span>
+</span>
+</button>
+</nav>
+</section>
+</div>
+</article>
+</div>
+</section>
+</main>
+</div>
+</div>
+    <script defer src="./app.js">
+</script>
+  </body>
+</html>
