@@ -207,7 +207,7 @@ button, input { font: inherit; }
 .assembled-setting small { color: var(--abyssa-text-muted); font-family: ui-monospace, monospace; font-size: .55rem; letter-spacing: .12em; }
 .assembled-setting--compact { min-width: 225px; padding: 0; border: 0; }
 
-.assembled-config__tabs { display: grid; width: min(74%, 720px); margin: 0 auto -1px; border-bottom: 5px solid var(--abyssa-frame-dark); grid-template-columns: repeat(3, minmax(120px, 1fr)); gap: 12px; align-items: end; }
+.assembled-config__tabs { display: grid; width: min(56%, 520px); margin: 0 auto -1px; border-bottom: 5px solid var(--abyssa-frame-dark); grid-template-columns: repeat(3, minmax(100px, 1fr)); gap: 8px; align-items: end; }
 .assembled-config__frame > .abyssa-frame__content { padding: 30px; }
 .assembled-config__heading { display: flex; align-items: start; justify-content: space-between; gap: 20px; padding: 0 0 22px; border-bottom: 1px solid #485454; }
 .assembled-config__heading > div { display: grid; gap: 6px; }
@@ -279,7 +279,7 @@ button, input { font: inherit; }
   .assembled-dialogue__controls { align-items: stretch; flex-direction: column; }
   .assembled-setting--compact { min-width: 0; }
   .assembled-dialogue__actions { justify-content: center; }
-  .assembled-config__tabs { width: 94%; gap: 5px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .assembled-config__tabs { width: min(88%, 420px); gap: 5px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .assembled-config__frame > .abyssa-frame__content { padding: 18px 14px; }
   .assembled-config__grid { grid-template-columns: 1fr; }
   .assembled-settings-list { padding: 12px 0 0; }
