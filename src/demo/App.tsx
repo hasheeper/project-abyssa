@@ -29,6 +29,7 @@ import {
   VerticalIndicator
 } from "../index";
 import { demoCharacters } from "./data";
+import { DialogueFlowExample, SystemConfigExample } from "./CompositionExamples";
 
 type CategoryId = "structure" | "actions" | "display" | "compositions";
 
@@ -47,7 +48,7 @@ const categories: Array<{ id: CategoryId; label: string; description: string }> 
   { id: "structure", label: "结构", description: "页面骨架与标题" },
   { id: "actions", label: "操作", description: "按钮与输入控件" },
   { id: "display", label: "数据展示", description: "状态与选择内容" },
-  { id: "compositions", label: "组合范例", description: "可拆解的业务组合" }
+  { id: "compositions", label: "组合范例", description: "可直接拆解的界面流程" }
 ];
 
 function CopyButton({ value }: { value: string }) {
@@ -485,10 +486,30 @@ export function App() {
       wide: true
     },
     {
+      id: "dialogue-flow-example",
+      name: "DialogueFlowExample",
+      category: "compositions",
+      description: "可操作的对话流程：章节信息、对话进度、返回、自动播放和继续操作各自使用独立组件。",
+      tags: ["composition", "dialogue flow", "interactive"],
+      code: `<RpgHeader label="FIELD DIALOGUE" />\n<RpgFrame padding="none">\n  <RpgDialogue name={speaker} text={line} />\n  <RpgNotchedPillButton label="Continue" />\n</RpgFrame>`,
+      preview: <DialogueFlowExample />,
+      wide: true
+    },
+    {
+      id: "system-config-example",
+      name: "SystemConfigExample",
+      category: "compositions",
+      description: "配置页组合：标签负责分类，原生选择控件负责表单，节点轨道负责等级，主按钮只承担保存操作。",
+      tags: ["composition", "settings", "form"],
+      code: `<RpgTab label="General" selected />\n<RpgFrame padding="lg">\n  <Toggle checked={enabled} />\n  <RpgRadio name="theme" label="Teal" />\n  <RpgDiamondNodeTrack items={levels} />\n  <RpgHexButton>Save changes</RpgHexButton>\n</RpgFrame>`,
+      preview: <SystemConfigExample />,
+      wide: true
+    },
+    {
       id: "character-status-screen",
       name: "CharacterStatusScreen",
       category: "compositions",
-      description: "由 Header、Frame、Selector、Nameplate、StatusPanel 和 HexButton 拼成的参考实现，不是不可拆分的大组件。",
+      description: "角色档案流程：选择器、姓名牌和状态详情保持数据驱动；用于展示较复杂的双栏业务页面。",
       tags: ["composition", "data-driven"],
       code: `<CharacterStatusScreen\n  characters={characters}\n  selectedId={selectedId}\n  onSelectedIdChange={setSelectedId}\n/>`,
       preview: <CharacterStatusScreen characters={demoCharacters} defaultSelectedId="abyssa" />,
