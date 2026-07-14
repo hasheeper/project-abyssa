@@ -340,8 +340,7 @@ a {
   width: min(100%, 620px);
 }
 
-.catalog-card .abyssa-status-panel,
-.catalog-card .abyssa-character-status-screen {
+.catalog-card .abyssa-status-panel {
   width: min(100%, 1120px);
 }
 

@@ -6,3 +6,15 @@ const meta = { title: "Actions/RpgDiamondNodeTrack", component: RpgDiamondNodeTr
 export default meta;
 type Story = StoryObj<typeof meta>;
 export const Default: Story = {};
+export const VerticalNumbers: Story = {
+  args: {
+    items: ["00", "01", "02", "03", "04", "05", "06", "07", "08"].map((number) => ({
+      id: number,
+      label: `角色 ${number}`,
+      displayLabel: number
+    })),
+    defaultValue: "04",
+    orientation: "vertical",
+    selectedVariant: "teal"
+  }
+};

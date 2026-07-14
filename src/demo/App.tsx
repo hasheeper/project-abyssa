@@ -3,7 +3,6 @@ import type { ReactNode } from "react";
 import {
   AbyssaProvider,
   CharacterSelector,
-  CharacterStatusScreen,
   DiamondWatermark,
   IconButton,
   Nameplate,
@@ -114,6 +113,7 @@ export function App() {
   const [selectedRadio, setSelectedRadio] = useState("dark");
   const [checkedChoice, setCheckedChoice] = useState(true);
   const [selectedNode, setSelectedNode] = useState("center");
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   const items: CatalogItem[] = useMemo(() => [
     {
@@ -503,8 +503,13 @@ export function App() {
       category: "display",
       description: "完全数据驱动的详情面板。字段、参数、特性和记录都可以按需省略。",
       tags: ["data-driven", "sections"],
-      code: `<StatusPanel\n  data={{\n    title: "当代魔王",\n    subtitle: "THE VESSEL OF CHAOS",\n    fields: [{ label: "种族", value: "根源存在" }],\n    stats: [{ label: "生命", secondaryLabel: "LIFE", value: "EX" }]\n  }}\n/>`,
-      preview: <StatusPanel className="demo-status" data={demoCharacters[2].status} />,
+      code: `<StatusPanel\n  data={{\n    title: "无冕幼神",\n    subtitle: "THE CROWNLESS YOUNG GOD",\n    fields: [{ label: "种族", value: "根源存在" }],\n    stats: [{ label: "生命", secondaryLabel: "LIFE", value: "EX" }]\n  }}\n/>`,
+      preview: (
+        <StatusPanel
+          className="demo-status"
+          data={demoCharacters.find((character) => character.id === "abyssa")!.status}
+        />
+      ),
       wide: true
     },
     {
@@ -525,16 +530,6 @@ export function App() {
       tags: ["composition", "settings", "form"],
       code: `<RpgTab label="General" selected />\n<RpgFrame padding="lg">\n  <Toggle checked={enabled} />\n  <RpgRadio name="theme" label="Teal" />\n  <RpgDiamondNodeTrack items={levels} />\n  <RpgHexButton>Save changes</RpgHexButton>\n</RpgFrame>`,
       preview: <SystemConfigExample />,
-      wide: true
-    },
-    {
-      id: "character-status-screen",
-      name: "CharacterStatusScreen",
-      category: "compositions",
-      description: "角色档案流程：选择器、姓名牌和状态详情保持数据驱动；用于展示较复杂的双栏业务页面。",
-      tags: ["composition", "data-driven"],
-      code: `<CharacterStatusScreen\n  characters={characters}\n  selectedId={selectedId}\n  onSelectedIdChange={setSelectedId}\n/>`,
-      preview: <CharacterStatusScreen characters={demoCharacters} defaultSelectedId="abyssa" />,
       wide: true
     }
   ], [checkedChoice, enabled, selectedNode, selectedPanel, selectedRadio, selectedSquarePanel, selectedTab]);
@@ -558,34 +553,56 @@ export function App() {
         </div>
       </header>
 
-      <div className="demo-shell" id="top">
-        <aside className="demo-sidebar">
-          <div className="demo-search">
-            <label htmlFor="component-search">查找组件</label>
-            <input
-              id="component-search"
-              type="search"
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="名称、功能或属性…"
-            />
-          </div>
+      <div
+        className="demo-shell"
+        id="top"
+        data-sidebar-collapsed={sidebarCollapsed || undefined}
+      >
+        <aside className="demo-sidebar" data-collapsed={sidebarCollapsed || undefined}>
+          <button
+            className="demo-sidebar__toggle"
+            type="button"
+            aria-label={sidebarCollapsed ? "展开侧栏" : "收起侧栏"}
+            aria-controls="demo-sidebar-content"
+            aria-expanded={!sidebarCollapsed}
+            onClick={() => setSidebarCollapsed((collapsed) => !collapsed)}
+          >
+            <span aria-hidden="true">{sidebarCollapsed ? "›" : "‹"}</span>
+            <small>{sidebarCollapsed ? "展开" : "收起"}</small>
+          </button>
 
-          <nav aria-label="组件目录">
-            {categories.map((category) => {
-              const count = items.filter((item) => item.category === category.id).length;
-              return (
-                <a key={category.id} href={`#category-${category.id}`}>
-                  <span>{category.label}<small>{category.description}</small></span>
-                  <b>{count}</b>
-                </a>
-              );
-            })}
-          </nav>
+          <div
+            className="demo-sidebar__content"
+            id="demo-sidebar-content"
+            hidden={sidebarCollapsed}
+          >
+            <div className="demo-search">
+              <label htmlFor="component-search">查找组件</label>
+              <input
+                id="component-search"
+                type="search"
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="名称、功能或属性…"
+              />
+            </div>
 
-          <div className="demo-sidebar__note">
-            <strong>使用原则</strong>
-            <p>先选单个组件，再按业务组合。所有交互组件均透传原生事件和 aria 属性。</p>
+            <nav aria-label="组件目录">
+              {categories.map((category) => {
+                const count = items.filter((item) => item.category === category.id).length;
+                return (
+                  <a key={category.id} href={`#category-${category.id}`}>
+                    <span>{category.label}<small>{category.description}</small></span>
+                    <b>{count}</b>
+                  </a>
+                );
+              })}
+            </nav>
+
+            <div className="demo-sidebar__note">
+              <strong>使用原则</strong>
+              <p>先选单个组件，再按业务组合。所有交互组件均透传原生事件和 aria 属性。</p>
+            </div>
           </div>
         </aside>
 

@@ -1,0 +1,91 @@
+world_setting_bible:
+  supreme_law:
+    name: "大天平 (The Great Balance)"
+    nature: |
+      宇宙的根基天理，一个中立、无情、自行运转的宏大构造，而非人格神。
+      其所有行为都基于源力的流动与共鸣，是一种超越情感的法则回应，没有善恶意愿。
+    goal: "维持『秩序』与『混沌』两种源力的总量永恒守恒。"
+    capabilities:
+      - "全域感应：实时感知源力的潮汐起伏。"
+      - "被动调和：顺应当下的盛衰，自然衍生出对冲力量。"
+      - "立下楔石：在必要时，指定或降生勇者与魔王作为法则调律者。"
+      - "启动最终天命：在世界濒临崩解时，降下极度凶险的终极洗牌。"
+    limitations:
+      - "无法违反守恒定律 (不能凭空创造或湮灭源力)"
+      - "无法直接干涉 (只能通过指派代理人来间接影响现世)"
+      - "无法修复衰亡的器皿 (无法治愈衰退的旧神，只会废弃旧有器皿并孕育新的化身)"
+
+  cosmology:
+    creation_model: "创世大撕裂 (The Primordial Schism)"
+    creation_story: |
+      世界诞生于一次剧烈的力量撕裂，原始的混沌之卵根据力量纯度，瞬间分立为三个平行演化的现实层面。
+    dimensions:
+      - name: "天穹神域 (The Celestial Plane)"
+        composition: "由最纯净、最轻盈的玛那构成。"
+        evolution: "原生的光元素生命，历经漫长岁月化作了高高在上的『神明』。"
+      - name: "混沌之源 (The Source of Chaos)"
+        composition: "由最纯粹、最狂暴的瘴气构成。"
+        evolution: "是一片没有统一意识、孕育着无名怪异与群魔的活体浑浊深海。"
+      - name: "下层凡界 (The Mortal Realm)"
+        composition: "由玛那与瘴气沉淀混合后的重物质构成，是所有故事的舞台。"
+        evolution: "诞生了复杂的生命体，包括动植物与人类。"
+
+  life_pyramid:
+    level_3_regulators:
+      title: "法则代理人 (The Proxies of Law)"
+      members: "勇者, 魔王"
+      description: |
+        不属于自然演化链的顶端。他们是『大天平』为了维护世间平衡，在凡界直接降下的法则具现化身。
+    level_2_complex_life:
+      title: "现世物种 (Mundane Species)"
+      defining_principle: "源力亲和法则"
+      branches:
+        - name: "灵族"
+          metabolism: "亲和秩序，依赖纯净的玛那生存。如精灵、狮鹫、圣兽。"
+        - name: "魔族"
+          metabolism: "亲和混沌，吸纳瘴气环境繁衍。如高级吸血鬼、巫妖、兽人。"
+        - name: "人类"
+          metabolism: "居于平衡之中，不直接依赖高浓度源力。"
+          role: |
+            拥有最高适应性。他们是现世最大的变量，其文明扩张与集体意志足以反向撼动上层的虚空法则。
+      internal_evolution_path:
+        name: "畸变与新生"
+        description: |
+          凡界生灵若被高浓度的混沌气息吞噬，将被扭曲为毫无理智的魔物。唯有在极少数奇迹下跨越死亡，方能蜕变孕育出承载新力量的魔族血脉。
+    level_1_primordial_life:
+      title: "原生生命 (Primordial Entities)"
+      members: "史莱姆, 元素精魄"
+      description: |
+        由环境游离能量直接凝聚成的无智基础生命体。它们是所有生灵的远古祖先，也是整个生态的基盘。
+
+  current_crisis:
+    crisis_upper_plane:
+      name: "上位浩劫：诸神的黄昏"
+      reason: |
+        天穹之上的神明因深陷『完美秩序』的本质，意识正逐渐结晶凝固，慢速失去心智。
+      catalyst: |
+        人类信仰的淡漠，恰好掐断了维系神明活力的最后纽带，致使他们正从至高神祇退化为死板的天气现象。
+    crisis_lower_plane:
+      name: "下界浩劫：凡界的失衡"
+      reason: |
+        人类文明的无尽扩张近乎疯狂地让名山大川归于『秩序』。为维持天平恒定，大地深处被迫衍生出等量混沌予以调和。
+        同时，神明的衰退令隔绝两界的堤坝产生龟裂，纯粹的灾厄瘴气开始向现世倒灌。
+      conclusion: "世界正面临一场从上到下、史无前例的法则崩坏。"
+
+  current_solution:
+    the_demon_lord:
+      name: "艾比希斯·贝尔泽兰 (Abyssa Beelzeran)"
+      role: |
+        『大天平』为挽救现世而降下的『容纳灾厄的活体器皿』与『终末之堤』。
+        她是法则级的化身，其安眠与平静，是维系世界不被深渊吞噬的最后一道屏障。
+    the_hero:
+      name: "当代勇者 (Kael)"
+      role: |
+        不再背负挥剑讨伐的宿命，而是作为现世的『静谧之楔』与现实的调律师。
+        他的气味、体温与存在本身，便是中和并安抚艾比希斯体内暴乱混沌的唯一灵药。
+    the_peace_treaty:
+      name: "和平共处的真相"
+      logic: |
+        旧时代百年生死交锋的战争表演模式，因这一代魔王的极致随性与不可理喻的破坏力彻底破产。
+        在共同毁灭的死亡威慑下，人类与魔族的精英层被迫达成绝对的停战共识。
+        如今，勇者与魔王那吵闹的同居日常，成为了维系这世间太平最沉重、也是最重要的至高天命。

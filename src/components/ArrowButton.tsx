@@ -19,8 +19,14 @@ export const ArrowButton = forwardRef<HTMLButtonElement, ArrowButtonProps>(
           viewBox="0 0 32 32"
           style={{ transform: `rotate(${rotations[direction]}deg)` }}
         >
-          <path d="M7 5 L18 16 L7 27" />
-          {double && <path d="M14 5 L25 16 L14 27" />}
+          {double ? (
+            <>
+              <path d="M5 5 L16 16 L5 27" />
+              <path d="M13 5 L24 16 L13 27" />
+            </>
+          ) : (
+            <path d="M10.5 5 L21.5 16 L10.5 27" />
+          )}
         </svg>
       </IconButton>
     );

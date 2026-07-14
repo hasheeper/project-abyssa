@@ -9,9 +9,16 @@ export type {
   CharacterOption,
   CharacterSelectorProps
 } from "./components/CharacterSelector";
+export { CharacterPortraitSelector } from "./components/CharacterPortraitSelector";
+export type {
+  CharacterPortraitSelectorItem,
+  CharacterPortraitSelectorProps
+} from "./components/CharacterPortraitSelector";
 export { CharacterStatusScreen } from "./components/CharacterStatusScreen";
 export type {
+  CharacterInterfaceTone,
   CharacterMenuItem,
+  CharacterOutfit,
   CharacterProfile,
   CharacterStatusScreenProps
 } from "./components/CharacterStatusScreen";
@@ -80,6 +87,7 @@ export {
 export type {
   RpgDiamondNodeItem,
   RpgDiamondNodeProps,
+  RpgDiamondNodeTrackOrientation,
   RpgDiamondNodeTrackProps,
   RpgDiamondNodeVariant
 } from "./components/RpgDiamondNodeTrack";

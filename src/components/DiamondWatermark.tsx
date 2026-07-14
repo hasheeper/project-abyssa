@@ -48,11 +48,11 @@ export function DiamondWatermark({
   as = "overlay",
   id,
   size = 48,
-  outerFill = "var(--abyssa-watermark-outer, rgb(255 255 255 / 3.5%))",
-  innerFill = "var(--abyssa-watermark-inner, rgb(255 255 255 / 1.8%))",
-  outerOpacity = 1,
-  innerOpacity = 1,
-  innerInset = size * 0.24,
+  outerFill = "var(--abyssa-watermark-outer, #000)",
+  innerFill = "var(--abyssa-watermark-inner, #000)",
+  outerOpacity = 0.45,
+  innerOpacity = 0.3,
+  innerInset = size * 0.2,
   patternTransform,
   className,
   ...props
@@ -61,7 +61,13 @@ export function DiamondWatermark({
   const patternId = id ?? `abyssa-diamond-watermark-${uid}`;
   const half = Number((size / 2).toFixed(3));
   const innerStart = Number(innerInset.toFixed(3));
-  const innerEnd = Number((size - innerInset).toFixed(3));
+  const diamonds = [
+    { x: half, y: half, opacity: 1, key: "center" },
+    { x: 0, y: 0, opacity: 0.5, key: "top-left" },
+    { x: size, y: 0, opacity: 0.5, key: "top-right" },
+    { x: 0, y: size, opacity: 0.5, key: "bottom-left" },
+    { x: size, y: size, opacity: 0.5, key: "bottom-right" }
+  ];
 
   const pattern = (
     <pattern
@@ -72,18 +78,22 @@ export function DiamondWatermark({
       patternTransform={patternTransform}
       data-watermark="double-diamond"
     >
-      <path
-        d={`M${half} 0 L${size} ${half} L${half} ${size} L0 ${half} Z`}
-        fill={outerFill}
-        opacity={Math.min(Math.max(outerOpacity, 0), 1)}
-        data-layer="outer"
-      />
-      <path
-        d={`M${half} ${innerStart} L${innerEnd} ${half} L${half} ${innerEnd} L${innerStart} ${half} Z`}
-        fill={innerFill}
-        opacity={Math.min(Math.max(innerOpacity, 0), 1)}
-        data-layer="inner"
-      />
+      {diamonds.map((diamond) => (
+        <g key={diamond.key} data-diamond={diamond.key}>
+          <path
+            d={`M${diamond.x} ${diamond.y - half} L${diamond.x + half} ${diamond.y} L${diamond.x} ${diamond.y + half} L${diamond.x - half} ${diamond.y} Z`}
+            fill={outerFill}
+            opacity={Math.min(Math.max(outerOpacity * diamond.opacity, 0), 1)}
+            data-layer="outer"
+          />
+          <path
+            d={`M${diamond.x} ${diamond.y - half + innerStart} L${diamond.x + half - innerStart} ${diamond.y} L${diamond.x} ${diamond.y + half - innerStart} L${diamond.x - half + innerStart} ${diamond.y} Z`}
+            fill={innerFill}
+            opacity={Math.min(Math.max(innerOpacity * diamond.opacity, 0), 1)}
+            data-layer="inner"
+          />
+        </g>
+      ))}
     </pattern>
   );
 

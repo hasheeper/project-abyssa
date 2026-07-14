@@ -1,0 +1,44 @@
+* { box-sizing: border-box; }
+
+html {
+  min-width: 320px;
+  min-height: 100%;
+  overflow-x: hidden;
+  background: #090d0d;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+  overflow-x: hidden;
+}
+
+button { font: inherit; }
+
+#root,
+.character-status-app {
+  min-height: 100vh;
+}
+
+.character-status-app {
+  color: var(--abyssa-text);
+  background:
+    radial-gradient(circle at 50% 22%, rgb(74 102 100 / 15%), transparent 38rem),
+    linear-gradient(90deg, rgb(255 255 255 / 1.2%) 1px, transparent 1px) 0 0 / 48px 48px,
+    linear-gradient(rgb(255 255 255 / 1.2%) 1px, transparent 1px) 0 0 / 48px 48px,
+    #0b1010;
+}
+
+.character-status-app__main {
+  width: 100%;
+  min-height: 100vh;
+  overflow-x: clip;
+  padding: clamp(12px, 2vw, 28px) clamp(10px, 3vw, 44px) clamp(24px, 4vw, 56px);
+}
+
+@media (max-width: 520px) {
+  .character-status-app__main {
+    padding-inline: 6px;
+  }
+}

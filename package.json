@@ -22,9 +22,13 @@
   ],
   "scripts": {
     "dev": "vite",
+    "dev:character-status": "vite --config vite.character-status.config.ts",
     "preview:components": "npm run build:preview && vite static-preview",
+    "preview:character-status": "vite preview --config vite.character-status.config.ts",
     "build": "vite build && tsc -p tsconfig.build.json",
+    "build:character-status": "vite build --config vite.character-status.config.ts",
     "build:preview": "node scripts/build-static-preview.mjs",
+    "pack:setting": "node scripts/pack-settings.mjs",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",

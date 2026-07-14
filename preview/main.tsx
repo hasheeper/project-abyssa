@@ -4,7 +4,6 @@ import {
   AbyssaProvider,
   ArrowButton,
   CharacterSelector,
-  CharacterStatusScreen,
   DiamondWatermark,
   IconButton,
   Nameplate,
@@ -312,7 +311,7 @@ export function App() {
           </PreviewCard>
 
           <PreviewCard name="StatusPanel" wide tall>
-            <StatusPanel data={demoCharacters[2].status} />
+            <StatusPanel data={demoCharacters.find((character) => character.id === "abyssa")!.status} />
           </PreviewCard>
         </CatalogSection>
 
@@ -329,10 +328,6 @@ export function App() {
               defaultValue="abyssa"
               columns={3}
             />
-          </PreviewCard>
-
-          <PreviewCard name="CharacterStatusScreen" wide tall>
-            <CharacterStatusScreen characters={demoCharacters} defaultSelectedId="abyssa" />
           </PreviewCard>
         </CatalogSection>
       </main>

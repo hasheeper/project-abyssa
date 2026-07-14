@@ -1,6 +1,10 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { App as DemoApp } from "../demo/App";
+import { demoCharacters } from "../demo/data";
 import { CharacterSelector } from "./CharacterSelector";
+import { CharacterPortraitSelector } from "./CharacterPortraitSelector";
+import { CharacterStatusScreen } from "./CharacterStatusScreen";
 import { DiamondWatermark } from "./DiamondWatermark";
 import { IconButton } from "./IconButton";
 import { Nameplate } from "./Nameplate";
@@ -62,8 +66,10 @@ describe("Abyssa controls", () => {
 
     expect(patterns).toHaveLength(23);
     patterns.forEach((pattern) => {
-      expect(pattern.querySelectorAll('[data-layer="outer"]')).toHaveLength(1);
-      expect(pattern.querySelectorAll('[data-layer="inner"]')).toHaveLength(1);
+      expect(pattern.querySelectorAll('[data-layer="outer"]')).toHaveLength(5);
+      expect(pattern.querySelectorAll('[data-layer="inner"]')).toHaveLength(5);
+      expect(pattern.querySelectorAll('[data-diamond="center"]')).toHaveLength(1);
+      expect(pattern.querySelectorAll('[data-diamond^="top"], [data-diamond^="bottom"]')).toHaveLength(4);
     });
   });
 
@@ -210,10 +216,27 @@ describe("Abyssa controls", () => {
 
   it("provides controlled native buttons for the diamond node track", () => {
     const onValueChange = vi.fn();
-    render(<RpgDiamondNodeTrack items={[{ id: "a", label: "节点 A" }, { id: "b", label: "节点 B", variant: "teal" }]} defaultValue="a" onValueChange={onValueChange} />);
+    const { container } = render(
+      <RpgDiamondNodeTrack
+        items={[
+          { id: "a", label: "节点 A", displayLabel: "02" },
+          { id: "b", label: "节点 B", displayLabel: "03" }
+        ]}
+        defaultValue="a"
+        onValueChange={onValueChange}
+        orientation="vertical"
+        selectedVariant="teal"
+      />
+    );
+    expect(container.querySelector(".abyssa-diamond-track")).toHaveAttribute(
+      "data-orientation",
+      "vertical"
+    );
+    expect(screen.getByRole("button", { name: "节点 A" })).toHaveTextContent("02");
     fireEvent.click(screen.getByRole("button", { name: "节点 B" }));
     expect(onValueChange).toHaveBeenCalledWith("b");
     expect(screen.getByRole("button", { name: "节点 B" })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("button", { name: "节点 B" })).toHaveAttribute("data-variant", "teal");
   });
 
   it("renders the layered reference nameplate and bilingual status labels", () => {
@@ -236,8 +259,9 @@ describe("Abyssa controls", () => {
                 accent: true
               }
             ],
-            traits: [{ name: "我的平静" }],
-            record: "人物资料"
+            traits: [{ name: "我的平静", description: "完整能力说明" }],
+            record: "人物资料",
+            quote: "角色台词"
           }}
         />
       </>
@@ -256,6 +280,10 @@ describe("Abyssa controls", () => {
     expect(screen.getByText("ARCHIVE RECORD")).toBeInTheDocument();
     expect(screen.getByText("INHERENT TRAITS")).toBeInTheDocument();
     expect(screen.getByText("BIOGRAPHY")).toBeInTheDocument();
+    expect(container.querySelectorAll(".abyssa-status-panel__lower-section")).toHaveLength(2);
+    expect(container.querySelectorAll(".abyssa-status-panel__trait-icon")).toHaveLength(1);
+    expect(container.querySelector(".abyssa-status-panel__trait-tooltip")).toHaveTextContent("完整能力说明");
+    expect(container.querySelector(".abyssa-status-panel__quote")).toBeInTheDocument();
   });
 
   it("updates an uncontrolled toggle and reports its state", () => {
@@ -285,5 +313,258 @@ describe("Abyssa controls", () => {
     expect(onValueChange).toHaveBeenCalledWith("two");
     expect(screen.getByRole("button", { name: "角色二" })).toHaveAttribute("aria-pressed", "true");
     expect(container.querySelector("pattern[data-watermark]")).not.toBeInTheDocument();
+  });
+
+  it("provides the complete non-user character archive roster", () => {
+    expect(demoCharacters.map(({ id, number }) => ({ id, number }))).toEqual([
+      { id: "eustice", number: "00" },
+      { id: "elora", number: "01" },
+      { id: "kororo", number: "02" },
+      { id: "norma", number: "03" },
+      { id: "abyssa", number: "04" },
+      { id: "marietta", number: "05" },
+      { id: "alvitr", number: "06" },
+      { id: "lenore", number: "07" },
+      { id: "vivienne", number: "08" }
+    ]);
+
+    demoCharacters.forEach((character) => {
+      expect(character.portraitUrl).toMatch(/\.png$/);
+      expect(character.portraitAlt).toBe(`${character.name}角色立绘`);
+      expect(character.thumbnailUrl).toMatch(/\.png$/);
+      expect(character.thumbnailAlt).toBe(`${character.name}头像`);
+      expect(character.status.fields).toHaveLength(4);
+      expect(character.status.stats).toHaveLength(6);
+      expect(character.status.traits).toHaveLength(2);
+    });
+    expect(demoCharacters.find((character) => character.id === "abyssa")?.outfits).toHaveLength(2);
+  });
+
+  it("centers the portrait carousel without scrolling the page and skips disabled items", () => {
+    const onValueChange = vi.fn();
+    const { container } = render(
+      <CharacterPortraitSelector
+        items={[
+          { id: "zero", label: "角色零", number: "00" },
+          { id: "disabled", label: "禁用角色", number: "01", disabled: true },
+          { id: "two", label: "角色二", number: "02" }
+        ]}
+        defaultValue="disabled"
+        onValueChange={onValueChange}
+      />
+    );
+    const viewport = container.querySelector(
+      ".abyssa-character-portrait-selector__viewport"
+    ) as HTMLDivElement;
+    const scrollTo = vi.fn();
+    Object.defineProperty(viewport, "scrollTo", { configurable: true, value: scrollTo });
+    Object.defineProperties(viewport, {
+      clientWidth: { configurable: true, value: 200 },
+      scrollWidth: { configurable: true, value: 600 },
+      scrollLeft: { configurable: true, value: 50, writable: true },
+      getBoundingClientRect: {
+        configurable: true,
+        value: () => ({ left: 100, right: 300, width: 200 } as DOMRect)
+      }
+    });
+    const secondCharacter = screen.getByRole("button", { name: "角色二" });
+    Object.defineProperty(secondCharacter, "getBoundingClientRect", {
+      configurable: true,
+      value: () => ({ left: 350, right: 410, width: 60 } as DOMRect)
+    });
+
+    expect(screen.getByRole("button", { name: "角色零" })).toHaveAttribute(
+      "aria-pressed",
+      "true"
+    );
+    expect(screen.getByRole("button", { name: "禁用角色" })).not.toHaveAttribute(
+      "aria-current"
+    );
+    expect(screen.getByRole("button", { name: "上一个角色" })).toHaveAttribute(
+      "data-shape",
+      "diamond"
+    );
+    expect(screen.getByRole("button", { name: "下一个角色" })).toHaveAttribute(
+      "data-shape",
+      "diamond"
+    );
+    expect(screen.getByRole("button", { name: "角色零" })).toHaveAttribute(
+      "data-shape",
+      "square"
+    );
+    expect(
+      container.querySelector(".abyssa-character-portrait-selector__ribbon-art")
+    ).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "下一个角色" }));
+    expect(onValueChange).toHaveBeenLastCalledWith("two");
+    expect(screen.getByRole("button", { name: "角色二" })).toHaveAttribute(
+      "aria-pressed",
+      "true"
+    );
+    expect(scrollTo).toHaveBeenLastCalledWith({ left: 230, behavior: "smooth" });
+
+    fireEvent.keyDown(screen.getByRole("group", { name: "角色选择" }), {
+      key: "ArrowRight"
+    });
+    expect(onValueChange).toHaveBeenLastCalledWith("zero");
+  });
+
+  it("renders outfits, internal tabs and the centered character portrait selector", () => {
+    const onSelectedIdChange = vi.fn();
+    const onActiveMenuIdChange = vi.fn();
+    const { container } = render(
+      <CharacterStatusScreen
+        characters={demoCharacters}
+        defaultSelectedId="abyssa"
+        onSelectedIdChange={onSelectedIdChange}
+        onActiveMenuIdChange={onActiveMenuIdChange}
+      />
+    );
+
+    const outfitSelector = screen.getByRole("group", { name: "换装选择" });
+    const outfitButtons = Array.from(outfitSelector.querySelectorAll("button"));
+    expect(outfitButtons.map((button) => button.textContent)).toEqual(["00", "01"]);
+    expect(outfitSelector).toHaveAttribute("data-orientation", "vertical");
+
+    const characterSelector = screen.getByRole("group", { name: "角色头像选择" });
+    const themedShell = container.querySelector(
+      ".abyssa-character-screen__shell"
+    ) as HTMLElement;
+    expect(themedShell).not.toContainElement(characterSelector);
+    const characterButtons = Array.from(
+      characterSelector.querySelectorAll(".abyssa-character-portrait-selector__item")
+    );
+    expect(characterButtons).toHaveLength(9);
+    expect(container.querySelectorAll("[data-frame-edge]")).toHaveLength(4);
+    expect(characterButtons.map((button) => button.textContent?.trim())).toEqual([
+      "00", "01", "02", "03", "04", "05", "06", "07", "08"
+    ]);
+    expect(screen.queryByRole("button", { name: "凯尔" })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "艾比希斯·贝尔泽兰" })).toHaveAttribute(
+      "aria-pressed",
+      "true"
+    );
+    expect(screen.getByRole("button", { name: "艾比希斯·贝尔泽兰" })).toHaveAttribute(
+      "aria-current",
+      "true"
+    );
+    expect(screen.getByRole("img", { name: "艾比希斯·贝尔泽兰头像" })).toHaveAttribute(
+      "src",
+      demoCharacters.find((character) => character.id === "abyssa")!.thumbnailUrl
+    );
+    expect(screen.getByRole("img", { name: "艾比希斯·贝尔泽兰原生质睡衣立绘" })).toHaveAttribute(
+      "src",
+      demoCharacters.find((character) => character.id === "abyssa")!.outfits![0]!.portraitUrl
+    );
+    expect(screen.getByText("原生的样子")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "哥特礼服" }));
+    expect(screen.getByRole("img", { name: "艾比希斯·贝尔泽兰哥特礼服立绘" })).toHaveAttribute(
+      "src",
+      demoCharacters.find((character) => character.id === "abyssa")!.outfits![1]!.portraitUrl
+    );
+    expect(screen.getByText("礼服的样子")).toBeInTheDocument();
+
+    const tablist = screen.getByRole("tablist", { name: "角色档案分类" });
+    expect(tablist.querySelectorAll('[role="tab"]')).toHaveLength(4);
+    const summaryTab = screen.getByRole("tab", { name: "概要" });
+    expect(summaryTab).toHaveAttribute("aria-selected", "true");
+    expect(summaryTab).not.toHaveAttribute("aria-pressed");
+    expect(screen.getByRole("tabpanel")).toHaveAttribute("tabindex", "0");
+    fireEvent.keyDown(summaryTab, { key: "ArrowRight" });
+    expect(screen.getByRole("tab", { name: "装备" })).toHaveFocus();
+    fireEvent.click(screen.getByRole("tab", { name: "装备" }));
+    expect(onActiveMenuIdChange).toHaveBeenCalledWith("equipment");
+    expect(screen.getByRole("tab", { name: "装备" })).toHaveAttribute("aria-selected", "true");
+    expect(screen.queryByText("状态：安定")).not.toBeInTheDocument();
+    expect(screen.queryByRole("navigation", { name: "角色状态菜单" })).not.toBeInTheDocument();
+
+    expect(container.querySelector(".abyssa-status-panel__title-accent")).toHaveTextContent("无");
+    expect(container.querySelector(".abyssa-status-panel__title-root")).toHaveTextContent("幼");
+    expect(container.querySelector(".abyssa-status-panel__affiliation")).toHaveAttribute(
+      "data-tone",
+      "demon-lord"
+    );
+    expect(container.querySelector(".abyssa-status-panel__affiliation")).toHaveAttribute(
+      "aria-label",
+      "DEMON LORD"
+    );
+    expect(container.querySelector(".abyssa-character-screen")).toHaveAttribute(
+      "data-skin",
+      "demon-lord"
+    );
+    expect(screen.getByRole("button", { name: "艾比希斯·贝尔泽兰" })).toHaveAttribute(
+      "data-tone",
+      "demon-lord"
+    );
+    expect(screen.getByRole("button", { name: "尤斯缇丝·格里芬" })).toHaveAttribute(
+      "data-tone",
+      "hero-party"
+    );
+    expect(screen.getByRole("button", { name: "薇薇安·桑格温" })).toHaveAttribute(
+      "data-tone",
+      "demon-cadre"
+    );
+
+    expect(screen.queryByRole("group", { name: "阵营界面预览" })).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "薇薇安·桑格温" }));
+
+    expect(onSelectedIdChange).toHaveBeenCalledWith("vivienne");
+    expect(screen.getByRole("button", { name: "薇薇安·桑格温" })).toHaveAttribute(
+      "aria-pressed",
+      "true"
+    );
+    expect(screen.getByRole("img", { name: "薇薇安·桑格温角色立绘" })).toHaveAttribute(
+      "src",
+      demoCharacters.find((character) => character.id === "vivienne")!.portraitUrl
+    );
+    expect(screen.queryByText("状态：交涉")).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "血宴女爵" })).toBeInTheDocument();
+    expect(screen.getByText("社交的样子")).toBeInTheDocument();
+    expect(container.querySelector(".abyssa-status-panel__affiliation")).toHaveAttribute(
+      "data-tone",
+      "demon-cadre"
+    );
+    expect(container.querySelector(".abyssa-status-panel__affiliation")).toHaveAttribute(
+      "aria-label",
+      "DEMON LORD'S CADRE"
+    );
+    expect(container.querySelector(".abyssa-character-screen")).toHaveAttribute(
+      "data-skin",
+      "demon-cadre"
+    );
+    expect(screen.queryByRole("group", { name: "换装选择" })).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "下一个角色" }));
+    expect(screen.getByRole("button", { name: "尤斯缇丝·格里芬" })).toHaveAttribute(
+      "aria-pressed",
+      "true"
+    );
+    fireEvent.click(screen.getByRole("button", { name: "上一个角色" }));
+    expect(screen.getByRole("button", { name: "薇薇安·桑格温" })).toHaveAttribute(
+      "aria-pressed",
+      "true"
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "艾比希斯·贝尔泽兰" }));
+    expect(screen.getByRole("button", { name: "哥特礼服" })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("img", { name: "艾比希斯·贝尔泽兰哥特礼服立绘" })).toBeInTheDocument();
+  });
+
+  it("allows the component preview sidebar to collapse and reopen", () => {
+    const { container } = render(<DemoApp />);
+    const shell = container.querySelector(".demo-shell");
+
+    fireEvent.click(screen.getByRole("button", { name: "收起侧栏" }));
+    expect(shell).toHaveAttribute("data-sidebar-collapsed", "true");
+    expect(screen.getByRole("button", { name: "展开侧栏" })).toHaveAttribute(
+      "aria-expanded",
+      "false"
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "展开侧栏" }));
+    expect(shell).not.toHaveAttribute("data-sidebar-collapsed");
   });
 });

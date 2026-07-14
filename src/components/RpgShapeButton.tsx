@@ -1,5 +1,5 @@
 import { forwardRef, useId } from "react";
-import type { ButtonHTMLAttributes } from "react";
+import type { ButtonHTMLAttributes, ReactNode } from "react";
 import type { AbyssaVariant } from "../types";
 import { cx } from "../utils/cx";
 import { DiamondWatermark, resolveDiamondWatermark } from "./DiamondWatermark";
@@ -10,6 +10,7 @@ export type RpgShapeButtonShape = "circle" | "square" | "chamfer" | "pill";
 export interface RpgShapeButtonProps
   extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children"> {
   label: string;
+  children?: ReactNode;
   shape?: RpgShapeButtonShape;
   variant?: AbyssaVariant;
   selected?: boolean;
@@ -100,6 +101,7 @@ export const RpgShapeButton = forwardRef<HTMLButtonElement, RpgShapeButtonProps>
   function RpgShapeButton(
     {
       label,
+      children,
       shape = "chamfer",
       variant = "dark",
       selected,
@@ -169,8 +171,9 @@ export const RpgShapeButton = forwardRef<HTMLButtonElement, RpgShapeButtonProps>
             <circle cx={geometry.dots.center.x} cy={geometry.dots.center.y} r={geometry.dots.centerRadius} />
             <circle cx={geometry.dots.right.x} cy={geometry.dots.right.y} r={geometry.dots.sideRadius} />
           </g>
-          <text className="abyssa-shape-button__label" x={geometry.text.x} y={geometry.text.y}>{label}</text>
+          {!children && <text className="abyssa-shape-button__label" x={geometry.text.x} y={geometry.text.y}>{label}</text>}
         </svg>
+        {children && <span className="abyssa-shape-button__content">{children}</span>}
       </button>
     );
   }

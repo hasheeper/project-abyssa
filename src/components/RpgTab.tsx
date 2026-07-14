@@ -36,7 +36,7 @@ export const RpgTab = forwardRef<HTMLButtonElement, RpgTabProps>(
         data-variant={variant}
         data-selected={selected || undefined}
         aria-label={label}
-        aria-pressed={selected === undefined ? undefined : selected}
+        aria-pressed={props.role === "tab" || selected === undefined ? undefined : selected}
         {...props}
       >
         <svg viewBox="0 0 180 78" aria-hidden="true">
