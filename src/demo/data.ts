@@ -17,6 +17,24 @@ import lenoreAvatar from "../assets/avatar/lenore.png";
 import mariettaAvatar from "../assets/avatar/marietta.png";
 import normaAvatar from "../assets/avatar/norma.png";
 import vivienneAvatar from "../assets/avatar/vivienne.png";
+import eusticeDomainIcon from "../assets/svg/0-0-all-for-one.svg";
+import eusticeSwordIcon from "../assets/svg/0-1-bouncing-sword.svg";
+import eloraMiracleIcon from "../assets/svg/1-0-embrassed-energy.svg";
+import eloraWandIcon from "../assets/svg/1-1-fairy-wand.svg";
+import kororoGravityIcon from "../assets/svg/2-0-pentagram-rose.svg";
+import kororoStarIcon from "../assets/svg/2-1-explosion-rays.svg";
+import normaArsenalIcon from "../assets/svg/3-0-assassin-pocket.svg";
+import normaStealthIcon from "../assets/svg/3-1-duality-mask.svg";
+import abyssaPeaceIcon from "../assets/svg/4-0-moon.svg";
+import abyssaProtoplasmIcon from "../assets/svg/4-1-goo-explosion.svg";
+import mariettaPuppetIcon from "../assets/svg/5-0-puppet.svg";
+import mariettaDomainIcon from "../assets/svg/5-1-strolabe.svg";
+import alvitrOrderIcon from "../assets/svg/6-0-split-cross.svg";
+import alvitrChaosIcon from "../assets/svg/6-1-fast-arrow.svg";
+import lenoreFamiliarIcon from "../assets/svg/7-0-skeletal-hand.svg";
+import lenoreArchiveIcon from "../assets/svg/7-1-secret-book.svg";
+import vivienneRoseIcon from "../assets/svg/8-0-rose.svg";
+import vivienneCurtainIcon from "../assets/svg/8-1-heart-drop.svg";
 import type { CharacterProfile } from "../components/CharacterStatusScreen";
 
 type ParameterRank = "D" | "C" | "B" | "A" | "S" | "EX";
@@ -78,11 +96,13 @@ export const demoCharacters: CharacterProfile[] = [
       traits: [
         {
           name: "王权领域：红莲战阵",
+          iconUrl: eusticeDomainIcon,
           summary: "阵地强化 · 敌军压制",
           description: "将刺剑刺入地面，展开以阵位为核心的猩红战阵；友军获强化，敌人受压制，阵型越严整越稳定。"
         },
         {
           name: "定理剑术：红莲的轨迹",
+          iconUrl: eusticeSwordIcon,
           summary: "弱点锁定 · 轨迹引爆",
           description: "以刺剑描出猩红剑轨，锁定防具与魔力薄弱处；残留轨迹会一同引爆，完成精准切割。"
         }
@@ -118,11 +138,13 @@ export const demoCharacters: CharacterProfile[] = [
       traits: [
         {
           name: "神圣治愈：越限奇迹",
+          iconUrl: eloraMiracleIcon,
           summary: "瞬发复原 · 神圣净化",
           description: "无需咏唱即可瞬发复原与净化奇迹，只要灵魂尚未消散便能挽回致命重创。"
         },
         {
           name: "重型威慑：星盘圣杖",
+          iconUrl: eloraWandIcon,
           summary: "祈祷媒介 · 近身重击",
           description: "那把纯金星盘十字圣杖既是祈祷媒介，也是重型钝器；她能用意外的力气砸退绕后的偷袭者。"
         }
@@ -158,11 +180,13 @@ export const demoCharacters: CharacterProfile[] = [
       traits: [
         {
           name: "星轨干涉：渊星重压",
+          iconUrl: kororoGravityIcon,
           summary: "重力增幅 · 行动封锁",
           description: "拨动星盘便能令目标周遭重压骤增；她以极低消耗，让庞大敌人在无形压迫下失去行动能力。"
         },
         {
           name: "极效星法：微缩极星",
+          iconUrl: kororoStarIcon,
           summary: "星芒凝缩 · 贯穿破防",
           description: "将流星雨的破坏力凝缩为拳大的星芒，以无声重压击穿重甲、结界与最棘手的障碍。"
         }
@@ -198,11 +222,13 @@ export const demoCharacters: CharacterProfile[] = [
       traits: [
         {
           name: "黑街戏法：无限制武装",
+          iconUrl: normaArsenalIcon,
           summary: "投掷武装 · 异常侵蚀",
           description: "腰包就是一座移动黑市：致盲粉、腐蚀酸液与淬毒飞刀齐备，专挑对手最难防的一面下手。"
         },
         {
           name: "死角潜行：无音步",
+          iconUrl: normaStealthIcon,
           summary: "无声切入 · 要害收割",
           description: "将呼吸、心跳与脚步一并藏进阴影，从绝对死角切入要害后立刻脱离，把低风险收割贯彻到底。"
         }
@@ -256,11 +282,13 @@ export const demoCharacters: CharacterProfile[] = [
       traits: [
         {
           name: "我的平静",
+          iconUrl: abyssaPeaceIcon,
           summary: "根源安定 · 潮汐抑制",
           description: "她的平静便是世界的安宁，如无形堤岸般挡住足以吞没一切的黑色潮汐。"
         },
         {
           name: "万象原生质",
+          iconUrl: abyssaProtoplasmIcon,
           summary: "自在塑形 · 万象延伸",
           description: "令黑色原生质化作触手、衣装、屏障或其他所需形态；这是她无需起身也能贯彻意志的延伸。"
         }
@@ -296,11 +324,13 @@ export const demoCharacters: CharacterProfile[] = [
       traits: [
         {
           name: "万象操偶",
+          iconUrl: mariettaPuppetIcon,
           summary: "万线操控 · 精密切割",
           description: "成千上万根红色魔力丝线既能完成无误差家政，也能切割钢铁、束缚敌人。"
         },
         {
           name: "结界：女仆长的领域",
+          iconUrl: mariettaDomainIcon,
           summary: "全域感知 · 领地支配",
           description: "魔力红线渗入魔王城的砖石，令她感知并支配领地内的一切风吹草动；灰尘也无法越过她的规矩。"
         }
@@ -336,11 +366,13 @@ export const demoCharacters: CharacterProfile[] = [
       traits: [
         {
           name: "秩序残辉：裂光阵线",
+          iconUrl: alvitrOrderIcon,
           summary: "节点击碎 · 法术解构",
           description: "以长枪精准击碎法术构造的核心节点，将高阶魔法强行打散、还原为无害微光。"
         },
         {
           name: "混沌异化：灰烬瞬步",
+          iconUrl: alvitrChaosIcon,
           summary: "混沌跃迁 · 贯穿突袭",
           description: "借黑灰化作混沌粒子，无视距离与结界瞬跃；在敌人死角重新凝聚后，以长枪贯穿护盾。"
         }
@@ -376,11 +408,13 @@ export const demoCharacters: CharacterProfile[] = [
       traits: [
         {
           name: "伴生魔灵：守墓者之腕",
+          iconUrl: lenoreFamiliarIcon,
           summary: "自律骨手 · 防卫拘束",
           description: "自律白骨之手平日搬运、翻书、驱赶闯入者；遇袭时可巨大化为巨臂或骨牢，守住她的私人空间。"
         },
         {
           name: "死寂阵地：阿卡夏之锁",
+          iconUrl: lenoreArchiveIcon,
           summary: "魔力封锁 · 符文增益",
           description: "书页在魂火中化作锁链与阵法，封锁敌人的魔力与发声；也能化作符文书页，为友军附加高阶增益。"
         }
@@ -416,11 +450,13 @@ export const demoCharacters: CharacterProfile[] = [
       traits: [
         {
           name: "荆棘与血蔷薇",
+          iconUrl: vivienneRoseIcon,
           summary: "生命汲取 · 荆棘花雨",
           description: "以周遭液体或魔力结晶出猩红蔷薇与荆棘；花雨锋利，并会抽取目标的生命力。"
         },
         {
           name: "猩红帷幕",
+          iconUrl: vivienneCurtainIcon,
           summary: "五感扰乱 · 认知支配",
           description: "以阴影或大衣化作血色帷幕，将区域拖入她支配的剧场，任意扰乱敌人的五感与认知。"
         }

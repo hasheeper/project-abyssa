@@ -456,7 +456,7 @@
 <div class="catalog-card__stage">
 <div class="panel-grid">
 <button type="button" class="abyssa-panel-tile" data-variant="dark" aria-pressed="false" aria-label="选择面板 01">
-<svg viewBox="0 0 180 180" aria-hidden="true">
+<svg viewBox="0 0 180 180" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
 <defs>
 <pattern id="abyssa-panel-watermark-_R_6i6_" width="48" height="48" patternUnits="userSpaceOnUse" data-watermark="double-diamond">
 <g data-diamond="center">
@@ -491,23 +491,23 @@
 </g>
 </pattern>
 </defs>
-<rect x="8" y="9.5" width="164" height="164" fill="#0d1212" opacity=".52">
+<rect class="abyssa-panel-tile__shadow" x="8" y="9.5" width="164" height="164" fill="#0d1212" opacity=".52">
 </rect>
 <rect x="8" y="7" width="164" height="164" fill="var(--abyssa-tile-fill)">
 </rect>
 <rect x="8" y="7" width="164" height="164" fill="url(#abyssa-panel-watermark-_R_6i6_)">
 </rect>
-<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="7">
+<rect class="abyssa-panel-tile__frame" data-frame-layer="outer" x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="7">
 </rect>
-<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-tile-middle)" stroke-width="4">
+<rect class="abyssa-panel-tile__frame" data-frame-layer="middle" x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-tile-middle)" stroke-width="4">
 </rect>
-<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2">
+<rect class="abyssa-panel-tile__frame" data-frame-layer="inner" x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2">
 </rect>
-<rect x="15" y="14" width="150" height="150" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1.25" opacity=".94">
+<rect class="abyssa-panel-tile__ornament" x="15" y="14" width="150" height="150" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1.25" opacity=".94">
 </rect>
-<rect x="18" y="17" width="144" height="144" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width=".7" opacity=".55">
+<rect class="abyssa-panel-tile__ornament" x="18" y="17" width="144" height="144" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width=".7" opacity=".55">
 </rect>
-<g fill="none" stroke="var(--abyssa-tile-ornament)" stroke-linecap="square">
+<g class="abyssa-panel-tile__ornament" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-linecap="square">
 <path d="M16 39 V16 H39 M21 34 V21 H34" stroke-width="2">
 </path>
 <path d="M141 16 H164 V39 M146 21 H159 V34" stroke-width="2">
@@ -517,13 +517,13 @@
 <path d="M141 164 H164 V141 M146 159 H159 V146" stroke-width="2">
 </path>
 </g>
-<g fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1" opacity=".9">
+<g class="abyssa-panel-tile__ornament" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1" opacity=".9">
 <path d="M25 16 H45 M16 25 V45 M135 16 H155 M164 25 V45">
 </path>
 <path d="M25 164 H45 M16 135 V155 M135 164 H155 M164 135 V155">
 </path>
 </g>
-<g fill="var(--abyssa-tile-ornament)">
+<g class="abyssa-panel-tile__ornament" fill="var(--abyssa-tile-ornament)">
 <circle cx="24" cy="24" r="1.75">
 </circle>
 <circle cx="156" cy="24" r="1.75">
@@ -557,7 +557,7 @@
 <span class="abyssa-panel-tile__content">01</span>
 </button>
 <button type="button" class="abyssa-panel-tile" data-variant="gray" aria-pressed="false" aria-label="选择面板 02">
-<svg viewBox="0 0 180 180" aria-hidden="true">
+<svg viewBox="0 0 180 180" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
 <defs>
 <pattern id="abyssa-panel-watermark-_R_ai6_" width="48" height="48" patternUnits="userSpaceOnUse" data-watermark="double-diamond">
 <g data-diamond="center">
@@ -592,23 +592,23 @@
 </g>
 </pattern>
 </defs>
-<rect x="8" y="9.5" width="164" height="164" fill="#0d1212" opacity=".52">
+<rect class="abyssa-panel-tile__shadow" x="8" y="9.5" width="164" height="164" fill="#0d1212" opacity=".52">
 </rect>
 <rect x="8" y="7" width="164" height="164" fill="var(--abyssa-tile-fill)">
 </rect>
 <rect x="8" y="7" width="164" height="164" fill="url(#abyssa-panel-watermark-_R_ai6_)">
 </rect>
-<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="7">
+<rect class="abyssa-panel-tile__frame" data-frame-layer="outer" x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="7">
 </rect>
-<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-tile-middle)" stroke-width="4">
+<rect class="abyssa-panel-tile__frame" data-frame-layer="middle" x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-tile-middle)" stroke-width="4">
 </rect>
-<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2">
+<rect class="abyssa-panel-tile__frame" data-frame-layer="inner" x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2">
 </rect>
-<rect x="15" y="14" width="150" height="150" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1.25" opacity=".94">
+<rect class="abyssa-panel-tile__ornament" x="15" y="14" width="150" height="150" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1.25" opacity=".94">
 </rect>
-<rect x="18" y="17" width="144" height="144" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width=".7" opacity=".55">
+<rect class="abyssa-panel-tile__ornament" x="18" y="17" width="144" height="144" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width=".7" opacity=".55">
 </rect>
-<g fill="none" stroke="var(--abyssa-tile-ornament)" stroke-linecap="square">
+<g class="abyssa-panel-tile__ornament" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-linecap="square">
 <path d="M16 39 V16 H39 M21 34 V21 H34" stroke-width="2">
 </path>
 <path d="M141 16 H164 V39 M146 21 H159 V34" stroke-width="2">
@@ -618,13 +618,13 @@
 <path d="M141 164 H164 V141 M146 159 H159 V146" stroke-width="2">
 </path>
 </g>
-<g fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1" opacity=".9">
+<g class="abyssa-panel-tile__ornament" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1" opacity=".9">
 <path d="M25 16 H45 M16 25 V45 M135 16 H155 M164 25 V45">
 </path>
 <path d="M25 164 H45 M16 135 V155 M135 164 H155 M164 135 V155">
 </path>
 </g>
-<g fill="var(--abyssa-tile-ornament)">
+<g class="abyssa-panel-tile__ornament" fill="var(--abyssa-tile-ornament)">
 <circle cx="24" cy="24" r="1.75">
 </circle>
 <circle cx="156" cy="24" r="1.75">
@@ -658,7 +658,7 @@
 <span class="abyssa-panel-tile__content">02</span>
 </button>
 <button type="button" class="abyssa-panel-tile" data-variant="deep" aria-pressed="false" aria-label="选择面板 03">
-<svg viewBox="0 0 180 180" aria-hidden="true">
+<svg viewBox="0 0 180 180" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
 <defs>
 <pattern id="abyssa-panel-watermark-_R_ei6_" width="48" height="48" patternUnits="userSpaceOnUse" data-watermark="double-diamond">
 <g data-diamond="center">
@@ -693,23 +693,23 @@
 </g>
 </pattern>
 </defs>
-<rect x="8" y="9.5" width="164" height="164" fill="#0d1212" opacity=".52">
+<rect class="abyssa-panel-tile__shadow" x="8" y="9.5" width="164" height="164" fill="#0d1212" opacity=".52">
 </rect>
 <rect x="8" y="7" width="164" height="164" fill="var(--abyssa-tile-fill)">
 </rect>
 <rect x="8" y="7" width="164" height="164" fill="url(#abyssa-panel-watermark-_R_ei6_)">
 </rect>
-<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="7">
+<rect class="abyssa-panel-tile__frame" data-frame-layer="outer" x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="7">
 </rect>
-<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-tile-middle)" stroke-width="4">
+<rect class="abyssa-panel-tile__frame" data-frame-layer="middle" x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-tile-middle)" stroke-width="4">
 </rect>
-<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2">
+<rect class="abyssa-panel-tile__frame" data-frame-layer="inner" x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2">
 </rect>
-<rect x="15" y="14" width="150" height="150" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1.25" opacity=".94">
+<rect class="abyssa-panel-tile__ornament" x="15" y="14" width="150" height="150" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1.25" opacity=".94">
 </rect>
-<rect x="18" y="17" width="144" height="144" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width=".7" opacity=".55">
+<rect class="abyssa-panel-tile__ornament" x="18" y="17" width="144" height="144" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width=".7" opacity=".55">
 </rect>
-<g fill="none" stroke="var(--abyssa-tile-ornament)" stroke-linecap="square">
+<g class="abyssa-panel-tile__ornament" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-linecap="square">
 <path d="M16 39 V16 H39 M21 34 V21 H34" stroke-width="2">
 </path>
 <path d="M141 16 H164 V39 M146 21 H159 V34" stroke-width="2">
@@ -719,13 +719,13 @@
 <path d="M141 164 H164 V141 M146 159 H159 V146" stroke-width="2">
 </path>
 </g>
-<g fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1" opacity=".9">
+<g class="abyssa-panel-tile__ornament" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1" opacity=".9">
 <path d="M25 16 H45 M16 25 V45 M135 16 H155 M164 25 V45">
 </path>
 <path d="M25 164 H45 M16 135 V155 M135 164 H155 M164 135 V155">
 </path>
 </g>
-<g fill="var(--abyssa-tile-ornament)">
+<g class="abyssa-panel-tile__ornament" fill="var(--abyssa-tile-ornament)">
 <circle cx="24" cy="24" r="1.75">
 </circle>
 <circle cx="156" cy="24" r="1.75">
@@ -759,7 +759,7 @@
 <span class="abyssa-panel-tile__content">03</span>
 </button>
 <button type="button" class="abyssa-panel-tile" data-variant="teal" data-selected="true" aria-pressed="true" aria-label="选择面板 04">
-<svg viewBox="0 0 180 180" aria-hidden="true">
+<svg viewBox="0 0 180 180" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
 <defs>
 <pattern id="abyssa-panel-watermark-_R_ii6_" width="48" height="48" patternUnits="userSpaceOnUse" data-watermark="double-diamond">
 <g data-diamond="center">
@@ -794,23 +794,23 @@
 </g>
 </pattern>
 </defs>
-<rect x="8" y="9.5" width="164" height="164" fill="#0d1212" opacity=".52">
+<rect class="abyssa-panel-tile__shadow" x="8" y="9.5" width="164" height="164" fill="#0d1212" opacity=".52">
 </rect>
 <rect x="8" y="7" width="164" height="164" fill="var(--abyssa-tile-fill)">
 </rect>
 <rect x="8" y="7" width="164" height="164" fill="url(#abyssa-panel-watermark-_R_ii6_)">
 </rect>
-<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="7">
+<rect class="abyssa-panel-tile__frame" data-frame-layer="outer" x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="7">
 </rect>
-<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-tile-middle)" stroke-width="4">
+<rect class="abyssa-panel-tile__frame" data-frame-layer="middle" x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-tile-middle)" stroke-width="4">
 </rect>
-<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2">
+<rect class="abyssa-panel-tile__frame" data-frame-layer="inner" x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2">
 </rect>
-<rect x="15" y="14" width="150" height="150" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1.25" opacity=".94">
+<rect class="abyssa-panel-tile__ornament" x="15" y="14" width="150" height="150" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1.25" opacity=".94">
 </rect>
-<rect x="18" y="17" width="144" height="144" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width=".7" opacity=".55">
+<rect class="abyssa-panel-tile__ornament" x="18" y="17" width="144" height="144" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width=".7" opacity=".55">
 </rect>
-<g fill="none" stroke="var(--abyssa-tile-ornament)" stroke-linecap="square">
+<g class="abyssa-panel-tile__ornament" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-linecap="square">
 <path d="M16 39 V16 H39 M21 34 V21 H34" stroke-width="2">
 </path>
 <path d="M141 16 H164 V39 M146 21 H159 V34" stroke-width="2">
@@ -820,13 +820,13 @@
 <path d="M141 164 H164 V141 M146 159 H159 V146" stroke-width="2">
 </path>
 </g>
-<g fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1" opacity=".9">
+<g class="abyssa-panel-tile__ornament" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1" opacity=".9">
 <path d="M25 16 H45 M16 25 V45 M135 16 H155 M164 25 V45">
 </path>
 <path d="M25 164 H45 M16 135 V155 M135 164 H155 M164 135 V155">
 </path>
 </g>
-<g fill="var(--abyssa-tile-ornament)">
+<g class="abyssa-panel-tile__ornament" fill="var(--abyssa-tile-ornament)">
 <circle cx="24" cy="24" r="1.75">
 </circle>
 <circle cx="156" cy="24" r="1.75">
@@ -862,7 +862,7 @@
 </span>
 </button>
 <button type="button" class="abyssa-panel-tile" data-variant="teal-outline" aria-pressed="false" aria-label="选择面板 05">
-<svg viewBox="0 0 180 180" aria-hidden="true">
+<svg viewBox="0 0 180 180" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
 <defs>
 <pattern id="abyssa-panel-watermark-_R_mi6_" width="48" height="48" patternUnits="userSpaceOnUse" data-watermark="double-diamond">
 <g data-diamond="center">
@@ -897,23 +897,23 @@
 </g>
 </pattern>
 </defs>
-<rect x="8" y="9.5" width="164" height="164" fill="#0d1212" opacity=".52">
+<rect class="abyssa-panel-tile__shadow" x="8" y="9.5" width="164" height="164" fill="#0d1212" opacity=".52">
 </rect>
 <rect x="8" y="7" width="164" height="164" fill="var(--abyssa-tile-fill)">
 </rect>
 <rect x="8" y="7" width="164" height="164" fill="url(#abyssa-panel-watermark-_R_mi6_)">
 </rect>
-<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="7">
+<rect class="abyssa-panel-tile__frame" data-frame-layer="outer" x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="7">
 </rect>
-<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-tile-middle)" stroke-width="4">
+<rect class="abyssa-panel-tile__frame" data-frame-layer="middle" x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-tile-middle)" stroke-width="4">
 </rect>
-<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2">
+<rect class="abyssa-panel-tile__frame" data-frame-layer="inner" x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2">
 </rect>
-<rect x="15" y="14" width="150" height="150" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1.25" opacity=".94">
+<rect class="abyssa-panel-tile__ornament" x="15" y="14" width="150" height="150" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1.25" opacity=".94">
 </rect>
-<rect x="18" y="17" width="144" height="144" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width=".7" opacity=".55">
+<rect class="abyssa-panel-tile__ornament" x="18" y="17" width="144" height="144" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width=".7" opacity=".55">
 </rect>
-<g fill="none" stroke="var(--abyssa-tile-ornament)" stroke-linecap="square">
+<g class="abyssa-panel-tile__ornament" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-linecap="square">
 <path d="M16 39 V16 H39 M21 34 V21 H34" stroke-width="2">
 </path>
 <path d="M141 16 H164 V39 M146 21 H159 V34" stroke-width="2">
@@ -923,13 +923,13 @@
 <path d="M141 164 H164 V141 M146 159 H159 V146" stroke-width="2">
 </path>
 </g>
-<g fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1" opacity=".9">
+<g class="abyssa-panel-tile__ornament" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1" opacity=".9">
 <path d="M25 16 H45 M16 25 V45 M135 16 H155 M164 25 V45">
 </path>
 <path d="M25 164 H45 M16 135 V155 M135 164 H155 M164 135 V155">
 </path>
 </g>
-<g fill="var(--abyssa-tile-ornament)">
+<g class="abyssa-panel-tile__ornament" fill="var(--abyssa-tile-ornament)">
 <circle cx="24" cy="24" r="1.75">
 </circle>
 <circle cx="156" cy="24" r="1.75">
@@ -963,7 +963,7 @@
 <span class="abyssa-panel-tile__content">05</span>
 </button>
 <button type="button" class="abyssa-panel-tile" data-variant="light" aria-pressed="false" aria-label="选择面板 06">
-<svg viewBox="0 0 180 180" aria-hidden="true">
+<svg viewBox="0 0 180 180" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
 <defs>
 <pattern id="abyssa-panel-watermark-_R_qi6_" width="48" height="48" patternUnits="userSpaceOnUse" data-watermark="double-diamond">
 <g data-diamond="center">
@@ -998,23 +998,23 @@
 </g>
 </pattern>
 </defs>
-<rect x="8" y="9.5" width="164" height="164" fill="#0d1212" opacity=".52">
+<rect class="abyssa-panel-tile__shadow" x="8" y="9.5" width="164" height="164" fill="#0d1212" opacity=".52">
 </rect>
 <rect x="8" y="7" width="164" height="164" fill="var(--abyssa-tile-fill)">
 </rect>
 <rect x="8" y="7" width="164" height="164" fill="url(#abyssa-panel-watermark-_R_qi6_)">
 </rect>
-<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="7">
+<rect class="abyssa-panel-tile__frame" data-frame-layer="outer" x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="7">
 </rect>
-<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-tile-middle)" stroke-width="4">
+<rect class="abyssa-panel-tile__frame" data-frame-layer="middle" x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-tile-middle)" stroke-width="4">
 </rect>
-<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2">
+<rect class="abyssa-panel-tile__frame" data-frame-layer="inner" x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2">
 </rect>
-<rect x="15" y="14" width="150" height="150" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1.25" opacity=".94">
+<rect class="abyssa-panel-tile__ornament" x="15" y="14" width="150" height="150" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1.25" opacity=".94">
 </rect>
-<rect x="18" y="17" width="144" height="144" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width=".7" opacity=".55">
+<rect class="abyssa-panel-tile__ornament" x="18" y="17" width="144" height="144" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width=".7" opacity=".55">
 </rect>
-<g fill="none" stroke="var(--abyssa-tile-ornament)" stroke-linecap="square">
+<g class="abyssa-panel-tile__ornament" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-linecap="square">
 <path d="M16 39 V16 H39 M21 34 V21 H34" stroke-width="2">
 </path>
 <path d="M141 16 H164 V39 M146 21 H159 V34" stroke-width="2">
@@ -1024,13 +1024,13 @@
 <path d="M141 164 H164 V141 M146 159 H159 V146" stroke-width="2">
 </path>
 </g>
-<g fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1" opacity=".9">
+<g class="abyssa-panel-tile__ornament" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1" opacity=".9">
 <path d="M25 16 H45 M16 25 V45 M135 16 H155 M164 25 V45">
 </path>
 <path d="M25 164 H45 M16 135 V155 M135 164 H155 M164 135 V155">
 </path>
 </g>
-<g fill="var(--abyssa-tile-ornament)">
+<g class="abyssa-panel-tile__ornament" fill="var(--abyssa-tile-ornament)">
 <circle cx="24" cy="24" r="1.75">
 </circle>
 <circle cx="156" cy="24" r="1.75">
@@ -4564,7 +4564,7 @@
 <div class="abyssa-status-panel__content">
 <svg class="abyssa-diamond-watermark abyssa-status-panel__watermark" aria-hidden="true" focusable="false" data-watermark="double-diamond">
 <defs>
-<pattern id="abyssa-diamond-watermark-_R_6qi_" width="48" height="48" patternUnits="userSpaceOnUse" data-watermark="double-diamond">
+<pattern id="abyssa-diamond-watermark-_R_eqi_" width="48" height="48" patternUnits="userSpaceOnUse" data-watermark="double-diamond">
 <g data-diamond="center">
 <path d="M24 0 L48 24 L24 48 L0 24 Z" fill="var(--abyssa-watermark-outer, #000)" opacity="0.45" data-layer="outer">
 </path>
@@ -4597,7 +4597,7 @@
 </g>
 </pattern>
 </defs>
-<rect width="100%" height="100%" fill="url(#abyssa-diamond-watermark-_R_6qi_)">
+<rect width="100%" height="100%" fill="url(#abyssa-diamond-watermark-_R_eqi_)">
 </rect>
 </svg>
 <span class="abyssa-status-panel__corner" data-corner="tl" aria-hidden="true">
@@ -4621,7 +4621,8 @@
 <div class="abyssa-status-panel__heading">
 <div>
 <div class="abyssa-status-panel__title-line">
-<h3>无冕幼神</h3>
+<h3 aria-label="无冕幼神">
+<span class="abyssa-status-panel__title-accent">无</span>冕<span class="abyssa-status-panel__title-root">幼</span>神</h3>
 <span class="abyssa-status-panel__affiliation" data-tone="demon-lord" role="img" aria-label="DEMON LORD" data-tooltip="DEMON LORD" title="DEMON LORD">
 <span class="abyssa-status-panel__affiliation-icon" aria-hidden="true">
 </span>
@@ -4629,7 +4630,6 @@
 </div>
 <p>THE CROWNLESS YOUNG GOD</p>
 </div>
-<span class="abyssa-status-panel__state">状态：安定</span>
 </div>
 <dl class="abyssa-status-panel__fields">
 <div>
@@ -4710,25 +4710,42 @@
 <span>ARCHIVE RECORD</span>
 </div>
 </section>
+<div class="abyssa-status-panel__archive-content">
 <div class="abyssa-status-panel__lower">
-<section>
+<section class="abyssa-status-panel__lower-section abyssa-status-panel__lower-section--traits">
 <h4 class="abyssa-status-panel__subsection-title">INHERENT TRAITS</h4>
 <div class="abyssa-status-panel__traits">
-<article>
+<article data-has-description="true" aria-describedby="_R_2qi_-trait-0" tabindex="0">
+<span class="abyssa-status-panel__trait-icon" aria-hidden="true">
+<span class="abyssa-status-panel__trait-glyph" style="-webkit-mask-image:url(&quot;data:image/svg+xml,%3csvg%20xmlns=&#x27;http://www.w3.org/2000/svg&#x27;%20viewBox=&#x27;0%200%20512%20512&#x27;%3e%3cg%3e%3cpath%20d=&#x27;M253.125%2018.563c-131.53%200-238.375%20106.813-238.375%20238.343%200%20131.53%20106.846%20238.344%20238.375%20238.344%20131.53%200%20238.344-106.815%20238.344-238.344%200-131.528-106.816-238.344-238.345-238.344zm-23.938%2052.093c40.517%200%2077.988%2012.904%20108.532%2034.813a154.099%20154.099%200%200%200-17.064-.97c-84.157%200-152.375%2068.25-152.375%20152.406%200%2084.157%2068.22%20152.375%20152.376%20152.375%205.762%200%2011.467-.313%2017.063-.936-30.545%2021.91-68.016%2034.812-108.533%2034.812-102.98%200-186.28-83.272-186.28-186.25%200-102.977%2083.3-186.25%20186.28-186.25z&#x27;%20fill=&#x27;currentColor&#x27;%3e%3c/path%3e%3c/g%3e%3c/svg%3e&quot;);mask-image:url(&quot;data:image/svg+xml,%3csvg%20xmlns=&#x27;http://www.w3.org/2000/svg&#x27;%20viewBox=&#x27;0%200%20512%20512&#x27;%3e%3cg%3e%3cpath%20d=&#x27;M253.125%2018.563c-131.53%200-238.375%20106.813-238.375%20238.343%200%20131.53%20106.846%20238.344%20238.375%20238.344%20131.53%200%20238.344-106.815%20238.344-238.344%200-131.528-106.816-238.344-238.345-238.344zm-23.938%2052.093c40.517%200%2077.988%2012.904%20108.532%2034.813a154.099%20154.099%200%200%200-17.064-.97c-84.157%200-152.375%2068.25-152.375%20152.406%200%2084.157%2068.22%20152.375%20152.376%20152.375%205.762%200%2011.467-.313%2017.063-.936-30.545%2021.91-68.016%2034.812-108.533%2034.812-102.98%200-186.28-83.272-186.28-186.25%200-102.977%2083.3-186.25%20186.28-186.25z&#x27;%20fill=&#x27;currentColor&#x27;%3e%3c/path%3e%3c/g%3e%3c/svg%3e&quot;)">
+</span>
+</span>
+<div class="abyssa-status-panel__trait-copy">
 <h5>我的平静</h5>
-<p>她的平静便是世界的安宁，如无形堤岸般挡住足以吞没一切的黑色潮汐。</p>
+<p>根源安定 · 潮汐抑制</p>
+</div>
+<span class="abyssa-status-panel__trait-tooltip" id="_R_2qi_-trait-0" role="tooltip">她的平静便是世界的安宁，如无形堤岸般挡住足以吞没一切的黑色潮汐。</span>
 </article>
-<article>
+<article data-has-description="true" aria-describedby="_R_2qi_-trait-1" tabindex="0">
+<span class="abyssa-status-panel__trait-icon" aria-hidden="true">
+<span class="abyssa-status-panel__trait-glyph" style="-webkit-mask-image:url(&quot;data:image/svg+xml,%3csvg%20xmlns=&#x27;http://www.w3.org/2000/svg&#x27;%20viewBox=&#x27;0%200%20512%20512&#x27;%3e%3cg%3e%3cpath%20d=&#x27;M333.906%2018.5c-14.948%200-26.875%2011.925-26.875%2026.875S318.96%2072.25%20333.907%2072.25c14.947%200%2026.875-11.928%2026.875-26.875S348.854%2018.5%20333.907%2018.5zm-231.937.22c29.583%2037.7%2052.166%2072.266%2066.468%20100.936%208.118%2016.275%2013.732%2030.693%2016.687%2043.188%202.955%2012.495%203.61%2023.21-.375%2032.47-3.986%209.257-14.202%2015.07-24.906%2014.874-10.705-.196-22.65-4.38-37.22-12.157-26.083-13.923-60.59-40.088-104.686-81.155v87.22c17.217.47%2033.334%201.874%2048.28%204.093%206.49-6.09%2015.193-9.844%2024.72-9.844%2016.02%200%2029.742%2010.606%2034.468%2025.125.34.135.694.267%201.03.405%2029.738%2012.147%2050.185%2028.877%2055.095%2050.28%202.456%2010.703.282%2022.157-6.093%2032.283-6.374%2010.125-16.616%2019.196-30.687%2027.437-26.885%2015.746-68.287%2028.618-126.813%2036.906v120.97H40c30.353-48.064%2058.883-82.285%2083.97-105.094%2025.865-23.52%2047.85-35.416%2066.436-37%209.794-.834%2019.75%201.757%2027.188%208.5%207.436%206.743%2012.01%2016.822%2014.03%2029.5%203.723%2023.354-.613%2056.84-15.25%20104.094H246.5c-1.138-26.128%201.06-49.335%205.97-67.188%202.77-10.076%206.276-18.543%2010.905-25.187%204.63-6.644%2010.912-12.056%2019.094-12.844%208.387-.806%2015.275%203.7%2021.186%209.5%205.912%205.804%2011.454%2013.664%2017.094%2023.408%2010.504%2018.145%2021.15%2043.102%2031.375%2072.312h37.53c-31.368-41.546-53.334-78.49-65.217-107.656-6.656-16.336-10.304-30.176-10.188-42.03.058-5.93%201.087-11.484%203.78-16.408%202.696-4.924%207.307-8.932%2012.69-10.875%208.4-3.03%2017.73-1.85%2028.342%201.75%2010.612%203.6%2022.802%209.9%2037.032%2019.126C421.09%20351.864%20452.794%20377.842%20491%20414v-94.313c-5.02-.2-9.91-.48-14.72-.78-9.716%2012.95-25.184%2021.374-42.53%2021.374-23.575%200-43.66-15.557-50.563-36.905a198.727%20198.727%200%200%201-10.843-3.844c-30.306-11.79-49.777-29.047-51.563-51.374-1.784-22.326%2014.164-43.95%2043.47-64.28%2028.192-19.56%2070.115-38.664%20126.75-56.282V18.72h-46.72c-25.482%2053.29-51.333%2094.012-75.124%20121.968-24.602%2028.91-46.417%2045.424-67.47%2045.75-10.524.163-20.573-5.326-26.467-14.407-5.895-9.08-8.614-21.047-9.095-36.03-.89-27.712%206.29-66.52%2023.22-117.28h-34.94c2.344%2037.833%201.71%2068.807-1.81%2091.53-1.92%2012.386-4.58%2022.43-8.47%2030.375-3.89%207.944-9.516%2014.6-17.875%2016.5-8.36%201.9-16.53-1.977-23.188-8.063-6.657-6.085-12.917-14.847-19.437-26.687-12.414-22.543-25.64-56.773-39.438-103.656H101.97zm137.718%20182c20.268.125%2042.61%2025.397%2052.093%2060.53%2010.465%2038.767%201.316%2074.878-20.405%2080.656-21.72%205.778-47.786-20.983-58.25-59.75-10.464-38.767-1.346-74.878%2020.375-80.656a23.285%2023.285%200%200%201%206.188-.78zm-148.75%2016.31c-9.787%200-17.532%207.746-17.532%2017.532%200%209.787%207.745%2017.5%2017.53%2017.5%209.788%200%2017.533-7.713%2017.533-17.5%200-9.786-7.746-17.53-17.532-17.53zm342.812%2035.626c-19.142%200-34.438%2015.327-34.438%2034.47%200%2019.14%2015.296%2034.468%2034.438%2034.468a34.336%2034.336%200%200%200%2034.47-34.47%2034.336%2034.336%200%200%200-34.47-34.468zM40.72%20269.594c-12.37%200-22.19%209.82-22.19%2022.187%200%2012.37%209.82%2022.19%2022.19%2022.19%2012.367%200%2022.186-9.82%2022.186-22.19%200-12.367-9.82-22.186-22.187-22.186zm362.655%20153c-11.4%200-20.438%209.036-20.438%2020.437%200%2011.403%209.038%2020.47%2020.438%2020.47%2011.4%200%2020.438-9.07%2020.438-20.47%200-11.398-9.04-20.436-20.438-20.436z&#x27;%20fill=&#x27;currentColor&#x27;%3e%3c/path%3e%3c/g%3e%3c/svg%3e&quot;);mask-image:url(&quot;data:image/svg+xml,%3csvg%20xmlns=&#x27;http://www.w3.org/2000/svg&#x27;%20viewBox=&#x27;0%200%20512%20512&#x27;%3e%3cg%3e%3cpath%20d=&#x27;M333.906%2018.5c-14.948%200-26.875%2011.925-26.875%2026.875S318.96%2072.25%20333.907%2072.25c14.947%200%2026.875-11.928%2026.875-26.875S348.854%2018.5%20333.907%2018.5zm-231.937.22c29.583%2037.7%2052.166%2072.266%2066.468%20100.936%208.118%2016.275%2013.732%2030.693%2016.687%2043.188%202.955%2012.495%203.61%2023.21-.375%2032.47-3.986%209.257-14.202%2015.07-24.906%2014.874-10.705-.196-22.65-4.38-37.22-12.157-26.083-13.923-60.59-40.088-104.686-81.155v87.22c17.217.47%2033.334%201.874%2048.28%204.093%206.49-6.09%2015.193-9.844%2024.72-9.844%2016.02%200%2029.742%2010.606%2034.468%2025.125.34.135.694.267%201.03.405%2029.738%2012.147%2050.185%2028.877%2055.095%2050.28%202.456%2010.703.282%2022.157-6.093%2032.283-6.374%2010.125-16.616%2019.196-30.687%2027.437-26.885%2015.746-68.287%2028.618-126.813%2036.906v120.97H40c30.353-48.064%2058.883-82.285%2083.97-105.094%2025.865-23.52%2047.85-35.416%2066.436-37%209.794-.834%2019.75%201.757%2027.188%208.5%207.436%206.743%2012.01%2016.822%2014.03%2029.5%203.723%2023.354-.613%2056.84-15.25%20104.094H246.5c-1.138-26.128%201.06-49.335%205.97-67.188%202.77-10.076%206.276-18.543%2010.905-25.187%204.63-6.644%2010.912-12.056%2019.094-12.844%208.387-.806%2015.275%203.7%2021.186%209.5%205.912%205.804%2011.454%2013.664%2017.094%2023.408%2010.504%2018.145%2021.15%2043.102%2031.375%2072.312h37.53c-31.368-41.546-53.334-78.49-65.217-107.656-6.656-16.336-10.304-30.176-10.188-42.03.058-5.93%201.087-11.484%203.78-16.408%202.696-4.924%207.307-8.932%2012.69-10.875%208.4-3.03%2017.73-1.85%2028.342%201.75%2010.612%203.6%2022.802%209.9%2037.032%2019.126C421.09%20351.864%20452.794%20377.842%20491%20414v-94.313c-5.02-.2-9.91-.48-14.72-.78-9.716%2012.95-25.184%2021.374-42.53%2021.374-23.575%200-43.66-15.557-50.563-36.905a198.727%20198.727%200%200%201-10.843-3.844c-30.306-11.79-49.777-29.047-51.563-51.374-1.784-22.326%2014.164-43.95%2043.47-64.28%2028.192-19.56%2070.115-38.664%20126.75-56.282V18.72h-46.72c-25.482%2053.29-51.333%2094.012-75.124%20121.968-24.602%2028.91-46.417%2045.424-67.47%2045.75-10.524.163-20.573-5.326-26.467-14.407-5.895-9.08-8.614-21.047-9.095-36.03-.89-27.712%206.29-66.52%2023.22-117.28h-34.94c2.344%2037.833%201.71%2068.807-1.81%2091.53-1.92%2012.386-4.58%2022.43-8.47%2030.375-3.89%207.944-9.516%2014.6-17.875%2016.5-8.36%201.9-16.53-1.977-23.188-8.063-6.657-6.085-12.917-14.847-19.437-26.687-12.414-22.543-25.64-56.773-39.438-103.656H101.97zm137.718%20182c20.268.125%2042.61%2025.397%2052.093%2060.53%2010.465%2038.767%201.316%2074.878-20.405%2080.656-21.72%205.778-47.786-20.983-58.25-59.75-10.464-38.767-1.346-74.878%2020.375-80.656a23.285%2023.285%200%200%201%206.188-.78zm-148.75%2016.31c-9.787%200-17.532%207.746-17.532%2017.532%200%209.787%207.745%2017.5%2017.53%2017.5%209.788%200%2017.533-7.713%2017.533-17.5%200-9.786-7.746-17.53-17.532-17.53zm342.812%2035.626c-19.142%200-34.438%2015.327-34.438%2034.47%200%2019.14%2015.296%2034.468%2034.438%2034.468a34.336%2034.336%200%200%200%2034.47-34.47%2034.336%2034.336%200%200%200-34.47-34.468zM40.72%20269.594c-12.37%200-22.19%209.82-22.19%2022.187%200%2012.37%209.82%2022.19%2022.19%2022.19%2012.367%200%2022.186-9.82%2022.186-22.19%200-12.367-9.82-22.186-22.187-22.186zm362.655%20153c-11.4%200-20.438%209.036-20.438%2020.437%200%2011.403%209.038%2020.47%2020.438%2020.47%2011.4%200%2020.438-9.07%2020.438-20.47%200-11.398-9.04-20.436-20.438-20.436z&#x27;%20fill=&#x27;currentColor&#x27;%3e%3c/path%3e%3c/g%3e%3c/svg%3e&quot;)">
+</span>
+</span>
+<div class="abyssa-status-panel__trait-copy">
 <h5>万象原生质</h5>
-<p>令黑色原生质化作触手、衣装、屏障或其他所需形态；这是她无需起身也能贯彻意志的延伸。</p>
+<p>自在塑形 · 万象延伸</p>
+</div>
+<span class="abyssa-status-panel__trait-tooltip" id="_R_2qi_-trait-1" role="tooltip">令黑色原生质化作触手、衣装、屏障或其他所需形态；这是她无需起身也能贯彻意志的延伸。</span>
 </article>
 </div>
 </section>
-<section>
+<section class="abyssa-status-panel__lower-section abyssa-status-panel__lower-section--biography">
 <h4 class="abyssa-status-panel__subsection-title">BIOGRAPHY</h4>
-<div class="abyssa-status-panel__record">灰石村的少女被献入黑色裂隙，根源之力填满躯壳，成为大天平选中的当代魔王。四天王将她带回魔王城；如今那里是她无需解释的“家”。</div>
-<blockquote>唔……太阳照在身上的时候，就醒了。……然后晒太阳。</blockquote>
+<div class="abyssa-status-panel__record" aria-label="灰石村的少女被献入黑色裂隙，根源之力填满躯壳，成为大天平选中的当代魔王。四天王将她带回魔王城；如今那里是她无需解释的“家”。">
+<span class="abyssa-status-panel__record-initial">灰</span>石村的少女被献入黑色裂隙，根源之力填满躯壳，成为大天平选中的当代魔王。四天王将她带回魔王城；如今那里是她无需解释的“家”。</div>
 </section>
+</div>
+<blockquote class="abyssa-status-panel__quote">唔……太阳照在身上的时候，就醒了。……然后晒太阳。</blockquote>
 </div>
 </div>
 </div>
@@ -4754,22 +4771,22 @@
 <div class="catalog-card__stage">
 <div class="abyssa-character-selector character-selector" role="group" aria-label="角色选择" style="--abyssa-selector-columns:3">
 <button type="button" class="abyssa-panel-tile" data-variant="gray" aria-pressed="false" aria-label="尤斯缇丝·格里芬">
-<svg viewBox="0 0 180 180" aria-hidden="true">
-<rect x="8" y="9.5" width="164" height="164" fill="#0d1212" opacity=".52">
+<svg viewBox="0 0 180 180" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+<rect class="abyssa-panel-tile__shadow" x="8" y="9.5" width="164" height="164" fill="#0d1212" opacity=".52">
 </rect>
 <rect x="8" y="7" width="164" height="164" fill="var(--abyssa-tile-fill)">
 </rect>
-<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="7">
+<rect class="abyssa-panel-tile__frame" data-frame-layer="outer" x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="7">
 </rect>
-<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-tile-middle)" stroke-width="4">
+<rect class="abyssa-panel-tile__frame" data-frame-layer="middle" x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-tile-middle)" stroke-width="4">
 </rect>
-<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2">
+<rect class="abyssa-panel-tile__frame" data-frame-layer="inner" x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2">
 </rect>
-<rect x="15" y="14" width="150" height="150" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1.25" opacity=".94">
+<rect class="abyssa-panel-tile__ornament" x="15" y="14" width="150" height="150" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1.25" opacity=".94">
 </rect>
-<rect x="18" y="17" width="144" height="144" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width=".7" opacity=".55">
+<rect class="abyssa-panel-tile__ornament" x="18" y="17" width="144" height="144" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width=".7" opacity=".55">
 </rect>
-<g fill="none" stroke="var(--abyssa-tile-ornament)" stroke-linecap="square">
+<g class="abyssa-panel-tile__ornament" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-linecap="square">
 <path d="M16 39 V16 H39 M21 34 V21 H34" stroke-width="2">
 </path>
 <path d="M141 16 H164 V39 M146 21 H159 V34" stroke-width="2">
@@ -4779,13 +4796,13 @@
 <path d="M141 164 H164 V141 M146 159 H159 V146" stroke-width="2">
 </path>
 </g>
-<g fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1" opacity=".9">
+<g class="abyssa-panel-tile__ornament" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1" opacity=".9">
 <path d="M25 16 H45 M16 25 V45 M135 16 H155 M164 25 V45">
 </path>
 <path d="M25 164 H45 M16 135 V155 M135 164 H155 M164 135 V155">
 </path>
 </g>
-<g fill="var(--abyssa-tile-ornament)">
+<g class="abyssa-panel-tile__ornament" fill="var(--abyssa-tile-ornament)">
 <circle cx="24" cy="24" r="1.75">
 </circle>
 <circle cx="156" cy="24" r="1.75">
@@ -4819,22 +4836,22 @@
 <span class="abyssa-panel-tile__content">00</span>
 </button>
 <button type="button" class="abyssa-panel-tile" data-variant="light" aria-pressed="false" aria-label="艾洛拉·亚金特">
-<svg viewBox="0 0 180 180" aria-hidden="true">
-<rect x="8" y="9.5" width="164" height="164" fill="#0d1212" opacity=".52">
+<svg viewBox="0 0 180 180" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+<rect class="abyssa-panel-tile__shadow" x="8" y="9.5" width="164" height="164" fill="#0d1212" opacity=".52">
 </rect>
 <rect x="8" y="7" width="164" height="164" fill="var(--abyssa-tile-fill)">
 </rect>
-<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="7">
+<rect class="abyssa-panel-tile__frame" data-frame-layer="outer" x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="7">
 </rect>
-<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-tile-middle)" stroke-width="4">
+<rect class="abyssa-panel-tile__frame" data-frame-layer="middle" x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-tile-middle)" stroke-width="4">
 </rect>
-<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2">
+<rect class="abyssa-panel-tile__frame" data-frame-layer="inner" x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2">
 </rect>
-<rect x="15" y="14" width="150" height="150" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1.25" opacity=".94">
+<rect class="abyssa-panel-tile__ornament" x="15" y="14" width="150" height="150" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1.25" opacity=".94">
 </rect>
-<rect x="18" y="17" width="144" height="144" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width=".7" opacity=".55">
+<rect class="abyssa-panel-tile__ornament" x="18" y="17" width="144" height="144" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width=".7" opacity=".55">
 </rect>
-<g fill="none" stroke="var(--abyssa-tile-ornament)" stroke-linecap="square">
+<g class="abyssa-panel-tile__ornament" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-linecap="square">
 <path d="M16 39 V16 H39 M21 34 V21 H34" stroke-width="2">
 </path>
 <path d="M141 16 H164 V39 M146 21 H159 V34" stroke-width="2">
@@ -4844,13 +4861,13 @@
 <path d="M141 164 H164 V141 M146 159 H159 V146" stroke-width="2">
 </path>
 </g>
-<g fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1" opacity=".9">
+<g class="abyssa-panel-tile__ornament" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1" opacity=".9">
 <path d="M25 16 H45 M16 25 V45 M135 16 H155 M164 25 V45">
 </path>
 <path d="M25 164 H45 M16 135 V155 M135 164 H155 M164 135 V155">
 </path>
 </g>
-<g fill="var(--abyssa-tile-ornament)">
+<g class="abyssa-panel-tile__ornament" fill="var(--abyssa-tile-ornament)">
 <circle cx="24" cy="24" r="1.75">
 </circle>
 <circle cx="156" cy="24" r="1.75">
@@ -4884,22 +4901,22 @@
 <span class="abyssa-panel-tile__content">01</span>
 </button>
 <button type="button" class="abyssa-panel-tile" data-variant="deep" aria-pressed="false" aria-label="柯萝萝·拉普拉斯">
-<svg viewBox="0 0 180 180" aria-hidden="true">
-<rect x="8" y="9.5" width="164" height="164" fill="#0d1212" opacity=".52">
+<svg viewBox="0 0 180 180" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+<rect class="abyssa-panel-tile__shadow" x="8" y="9.5" width="164" height="164" fill="#0d1212" opacity=".52">
 </rect>
 <rect x="8" y="7" width="164" height="164" fill="var(--abyssa-tile-fill)">
 </rect>
-<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="7">
+<rect class="abyssa-panel-tile__frame" data-frame-layer="outer" x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="7">
 </rect>
-<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-tile-middle)" stroke-width="4">
+<rect class="abyssa-panel-tile__frame" data-frame-layer="middle" x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-tile-middle)" stroke-width="4">
 </rect>
-<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2">
+<rect class="abyssa-panel-tile__frame" data-frame-layer="inner" x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2">
 </rect>
-<rect x="15" y="14" width="150" height="150" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1.25" opacity=".94">
+<rect class="abyssa-panel-tile__ornament" x="15" y="14" width="150" height="150" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1.25" opacity=".94">
 </rect>
-<rect x="18" y="17" width="144" height="144" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width=".7" opacity=".55">
+<rect class="abyssa-panel-tile__ornament" x="18" y="17" width="144" height="144" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width=".7" opacity=".55">
 </rect>
-<g fill="none" stroke="var(--abyssa-tile-ornament)" stroke-linecap="square">
+<g class="abyssa-panel-tile__ornament" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-linecap="square">
 <path d="M16 39 V16 H39 M21 34 V21 H34" stroke-width="2">
 </path>
 <path d="M141 16 H164 V39 M146 21 H159 V34" stroke-width="2">
@@ -4909,13 +4926,13 @@
 <path d="M141 164 H164 V141 M146 159 H159 V146" stroke-width="2">
 </path>
 </g>
-<g fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1" opacity=".9">
+<g class="abyssa-panel-tile__ornament" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1" opacity=".9">
 <path d="M25 16 H45 M16 25 V45 M135 16 H155 M164 25 V45">
 </path>
 <path d="M25 164 H45 M16 135 V155 M135 164 H155 M164 135 V155">
 </path>
 </g>
-<g fill="var(--abyssa-tile-ornament)">
+<g class="abyssa-panel-tile__ornament" fill="var(--abyssa-tile-ornament)">
 <circle cx="24" cy="24" r="1.75">
 </circle>
 <circle cx="156" cy="24" r="1.75">
@@ -4949,22 +4966,22 @@
 <span class="abyssa-panel-tile__content">02</span>
 </button>
 <button type="button" class="abyssa-panel-tile" data-variant="dark" aria-pressed="false" aria-label="诺玛·洛克">
-<svg viewBox="0 0 180 180" aria-hidden="true">
-<rect x="8" y="9.5" width="164" height="164" fill="#0d1212" opacity=".52">
+<svg viewBox="0 0 180 180" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+<rect class="abyssa-panel-tile__shadow" x="8" y="9.5" width="164" height="164" fill="#0d1212" opacity=".52">
 </rect>
 <rect x="8" y="7" width="164" height="164" fill="var(--abyssa-tile-fill)">
 </rect>
-<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="7">
+<rect class="abyssa-panel-tile__frame" data-frame-layer="outer" x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="7">
 </rect>
-<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-tile-middle)" stroke-width="4">
+<rect class="abyssa-panel-tile__frame" data-frame-layer="middle" x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-tile-middle)" stroke-width="4">
 </rect>
-<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2">
+<rect class="abyssa-panel-tile__frame" data-frame-layer="inner" x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2">
 </rect>
-<rect x="15" y="14" width="150" height="150" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1.25" opacity=".94">
+<rect class="abyssa-panel-tile__ornament" x="15" y="14" width="150" height="150" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1.25" opacity=".94">
 </rect>
-<rect x="18" y="17" width="144" height="144" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width=".7" opacity=".55">
+<rect class="abyssa-panel-tile__ornament" x="18" y="17" width="144" height="144" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width=".7" opacity=".55">
 </rect>
-<g fill="none" stroke="var(--abyssa-tile-ornament)" stroke-linecap="square">
+<g class="abyssa-panel-tile__ornament" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-linecap="square">
 <path d="M16 39 V16 H39 M21 34 V21 H34" stroke-width="2">
 </path>
 <path d="M141 16 H164 V39 M146 21 H159 V34" stroke-width="2">
@@ -4974,13 +4991,13 @@
 <path d="M141 164 H164 V141 M146 159 H159 V146" stroke-width="2">
 </path>
 </g>
-<g fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1" opacity=".9">
+<g class="abyssa-panel-tile__ornament" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1" opacity=".9">
 <path d="M25 16 H45 M16 25 V45 M135 16 H155 M164 25 V45">
 </path>
 <path d="M25 164 H45 M16 135 V155 M135 164 H155 M164 135 V155">
 </path>
 </g>
-<g fill="var(--abyssa-tile-ornament)">
+<g class="abyssa-panel-tile__ornament" fill="var(--abyssa-tile-ornament)">
 <circle cx="24" cy="24" r="1.75">
 </circle>
 <circle cx="156" cy="24" r="1.75">
@@ -5014,22 +5031,22 @@
 <span class="abyssa-panel-tile__content">03</span>
 </button>
 <button type="button" class="abyssa-panel-tile" data-variant="teal" data-selected="true" aria-pressed="true" aria-label="艾比希斯·贝尔泽兰" aria-current="true">
-<svg viewBox="0 0 180 180" aria-hidden="true">
-<rect x="8" y="9.5" width="164" height="164" fill="#0d1212" opacity=".52">
+<svg viewBox="0 0 180 180" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+<rect class="abyssa-panel-tile__shadow" x="8" y="9.5" width="164" height="164" fill="#0d1212" opacity=".52">
 </rect>
 <rect x="8" y="7" width="164" height="164" fill="var(--abyssa-tile-fill)">
 </rect>
-<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="7">
+<rect class="abyssa-panel-tile__frame" data-frame-layer="outer" x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="7">
 </rect>
-<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-tile-middle)" stroke-width="4">
+<rect class="abyssa-panel-tile__frame" data-frame-layer="middle" x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-tile-middle)" stroke-width="4">
 </rect>
-<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2">
+<rect class="abyssa-panel-tile__frame" data-frame-layer="inner" x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2">
 </rect>
-<rect x="15" y="14" width="150" height="150" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1.25" opacity=".94">
+<rect class="abyssa-panel-tile__ornament" x="15" y="14" width="150" height="150" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1.25" opacity=".94">
 </rect>
-<rect x="18" y="17" width="144" height="144" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width=".7" opacity=".55">
+<rect class="abyssa-panel-tile__ornament" x="18" y="17" width="144" height="144" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width=".7" opacity=".55">
 </rect>
-<g fill="none" stroke="var(--abyssa-tile-ornament)" stroke-linecap="square">
+<g class="abyssa-panel-tile__ornament" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-linecap="square">
 <path d="M16 39 V16 H39 M21 34 V21 H34" stroke-width="2">
 </path>
 <path d="M141 16 H164 V39 M146 21 H159 V34" stroke-width="2">
@@ -5039,13 +5056,13 @@
 <path d="M141 164 H164 V141 M146 159 H159 V146" stroke-width="2">
 </path>
 </g>
-<g fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1" opacity=".9">
+<g class="abyssa-panel-tile__ornament" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1" opacity=".9">
 <path d="M25 16 H45 M16 25 V45 M135 16 H155 M164 25 V45">
 </path>
 <path d="M25 164 H45 M16 135 V155 M135 164 H155 M164 135 V155">
 </path>
 </g>
-<g fill="var(--abyssa-tile-ornament)">
+<g class="abyssa-panel-tile__ornament" fill="var(--abyssa-tile-ornament)">
 <circle cx="24" cy="24" r="1.75">
 </circle>
 <circle cx="156" cy="24" r="1.75">
@@ -5081,22 +5098,22 @@
 </span>
 </button>
 <button type="button" class="abyssa-panel-tile" data-variant="gray" aria-pressed="false" aria-label="玛丽埃塔·克雷格">
-<svg viewBox="0 0 180 180" aria-hidden="true">
-<rect x="8" y="9.5" width="164" height="164" fill="#0d1212" opacity=".52">
+<svg viewBox="0 0 180 180" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+<rect class="abyssa-panel-tile__shadow" x="8" y="9.5" width="164" height="164" fill="#0d1212" opacity=".52">
 </rect>
 <rect x="8" y="7" width="164" height="164" fill="var(--abyssa-tile-fill)">
 </rect>
-<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="7">
+<rect class="abyssa-panel-tile__frame" data-frame-layer="outer" x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="7">
 </rect>
-<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-tile-middle)" stroke-width="4">
+<rect class="abyssa-panel-tile__frame" data-frame-layer="middle" x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-tile-middle)" stroke-width="4">
 </rect>
-<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2">
+<rect class="abyssa-panel-tile__frame" data-frame-layer="inner" x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2">
 </rect>
-<rect x="15" y="14" width="150" height="150" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1.25" opacity=".94">
+<rect class="abyssa-panel-tile__ornament" x="15" y="14" width="150" height="150" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1.25" opacity=".94">
 </rect>
-<rect x="18" y="17" width="144" height="144" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width=".7" opacity=".55">
+<rect class="abyssa-panel-tile__ornament" x="18" y="17" width="144" height="144" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width=".7" opacity=".55">
 </rect>
-<g fill="none" stroke="var(--abyssa-tile-ornament)" stroke-linecap="square">
+<g class="abyssa-panel-tile__ornament" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-linecap="square">
 <path d="M16 39 V16 H39 M21 34 V21 H34" stroke-width="2">
 </path>
 <path d="M141 16 H164 V39 M146 21 H159 V34" stroke-width="2">
@@ -5106,13 +5123,13 @@
 <path d="M141 164 H164 V141 M146 159 H159 V146" stroke-width="2">
 </path>
 </g>
-<g fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1" opacity=".9">
+<g class="abyssa-panel-tile__ornament" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1" opacity=".9">
 <path d="M25 16 H45 M16 25 V45 M135 16 H155 M164 25 V45">
 </path>
 <path d="M25 164 H45 M16 135 V155 M135 164 H155 M164 135 V155">
 </path>
 </g>
-<g fill="var(--abyssa-tile-ornament)">
+<g class="abyssa-panel-tile__ornament" fill="var(--abyssa-tile-ornament)">
 <circle cx="24" cy="24" r="1.75">
 </circle>
 <circle cx="156" cy="24" r="1.75">
@@ -5146,22 +5163,22 @@
 <span class="abyssa-panel-tile__content">05</span>
 </button>
 <button type="button" class="abyssa-panel-tile" data-variant="deep" aria-pressed="false" aria-label="阿尔薇特·塞维琳">
-<svg viewBox="0 0 180 180" aria-hidden="true">
-<rect x="8" y="9.5" width="164" height="164" fill="#0d1212" opacity=".52">
+<svg viewBox="0 0 180 180" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+<rect class="abyssa-panel-tile__shadow" x="8" y="9.5" width="164" height="164" fill="#0d1212" opacity=".52">
 </rect>
 <rect x="8" y="7" width="164" height="164" fill="var(--abyssa-tile-fill)">
 </rect>
-<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="7">
+<rect class="abyssa-panel-tile__frame" data-frame-layer="outer" x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="7">
 </rect>
-<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-tile-middle)" stroke-width="4">
+<rect class="abyssa-panel-tile__frame" data-frame-layer="middle" x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-tile-middle)" stroke-width="4">
 </rect>
-<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2">
+<rect class="abyssa-panel-tile__frame" data-frame-layer="inner" x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2">
 </rect>
-<rect x="15" y="14" width="150" height="150" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1.25" opacity=".94">
+<rect class="abyssa-panel-tile__ornament" x="15" y="14" width="150" height="150" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1.25" opacity=".94">
 </rect>
-<rect x="18" y="17" width="144" height="144" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width=".7" opacity=".55">
+<rect class="abyssa-panel-tile__ornament" x="18" y="17" width="144" height="144" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width=".7" opacity=".55">
 </rect>
-<g fill="none" stroke="var(--abyssa-tile-ornament)" stroke-linecap="square">
+<g class="abyssa-panel-tile__ornament" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-linecap="square">
 <path d="M16 39 V16 H39 M21 34 V21 H34" stroke-width="2">
 </path>
 <path d="M141 16 H164 V39 M146 21 H159 V34" stroke-width="2">
@@ -5171,13 +5188,13 @@
 <path d="M141 164 H164 V141 M146 159 H159 V146" stroke-width="2">
 </path>
 </g>
-<g fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1" opacity=".9">
+<g class="abyssa-panel-tile__ornament" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1" opacity=".9">
 <path d="M25 16 H45 M16 25 V45 M135 16 H155 M164 25 V45">
 </path>
 <path d="M25 164 H45 M16 135 V155 M135 164 H155 M164 135 V155">
 </path>
 </g>
-<g fill="var(--abyssa-tile-ornament)">
+<g class="abyssa-panel-tile__ornament" fill="var(--abyssa-tile-ornament)">
 <circle cx="24" cy="24" r="1.75">
 </circle>
 <circle cx="156" cy="24" r="1.75">
@@ -5211,22 +5228,22 @@
 <span class="abyssa-panel-tile__content">06</span>
 </button>
 <button type="button" class="abyssa-panel-tile" data-variant="dark" aria-pressed="false" aria-label="蕾诺尔·伏尼契">
-<svg viewBox="0 0 180 180" aria-hidden="true">
-<rect x="8" y="9.5" width="164" height="164" fill="#0d1212" opacity=".52">
+<svg viewBox="0 0 180 180" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+<rect class="abyssa-panel-tile__shadow" x="8" y="9.5" width="164" height="164" fill="#0d1212" opacity=".52">
 </rect>
 <rect x="8" y="7" width="164" height="164" fill="var(--abyssa-tile-fill)">
 </rect>
-<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="7">
+<rect class="abyssa-panel-tile__frame" data-frame-layer="outer" x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="7">
 </rect>
-<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-tile-middle)" stroke-width="4">
+<rect class="abyssa-panel-tile__frame" data-frame-layer="middle" x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-tile-middle)" stroke-width="4">
 </rect>
-<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2">
+<rect class="abyssa-panel-tile__frame" data-frame-layer="inner" x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2">
 </rect>
-<rect x="15" y="14" width="150" height="150" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1.25" opacity=".94">
+<rect class="abyssa-panel-tile__ornament" x="15" y="14" width="150" height="150" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1.25" opacity=".94">
 </rect>
-<rect x="18" y="17" width="144" height="144" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width=".7" opacity=".55">
+<rect class="abyssa-panel-tile__ornament" x="18" y="17" width="144" height="144" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width=".7" opacity=".55">
 </rect>
-<g fill="none" stroke="var(--abyssa-tile-ornament)" stroke-linecap="square">
+<g class="abyssa-panel-tile__ornament" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-linecap="square">
 <path d="M16 39 V16 H39 M21 34 V21 H34" stroke-width="2">
 </path>
 <path d="M141 16 H164 V39 M146 21 H159 V34" stroke-width="2">
@@ -5236,13 +5253,13 @@
 <path d="M141 164 H164 V141 M146 159 H159 V146" stroke-width="2">
 </path>
 </g>
-<g fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1" opacity=".9">
+<g class="abyssa-panel-tile__ornament" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1" opacity=".9">
 <path d="M25 16 H45 M16 25 V45 M135 16 H155 M164 25 V45">
 </path>
 <path d="M25 164 H45 M16 135 V155 M135 164 H155 M164 135 V155">
 </path>
 </g>
-<g fill="var(--abyssa-tile-ornament)">
+<g class="abyssa-panel-tile__ornament" fill="var(--abyssa-tile-ornament)">
 <circle cx="24" cy="24" r="1.75">
 </circle>
 <circle cx="156" cy="24" r="1.75">
@@ -5276,22 +5293,22 @@
 <span class="abyssa-panel-tile__content">07</span>
 </button>
 <button type="button" class="abyssa-panel-tile" data-variant="gray" aria-pressed="false" aria-label="薇薇安·桑格温">
-<svg viewBox="0 0 180 180" aria-hidden="true">
-<rect x="8" y="9.5" width="164" height="164" fill="#0d1212" opacity=".52">
+<svg viewBox="0 0 180 180" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+<rect class="abyssa-panel-tile__shadow" x="8" y="9.5" width="164" height="164" fill="#0d1212" opacity=".52">
 </rect>
 <rect x="8" y="7" width="164" height="164" fill="var(--abyssa-tile-fill)">
 </rect>
-<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="7">
+<rect class="abyssa-panel-tile__frame" data-frame-layer="outer" x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="7">
 </rect>
-<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-tile-middle)" stroke-width="4">
+<rect class="abyssa-panel-tile__frame" data-frame-layer="middle" x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-tile-middle)" stroke-width="4">
 </rect>
-<rect x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2">
+<rect class="abyssa-panel-tile__frame" data-frame-layer="inner" x="8" y="7" width="164" height="164" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2">
 </rect>
-<rect x="15" y="14" width="150" height="150" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1.25" opacity=".94">
+<rect class="abyssa-panel-tile__ornament" x="15" y="14" width="150" height="150" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1.25" opacity=".94">
 </rect>
-<rect x="18" y="17" width="144" height="144" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width=".7" opacity=".55">
+<rect class="abyssa-panel-tile__ornament" x="18" y="17" width="144" height="144" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width=".7" opacity=".55">
 </rect>
-<g fill="none" stroke="var(--abyssa-tile-ornament)" stroke-linecap="square">
+<g class="abyssa-panel-tile__ornament" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-linecap="square">
 <path d="M16 39 V16 H39 M21 34 V21 H34" stroke-width="2">
 </path>
 <path d="M141 16 H164 V39 M146 21 H159 V34" stroke-width="2">
@@ -5301,13 +5318,13 @@
 <path d="M141 164 H164 V141 M146 159 H159 V146" stroke-width="2">
 </path>
 </g>
-<g fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1" opacity=".9">
+<g class="abyssa-panel-tile__ornament" fill="none" stroke="var(--abyssa-tile-ornament)" stroke-width="1" opacity=".9">
 <path d="M25 16 H45 M16 25 V45 M135 16 H155 M164 25 V45">
 </path>
 <path d="M25 164 H45 M16 135 V155 M135 164 H155 M164 135 V155">
 </path>
 </g>
-<g fill="var(--abyssa-tile-ornament)">
+<g class="abyssa-panel-tile__ornament" fill="var(--abyssa-tile-ornament)">
 <circle cx="24" cy="24" r="1.75">
 </circle>
 <circle cx="156" cy="24" r="1.75">

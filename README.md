@@ -27,6 +27,7 @@
 - `CharacterSelector`：受控或非受控角色选择器
 - `StatusPanel`：数据驱动的身份、属性、特性和记录面板
 - `CharacterStatusScreen`：完整角色状态组合页面
+- `BattleScreen`：支持回合顺序、四姿态角色图集、目标选择、队伍状态与四向指令的战斗 UI 组合
 
 ## 本地运行
 
@@ -43,12 +44,21 @@ npm run storybook
 
 Storybook 默认运行在 `http://127.0.0.1:6006/`。
 
+战斗界面的独立交互预览使用现有四人队与混沌领域素材：
+
+```bash
+npm run dev:battle
+```
+
+它只负责 UI 状态与回调，不包含伤害结算、技能清单或回合规则引擎。
+
 ## 构建与验证
 
 ```bash
 npm run typecheck
 npm test
 npm run build
+npm run build:battle
 npm run build-storybook
 ```
 

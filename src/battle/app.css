@@ -1,0 +1,90 @@
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  min-height: 100%;
+  overflow-x: hidden;
+  background: #070b0c;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+  overflow-x: hidden;
+}
+
+button {
+  font: inherit;
+}
+
+#root,
+.battle-preview-app {
+  min-height: 100vh;
+}
+
+.battle-preview-app {
+  color: var(--abyssa-text);
+  background:
+    radial-gradient(circle at 50% 8%, rgb(66 116 116 / 18%), transparent 34rem),
+    linear-gradient(90deg, rgb(255 255 255 / 1.1%) 1px, transparent 1px) 0 0 / 48px 48px,
+    linear-gradient(rgb(255 255 255 / 1.1%) 1px, transparent 1px) 0 0 / 48px 48px,
+    #080d0e;
+}
+
+.battle-preview-app__main {
+  width: 100%;
+  min-height: 100vh;
+  padding: clamp(14px, 2vw, 28px);
+}
+
+.battle-preview-app__toolbar {
+  display: flex;
+  width: min(100%, 1376px);
+  min-height: 78px;
+  margin: 0 auto clamp(12px, 1.8vw, 22px);
+  align-items: end;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.battle-preview-app__toolbar p,
+.battle-preview-app__toolbar h1 {
+  margin: 0;
+}
+
+.battle-preview-app__toolbar p {
+  color: var(--abyssa-teal-soft);
+  font-family: var(--abyssa-font-display);
+  font-size: 11px;
+  letter-spacing: 0.24em;
+}
+
+.battle-preview-app__toolbar h1 {
+  margin-top: 4px;
+  font-size: clamp(24px, 3vw, 40px);
+  font-weight: 400;
+  letter-spacing: 0.12em;
+}
+
+.battle-preview-app__stage {
+  width: min(100%, 1376px);
+  margin: clamp(42px, 5vw, 70px) auto 0;
+}
+
+@media (max-width: 700px) {
+  .battle-preview-app__toolbar {
+    align-items: start;
+    flex-direction: column;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .battle-preview-app *,
+  .battle-preview-app *::before,
+  .battle-preview-app *::after {
+    scroll-behavior: auto !important;
+  }
+}

@@ -4,6 +4,24 @@ export { AbyssaProvider } from "./components/AbyssaProvider";
 export type { AbyssaProviderProps } from "./components/AbyssaProvider";
 export { ArrowButton } from "./components/ArrowButton";
 export type { ArrowButtonProps } from "./components/ArrowButton";
+export { BattleScreen } from "./components/BattleScreen";
+export type {
+  BattleAlly,
+  BattleActionKind,
+  BattleAttackEvent,
+  BattleAttackMotionMode,
+  BattleAttackPhase,
+  BattleCommandId,
+  BattleEnemy,
+  BattleFloatingFeedback,
+  BattleHolyAttackEvent,
+  BattlePlacement,
+  BattleScene,
+  BattleScreenProps,
+  BattleSpriteAdjustment,
+  BattleSpritePose,
+  BattleTurnEntry
+} from "./components/BattleScreen";
 export { CharacterSelector } from "./components/CharacterSelector";
 export type {
   CharacterOption,
@@ -70,6 +88,14 @@ export type {
   RpgDialogueProps,
   RpgDialogueVariant
 } from "./components/RpgDialogue";
+export {
+  RetroRpgDirectionPad,
+  RpgDirectionPad
+} from "./components/RpgDirectionPad";
+export type {
+  RpgDirection,
+  RpgDirectionPadProps
+} from "./components/RpgDirectionPad";
 export {
   RetroRpgHexButton,
   RpgHexButton

@@ -1,6 +1,7 @@
 node_modules
 dist
 character-status-dist
+battle-dist
 storybook-static
 .DS_Store
 coverage

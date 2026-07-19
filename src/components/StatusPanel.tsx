@@ -22,6 +22,7 @@ export interface StatusTrait {
   summary?: ReactNode;
   description?: ReactNode;
   icon?: ReactNode;
+  iconUrl?: string;
 }
 
 export type StatusPanelAffiliationTone =
@@ -197,10 +198,18 @@ export function StatusPanel({ data, watermark, className, ...props }: StatusPane
                                 >
                                   <span
                                     className="abyssa-status-panel__trait-icon"
-                                    data-empty={trait.icon ? undefined : true}
+                                    data-empty={trait.icon || trait.iconUrl ? undefined : true}
                                     aria-hidden="true"
                                   >
-                                    {trait.icon}
+                                    {trait.iconUrl ? (
+                                      <span
+                                        className="abyssa-status-panel__trait-glyph"
+                                        style={{
+                                          WebkitMaskImage: `url("${trait.iconUrl}")`,
+                                          maskImage: `url("${trait.iconUrl}")`
+                                        }}
+                                      />
+                                    ) : trait.icon}
                                   </span>
                                   <div className="abyssa-status-panel__trait-copy">
                                     <h5>{trait.name}</h5>

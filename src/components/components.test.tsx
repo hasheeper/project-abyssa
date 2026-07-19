@@ -259,7 +259,11 @@ describe("Abyssa controls", () => {
                 accent: true
               }
             ],
-            traits: [{ name: "我的平静", description: "完整能力说明" }],
+            traits: [{
+              name: "我的平静",
+              description: "完整能力说明",
+              iconUrl: "/trait.svg"
+            }],
             record: "人物资料",
             quote: "角色台词"
           }}
@@ -282,6 +286,9 @@ describe("Abyssa controls", () => {
     expect(screen.getByText("BIOGRAPHY")).toBeInTheDocument();
     expect(container.querySelectorAll(".abyssa-status-panel__lower-section")).toHaveLength(2);
     expect(container.querySelectorAll(".abyssa-status-panel__trait-icon")).toHaveLength(1);
+    expect(container.querySelector(".abyssa-status-panel__trait-glyph")).toHaveStyle({
+      maskImage: 'url("/trait.svg")'
+    });
     expect(container.querySelector(".abyssa-status-panel__trait-tooltip")).toHaveTextContent("完整能力说明");
     expect(container.querySelector(".abyssa-status-panel__quote")).toBeInTheDocument();
   });
@@ -336,6 +343,9 @@ describe("Abyssa controls", () => {
       expect(character.status.fields).toHaveLength(4);
       expect(character.status.stats).toHaveLength(6);
       expect(character.status.traits).toHaveLength(2);
+      character.status.traits?.forEach((trait) => {
+        expect(trait.iconUrl).toMatch(/^(?:data:image\/svg\+xml|.*\.svg(?:\?.*)?)/);
+      });
     });
     expect(demoCharacters.find((character) => character.id === "abyssa")?.outfits).toHaveLength(2);
   });
@@ -490,10 +500,22 @@ describe("Abyssa controls", () => {
       "aria-label",
       "DEMON LORD"
     );
-    expect(container.querySelector(".abyssa-character-screen")).toHaveAttribute(
+    const characterScreen = container.querySelector(".abyssa-character-screen") as HTMLElement;
+    expect(characterScreen).toHaveAttribute(
       "data-skin",
       "demon-lord"
     );
+    expect(
+      characterScreen.style.getPropertyValue("--abyssa-character-corner-image-theme")
+    ).toContain("frame-corner-symmetric-red.png");
+    const topOrnaments = Array.from(
+      container.querySelectorAll<HTMLImageElement>(".abyssa-character-screen__top-ornament")
+    );
+    expect(topOrnaments).toHaveLength(2);
+    expect(topOrnaments[0]).toHaveAttribute("data-tone", "demon-lord");
+    expect(topOrnaments[1]?.getAttribute("src")).toBe(topOrnaments[0]?.getAttribute("src"));
+    expect(topOrnaments[0]).toHaveAttribute("aria-hidden", "true");
+    expect(topOrnaments[1]).toHaveClass("abyssa-character-screen__top-ornament--right");
     expect(screen.getByRole("button", { name: "艾比希斯·贝尔泽兰" })).toHaveAttribute(
       "data-tone",
       "demon-lord"
@@ -531,10 +553,15 @@ describe("Abyssa controls", () => {
       "aria-label",
       "DEMON LORD'S CADRE"
     );
-    expect(container.querySelector(".abyssa-character-screen")).toHaveAttribute(
+    expect(characterScreen).toHaveAttribute(
       "data-skin",
       "demon-cadre"
     );
+    expect(
+      characterScreen.style.getPropertyValue("--abyssa-character-corner-image-theme")
+    ).toContain("frame-corner-symmetric.png");
+    expect(topOrnaments[0]).toHaveAttribute("data-tone", "demon-cadre");
+    expect(topOrnaments[1]?.getAttribute("src")).toBe(topOrnaments[0]?.getAttribute("src"));
     expect(screen.queryByRole("group", { name: "换装选择" })).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "下一个角色" }));

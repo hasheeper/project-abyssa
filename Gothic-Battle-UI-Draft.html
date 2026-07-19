@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>Gothic Battle UI - Draft</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cyan:#45d0e0; --cyan-lt:#8feef7; --red:#d84040;
+  --green:#57c95e; --blue:#3f8fd0; --gold:#b99a5f;
+  --metal:#2b2f38; --line:#4a5160; --text:#e8e6df;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#05060a;min-height:100vh;display:flex;align-items:center;justify-content:center;
+  font-family:'Cinzel','Times New Roman',serif;overflow:hidden;}
+
+/* ============ 舞台 ============ */
+.stage{width:1280px;height:720px;position:relative;flex:none;transform-origin:center;
+  background:radial-gradient(ellipse at 50% 28%,#232833 0%,#14171f 48%,#0a0c11 100%);
+  border:2px solid #3a3f4a;box-shadow:0 0 60px #000,inset 0 0 120px rgba(0,0,0,.7);overflow:hidden;}
+
+/* 远景：月光 + 城堡剪影 + 雾 + 地面 */
+.moon{position:absolute;top:70px;left:50%;width:340px;height:340px;transform:translateX(-50%);
+  background:radial-gradient(circle,rgba(130,160,190,.16),transparent 65%);}
+.castle{position:absolute;left:50%;bottom:46%;width:980px;transform:translateX(-50%);opacity:.55;filter:blur(1px);}
+.fog{position:absolute;left:0;right:0;top:38%;height:32%;
+  background:linear-gradient(180deg,transparent,rgba(140,160,190,.07),transparent);}
+.ground{position:absolute;left:0;right:0;top:54%;bottom:0;
+  background:linear-gradient(180deg,rgba(70,78,95,.22),rgba(8,10,14,.92)),
+  repeating-linear-gradient(90deg,rgba(255,255,255,.03) 0 2px,transparent 2px 96px),
+  repeating-linear-gradient(0deg,rgba(255,255,255,.025) 0 2px,transparent 2px 44px);}
+.horizon{position:absolute;left:0;right:0;top:54%;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(120,135,160,.35),transparent);}
+
+/* ============ 外框 ============ */
+.frame{position:absolute;inset:8px;border:1px solid rgba(90,98,115,.35);pointer-events:none;z-index:30;}
+.corner{position:absolute;width:26px;height:26px;border:0 solid #6a7386;z-index:31;}
+.tl{top:8px;left:8px;border-top-width:2px;border-left-width:2px;}
+.tr{top:8px;right:8px;border-top-width:2px;border-right-width:2px;}
+.bl{bottom:8px;left:8px;border-bottom-width:2px;border-left-width:2px;}
+.br{bottom:8px;right:8px;border-bottom-width:2px;border-right-width:2px;}
+
+/* ============ 顶部标题区 ============ */
+header{position:absolute;top:12px;left:0;right:0;display:flex;align-items:center;justify-content:center;gap:14px;z-index:20;}
+.wing{width:150px;height:66px;background:linear-gradient(180deg,#3a4150,#181b22);
+  clip-path:polygon(100% 25%,78% 2%,62% 14%,44% 4%,26% 16%,8% 8%,0 24%,14% 34%,6% 48%,22% 46%,16% 62%,34% 56%,32% 74%,50% 62%,66% 76%,80% 58%,100% 66%);}
+.wing.r{transform:scaleX(-1);}
+.emblem{width:28px;height:28px;transform:rotate(45deg);border:2px solid var(--line);background:#1a1d24;flex:none;}
+.emblem::before{content:'';position:absolute;inset:7px;background:linear-gradient(135deg,var(--cyan),#1d7f8c);opacity:.85;}
+.plaque-outer{clip-path:polygon(14px 0,calc(100% - 14px) 0,100% 50%,calc(100% - 14px) 100%,14px 100%,0 50%);
+  background:#565e6e;padding:2px;position:relative;}
+.plaque{clip-path:polygon(13px 0,calc(100% - 13px) 0,100% 50%,calc(100% - 13px) 100%,13px 100%,0 50%);
+  background:linear-gradient(180deg,#333947,#161920);padding:9px 52px;font-size:24px;letter-spacing:16px;color:var(--text);
+  text-shadow:0 0 14px rgba(69,208,224,.55);}
+.plaque span{margin-right:-16px;}
+.tarro{position:absolute;left:50%;top:100%;margin-top:-1px;transform:translateX(-50%);width:30px;height:22px;
+  background:linear-gradient(180deg,#333947,#14161c);clip-path:polygon(0 0,100% 0,100% 35%,50% 100%,0 35%);}
+
+/* ============ 行动顺序条 ============ */
+.timeline{position:absolute;top:96px;left:50%;transform:translateX(-50%);width:780px;
+  display:flex;align-items:center;gap:16px;z-index:15;}
+.cur{position:relative;width:62px;text-align:center;z-index:2;}
+.cur .avatar{width:58px;height:58px;border-width:3px;box-shadow:0 0 12px rgba(69,208,224,.65);}
+.marker{position:absolute;top:-16px;left:50%;transform:translateX(-50%);width:0;height:0;
+  border-left:7px solid transparent;border-right:7px solid transparent;border-top:9px solid var(--cyan);
+  filter:drop-shadow(0 0 4px rgba(69,208,224,.8));}
+.cur-tag{position:absolute;bottom:-18px;left:50%;transform:translateX(-50%);
+  font-size:9px;letter-spacing:2px;color:var(--cyan);}
+.track{position:relative;flex:1;height:38px;display:flex;align-items:center;gap:18px;padding:0 30px;
+  background:linear-gradient(180deg,#232833,#14171e);
+  clip-path:polygon(0 50%,16px 0,calc(100% - 16px) 0,100% 50%,calc(100% - 16px) 100%,16px 100%);}
+.track::before{content:'';position:absolute;left:26px;right:26px;top:50%;height:1px;background:var(--line);}
+.track::after{content:'';position:absolute;left:50%;top:5px;bottom:5px;width:1px;background:var(--line);}
+.avatar{width:38px;height:38px;border-radius:50%;border:2px solid var(--cyan);position:relative;z-index:1;flex:none;
+  background:radial-gradient(circle at 50% 74%,#efd3c0 26%,transparent 27%),
+  radial-gradient(circle at 50% 30%,var(--hair,#cfd3dc) 60%,#20242c 100%);
+  box-shadow:0 0 8px rgba(0,0,0,.6);}
+.avatar.enemy{border-color:var(--red);
+  background:radial-gradient(circle at 38% 44%,#ff5040 2.5px,transparent 3.5px),
+  radial-gradient(circle at 62% 44%,#ff5040 2.5px,transparent 3.5px),
+  radial-gradient(circle at 50% 32%,#3a3f4a,#12141a 75%);}
+
+/* ============ 敌方魔像 ============ */
+.golem{position:absolute;cursor:pointer;z-index:5;}
+.gbody{position:relative;width:110px;height:130px;filter:drop-shadow(0 6px 6px rgba(0,0,0,.6));transition:filter .2s;}
+.ghead{position:absolute;left:50%;top:0;transform:translateX(-50%);width:44px;height:30px;
+  background:linear-gradient(180deg,#454c59,#23272f);clip-path:polygon(20% 0,80% 0,100% 35%,85% 100%,15% 100%,0 35%);}
+.geyes{position:absolute;top:12px;left:50%;transform:translateX(-50%);width:24px;height:6px;}
+.geyes::before,.geyes::after{content:'';position:absolute;width:6px;height:6px;border-radius:50%;
+  background:#ff4a3d;box-shadow:0 0 8px 2px rgba(255,60,50,.85);}
+.geyes::before{left:0;} .geyes::after{right:0;}
+.gtorso{position:absolute;left:15px;top:26px;width:80px;height:102px;
+  background:linear-gradient(180deg,#3b414d,#20242c 55%,#14171d);
+  clip-path:polygon(15% 0,85% 0,100% 20%,88% 35%,100% 60%,86% 100%,14% 100%,0 60%,12% 35%,0 20%);}
+.garm{position:absolute;top:36px;width:18px;height:62px;background:linear-gradient(180deg,#313642,#161920);
+  clip-path:polygon(20% 0,80% 0,100% 15%,85% 100%,15% 100%,0 15%);}
+.garm.l{left:0;} .garm.r{right:0;}
+.gcore{position:absolute;top:66px;left:50%;width:10px;height:10px;transform:translateX(-50%) rotate(45deg);
+  background:#ff4a3d;box-shadow:0 0 8px 2px rgba(255,60,50,.6);opacity:.85;}
+.gshadow{width:90px;height:14px;margin:-6px auto 0;border-radius:50%;
+  background:radial-gradient(ellipse,rgba(0,0,0,.6),transparent 70%);}
+.ehp{position:absolute;top:-36px;left:50%;transform:translateX(-50%);width:86px;text-align:center;}
+.ehp span{font-size:9px;letter-spacing:2px;color:#e8b9b9;}
+.ebar{height:7px;background:#0b0d11;border:1px solid #50303a;margin-top:2px;}
+.ebar i{display:block;height:100%;background:linear-gradient(180deg,#ff6a5e,#b02a24);}
+.golem.targeted .gbody{filter:drop-shadow(0 6px 6px rgba(0,0,0,.6)) drop-shadow(0 0 9px rgba(255,70,55,.9));}
+
+/* 目标层：魔法阵 / 准星 / 标签 / 伤害数字 */
+.tlayer{display:none;pointer-events:none;}
+.golem.targeted .tlayer{display:block;}
+.magic-wrap{position:absolute;bottom:-24px;left:50%;width:230px;transform:translateX(-50%) scaleY(.42);}
+.magic-svg{width:100%;animation:spin 14s linear infinite;filter:drop-shadow(0 0 6px rgba(120,240,250,.8));}
+.reticle{position:absolute;left:50%;top:42%;width:120px;transform:translate(-50%,-50%);animation:pulse 2s ease-in-out infinite;}
+.tlabel{position:absolute;left:100%;top:8px;margin-left:12px;white-space:nowrap;padding:4px 16px 4px 12px;
+  font-size:12px;letter-spacing:3px;color:#ffd9d9;border:1px solid #7a4a4a;
+  background:linear-gradient(90deg,#4a2f33,#1c1f27);
+  clip-path:polygon(0 0,100% 0,calc(100% - 8px) 50%,100% 100%,0 100%,8px 50%);}
+.dmg{position:absolute;font-size:28px;font-weight:700;font-style:italic;color:#fff;
+  text-shadow:0 0 8px rgba(255,80,60,.8),0 2px 3px #000;animation:floaty 1.8s ease-in-out infinite;}
+.d1{top:-54px;left:-32px;} .d2{top:-88px;left:72px;font-size:23px;animation-delay:.4s;}
+
+/* ============ 己方角色 ============ */
+.ally{position:absolute;width:80px;text-align:center;z-index:5;}
+.sprite{position:relative;filter:drop-shadow(0 4px 4px rgba(0,0,0,.5));}
+.head{width:24px;height:24px;border-radius:50%;margin:0 auto;position:relative;z-index:2;
+  background:linear-gradient(180deg,var(--hair) 58%,#efd3c0 59%);}
+.head::before{content:'';position:absolute;left:-4px;top:-3px;width:32px;height:42px;background:var(--hair);
+  clip-path:polygon(20% 0,80% 0,100% 30%,85% 100%,15% 100%,0 30%);z-index:-1;}
+.tbody{width:36px;height:58px;margin:-3px auto 0;
+  background:linear-gradient(180deg,var(--cloth),#14161c 130%);
+  clip-path:polygon(50% 0,72% 6%,88% 30%,100% 55%,84% 100%,16% 100%,0 55%,12% 30%,28% 6%);}
+.sprite.sword::after{content:'';position:absolute;right:-8px;top:8px;width:3px;height:62px;
+  background:linear-gradient(180deg,#e8ecf2,#8a93a2);transform:rotate(12deg);
+  box-shadow:0 0 3px rgba(255,255,255,.4);}
+.head.hat::after{content:'';position:absolute;left:-7px;top:-9px;width:38px;height:12px;
+  background:#3a1420;border-bottom:2px solid #7a2430;border-radius:50% 50% 0 0/70% 70% 0 0;}
+.ashadow{position:absolute;bottom:-4px;left:50%;transform:translateX(-50%);width:60px;height:12px;
+  background:radial-gradient(ellipse,rgba(0,0,0,.55),transparent 70%);}
+.aring{display:none;position:absolute;bottom:-11px;left:50%;transform:translateX(-50%);width:86px;height:22px;
+  border:2px solid rgba(69,208,224,.9);border-radius:50%;
+  box-shadow:0 0 14px rgba(69,208,224,.6),inset 0 0 10px rgba(69,208,224,.4);}
+.pillar{display:none;position:absolute;bottom:14px;left:50%;transform:translateX(-50%);width:46px;height:150px;
+  background:linear-gradient(180deg,transparent,rgba(69,208,224,.35),rgba(69,208,224,.05));filter:blur(4px);}
+.ally.current .aring{display:block;animation:ringpulse 1.6s ease-in-out infinite;}
+.ally.current .pillar{display:block;}
+
+/* ============ 底部分隔线 ============ */
+.uiline{position:absolute;left:0;right:0;top:556px;height:20px;z-index:6;}
+.uiline::before{content:'';position:absolute;left:30px;right:30px;top:9px;height:1px;
+  background:linear-gradient(90deg,transparent,var(--line) 15%,var(--line) 85%,transparent);}
+.uiline::after{content:'';position:absolute;left:30px;right:30px;top:4px;height:11px;
+  background:repeating-linear-gradient(90deg,transparent 0 9px,rgba(90,98,115,.45) 9px 10px,transparent 10px 20px);}
+
+/* ============ 角色状态卡 ============ */
+.cards{position:absolute;left:22px;bottom:16px;display:flex;gap:10px;z-index:10;}
+.card{width:222px;height:88px;position:relative;display:flex;gap:10px;align-items:center;padding:10px;
+  background:linear-gradient(180deg,#22262f,#13151b);border:1px solid #454b58;}
+.card::before{content:'';position:absolute;inset:3px;border:1px solid rgba(120,130,150,.22);pointer-events:none;}
+.card.active{border-color:var(--cyan);
+  box-shadow:0 0 12px rgba(69,208,224,.45),inset 0 0 18px rgba(69,208,224,.12);}
+.cport{width:58px;height:58px;flex:none;border:1px solid #565e6e;box-shadow:inset 0 0 8px #000;
+  background:radial-gradient(circle at 50% 72%,#efd3c0 26%,transparent 27%),
+  radial-gradient(circle at 50% 32%,var(--hair) 62%,#1a1d24 100%);}
+.cport.split{background:radial-gradient(circle at 50% 72%,#efd3c0 26%,transparent 27%),
+  linear-gradient(90deg,#171a20 50%,#dfe3ea 50%);}
+.cinfo{flex:1;}
+.cname{font-size:13px;letter-spacing:3px;color:var(--text);text-shadow:0 1px 2px #000;}
+.crow{display:flex;align-items:center;gap:6px;margin-top:5px;}
+.crow label{font-size:9px;color:#9aa0ad;width:17px;letter-spacing:1px;}
+.crow .bar{flex:1;height:7px;background:#0b0d11;border:1px solid #3a3f4a;}
+.crow .bar i{display:block;height:100%;}
+.hp i{background:linear-gradient(180deg,#8fe388,#3f9e4a);}
+.mp i{background:linear-gradient(180deg,#7cc0f0,#2f6ea8);}
+.crow span{font-size:10px;color:#c9ccd4;min-width:46px;text-align:right;}
+
+/* ============ 指令轮盘 ============ */
+.command{position:absolute;right:22px;bottom:10px;width:200px;height:200px;z-index:10;}
+.clines{position:absolute;left:50%;top:50%;width:140px;height:140px;transform:translate(-50%,-50%);}
+.clines::before,.clines::after{content:'';position:absolute;background:rgba(74,81,96,.5);}
+.clines::before{left:50%;top:0;bottom:0;width:1px;}
+.clines::after{top:50%;left:0;right:0;height:1px;}
+.ccenter{position:absolute;left:50%;top:50%;width:20px;height:20px;
+  transform:translate(-50%,-50%) rotate(45deg);border:1px solid #565e6e;background:#1a1d24;}
+.ccenter::before{content:'';position:absolute;inset:5px;background:var(--cyan);opacity:.5;}
+.cmd{position:absolute;width:84px;height:84px;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:6px;background:none;border:none;cursor:pointer;font-family:inherit;}
+.cmd.skills{left:50%;top:0;transform:translateX(-50%);}
+.cmd.items{left:0;top:50%;transform:translateY(-50%);}
+.cmd.defend{right:0;top:50%;transform:translateY(-50%);}
+.cmd.attack{left:50%;bottom:0;transform:translateX(-50%);}
+.diamond{width:52px;height:52px;transform:rotate(45deg);display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,#2b303a,#161920);border:1px solid var(--line);transition:.15s;}
+.diamond svg{transform:rotate(-45deg);}
+.clabel{font-size:11px;letter-spacing:3px;color:#c9ccd4;}
+.cmd:hover .diamond{border-color:var(--cyan-lt);}
+.cmd.active .diamond{background:linear-gradient(135deg,#3fd2e2,#1d7f8c);border-color:var(--cyan-lt);
+  box-shadow:0 0 14px rgba(69,208,224,.7);}
+.cmd.active .clabel{color:var(--cyan-lt);}
+
+/* 角落花纹 */
+.flor{position:absolute;bottom:0;width:170px;opacity:.5;z-index:1;}
+.flor.l{left:0;} .flor.r{right:0;transform:scaleX(-1);}
+
+@keyframes spin{to{transform:rotate(360deg);}}
+@keyframes pulse{0%,100%{transform:translate(-50%,-50%) scale(1);}50%{transform:translate(-50%,-50%) scale(1.07);}}
+@keyframes ringpulse{0%,100%{opacity:.95;}50%{opacity:.5;}}
+@keyframes floaty{0%,100%{transform:translateY(0);}50%{transform:translateY(-7px);}}
+</style>
+</head>
+<body>
+
+<div class="stage" id="stage">
+  <!-- 背景 -->
+  <div class="moon"></div>
+  <svg class="castle" viewBox="0 0 800 400" preserveAspectRatio="xMidYMax meet">
+    <path fill="#0e1016" d="M0,400 L0,300 L40,300 L40,240 L55,240 L62,200 L70,240 L85,240 L85,300 L150,300
+    L150,180 L165,180 L165,140 L180,96 L195,140 L195,180 L210,180 L210,300 L300,300 L300,220 L320,220
+    L320,160 L340,116 L360,160 L360,220 L380,220 L380,300 L470,300 L470,150 L490,150 L490,110 L505,66
+    L520,110 L520,150 L540,150 L540,300 L640,300 L640,230 L660,230 L660,190 L675,156 L690,190 L690,230
+    L710,230 L710,300 L800,300 L800,400 Z"/>
+  </svg>
+  <div class="fog"></div>
+  <div class="ground"></div>
+  <div class="horizon"></div>
+
+  <!-- 外框 -->
+  <div class="frame"></div>
+  <div class="corner tl"></div><div class="corner tr"></div>
+  <div class="corner bl"></div><div class="corner br"></div>
+
+  <!-- 顶部标题 -->
+  <header>
+    <div class="wing l"></div>
+    <div class="emblem"></div>
+    <div class="plaque-outer">
+      <div class="plaque"><span>BATTLE</span></div>
+      <div class="tarro"></div>
+    </div>
+    <div class="emblem"></div>
+    <div class="wing r"></div>
+  </header>
+
+  <!-- 行动顺序条 -->
+  <div class="timeline">
+    <div class="cur">
+      <div class="marker"></div>
+      <div class="avatar" style="--hair:#d7dbe2;"></div>
+      <div class="cur-tag">CURRENT</div>
+    </div>
+    <div class="track">
+      <div class="avatar" style="--hair:#e8a7bd;"></div>
+      <div class="avatar" style="--hair:#e8e8ec;"></div>
+      <div class="avatar enemy"></div>
+      <div class="avatar enemy"></div>
+      <div class="avatar enemy"></div>
+    </div>
+  </div>
+
+  <!-- 敌人 1（前排左） -->
+  <div class="golem" style="left:60px;top:345px;transform:scale(1.15);">
+    <div class="ehp"><span>HP%</span><div class="ebar"><i style="width:22%"></i></div></div>
+    <div class="gbody">
+      <div class="ghead"><div class="geyes"></div></div>
+      <div class="garm l"></div><div class="garm r"></div>
+      <div class="gtorso"></div><div class="gcore"></div>
+    </div>
+    <div class="gshadow"></div>
+    <div class="tlayer">
+      <div class="magic-wrap"><svg class="magic-svg" viewBox="0 0 200 200">
+        <g fill="none" stroke="#8feef7">
+          <circle cx="100" cy="100" r="94" stroke-width="2" opacity=".9"/>
+          <circle cx="100" cy="100" r="86" stroke-dasharray="3 7" opacity=".8"/>
+          <circle cx="100" cy="100" r="62" stroke-width="1.5"/>
+          <circle cx="100" cy="100" r="54" stroke-dasharray="10 5" opacity=".7"/>
+          <polygon points="100,44 148,128 52,128" stroke-width="1.5"/>
+          <polygon points="100,156 52,72 148,72" opacity=".55"/>
+        </g>
+        <g stroke="#8feef7" stroke-width="2"><path d="M100 2v10M100 188v10M2 100h10M188 100h10"/></g>
+      </svg></div>
+      <svg class="reticle" viewBox="0 0 120 120">
+        <g fill="none" stroke="#cfeff4" stroke-width="1.6">
+          <rect x="26" y="26" width="68" height="68"/>
+          <rect x="26" y="26" width="68" height="68" transform="rotate(45 60 60)"/>
+          <circle cx="60" cy="60" r="22"/><circle cx="60" cy="60" r="2.5" fill="#cfeff4"/>
+          <path d="M60 34v10M60 76v10M34 60h10M76 60h10"/>
+        </g>
+      </svg>
+      <div class="tlabel">GOLEM A</div>
+      <div class="dmg d1">310</div>
+      <div class="dmg d2">310</div>
+    </div>
+  </div>
+
+  <!-- 敌人 2（后排左） -->
+  <div class="golem" style="left:215px;top:250px;transform:scale(.88);">
+    <div class="ehp"><span>HP%</span><div class="ebar"><i style="width:38%"></i></div></div>
+    <div class="gbody">
+      <div class="ghead"><div class="geyes"></div></div>
+      <div class="garm l"></div><div class="garm r"></div>
+      <div class="gtorso"></div><div class="gcore"></div>
+    </div>
+    <div class="gshadow"></div>
+    <div class="tlayer">
+      <div class="magic-wrap"><svg class="magic-svg" viewBox="0 0 200 200">
+        <g fill="none" stroke="#8feef7">
+          <circle cx="100" cy="100" r="94" stroke-width="2" opacity=".9"/>
+          <circle cx="100" cy="100" r="86" stroke-dasharray="3 7" opacity=".8"/>
+          <circle cx="100" cy="100" r="62" stroke-width="1.5"/>
+          <polygon points="100,44 148,128 52,128" stroke-width="1.5"/>
+        </g>
+      </svg></div>
+      <svg class="reticle" viewBox="0 0 120 120">
+        <g fill="none" stroke="#cfeff4" stroke-width="1.6">
+          <rect x="26" y="26" width="68" height="68"/>
+          <rect x="26" y="26" width="68" height="68" transform="rotate(45 60 60)"/>
+          <circle cx="60" cy="60" r="22"/><circle cx="60" cy="60" r="2.5" fill="#cfeff4"/>
+        </g>
+      </svg>
+      <div class="tlabel">GOLEM B</div>
+      <div class="dmg d1">310</div>
+    </div>
+  </div>
+
+  <!-- 敌人 3（当前目标） -->
+  <div class="golem targeted" style="left:410px;top:300px;">
+    <div class="ehp"><span>HP%</span><div class="ebar"><i style="width:62%"></i></div></div>
+    <div class="gbody">
+      <div class="ghead"><div class="geyes"></div></div>
+      <div class="garm l"></div><div class="garm r"></div>
+      <div class="gtorso"></div><div class="gcore"></div>
+    </div>
+    <div class="gshadow"></div>
+    <div class="tlayer">
+      <div class="magic-wrap"><svg class="magic-svg" viewBox="0 0 200 200">
+        <g fill="none" stroke="#8feef7">
+          <circle cx="100" cy="100" r="94" stroke-width="2" opacity=".9"/>
+          <circle cx="100" cy="100" r="86" stroke-dasharray="3 7" opacity=".8"/>
+          <circle cx="100" cy="100" r="62" stroke-width="1.5"/>
+          <circle cx="100" cy="100" r="54" stroke-dasharray="10 5" opacity=".7"/>
+          <polygon points="100,44 148,128 52,128" stroke-width="1.5"/>
+          <polygon points="100,156 52,72 148,72" opacity=".55"/>
+        </g>
+        <g stroke="#8feef7" stroke-width="2"><path d="M100 2v10M100 188v10M2 100h10M188 100h10"/></g>
+      </svg></div>
+      <svg class="reticle" viewBox="0 0 120 120">
+        <g fill="none" stroke="#cfeff4" stroke-width="1.6">
+          <rect x="26" y="26" width="68" height="68"/>
+          <rect x="26" y="26" width="68" height="68" transform="rotate(45 60 60)"/>
+          <circle cx="60" cy="60" r="22"/><circle cx="60" cy="60" r="2.5" fill="#cfeff4"/>
+          <path d="M60 34v10M60 76v10M34 60h10M76 60h10"/>
+        </g>
+      </svg>
+      <div class="tlabel">GOLEM A</div>
+      <div class="dmg d1">310</div>
+      <div class="dmg d2">310</div>
+    </div>
+  </div>
+
+  <!-- 己方 5 人 -->
+  <div class="ally current" style="left:720px;top:330px;--hair:#d7dbe2;--cloth:#dfe1e6;">
+    <div class="pillar"></div>
+    <div class="sprite"><div class="head"></div><div class="tbody"></div></div>
+    <div class="aring"></div><div class="ashadow"></div>
+  </div>
+  <div class="ally" style="left:850px;top:265px;transform:scale(.92);--hair:#cfd3dc;--cloth:#2a2e38;">
+    <div class="sprite sword"><div class="head"></div><div class="tbody"></div></div>
+    <div class="ashadow"></div>
+  </div>
+  <div class="ally" style="left:935px;top:345px;--hair:#e2e5ea;--cloth:#23262e;">
+    <div class="sprite sword"><div class="head"></div><div class="tbody"></div></div>
+    <div class="ashadow"></div>
+  </div>
+  <div class="ally" style="left:1040px;top:280px;transform:scale(.94);--hair:#e8dcc0;--cloth:#4a1c22;">
+    <div class="sprite"><div class="head hat"></div><div class="tbody"></div></div>
+    <div class="ashadow"></div>
+  </div>
+  <div class="ally" style="left:1130px;top:350px;--hair:#e8d9a0;--cloth:#7a2430;">
+    <div class="sprite sword"><div class="head"></div><div class="tbody"></div></div>
+    <div class="ashadow"></div>
+  </div>
+
+  <!-- 底部分隔线 -->
+  <div class="uiline"></div>
+
+  <!-- 状态卡 -->
+  <div class="cards">
+    <div class="card">
+      <div class="cport" style="--hair:#c9ccd4;"></div>
+      <div class="cinfo">
+        <div class="cname">EUSTACE</div>
+        <div class="crow"><label>HP</label><div class="bar hp"><i style="width:90%"></i></div><span>450/500</span></div>
+        <div class="crow"><label>MP</label><div class="bar mp"><i style="width:38%"></i></div><span>190/500</span></div>
+      </div>
+    </div>
+    <div class="card active">
+      <div class="cport" style="--hair:#d7dbe2;"></div>
+      <div class="cinfo">
+        <div class="cname">EUSTACE</div>
+        <div class="crow"><label>HP</label><div class="bar hp"><i style="width:90%"></i></div><span>450/500</span></div>
+        <div class="crow"><label>MP</label><div class="bar mp"><i style="width:50%"></i></div><span>150/300</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="cport" style="--hair:#e8dcc0;"></div>
+      <div class="cinfo">
+        <div class="cname">MANMA</div>
+        <div class="crow"><label>HP</label><div class="bar hp"><i style="width:90%"></i></div><span>450/500</span></div>
+        <div class="crow"><label>MP</label><div class="bar mp"><i style="width:90%"></i></div><span>90/100</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="cport split"></div>
+      <div class="cinfo">
+        <div class="cname">CBHO</div>
+        <div class="crow"><label>HP</label><div class="bar hp"><i style="width:90%"></i></div><span>450/500</span></div>
+        <div class="crow"><label>MP</label><div class="bar mp"><i style="width:90%"></i></div><span>90/100</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 指令轮盘 -->
+  <div class="command">
+    <div class="clines"></div>
+    <div class="ccenter"></div>
+    <button class="cmd skills">
+      <span class="diamond"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#dfe3ea" stroke-width="1.6">
+        <path d="M12 3 L13.8 10.2 L21 12 L13.8 13.8 L12 21 L10.2 13.8 L3 12 L10.2 10.2 Z"/></svg></span>
+      <span class="clabel">SKILLS</span>
+    </button>
+    <button class="cmd items">
+      <span class="diamond"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#dfe3ea" stroke-width="1.6">
+        <path d="M10 3 h4 M11 3 v5 l-4.5 8 A3 3 0 0 0 9 20 h6 a3 3 0 0 0 2.5-4 L13 8 V3 M8.5 14 h7"/></svg></span>
+      <span class="clabel">ITEMS</span>
+    </button>
+    <button class="cmd defend">
+      <span class="diamond"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#dfe3ea" stroke-width="1.6">
+        <path d="M12 3 L19 5.5 V11 C19 16 16 19 12 20.5 C8 19 5 16 5 11 V5.5 Z"/></svg></span>
+      <span class="clabel">DEFEND</span>
+    </button>
+    <button class="cmd attack active">
+      <span class="diamond"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#dfe3ea" stroke-width="1.6">
+        <path d="M7 17 L19 5 M8 12 L12 16 M7 17 L4 20"/></svg></span>
+      <span class="clabel">ATTACK</span>
+    </button>
+  </div>
+
+  <!-- 角落花纹 -->
+  <svg class="flor l" viewBox="0 0 170 120">
+    <g fill="none" stroke="#55607a" stroke-width="2" stroke-linecap="round">
+      <path d="M6 114 C10 70 40 40 95 30 C60 45 35 75 30 112"/>
+      <path d="M34 114 C40 80 65 58 110 48 C80 62 58 88 54 114"/>
+      <path d="M64 114 C72 90 92 74 128 66 C104 80 88 96 84 114"/>
+    </g>
+    <circle cx="100" cy="29" r="3" fill="#45d0e0" opacity=".7"/>
+    <circle cx="132" cy="65" r="2.5" fill="#45d0e0" opacity=".5"/>
+  </svg>
+  <svg class="flor r" viewBox="0 0 170 120">
+    <g fill="none" stroke="#55607a" stroke-width="2" stroke-linecap="round">
+      <path d="M6 114 C10 70 40 40 95 30 C60 45 35 75 30 112"/>
+      <path d="M34 114 C40 80 65 58 110 48 C80 62 58 88 54 114"/>
+      <path d="M64 114 C72 90 92 74 128 66 C104 80 88 96 84 114"/>
+    </g>
+    <circle cx="100" cy="29" r="3" fill="#45d0e0" opacity=".7"/>
+    <circle cx="132" cy="65" r="2.5" fill="#45d0e0" opacity=".5"/>
+  </svg>
+</div>
+
+<script>
+// 自适应缩放
+const stage = document.getElementById('stage');
+function fit(){
+  const s = Math.min(innerWidth/1280, innerHeight/720);
+  stage.style.transform = `scale(${s})`;
+}
+addEventListener('resize', fit); fit();
+
+// 指令切换
+document.querySelectorAll('.cmd').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.cmd').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+}));
+
+// 目标切换
+document.querySelectorAll('.golem').forEach(g=>g.addEventListener('click',()=>{
+  document.querySelectorAll('.golem').forEach(x=>x.classList.remove('targeted'));
+  g.classList.add('targeted');
+}));
+</script>
+</body>
+</html>

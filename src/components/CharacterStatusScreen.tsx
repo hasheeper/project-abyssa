@@ -1,5 +1,11 @@
 import { useId, useState } from "react";
-import type { HTMLAttributes, KeyboardEvent } from "react";
+import type { CSSProperties, HTMLAttributes, KeyboardEvent } from "react";
+import demonCadreCornerOrnament from "../assets/png2/frame-corner-symmetric.png";
+import demonLordCornerOrnament from "../assets/png2/frame-corner-symmetric-red.png";
+import heroPartyCornerOrnament from "../assets/png2/frame-corner-symmetric-gold.png";
+import demonCadreTopOrnament from "../assets/png2/top.png";
+import demonLordTopOrnament from "../assets/png2/top-red.png";
+import heroPartyTopOrnament from "../assets/png2/top-gold.png";
 import { useControllableState } from "../hooks/useControllableState";
 import type { PanelVariant } from "../types";
 import { cx } from "../utils/cx";
@@ -11,6 +17,7 @@ import { RpgHeader } from "./RpgHeader";
 import { RpgTab } from "./RpgTab";
 import { StatusPanel } from "./StatusPanel";
 import type { StatusPanelAffiliationTone, StatusPanelData } from "./StatusPanel";
+import { FrameEdgeWeave } from "./internal/FrameEdgeWeave";
 
 export type CharacterInterfaceTone = StatusPanelAffiliationTone | "auto";
 
@@ -69,75 +76,21 @@ const defaultMenuItems: CharacterMenuItem[] = [
   { id: "archive", label: "记录" }
 ];
 
-type FrameEdge = "top" | "right" | "bottom" | "left";
+const topOrnamentByTone: Record<StatusPanelAffiliationTone, string> = {
+  "demon-lord": demonLordTopOrnament,
+  "demon-cadre": demonCadreTopOrnament,
+  "hero-party": heroPartyTopOrnament
+};
 
-function FrameEdgeWeave({ edge }: { edge: FrameEdge }) {
-  const patternId = `abyssa-frame-edge-${useId().replaceAll(":", "")}`;
-  const vertical = edge === "left" || edge === "right";
+const cornerOrnamentByTone: Record<StatusPanelAffiliationTone, string> = {
+  "demon-lord": demonLordCornerOrnament,
+  "demon-cadre": demonCadreCornerOrnament,
+  "hero-party": heroPartyCornerOrnament
+};
 
-  return (
-    <svg
-      className="abyssa-character-screen__edge"
-      data-frame-edge={edge}
-      aria-hidden="true"
-      focusable="false"
-    >
-      <defs>
-        <pattern
-          id={patternId}
-          width={vertical ? 18 : 96}
-          height={vertical ? 96 : 18}
-          patternUnits="userSpaceOnUse"
-        >
-          <g transform={vertical ? "translate(18 0) rotate(90)" : undefined}>
-            <path className="abyssa-character-screen__edge-rail-shadow" d="M0 9H96" />
-            <path className="abyssa-character-screen__edge-rail" d="M0 9H96" />
-
-            <path
-              className="abyssa-character-screen__edge-strand-shadow"
-              d="M0 9C6 4.8 18 4.8 24 9S42 13.2 48 9 66 4.8 72 9 90 13.2 96 9"
-            />
-            <path
-              className="abyssa-character-screen__edge-strand-shadow"
-              d="M0 9C6 13.2 18 13.2 24 9S42 4.8 48 9 66 13.2 72 9 90 4.8 96 9"
-            />
-            <path
-              className="abyssa-character-screen__edge-strand"
-              d="M0 9C6 4.8 18 4.8 24 9S42 13.2 48 9 66 4.8 72 9 90 13.2 96 9"
-            />
-            <path
-              className="abyssa-character-screen__edge-strand"
-              d="M0 9C6 13.2 18 13.2 24 9S42 4.8 48 9 66 13.2 72 9 90 4.8 96 9"
-            />
-            <path
-              className="abyssa-character-screen__edge-highlight"
-              d="M0 8.55C6 4.35 18 4.35 24 8.55S42 12.75 48 8.55 66 4.35 72 8.55 90 12.75 96 8.55"
-            />
-            <path
-              className="abyssa-character-screen__edge-highlight"
-              d="M0 8.55C6 12.75 18 12.75 24 8.55S42 4.35 48 8.55 66 12.75 72 8.55 90 4.35 96 8.55"
-            />
-            <path className="abyssa-character-screen__edge-overpass-shadow" d="M20 6.8c2 .7 3 1.4 4 2.2s2 2.2 4 2.9M68 6.8c2 .7 3 1.4 4 2.2s2 2.2 4 2.9" />
-            <path className="abyssa-character-screen__edge-overpass" d="M20 6.8c2 .7 3 1.4 4 2.2s2 2.2 4 2.9M68 6.8c2 .7 3 1.4 4 2.2s2 2.2 4 2.9" />
-            <path className="abyssa-character-screen__edge-overpass-highlight" d="M20.3 6.45c2 .7 3 1.4 4 2.2s2 2.2 4 2.9M68.3 6.45c2 .7 3 1.4 4 2.2s2 2.2 4 2.9" />
-          </g>
-        </pattern>
-      </defs>
-      <rect width="100%" height="100%" fill={`url(#${patternId})`} />
-    </svg>
-  );
-}
-
-function CharacterFrameWeave() {
-  return (
-    <span className="abyssa-character-screen__edge-weave" aria-hidden="true">
-      <FrameEdgeWeave edge="top" />
-      <FrameEdgeWeave edge="right" />
-      <FrameEdgeWeave edge="bottom" />
-      <FrameEdgeWeave edge="left" />
-    </span>
-  );
-}
+type CharacterScreenStyle = CSSProperties & {
+  "--abyssa-character-corner-image-theme"?: string;
+};
 
 export function CharacterStatusScreen({
   characters,
@@ -154,6 +107,7 @@ export function CharacterStatusScreen({
   defaultInterfaceTone = "auto",
   onInterfaceToneChange,
   className,
+  style,
   ...props
 }: CharacterStatusScreenProps) {
   const firstCharacterId = characters.find((character) => !character.disabled)?.id ?? "";
@@ -192,6 +146,12 @@ export function CharacterStatusScreen({
   );
   const characterTone = currentCharacter?.status.affiliation?.tone ?? "hero-party";
   const resolvedInterfaceTone = currentInterfaceTone === "auto" ? characterTone : currentInterfaceTone;
+  const topOrnamentUrl = topOrnamentByTone[resolvedInterfaceTone];
+  const cornerOrnamentUrl = cornerOrnamentByTone[resolvedInterfaceTone];
+  const screenStyle: CharacterScreenStyle = {
+    "--abyssa-character-corner-image-theme": `url("${cornerOrnamentUrl}")`,
+    ...style
+  };
   const currentOutfits = currentCharacter?.outfits ?? [];
   const currentOutfit = currentOutfits.find(
     (outfit) => outfit.id === outfitSelections[currentCharacter?.id ?? ""]
@@ -233,6 +193,7 @@ export function CharacterStatusScreen({
     return (
       <section
         className={cx("abyssa-character-screen", className)}
+        style={style}
         {...props}
       >
         <RpgHeader label={title} description={subtitle} />
@@ -245,14 +206,29 @@ export function CharacterStatusScreen({
     <section
       className={cx("abyssa-character-screen", className)}
       data-skin={resolvedInterfaceTone}
+      style={screenStyle}
       {...props}
     >
       <div className="abyssa-character-screen__header-row">
+        <img
+          className="abyssa-character-screen__top-ornament abyssa-character-screen__top-ornament--left"
+          src={topOrnamentUrl}
+          alt=""
+          aria-hidden="true"
+          data-tone={resolvedInterfaceTone}
+        />
         <RpgHeader label={title} description={subtitle} />
+        <img
+          className="abyssa-character-screen__top-ornament abyssa-character-screen__top-ornament--right"
+          src={topOrnamentUrl}
+          alt=""
+          aria-hidden="true"
+          data-tone={resolvedInterfaceTone}
+        />
       </div>
 
       <RpgFrame className="abyssa-character-screen__shell" padding="lg">
-        <CharacterFrameWeave />
+        <FrameEdgeWeave namespace="abyssa-character-screen" />
         <div className="abyssa-character-screen__layout">
           <div
             className="abyssa-character-screen__visual"

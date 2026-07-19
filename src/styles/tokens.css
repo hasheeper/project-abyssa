@@ -44,7 +44,10 @@
 
 @media (prefers-reduced-motion: reduce) {
   .abyssa-theme,
-  .abyssa-theme * {
+  .abyssa-theme *:not(
+    .abyssa-battle-screen[data-attack-motion="full"],
+    .abyssa-battle-screen[data-attack-motion="full"] *
+  ) {
     scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
