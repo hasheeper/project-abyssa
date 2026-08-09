@@ -1,0 +1,65 @@
+/* ===== 纸娃娃立绘 PaperDoll ===== */
+.abyssa-paper-doll {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  aspect-ratio: 704 / 1472;
+  line-height: 0;
+  user-select: none;
+}
+
+.abyssa-paper-doll__layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+/* 层叠顺序显式声明,不依赖 DOM 插入顺序。
+   face 默认在最上(泪痕/汗滴一类特效);但部分角色的 face 是「脸红」,
+   属于皮肤妆容,必须压在眼睛下面,否则会盖住睫毛与眼白。 */
+.abyssa-paper-doll__layer[data-part="base"] { z-index: 0; }
+.abyssa-paper-doll__layer[data-part="eyes"] { z-index: 2; }
+.abyssa-paper-doll__layer[data-part="mouth"] { z-index: 3; }
+.abyssa-paper-doll__layer[data-part="face"] { z-index: 4; }
+.abyssa-paper-doll[data-face-under="true"] .abyssa-paper-doll__layer[data-part="face"] { z-index: 1; }
+
+/* 换表情时极短交叉淡入,避免生硬跳变。挂在 <img> 上,
+   与外层的进退场动画分属不同元素,不会互相打断。 */
+.abyssa-paper-doll__layer[data-part="eyes"],
+.abyssa-paper-doll__layer[data-part="mouth"],
+.abyssa-paper-doll__layer[data-part="face"] {
+  animation: abyssa-paper-doll-swap 0.16s ease-out both;
+}
+
+@keyframes abyssa-paper-doll-swap {
+  from { opacity: 0.25; }
+  to { opacity: 1; }
+}
+
+/* 逐角色校准层:scale 以脚底为中心(站得稳),x/y 按比例平移 */
+.abyssa-paper-doll__calibration {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 100%;
+}
+
+/* 取景:容器按裁切高度收窄,图层仍按完整比例渲染并锚定顶部。
+   upper 约 68%(裙摆下缘 / 大腿中部);knee 为 4/5,切在膝下——去掉脚与小腿。 */
+.abyssa-paper-doll[data-crop="upper"] { aspect-ratio: 704 / 1000; }
+.abyssa-paper-doll[data-crop="knee"] { aspect-ratio: 704 / 1178; }
+
+.abyssa-paper-doll[data-crop="upper"],
+.abyssa-paper-doll[data-crop="knee"] {
+  overflow: hidden;
+}
+
+.abyssa-paper-doll[data-crop="upper"] .abyssa-paper-doll__layer,
+.abyssa-paper-doll[data-crop="knee"] .abyssa-paper-doll__layer {
+  inset: 0 auto auto 0;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 704 / 1472;
+}

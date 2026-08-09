@@ -1,0 +1,85 @@
+/* Dialogue panel with a layered dark name tag. */
+.abyssa-dialogue {
+  --abyssa-dialogue-fill: #1c2020;
+  --abyssa-dialogue-text: #dfe5e5;
+  --abyssa-dialogue-middle: #6f7d7e;
+  --abyssa-dialogue-ornament: #596465;
+  --abyssa-dialogue-pattern-main: rgb(255 255 255 / 2.6%);
+  --abyssa-dialogue-pattern-second: rgb(255 255 255 / 1.2%);
+  position: relative;
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  aspect-ratio: 1200 / 260;
+  color: var(--abyssa-dialogue-text);
+  font-family: var(--abyssa-font-body, "Songti SC", serif);
+  container-type: inline-size;
+}
+.abyssa-dialogue[data-variant="light"] {
+  --abyssa-dialogue-fill: #e8ecec;
+  --abyssa-dialogue-text: #252d2d;
+  --abyssa-dialogue-middle: #a1adae;
+  --abyssa-dialogue-ornament: #626d6e;
+  --abyssa-dialogue-pattern-main: rgb(38 57 58 / 4.5%);
+  --abyssa-dialogue-pattern-second: rgb(255 255 255 / 18%);
+}
+.abyssa-dialogue > svg { position: absolute; inset: 0; display: block; width: 100%; height: 100%; overflow: visible; shape-rendering: geometricPrecision; }
+.abyssa-dialogue[data-nameplate="false"] { aspect-ratio: 1200 / 187; }
+.abyssa-dialogue[data-nameplate="false"] .abyssa-dialogue__content { top: 29%; }
+.abyssa-dialogue[data-auto-height] { min-height: 112px; aspect-ratio: auto; overflow: hidden; }
+.abyssa-dialogue__auto-frame { position: absolute; z-index: 0; inset: 0; display: block; pointer-events: none; }
+.abyssa-dialogue__auto-frame > span { position: absolute; display: block; }
+.abyssa-dialogue__auto-frame [data-part="surface"] { inset: 0; background: var(--abyssa-dialogue-fill); }
+.abyssa-dialogue__auto-frame [data-part="outer"] { inset: 0; border: 5px solid var(--abyssa-frame-dark); }
+.abyssa-dialogue__auto-frame [data-part="middle"] { inset: 4px; border: 3px solid var(--abyssa-dialogue-middle); }
+.abyssa-dialogue__auto-frame [data-part="inner"] { inset: 10px; border: 1px solid var(--abyssa-dialogue-ornament); opacity: .92; }
+.abyssa-dialogue__auto-frame [data-part="rail"] { background: var(--abyssa-dialogue-ornament); opacity: .55; }
+.abyssa-dialogue__auto-frame [data-edge="top"], .abyssa-dialogue__auto-frame [data-edge="bottom"] { right: 22px; left: 22px; height: 1px; }
+.abyssa-dialogue__auto-frame [data-edge="top"] { top: 15px; }
+.abyssa-dialogue__auto-frame [data-edge="bottom"] { bottom: 15px; }
+.abyssa-dialogue__auto-frame [data-edge="right"], .abyssa-dialogue__auto-frame [data-edge="left"] { top: 22px; bottom: 22px; width: 1px; }
+.abyssa-dialogue__auto-frame [data-edge="left"] { left: 15px; }
+.abyssa-dialogue__auto-frame [data-edge="right"] { right: 15px; }
+.abyssa-dialogue__auto-frame [data-part="corner"] { width: 18px; height: 18px; border-color: var(--abyssa-dialogue-ornament); border-style: solid; opacity: .95; }
+.abyssa-dialogue__auto-frame [data-corner="tl"] { top: 14px; left: 14px; border-width: 2px 0 0 2px; }
+.abyssa-dialogue__auto-frame [data-corner="tr"] { top: 14px; right: 14px; border-width: 2px 2px 0 0; }
+.abyssa-dialogue__auto-frame [data-corner="br"] { right: 14px; bottom: 14px; border-width: 0 2px 2px 0; }
+.abyssa-dialogue__auto-frame [data-corner="bl"] { bottom: 14px; left: 14px; border-width: 0 0 2px 2px; }
+.abyssa-dialogue__auto-frame [data-part="nameplate"] { top: 0; left: 0; width: 42%; height: 34px; border: 4px solid var(--abyssa-frame-dark); border-bottom-color: var(--abyssa-dialogue-middle); background: var(--abyssa-dialogue-fill); clip-path: polygon(0 0, 92% 0, 96% 68%, 100% 100%, 0 100%); }
+.abyssa-dialogue[data-auto-height] .abyssa-dialogue__content { position: relative; z-index: 1; top: auto; right: auto; bottom: auto; left: auto; min-height: 112px; padding: 28px 9.5% 26px; overflow: visible; overflow-wrap: anywhere; white-space: pre-wrap; }
+.abyssa-dialogue[data-auto-height][data-nameplate="true"] .abyssa-dialogue__content { padding-top: 56px; }
+.abyssa-dialogue__name {
+  position: absolute;
+  top: 4.5%;
+  left: 3%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38%;
+  height: 18%;
+  padding-inline: 3%;
+  overflow: hidden;
+  color: #e8eded;
+  font-family: var(--abyssa-font-display, Georgia, serif);
+  font-size: clamp(15px, 2.25cqi, 27px);
+  font-weight: 600;
+  letter-spacing: .16em;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.abyssa-dialogue__content {
+  position: absolute;
+  top: 45%;
+  right: 8%;
+  bottom: 13%;
+  left: 9.5%;
+  overflow: hidden;
+  color: var(--abyssa-dialogue-text);
+  font-family: var(--abyssa-font-body, Georgia, serif);
+  font-size: clamp(14px, 2.25cqi, 27px);
+  font-weight: 500;
+  letter-spacing: .055em;
+  line-height: 1.75;
+  white-space: pre-line;
+  pointer-events: none;
+}

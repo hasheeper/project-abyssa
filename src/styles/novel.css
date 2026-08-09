@@ -1,0 +1,136 @@
+/* ===== AVG 视觉小说场景 VisualNovelScene =====
+   布局参考主流 ADV/GAL(以 Ren'Py 系为基准):
+   - 文本框高度 ≈ 场景高 24%,宽度收敛居中,不贴满全宽
+   - 立绘为上半身取景,高度 ≈ 场景高 78%,底部贴齐
+   - 两个槽位(左 / 右),单人时居中;只保留最近两个对话者
+   用 %(相对场景高)驱动——不用 cqh,兼容不支持容器查询单位的内核。 */
+.abyssa-novel {
+  /* —— 可调参数(相对场景高的百分比)—— */
+  --abyssa-novel-actor-h: 78%;              /* 立绘(上半身)高度 */
+  --abyssa-novel-actor-drop: 3%;            /* 立绘整体下坐量(为上浮预留) */
+  --abyssa-novel-dialogue-h: 24%;           /* 文本框高度 */
+  --abyssa-novel-dialogue-bottom: 0%;       /* 文本框贴底,盖住立绘下缘裁切线 */
+  --abyssa-novel-dim: brightness(0.55) saturate(0.82);
+
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 480px;
+  overflow: hidden;
+  background: var(--abyssa-panel-black);
+  cursor: pointer;
+  font-family: var(--abyssa-font-body);
+}
+
+.abyssa-novel__bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  filter: brightness(0.72);
+}
+
+.abyssa-novel__stage {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* 立绘:中心对位到槽位。上半身取景(crop=upper)。
+   整体向下坐 --abyssa-novel-actor-drop(底边藏到场景外),为说话者上浮预留余量——
+   上浮只是"回到正常位",底部裁剪线永远不露馅。
+   上浮用独立的 translate 属性,与进场 keyframes 的 transform 互不干扰。 */
+.abyssa-novel__actor {
+  position: absolute;
+  bottom: calc(-1 * var(--abyssa-novel-actor-drop, 3%));
+  left: var(--slot-x, 50%);
+  height: var(--abyssa-novel-actor-h);
+  transform: translateX(-50%);
+  translate: 0 0;
+  display: flex;
+  align-items: flex-end;
+  transition:
+    translate 0.55s cubic-bezier(0.3, 1.25, 0.45, 1),
+    filter 0.4s var(--abyssa-ease);
+}
+
+.abyssa-novel__actor .abyssa-paper-doll {
+  height: 100%;
+  width: auto;
+}
+
+/* 左 / 右 两档槽位中心锚点(单人默认进左槽) */
+.abyssa-novel__actor[data-slot="left"]   { --slot-x: 24%; --enter-from: -30%; }
+.abyssa-novel__actor[data-slot="right"]  { --slot-x: 76%; --enter-from: 30%; }
+
+.abyssa-novel__actor[data-active="false"] { filter: var(--abyssa-novel-dim); }
+.abyssa-novel__actor[data-active="true"] {
+  filter: brightness(1);
+  translate: 0 -2%;   /* 说话者轻微上浮(相对自身高);底部已预留,不露裁剪线 */
+}
+
+/* 进场:速度交替——先快速滑入(略过冲),再缓慢回落归位,节奏「快→慢」。
+   不匀速(廉价)、不多段乱跳(廉价花活),一次干净的加速-减速。 */
+.abyssa-novel__actor[data-entering="true"] {
+  animation: abyssa-novel-enter 0.68s both;
+  transform-origin: 50% 100%;
+}
+@keyframes abyssa-novel-enter {
+  0% {
+    transform: translateX(calc(-50% + var(--enter-from, -30%)));
+    opacity: 0;
+    animation-timing-function: cubic-bezier(0.16, 0.84, 0.3, 1); /* 快速启动 */
+  }
+  58% {
+    transform: translateX(calc(-50% - var(--enter-from, -30%) * 0.06));
+    opacity: 1;
+    animation-timing-function: cubic-bezier(0.5, 0, 0.2, 1);      /* 缓慢回落 */
+  }
+  100% {
+    transform: translateX(-50%);
+    opacity: 1;
+  }
+}
+
+/* 文本框:按高度约束,宽度随 1200/260 比例自适应并居中 */
+.abyssa-novel__dialogue {
+  position: absolute;
+  bottom: var(--abyssa-novel-dialogue-bottom);
+  left: 50%;
+  transform: translateX(-50%);
+  height: var(--abyssa-novel-dialogue-h);
+  z-index: 2;
+}
+
+/* 用高度反推宽度,保持 RpgDialogue 原生 1200:260 比例 */
+.abyssa-novel__dialogue .abyssa-dialogue {
+  height: 100%;
+  width: auto;
+  aspect-ratio: 1200 / 260;
+}
+
+.abyssa-novel__hint {
+  position: absolute;
+  right: 3%;
+  bottom: -1.4em;
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  color: var(--abyssa-text-muted);
+  animation: abyssa-novel-hint 1.2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes abyssa-novel-hint {
+  0%, 100% { opacity: 0.35; transform: translateY(0); }
+  50% { opacity: 0.9; transform: translateY(2px); }
+}
+
+@media (max-width: 760px) {
+  .abyssa-novel {
+    min-height: 420px;
+    --abyssa-novel-actor-h: 68%;
+    --abyssa-novel-dialogue-h: 26%;
+  }
+  .abyssa-novel__actor[data-slot="left"]  { --slot-x: 16%; }
+  .abyssa-novel__actor[data-slot="right"] { --slot-x: 84%; }
+}

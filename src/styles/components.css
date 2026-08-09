@@ -49,6 +49,15 @@
   outline-offset: 4px;
 }
 
+/* Shared lira coin and crystal currency mark. */
+.abyssa-currency-amount { display: inline-flex; align-items: center; color: inherit; gap: 6px; white-space: nowrap; }
+.abyssa-currency-amount i { position: relative; display: inline-block; width: 13px; height: 13px; flex: none; overflow: hidden; border: 1px solid #3a2308; border-radius: 50%; background: radial-gradient(circle at 32% 24%, #fff0b1 0 10%, transparent 22%), conic-gradient(from 18deg, #8a5d18, #e0b755 18%, #765018 38%, #d5a642 61%, #684313 79%, #b57e28); box-shadow: inset 0 0 0 1px #e2bd65, inset 0 -2px 2px rgb(53 31 5 / 72%), 0 1px 2px rgb(0 0 0 / 58%), 0 0 5px rgb(170 135 74 / 32%); }
+.abyssa-currency-amount i [data-part="ring"] { position: absolute; inset: 2px; border: 1px solid rgb(91 57 12 / 82%); border-radius: 50%; box-shadow: inset 0 0 0 1px rgb(246 211 119 / 38%); }
+.abyssa-currency-amount i [data-part="mark"] { position: absolute; top: 50%; left: 50%; width: 4px; height: 4px; border: 1px solid rgb(78 47 8 / 84%); background: linear-gradient(135deg, #efd078, #9b681c); box-shadow: inset 1px 1px rgb(255 234 164 / 42%); transform: translate(-50%, -50%) rotate(45deg); }
+.abyssa-currency-amount[data-currency="crystal"] { color: #c4a3eb; }
+.abyssa-currency-amount[data-currency="crystal"] i { width: 8px; height: 8px; border: 1px solid #3f2658; border-radius: 0; background: linear-gradient(135deg, #efe2ff, #a267d5 48%, #4b286c); box-shadow: 0 0 8px rgb(160 93 220 / 68%); transform: rotate(45deg); }
+.abyssa-currency-amount[data-currency="crystal"] i span { display: none; }
+
 .abyssa-frame,
 .abyssa-toggle,
 .abyssa-progress,
@@ -891,6 +900,30 @@
   --abyssa-dialogue-pattern-second: rgb(255 255 255 / 18%);
 }
 .abyssa-dialogue > svg { position: absolute; inset: 0; display: block; width: 100%; height: 100%; overflow: visible; shape-rendering: geometricPrecision; }
+.abyssa-dialogue[data-nameplate="false"] { aspect-ratio: 1200 / 187; }
+.abyssa-dialogue[data-nameplate="false"] .abyssa-dialogue__content { top: 29%; }
+.abyssa-dialogue[data-auto-height] { min-height: 112px; aspect-ratio: auto; overflow: hidden; }
+.abyssa-dialogue__auto-frame { position: absolute; z-index: 0; inset: 0; display: block; pointer-events: none; }
+.abyssa-dialogue__auto-frame > span { position: absolute; display: block; }
+.abyssa-dialogue__auto-frame [data-part="surface"] { inset: 0; background: var(--abyssa-dialogue-fill); }
+.abyssa-dialogue__auto-frame [data-part="outer"] { inset: 0; border: 5px solid var(--abyssa-frame-dark); }
+.abyssa-dialogue__auto-frame [data-part="middle"] { inset: 4px; border: 3px solid var(--abyssa-dialogue-middle); }
+.abyssa-dialogue__auto-frame [data-part="inner"] { inset: 10px; border: 1px solid var(--abyssa-dialogue-ornament); opacity: .92; }
+.abyssa-dialogue__auto-frame [data-part="rail"] { background: var(--abyssa-dialogue-ornament); opacity: .55; }
+.abyssa-dialogue__auto-frame [data-edge="top"], .abyssa-dialogue__auto-frame [data-edge="bottom"] { right: 22px; left: 22px; height: 1px; }
+.abyssa-dialogue__auto-frame [data-edge="top"] { top: 15px; }
+.abyssa-dialogue__auto-frame [data-edge="bottom"] { bottom: 15px; }
+.abyssa-dialogue__auto-frame [data-edge="right"], .abyssa-dialogue__auto-frame [data-edge="left"] { top: 22px; bottom: 22px; width: 1px; }
+.abyssa-dialogue__auto-frame [data-edge="left"] { left: 15px; }
+.abyssa-dialogue__auto-frame [data-edge="right"] { right: 15px; }
+.abyssa-dialogue__auto-frame [data-part="corner"] { width: 18px; height: 18px; border-color: var(--abyssa-dialogue-ornament); border-style: solid; opacity: .95; }
+.abyssa-dialogue__auto-frame [data-corner="tl"] { top: 14px; left: 14px; border-width: 2px 0 0 2px; }
+.abyssa-dialogue__auto-frame [data-corner="tr"] { top: 14px; right: 14px; border-width: 2px 2px 0 0; }
+.abyssa-dialogue__auto-frame [data-corner="br"] { right: 14px; bottom: 14px; border-width: 0 2px 2px 0; }
+.abyssa-dialogue__auto-frame [data-corner="bl"] { bottom: 14px; left: 14px; border-width: 0 0 2px 2px; }
+.abyssa-dialogue__auto-frame [data-part="nameplate"] { top: 0; left: 0; width: 42%; height: 34px; border: 4px solid var(--abyssa-frame-dark); border-bottom-color: var(--abyssa-dialogue-middle); background: var(--abyssa-dialogue-fill); clip-path: polygon(0 0, 92% 0, 96% 68%, 100% 100%, 0 100%); }
+.abyssa-dialogue[data-auto-height] .abyssa-dialogue__content { position: relative; z-index: 1; top: auto; right: auto; bottom: auto; left: auto; min-height: 112px; padding: 28px 9.5% 26px; overflow: visible; overflow-wrap: anywhere; white-space: pre-wrap; }
+.abyssa-dialogue[data-auto-height][data-nameplate="true"] .abyssa-dialogue__content { padding-top: 56px; }
 .abyssa-dialogue__name {
   position: absolute;
   top: 4.5%;
@@ -997,6 +1030,9 @@
   .abyssa-dialogue { min-height: 170px; aspect-ratio: auto; }
   .abyssa-dialogue__name { top: 4%; font-size: 15px; }
   .abyssa-dialogue__content { top: 40%; right: 7%; left: 8%; font-size: 14px; line-height: 1.55; }
+  .abyssa-dialogue[data-nameplate="false"] .abyssa-dialogue__content { top: 24%; }
+  .abyssa-dialogue[data-auto-height] .abyssa-dialogue__content { top: auto; min-height: 112px; padding: 23px 8% 22px; }
+  .abyssa-dialogue[data-auto-height][data-nameplate="true"] .abyssa-dialogue__content { padding-top: 48px; }
 }
 
 @media (max-width: 420px) {

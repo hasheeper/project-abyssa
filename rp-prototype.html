@@ -1,0 +1,866 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Abyssa · RP 分屏概念原型</title>
+<style>
+/* ============================================================
+   全部样式重写，不引用项目任何 CSS。真实立绘 PNG 分层叠加。
+   ============================================================ */
+
+:root {
+  --frame-dark: #192020;
+  --frame-light: #a7b3b4;
+  --panel-black: #1d2121;
+  --teal: #72b3b7;
+  --teal-dark: #3d7477;
+  --teal-soft: #91c3c6;
+  --ornament: #647171;
+  --ornament-dark: #364142;
+  --text: #edf0f0;
+  --text-soft: #c2cbcb;
+  --text-muted: #8f9b9b;
+  --danger: #ce7772;
+  --font-display: "Cinzel", "Times New Roman", serif;
+  --font-body: "Noto Serif SC", "Songti SC", serif;
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+
+  /* 立绘席位：做成两侧的立绘框，宽度给足让立绘能大 */
+  --seat-w: clamp(270px, 31vw, 470px);
+  --seat-pad: 10px;          /* 框内留白，立绘不贴边 */
+  --doll-h: 100%;
+  --accent: var(--teal);
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body {
+  background: #0b1010;
+  color: var(--text);
+  font-family: var(--font-body);
+  overflow: hidden;
+}
+
+/* ---------- 外壳 ---------- */
+.app { height: 100dvh; display: flex; flex-direction: column; }
+
+.app__bar {
+  flex: none;
+  display: flex; align-items: flex-end; justify-content: space-between; gap: 16px;
+  padding: 10px 18px;
+  border-bottom: 1px solid #2a3131;
+  background: #101616;
+}
+.app__bar p { margin: 0; font-size: 10px; letter-spacing: .22em; color: var(--teal); }
+.app__bar h1 { margin: 2px 0 0; font-size: 17px; letter-spacing: .1em; font-weight: 600; }
+.app__btns { display: flex; gap: 7px; }
+.app__btns button {
+  padding: 6px 15px; border: 1px solid #3a4444; background: var(--panel-black);
+  color: var(--text-muted); font-family: inherit; font-size: 12.5px;
+  letter-spacing: .1em; cursor: pointer; transition: all .2s var(--ease);
+}
+.app__btns button:hover:not(:disabled) { border-color: var(--teal-dark); color: var(--text); }
+.app__btns button[data-on="true"] { border-color: var(--teal); background: #233231; color: var(--teal); }
+.app__btns button:disabled { opacity: .4; cursor: default; }
+
+.app__hint {
+  flex: none; padding: 8px; text-align: center;
+  font-size: 11.5px; letter-spacing: .2em; color: var(--text-muted);
+  border-top: 1px solid #2a3131; background: #101616;
+}
+
+/* ============================================================
+   舞台：三栏。两侧立绘席位，中间消息流。
+   ============================================================ */
+.stage {
+  flex: 1; min-height: 0; position: relative;
+  display: grid;
+  grid-template-columns: var(--seat-w) minmax(0, 1fr) var(--seat-w);
+  overflow: hidden;
+}
+
+.stage__bg {
+  position: absolute; inset: 0; z-index: 0;
+  background-image: var(--bg-image);
+  background-size: cover; background-position: center;
+  filter: brightness(.5) saturate(.85);
+}
+.stage__bg::after {
+  content: ""; position: absolute; inset: 0;
+  background: radial-gradient(88% 88% at 50% 42%, transparent 48%, rgba(4,7,7,.72) 100%);
+}
+
+/* ---------- 立绘席位 ---------- */
+/* 席位 = 两侧的立绘框。内嵌描边与压暗渐变复用名片立绘 well 的做法：
+   1px 亮边勾轮廓 + 3px 黑边压深度 + 四向内阴影做凹陷感。 */
+.seat {
+  position: relative; z-index: 1;
+  padding: var(--seat-pad);
+  overflow: hidden;              /* 立绘进出被框裁住，滑动才有「入画」感 */
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 4%), transparent 24%, rgb(0 0 0 / 9%) 62%, rgb(0 0 0 / 22%)),
+    linear-gradient(90deg, rgb(0 0 0 / 18%), transparent 12%, transparent 88%, rgb(0 0 0 / 18%)),
+    rgba(10, 15, 15, .42);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--frame-light) 48%, #182021),
+    inset 0 0 0 3px rgb(0 0 0 / 48%),
+    inset 0 8px 13px rgb(0 0 0 / 34%),
+    inset 0 -7px 11px rgb(0 0 0 / 28%),
+    inset 7px 0 10px rgb(0 0 0 / 18%),
+    inset -7px 0 10px rgb(0 0 0 / 18%);
+}
+
+/* 两层结构，各管一件事，互不打架：
+   .doll       —— 定位层：撑满席位宽度并用 flex 居中。不含任何 transform，
+                   所以动画不必再用 -50% 去补偿基线偏移。不裁剪，滑入不会被切。
+   .doll__crop —— 表现层：取景裁切 + 进退场 transform + 明暗 filter + 上浮 translate。
+                   transform / translate / filter 是三个独立属性，可同时生效。 */
+.doll {
+  position: absolute;
+  inset: var(--seat-pad);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  pointer-events: none;
+
+  /* 位移层：进退场 transform + 说话者上浮 translate 都在这里。
+     两者都是纯合成器属性，整层当纹理平移即可，不触发重绘。 */
+  will-change: transform;
+  translate: 0 1.5%;
+  transition: translate .5s cubic-bezier(.3, 1.2, .45, 1);
+}
+
+.doll__crop {
+  position: relative;
+
+  /* flex 子项默认 flex-shrink:1 —— 会把按 aspect-ratio 算出的宽度压掉，
+     比例一破，裁切窗口就几乎和整图一样高（实测只裁掉 3.6%，看着就是全身像）。
+     锁死不可压缩，并改为「宽度驱动高度」：席位再窄也只是整体变小，比例恒定。 */
+  flex: none;
+  width: 100%;
+  aspect-ratio: 704 / 1178;      /* knee 取景：切在膝下，可见整图的 80% */
+  max-height: 100%;
+
+  overflow: hidden;               /* 裁掉小腿与脚 */
+  line-height: 0;
+
+  /* 明暗：用 opacity 而不是 filter。
+     filter 是这份原型「一帧一帧」的真正原因 —— 实测掉帧率：
+       原样(有 filter) 37%  →  仅去掉 doll 的 filter 15%
+     每个立绘是 4 层 704×1472 的 PNG（base 单张 1.4MB），换人瞬间台上
+     最多 5 人 = 20 张大图。filter 要求每帧把这些图重新合成再重新过滤镜，
+     无法把结果烘成一张纹理来平移，于是 60fps 掉成 30fps 并不规律抖动。
+     舞台背景本就是深色（#0b1010 + 暗角），降低不透明度即是压暗，
+     而 opacity 是纯合成器属性，整层当纹理混合，不触发重光栅。 */
+  will-change: opacity;
+  opacity: .5;
+  transition: opacity .42s var(--ease);
+}
+
+/* 说话者：亮起并上浮 */
+.doll[data-active="true"] { z-index: 2; translate: 0 -2%; }
+.doll[data-active="true"] .doll__crop { opacity: 1; }
+
+/* 每张部件图按完整立绘比例渲染并锚定顶部，超出容器的部分被裁 */
+.doll__crop img {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  aspect-ratio: 704 / 1472;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* 层叠顺序显式声明，不依赖 DOM 插入顺序。
+   face 默认在最上（特效类）；但部分角色的 face 是「脸红」，
+   属于皮肤妆容，必须压在眼睛下面，否则会盖住睫毛与眼白。 */
+.doll__crop img[data-part="base"]  { z-index: 0; }
+.doll__crop img[data-part="eyes"]  { z-index: 2; }
+.doll__crop img[data-part="mouth"] { z-index: 3; }
+.doll__crop img[data-part="face"]  { z-index: 4; }
+.doll[data-face-under="true"] .doll__crop img[data-part="face"] { z-index: 1; }
+
+/* 眼睛/嘴巴换图时做极短交叉淡入，避免生硬跳变。
+   挂在 <img> 上，与 .doll__crop 的进退场动画分属不同元素，不冲突。 */
+.doll__crop img[data-part="eyes"],
+.doll__crop img[data-part="mouth"],
+.doll__crop img[data-part="face"] {
+  animation: part-swap .16s ease-out both;
+}
+@keyframes part-swap { from { opacity: .25; } to { opacity: 1; } }
+
+/* —— 进场：滑入 → 微过冲 → 回落。数值与 AVG（novel.css）一致 —— */
+/* 位移量按框宽算。曾一度拉到 62%/0.9s/-12% 过冲来「让动画看得见」，
+   但那是在系统开着动效减弱、动画被全局清零时的误判补偿；
+   减弱关掉后这套幅度就明显过头了，回到 AVG 基线。 */
+.seat[data-side="left"]  .doll { --from: -30%; }
+.seat[data-side="right"] .doll { --from:  30%; }
+
+.doll.is-entering { animation: doll-enter .68s both; }
+@keyframes doll-enter {
+  0% {
+    transform: translateX(var(--from));
+    opacity: 0;
+    animation-timing-function: cubic-bezier(.16, .84, .3, 1);
+  }
+  58% {
+    transform: translateX(calc(var(--from) * -.06));
+    opacity: 1;
+    animation-timing-function: cubic-bezier(.5, 0, .2, 1);
+  }
+  100% { transform: translateX(0); opacity: 1; }
+}
+
+/* —— 退场：向外滑出并淡出，与新角色进场同时发生 —— */
+.doll.is-leaving {
+  z-index: 0;
+  animation: doll-leave .42s cubic-bezier(.4, 0, .75, .5) both;
+}
+@keyframes doll-leave {
+  from { transform: var(--leave-from, translateX(0)); opacity: var(--leave-alpha, 1); }
+  to   { transform: translateX(calc(var(--from) * .8)); opacity: 0; }
+}
+
+/* 席位名牌 */
+.seat__tag {
+  position: absolute;
+  bottom: 12px; left: 50%;
+  z-index: 3;
+  transform: translateX(-50%);
+  padding: 3px 17px 4px;
+  background: rgba(16,22,22,.88);
+  border: 1px solid var(--ornament-dark);
+  font-family: var(--font-display);
+  font-size: 12.5px; font-weight: 600; letter-spacing: .2em;
+  color: var(--text-soft); white-space: nowrap;
+  clip-path: polygon(8px 0, calc(100% - 8px) 0, 100% 50%, calc(100% - 8px) 100%, 8px 100%, 0 50%);
+  opacity: 0;
+  transition: opacity .3s var(--ease);
+}
+.seat__tag[data-show="true"] { opacity: 1; }
+.seat__tag::after {
+  content: ""; position: absolute; left: 13px; right: 13px; bottom: 2px;
+  height: 1px; background: var(--accent); opacity: .85;
+}
+
+/* ============================================================
+   中栏消息流
+   ============================================================ */
+.center {
+  position: relative; z-index: 2;
+  min-height: 0;
+  display: flex; flex-direction: column;
+  background: rgba(11,16,16,.72);
+  border-inline: 1px solid rgba(100,113,113,.26);
+  backdrop-filter: blur(6px);
+}
+
+.log {
+  flex: 1; min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  display: flex; flex-direction: column;
+  gap: 13px;                       /* 紧凑：不留大空隙 */
+  padding: 18px clamp(12px, 2.2vw, 26px) 22px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--ornament-dark) transparent;
+}
+.log::-webkit-scrollbar { width: 6px; }
+.log::-webkit-scrollbar-thumb { background: var(--ornament-dark); border-radius: 3px; }
+
+.jump {
+  position: absolute; bottom: 14px; left: 50%; z-index: 4;
+  padding: 5px 16px;
+  border: 1px solid var(--teal-dark);
+  background: rgba(18,26,26,.94);
+  color: var(--teal);
+  font-family: inherit; font-size: 11.5px; letter-spacing: .16em;
+  cursor: pointer;
+  opacity: 0; pointer-events: none;
+  transform: translateX(-50%) translateY(6px);
+  transition: opacity .24s, transform .24s;
+}
+.jump[data-show="true"] { opacity: 1; pointer-events: auto; transform: translateX(-50%); }
+
+/* ---------- 消息通用 ---------- */
+/* flex 子项默认 flex-shrink:1 —— 消息一多就会被逐条压扁，
+   这是「越来越挤」的根因。锁死为不可压缩，高度只由内容决定。 */
+.msg { flex: none; animation: msg-in .34s var(--ease) both; }
+@keyframes msg-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+/* ---------- 对白气泡 ----------
+   自绘多层描边：外框 / 内细线 / 四角折角 / 骑边名牌 / 指向立绘的尾巴。
+   名牌上移 13px，靠 margin-top 预留，绝不被裁。 */
+.msg[data-kind="say"] {
+  position: relative;
+  max-width: min(88%, 560px);
+  margin-top: 13px;
+}
+.msg[data-kind="say"][data-side="left"]  { align-self: flex-start; }
+.msg[data-kind="say"][data-side="right"] { align-self: flex-end; }
+
+.bubble {
+  position: relative;
+  padding: 17px 18px 14px;
+  background: #1c2020;
+  border: 3px solid var(--frame-dark);
+  box-shadow:
+    inset 0 0 0 2px #6f7d7e,
+    0 8px 20px rgba(5,9,9,.4);
+}
+/* 内细线 */
+.bubble::before {
+  content: ""; position: absolute; inset: 7px;
+  border: 1px solid #596465; opacity: .8;
+  pointer-events: none;
+}
+/* 四角折角 */
+.bubble > i {
+  position: absolute; width: 11px; height: 11px;
+  border: 0 solid #7d8b8c; pointer-events: none;
+}
+.bubble > i[data-c="tl"] { top: 5px;    left: 5px;    border-width: 2px 0 0 2px; }
+.bubble > i[data-c="tr"] { top: 5px;    right: 5px;   border-width: 2px 2px 0 0; }
+.bubble > i[data-c="br"] { bottom: 5px; right: 5px;   border-width: 0 2px 2px 0; }
+.bubble > i[data-c="bl"] { bottom: 5px; left: 5px;    border-width: 0 0 2px 2px; }
+
+/* 骑在上沿的名牌 */
+.bubble__name {
+  position: absolute; top: -13px;
+  display: flex; align-items: center; gap: 7px;
+  padding: 2px 15px 3px;
+  background: var(--frame-dark);
+  border: 1px solid #6f7d7e;
+  font-family: var(--font-display);
+  font-size: 12.5px; font-weight: 600; letter-spacing: .16em;
+  line-height: 1.55; white-space: nowrap;
+  color: var(--accent);
+}
+.bubble__name b {
+  width: 8px; height: 8px; border-radius: 50%; flex: none;
+  background: var(--accent);
+  box-shadow: 0 0 6px var(--accent);
+}
+.msg[data-side="left"]  .bubble__name { left: 12px;  padding-right: 21px; clip-path: polygon(0 0, calc(100% - 9px) 0, 100% 100%, 0 100%); }
+.msg[data-side="right"] .bubble__name { right: 12px; padding-left: 21px;  clip-path: polygon(9px 0, 100% 0, 100% 100%, 0 100%); }
+
+/* 指向本方立绘的尾巴 —— 只有「当前正在说」的那条才有。
+   历史消息的说话者早已不在台上，箭头无所指，留着反而误导。 */
+.bubble::after {
+  content: ""; position: absolute; top: 18px;
+  border: 8px solid transparent;
+  opacity: 0;
+  transition: opacity .28s var(--ease);
+  pointer-events: none;
+}
+.msg[data-side="left"]  .bubble::after { left: -19px;  border-right-color: var(--accent); }
+.msg[data-side="right"] .bubble::after { right: -19px; border-left-color: var(--accent); }
+.msg[data-current="true"] .bubble::after { opacity: 1; }
+
+.bubble__text {
+  margin: 0;
+  font-size: 14.5px; line-height: 1.8; letter-spacing: .04em;
+  color: #dfe5e5;
+  white-space: pre-wrap; overflow-wrap: anywhere;
+  min-height: 1.8em;
+}
+
+/* ---------- 旁白 ---------- */
+.msg[data-kind="narration"] {
+  align-self: center;
+  max-width: min(92%, 620px);
+  padding: 1px 4px;
+  color: var(--text-soft);
+  font-size: 14px; line-height: 1.95; letter-spacing: .05em;
+  text-align: justify; white-space: pre-wrap;
+  min-height: 1.95em;
+}
+
+/* ---------- 骰子检定 ---------- */
+.msg[data-kind="roll"] {
+  align-self: center;
+  display: flex; align-items: center; gap: 12px;
+  padding: 6px 22px;
+  border-block: 1px solid var(--ornament-dark);
+  background: rgba(28,36,36,.55);
+  font-size: 12.5px; letter-spacing: .08em;
+}
+.roll__label { color: var(--text-muted); }
+.roll__f { color: var(--text-soft); font-family: ui-monospace, Consolas, monospace; letter-spacing: .02em; }
+.roll__f b { font-size: 15.5px; }
+.roll__tag { font-weight: 700; letter-spacing: .26em; text-indent: .26em; }
+.msg[data-outcome="success"] .roll__f b, .msg[data-outcome="success"] .roll__tag { color: var(--teal); }
+.msg[data-outcome="fail"]    .roll__f b, .msg[data-outcome="fail"]    .roll__tag { color: var(--danger); }
+
+/* ---------- 章节 ---------- */
+.msg[data-kind="chapter"] {
+  align-self: stretch;
+  display: flex; align-items: center; gap: 15px;
+  margin-block: 6px;
+  color: var(--teal-soft);
+  font-family: var(--font-display);
+  font-size: 13px; letter-spacing: .3em; text-indent: .3em;
+}
+.msg[data-kind="chapter"]::before,
+.msg[data-kind="chapter"]::after {
+  content: ""; flex: 1; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--ornament) 32%, var(--ornament) 68%, transparent);
+}
+.msg[data-kind="chapter"] span { flex: none; }
+
+/* ---------- 系统 ---------- */
+.msg[data-kind="system"] {
+  align-self: center;
+  padding: 3px 18px;
+  border-block: 1px dashed var(--ornament-dark);
+  color: var(--text-muted);
+  font-size: 11.5px; letter-spacing: .24em;
+}
+
+/* 打字光标 */
+.caret::after {
+  content: "▌"; margin-left: 1px; color: var(--teal);
+  animation: blink .9s steps(1) infinite;
+}
+@keyframes blink { 50% { opacity: 0; } }
+
+/* ---------- 窄屏 ---------- */
+@media (max-width: 1100px) { :root { --seat-w: clamp(200px, 25vw, 300px); --seat-pad: 7px; } }
+@media (max-width: 820px) {
+  .stage { grid-template-columns: minmax(0, 1fr); }
+  .seat { display: none; }
+  .center { border-inline: none; }
+  .msg[data-kind="say"] { max-width: 94%; }
+}
+/* 动效减弱：降级为纯淡入淡出，而不是把时长清零。
+   之前这里是 * { animation-duration:.01ms !important }，
+   系统一开减弱就把所有动画抹平 —— 这才是「PPT 硬切」的真正来源。
+   减弱的诉求是「不要大幅位移」，不是「不要过渡」。 */
+@media (prefers-reduced-motion: reduce) {
+  .doll.is-entering { animation: doll-fade-in .3s ease both; }
+  .doll.is-leaving  { animation: doll-fade-out .24s ease both; }
+  .doll[data-active="true"] { translate: 0 0; }
+  .msg { animation-duration: .18s; }
+}
+@keyframes doll-fade-in  { from { opacity: 0; } to { opacity: 1; } }
+@keyframes doll-fade-out { from { opacity: 1; } to { opacity: 0; } }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header class="app__bar">
+    <div>
+      <p>ABYSSA · SPLIT-SCREEN RP · STATIC PROTOTYPE</p>
+      <h1>沉默的祭坛</h1>
+    </div>
+    <div class="app__btns">
+      <button id="next">下一条 ▸</button>
+      <button id="auto">自动播放</button>
+      <button id="restart">重新开始</button>
+    </div>
+  </header>
+
+  <div class="stage" id="stage">
+    <div class="stage__bg" id="bg" aria-hidden="true"></div>
+
+    <div class="seat" data-side="left" id="seatL">
+      <span class="seat__tag" id="tagL" data-show="false"></span>
+    </div>
+
+    <div class="center">
+      <div class="log" id="log" aria-live="polite"></div>
+      <button class="jump" id="jump" data-show="false">▼ 回到最新</button>
+    </div>
+
+    <div class="seat" data-side="right" id="seatR">
+      <span class="seat__tag" id="tagR" data-show="false"></span>
+    </div>
+  </div>
+
+  <footer class="app__hint">点击画面 / 空格 推进 ｜ 打字中点击可立即补全 ｜ 滚轮向上回看</footer>
+</div>
+
+<script>
+/* ============================================================
+   立绘数据：与 src/components/expressions.ts 完全一致
+   ============================================================ */
+const SPRITE_BASE = "src/assets/png/";
+
+const EXPR = {
+  abyssa: {
+    a:[1,5], b:[1,8], c:[4,8], d:[5,2], e:[4,3], f:[5,1], g:[4,2],
+    h:[3,5], i:[2,8], j:[1,9,1], k:[2,2], l:[4,4], m:[5,1], n:[5,9,1]
+  },
+  elora: {
+    a:[1,5], b:[1,2], c:[3,2], d:[2,1], e:[2,6], f:[1,4], g:[1,2],
+    h:[3,5], i:[2,2], j:[5,3], k:[4,6], l:[1,2], m:[1,4], n:[3,3]
+  },
+  eustice: {
+    a:[5,5], b:[5,3], c:[1,3], d:[3,2], e:[5,4], f:[4,5], g:[5,1],
+    h:[1,5], i:[3,3], j:[5,1,1], k:[3,4], l:[2,3], m:[4,1], n:[4,2,1]
+  },
+  lenore: {
+    a:[1,1], b:[1,2], c:[3,2], d:[3,2], e:[1,5], f:[1,3], g:[1,1],
+    h:[3,1], i:[2,2], j:[1,4], k:[1,3], l:[1,2], m:[3,3], n:[2,4,1]
+  }
+};
+
+const ACTORS = {
+  abyssa:  { name: "艾比希斯", accent: "#8fd0d4" },
+  elora:   { name: "艾萝拉",   accent: "#c9a3d8" },
+  eustice: { name: "尤斯蒂丝", accent: "#d4b96a" },
+  lenore:  { name: "蕾诺尔",   accent: "#ce7772" }
+};
+
+/* face 层是「脸红」而非特效的角色 —— 需压在眼睛之下。
+   其余角色的 face 是泪痕/汗滴等特效，仍叠在最上。 */
+const FACE_UNDER_EYES = new Set(["eustice", "alvitr"]);
+
+/* ============================================================
+   剧本：四人共用两栏 —— 蕾诺尔登场时会顶掉更久未发言的一侧
+   ============================================================ */
+const SCRIPT = [
+  { kind:"chapter", text:"第三章 · 沉默的祭坛" },
+  { kind:"narration", text:"火把的光晕在石壁上摇曳。脚下的阶梯向深处螺旋而去，空气里浮着旧香灰与铁锈混合的气味——那是干涸许久的祭坛才有的味道。" },
+  { kind:"say", who:"abyssa", ex:"g", text:"停一下。这里的符文……和地表神殿的不一样。它们不是祈祷文，是封印。" },
+  { kind:"say", who:"eustice", ex:"k", text:"封印？封住什么的封印，你倒是把话说完。" },
+  { kind:"say", who:"abyssa", ex:"m", text:"我说不好。它们的笔画顺序是反的——像是有人从里面写上去的。" },
+  { kind:"narration", text:"她抬起手，指尖的微光沿着墙面游走。符文像被惊醒的鱼群一样次第亮起，又迅速黯淡下去。远处传来一声极轻的、类似叹息的回响。" },
+  { kind:"roll", label:"察觉检定 · 尤斯蒂丝", f:"1d20+3", d:"[17] + 3", total:20, out:"success" },
+  { kind:"say", who:"eustice", ex:"f", text:"……有东西在下面。脚步很轻，但铠甲的自重骗不了人——至少三个，正沿着西侧回廊靠近。" },
+  { kind:"say", who:"elora", ex:"n", text:"守墓者？可它们不该还醒着的。" },
+  { kind:"say", who:"elora", ex:"g", text:"无论接下来看到什么，都别先动手。它们只对『亵渎』做出反应。" },
+  { kind:"narration", text:"阴影自回廊尽头析出人形。三具青铜甲胄拖着幽蓝的火焰缓步而来，却在距离十步之处齐齐停下。为首者缓缓抬手，指向队伍后方——那里本应空无一人。" },
+  { kind:"say", who:"lenore", ex:"l", text:"啧，被发现了呀。明明只是想安静地跟到祭坛而已……晚上好，各位。还有——三位铁罐子。" },
+  { kind:"say", who:"eustice", ex:"n", text:"你从哪里冒出来的？！" },
+  { kind:"say", who:"lenore", ex:"b", text:"从你们在酒馆里大声讨论那张藏宝图的那一刻起。放心，我要的东西在祭坛『下面』，和你们不冲突。" },
+  { kind:"roll", label:"洞悉检定 · 艾比希斯", f:"1d20+5", d:"[3] + 5", total:8, out:"fail" },
+  { kind:"say", who:"abyssa", ex:"m", text:"（她说的是真话……吗？我读不出来。这个人的心像蒙着一层雾。）" },
+  { kind:"narration", text:"守墓者们仍未动作。幽蓝的火焰在头盔的缝隙里明灭，仿佛在等待某个古老仪轨的下一句应答。祭坛，就在最后一段阶梯之下。" },
+  { kind:"system", text:"本次预演结束" }
+];
+
+/* ============================================================
+   DOM
+   ============================================================ */
+const $log  = document.getElementById("log");
+const $jump = document.getElementById("jump");
+const $stage= document.getElementById("stage");
+const seats = {
+  left:  { el: document.getElementById("seatL"), tag: document.getElementById("tagL") },
+  right: { el: document.getElementById("seatR"), tag: document.getElementById("tagR") }
+};
+
+// 背景：项目里现成的图，静态原型直接借用
+document.getElementById("bg").style.setProperty("--bg-image", 'url("src/assets/bg/shop.png")');
+
+const S = {
+  i: 0, tick: 0, auto: false, stick: true,
+  slot: { left: null, right: null },     // 当前占位角色 id
+  spoke:{ left: -1,   right: -1 },       // 最近发言序号，用于 LRU
+  doll: { left: null, right: null },     // 当前 DOM 节点
+  current: null,                         // 当前带箭头的那条消息
+  typing: null, timer: null
+};
+
+/* ---------- 素材预热 ----------
+   base.png 单张 1MB 上下。若等到入场那一刻才去拉，图片解码跟不上 0.68s 的
+   滑入动画，看到的就是「凭空出现」。开场先把全部部件解码进内存缓存，
+   之后任何一次入场/换表情都是瞬时的。 */
+function preloadSprites() {
+  const files = new Set();
+  for (const [id, map] of Object.entries(EXPR)) {
+    files.add(`${id}/base`);
+    for (const [, p] of Object.entries(map)) {
+      files.add(`${id}/eyes_${p[0]}`);
+      files.add(`${id}/mouth_${p[1]}`);
+      if (p[2] !== undefined) files.add(`${id}/face_${p[2]}`);
+    }
+  }
+  for (const f of files) {
+    const img = new Image();
+    img.src = `${SPRITE_BASE}${f}.png`;
+  }
+}
+
+/* ---------- 立绘构建 ----------
+   两层：.doll（定位，不含 transform）> .doll__crop（取景 + 动画）。
+   直接按目标表情构建，不再「先建 a 再换」——那会多一次可见的图层跳变。 */
+function buildDoll(id, ex) {
+  const [eyes, mouth, face] = EXPR[id][ex] || EXPR[id].a;
+
+  const d = document.createElement("div");
+  d.className = "doll";
+  d.dataset.char = id;
+  d.dataset.active = "false";
+  if (FACE_UNDER_EYES.has(id)) d.dataset.faceUnder = "true";
+
+  const layer = (part, file) =>
+    `<img data-part="${part}" src="${SPRITE_BASE}${id}/${file}.png" alt="" draggable="false">`;
+
+  const crop = document.createElement("div");
+  crop.className = "doll__crop";
+  crop.innerHTML =
+    layer("base", "base") +
+    layer("eyes", "eyes_" + eyes) +
+    layer("mouth", "mouth_" + mouth) +
+    (face !== undefined ? layer("face", "face_" + face) : "");
+
+  d.appendChild(crop);
+  return d;
+}
+
+/* 只换眼睛/嘴巴/腮红，base 不动——表情切换因此是"换脸"而不是"换图片" */
+function setExpression(doll, ex) {
+  const id = doll.dataset.char;
+  const crop = doll.querySelector(".doll__crop");
+  const [eyes, mouth, face] = EXPR[id][ex] || EXPR[id].a;
+
+  const swap = (part, file) => {
+    let img = crop.querySelector(`img[data-part="${part}"]`);
+    const src = `${SPRITE_BASE}${id}/${file}.png`;
+    if (!img) {
+      img = document.createElement("img");
+      img.dataset.part = part;
+      img.draggable = false;
+      crop.appendChild(img);
+    }
+    if (img.getAttribute("src") === src) return;   // 没变就不重放动画
+    img.src = src;
+    img.style.animation = "none";
+    void img.offsetWidth;
+    img.style.animation = "";
+  };
+
+  swap("eyes", "eyes_" + eyes);
+  swap("mouth", "mouth_" + mouth);
+  const faceImg = crop.querySelector('img[data-part="face"]');
+  if (face !== undefined) swap("face", "face_" + face);
+  else if (faceImg) faceImg.remove();
+}
+
+/* ---------- 席位轮换 ----------
+   新角色优先进空栏；两栏都满则顶掉更久未发言的一侧。
+   顶替时：旧立绘滑出淡出，新立绘同时滑入 —— 两者并存于同一帧。 */
+function takeSeat(id, ex) {
+  if (S.slot.left  === id) return "left";
+  if (S.slot.right === id) return "right";
+
+  let side;
+  if (S.slot.left === null)       side = "left";
+  else if (S.slot.right === null) side = "right";
+  else side = S.spoke.left <= S.spoke.right ? "left" : "right";
+
+  const seat = seats[side];
+  const old = S.doll[side];
+  if (old) {
+    // 进场没播完就被顶替时，从当前实际位置接着滑出，
+    // 否则 doll-leave 的 from 会把它瞬移回 translateX(0) 再走，形成可见跳变。
+    const now = getComputedStyle(old);
+    if (now.transform && now.transform !== "none") old.style.setProperty("--leave-from", now.transform);
+    old.style.setProperty("--leave-alpha", now.opacity);
+    old.classList.remove("is-entering");
+    old.classList.add("is-leaving");
+    // 进退场动画挂在 .doll 自身上，只认它自己的 animationend；
+    // 内层 <img> 的 part-swap 会冒泡上来，不过滤会提前掐断进/退场。
+    old.addEventListener("animationend", function onLeave(e) {
+      if (e.target !== old) return;
+      old.removeEventListener("animationend", onLeave);
+      old.remove();
+    });
+  }
+
+  // 直接按目标表情构建，避免「先建 a 再换」多出一次可见跳变
+  const doll = buildDoll(id, ex);
+  doll.classList.add("is-entering");
+  doll.addEventListener("animationend", function onEnter(e) {
+    if (e.target !== doll) return;
+    doll.removeEventListener("animationend", onEnter);
+    doll.classList.remove("is-entering");
+  });
+  seat.el.appendChild(doll);
+
+  S.slot[side] = id;
+  S.doll[side] = doll;
+  seat.tag.textContent = ACTORS[id].name;
+  seat.tag.style.setProperty("--accent", ACTORS[id].accent);
+  seat.tag.dataset.show = "true";
+  return side;
+}
+
+function setActive(side) {
+  for (const k of ["left", "right"]) {
+    if (S.doll[k]) S.doll[k].dataset.active = String(k === side);
+  }
+}
+
+/* 箭头只挂在当前这条对白上。旁白/骰点/章节出现时一并摘掉——
+   此刻没有人在说话，也就没有指向。 */
+function setCurrent(node) {
+  if (S.current && S.current !== node) delete S.current.dataset.current;
+  S.current = node || null;
+  if (node) node.dataset.current = "true";
+}
+
+/* ---------- 滚动吸底 ---------- */
+$log.addEventListener("scroll", () => {
+  S.stick = $log.scrollHeight - $log.scrollTop - $log.clientHeight < 40;
+  $jump.dataset.show = String(!S.stick);
+}, { passive: true });
+
+function scroll() { if (S.stick) $log.scrollTop = $log.scrollHeight; }
+$jump.addEventListener("click", e => {
+  e.stopPropagation();
+  S.stick = true; $log.scrollTop = $log.scrollHeight; $jump.dataset.show = "false";
+});
+
+/* ---------- 打字机 ---------- */
+function type(el, text, done) {
+  let i = 0;
+  el.classList.add("caret");
+  const t = setInterval(() => {
+    i += Math.random() < .18 ? 2 : 1;
+    if (i > text.length) i = text.length;
+    el.textContent = text.slice(0, i);
+    scroll();
+    if (i >= text.length) finish();
+  }, 26);
+  function finish() {
+    clearInterval(t);
+    el.textContent = text;
+    el.classList.remove("caret");
+    S.typing = null;
+    scroll();
+    done && done();
+  }
+  S.typing = finish;
+}
+
+/* ---------- 渲染 ---------- */
+function node(html) {
+  const t = document.createElement("template");
+  t.innerHTML = html.trim();
+  return t.content.firstElementChild;
+}
+
+function play(m, done) {
+  let n;
+  if (m.kind === "say") {
+    const a = ACTORS[m.who];
+    const side = takeSeat(m.who, m.ex || "a");
+    S.spoke[side] = S.tick++;
+    setActive(side);
+    setExpression(S.doll[side], m.ex || "a");
+
+    n = node(`
+      <article class="msg" data-kind="say" data-side="${side}" style="--accent:${a.accent}">
+        <div class="bubble">
+          <i data-c="tl"></i><i data-c="tr"></i><i data-c="br"></i><i data-c="bl"></i>
+          <header class="bubble__name"><b></b>${a.name}</header>
+          <p class="bubble__text"></p>
+        </div>
+      </article>`);
+    $log.appendChild(n); scroll();
+    setCurrent(n);
+    type(n.querySelector(".bubble__text"), m.text, done);
+    return;
+  }
+
+  if (m.kind === "narration") {
+    setActive(null);
+    setCurrent(null);
+    n = node(`<div class="msg" data-kind="narration"></div>`);
+    $log.appendChild(n); scroll();
+    type(n, m.text, done);
+    return;
+  }
+
+  setActive(null);
+  setCurrent(null);
+
+  if (m.kind === "roll") {
+    n = node(`
+      <div class="msg" data-kind="roll" data-outcome="${m.out}">
+        <span class="roll__label">⚄ ${m.label}</span>
+        <span class="roll__f">${m.f} → ${m.d} = <b>${m.total}</b></span>
+        <span class="roll__tag">${m.out === "success" ? "成功" : "失败"}</span>
+      </div>`);
+  } else if (m.kind === "chapter") {
+    n = node(`<div class="msg" data-kind="chapter"><span>✦ ${m.text} ✦</span></div>`);
+  } else {
+    n = node(`<div class="msg" data-kind="system">—— ${m.text} ——</div>`);
+  }
+  $log.appendChild(n); scroll();
+  done && done();
+}
+
+/* ---------- 推进 ---------- */
+const $next = document.getElementById("next");
+const $auto = document.getElementById("auto");
+
+function advance() {
+  if (S.typing) { S.typing(); return; }        // 打字中：先补全
+  if (S.i >= SCRIPT.length) return;
+  const m = SCRIPT[S.i++];
+  syncButtons();
+  play(m, () => {
+    syncButtons();
+    if (S.auto && S.i < SCRIPT.length) {
+      S.timer = setTimeout(advance, 620 + Math.min((m.text || "").length * 20, 2000));
+    }
+  });
+}
+
+function syncButtons() {
+  const end = S.i >= SCRIPT.length && !S.typing;
+  $next.disabled = end;
+  $auto.disabled = end;
+  if (end) { S.auto = false; $auto.dataset.on = "false"; }
+}
+
+function restart() {
+  clearTimeout(S.timer);
+  if (S.typing) S.typing();
+  S.i = 0; S.tick = 0; S.stick = true; S.auto = false; S.typing = null;
+  S.slot = { left: null, right: null };
+  S.spoke = { left: -1, right: -1 };
+  S.doll = { left: null, right: null };
+  S.current = null;
+  $log.innerHTML = "";
+  seats.left.el.querySelectorAll(".doll").forEach(d => d.remove());
+  seats.right.el.querySelectorAll(".doll").forEach(d => d.remove());
+  seats.left.tag.dataset.show = "false";
+  seats.right.tag.dataset.show = "false";
+  $jump.dataset.show = "false";
+  $auto.dataset.on = "false";
+  advance();
+}
+
+$stage.addEventListener("click", e => {
+  if (e.target.closest(".jump")) return;
+  const sel = window.getSelection();
+  if (sel && !sel.isCollapsed) return;         // 正在选字不推进
+  advance();
+});
+window.addEventListener("keydown", e => {
+  if (e.key === " " || e.key === "Enter") { e.preventDefault(); advance(); }
+});
+$next.addEventListener("click", e => { e.stopPropagation(); advance(); });
+document.getElementById("restart").addEventListener("click", e => { e.stopPropagation(); restart(); });
+$auto.addEventListener("click", e => {
+  e.stopPropagation();
+  S.auto = !S.auto;
+  $auto.dataset.on = String(S.auto);
+  if (S.auto && !S.typing) advance();
+  else clearTimeout(S.timer);
+});
+
+preloadSprites();
+advance();
+</script>
+</body>
+</html>

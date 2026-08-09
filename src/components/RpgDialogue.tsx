@@ -1,4 +1,4 @@
-import { forwardRef, useId } from "react";
+import { forwardRef, useEffect, useId, useState } from "react";
 import type { HTMLAttributes, ReactNode } from "react";
 import { cx } from "../utils/cx";
 import { DiamondWatermark, resolveDiamondWatermark } from "./DiamondWatermark";
@@ -13,15 +13,39 @@ export interface RpgDialogueProps
   children?: ReactNode;
   variant?: RpgDialogueVariant;
   label?: string;
+  showNameplate?: boolean;
+  typing?: boolean;
+  typingSpeed?: number;
+  autoHeight?: boolean;
   watermark?: DiamondWatermarkConfig;
 }
 
 const namePath = "M18 64 V11 H458 L468 43 C472 56 484 63 505 64 Z";
 const panelPath = "M10 63 H1190 V250 H10 Z";
 
+function AutoDialogueFrame({ showNameplate }: { showNameplate: boolean }) {
+  return (
+    <span className="abyssa-dialogue__auto-frame" aria-hidden="true">
+      <span data-part="surface" />
+      <span data-part="outer" />
+      <span data-part="middle" />
+      <span data-part="inner" />
+      <span data-part="rail" data-edge="top" />
+      <span data-part="rail" data-edge="right" />
+      <span data-part="rail" data-edge="bottom" />
+      <span data-part="rail" data-edge="left" />
+      <span data-part="corner" data-corner="tl" />
+      <span data-part="corner" data-corner="tr" />
+      <span data-part="corner" data-corner="br" />
+      <span data-part="corner" data-corner="bl" />
+      {showNameplate && <span data-part="nameplate" />}
+    </span>
+  );
+}
+
 export const RpgDialogue = forwardRef<HTMLElement, RpgDialogueProps>(
   function RpgDialogue(
-    { name, text, children, variant = "dark", label, watermark, className, ...props },
+    { name, text, children, variant = "dark", label, showNameplate = true, typing = false, typingSpeed = 28, autoHeight = false, watermark, className, ...props },
     ref
   ) {
     const uid = useId().replace(/:/g, "");
@@ -30,6 +54,26 @@ export const RpgDialogue = forwardRef<HTMLElement, RpgDialogueProps>(
     const panelClipId = `abyssa-dialogue-panel-clip-${uid}`;
     const nameClipId = `abyssa-dialogue-name-clip-${uid}`;
     const content = children ?? text;
+    const [displayedContent, setDisplayedContent] = useState<ReactNode>(
+      typing && typeof content === "string" ? "" : content
+    );
+
+    useEffect(() => {
+      if (!typing || typeof content !== "string") {
+        setDisplayedContent(content);
+        return;
+      }
+
+      const characters = Array.from(content);
+      let index = 0;
+      setDisplayedContent("");
+      const timer = window.setInterval(() => {
+        index += 1;
+        setDisplayedContent(characters.slice(0, index).join(""));
+        if (index >= characters.length) window.clearInterval(timer);
+      }, typingSpeed);
+      return () => window.clearInterval(timer);
+    }, [content, typing, typingSpeed]);
     const watermarkOptions = resolveDiamondWatermark(watermark, { size: 94, outerOpacity: 0.48, innerOpacity: 0.38, innerInset: 21 });
     const nameWatermarkSize = (watermarkOptions?.size ?? 94) * (64 / 94);
 
@@ -38,24 +82,28 @@ export const RpgDialogue = forwardRef<HTMLElement, RpgDialogueProps>(
         ref={ref}
         className={cx("abyssa-dialogue", className)}
         data-variant={variant}
+        data-nameplate={showNameplate ? "true" : "false"}
+        data-auto-height={autoHeight || undefined}
         aria-label={label ?? `${name}的对话`}
         {...props}
       >
-        <svg viewBox="0 0 1200 260" preserveAspectRatio="none" aria-hidden="true">
+        {autoHeight ? <AutoDialogueFrame showNameplate={showNameplate} /> : <svg viewBox={showNameplate ? "0 0 1200 260" : "0 63 1200 187"} preserveAspectRatio="none" aria-hidden="true">
           <defs>
             {watermarkOptions && <DiamondWatermark as="pattern" id={panelPatternId} outerFill="var(--abyssa-dialogue-pattern-main)" innerFill="var(--abyssa-dialogue-pattern-second)" patternTransform="translate(0 -12)" {...watermarkOptions} />}
-            {watermarkOptions && <DiamondWatermark as="pattern" id={namePatternId} size={nameWatermarkSize} outerFill="rgb(255 255 255 / 2.2%)" innerFill="rgb(255 255 255 / 1.1%)" innerInset={nameWatermarkSize * (15 / 64)} outerOpacity={watermarkOptions.outerOpacity} innerOpacity={watermarkOptions.innerOpacity} />}
+            {showNameplate && watermarkOptions && <DiamondWatermark as="pattern" id={namePatternId} size={nameWatermarkSize} outerFill="rgb(255 255 255 / 2.2%)" innerFill="rgb(255 255 255 / 1.1%)" innerInset={nameWatermarkSize * (15 / 64)} outerOpacity={watermarkOptions.outerOpacity} innerOpacity={watermarkOptions.innerOpacity} />}
             <clipPath id={panelClipId}><path d={panelPath} /></clipPath>
-            <clipPath id={nameClipId}><path d={namePath} /></clipPath>
+            {showNameplate && <clipPath id={nameClipId}><path d={namePath} /></clipPath>}
           </defs>
 
-          <path d={namePath} fill="#111515" />
-          {watermarkOptions && <rect x="14" y="7" width="500" height="61" fill={`url(#${namePatternId})`} clipPath={`url(#${nameClipId})`} />}
-          <path d={namePath} fill="none" stroke="var(--abyssa-frame-dark)" strokeWidth="8" strokeLinejoin="round" />
-          <path d={namePath} fill="none" stroke="#667475" strokeWidth="4" strokeLinejoin="round" />
-          <path d={namePath} fill="none" stroke="var(--abyssa-frame-deep)" strokeWidth="1.5" strokeLinejoin="round" />
-          <path d="M29 18 H447 L454 42 C458 54 466 58 480 60" fill="none" stroke="#596465" strokeWidth="1.15" strokeLinejoin="round" opacity=".8" />
-          <g fill="#596465"><circle cx="87" cy="57" r="1.1" /><circle cx="96" cy="57" r="1.45" /><circle cx="105" cy="57" r="1.1" /></g>
+          {showNameplate && <>
+            <path d={namePath} fill="#111515" />
+            {watermarkOptions && <rect x="14" y="7" width="500" height="61" fill={`url(#${namePatternId})`} clipPath={`url(#${nameClipId})`} />}
+            <path d={namePath} fill="none" stroke="var(--abyssa-frame-dark)" strokeWidth="8" strokeLinejoin="round" />
+            <path d={namePath} fill="none" stroke="#667475" strokeWidth="4" strokeLinejoin="round" />
+            <path d={namePath} fill="none" stroke="var(--abyssa-frame-deep)" strokeWidth="1.5" strokeLinejoin="round" />
+            <path d="M29 18 H447 L454 42 C458 54 466 58 480 60" fill="none" stroke="#596465" strokeWidth="1.15" strokeLinejoin="round" opacity=".8" />
+            <g fill="#596465"><circle cx="87" cy="57" r="1.1" /><circle cx="96" cy="57" r="1.45" /><circle cx="105" cy="57" r="1.1" /></g>
+          </>}
 
           <path d={panelPath} fill="var(--abyssa-dialogue-fill)" />
           {watermarkOptions && <rect x="7" y="60" width="1186" height="193" fill={`url(#${panelPatternId})`} clipPath={`url(#${panelClipId})`} />}
@@ -74,9 +122,9 @@ export const RpgDialogue = forwardRef<HTMLElement, RpgDialogueProps>(
             <rect x="28" y="226" width="4" height="4" /><rect x="35" y="228" width="2" height="2" opacity=".65" />
             <rect x="1168" y="226" width="4" height="4" /><rect x="1163" y="228" width="2" height="2" opacity=".65" />
           </g>
-        </svg>
-        <div className="abyssa-dialogue__name">{name}</div>
-        {content != null && content !== "" && <div className="abyssa-dialogue__content">{content}</div>}
+        </svg>}
+        {showNameplate && <div className="abyssa-dialogue__name">{name}</div>}
+        {displayedContent != null && displayedContent !== "" && <div className="abyssa-dialogue__content">{displayedContent}</div>}
       </section>
     );
   }

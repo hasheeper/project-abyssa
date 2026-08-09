@@ -119,9 +119,9 @@ export const RpgShapeButton = forwardRef<HTMLButtonElement, RpgShapeButtonProps>
     const isCircle = shape === "circle";
     const watermarkOptions = resolveDiamondWatermark(watermark, { size: geometry.patternSize, outerOpacity: 0.72, innerOpacity: 0.62, innerInset: 10 });
 
-    const shapeElement = (fill: string, stroke?: string, strokeWidth?: number) =>
+    const shapeElement = (fill: string, stroke?: string, strokeWidth?: number, part?: string) =>
       isCircle ? (
-        <circle cx="75" cy="75" r="64" fill={fill} stroke={stroke} strokeWidth={strokeWidth} />
+        <circle cx="75" cy="75" r="64" fill={fill} stroke={stroke} strokeWidth={strokeWidth} data-part={part} />
       ) : (
         <path
           d={geometry.path}
@@ -129,6 +129,7 @@ export const RpgShapeButton = forwardRef<HTMLButtonElement, RpgShapeButtonProps>
           stroke={stroke}
           strokeWidth={strokeWidth}
           strokeLinejoin={shape === "pill" ? "round" : "miter"}
+          data-part={part}
         />
       );
 
@@ -150,16 +151,16 @@ export const RpgShapeButton = forwardRef<HTMLButtonElement, RpgShapeButtonProps>
             <clipPath id={clipId}>{shapeElement("#fff")}</clipPath>
           </defs>
 
-          {shapeElement("var(--abyssa-shape-fill)")}
+          {shapeElement("var(--abyssa-shape-fill)", undefined, undefined, "surface")}
           {watermarkOptions && <rect {...geometry.texture} fill={`url(#${patternId})`} clipPath={`url(#${clipId})`} />}
-          {shapeElement("none", "var(--abyssa-frame-dark)", geometry.outerWidth)}
-          {shapeElement("none", "var(--abyssa-shape-middle)", geometry.middleWidth)}
-          {shapeElement("none", "var(--abyssa-frame-deep)", geometry.innerWidth)}
+          {shapeElement("none", "var(--abyssa-frame-dark)", geometry.outerWidth, "frame-outer")}
+          {shapeElement("none", "var(--abyssa-shape-middle)", geometry.middleWidth, "frame-middle")}
+          {shapeElement("none", "var(--abyssa-frame-deep)", geometry.innerWidth, "frame-deep")}
 
           {isCircle ? (
             <circle cx="75" cy="75" r="56.5" fill="none" stroke="var(--abyssa-shape-ornament)" strokeWidth="1.15" opacity=".9" />
           ) : (
-            <path d={geometry.innerPath} fill="none" stroke="var(--abyssa-shape-ornament)" strokeWidth={shape === "square" ? 1.15 : 1} strokeLinejoin={shape === "pill" ? "round" : "miter"} opacity=".9" />
+            <path d={geometry.innerPath} fill="none" stroke="var(--abyssa-shape-ornament)" strokeWidth={shape === "square" ? 1.15 : 1} strokeLinejoin={shape === "pill" ? "round" : "miter"} opacity=".9" data-part="ornament" />
           )}
 
           {shape === "square" && (

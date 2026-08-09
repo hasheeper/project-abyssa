@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "novel-preview",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["vite", "preview", "--config", "vite.novel.config.ts", "--port", "4174"],
+      "port": 4174
+    }
+  ]
+}

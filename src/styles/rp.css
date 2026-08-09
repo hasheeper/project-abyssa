@@ -1,0 +1,950 @@
+/* ===== 跑团 / AI RP 分屏场景 RpScene =====
+   三栏 Grid:左席位 / 消息流 / 右席位。
+   席位是两侧的「立绘框」,宽度显式给足让立绘能大;立绘在框内绝对定位,
+   进出被框裁住,滑动才有入画感。 */
+.abyssa-rp {
+  /* —— 可调参数 —— */
+  --abyssa-rp-seat-w: clamp(226px, 24.5vw, 386px); /* 立绘框宽度 */
+  --abyssa-rp-seat-gap: 14px;                      /* 框与舞台左右边缘的距离,给外层描边留位 */
+  --abyssa-rp-seat-my: clamp(28px, 7.5vh, 84px);   /* 框的上下边距,同时决定框有多矮 */
+  --abyssa-rp-seat-pad: 9px;                       /* 框内留白,立绘不贴边 */
+  --abyssa-rp-dim: 0.5;                            /* 非说话者的不透明度 */
+
+  /* —— 立绘统一调整(十人共用基准,单人差异见文件末尾的逐角色表)——
+     立绘走 knee 取景(4/5,切在膝下),尺寸由**高度**驱动、宽度按 704/1178 自动算出。
+     要立绘更大就加 doll-h;到 100% 还嫌小,再调小 seat-my 把框拉高。 */
+  --abyssa-rp-doll-h: 100%;                        /* 立绘高度占框内高度的比例 */
+  --abyssa-rp-doll-x: 0%;                          /* 水平偏移,正 = 右移。相对立绘自身宽度 */
+  --abyssa-rp-doll-y: 0%;                          /* 垂直偏移,正 = 下移。相对立绘自身高度 */
+
+  /* 底部预留:立绘下缘沉到框底之外多少,由框的 overflow 裁掉。
+     knee 的切口就藏在这段里,说话者上浮时切口跟着上移也仍在框外。
+     必须大于最大垂直位移(静止 1.5% → 上浮 -2%,合计 3.5%),留足余量。 */
+  --abyssa-rp-doll-bleed: 9%;
+  --abyssa-rp-accent: var(--abyssa-teal);
+
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--abyssa-rp-seat-w) minmax(0, 1fr) var(--abyssa-rp-seat-w);
+  width: 100%;
+  height: 100%;
+  min-height: 480px;
+  overflow: hidden;
+  background: var(--abyssa-panel-black);
+  color: var(--abyssa-text);
+  font-family: var(--abyssa-font-body);
+}
+
+.abyssa-rp__bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-size: cover;
+  background-position: center;
+  filter: brightness(0.5) saturate(0.85);
+}
+
+.abyssa-rp__bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(88% 88% at 50% 42%, transparent 48%, rgb(4 7 7 / 72%) 100%);
+}
+
+/* ---------- 席位 ---------- */
+/* 框体复用组件库的 .abyssa-frame:1px 深描边 + 2px 亮描边 + 5px 暗描边的三层轮廓、
+   ::before 的 inset 6px 装饰内线、四角括号,全部由 components.css 提供。
+   这里只覆盖底色——舞台的背景图要透上来,不能用面板的实色。 */
+.abyssa-rp__seat {
+  /* 组件库默认 #242929 实色,会把 ::before 内线框住的区域整片糊死 */
+  --abyssa-frame-surface: transparent;
+  z-index: 1;
+  /* 上下边距吃掉栏高,框就矮下来了——不用给显式高度,栏高变化时自动跟随 */
+  margin: var(--abyssa-rp-seat-my) var(--abyssa-rp-seat-gap);
+  padding: var(--abyssa-rp-seat-pad);
+  overflow: hidden;
+}
+
+/* 保留三层描边,只把 .abyssa-frame 的实色面板换成半透明压暗:
+   立绘需要从背景里浮出来,同时背景图还得看得见。 */
+.abyssa-rp__seat.abyssa-frame {
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 3.5%), transparent 26%, rgb(0 0 0 / 12%) 64%, rgb(0 0 0 / 26%)),
+    rgb(10 15 15 / 34%);
+  box-shadow:
+    0 0 0 2px var(--abyssa-frame-light),
+    0 0 0 5px var(--abyssa-frame-dark),
+    inset 0 7px 12px rgb(0 0 0 / 30%),
+    inset 0 -6px 10px rgb(0 0 0 / 24%);
+}
+
+/* 角括号随框等比收一档:组件库默认 inset 10px / 18px 见方,
+   是按 md 内距的大面板定的,放到这个尺寸的窄框里会压到立绘肩线。
+   组件库给的 z-index 是 2,与上台立绘同级而 DOM 在其之前,会被盖住,故抬到 4。 */
+.abyssa-rp__seat > .abyssa-frame__ornaments { inset: 6px; z-index: 4; }
+.abyssa-rp__seat > .abyssa-frame__ornaments i { width: 12px; height: 12px; }
+
+/* 立绘分两层,各管一件事,互不打架:
+     .abyssa-rp__actor       定位层 —— 撑满框内并 flex 居中。
+                             进退场 transform 由 WAAPI 驱动,说话者上浮 translate 由 CSS 过渡驱动。
+                             transform 与 translate 是两个独立属性,可同时生效,不会互相覆盖。
+     .abyssa-rp__actor-body  表现层 —— 只管明暗(opacity)。
+   之前把关键帧的 transform 和 hover 态的 translate/filter 挂在同一属性上,
+   动画一启动就抢占、彼此覆盖;拆开后作用域完全不重叠。 */
+.abyssa-rp__actor {
+  position: absolute;
+  /* 下缘沉到框底之外(负 bottom),knee 的切口落在框外,由 seat 的 overflow 裁掉。
+     这就是「预留」——不这么做的话,上浮 2% 会把那条切口拽进可视区,露出平切的小腿。 */
+  inset: var(--abyssa-rp-seat-pad) var(--abyssa-rp-seat-pad)
+         calc(-1 * var(--abyssa-rp-doll-bleed)) var(--abyssa-rp-seat-pad);
+  display: flex;
+  /* 居下站地 */
+  align-items: flex-end;
+  justify-content: center;
+  pointer-events: none;
+  will-change: transform;
+  translate: 0 1.5%;
+  transition: translate 0.5s cubic-bezier(0.3, 1.2, 0.45, 1);
+}
+
+/* 退场中的立绘沉到底层,不遮挡新上台的角色 */
+.abyssa-rp__actor[data-phase="leave"] { z-index: 0; }
+
+.abyssa-rp__actor[data-active="true"] {
+  z-index: 2;
+  translate: 0 -2%;
+}
+
+.abyssa-rp__actor-body {
+  /* 尺寸由**高度**驱动,宽度按 knee 的 704/1178 自己算。
+     反过来用宽度驱动的话,窄框会把人拉得比框还高,头就被框吃掉了。
+     flex 子项默认 flex-shrink:1 会压掉这个高度、破坏比例,必须锁死。 */
+  flex: none;
+  height: var(--abyssa-rp-doll-h);
+  line-height: 0;
+  /* 逐角色微调。放在 body 层而不是 actor 层:actor 的 transform 归 WAAPI 的
+     进退场动画、translate 归说话者上浮,再挂第三个属性上去就会互相覆盖。 */
+  translate: var(--abyssa-rp-doll-x) var(--abyssa-rp-doll-y);
+
+  /* 明暗用 opacity 而不是 filter。
+     每个立绘是 4 层 704×1472 的 PNG(base 单张 1.4MB),换人瞬间台上最多 5 人 = 20 张大图。
+     filter 要求每帧把这些图重新合成再过滤镜,无法烘成一张纹理来平移,实测掉帧 37%;
+     改用 opacity 后是纯合成器属性,整层当纹理混合,掉帧 17%。
+     舞台背景本就是深色 + 暗角,降低不透明度即是压暗。 */
+  will-change: opacity;
+  opacity: var(--abyssa-rp-dim);
+  transition: opacity 0.42s var(--abyssa-ease);
+}
+
+.abyssa-rp__actor[data-active="true"] .abyssa-rp__actor-body { opacity: 1; }
+
+/* PaperDoll 默认「宽度 100% + aspect-ratio 算高度」,这里反过来:
+   高度由 actor-body 给定,宽度按 knee 的 704/1178 自动算。
+   width:auto 是必须的——组件自带的 width:100% 会覆盖比例计算。 */
+.abyssa-rp__actor .abyssa-paper-doll {
+  width: auto;
+  height: 100%;
+}
+
+/* 席位名牌:组件库的 .abyssa-nameplate(三层斜切边框 + 菱形水印)。
+   这里只做两件事——定位到框底、按席位尺寸缩一档。
+   留在框上不随立绘滑动,换人时淡出淡入。 */
+.abyssa-rp__seat-name {
+  position: absolute;
+  right: 6px;
+  bottom: 8px;
+  left: 6px;
+  z-index: 3;
+  /* 组件库默认 min(100%, 420px);这里让它跟着上面的左右定位撑开 */
+  width: auto;
+  opacity: 0;
+  transition: opacity 0.3s var(--abyssa-ease);
+}
+
+.abyssa-rp__seat-name[data-show="true"] { opacity: 1; }
+
+/* 主名 + 英文副名两行,与 CharacterStatusScreen 的立绘名牌同一形态。
+   配色一律走组件库(--abyssa-nameplate-ink / -secondary),不接 accent:
+   角色强调色留给气泡标签,名牌染色会让两侧席位各成一套配色、压不住画面。 */
+.abyssa-rp__seat-name .abyssa-nameplate__content {
+  /* 组件库的 51px 是按大面板定的,这里由两行内容自己撑高 */
+  min-height: 0;
+  padding: 7px 30px;
+}
+
+/* 全名有到九个汉字的(艾比希斯·贝尔泽兰),窄席位放不下 17px。
+   跟着席位宽收缩,上限即组件库原值。 */
+.abyssa-rp__seat-name .abyssa-nameplate__content strong {
+  font-size: clamp(12.5px, 1.15vw, 17px);
+  letter-spacing: 0.14em;
+}
+
+.abyssa-rp__seat-name .abyssa-nameplate__content span {
+  font-size: clamp(8px, 0.66vw, 10px);
+  letter-spacing: 0.16em;
+}
+
+/* ---------- 中栏 ---------- */
+.abyssa-rp__center {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: rgb(11 16 16 / 72%);
+  border-inline: 1px solid rgb(100 113 113 / 26%);
+  backdrop-filter: blur(6px);
+}
+
+.abyssa-rp__header {
+  flex: none;
+  padding: 10px 18px;
+  border-bottom: 1px solid rgb(100 113 113 / 26%);
+}
+
+.abyssa-rp__log {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+  min-height: 0;
+  padding: 18px clamp(12px, 2.2vw, 26px) 22px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--abyssa-ornament-dark) transparent;
+}
+
+.abyssa-rp__log::-webkit-scrollbar { width: 6px; }
+.abyssa-rp__log::-webkit-scrollbar-thumb { background: var(--abyssa-ornament-dark); border-radius: 3px; }
+
+.abyssa-rp__jump {
+  position: absolute;
+  bottom: 14px;
+  left: 50%;
+  z-index: 4;
+  padding: 5px 16px;
+  border: 1px solid var(--abyssa-teal-dark);
+  background: rgb(18 26 26 / 94%);
+  color: var(--abyssa-teal);
+  font-family: inherit;
+  font-size: 11.5px;
+  letter-spacing: 0.16em;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-50%) translateY(6px);
+  transition: opacity 0.24s, transform 0.24s;
+}
+
+.abyssa-rp__jump[data-show] {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(-50%);
+}
+
+/* ---------- 消息 ---------- */
+/* flex 子项默认 flex-shrink:1 —— 消息一多就会被逐条压扁,
+   这是「越来越挤」的根因。锁死为不可压缩,高度只由内容决定。 */
+.abyssa-rp__message {
+  flex: none;
+  /* 出场只做「浮起 + 淡入」,不缩放、不回弹。
+     缩放和过冲(cubic-bezier 控制点 > 1)是立绘上下场的语汇——
+     那里需要强调「进入画面」;消息只是往列表里添一行,
+     多一次回弹就多一次视觉停顿,连着读就是顿挫。 */
+  animation: abyssa-rp-message-in 0.34s var(--abyssa-ease) both;
+}
+
+@keyframes abyssa-rp-message-in {
+  from {
+    opacity: 0;
+    /* 只有位移,没有 scale。位移走合成器不触发重排。 */
+    transform: translate3d(0, 10px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+/* ---------- 对白气泡 ----------
+   一条对白 = 头像 + 气泡,横向并排,头像在气泡外侧、与本方立绘同一边。
+
+   ============ 几何模型:完全静态,只有明暗在变 ============
+   状态切换**不动任何几何** —— 不改宽度、不改位置、不缩放、不改边距。
+   当前 vs 历史的区别全部由颜色与不透明度表达。
+
+   为什么最终走到这一步(前面几版都是错的):
+     ①  max-width / width / grid-template-columns 插值
+         —— 布局属性,逐帧强制重排,文字持续重新折行。
+     ②  transform: scale()
+         —— 不重排,但 GPU 缩放的是**已栅格化的文字图层**:
+            动画全程文字是模糊的,结束瞬间才切回锐利。
+            那个「啪」地清晰化就是顿挫感的真正来源。
+
+   ② 正是立绘那套语言不能搬过来的原因:立绘是位图,缩放无损;
+   文字不是。所以这里不缩放文字,一次都不。
+
+   opacity 与 color 是纯粹的合成/绘制操作:没有重排,也没有
+   「模糊→锐利」的收尾跳变,插值天然平滑,与文本长度无关。
+   ========================================================= */
+.abyssa-rp__message[data-kind="say"] {
+  --abyssa-rp-bubble-surface: rgb(20 25 25 / 82%);
+  --abyssa-rp-bubble-edge: rgb(111 125 126 / 22%);
+  --abyssa-rp-bubble-ink: #a9b4b4;
+
+  /* 全场唯一的时长与曲线。所有过渡都引用它,不许各写各的。 */
+  --abyssa-rp-shift: 380ms;
+
+  /* 内容行宽度。恒定值,当前/历史都是它。 */
+  --abyssa-rp-row-w: 580px;
+  /* 头像槽位。始终占位——一收窄就是重排。 */
+  --abyssa-rp-avatar-size: 48px;
+  --abyssa-rp-avatar-gap: 16px;
+
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  /* 上下留白恒定,当前态也不加大:margin 一变,下方每一条消息
+     都要跟着位移,那是整栏级别的重排。 */
+  margin-block: 11px;
+}
+
+/* 靠边规则由席位决定,与 current 无关——所以永远不会有位移发生 */
+.abyssa-rp__message[data-kind="say"][data-seat="left"] { justify-items: start; }
+.abyssa-rp__message[data-kind="say"][data-seat="right"] { justify-items: end; }
+
+/* 当前发言:只换三个颜色变量。 */
+.abyssa-rp__message[data-kind="say"][data-current] {
+  --abyssa-rp-bubble-surface: rgb(31 38 38 / 94%);
+  --abyssa-rp-bubble-edge: color-mix(in srgb, var(--abyssa-rp-accent) 42%, #4c5756);
+  --abyssa-rp-bubble-ink: #e9eeee;
+}
+
+/* 内容行:头像 + 气泡。宽度与位置全程恒定。 */
+.abyssa-rp__row {
+  position: relative;
+  display: flex;
+  width: min(100%, var(--abyssa-rp-row-w));
+  min-width: 0;
+  align-items: flex-start;
+  /* 退为历史时整条压暗一档,这是「退到背景里」的全部表达。 */
+  opacity: 0.72;
+  transition: opacity var(--abyssa-rp-shift) var(--abyssa-ease);
+}
+
+.abyssa-rp__message[data-current] .abyssa-rp__row { opacity: 1; }
+
+.abyssa-rp__message[data-seat="right"] .abyssa-rp__row { flex-direction: row-reverse; }
+
+/* 上下两条 accent 渐变线,中间浓两端隐,像一段被单独框出来的舞台。
+   挂在 row 上而不是 message 上:message 现在横跨整栏,线会拉得过长;
+   挂 row 才与内容同宽。落在 message 的 margin 空当里,不挤压气泡。 */
+.abyssa-rp__message[data-kind="say"][data-current] .abyssa-rp__row::before,
+.abyssa-rp__message[data-kind="say"][data-current] .abyssa-rp__row::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  left: 0;
+  height: 1px;
+  /* 压到 accent 的两成上下:这两条线是分隔用的,不是装饰主角,
+     浓度一高就会跟名字、竖边、箭头一起抢注意力。 */
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--abyssa-rp-accent) 16%, transparent) 22%,
+    color-mix(in srgb, var(--abyssa-rp-accent) 26%, transparent) 50%,
+    color-mix(in srgb, var(--abyssa-rp-accent) 16%, transparent) 78%,
+    transparent
+  );
+  pointer-events: none;
+  /* 排在菱形(150ms)之后收尾,构成 气泡 → 头像 → 菱形 → 分隔线 的四拍级联。
+     backwards 而非 both:延迟期内填 from,结束后交还声明值。 */
+  animation: abyssa-rp-rule-in 0.46s cubic-bezier(0.22, 0.9, 0.24, 1) 210ms backwards;
+}
+
+.abyssa-rp__message[data-kind="say"][data-current] .abyssa-rp__row::before { top: -14px; }
+.abyssa-rp__message[data-kind="say"][data-current] .abyssa-rp__row::after { bottom: -14px; }
+
+/* 从中心向两端拉开。
+   这一处**可以**做缩放:它是 1px 的纯色渐变线,既不含字形也不影响折行,
+   GPU 拉伸一条线没有「模糊→锐利」的收尾跳变。
+   同样的动作绝不能给气泡或正文用——那才是顿挫的来源。 */
+@keyframes abyssa-rp-rule-in {
+  from { opacity: 0; transform: scaleX(0.2); }
+  to { opacity: 1; transform: scaleX(1); }
+}
+
+/* ---- 头像 ----
+   框art 与组件库 .abyssa-shape-button[data-shape="square"] 同规格:
+   SVG 三层描边(外 9 深 / 中 5 亮 / 内 2 极深)+ inner 装饰线 + 左上右下角括号 + 底部三点。
+
+   ========== 这里可以放心做弹跳,气泡本体不行 ==========
+   之前把所有缩放都禁掉是过度矫正。真正的约束是:
+     · 不能缩放**承载文字**的元素 —— GPU 缩放已栅格化的字形,
+       动画全程发虚、收尾「啪」地锐化,那才是顿挫。
+     · 不能改动**影响折行**的布局量 —— 宽度一变,整段重排。
+   头像框是纯 SVG,槽位尺寸恒定(48px 永不变),
+   缩放只作用于它自己的图层,既不含文字也不撑动气泡宽度。
+   所以它完全可以带过冲地弹进来 —— 这正是「微交互」该发生的地方。
+   ==================================================== */
+.abyssa-rp__avatar {
+  position: relative;
+  flex: none;
+  /* 槽位尺寸**全程恒定**:一收窄就是布局变更,气泡可用宽度跟着变、文字重排。
+     弹跳走 transform,不碰这两个值。 */
+  width: var(--abyssa-rp-avatar-size);
+  height: var(--abyssa-rp-avatar-size);
+  color: var(--abyssa-rp-accent);
+  font-family: var(--abyssa-font-display);
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1;
+  /* 外层**只管激活前推**,挂载弹入交给内层 -inner。
+     两个动作都写 transform 的话会互相抢:transform 是单一属性,
+     动画在播放期间优先级高于声明值,会把 scale(1.05) 整个压住,
+     等 0.44s 播完才补一段涨大 —— 那就是「弹一下、停、又涨一下」。 */
+  transition: transform var(--abyssa-rp-shift) cubic-bezier(0.34, 1.4, 0.5, 1);
+}
+
+/* 内层:承接挂载弹入。
+   延迟 90ms 让气泡先浮起落位,头像随后就位,读起来是两拍呼应。
+   cubic-bezier 第二个控制点 1.58 > 1 → 收尾轻微过冲回弹。
+
+   填充用 backwards 而非 both:both 会让 to 关键帧的 transform 永久保留,
+   虽然这一层没有别的 transform 与它冲突,但保持与菱形节点同一写法,
+   也避免日后在这层再加状态样式时踩同一个坑。 */
+.abyssa-rp__avatar-inner {
+  display: block;
+  width: 100%;
+  height: 100%;
+  animation: abyssa-rp-avatar-pop 0.44s cubic-bezier(0.34, 1.58, 0.5, 1) 90ms backwards;
+}
+
+/* 从缩小 + 微微逆时针起手,弹到正位。
+   旋转幅度只有 4°,是「落定」的手感,不是翻转特效。 */
+@keyframes abyssa-rp-avatar-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.62) rotate(-4deg);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+/* 与气泡的间距走头像自身的 margin,不用容器 gap:
+   row-reverse 下头像换到右边,两侧要分别给。 */
+.abyssa-rp__message[data-seat="left"] .abyssa-rp__avatar { margin-right: var(--abyssa-rp-avatar-gap); }
+.abyssa-rp__message[data-seat="right"] .abyssa-rp__avatar { margin-left: var(--abyssa-rp-avatar-gap); }
+
+/* 当前发言者的头像前推一档,像往前站了半步。
+   1.05 的幅度读不出「变大」,只感觉它更近。
+   头像与菱形节点**共存**:菱形骑在气泡边框上,头像在 gap 之外,
+   两者相隔 5px 不重叠,一个标身份、一个指方向,各司其职。
+
+   这里曾经有第二条同名选择器写 opacity: 0(让位给菱形的旧设计),
+   两条改的是不同属性所以都生效 —— 结果就是「当前态头像根本不显示,
+   前推白做」,而且与挂载动画抢 opacity 造成亮→灭→再亮的两次闪烁。
+   已合并为这一条,且不再碰 opacity。 */
+.abyssa-rp__message[data-current] .abyssa-rp__avatar {
+  transform: scale(1.05);
+}
+
+/* 两层框完全重叠,靠 opacity 交叉淡入。
+   为什么不共用一层、只切换 CSS 变量:变量喂给的是 SVG 的 fill / stroke,
+   而自定义属性本身不参与过渡,换色会是硬切。 */
+.abyssa-rp__avatar-art {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  shape-rendering: geometricPrecision;
+  transition: opacity 0.42s var(--abyssa-ease);
+}
+
+/* 第二层叠在第一层上,不占位 */
+.abyssa-rp__avatar-art[data-state="active"] {
+  position: absolute;
+  inset: 0;
+}
+
+/* 历史态:压暗的冷灰,与组件库 dark 变体同一套关系(fill 最深 / middle 亮 / ornament 中) */
+.abyssa-rp__avatar-art[data-state="idle"] {
+  --abyssa-rp-avatar-fill: #10191a;
+  --abyssa-rp-avatar-middle: #3c565880;
+  --abyssa-rp-avatar-ornament: #5a7b7d99;
+}
+
+/* 当前态:描边转为角色强调色,与组件库 [data-selected] 的处理一致 */
+.abyssa-rp__avatar-art[data-state="active"] {
+  --abyssa-rp-avatar-fill: #16201f;
+  --abyssa-rp-avatar-middle: color-mix(in srgb, var(--abyssa-rp-accent) 74%, #2b3a3a);
+  --abyssa-rp-avatar-ornament: color-mix(in srgb, var(--abyssa-rp-accent) 88%, transparent);
+
+  opacity: 0;
+}
+
+.abyssa-rp__message[data-current] .abyssa-rp__avatar-art[data-state="idle"] { opacity: 0; }
+.abyssa-rp__message[data-current] .abyssa-rp__avatar-art[data-state="active"] { opacity: 1; }
+
+/* 照片嵌在框内。inset 8.5% 让它落在「内 2px 极深描边」的里侧,
+   不压住那条 inner 装饰线;clip-path 复刻 square 形的左上/右下切角。 */
+.abyssa-rp__avatar-photo {
+  position: absolute;
+  inset: 8.5%;
+  display: grid;
+  overflow: hidden;
+  background: #0c1212;
+  place-items: center;
+  clip-path: polygon(11% 0, 100% 0, 100% 81%, 81% 100%, 0 100%, 0 11%);
+}
+
+/* 内阴影压边:让照片看起来是嵌进框里,而不是贴在框上。
+   放在 ::after 而非 box-shadow——照片是 <img> 子元素,
+   父级的 inset shadow 会被图片盖住。 */
+.abyssa-rp__avatar-photo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  box-shadow:
+    inset 0 0 5px 1px rgb(0 0 0 / 62%),
+    inset 0 3px 6px rgb(0 0 0 / 45%),
+    inset 0 -3px 7px rgb(0 0 0 / 38%);
+  pointer-events: none;
+}
+
+.abyssa-rp__avatar-photo img {
+  width: 100%;
+  height: 100%;
+  /* 头像原图是半身,锚定上部对齐脸 */
+  object-fit: cover;
+  object-position: 50% 10%;
+  filter: saturate(0.72) brightness(0.74);
+  transition: filter 0.42s var(--abyssa-ease);
+}
+
+.abyssa-rp__message[data-current] .abyssa-rp__avatar-photo img {
+  filter: saturate(1) brightness(1);
+}
+
+/* ---- 气泡本体 ----
+   只留一条朝向说话者的 accent 竖边。原先那套四层描边 + 四角标在 14px 正文旁
+   喧宾夺主,每条消息都像独立面板,连着读是断的。 */
+.abyssa-rp__bubble {
+  position: relative;
+  min-width: 0;
+  padding: 11px 16px 13px;
+  background: var(--abyssa-rp-bubble-surface);
+  border: 1px solid var(--abyssa-rp-bubble-edge);
+  border-left: 2px solid color-mix(in srgb, var(--abyssa-rp-accent) 62%, transparent);
+  transition:
+    background 0.42s var(--abyssa-ease),
+    border-color 0.42s var(--abyssa-ease),
+    box-shadow 0.42s var(--abyssa-ease);
+}
+
+.abyssa-rp__message[data-seat="right"] .abyssa-rp__bubble {
+  border-right: 2px solid color-mix(in srgb, var(--abyssa-rp-accent) 62%, transparent);
+  border-left: 1px solid var(--abyssa-rp-bubble-edge);
+}
+
+/* 当前气泡的背后高光:accent 色从顶部斜切下来的一层薄雾 + 深投影。
+   放 ::before 而非 background,因为 background 已经被底色占着,
+   而这层需要能独立淡入淡出。 */
+.abyssa-rp__bubble::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(120% 80% at 50% -10%, color-mix(in srgb, var(--abyssa-rp-accent) 13%, transparent), transparent 62%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.42s var(--abyssa-ease);
+}
+
+.abyssa-rp__message[data-current] .abyssa-rp__bubble::before { opacity: 1; }
+
+.abyssa-rp__message[data-current] .abyssa-rp__bubble {
+  box-shadow:
+    0 0 22px -6px color-mix(in srgb, var(--abyssa-rp-accent) 26%, transparent),
+    0 12px 30px rgb(4 8 8 / 48%);
+}
+
+/* ---- 指向立绘的指示器 ----
+   组件库 RpgDiamondNode 的菱形节点:三层描边(外 7 深 / 中 3.5 亮 / 内 1.2 极深)
+   加一支朝向立绘的雪佛龙。比三角尾巴更有「激活态节点」的质感。
+
+   绝对定位在气泡上,不作为 flex 子项。作为子项时即便 opacity:0
+   也仍占着自身宽度 + 一份 gap,那就是没箭头时中间空一大块的原因。
+
+   viewBox 是 50×50 的正方,所以宽高必须相等,只用一个 size 变量。
+   菱形左顶点在 x=3/50,故 left = -size/2 时节点正好骑在气泡边框上。 */
+.abyssa-rp__arrow {
+  /* 盒子尺寸恒定 22px:width/height 是布局量,一动就连带气泡重排。
+     弹跳与「激活时前推」都走 transform,分两层元素承担(见下)。 */
+  --abyssa-rp-arrow-box: 22px;
+  --abyssa-rp-node-fill: #151b1b;
+  --abyssa-rp-node-middle: color-mix(in srgb, var(--abyssa-rp-accent) 34%, #4a5455);
+  --abyssa-rp-node-arrow: color-mix(in srgb, var(--abyssa-rp-accent) 50%, #6b7676);
+
+  position: absolute;
+  /* 与名牌那行文字齐平,不垂直居中——居中在长消息里会飘到中段。
+     数值恒定:top 也是布局属性。 */
+  top: 12px;
+  width: var(--abyssa-rp-arrow-box);
+  height: var(--abyssa-rp-arrow-box);
+  pointer-events: none;
+  transition:
+    filter var(--abyssa-rp-shift) var(--abyssa-ease),
+    opacity var(--abyssa-rp-shift) var(--abyssa-ease),
+    transform var(--abyssa-rp-shift) cubic-bezier(0.34, 1.4, 0.5, 1);
+}
+
+/* 左顶点骑在气泡边框上:盒子恒定,所以这个偏移也恒定 */
+.abyssa-rp__message[data-seat="left"] .abyssa-rp__arrow {
+  left: calc(var(--abyssa-rp-arrow-box) / -2);
+}
+
+.abyssa-rp__message[data-seat="right"] .abyssa-rp__arrow {
+  right: calc(var(--abyssa-rp-arrow-box) / -2);
+  /* 水平翻转指向右立绘 */
+  transform: scaleX(-1);
+}
+
+/* 激活时向立绘方向前探一档 —— 幅度小到读不出「变大」,只感觉它更凑近了。
+   必须按席位分写:transform 是单一属性,右侧要把翻转一起带上,
+   否则这条会把 scaleX(-1) 覆盖掉,箭头当场反向。 */
+.abyssa-rp__message[data-seat="left"][data-current] .abyssa-rp__arrow {
+  transform: translateX(-2px) scale(1.12);
+}
+
+.abyssa-rp__message[data-seat="right"][data-current] .abyssa-rp__arrow {
+  transform: scaleX(-1) translateX(-2px) scale(1.12);
+}
+
+/* 弹入挂在内层 svg 上,而不是外层 .abyssa-rp__arrow:
+   外层的 transform 已经被「席位翻转 + 激活前探」占用,
+   动画期间关键帧会整条接管 transform,右侧箭头会当场丢掉翻转。
+   分两层元素各管一个 transform,互不干涉。 */
+.abyssa-rp__arrow svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  shape-rendering: geometricPrecision;
+  /* 延迟 150ms —— 排在头像(90ms)之后,形成 气泡 → 头像 → 菱形 的三拍级联 */
+  animation: abyssa-rp-node-pop 0.4s cubic-bezier(0.34, 1.62, 0.5, 1) 150ms backwards;
+}
+
+/* 从菱形中心旋开:45° 起手到正位,恰好是菱形转过半个自身角度,
+   落定时四个顶点「咔」地对齐,像一枚节点被扣上去。 */
+@keyframes abyssa-rp-node-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.3) rotate(-45deg);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+/* 当前发言:头像框让位,菱形节点撑大并转为激活配色,直指台上的立绘。
+   配色关系照搬组件库 .abyssa-diamond-node[data-variant="active"]
+   (fill 压到近黑 / middle 提亮 / arrow 最亮),只是把亮部换成角色强调色。 */
+.abyssa-rp__message[data-current] .abyssa-rp__arrow {
+  --abyssa-rp-node-fill: #0a0e0e;
+  --abyssa-rp-node-middle: color-mix(in srgb, var(--abyssa-rp-accent) 88%, #ced5d5);
+  --abyssa-rp-node-arrow: color-mix(in srgb, var(--abyssa-rp-accent) 60%, #eaefef);
+
+  /* 只加辉光,不动 top —— 位置恒定,放大交给上面的 transform */
+  filter: drop-shadow(0 0 7px color-mix(in srgb, var(--abyssa-rp-accent) 34%, transparent));
+}
+
+/* 历史条目的小尾巴一直留着——它标的是「这句话出自哪一侧」,
+   属于版式信息,与人还在不在台上无关。
+   但当前那支大箭头是实指:人被顶下台后那一栏站的是别人,指过去就是错的。 */
+.abyssa-rp__message[data-current]:not([data-onstage]) .abyssa-rp__arrow { opacity: 0; }
+
+
+/* ---- 名牌:全名 + 英文副名,基线对齐排一行 ----
+   字号恒定,不随 current 变化——用大小强调只会让退场时整行重排。 */
+.abyssa-rp__bubble-name {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  padding-bottom: 7px;
+  margin-bottom: 9px;
+  /* 气泡内的浅分割线,把「谁在说」与「说了什么」分开。
+     两端渐隐,不做成硬邦邦的一道横杠。 */
+  border-bottom: 1px solid transparent;
+  border-image: linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--abyssa-rp-accent) 24%, transparent),
+      var(--abyssa-rp-bubble-edge) 45%,
+      transparent
+    ) 1;
+  white-space: nowrap;
+}
+
+.abyssa-rp__message[data-seat="right"] .abyssa-rp__bubble-name {
+  flex-direction: row-reverse;
+  border-image: linear-gradient(
+      270deg,
+      color-mix(in srgb, var(--abyssa-rp-accent) 24%, transparent),
+      var(--abyssa-rp-bubble-edge) 45%,
+      transparent
+    ) 1;
+}
+
+.abyssa-rp__bubble-name strong {
+  color: var(--abyssa-rp-accent);
+  font-family: var(--abyssa-font-display);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  line-height: 1.2;
+}
+
+.abyssa-rp__bubble-name span {
+  color: color-mix(in srgb, var(--abyssa-rp-accent) 48%, #788483);
+  font-family: var(--abyssa-font-display);
+  font-size: 8.5px;
+  letter-spacing: 0.18em;
+  line-height: 1;
+}
+
+/* ---- 正文 ----
+   字号恒定,当前/历史只差颜色。
+   文字整段淡入而非逐字打出:气泡先落位,文本随后浮现,
+   排版一次成型——逐字方案每加一个字都要重新折行,那正是闪烁与挤压的来源。 */
+.abyssa-rp__bubble-text {
+  margin: 0;
+  color: var(--abyssa-rp-bubble-ink);
+  font-size: 14.8px;
+  letter-spacing: 0.03em;
+  line-height: 1.85;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  transition: color 0.42s var(--abyssa-ease);
+  animation: abyssa-rp-text-in 0.6s var(--abyssa-ease) 0.12s both;
+}
+
+/* 纯淡入,不带 blur。
+   blur → 锐利 的收尾会在最后一帧「啪」地清晰化,那正是被读成顿挫的东西:
+   模糊期间文字是一张被 GPU 处理过的位图,恢复锐利是一次离散切换,
+   不是连续过渡。opacity 没有这个问题。 */
+@keyframes abyssa-rp-text-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ---- 当前 → 历史的交接 ----
+   这里**没有**单独的交接动画,这是刻意的。
+
+   之前那版用一段 750ms 的多段关键帧:文字淡出 → 停一拍 → 主体移动 →
+   再停 → 淡回来。那套编排是从立绘进退场搬过来的——立绘是「上下场」,
+   分段与停顿表达的是「离开画面 / 进入画面」,合理;但消息只是在原地
+   改变大小和位置,中途任何一次停顿都会被读成卡顿,那就是顿挫感的来源。
+
+   现在改为:所有属性(轨道宽度、位移、底色、文字颜色、头像、菱形)
+   共用 --abyssa-rp-shift 一个时长、一条曲线、零延迟,同时起步同时到位。
+   整条读起来是一个物件平滑地缩放归位,而不是几个动作接力。
+
+   文字不再淡出——因为宽度差已经收窄到 100px 出头,插值过程中的
+   重新折行本来就看不太出来。与其用淡出去遮掩重排,不如让重排本身
+   小到不需要遮掩。 */
+
+/* ---------- 旁白 ---------- */
+.abyssa-rp__message[data-kind="narration"] {
+  align-self: center;
+  max-width: min(92%, 620px);
+  padding: 1px 4px;
+  /* 与对白同一出场节奏。时长/曲线必须与 .abyssa-rp__message 那条一致——
+     animation 是简写,写在这里会整条覆盖掉上面的设置。 */
+  animation:
+    abyssa-rp-message-in 0.34s var(--abyssa-ease) both,
+    abyssa-rp-text-in 0.5s var(--abyssa-ease) both;
+  color: var(--abyssa-text-soft);
+  font-size: 14px;
+  letter-spacing: 0.05em;
+  line-height: 1.95;
+  text-align: justify;
+  white-space: pre-wrap;
+}
+
+/* ---------- 骰子检定 ---------- */
+.abyssa-rp__message[data-kind="roll"] {
+  display: flex;
+  align-self: center;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 22px;
+  border-block: 1px solid var(--abyssa-ornament-dark);
+  background: rgb(28 36 36 / 55%);
+  font-size: 12.5px;
+  letter-spacing: 0.08em;
+}
+
+.abyssa-rp__roll-label { color: var(--abyssa-text-muted); }
+
+.abyssa-rp__roll-formula {
+  color: var(--abyssa-text-soft);
+  font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+  letter-spacing: 0.02em;
+}
+
+.abyssa-rp__roll-formula b { font-size: 15.5px; }
+
+.abyssa-rp__roll-tag {
+  font-weight: 700;
+  letter-spacing: 0.26em;
+  text-indent: 0.26em;
+}
+
+.abyssa-rp__message[data-outcome="success"] .abyssa-rp__roll-formula b,
+.abyssa-rp__message[data-outcome="success"] .abyssa-rp__roll-tag { color: var(--abyssa-teal); }
+
+.abyssa-rp__message[data-outcome="fail"] .abyssa-rp__roll-formula b,
+.abyssa-rp__message[data-outcome="fail"] .abyssa-rp__roll-tag { color: var(--abyssa-danger); }
+
+/* ---------- 章节 ---------- */
+.abyssa-rp__message[data-kind="chapter"] {
+  display: flex;
+  align-self: stretch;
+  align-items: center;
+  gap: 15px;
+  margin-block: 6px;
+  color: var(--abyssa-teal-soft);
+  font-family: var(--abyssa-font-display);
+  font-size: 13px;
+  letter-spacing: 0.3em;
+  text-indent: 0.3em;
+}
+
+.abyssa-rp__message[data-kind="chapter"]::before,
+.abyssa-rp__message[data-kind="chapter"]::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--abyssa-ornament) 32%, var(--abyssa-ornament) 68%, transparent);
+}
+
+.abyssa-rp__message[data-kind="chapter"] span { flex: none; }
+
+/* ---------- 系统 ---------- */
+.abyssa-rp__message[data-kind="system"] {
+  align-self: center;
+  padding: 3px 18px;
+  border-block: 1px dashed var(--abyssa-ornament-dark);
+  color: var(--abyssa-text-muted);
+  font-size: 11.5px;
+  letter-spacing: 0.24em;
+}
+
+/* ---------- 窄屏 ---------- */
+@media (max-width: 1100px) {
+  .abyssa-rp {
+    --abyssa-rp-seat-w: clamp(172px, 20.5vw, 252px);
+    --abyssa-rp-seat-gap: 9px;
+    --abyssa-rp-seat-my: clamp(16px, 4.5vh, 40px);
+    --abyssa-rp-seat-pad: 6px;
+  }
+  .abyssa-rp__seat > .abyssa-frame__ornaments { inset: 4px; }
+  .abyssa-rp__seat > .abyssa-frame__ornaments i { width: 9px; height: 9px; }
+}
+
+@media (max-width: 820px) {
+  .abyssa-rp {
+    grid-template-columns: minmax(0, 1fr);
+    min-height: 420px;
+  }
+  .abyssa-rp__seat { display: none; }
+  .abyssa-rp__center { border-inline: none; }
+  /* 窄屏内容行放到满宽 */
+  .abyssa-rp__message[data-kind="say"] { --abyssa-rp-row-w: 100%; }
+  /* 席位已隐藏,箭头没有指向对象 */
+  .abyssa-rp__arrow { display: none; }
+}
+
+/* 动效减弱:降级为纯淡入淡出,而不是把时长清零。
+   清零等于硬切,而减弱的诉求是「不要大幅位移」,不是「不要过渡」。
+   进退场那部分由 WAAPI 读取同一媒体查询,同样降级为淡入淡出。 */
+@media (prefers-reduced-motion: reduce) {
+  /* 弹入去掉位移与缩放,只留淡入 */
+  .abyssa-rp__message {
+    animation-duration: 0.18s;
+    animation-timing-function: ease;
+  }
+  @keyframes abyssa-rp-message-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  .abyssa-rp__actor[data-active="true"] { translate: 0 0; }
+  .abyssa-rp__jump { transition-duration: 0.12s; }
+  /* 当前条退为历史时的过渡缩到几乎无感,但保留淡变 */
+  .abyssa-rp__bubble { transition-duration: 0.1s; }
+  /* 文字淡入去掉模糊,只留不透明度 */
+  .abyssa-rp__bubble-text { animation-duration: 0.2s; animation-delay: 0s; }
+
+  /* 交接整体压到 160ms。仍是一次连续插值,只是快得多——
+     不清零:清零等于位置和大小硬跳,那比慢一点更难受。 */
+  .abyssa-rp__message[data-kind="say"] { --abyssa-rp-shift: 160ms; }
+
+  /* 头像与菱形的弹入去掉缩放与旋转,只留淡入,并取消级联延迟。
+     过冲回弹正是动效敏感者最难受的那一类动作。 */
+  @keyframes abyssa-rp-avatar-pop {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes abyssa-rp-node-pop {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes abyssa-rp-rule-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  /* 弹入动画挂在 -inner 上,不是外层 —— 外层只负责激活前推 */
+  .abyssa-rp__avatar-inner,
+  .abyssa-rp__arrow svg,
+  .abyssa-rp__message[data-kind="say"][data-current] .abyssa-rp__row::before,
+  .abyssa-rp__message[data-kind="say"][data-current] .abyssa-rp__row::after {
+    animation-duration: 0.2s;
+    animation-delay: 0s;
+    animation-timing-function: ease;
+  }
+  /* 激活态的前推也一并取消 */
+  .abyssa-rp__message[data-current] .abyssa-rp__avatar { transform: none; }
+  .abyssa-rp__message[data-seat="left"][data-current] .abyssa-rp__arrow { transform: none; }
+  .abyssa-rp__message[data-seat="right"][data-current] .abyssa-rp__arrow { transform: scaleX(-1); }
+}
+
+/* ===================================================================
+   逐角色立绘调整表 —— 十人各自的身高/站位差异在这里补齐
+   ===================================================================
+   上面 .abyssa-rp 里的三个 doll-* 是**统一基准**,先用它把整体调对;
+   下面这张表是**单人偏差**,只写与基准不同的那几个人。
+
+   三个参数(都作用于立绘自身,与框无关):
+     --abyssa-rp-doll-h  高度占框内高度的比例。矮的角色调大,高的调小。
+     --abyssa-rp-doll-x  水平偏移,正 = 右移。单位是立绘自身宽度的百分比。
+     --abyssa-rp-doll-y  垂直偏移,正 = 下移。单位是立绘自身高度的百分比。
+
+   注意:这三个值只管**舞台上的观感**。PSD 画布本身的裁切差异已由
+   spriteCalibration.ts 的 scale/x/y 校平,两者叠加生效,不要在这里
+   重复补偿画布问题——那个该去改校准表。
+
+   下面十行的值当前全是基准值(即不做任何偏移),等你逐个看过再改。
+   改的时候建议开自动播放,让角色轮换上台对照着调。 */
+.abyssa-rp__actor[data-character="abyssa"]   { --abyssa-rp-doll-h: 100%; --abyssa-rp-doll-x: 0%; --abyssa-rp-doll-y: 0%; }
+.abyssa-rp__actor[data-character="alvitr"]   { --abyssa-rp-doll-h: 100%; --abyssa-rp-doll-x: 0%; --abyssa-rp-doll-y: 0%; }
+.abyssa-rp__actor[data-character="elora"]    { --abyssa-rp-doll-h: 100%; --abyssa-rp-doll-x: 0%; --abyssa-rp-doll-y: 0%; }
+.abyssa-rp__actor[data-character="eustice"]  { --abyssa-rp-doll-h: 100%; --abyssa-rp-doll-x: 0%; --abyssa-rp-doll-y: 0%; }
+.abyssa-rp__actor[data-character="kororo"]   { --abyssa-rp-doll-h: 100%; --abyssa-rp-doll-x: 0%; --abyssa-rp-doll-y: 0%; }
+.abyssa-rp__actor[data-character="lenore"]   { --abyssa-rp-doll-h: 100%; --abyssa-rp-doll-x: 0%; --abyssa-rp-doll-y: 0%; }
+.abyssa-rp__actor[data-character="marietta"] { --abyssa-rp-doll-h: 100%; --abyssa-rp-doll-x: 0%; --abyssa-rp-doll-y: 0%; }
+.abyssa-rp__actor[data-character="norma"]    { --abyssa-rp-doll-h: 100%; --abyssa-rp-doll-x: 0%; --abyssa-rp-doll-y: 0%; }
+.abyssa-rp__actor[data-character="tibby"]    { --abyssa-rp-doll-h: 100%; --abyssa-rp-doll-x: 0%; --abyssa-rp-doll-y: 0%; }
+.abyssa-rp__actor[data-character="vivienne"] { --abyssa-rp-doll-h: 100%; --abyssa-rp-doll-x: 0%; --abyssa-rp-doll-y: 0%; }

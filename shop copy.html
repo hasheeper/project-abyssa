@@ -1,0 +1,1638 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#17110a" />
+<meta name="description" content="Abyssa UI · 守望者杂货铺 商店界面" />
+<title>守望者杂货铺 · Abyssa UI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Noto+Serif+SC:wght@500;600;700&display=swap" rel="stylesheet" />
+<style>
+/* ============================================================
+   Abyssa UI · 基础 Token（与组件库一致）
+   ============================================================ */
+:root {
+  --abyssa-page: #98a7a9;
+  --abyssa-frame-dark: #192020;
+  --abyssa-frame-deep: #101616;
+  --abyssa-frame-light: #a7b3b4;
+  --abyssa-panel-black: #1d2121;
+  --abyssa-panel-dark: #242929;
+  --abyssa-panel-soft: #313737;
+  --abyssa-panel-gray: #5b6262;
+  --abyssa-panel-light: #e2e7e7;
+  --abyssa-teal: #72b3b7;
+  --abyssa-teal-dark: #3d7477;
+  --abyssa-teal-soft: #91c3c6;
+  --abyssa-ornament: #647171;
+  --abyssa-ornament-dark: #364142;
+  --abyssa-ornament-light: #839091;
+  --abyssa-text: #edf0f0;
+  --abyssa-text-soft: #c2cbcb;
+  --abyssa-text-muted: #8f9b9b;
+  --abyssa-text-dark: #192020;
+  --abyssa-focus: #e9eeee;
+  --abyssa-font-display: "Cinzel", "Times New Roman", serif;
+  --abyssa-font-body: "Noto Serif SC", "Songti SC", serif;
+  --abyssa-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --abyssa-shadow: 0 12px 28px rgb(9 14 14 / 24%);
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  min-width: 320px;
+  margin: 0;
+  background:
+    radial-gradient(circle at 50% -12%, rgb(201 163 92 / 7%), transparent 46%),
+    linear-gradient(rgb(201 163 92 / 2%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(201 163 92 / 2%) 1px, transparent 1px),
+    #100b06;
+  background-size: auto, 32px 32px, 32px 32px, auto;
+  color: #f2ecdc;
+  font-family: var(--abyssa-font-body);
+}
+
+button { font: inherit; }
+
+.abyssa-theme {
+  color: var(--abyssa-text);
+  font-family: var(--abyssa-font-body);
+  color-scheme: dark;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .abyssa-theme, .abyssa-theme * {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+/* ============================================================
+   组件：box-sizing / focus（沿用组件库规则）
+   ============================================================ */
+.abyssa-frame, .abyssa-square-panel, .abyssa-icon-button,
+.abyssa-rpg-header, .abyssa-nameplate, .abyssa-dialogue,
+.abyssa-notched-pill, .abyssa-rpg-tab {
+  box-sizing: border-box;
+  font-family: var(--abyssa-font-body, "Songti SC", serif);
+}
+
+.abyssa-square-panel, .abyssa-icon-button, .abyssa-notched-pill, .abyssa-rpg-tab {
+  -webkit-tap-highlight-color: transparent;
+  font: inherit;
+}
+
+.abyssa-square-panel:focus-visible, .abyssa-icon-button:focus-visible,
+.abyssa-notched-pill:focus-visible, .abyssa-rpg-tab:focus-visible,
+.abyssa-shop-item:focus-visible {
+  outline: 2px solid var(--abyssa-focus, #f0e2b8);
+  outline-offset: 4px;
+}
+
+.abyssa-frame, .abyssa-nameplate {
+  --abyssa-watermark-outer: rgb(255 255 255 / 3.5%);
+  --abyssa-watermark-inner: rgb(255 255 255 / 1.8%);
+}
+
+.abyssa-diamond-watermark {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* ============================================================
+   组件：RpgFrame
+   ============================================================ */
+.abyssa-frame {
+  --abyssa-frame-surface: var(--abyssa-panel-dark, #242929);
+  --abyssa-frame-ink: var(--abyssa-text, #edf0f0);
+  position: relative;
+  min-width: 0;
+  color: var(--abyssa-frame-ink);
+  background: var(--abyssa-frame-dark, #192020);
+  border: 1px solid var(--abyssa-frame-deep, #101616);
+  box-shadow:
+    0 0 0 2px var(--abyssa-frame-light, #a7b3b4),
+    0 0 0 5px var(--abyssa-frame-dark, #192020),
+    var(--abyssa-shadow, 0 12px 28px rgb(9 14 14 / 24%));
+  isolation: isolate;
+}
+.abyssa-frame::before {
+  position: absolute;
+  inset: 6px;
+  z-index: -1;
+  border: 1px solid color-mix(in srgb, var(--abyssa-ornament, #647171) 76%, transparent);
+  background-color: var(--abyssa-frame-surface);
+  content: "";
+  pointer-events: none;
+}
+.abyssa-frame__watermark { inset: 7px; z-index: 0; width: calc(100% - 14px); height: calc(100% - 14px); }
+.abyssa-frame__content { position: relative; z-index: 1; min-width: 0; }
+.abyssa-frame[data-padding="none"] > .abyssa-frame__content { padding: 0; }
+.abyssa-frame[data-padding="sm"] > .abyssa-frame__content { padding: 14px; }
+.abyssa-frame[data-padding="md"] > .abyssa-frame__content { padding: 24px; }
+.abyssa-frame__ornaments { position: absolute; inset: 10px; z-index: 2; pointer-events: none; }
+.abyssa-frame__ornaments i {
+  position: absolute;
+  width: 18px; height: 18px;
+  border-color: var(--abyssa-ornament-light, #839091);
+  border-style: solid;
+  opacity: 0.8;
+}
+.abyssa-frame__ornaments [data-corner="tl"] { top: 0; left: 0; border-width: 2px 0 0 2px; }
+.abyssa-frame__ornaments [data-corner="tr"] { top: 0; right: 0; border-width: 2px 2px 0 0; }
+.abyssa-frame__ornaments [data-corner="bl"] { bottom: 0; left: 0; border-width: 0 0 2px 2px; }
+.abyssa-frame__ornaments [data-corner="br"] { right: 0; bottom: 0; border-width: 0 2px 2px 0; }
+
+/* ============================================================
+   组件：RpgHeader
+   ============================================================ */
+.abyssa-rpg-header {
+  --abyssa-header-fill: #202323;
+  --abyssa-header-text: #f0f2f2;
+  --abyssa-header-ornament: #596464;
+  --abyssa-header-middle-frame: #778485;
+  --abyssa-header-pattern: rgb(255 255 255 / 4.5%);
+  position: relative;
+  display: block;
+  width: min(100%, 820px);
+  margin-inline: auto;
+  cursor: default;
+}
+.abyssa-rpg-header svg { display: block; width: 100%; height: auto; overflow: visible; shape-rendering: geometricPrecision; }
+
+/* ============================================================
+   组件：RpgTab
+   ============================================================ */
+.abyssa-rpg-tab {
+  --abyssa-tab-fill: #1c2020;
+  --abyssa-tab-text: #f0f3f3;
+  --abyssa-tab-middle: #748283;
+  --abyssa-tab-ornament: #555f60;
+  --abyssa-tab-pattern-dark: rgb(255 255 255 / 2.5%);
+  --abyssa-tab-pattern-light: transparent;
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  color: inherit;
+  background: transparent;
+  cursor: pointer;
+  transition: filter 100ms ease, transform 80ms ease;
+}
+.abyssa-rpg-tab[data-variant="dark"] {
+  --abyssa-tab-fill: #1c2020;
+  --abyssa-tab-text: #f0f3f3;
+  --abyssa-tab-middle: #748283;
+  --abyssa-tab-ornament: #555f60;
+}
+.abyssa-rpg-tab[data-variant="teal"] {
+  --abyssa-tab-fill: #75b7bb;
+  --abyssa-tab-text: #f3f5f5;
+  --abyssa-tab-middle: #789293;
+  --abyssa-tab-ornament: #345456;
+  --abyssa-tab-pattern-dark: rgb(26 70 73 / 9%);
+  --abyssa-tab-pattern-light: rgb(255 255 255 / 9%);
+}
+.abyssa-rpg-tab svg { display: block; width: 100%; height: auto; overflow: visible; shape-rendering: geometricPrecision; }
+.abyssa-rpg-tab__label {
+  fill: var(--abyssa-tab-text);
+  font-family: var(--abyssa-font-body);
+  font-size: 30px;
+  font-weight: 600;
+  letter-spacing: 6px;
+  text-anchor: middle;
+  dominant-baseline: middle;
+}
+.abyssa-rpg-tab:hover:not(:disabled) { filter: brightness(1.07); }
+.abyssa-rpg-tab:active:not(:disabled) { transform: translateY(1px) scale(.99); }
+.abyssa-rpg-tab[data-selected] { filter: drop-shadow(0 0 6px rgb(201 163 92 / 55%)); }
+.abyssa-rpg-tab[data-selected]:hover:not(:disabled) { filter: brightness(1.06) drop-shadow(0 0 7px rgb(201 163 92 / 55%)); }
+
+/* ============================================================
+   组件：RpgSquarePanel
+   ============================================================ */
+.abyssa-square-panel {
+  --abyssa-square-fill: #1b1f1f;
+  --abyssa-square-text: #f0f3f3;
+  --abyssa-square-middle: #798687;
+  --abyssa-square-ornament: #667171;
+  position: relative;
+  display: inline-grid;
+  width: min(100%, 116px);
+  min-width: 0;
+  padding: 0;
+  aspect-ratio: 1;
+  border: 0;
+  color: var(--abyssa-square-text);
+  background: transparent;
+  container-type: inline-size;
+  cursor: pointer;
+  place-items: center;
+  transition: filter 100ms ease, transform 80ms ease;
+}
+.abyssa-square-panel[data-variant="teal"] {
+  --abyssa-square-fill: #79b9bd;
+  --abyssa-square-text: #f5f7f7;
+  --abyssa-square-middle: #879899;
+  --abyssa-square-ornament: #304344;
+}
+.abyssa-square-panel > svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; shape-rendering: geometricPrecision; }
+.abyssa-square-panel__content {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  padding: 16%;
+  font-family: var(--abyssa-font-display, Georgia, serif);
+  line-height: 1;
+  place-items: center;
+}
+
+/* ============================================================
+   组件：IconButton
+   ============================================================ */
+.abyssa-icon-button {
+  --abyssa-icon-size: 86px;
+  --abyssa-icon-fill: #1d2121;
+  --abyssa-icon-middle: #718081;
+  --abyssa-icon-ornament: #566162;
+  --abyssa-icon-ink: #8f9b9c;
+  --abyssa-icon-pattern-dark: rgb(255 255 255 / 4%);
+  --abyssa-icon-pattern-light: rgb(255 255 255 / 1.2%);
+  position: relative;
+  display: block;
+  width: var(--abyssa-icon-size);
+  height: var(--abyssa-icon-size);
+  padding: 0;
+  border: 0;
+  color: inherit;
+  background: transparent;
+  cursor: pointer;
+  transition: filter 100ms ease, transform 80ms ease;
+}
+.abyssa-icon-button[data-variant="teal"] {
+  --abyssa-icon-fill: #73b8bc;
+  --abyssa-icon-middle: #778f90;
+  --abyssa-icon-ornament: #315253;
+  --abyssa-icon-ink: #173536;
+  --abyssa-icon-pattern-dark: rgb(26 70 73 / 9.5%);
+  --abyssa-icon-pattern-light: rgb(255 255 255 / 8%);
+}
+.abyssa-icon-button__art { display: block; width: 100%; height: 100%; overflow: visible; shape-rendering: geometricPrecision; }
+.abyssa-icon-button:hover:not(:disabled) { filter: brightness(1.07); }
+.abyssa-icon-button:active:not(:disabled) { transform: translateY(1px) scale(.99); }
+.abyssa-icon-button[data-shape="circle"]:focus-visible { border-radius: 50%; }
+.abyssa-icon-button:disabled { cursor: not-allowed; filter: grayscale(1); opacity: .45; }
+
+/* ============================================================
+   组件：RpgNotchedPillButton
+   ============================================================ */
+.abyssa-notched-pill {
+  --abyssa-notched-fill: #1c2020;
+  --abyssa-notched-text: #eef2f2;
+  --abyssa-notched-middle: #718081;
+  --abyssa-notched-ornament: #515c5d;
+  --abyssa-notched-pattern-dark: rgb(255 255 255 / 3.5%);
+  --abyssa-notched-pattern-light: rgb(255 255 255 / 1%);
+  display: block;
+  width: 190px;
+  height: 48px;
+  padding: 0;
+  border: 0;
+  color: inherit;
+  background: transparent;
+  cursor: pointer;
+  transition: filter 100ms ease, transform 80ms ease;
+}
+.abyssa-notched-pill[data-variant="teal"] {
+  --abyssa-notched-fill: #70b7bb;
+  --abyssa-notched-text: #203334;
+  --abyssa-notched-middle: #778f90;
+  --abyssa-notched-ornament: #315253;
+  --abyssa-notched-pattern-dark: rgb(26 70 73 / 9.5%);
+  --abyssa-notched-pattern-light: rgb(255 255 255 / 8%);
+}
+.abyssa-notched-pill svg { display: block; width: 100%; height: 100%; overflow: visible; shape-rendering: geometricPrecision; }
+.abyssa-notched-pill__label {
+  fill: var(--abyssa-notched-text);
+  font-family: var(--abyssa-font-body);
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: 4px;
+  text-anchor: middle;
+  dominant-baseline: middle;
+}
+.abyssa-notched-pill:hover:not(:disabled) { filter: brightness(1.08); }
+.abyssa-notched-pill:active:not(:disabled) { transform: translateY(1px) scale(.99); }
+.abyssa-notched-pill:disabled { cursor: not-allowed; filter: grayscale(1); opacity: .45; }
+
+/* ============================================================
+   组件：Nameplate
+   ============================================================ */
+.abyssa-nameplate {
+  --abyssa-nameplate-fill: #202424;
+  --abyssa-nameplate-ink: var(--abyssa-text, #edf0f0);
+  --abyssa-nameplate-secondary: var(--abyssa-teal-soft, #91c3c6);
+  position: relative;
+  z-index: 1;
+  width: min(100%, 420px);
+  padding: 3px;
+  color: var(--abyssa-nameplate-ink);
+  background: var(--abyssa-frame-dark, #192020);
+  clip-path: polygon(18px 0, calc(100% - 18px) 0, 100% 50%, calc(100% - 18px) 100%, 18px 100%, 0 50%);
+}
+.abyssa-nameplate__middle, .abyssa-nameplate__inner { width: 100%; height: 100%; }
+.abyssa-nameplate__middle { padding: 1px; background: var(--abyssa-frame-light, #a7b3b4); clip-path: polygon(15px 0, calc(100% - 15px) 0, 100% 50%, calc(100% - 15px) 100%, 15px 100%, 0 50%); }
+.abyssa-nameplate__inner { padding: 2px; background: var(--abyssa-frame-deep, #101616); clip-path: polygon(14px 0, calc(100% - 14px) 0, 100% 50%, calc(100% - 14px) 100%, 14px 100%, 0 50%); }
+.abyssa-nameplate__content {
+  position: relative;
+  display: flex;
+  min-height: 51px;
+  padding: 8px 34px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background-color: var(--abyssa-nameplate-fill);
+  clip-path: polygon(12px 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 12px 100%, 0 50%);
+  text-align: center;
+}
+.abyssa-nameplate__watermark { mask-image: linear-gradient(90deg, #000 0%, transparent 34% 66%, #000 100%); }
+.abyssa-nameplate__content strong, .abyssa-nameplate__content span { position: relative; z-index: 1; }
+.abyssa-nameplate__content strong { font-size: 17px; font-weight: 600; letter-spacing: 3px; line-height: 1; }
+.abyssa-nameplate__content span { margin-top: 3px; color: var(--abyssa-nameplate-secondary); font-family: var(--abyssa-font-display); font-size: 10px; letter-spacing: 2.2px; line-height: 1; }
+
+/* ============================================================
+   组件：RpgDialogue
+   ============================================================ */
+.abyssa-dialogue {
+  --abyssa-dialogue-fill: #1c2020;
+  --abyssa-dialogue-text: #dfe5e5;
+  --abyssa-dialogue-middle: #6f7d7e;
+  --abyssa-dialogue-ornament: #596465;
+  --abyssa-dialogue-pattern-main: rgb(255 255 255 / 2.6%);
+  --abyssa-dialogue-pattern-second: rgb(255 255 255 / 1.2%);
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 1200 / 260;
+  color: var(--abyssa-dialogue-text);
+  container-type: inline-size;
+}
+.abyssa-dialogue > svg { position: absolute; inset: 0; display: block; width: 100%; height: 100%; overflow: visible; shape-rendering: geometricPrecision; }
+.abyssa-dialogue__name {
+  position: absolute;
+  top: 4.5%; left: 3%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38%; height: 18%;
+  padding-inline: 3%;
+  overflow: hidden;
+  color: #e8eded;
+  font-family: var(--abyssa-font-body);
+  font-size: clamp(15px, 2.25cqi, 27px);
+  font-weight: 600;
+  letter-spacing: .16em;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.abyssa-dialogue__content {
+  position: absolute;
+  top: 45%; right: 8%; bottom: 13%; left: 9.5%;
+  overflow: hidden;
+  color: var(--abyssa-dialogue-text);
+  font-family: var(--abyssa-font-body);
+  font-size: clamp(14px, 2.25cqi, 27px);
+  font-weight: 500;
+  letter-spacing: .055em;
+  line-height: 1.75;
+  white-space: pre-line;
+  pointer-events: none;
+}
+
+/* ============================================================
+   商店界面 · 黑金皮肤（data-skin="black-gold"）
+   ============================================================ */
+.abyssa-shop-screen {
+  --abyssa-frame-dark: #1a140c;
+  --abyssa-frame-deep: #0e0b06;
+  --abyssa-frame-light: #a8874e;
+  --abyssa-panel-black: #17110a;
+  --abyssa-panel-dark: #231a10;
+  --abyssa-panel-soft: #322619;
+  --abyssa-panel-gray: #5c4c33;
+  --abyssa-panel-light: #e8dfc8;
+  --abyssa-teal: #c9a35c;
+  --abyssa-teal-dark: #7c5c26;
+  --abyssa-teal-soft: #e8cf8f;
+  --abyssa-ornament: #8a6f42;
+  --abyssa-ornament-dark: #4a3a20;
+  --abyssa-ornament-light: #c2a76a;
+  --abyssa-text: #f2ecdc;
+  --abyssa-text-soft: #d8cbaa;
+  --abyssa-text-muted: #9c8b6d;
+  --abyssa-text-dark: #241a08;
+  --abyssa-focus: #f0e2b8;
+  width: min(100%, 1180px);
+  margin: 0 auto;
+  padding: 34px clamp(14px, 3vw, 40px) 64px;
+}
+
+/* 皮肤 · 组件变体覆盖 */
+.abyssa-shop-screen .abyssa-rpg-header {
+  --abyssa-header-fill: #1d150b;
+  --abyssa-header-text: #f0e6cd;
+  --abyssa-header-ornament: #6d5527;
+  --abyssa-header-middle-frame: #a8874e;
+  --abyssa-header-pattern: rgb(201 163 92 / 6%);
+}
+.abyssa-shop-screen .abyssa-rpg-tab[data-variant="dark"] {
+  --abyssa-tab-fill: #17110a;
+  --abyssa-tab-text: #cdbd97;
+  --abyssa-tab-middle: #6d5527;
+  --abyssa-tab-ornament: #57431f;
+  --abyssa-tab-pattern-dark: rgb(201 163 92 / 5%);
+  --abyssa-tab-pattern-light: transparent;
+}
+.abyssa-shop-screen .abyssa-rpg-tab[data-variant="teal"] {
+  --abyssa-tab-fill: #c9a35c;
+  --abyssa-tab-text: #241a08;
+  --abyssa-tab-middle: #8a6f42;
+  --abyssa-tab-ornament: #5c4517;
+  --abyssa-tab-pattern-dark: rgb(60 42 10 / 12%);
+  --abyssa-tab-pattern-light: rgb(255 240 200 / 12%);
+}
+.abyssa-shop-screen .abyssa-frame {
+  --abyssa-frame-surface: #221a10;
+  --abyssa-frame-ink: #f2ecdc;
+  --abyssa-watermark-outer: rgb(201 163 92 / 6%);
+  --abyssa-watermark-inner: rgb(255 240 200 / 2.5%);
+}
+.abyssa-shop-screen .abyssa-square-panel[data-variant="teal"] {
+  --abyssa-square-fill: #c9a35c;
+  --abyssa-square-text: #241a08;
+  --abyssa-square-middle: #8a6f42;
+  --abyssa-square-ornament: #5c4517;
+}
+.abyssa-shop-screen .abyssa-icon-button[data-variant="dark"] {
+  --abyssa-icon-fill: #1c140b;
+  --abyssa-icon-middle: #8a6f42;
+  --abyssa-icon-ornament: #5c4517;
+  --abyssa-icon-ink: #e8cf8f;
+  --abyssa-icon-pattern-dark: rgb(201 163 92 / 6%);
+  --abyssa-icon-pattern-light: rgb(255 240 200 / 2%);
+}
+.abyssa-shop-screen .abyssa-icon-button[data-variant="teal"] {
+  --abyssa-icon-fill: #c9a35c;
+  --abyssa-icon-middle: #8a6f42;
+  --abyssa-icon-ornament: #5c4517;
+  --abyssa-icon-ink: #241a08;
+  --abyssa-icon-pattern-dark: rgb(60 42 10 / 12%);
+  --abyssa-icon-pattern-light: rgb(255 240 200 / 10%);
+}
+.abyssa-shop-screen .abyssa-notched-pill[data-variant="dark"] {
+  --abyssa-notched-fill: #1c140b;
+  --abyssa-notched-text: #e8cf8f;
+  --abyssa-notched-middle: #8a6f42;
+  --abyssa-notched-ornament: #5c4517;
+  --abyssa-notched-pattern-dark: rgb(201 163 92 / 6%);
+  --abyssa-notched-pattern-light: rgb(255 240 200 / 2%);
+}
+.abyssa-shop-screen .abyssa-notched-pill[data-variant="teal"] {
+  --abyssa-notched-fill: #c9a35c;
+  --abyssa-notched-text: #241a08;
+  --abyssa-notched-middle: #8a6f42;
+  --abyssa-notched-ornament: #5c4517;
+  --abyssa-notched-pattern-dark: rgb(60 42 10 / 12%);
+  --abyssa-notched-pattern-light: rgb(255 240 200 / 10%);
+}
+.abyssa-shop-screen .abyssa-nameplate {
+  --abyssa-nameplate-fill: #1a1209;
+  --abyssa-nameplate-ink: #f2ecdc;
+  --abyssa-nameplate-secondary: #e8cf8f;
+  --abyssa-watermark-outer: rgb(201 163 92 / 8%);
+  --abyssa-watermark-inner: rgb(255 240 200 / 3%);
+}
+.abyssa-shop-screen .abyssa-dialogue {
+  --abyssa-dialogue-fill: #1c1309;
+  --abyssa-dialogue-text: #e8dcc0;
+  --abyssa-dialogue-middle: #8a6f42;
+  --abyssa-dialogue-ornament: #6d5527;
+  --abyssa-dialogue-pattern-main: rgb(201 163 92 / 4%);
+  --abyssa-dialogue-pattern-second: rgb(255 240 200 / 1.6%);
+}
+
+/* 头部 */
+.abyssa-shop-screen__header-row { display: grid; justify-items: center; gap: 8px; margin-bottom: 22px; }
+.abyssa-shop-screen__header-row > .abyssa-rpg-header { width: min(100%, 640px); }
+.abyssa-shop-screen__subtitle { margin: 0; color: var(--abyssa-text-muted); font-size: 11px; letter-spacing: .38em; text-indent: .38em; }
+
+/* 主布局：左交易区 62% / 右看板娘 38% */
+.abyssa-shop-screen__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(300px, 1fr);
+  align-items: start;
+  gap: 26px;
+}
+.abyssa-shop-screen__trade { display: grid; min-width: 0; gap: 16px; }
+
+/* 页签 */
+.abyssa-shop-screen__tabs {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  padding-inline: 6px;
+  border-bottom: 5px solid var(--abyssa-frame-dark);
+}
+.abyssa-shop-screen__tabs .abyssa-rpg-tab { flex: 1 1 0; max-width: 170px; }
+
+/* 商品列表 */
+.abyssa-shop-screen__list-frame .abyssa-frame__content { display: grid; gap: 10px; }
+.abyssa-shop-list__head {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 12px 7px;
+  border-bottom: 1px solid rgb(138 111 66 / 30%);
+  color: var(--abyssa-text-muted);
+  font-size: 10px;
+  letter-spacing: .3em;
+}
+.abyssa-shop-list {
+  display: grid;
+  gap: 2px;
+  max-height: 300px;
+  padding-right: 4px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #4a3a20 transparent;
+}
+.abyssa-shop-list::-webkit-scrollbar { width: 6px; }
+.abyssa-shop-list::-webkit-scrollbar-thumb { background: #4a3a20; }
+.abyssa-shop-item {
+  display: grid;
+  grid-template-columns: auto minmax(0, auto) minmax(14px, 1fr) auto;
+  align-items: baseline;
+  gap: 10px;
+  padding: 8px 12px;
+  border: 1px solid transparent;
+  color: inherit;
+  background: none;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+  transition: background 100ms ease, border-color 100ms ease;
+}
+.abyssa-shop-item__bullet {
+  width: 7px; height: 7px;
+  border: 1px solid var(--abyssa-ornament-light);
+  justify-self: center;
+  transform: rotate(45deg) translateY(-1px);
+}
+.abyssa-shop-item__main { display: flex; min-width: 0; align-items: baseline; gap: 8px; }
+.abyssa-shop-item__name { overflow: hidden; color: var(--abyssa-text-soft); font-size: 12.5px; letter-spacing: .06em; text-overflow: ellipsis; white-space: nowrap; }
+.abyssa-shop-item__tag {
+  flex: none;
+  padding: 0 5px;
+  border: 1px solid rgb(156 139 109 / 45%);
+  color: var(--abyssa-text-muted);
+  font-size: 9px;
+  letter-spacing: .2em;
+  line-height: 1.6;
+}
+.abyssa-shop-item__tag--rec { border-color: rgb(201 163 92 / 65%); color: var(--abyssa-teal-soft); }
+.abyssa-shop-item__leader { height: 1px; border-bottom: 1px dotted rgb(148 131 90 / 30%); }
+.abyssa-shop-item__price { color: var(--abyssa-text-soft); font-family: var(--abyssa-font-display); font-size: 12px; letter-spacing: .05em; white-space: nowrap; }
+.abyssa-shop-item:hover:not(:disabled) { background: rgb(201 163 92 / 6%); }
+.abyssa-shop-item[data-selected] {
+  border-color: rgb(201 163 92 / 45%);
+  background: linear-gradient(90deg, rgb(201 163 92 / 13%), transparent 72%);
+}
+.abyssa-shop-item[data-selected] .abyssa-shop-item__bullet { background: var(--abyssa-teal); border-color: var(--abyssa-teal); box-shadow: 0 0 6px rgb(201 163 92 / 70%); }
+.abyssa-shop-item[data-selected] .abyssa-shop-item__name { color: var(--abyssa-text); }
+.abyssa-shop-item[data-selected] .abyssa-shop-item__price { color: var(--abyssa-teal-soft); }
+.abyssa-shop-item:disabled { cursor: not-allowed; opacity: .42; }
+
+/* 详情面板 */
+.abyssa-shop-detail { display: grid; gap: 13px; }
+.abyssa-shop-detail__head { display: grid; grid-template-columns: 96px minmax(0, 1fr); align-items: start; gap: 16px; }
+.abyssa-shop-detail__icon { width: 96px; cursor: default; }
+.abyssa-shop-detail__glyph { display: grid; width: 100%; place-items: center; }
+.abyssa-shop-detail__glyph svg { display: block; width: 58%; height: auto; }
+.abyssa-shop-detail__meta h3 { margin: 2px 0 9px; color: var(--abyssa-teal-soft); font-size: 17px; font-weight: 600; letter-spacing: 2.5px; line-height: 1.35; }
+.abyssa-shop-detail__rows { display: grid; gap: 6px; margin: 0; }
+.abyssa-shop-detail__row { display: grid; grid-template-columns: auto minmax(14px, 1fr) auto; align-items: baseline; gap: 8px; }
+.abyssa-shop-detail__row dt { color: var(--abyssa-text-muted); font-size: 10.5px; letter-spacing: .15em; white-space: nowrap; }
+.abyssa-shop-detail__row i { height: 1px; border-bottom: 1px dotted rgb(194 167 106 / 35%); }
+.abyssa-shop-detail__row dd { margin: 0; color: var(--abyssa-text); font-size: 11.5px; white-space: nowrap; }
+.abyssa-shop-detail__desc {
+  min-height: 3.7em;
+  margin: 0;
+  padding-top: 11px;
+  border-top: 1px dotted rgb(138 111 66 / 32%);
+  color: var(--abyssa-text-soft);
+  font-size: 12.5px;
+  line-height: 1.85;
+}
+.abyssa-shop-detail__buyrow {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding-top: 12px;
+  border-top: 1px solid rgb(138 111 66 / 35%);
+  flex-wrap: wrap;
+}
+.abyssa-shop-detail__unit, .abyssa-shop-detail__subtotal { display: grid; gap: 2px; }
+.abyssa-shop-detail__unit > span, .abyssa-shop-detail__subtotal > span { color: var(--abyssa-text-muted); font-size: 10px; letter-spacing: .25em; }
+.abyssa-shop-detail__unit strong, .abyssa-shop-detail__subtotal strong { color: var(--abyssa-teal-soft); font-family: var(--abyssa-font-display); font-size: 17px; font-weight: 600; white-space: nowrap; }
+.abyssa-shop-detail__unit s { margin-right: 6px; color: var(--abyssa-text-muted); font-size: 12px; font-weight: 400; text-decoration-color: rgb(206 119 114 / 80%); }
+.abyssa-shop-detail__subtotal { margin-left: auto; text-align: right; }
+.abyssa-shop-stepper { display: flex; align-items: center; gap: 10px; }
+.abyssa-shop-stepper .abyssa-icon-button { --abyssa-icon-size: 44px; flex: none; }
+.abyssa-shop-stepper output { min-width: 2ch; color: var(--abyssa-text); font-family: var(--abyssa-font-display); font-size: 18px; text-align: center; }
+
+/* 金币操作栏 */
+.abyssa-shop-goldbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.abyssa-shop-gold { display: grid; gap: 3px; }
+.abyssa-shop-gold__label { color: var(--abyssa-text-muted); font-size: 10px; letter-spacing: .3em; }
+.abyssa-shop-gold__value { display: flex; align-items: baseline; gap: 9px; }
+.abyssa-shop-gold__value i { width: 9px; height: 9px; align-self: center; background: var(--abyssa-teal); border: 1px solid var(--abyssa-frame-deep); box-shadow: 0 0 6px rgb(201 163 92 / 55%); transform: rotate(45deg); }
+.abyssa-shop-gold__value strong { color: var(--abyssa-teal-soft); font-family: var(--abyssa-font-display); font-size: 22px; font-weight: 600; letter-spacing: .04em; transition: color 200ms ease, text-shadow 200ms ease; }
+.abyssa-shop-gold__value em { color: var(--abyssa-text-muted); font-family: var(--abyssa-font-display); font-size: 11px; font-style: normal; letter-spacing: .18em; }
+.abyssa-shop-gold__value.is-flashing strong { color: #fff; text-shadow: 0 0 10px var(--abyssa-teal-soft); }
+.abyssa-shop-goldbar__actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.abyssa-shop-screen .abyssa-notched-pill { width: 172px; height: auto; aspect-ratio: 190 / 48; }
+
+/* 右栏 · 看板娘 */
+.abyssa-shop-screen__keeper { display: grid; min-width: 0; gap: 34px; }
+@media (min-width: 981px) {
+  .abyssa-shop-screen__keeper { position: sticky; top: 18px; }
+}
+.abyssa-shop-screen__portrait-wrap { position: relative; }
+.abyssa-shop-screen__portrait {
+  position: relative;
+  aspect-ratio: 3 / 3.5;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 24%, rgb(201 163 92 / 10%), transparent 55%),
+    var(--abyssa-panel-black);
+}
+.abyssa-shop-screen__portrait img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 8%; }
+.abyssa-shop-screen__portrait-fade {
+  position: absolute;
+  right: 0; bottom: 0; left: 0;
+  height: 32%;
+  background: linear-gradient(transparent, rgb(10 7 3 / 80%));
+  pointer-events: none;
+}
+.abyssa-shop-screen__portrait-wrap > .abyssa-nameplate { position: absolute; right: 12px; bottom: -22px; left: 12px; z-index: 3; width: auto; }
+
+/* 右栏 · 对话框（拉伸适配窄栏） */
+.abyssa-shop-screen__dialogue .abyssa-dialogue { height: 178px; aspect-ratio: auto; }
+.abyssa-shop-screen__dialogue .abyssa-dialogue__name { color: #f0e6cd; font-size: clamp(14px, 4cqi, 18px); letter-spacing: .3em; text-indent: .3em; }
+.abyssa-shop-screen__dialogue .abyssa-dialogue__content { top: 40%; right: 7.5%; bottom: 9%; left: 8%; font-size: 14px; letter-spacing: .04em; line-height: 1.85; }
+.abyssa-shop-screen__dialogue.is-animating .abyssa-dialogue__content { animation: abyssa-shop-line 320ms ease; }
+@keyframes abyssa-shop-line { from { opacity: 0; transform: translateY(5px); } }
+
+/* 响应式 */
+@media (max-width: 980px) {
+  .abyssa-shop-screen__layout { grid-template-columns: 1fr; }
+  .abyssa-shop-screen__keeper {
+    grid-template-columns: 132px minmax(0, 1fr);
+    align-items: end;
+    gap: 18px;
+    order: -1;
+  }
+  .abyssa-shop-screen__portrait { aspect-ratio: 3 / 3.9; }
+  .abyssa-shop-screen__portrait-wrap > .abyssa-nameplate { right: 6px; bottom: -14px; left: 6px; }
+  .abyssa-shop-screen__dialogue .abyssa-dialogue { height: 150px; }
+}
+@media (max-width: 620px) {
+  .abyssa-shop-screen { padding-top: 24px; }
+  .abyssa-shop-screen__keeper { grid-template-columns: 104px minmax(0, 1fr); gap: 12px; }
+  .abyssa-shop-screen__tabs { gap: 6px; padding-inline: 2px; }
+  .abyssa-shop-detail__head { grid-template-columns: 84px minmax(0, 1fr); gap: 12px; }
+  .abyssa-shop-detail__icon { width: 84px; }
+  .abyssa-shop-detail__buyrow { gap: 12px; }
+  .abyssa-shop-detail__subtotal { margin-left: 0; }
+  .abyssa-shop-goldbar { align-items: stretch; flex-direction: column; }
+  .abyssa-shop-goldbar__actions { justify-content: space-between; }
+  .abyssa-shop-screen .abyssa-notched-pill { width: min(48%, 172px); }
+}
+</style>
+</head>
+<body>
+<div class="abyssa-theme abyssa-shop-screen" data-skin="black-gold">
+
+  <!-- 头部 -->
+  <div class="abyssa-shop-screen__header-row">
+    <header class="abyssa-rpg-header" data-variant="dark">
+      <svg viewBox="0 0 660 116" role="img" aria-label="TIBBY'S GENERAL STORE">
+        <defs>
+          <pattern id="shop-hdr-pat" width="42" height="42" patternUnits="userSpaceOnUse" data-watermark="double-diamond">
+            <g data-diamond="center">
+              <path d="M21 0 L42 21 L21 42 L0 21 Z" fill="var(--abyssa-header-pattern)" opacity="0.7" data-layer="outer" />
+              <path d="M21 10 L32 21 L21 32 L10 21 Z" fill="rgb(255 240 200 / 3.5%)" opacity="0.6" data-layer="inner" />
+            </g>
+            <g data-diamond="top-left">
+              <path d="M0 -21 L21 0 L0 21 L-21 0 Z" fill="var(--abyssa-header-pattern)" opacity="0.35" data-layer="outer" />
+              <path d="M0 -11 L11 0 L0 11 L-11 0 Z" fill="rgb(255 240 200 / 3.5%)" opacity="0.3" data-layer="inner" />
+            </g>
+            <g data-diamond="top-right">
+              <path d="M42 -21 L63 0 L42 21 L21 0 Z" fill="var(--abyssa-header-pattern)" opacity="0.35" data-layer="outer" />
+              <path d="M42 -11 L53 0 L42 11 L31 0 Z" fill="rgb(255 240 200 / 3.5%)" opacity="0.3" data-layer="inner" />
+            </g>
+            <g data-diamond="bottom-left">
+              <path d="M0 21 L21 42 L0 63 L-21 42 Z" fill="var(--abyssa-header-pattern)" opacity="0.35" data-layer="outer" />
+              <path d="M0 31 L11 42 L0 53 L-11 42 Z" fill="rgb(255 240 200 / 3.5%)" opacity="0.3" data-layer="inner" />
+            </g>
+            <g data-diamond="bottom-right">
+              <path d="M42 21 L63 42 L42 63 L21 42 Z" fill="var(--abyssa-header-pattern)" opacity="0.35" data-layer="outer" />
+              <path d="M42 31 L53 42 L42 53 L31 42 Z" fill="rgb(255 240 200 / 3.5%)" opacity="0.3" data-layer="inner" />
+            </g>
+          </pattern>
+          <linearGradient id="shop-hdr-fade" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="white" stop-opacity="1" />
+            <stop offset="24%" stop-color="white" stop-opacity=".55" />
+            <stop offset="39%" stop-color="white" stop-opacity="0" />
+            <stop offset="61%" stop-color="white" stop-opacity="0" />
+            <stop offset="76%" stop-color="white" stop-opacity=".55" />
+            <stop offset="100%" stop-color="white" stop-opacity="1" />
+          </linearGradient>
+          <mask id="shop-hdr-mask"><rect width="660" height="116" fill="url(#shop-hdr-fade)" /></mask>
+          <clipPath id="shop-hdr-clip">
+            <path d="M18 9 H642 C624 14 612 24 603 40 C596 52 593 63 592 73 H383 L330 103 L277 73 H68 C67 62 64 51 57 39 C48 23 36 14 18 9 Z" />
+          </clipPath>
+        </defs>
+        <path d="M18 13 H642 C624 18 612 28 603 44 C596 56 593 67 592 77 H383 L330 107 L277 77 H68 C67 66 64 55 57 43 C48 27 36 18 18 13 Z" fill="#0a0703" opacity=".72" />
+        <path d="M18 9 H642 C624 14 612 24 603 40 C596 52 593 63 592 73 H383 L330 103 L277 73 H68 C67 62 64 51 57 39 C48 23 36 14 18 9 Z" fill="var(--abyssa-header-fill)" />
+        <rect x="12" y="6" width="636" height="102" fill="url(#shop-hdr-pat)" mask="url(#shop-hdr-mask)" clip-path="url(#shop-hdr-clip)" />
+        <path d="M18 9 H642 C624 14 612 24 603 40 C596 52 593 63 592 73 H383 L330 103 L277 73 H68 C67 62 64 51 57 39 C48 23 36 14 18 9 Z" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="7" stroke-linejoin="miter" />
+        <path d="M18 9 H642 C624 14 612 24 603 40 C596 52 593 63 592 73 H383 L330 103 L277 73 H68 C67 62 64 51 57 39 C48 23 36 14 18 9 Z" fill="none" stroke="var(--abyssa-header-middle-frame)" stroke-width="4" stroke-linejoin="miter" />
+        <path d="M18 9 H642 C624 14 612 24 603 40 C596 52 593 63 592 73 H383 L330 103 L277 73 H68 C67 62 64 51 57 39 C48 23 36 14 18 9 Z" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2" stroke-linejoin="miter" />
+        <path d="M39 15 H621" fill="none" stroke="var(--abyssa-header-ornament)" stroke-width="1" opacity=".72" />
+        <path d="M39 15 C52 22 61 33 67 47 C71 56 73 64 73 68" fill="none" stroke="var(--abyssa-header-ornament)" stroke-width="1.25" opacity=".88" />
+        <path d="M621 15 C608 22 599 33 593 47 C589 56 587 64 587 68" fill="none" stroke="var(--abyssa-header-ornament)" stroke-width="1.25" opacity=".88" />
+        <path d="M73 68 H283 L330 94 L377 68 H587" fill="none" stroke="var(--abyssa-header-ornament)" stroke-width="1.25" stroke-linejoin="miter" opacity=".9" />
+        <path d="M293 72 L330 92 L367 72" fill="none" stroke="var(--abyssa-header-ornament)" stroke-width=".8" stroke-linejoin="miter" opacity=".62" />
+        <g fill="var(--abyssa-header-ornament)">
+          <circle cx="91" cy="15" r="1.25" /><circle cx="569" cy="15" r="1.25" />
+          <circle cx="73" cy="68" r="1.25" /><circle cx="587" cy="68" r="1.25" />
+          <path d="M316 80 L320 84 L316 88 L312 84 Z" />
+          <path d="M330 88 L334 92 L330 96 L326 92 Z" />
+          <path d="M344 80 L348 84 L344 88 L340 84 Z" />
+        </g>
+        <text x="330" y="47" fill="var(--abyssa-header-text)" font-family="var(--abyssa-font-display)" font-size="20" font-weight="600" letter-spacing="3" text-anchor="middle" dominant-baseline="middle">TIBBY'S GENERAL STORE</text>
+      </svg>
+    </header>
+    <p class="abyssa-shop-screen__subtitle">守望者之崖 · 海边唯一的杂货铺</p>
+  </div>
+
+  <main class="abyssa-shop-screen__layout">
+
+    <!-- 左：交易区 -->
+    <section class="abyssa-shop-screen__trade" aria-label="交易区">
+
+      <!-- 页签 -->
+      <div class="abyssa-shop-screen__tabs" role="tablist" aria-label="交易模式">
+        <button type="button" class="abyssa-rpg-tab" data-variant="teal" data-selected="true" data-tab="buy" role="tab" aria-selected="true" aria-label="购买">
+          <svg viewBox="0 0 180 78" aria-hidden="true">
+            <defs>
+              <pattern id="shop-tab1-pat" width="42" height="42" patternUnits="userSpaceOnUse" patternTransform="translate(0 -4)" data-watermark="double-diamond">
+                <g data-diamond="center">
+                  <path d="M21 0 L42 21 L21 42 L0 21 Z" fill="var(--abyssa-tab-pattern-dark)" opacity="0.72" data-layer="outer" />
+                  <path d="M21 10 L32 21 L21 32 L10 21 Z" fill="var(--abyssa-tab-pattern-light)" opacity="0.62" data-layer="inner" />
+                </g>
+                <g data-diamond="top-left">
+                  <path d="M0 -21 L21 0 L0 21 L-21 0 Z" fill="var(--abyssa-tab-pattern-dark)" opacity="0.36" data-layer="outer" />
+                  <path d="M0 -11 L11 0 L0 11 L-11 0 Z" fill="var(--abyssa-tab-pattern-light)" opacity="0.31" data-layer="inner" />
+                </g>
+                <g data-diamond="top-right">
+                  <path d="M42 -21 L63 0 L42 21 L21 0 Z" fill="var(--abyssa-tab-pattern-dark)" opacity="0.36" data-layer="outer" />
+                  <path d="M42 -11 L53 0 L42 11 L31 0 Z" fill="var(--abyssa-tab-pattern-light)" opacity="0.31" data-layer="inner" />
+                </g>
+                <g data-diamond="bottom-left">
+                  <path d="M0 21 L21 42 L0 63 L-21 42 Z" fill="var(--abyssa-tab-pattern-dark)" opacity="0.36" data-layer="outer" />
+                  <path d="M0 31 L11 42 L0 53 L-11 42 Z" fill="var(--abyssa-tab-pattern-light)" opacity="0.31" data-layer="inner" />
+                </g>
+                <g data-diamond="bottom-right">
+                  <path d="M42 21 L63 42 L42 63 L21 42 Z" fill="var(--abyssa-tab-pattern-dark)" opacity="0.36" data-layer="outer" />
+                  <path d="M42 31 L53 42 L42 53 L31 42 Z" fill="var(--abyssa-tab-pattern-light)" opacity="0.31" data-layer="inner" />
+                </g>
+              </pattern>
+              <clipPath id="shop-tab1-clip"><path d="M7 78 V20 Q7 7 20 7 H160 Q173 7 173 20 V78 Z" /></clipPath>
+            </defs>
+            <path d="M7 78 V20 Q7 7 20 7 H160 Q173 7 173 20 V78 Z" fill="var(--abyssa-tab-fill)" />
+            <rect x="5" y="5" width="170" height="73" fill="url(#shop-tab1-pat)" clip-path="url(#shop-tab1-clip)" />
+            <path d="M7 78 V20 Q7 7 20 7 H160 Q173 7 173 20 V78" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="9" stroke-linecap="butt" stroke-linejoin="round" />
+            <path d="M7 78 V20 Q7 7 20 7 H160 Q173 7 173 20 V78" fill="none" stroke="var(--abyssa-tab-middle)" stroke-width="5" stroke-linecap="butt" stroke-linejoin="round" />
+            <path d="M7 78 V20 Q7 7 20 7 H160 Q173 7 173 20 V78" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round" />
+            <path d="M15 78 V23 Q15 15 24 15 H156 Q165 15 165 23 V78" fill="none" stroke="var(--abyssa-tab-ornament)" stroke-width="1.2" stroke-linecap="butt" opacity=".9" />
+            <path d="M20 31 V21 H31 M149 21 H160 V31" fill="none" stroke="var(--abyssa-tab-ornament)" stroke-width="1" opacity=".75" />
+            <g fill="var(--abyssa-tab-ornament)"><circle cx="84" cy="15" r="1.1" /><circle cx="90" cy="15" r="1.45" /><circle cx="96" cy="15" r="1.1" /></g>
+            <text class="abyssa-rpg-tab__label" x="90" y="48">购买</text>
+          </svg>
+        </button>
+        <button type="button" class="abyssa-rpg-tab" data-variant="dark" data-tab="sell" role="tab" aria-selected="false" aria-label="出售">
+          <svg viewBox="0 0 180 78" aria-hidden="true">
+            <defs>
+              <pattern id="shop-tab2-pat" width="42" height="42" patternUnits="userSpaceOnUse" patternTransform="translate(0 -4)" data-watermark="double-diamond">
+                <g data-diamond="center">
+                  <path d="M21 0 L42 21 L21 42 L0 21 Z" fill="var(--abyssa-tab-pattern-dark)" opacity="0.72" data-layer="outer" />
+                  <path d="M21 10 L32 21 L21 32 L10 21 Z" fill="var(--abyssa-tab-pattern-light)" opacity="0.62" data-layer="inner" />
+                </g>
+                <g data-diamond="top-left">
+                  <path d="M0 -21 L21 0 L0 21 L-21 0 Z" fill="var(--abyssa-tab-pattern-dark)" opacity="0.36" data-layer="outer" />
+                  <path d="M0 -11 L11 0 L0 11 L-11 0 Z" fill="var(--abyssa-tab-pattern-light)" opacity="0.31" data-layer="inner" />
+                </g>
+                <g data-diamond="top-right">
+                  <path d="M42 -21 L63 0 L42 21 L21 0 Z" fill="var(--abyssa-tab-pattern-dark)" opacity="0.36" data-layer="outer" />
+                  <path d="M42 -11 L53 0 L42 11 L31 0 Z" fill="var(--abyssa-tab-pattern-light)" opacity="0.31" data-layer="inner" />
+                </g>
+                <g data-diamond="bottom-left">
+                  <path d="M0 21 L21 42 L0 63 L-21 42 Z" fill="var(--abyssa-tab-pattern-dark)" opacity="0.36" data-layer="outer" />
+                  <path d="M0 31 L11 42 L0 53 L-11 42 Z" fill="var(--abyssa-tab-pattern-light)" opacity="0.31" data-layer="inner" />
+                </g>
+                <g data-diamond="bottom-right">
+                  <path d="M42 21 L63 42 L42 63 L21 42 Z" fill="var(--abyssa-tab-pattern-dark)" opacity="0.36" data-layer="outer" />
+                  <path d="M42 31 L53 42 L42 53 L31 42 Z" fill="var(--abyssa-tab-pattern-light)" opacity="0.31" data-layer="inner" />
+                </g>
+              </pattern>
+              <clipPath id="shop-tab2-clip"><path d="M7 78 V20 Q7 7 20 7 H160 Q173 7 173 20 V78 Z" /></clipPath>
+            </defs>
+            <path d="M7 78 V20 Q7 7 20 7 H160 Q173 7 173 20 V78 Z" fill="var(--abyssa-tab-fill)" />
+            <rect x="5" y="5" width="170" height="73" fill="url(#shop-tab2-pat)" clip-path="url(#shop-tab2-clip)" />
+            <path d="M7 78 V20 Q7 7 20 7 H160 Q173 7 173 20 V78" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="9" stroke-linecap="butt" stroke-linejoin="round" />
+            <path d="M7 78 V20 Q7 7 20 7 H160 Q173 7 173 20 V78" fill="none" stroke="var(--abyssa-tab-middle)" stroke-width="5" stroke-linecap="butt" stroke-linejoin="round" />
+            <path d="M7 78 V20 Q7 7 20 7 H160 Q173 7 173 20 V78" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round" />
+            <path d="M15 78 V23 Q15 15 24 15 H156 Q165 15 165 23 V78" fill="none" stroke="var(--abyssa-tab-ornament)" stroke-width="1.2" stroke-linecap="butt" opacity=".9" />
+            <path d="M20 31 V21 H31 M149 21 H160 V31" fill="none" stroke="var(--abyssa-tab-ornament)" stroke-width="1" opacity=".75" />
+            <g fill="var(--abyssa-tab-ornament)"><circle cx="84" cy="15" r="1.1" /><circle cx="90" cy="15" r="1.45" /><circle cx="96" cy="15" r="1.1" /></g>
+            <text class="abyssa-rpg-tab__label" x="90" y="48">出售</text>
+          </svg>
+        </button>
+        <button type="button" class="abyssa-rpg-tab" data-variant="dark" data-tab="appraise" role="tab" aria-selected="false" aria-label="鉴定">
+          <svg viewBox="0 0 180 78" aria-hidden="true">
+            <defs>
+              <pattern id="shop-tab3-pat" width="42" height="42" patternUnits="userSpaceOnUse" patternTransform="translate(0 -4)" data-watermark="double-diamond">
+                <g data-diamond="center">
+                  <path d="M21 0 L42 21 L21 42 L0 21 Z" fill="var(--abyssa-tab-pattern-dark)" opacity="0.72" data-layer="outer" />
+                  <path d="M21 10 L32 21 L21 32 L10 21 Z" fill="var(--abyssa-tab-pattern-light)" opacity="0.62" data-layer="inner" />
+                </g>
+                <g data-diamond="top-left">
+                  <path d="M0 -21 L21 0 L0 21 L-21 0 Z" fill="var(--abyssa-tab-pattern-dark)" opacity="0.36" data-layer="outer" />
+                  <path d="M0 -11 L11 0 L0 11 L-11 0 Z" fill="var(--abyssa-tab-pattern-light)" opacity="0.31" data-layer="inner" />
+                </g>
+                <g data-diamond="top-right">
+                  <path d="M42 -21 L63 0 L42 21 L21 0 Z" fill="var(--abyssa-tab-pattern-dark)" opacity="0.36" data-layer="outer" />
+                  <path d="M42 -11 L53 0 L42 11 L31 0 Z" fill="var(--abyssa-tab-pattern-light)" opacity="0.31" data-layer="inner" />
+                </g>
+                <g data-diamond="bottom-left">
+                  <path d="M0 21 L21 42 L0 63 L-21 42 Z" fill="var(--abyssa-tab-pattern-dark)" opacity="0.36" data-layer="outer" />
+                  <path d="M0 31 L11 42 L0 53 L-11 42 Z" fill="var(--abyssa-tab-pattern-light)" opacity="0.31" data-layer="inner" />
+                </g>
+                <g data-diamond="bottom-right">
+                  <path d="M42 21 L63 42 L42 63 L21 42 Z" fill="var(--abyssa-tab-pattern-dark)" opacity="0.36" data-layer="outer" />
+                  <path d="M42 31 L53 42 L42 53 L31 42 Z" fill="var(--abyssa-tab-pattern-light)" opacity="0.31" data-layer="inner" />
+                </g>
+              </pattern>
+              <clipPath id="shop-tab3-clip"><path d="M7 78 V20 Q7 7 20 7 H160 Q173 7 173 20 V78 Z" /></clipPath>
+            </defs>
+            <path d="M7 78 V20 Q7 7 20 7 H160 Q173 7 173 20 V78 Z" fill="var(--abyssa-tab-fill)" />
+            <rect x="5" y="5" width="170" height="73" fill="url(#shop-tab3-pat)" clip-path="url(#shop-tab3-clip)" />
+            <path d="M7 78 V20 Q7 7 20 7 H160 Q173 7 173 20 V78" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="9" stroke-linecap="butt" stroke-linejoin="round" />
+            <path d="M7 78 V20 Q7 7 20 7 H160 Q173 7 173 20 V78" fill="none" stroke="var(--abyssa-tab-middle)" stroke-width="5" stroke-linecap="butt" stroke-linejoin="round" />
+            <path d="M7 78 V20 Q7 7 20 7 H160 Q173 7 173 20 V78" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round" />
+            <path d="M15 78 V23 Q15 15 24 15 H156 Q165 15 165 23 V78" fill="none" stroke="var(--abyssa-tab-ornament)" stroke-width="1.2" stroke-linecap="butt" opacity=".9" />
+            <path d="M20 31 V21 H31 M149 21 H160 V31" fill="none" stroke="var(--abyssa-tab-ornament)" stroke-width="1" opacity=".75" />
+            <g fill="var(--abyssa-tab-ornament)"><circle cx="84" cy="15" r="1.1" /><circle cx="90" cy="15" r="1.45" /><circle cx="96" cy="15" r="1.1" /></g>
+            <text class="abyssa-rpg-tab__label" x="90" y="48">鉴定</text>
+          </svg>
+        </button>
+      </div>
+
+      <!-- 商品列表 -->
+      <div class="abyssa-frame abyssa-shop-screen__list-frame" data-variant="dark" data-padding="sm" data-ornamented="true">
+        <span class="abyssa-frame__ornaments" aria-hidden="true"><i data-corner="tl"></i><i data-corner="tr"></i><i data-corner="bl"></i><i data-corner="br"></i></span>
+        <svg class="abyssa-diamond-watermark abyssa-frame__watermark" aria-hidden="true" focusable="false" data-watermark="double-diamond">
+          <defs>
+            <pattern id="shop-wm-list" width="48" height="48" patternUnits="userSpaceOnUse" data-watermark="double-diamond">
+              <g data-diamond="center">
+                <path d="M24 0 L48 24 L24 48 L0 24 Z" fill="var(--abyssa-watermark-outer, #000)" opacity="0.5" data-layer="outer" />
+                <path d="M24 9.6 L38.4 24 L24 38.4 L9.6 24 Z" fill="var(--abyssa-watermark-inner, #000)" opacity="0.4" data-layer="inner" />
+              </g>
+              <g data-diamond="top-left">
+                <path d="M0 -24 L24 0 L0 24 L-24 0 Z" fill="var(--abyssa-watermark-outer, #000)" opacity="0.25" data-layer="outer" />
+                <path d="M0 -14.4 L14.4 0 L0 14.4 L-14.4 0 Z" fill="var(--abyssa-watermark-inner, #000)" opacity="0.2" data-layer="inner" />
+              </g>
+              <g data-diamond="top-right">
+                <path d="M48 -24 L72 0 L48 24 L24 0 Z" fill="var(--abyssa-watermark-outer, #000)" opacity="0.25" data-layer="outer" />
+                <path d="M48 -14.4 L62.4 0 L48 14.4 L33.6 0 Z" fill="var(--abyssa-watermark-inner, #000)" opacity="0.2" data-layer="inner" />
+              </g>
+              <g data-diamond="bottom-left">
+                <path d="M0 24 L24 48 L0 72 L-24 48 Z" fill="var(--abyssa-watermark-outer, #000)" opacity="0.25" data-layer="outer" />
+                <path d="M0 33.6 L14.4 48 L0 62.4 L-14.4 48 Z" fill="var(--abyssa-watermark-inner, #000)" opacity="0.2" data-layer="inner" />
+              </g>
+              <g data-diamond="bottom-right">
+                <path d="M48 24 L72 48 L48 72 L24 48 Z" fill="var(--abyssa-watermark-outer, #000)" opacity="0.25" data-layer="outer" />
+                <path d="M48 33.6 L62.4 48 L48 62.4 L33.6 48 Z" fill="var(--abyssa-watermark-inner, #000)" opacity="0.2" data-layer="inner" />
+              </g>
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#shop-wm-list)" />
+        </svg>
+        <div class="abyssa-frame__content">
+          <div class="abyssa-shop-list__head"><span>商品</span><span id="listHeadPrice">价格</span></div>
+          <div class="abyssa-shop-list" id="shopList" role="listbox" aria-label="商品列表"></div>
+        </div>
+      </div>
+
+      <!-- 详情 -->
+      <div class="abyssa-frame" data-variant="dark" data-padding="md" data-ornamented="true">
+        <span class="abyssa-frame__ornaments" aria-hidden="true"><i data-corner="tl"></i><i data-corner="tr"></i><i data-corner="bl"></i><i data-corner="br"></i></span>
+        <svg class="abyssa-diamond-watermark abyssa-frame__watermark" aria-hidden="true" focusable="false" data-watermark="double-diamond">
+          <defs>
+            <pattern id="shop-wm-detail" width="48" height="48" patternUnits="userSpaceOnUse" data-watermark="double-diamond">
+              <g data-diamond="center">
+                <path d="M24 0 L48 24 L24 48 L0 24 Z" fill="var(--abyssa-watermark-outer, #000)" opacity="0.5" data-layer="outer" />
+                <path d="M24 9.6 L38.4 24 L24 38.4 L9.6 24 Z" fill="var(--abyssa-watermark-inner, #000)" opacity="0.4" data-layer="inner" />
+              </g>
+              <g data-diamond="top-left">
+                <path d="M0 -24 L24 0 L0 24 L-24 0 Z" fill="var(--abyssa-watermark-outer, #000)" opacity="0.25" data-layer="outer" />
+                <path d="M0 -14.4 L14.4 0 L0 14.4 L-14.4 0 Z" fill="var(--abyssa-watermark-inner, #000)" opacity="0.2" data-layer="inner" />
+              </g>
+              <g data-diamond="top-right">
+                <path d="M48 -24 L72 0 L48 24 L24 0 Z" fill="var(--abyssa-watermark-outer, #000)" opacity="0.25" data-layer="outer" />
+                <path d="M48 -14.4 L62.4 0 L48 14.4 L33.6 0 Z" fill="var(--abyssa-watermark-inner, #000)" opacity="0.2" data-layer="inner" />
+              </g>
+              <g data-diamond="bottom-left">
+                <path d="M0 24 L24 48 L0 72 L-24 48 Z" fill="var(--abyssa-watermark-outer, #000)" opacity="0.25" data-layer="outer" />
+                <path d="M0 33.6 L14.4 48 L0 62.4 L-14.4 48 Z" fill="var(--abyssa-watermark-inner, #000)" opacity="0.2" data-layer="inner" />
+              </g>
+              <g data-diamond="bottom-right">
+                <path d="M48 24 L72 48 L48 72 L24 48 Z" fill="var(--abyssa-watermark-outer, #000)" opacity="0.25" data-layer="outer" />
+                <path d="M48 33.6 L62.4 48 L48 62.4 L33.6 48 Z" fill="var(--abyssa-watermark-inner, #000)" opacity="0.2" data-layer="inner" />
+              </g>
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#shop-wm-detail)" />
+        </svg>
+        <div class="abyssa-frame__content abyssa-shop-detail">
+          <div class="abyssa-shop-detail__head">
+            <div class="abyssa-square-panel abyssa-shop-detail__icon" data-variant="teal" aria-hidden="true">
+              <svg viewBox="0 0 116 116" preserveAspectRatio="xMidYMid meet">
+                <rect x="7" y="7" width="102" height="102" fill="var(--abyssa-square-fill)" />
+                <rect x="7" y="7" width="102" height="102" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="8" />
+                <rect x="7" y="7" width="102" height="102" fill="none" stroke="var(--abyssa-square-middle)" stroke-width="4" />
+                <rect x="7" y="7" width="102" height="102" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2" />
+                <rect x="14" y="14" width="88" height="88" fill="none" stroke="var(--abyssa-square-ornament)" stroke-width="1.25" />
+                <path d="M17 17 H27 L17 27 Z" fill="var(--abyssa-square-ornament)" />
+                <path d="M99 99 H89 L99 89 Z" fill="var(--abyssa-square-ornament)" />
+              </svg>
+              <span class="abyssa-square-panel__content"><span class="abyssa-shop-detail__glyph" id="detailGlyph"></span></span>
+            </div>
+            <div class="abyssa-shop-detail__meta">
+              <h3 id="detailName">深渊玄武岩餐具套装</h3>
+              <dl class="abyssa-shop-detail__rows">
+                <div class="abyssa-shop-detail__row"><dt>分类</dt><i aria-hidden="true"></i><dd id="detailCat">餐具 · 防腐蚀</dd></div>
+                <div class="abyssa-shop-detail__row"><dt id="detailStockLabel">库存</dt><i aria-hidden="true"></i><dd id="detailStock">1</dd></div>
+              </dl>
+            </div>
+          </div>
+          <p class="abyssa-shop-detail__desc" id="detailDesc">以深渊玄武岩雕琢而成的整套餐具，可抵御高浓度混沌腐蚀。对于宅邸的餐桌而言，是无可替代的刚需物资。</p>
+          <div class="abyssa-shop-detail__buyrow">
+            <div class="abyssa-shop-detail__unit"><span id="detailUnitLabel">单价</span><strong id="detailUnit">2,998 G</strong></div>
+            <div class="abyssa-shop-stepper" id="stepper">
+              <button type="button" id="qtyMinus" class="abyssa-icon-button" data-variant="dark" data-size="md" data-shape="circle" aria-label="减少数量">
+                <svg class="abyssa-icon-button__art" viewBox="0 0 120 120" aria-hidden="true">
+                  <defs>
+                    <pattern id="shop-ibm-pat" width="30" height="30" patternUnits="userSpaceOnUse" data-watermark="double-diamond">
+                      <g data-diamond="center">
+                        <path d="M15 0 L30 15 L15 30 L0 15 Z" fill="var(--abyssa-icon-pattern-dark)" opacity="0.72" data-layer="outer" />
+                        <path d="M15 7 L23 15 L15 23 L7 15 Z" fill="var(--abyssa-icon-pattern-light)" opacity="0.62" data-layer="inner" />
+                      </g>
+                      <g data-diamond="top-left">
+                        <path d="M0 -15 L15 0 L0 15 L-15 0 Z" fill="var(--abyssa-icon-pattern-dark)" opacity="0.36" data-layer="outer" />
+                        <path d="M0 -8 L8 0 L0 8 L-8 0 Z" fill="var(--abyssa-icon-pattern-light)" opacity="0.31" data-layer="inner" />
+                      </g>
+                      <g data-diamond="top-right">
+                        <path d="M30 -15 L45 0 L30 15 L15 0 Z" fill="var(--abyssa-icon-pattern-dark)" opacity="0.36" data-layer="outer" />
+                        <path d="M30 -8 L38 0 L30 8 L22 0 Z" fill="var(--abyssa-icon-pattern-light)" opacity="0.31" data-layer="inner" />
+                      </g>
+                      <g data-diamond="bottom-left">
+                        <path d="M0 15 L15 30 L0 45 L-15 30 Z" fill="var(--abyssa-icon-pattern-dark)" opacity="0.36" data-layer="outer" />
+                        <path d="M0 22 L8 30 L0 38 L-8 30 Z" fill="var(--abyssa-icon-pattern-light)" opacity="0.31" data-layer="inner" />
+                      </g>
+                      <g data-diamond="bottom-right">
+                        <path d="M30 15 L45 30 L30 45 L15 30 Z" fill="var(--abyssa-icon-pattern-dark)" opacity="0.36" data-layer="outer" />
+                        <path d="M30 22 L38 30 L30 38 L22 30 Z" fill="var(--abyssa-icon-pattern-light)" opacity="0.31" data-layer="inner" />
+                      </g>
+                    </pattern>
+                    <clipPath id="shop-ibm-clip"><circle cx="60" cy="60" r="53" /></clipPath>
+                  </defs>
+                  <circle cx="60" cy="60" r="53" fill="var(--abyssa-icon-fill)" />
+                  <rect x="4" y="4" width="112" height="112" fill="url(#shop-ibm-pat)" clip-path="url(#shop-ibm-clip)" />
+                  <circle cx="60" cy="60" r="53" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="9" />
+                  <circle cx="60" cy="60" r="53" fill="none" stroke="var(--abyssa-icon-middle)" stroke-width="5" />
+                  <circle cx="60" cy="60" r="53" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2" />
+                  <circle cx="60" cy="60" r="47" fill="none" stroke="var(--abyssa-icon-ornament)" stroke-width="1.35" opacity="0.92" />
+                  <g fill="none" stroke="var(--abyssa-icon-ink)" stroke-width="7.5" stroke-linecap="round" stroke-linejoin="round"><path d="M39 60 H81" /></g>
+                </svg>
+              </button>
+              <output id="qtyOut" aria-label="数量">1</output>
+              <button type="button" id="qtyPlus" class="abyssa-icon-button" data-variant="teal" data-size="md" data-shape="circle" aria-label="增加数量">
+                <svg class="abyssa-icon-button__art" viewBox="0 0 120 120" aria-hidden="true">
+                  <defs>
+                    <pattern id="shop-ibp-pat" width="30" height="30" patternUnits="userSpaceOnUse" data-watermark="double-diamond">
+                      <g data-diamond="center">
+                        <path d="M15 0 L30 15 L15 30 L0 15 Z" fill="var(--abyssa-icon-pattern-dark)" opacity="0.72" data-layer="outer" />
+                        <path d="M15 7 L23 15 L15 23 L7 15 Z" fill="var(--abyssa-icon-pattern-light)" opacity="0.62" data-layer="inner" />
+                      </g>
+                      <g data-diamond="top-left">
+                        <path d="M0 -15 L15 0 L0 15 L-15 0 Z" fill="var(--abyssa-icon-pattern-dark)" opacity="0.36" data-layer="outer" />
+                        <path d="M0 -8 L8 0 L0 8 L-8 0 Z" fill="var(--abyssa-icon-pattern-light)" opacity="0.31" data-layer="inner" />
+                      </g>
+                      <g data-diamond="top-right">
+                        <path d="M30 -15 L45 0 L30 15 L15 0 Z" fill="var(--abyssa-icon-pattern-dark)" opacity="0.36" data-layer="outer" />
+                        <path d="M30 -8 L38 0 L30 8 L22 0 Z" fill="var(--abyssa-icon-pattern-light)" opacity="0.31" data-layer="inner" />
+                      </g>
+                      <g data-diamond="bottom-left">
+                        <path d="M0 15 L15 30 L0 45 L-15 30 Z" fill="var(--abyssa-icon-pattern-dark)" opacity="0.36" data-layer="outer" />
+                        <path d="M0 22 L8 30 L0 38 L-8 30 Z" fill="var(--abyssa-icon-pattern-light)" opacity="0.31" data-layer="inner" />
+                      </g>
+                      <g data-diamond="bottom-right">
+                        <path d="M30 15 L45 30 L30 45 L15 30 Z" fill="var(--abyssa-icon-pattern-dark)" opacity="0.36" data-layer="outer" />
+                        <path d="M30 22 L38 30 L30 38 L22 30 Z" fill="var(--abyssa-icon-pattern-light)" opacity="0.31" data-layer="inner" />
+                      </g>
+                    </pattern>
+                    <clipPath id="shop-ibp-clip"><circle cx="60" cy="60" r="53" /></clipPath>
+                  </defs>
+                  <circle cx="60" cy="60" r="53" fill="var(--abyssa-icon-fill)" />
+                  <rect x="4" y="4" width="112" height="112" fill="url(#shop-ibp-pat)" clip-path="url(#shop-ibp-clip)" />
+                  <circle cx="60" cy="60" r="53" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="9" />
+                  <circle cx="60" cy="60" r="53" fill="none" stroke="var(--abyssa-icon-middle)" stroke-width="5" />
+                  <circle cx="60" cy="60" r="53" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2" />
+                  <circle cx="60" cy="60" r="47" fill="none" stroke="var(--abyssa-icon-ornament)" stroke-width="1.35" opacity="0.92" />
+                  <g fill="none" stroke="var(--abyssa-icon-ink)" stroke-width="7.5" stroke-linecap="round" stroke-linejoin="round"><path d="M39 60 H81" /><path d="M60 39 V81" /></g>
+                </svg>
+              </button>
+            </div>
+            <div class="abyssa-shop-detail__subtotal"><span id="detailSubLabel">小计</span><strong id="detailSub">2,998 G</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 金币 + 操作 -->
+      <div class="abyssa-frame abyssa-shop-screen__goldbar" data-variant="dark" data-padding="sm">
+        <svg class="abyssa-diamond-watermark abyssa-frame__watermark" aria-hidden="true" focusable="false" data-watermark="double-diamond">
+          <defs>
+            <pattern id="shop-wm-gold" width="48" height="48" patternUnits="userSpaceOnUse" data-watermark="double-diamond">
+              <g data-diamond="center">
+                <path d="M24 0 L48 24 L24 48 L0 24 Z" fill="var(--abyssa-watermark-outer, #000)" opacity="0.5" data-layer="outer" />
+                <path d="M24 9.6 L38.4 24 L24 38.4 L9.6 24 Z" fill="var(--abyssa-watermark-inner, #000)" opacity="0.4" data-layer="inner" />
+              </g>
+              <g data-diamond="top-left">
+                <path d="M0 -24 L24 0 L0 24 L-24 0 Z" fill="var(--abyssa-watermark-outer, #000)" opacity="0.25" data-layer="outer" />
+                <path d="M0 -14.4 L14.4 0 L0 14.4 L-14.4 0 Z" fill="var(--abyssa-watermark-inner, #000)" opacity="0.2" data-layer="inner" />
+              </g>
+              <g data-diamond="top-right">
+                <path d="M48 -24 L72 0 L48 24 L24 0 Z" fill="var(--abyssa-watermark-outer, #000)" opacity="0.25" data-layer="outer" />
+                <path d="M48 -14.4 L62.4 0 L48 14.4 L33.6 0 Z" fill="var(--abyssa-watermark-inner, #000)" opacity="0.2" data-layer="inner" />
+              </g>
+              <g data-diamond="bottom-left">
+                <path d="M0 24 L24 48 L0 72 L-24 48 Z" fill="var(--abyssa-watermark-outer, #000)" opacity="0.25" data-layer="outer" />
+                <path d="M0 33.6 L14.4 48 L0 62.4 L-14.4 48 Z" fill="var(--abyssa-watermark-inner, #000)" opacity="0.2" data-layer="inner" />
+              </g>
+              <g data-diamond="bottom-right">
+                <path d="M48 24 L72 48 L48 72 L24 48 Z" fill="var(--abyssa-watermark-outer, #000)" opacity="0.25" data-layer="outer" />
+                <path d="M48 33.6 L62.4 48 L48 62.4 L33.6 48 Z" fill="var(--abyssa-watermark-inner, #000)" opacity="0.2" data-layer="inner" />
+              </g>
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#shop-wm-gold)" />
+        </svg>
+        <div class="abyssa-frame__content abyssa-shop-goldbar">
+          <div class="abyssa-shop-gold">
+            <span class="abyssa-shop-gold__label">持有金币</span>
+            <span class="abyssa-shop-gold__value" id="goldWrap"><i aria-hidden="true"></i><strong id="goldValue">5,860</strong><em>G</em></span>
+          </div>
+          <div class="abyssa-shop-goldbar__actions">
+            <button type="button" id="btnHaggle" class="abyssa-notched-pill" data-variant="dark" aria-label="砍价">
+              <svg viewBox="0 0 190 48" aria-hidden="true">
+                <defs>
+                  <pattern id="shop-pillh-pat" width="26" height="26" patternUnits="userSpaceOnUse" patternTransform="translate(0 -2)" data-watermark="double-diamond">
+                    <g data-diamond="center">
+                      <path d="M13 0 L26 13 L13 26 L0 13 Z" fill="var(--abyssa-notched-pattern-dark)" opacity="0.72" data-layer="outer" />
+                      <path d="M13 6 L20 13 L13 20 L6 13 Z" fill="var(--abyssa-notched-pattern-light)" opacity="0.62" data-layer="inner" />
+                    </g>
+                    <g data-diamond="top-left">
+                      <path d="M0 -13 L13 0 L0 13 L-13 0 Z" fill="var(--abyssa-notched-pattern-dark)" opacity="0.36" data-layer="outer" />
+                      <path d="M0 -7 L7 0 L0 7 L-7 0 Z" fill="var(--abyssa-notched-pattern-light)" opacity="0.31" data-layer="inner" />
+                    </g>
+                    <g data-diamond="top-right">
+                      <path d="M26 -13 L39 0 L26 13 L13 0 Z" fill="var(--abyssa-notched-pattern-dark)" opacity="0.36" data-layer="outer" />
+                      <path d="M26 -7 L33 0 L26 7 L19 0 Z" fill="var(--abyssa-notched-pattern-light)" opacity="0.31" data-layer="inner" />
+                    </g>
+                    <g data-diamond="bottom-left">
+                      <path d="M0 13 L13 26 L0 39 L-13 26 Z" fill="var(--abyssa-notched-pattern-dark)" opacity="0.36" data-layer="outer" />
+                      <path d="M0 19 L7 26 L0 33 L-7 26 Z" fill="var(--abyssa-notched-pattern-light)" opacity="0.31" data-layer="inner" />
+                    </g>
+                    <g data-diamond="bottom-right">
+                      <path d="M26 13 L39 26 L26 39 L13 26 Z" fill="var(--abyssa-notched-pattern-dark)" opacity="0.36" data-layer="outer" />
+                      <path d="M26 19 L33 26 L26 33 L19 26 Z" fill="var(--abyssa-notched-pattern-light)" opacity="0.31" data-layer="inner" />
+                    </g>
+                  </pattern>
+                  <linearGradient id="shop-pillh-fade" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stop-color="white" /><stop offset="25%" stop-color="white" stop-opacity=".45" />
+                    <stop offset="40%" stop-color="white" stop-opacity="0" /><stop offset="60%" stop-color="white" stop-opacity="0" />
+                    <stop offset="75%" stop-color="white" stop-opacity=".45" /><stop offset="100%" stop-color="white" />
+                  </linearGradient>
+                  <mask id="shop-pillh-mask"><rect width="190" height="48" fill="url(#shop-pillh-fade)" /></mask>
+                  <clipPath id="shop-pillh-clip"><path d="M24 5 H166 A19 19 0 0 1 185 24 A19 19 0 0 1 166 43 H24 A19 19 0 0 1 5 24 A19 19 0 0 1 24 5 Z" /></clipPath>
+                </defs>
+                <path d="M24 5 H166 A19 19 0 0 1 185 24 A19 19 0 0 1 166 43 H24 A19 19 0 0 1 5 24 A19 19 0 0 1 24 5 Z" fill="var(--abyssa-notched-fill)" />
+                <rect x="3" y="3" width="184" height="42" fill="url(#shop-pillh-pat)" mask="url(#shop-pillh-mask)" clip-path="url(#shop-pillh-clip)" />
+                <path d="M24 5 H166 A19 19 0 0 1 185 24 A19 19 0 0 1 166 43 H24 A19 19 0 0 1 5 24 A19 19 0 0 1 24 5 Z" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="7" stroke-linejoin="round" />
+                <path d="M24 5 H166 A19 19 0 0 1 185 24 A19 19 0 0 1 166 43 H24 A19 19 0 0 1 5 24 A19 19 0 0 1 24 5 Z" fill="none" stroke="var(--abyssa-notched-middle)" stroke-width="3.7" stroke-linejoin="round" />
+                <path d="M24 5 H166 A19 19 0 0 1 185 24 A19 19 0 0 1 166 43 H24 A19 19 0 0 1 5 24 A19 19 0 0 1 24 5 Z" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="1.3" stroke-linejoin="round" />
+                <path d="M25 11 H165 A13 13 0 0 1 178 24 A13 13 0 0 1 165 37 H102 L95 41 L88 37 H25 A13 13 0 0 1 12 24 A13 13 0 0 1 25 11 Z" fill="none" stroke="var(--abyssa-notched-ornament)" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" opacity=".88" />
+                <text class="abyssa-notched-pill__label" x="95" y="24">砍 价</text>
+              </svg>
+            </button>
+            <button type="button" id="btnAction" class="abyssa-notched-pill" data-variant="teal" aria-label="购买">
+              <svg viewBox="0 0 190 48" aria-hidden="true">
+                <defs>
+                  <pattern id="shop-pillb-pat" width="26" height="26" patternUnits="userSpaceOnUse" patternTransform="translate(0 -2)" data-watermark="double-diamond">
+                    <g data-diamond="center">
+                      <path d="M13 0 L26 13 L13 26 L0 13 Z" fill="var(--abyssa-notched-pattern-dark)" opacity="0.72" data-layer="outer" />
+                      <path d="M13 6 L20 13 L13 20 L6 13 Z" fill="var(--abyssa-notched-pattern-light)" opacity="0.62" data-layer="inner" />
+                    </g>
+                    <g data-diamond="top-left">
+                      <path d="M0 -13 L13 0 L0 13 L-13 0 Z" fill="var(--abyssa-notched-pattern-dark)" opacity="0.36" data-layer="outer" />
+                      <path d="M0 -7 L7 0 L0 7 L-7 0 Z" fill="var(--abyssa-notched-pattern-light)" opacity="0.31" data-layer="inner" />
+                    </g>
+                    <g data-diamond="top-right">
+                      <path d="M26 -13 L39 0 L26 13 L13 0 Z" fill="var(--abyssa-notched-pattern-dark)" opacity="0.36" data-layer="outer" />
+                      <path d="M26 -7 L33 0 L26 7 L19 0 Z" fill="var(--abyssa-notched-pattern-light)" opacity="0.31" data-layer="inner" />
+                    </g>
+                    <g data-diamond="bottom-left">
+                      <path d="M0 13 L13 26 L0 39 L-13 26 Z" fill="var(--abyssa-notched-pattern-dark)" opacity="0.36" data-layer="outer" />
+                      <path d="M0 19 L7 26 L0 33 L-7 26 Z" fill="var(--abyssa-notched-pattern-light)" opacity="0.31" data-layer="inner" />
+                    </g>
+                    <g data-diamond="bottom-right">
+                      <path d="M26 13 L39 26 L26 39 L13 26 Z" fill="var(--abyssa-notched-pattern-dark)" opacity="0.36" data-layer="outer" />
+                      <path d="M26 19 L33 26 L26 33 L19 26 Z" fill="var(--abyssa-notched-pattern-light)" opacity="0.31" data-layer="inner" />
+                    </g>
+                  </pattern>
+                  <linearGradient id="shop-pillb-fade" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stop-color="white" /><stop offset="25%" stop-color="white" stop-opacity=".45" />
+                    <stop offset="40%" stop-color="white" stop-opacity="0" /><stop offset="60%" stop-color="white" stop-opacity="0" />
+                    <stop offset="75%" stop-color="white" stop-opacity=".45" /><stop offset="100%" stop-color="white" />
+                  </linearGradient>
+                  <mask id="shop-pillb-mask"><rect width="190" height="48" fill="url(#shop-pillb-fade)" /></mask>
+                  <clipPath id="shop-pillb-clip"><path d="M24 5 H166 A19 19 0 0 1 185 24 A19 19 0 0 1 166 43 H24 A19 19 0 0 1 5 24 A19 19 0 0 1 24 5 Z" /></clipPath>
+                </defs>
+                <path d="M24 5 H166 A19 19 0 0 1 185 24 A19 19 0 0 1 166 43 H24 A19 19 0 0 1 5 24 A19 19 0 0 1 24 5 Z" fill="var(--abyssa-notched-fill)" />
+                <rect x="3" y="3" width="184" height="42" fill="url(#shop-pillb-pat)" mask="url(#shop-pillb-mask)" clip-path="url(#shop-pillb-clip)" />
+                <path d="M24 5 H166 A19 19 0 0 1 185 24 A19 19 0 0 1 166 43 H24 A19 19 0 0 1 5 24 A19 19 0 0 1 24 5 Z" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="7" stroke-linejoin="round" />
+                <path d="M24 5 H166 A19 19 0 0 1 185 24 A19 19 0 0 1 166 43 H24 A19 19 0 0 1 5 24 A19 19 0 0 1 24 5 Z" fill="none" stroke="var(--abyssa-notched-middle)" stroke-width="3.7" stroke-linejoin="round" />
+                <path d="M24 5 H166 A19 19 0 0 1 185 24 A19 19 0 0 1 166 43 H24 A19 19 0 0 1 5 24 A19 19 0 0 1 24 5 Z" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="1.3" stroke-linejoin="round" />
+                <path d="M25 11 H165 A13 13 0 0 1 178 24 A13 13 0 0 1 165 37 H102 L95 41 L88 37 H25 A13 13 0 0 1 12 24 A13 13 0 0 1 25 11 Z" fill="none" stroke="var(--abyssa-notched-ornament)" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" opacity=".88" />
+                <text class="abyssa-notched-pill__label" x="95" y="24" id="actionLabel">购 买</text>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 右：看板娘 -->
+    <aside class="abyssa-shop-screen__keeper" aria-label="店主">
+      <div class="abyssa-shop-screen__portrait-wrap">
+        <div class="abyssa-frame" data-variant="dark" data-padding="none" data-ornamented="true">
+          <span class="abyssa-frame__ornaments" aria-hidden="true"><i data-corner="tl"></i><i data-corner="tr"></i><i data-corner="bl"></i><i data-corner="br"></i></span>
+          <div class="abyssa-frame__content abyssa-shop-screen__portrait">
+            <img src="https://files.catbox.moe/0d7uzq.png" alt="缇比·奥雷利亚" />
+            <span class="abyssa-shop-screen__portrait-fade" aria-hidden="true"></span>
+          </div>
+        </div>
+        <div class="abyssa-nameplate" data-variant="dark">
+          <div class="abyssa-nameplate__middle">
+            <div class="abyssa-nameplate__inner">
+              <div class="abyssa-nameplate__content">
+                <svg class="abyssa-diamond-watermark abyssa-nameplate__watermark" aria-hidden="true" focusable="false" data-watermark="double-diamond">
+                  <defs>
+                    <pattern id="shop-wm-name" width="34" height="34" patternUnits="userSpaceOnUse" data-watermark="double-diamond">
+                      <g data-diamond="center">
+                        <path d="M17 0 L34 17 L17 34 L0 17 Z" fill="var(--abyssa-watermark-outer, #000)" opacity="0.55" data-layer="outer" />
+                        <path d="M17 6.8 L27.2 17 L17 27.2 L6.8 17 Z" fill="var(--abyssa-watermark-inner, #000)" opacity="0.45" data-layer="inner" />
+                      </g>
+                      <g data-diamond="top-left">
+                        <path d="M0 -17 L17 0 L0 17 L-17 0 Z" fill="var(--abyssa-watermark-outer, #000)" opacity="0.275" data-layer="outer" />
+                        <path d="M0 -10.2 L10.2 0 L0 10.2 L-10.2 0 Z" fill="var(--abyssa-watermark-inner, #000)" opacity="0.225" data-layer="inner" />
+                      </g>
+                      <g data-diamond="top-right">
+                        <path d="M34 -17 L51 0 L34 17 L17 0 Z" fill="var(--abyssa-watermark-outer, #000)" opacity="0.275" data-layer="outer" />
+                        <path d="M34 -10.2 L44.2 0 L34 10.2 L23.8 0 Z" fill="var(--abyssa-watermark-inner, #000)" opacity="0.225" data-layer="inner" />
+                      </g>
+                      <g data-diamond="bottom-left">
+                        <path d="M0 17 L17 34 L0 51 L-17 34 Z" fill="var(--abyssa-watermark-outer, #000)" opacity="0.275" data-layer="outer" />
+                        <path d="M0 23.8 L10.2 34 L0 44.2 L-10.2 34 Z" fill="var(--abyssa-watermark-inner, #000)" opacity="0.225" data-layer="inner" />
+                      </g>
+                      <g data-diamond="bottom-right">
+                        <path d="M34 17 L51 34 L34 51 L17 34 Z" fill="var(--abyssa-watermark-outer, #000)" opacity="0.275" data-layer="outer" />
+                        <path d="M34 23.8 L44.2 34 L34 44.2 L23.8 34 Z" fill="var(--abyssa-watermark-inner, #000)" opacity="0.225" data-layer="inner" />
+                      </g>
+                    </pattern>
+                  </defs>
+                  <rect width="100%" height="100%" fill="url(#shop-wm-name)" />
+                </svg>
+                <strong>缇比·奥雷利亚</strong>
+                <span>TIBBY AURELIA</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 缇比的台词 -->
+      <div class="abyssa-shop-screen__dialogue" id="keeperDialogue">
+        <section class="abyssa-dialogue" data-variant="dark" aria-label="缇比的台词">
+          <svg viewBox="0 0 1200 260" preserveAspectRatio="none" aria-hidden="true">
+            <defs>
+              <pattern id="shop-dlg-ppat" width="94" height="94" patternUnits="userSpaceOnUse" patternTransform="translate(0 -12)" data-watermark="double-diamond">
+                <g data-diamond="center">
+                  <path d="M47 0 L94 47 L47 94 L0 47 Z" fill="var(--abyssa-dialogue-pattern-main)" opacity="0.48" data-layer="outer" />
+                  <path d="M47 21 L73 47 L47 73 L21 47 Z" fill="var(--abyssa-dialogue-pattern-second)" opacity="0.38" data-layer="inner" />
+                </g>
+                <g data-diamond="top-left">
+                  <path d="M0 -47 L47 0 L0 47 L-47 0 Z" fill="var(--abyssa-dialogue-pattern-main)" opacity="0.24" data-layer="outer" />
+                  <path d="M0 -26 L26 0 L0 26 L-26 0 Z" fill="var(--abyssa-dialogue-pattern-second)" opacity="0.19" data-layer="inner" />
+                </g>
+                <g data-diamond="top-right">
+                  <path d="M94 -47 L141 0 L94 47 L47 0 Z" fill="var(--abyssa-dialogue-pattern-main)" opacity="0.24" data-layer="outer" />
+                  <path d="M94 -26 L120 0 L94 26 L68 0 Z" fill="var(--abyssa-dialogue-pattern-second)" opacity="0.19" data-layer="inner" />
+                </g>
+                <g data-diamond="bottom-left">
+                  <path d="M0 47 L47 94 L0 141 L-47 94 Z" fill="var(--abyssa-dialogue-pattern-main)" opacity="0.24" data-layer="outer" />
+                  <path d="M0 68 L26 94 L0 120 L-26 94 Z" fill="var(--abyssa-dialogue-pattern-second)" opacity="0.19" data-layer="inner" />
+                </g>
+                <g data-diamond="bottom-right">
+                  <path d="M94 47 L141 94 L94 141 L47 94 Z" fill="var(--abyssa-dialogue-pattern-main)" opacity="0.24" data-layer="outer" />
+                  <path d="M94 68 L120 94 L94 120 L68 94 Z" fill="var(--abyssa-dialogue-pattern-second)" opacity="0.19" data-layer="inner" />
+                </g>
+              </pattern>
+              <pattern id="shop-dlg-npat" width="64" height="64" patternUnits="userSpaceOnUse" data-watermark="double-diamond">
+                <g data-diamond="center">
+                  <path d="M32 0 L64 32 L32 64 L0 32 Z" fill="rgb(255 240 200 / 2.2%)" opacity="0.48" data-layer="outer" />
+                  <path d="M32 15 L49 32 L32 49 L15 32 Z" fill="rgb(255 240 200 / 1.1%)" opacity="0.38" data-layer="inner" />
+                </g>
+                <g data-diamond="top-left">
+                  <path d="M0 -32 L32 0 L0 32 L-32 0 Z" fill="rgb(255 240 200 / 2.2%)" opacity="0.24" data-layer="outer" />
+                  <path d="M0 -17 L17 0 L0 17 L-17 0 Z" fill="rgb(255 240 200 / 1.1%)" opacity="0.19" data-layer="inner" />
+                </g>
+                <g data-diamond="top-right">
+                  <path d="M64 -32 L96 0 L64 32 L32 0 Z" fill="rgb(255 240 200 / 2.2%)" opacity="0.24" data-layer="outer" />
+                  <path d="M64 -17 L81 0 L64 17 L47 0 Z" fill="rgb(255 240 200 / 1.1%)" opacity="0.19" data-layer="inner" />
+                </g>
+                <g data-diamond="bottom-left">
+                  <path d="M0 32 L32 64 L0 96 L-32 64 Z" fill="rgb(255 240 200 / 2.2%)" opacity="0.24" data-layer="outer" />
+                  <path d="M0 47 L17 64 L0 81 L-17 64 Z" fill="rgb(255 240 200 / 1.1%)" opacity="0.19" data-layer="inner" />
+                </g>
+                <g data-diamond="bottom-right">
+                  <path d="M64 32 L96 64 L64 96 L32 64 Z" fill="rgb(255 240 200 / 2.2%)" opacity="0.24" data-layer="outer" />
+                  <path d="M64 47 L81 64 L64 81 L47 64 Z" fill="rgb(255 240 200 / 1.1%)" opacity="0.19" data-layer="inner" />
+                </g>
+              </pattern>
+              <clipPath id="shop-dlg-pclip"><path d="M10 63 H1190 V250 H10 Z" /></clipPath>
+              <clipPath id="shop-dlg-nclip"><path d="M18 64 V11 H458 L468 43 C472 56 484 63 505 64 Z" /></clipPath>
+            </defs>
+            <path d="M18 64 V11 H458 L468 43 C472 56 484 63 505 64 Z" fill="#171009" />
+            <rect x="14" y="7" width="500" height="61" fill="url(#shop-dlg-npat)" clip-path="url(#shop-dlg-nclip)" />
+            <path d="M18 64 V11 H458 L468 43 C472 56 484 63 505 64 Z" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="8" stroke-linejoin="round" />
+            <path d="M18 64 V11 H458 L468 43 C472 56 484 63 505 64 Z" fill="none" stroke="#8a6f42" stroke-width="4" stroke-linejoin="round" />
+            <path d="M18 64 V11 H458 L468 43 C472 56 484 63 505 64 Z" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="1.5" stroke-linejoin="round" />
+            <path d="M29 18 H447 L454 42 C458 54 466 58 480 60" fill="none" stroke="#6d5527" stroke-width="1.15" stroke-linejoin="round" opacity=".8" />
+            <g fill="#6d5527">
+              <circle cx="87" cy="57" r="1.1" /><circle cx="96" cy="57" r="1.45" /><circle cx="105" cy="57" r="1.1" />
+            </g>
+            <path d="M10 63 H1190 V250 H10 Z" fill="var(--abyssa-dialogue-fill)" />
+            <rect x="7" y="60" width="1186" height="193" fill="url(#shop-dlg-ppat)" clip-path="url(#shop-dlg-pclip)" />
+            <path d="M10 63 H1190 V250 H10 Z" fill="none" stroke="var(--abyssa-frame-dark)" stroke-width="9" />
+            <path d="M10 63 H1190 V250 H10 Z" fill="none" stroke="var(--abyssa-dialogue-middle)" stroke-width="5" />
+            <path d="M10 63 H1190 V250 H10 Z" fill="none" stroke="var(--abyssa-frame-deep)" stroke-width="2" />
+            <rect x="19" y="72" width="1162" height="167" fill="none" stroke="var(--abyssa-dialogue-ornament)" stroke-width="1.35" opacity=".92" />
+            <rect x="24" y="77" width="1152" height="157" fill="none" stroke="var(--abyssa-dialogue-ornament)" stroke-width=".65" opacity=".52" />
+            <g fill="none" stroke="var(--abyssa-dialogue-ornament)" stroke-linecap="square">
+              <path d="M24 94 V77 H41 M1159 77 H1176 V94 M24 217 V234 H41 M1159 234 H1176 V217" stroke-width="1.5" />
+              <path d="M29 90 V82 H37 M1163 82 H1171 V90 M29 221 V229 H37 M1163 229 H1171 V221" stroke-width=".85" />
+            </g>
+            <g fill="var(--abyssa-dialogue-ornament)">
+              <rect x="28" y="81" width="4" height="4" /><rect x="35" y="81" width="2" height="2" opacity=".65" />
+              <rect x="1168" y="81" width="4" height="4" /><rect x="1163" y="81" width="2" height="2" opacity=".65" />
+              <rect x="28" y="226" width="4" height="4" /><rect x="35" y="228" width="2" height="2" opacity=".65" />
+              <rect x="1168" y="226" width="4" height="4" /><rect x="1163" y="228" width="2" height="2" opacity=".65" />
+            </g>
+          </svg>
+          <div class="abyssa-dialogue__name">缇比</div>
+          <div class="abyssa-dialogue__content" id="keeperLine">欢迎光临~ 守望者杂货铺，想要什么都可以问哦~</div>
+        </section>
+      </div>
+    </aside>
+  </main>
+</div>
+
+<script>
+(() => {
+  "use strict";
+  const $ = (s) => document.querySelector(s);
+  const els = {
+    tabs: [...document.querySelectorAll(".abyssa-shop-screen__tabs .abyssa-rpg-tab")],
+    list: $("#shopList"), listHeadPrice: $("#listHeadPrice"),
+    glyph: $("#detailGlyph"), name: $("#detailName"), cat: $("#detailCat"),
+    stockLabel: $("#detailStockLabel"), stock: $("#detailStock"), desc: $("#detailDesc"),
+    unitLabel: $("#detailUnitLabel"), unit: $("#detailUnit"),
+    stepper: $("#stepper"), qtyOut: $("#qtyOut"), qtyMinus: $("#qtyMinus"), qtyPlus: $("#qtyPlus"),
+    subLabel: $("#detailSubLabel"), sub: $("#detailSub"),
+    goldWrap: $("#goldWrap"), goldValue: $("#goldValue"),
+    haggle: $("#btnHaggle"), action: $("#btnAction"), actionLabel: $("#actionLabel"),
+    dialogue: $("#keeperDialogue"), line: $("#keeperLine"),
+  };
+
+  /* ---------- 物品图标（描边小图标，着色由容器 currentColor 决定） ---------- */
+  const ICONS = {
+    tableware: '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="19" cy="24" r="11"/><circle cx="19" cy="24" r="5"/><path d="M37 12c2.5 0 4 2.2 4 4.6 0 2.5-1.6 4.4-4 4.4s-4-1.9-4-4.4c0-2.4 1.5-4.6 4-4.6ZM37 21v17"/></svg>',
+    potion: '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 8h8M22 8v8l-8 14c-1.6 2.8.4 6 3.6 6h12.8c3.2 0 5.2-3.2 3.6-6l-8-14V8"/><path d="M15.5 29h17"/></svg>',
+    carving: '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="13" y="8" width="22" height="32" rx="2"/><circle cx="19.5" cy="18" r="1.4"/><circle cx="28.5" cy="18" r="1.4"/><path d="M19 26h10M17 33h14"/><path d="M31 11l-7 8" stroke-dasharray="2 3"/></svg>',
+    cloth: '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12c5-3 8 2 13 0s8 2 13 0v24c-5 3-8-2-13 0s-8-2-13 0Z"/><path d="M15 20c4-2 6 2 10 0s6 2 8 0M15 28c4-2 6 2 10 0"/></svg>',
+    brush: '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M29 8l11 11-15 15-7-7Z"/><path d="M18 27l-7 7c-2.4 2.4-5.6-.6-3.2-3l7-7"/><path d="M32 15l4 4"/></svg>',
+    key: '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="17" cy="17" r="7"/><circle cx="17" cy="17" r="2.5"/><path d="M22 22l15 15M30 30l4-4M34 34l4-4"/></svg>',
+    elixir: '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 6h6M23 6v9l-7 13a8 8 0 0 0 7 12h2a8 8 0 0 0 7-12l-7-13V6"/><path d="M24 24l1.4 2.8 2.8 1.4-2.8 1.4L24 32.4l-1.4-2.8-2.8-1.4 2.8-1.4Z"/></svg>',
+    cup: '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M14 8h20v6c0 8-4 13-10 13S14 22 14 14Z"/><path d="M24 27v9M17 40h14M20 13h8"/></svg>',
+    sword: '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M33 7l8 8-18 18-8-8Z"/><path d="M15 25l8 8M11 33l4 4M29 11l8 8"/></svg>',
+    shield: '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M24 6l14 5v10c0 10-6 17-14 21-8-4-14-11-14-21V11Z"/><path d="M25 13l-5 8 6 4-5 9"/></svg>',
+    statue: '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="24" cy="14" r="6"/><path d="M14 38v-3c0-6 4-10 10-10s10 4 10 10v3Z"/><path d="M9 42h30"/></svg>',
+    disc: '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="24" cy="24" r="15"/><circle cx="24" cy="24" r="5.5"/><path d="M24 9v4M24 35v4M9 24h4M35 24h4"/></svg>',
+    conch: '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M38 30c0 6.5-6.2 10-14 10S10 36.5 10 30 16.2 14 24 14s14 9.5 14 16Z"/><path d="M24 15c-2 6-2 12 0 17M17.5 17.5c-1.4 4.6-1.4 8.6 0 13M30.5 17.5c1.4 4.6 1.4 8.6 0 13"/></svg>',
+  };
+
+  /* ---------- 商品数据（含缇比的专属推销语） ---------- */
+  const STOCK = {
+    buy: [
+      { id:"tableware", icon:"tableware", name:"深渊玄武岩餐具套装", tag:"rec", price:2998, stock:1, cat:"餐具 · 防腐蚀",
+        desc:"以深渊玄武岩雕琢而成的整套餐具，可抵御高浓度混沌腐蚀。对于宅邸的餐桌而言，是无可替代的刚需物资。",
+        line:"不怕混沌腐蚀哦~ 看在勇者大人的份上，已经抹掉零头了呢~" },
+      { id:"potion", icon:"potion", name:"陈旧的治疗药水", price:250, stock:12, cat:"消耗品 · 回复",
+        desc:"颜色比正常治疗药水深一些的瓶装液体。缇比坚称『沉淀是有效成分』，生产日期已被磨去。",
+        line:"上个月……还是上上个月进的货呢~ 反正还能喝~" },
+      { id:"carving", icon:"carving", name:"神秘木雕（有划痕）", price:999, stock:1, cat:"杂货 · 古物",
+        desc:"表面布满划痕的古老木雕，风格似乎属于第一纪元。缇比拒绝就划痕来源作出任何解释。",
+        line:"是划痕呢~ 但这是第一纪元的风格哦，大概~" },
+      { id:"cloth", icon:"cloth", name:"防腐蚀抹布", price:80, stock:30, cat:"消耗品 · 清洁",
+        desc:"浸过炼金药剂的厚实抹布，擦拭被混沌污染的表面时不会破损。消耗品，建议囤货。",
+        line:"擦什么都行哦~ 擦龙角会生气的，不推荐~" },
+      { id:"brush", icon:"brush", name:"龙尾保养套装", price:1200, stock:3, cat:"护理 · 龙族专用",
+        desc:"含鳞片抛光膏与原矿晶体保养油的套装。柜台后的缇比偶尔会盯着自己的尾巴看它。",
+        line:"想要这个？……加钱就卖哦~ 缇比的尾巴可是很挑的~" },
+      { id:"key", icon:"key", name:"金库大钥匙（复制品）", price:10000, stock:1, cat:"镇店之宝",
+        desc:"与缇比腰间那把一模一样的黄铜钥匙复制品。开不了任何已知的锁，但分量十足，金光闪闪。",
+        line:"镇店之宝哦~ 买了也开不了任何门，但是很重，很值~" },
+      { id:"elixir", icon:"elixir", name:"无标签高阶灵药", price:null, stock:null, cat:"非卖品",
+        desc:"没有标签、散发着微光的药瓶。据说是预留给『活着比较重要的大客户』的定金。",
+        line:"这个是定金呢~ 大客户活着比较重要~" },
+    ],
+    sell: [
+      { id:"cup", icon:"cup", name:"黑曜石引流杯（第一纪元）", price:2, stock:1, cat:"古物 · 国宝级",
+        desc:"从海崖深处带回的奇特雕像杯，蕾诺尔都看不出年份。缇比的收购价与它的年代毫不相称。",
+        line:"铭文磨平了呢~ 二十枚银币哦~ 要卖吗~？" },
+      { id:"sword", icon:"sword", name:"勇者的旧剑", price:15, stock:1, cat:"武器 · 二手",
+        desc:"陪伴勇者多年的铁剑，剑刃多处卷口。卖或不卖，这是个问题。",
+        line:"呼唔……剑刃卷了呢~ 十五金币，很公道哦~" },
+      { id:"shield", icon:"shield", name:"破碎的盾牌", price:8, stock:2, cat:"防具 · 破损",
+        desc:"被魔物利爪劈出裂痕的木盾。修一修或许还能用，但缇比的报价让人没有修的欲望。",
+        line:"是裂痕呢~ 八金币，不能再多了~" },
+      { id:"mats", icon:"conch", name:"潮湿的魔物素材", price:5, stock:6, cat:"素材 · 未处理",
+        desc:"从海崖魔物身上取得的湿润素材，还在往下滴水。",
+        line:"还没晒干呀~ 五枚金币。水分不算钱哦~" },
+    ],
+    appraise: [
+      { id:"statue", icon:"statue", name:"不知名的雕像", fee:50, stock:1, cat:"？？？", appraised:false,
+        desc:"海崖深处挖出的奇怪雕像，裹满干涸的污泥。蕾诺尔无法判断年份。",
+        verdict:"第一纪元的黑曜石引流杯。铭文磨平了呢~ 二十枚银币收哦~",
+        line:"呼唔……拿近一点，缇比看看~" },
+      { id:"disc", icon:"disc", name:"海底捡的圆盘", fee:50, stock:1, cat:"？？？", appraised:false,
+        desc:"在退潮后的海滩上捡到的金属圆盘，边缘有规律的凹痕。",
+        verdict:"第三纪元腌菜坛子的盖子。……要卖吗~？",
+        line:"圆圆的……有点眼熟呢~" },
+      { id:"glowconch", icon:"conch", name:"会发光的海螺", fee:80, stock:1, cat:"？？？", appraised:false,
+        desc:"夜里会发出微弱蓝光的海螺。孩子们说里面住着海的精灵。",
+        verdict:"只是普通海螺哦~ 光是我店里的灯照的~",
+        line:"呼唔……在发光呢。真的在发光吗~？" },
+    ],
+  };
+
+  const MODE_LINES = {
+    buy: "欢迎光临~ 守望者杂货铺，想要什么都可以问哦~",
+    sell: "呼唔……要卖东西吗？先说好，缇比的收购价很温柔的哦~",
+    appraise: "拿来看看吧~ 看不准也不退钱哦~",
+  };
+
+  const state = { gold: 5860, tab: "buy", selId: "tableware", qty: 1, haggled: false };
+
+  const fmt = (n) => n.toLocaleString("en-US");
+  const money = (n) => `${fmt(n)} G`;
+  const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+  const items = () => STOCK[state.tab];
+  const item = () => items().find((it) => it.id === state.selId);
+  const unitOf = (it) => {
+    if (state.tab === "appraise") return it.fee;
+    let p = it.price;
+    if (state.haggled) p += state.tab === "buy" ? -2 : 1;
+    return Math.max(p, 0);
+  };
+
+  function say(text) {
+    els.line.textContent = text;
+    els.dialogue.classList.remove("is-animating");
+    void els.dialogue.offsetWidth;
+    els.dialogue.classList.add("is-animating");
+  }
+  function flashGold() {
+    els.goldWrap.classList.add("is-flashing");
+    setTimeout(() => els.goldWrap.classList.remove("is-flashing"), 650);
+  }
+  function renderGold(flash = false) {
+    els.goldValue.textContent = fmt(state.gold);
+    if (flash) flashGold();
+  }
+
+  function renderList() {
+    els.list.innerHTML = items().map((it) => {
+      const priceText = state.tab === "appraise"
+        ? (it.appraised ? "已鉴定" : `鉴定 ${fmt(it.fee)} G`)
+        : it.price == null ? "非卖品"
+        : it.stock === 0 ? (state.tab === "sell" ? "已售出" : "售罄")
+        : money(unitOf(it));
+      const tag = it.tag === "rec" ? '<span class="abyssa-shop-item__tag abyssa-shop-item__tag--rec">推荐</span>'
+        : state.tab === "buy" && it.price == null ? '<span class="abyssa-shop-item__tag">非卖品</span>'
+        : state.tab === "appraise" && it.appraised ? '<span class="abyssa-shop-item__tag">已鉴定</span>' : "";
+      const sel = it.id === state.selId;
+      return `<button type="button" class="abyssa-shop-item" role="option" aria-selected="${sel}" ${sel ? 'data-selected="true"' : ""} data-id="${it.id}">
+        <span class="abyssa-shop-item__bullet" aria-hidden="true"></span>
+        <span class="abyssa-shop-item__main"><span class="abyssa-shop-item__name">${it.name}</span>${tag}</span>
+        <span class="abyssa-shop-item__leader" aria-hidden="true"></span>
+        <span class="abyssa-shop-item__price">${priceText}</span>
+      </button>`;
+    }).join("");
+  }
+
+  function renderDetail() {
+    const it = item();
+    if (!it) return;
+    els.glyph.innerHTML = ICONS[it.icon];
+    els.name.textContent = it.name;
+    els.cat.textContent = it.cat;
+
+    if (state.tab === "buy") {
+      els.stockLabel.textContent = "库存";
+      els.stock.textContent = it.stock == null ? "—" : it.stock === 0 ? "售罄" : it.stock;
+    } else if (state.tab === "sell") {
+      els.stockLabel.textContent = "持有";
+      els.stock.textContent = it.stock;
+    } else {
+      els.stockLabel.textContent = "状态";
+      els.stock.textContent = it.appraised ? "已鉴定" : "未鉴定";
+    }
+    els.desc.textContent = state.tab === "appraise" && it.appraised ? it.verdict : it.desc;
+
+    const u = unitOf(it);
+    els.unitLabel.textContent = state.tab === "buy" ? "单价" : state.tab === "sell" ? "收购价" : "鉴定费";
+    if (state.tab === "buy" && it.price == null) els.unit.textContent = "非卖品";
+    else if (state.haggled && state.tab !== "appraise") els.unit.innerHTML = `<s>${money(it.price)}</s>${money(u)}`;
+    else els.unit.textContent = money(u);
+
+    const unavailable = (state.tab === "buy" && (it.price == null || it.stock === 0))
+      || (state.tab === "sell" && it.stock === 0);
+    els.stepper.style.display = state.tab === "appraise" ? "none" : "";
+    const maxQty = state.tab === "buy" ? (it.stock ?? 1) : it.stock;
+    els.qtyOut.textContent = state.qty;
+    els.qtyMinus.disabled = unavailable || state.qty <= 1;
+    els.qtyPlus.disabled = unavailable || state.qty >= maxQty;
+
+    els.subLabel.textContent = state.tab === "buy" ? "小计" : state.tab === "sell" ? "合计" : "费用";
+    els.sub.textContent = state.tab === "appraise" ? money(u) : unavailable ? "—" : money(u * state.qty);
+
+    let disabled = false, label = "购 买";
+    if (state.tab === "buy") {
+      if (it.price == null) { disabled = true; label = "非卖品"; }
+      else if (it.stock === 0) { disabled = true; label = "售 罄"; }
+    } else if (state.tab === "sell") {
+      label = "出 售";
+      if (it.stock === 0) { disabled = true; label = "已售出"; }
+    } else {
+      label = "鉴 定";
+      if (it.appraised) { disabled = true; label = "已鉴定"; }
+    }
+    els.action.disabled = disabled;
+    els.actionLabel.textContent = label;
+
+    els.haggle.disabled = state.tab === "appraise" || state.haggled || it.price == null || it.stock === 0;
+  }
+
+  function select(id, announce = true) {
+    state.selId = id;
+    state.qty = 1;
+    state.haggled = false;
+    renderList();
+    renderDetail();
+    if (announce) say(item().line);
+  }
+
+  function setTab(tab) {
+    if (state.tab === tab) return;
+    state.tab = tab;
+    state.qty = 1;
+    state.haggled = false;
+    els.tabs.forEach((b) => {
+      const on = b.dataset.tab === tab;
+      b.dataset.variant = on ? "teal" : "dark";
+      if (on) b.setAttribute("data-selected", "true"); else b.removeAttribute("data-selected");
+      b.setAttribute("aria-selected", String(on));
+    });
+    els.listHeadPrice.textContent = tab === "buy" ? "价格" : tab === "sell" ? "收购价" : "鉴定费";
+    state.selId = STOCK[tab][0].id;
+    renderList();
+    renderDetail();
+    say(MODE_LINES[tab]);
+  }
+
+  els.tabs.forEach((b) => b.addEventListener("click", () => setTab(b.dataset.tab)));
+  els.list.addEventListener("click", (e) => {
+    const btn = e.target.closest(".abyssa-shop-item");
+    if (btn) select(btn.dataset.id);
+  });
+
+  els.qtyMinus.addEventListener("click", () => { if (state.qty > 1) { state.qty--; renderDetail(); } });
+  els.qtyPlus.addEventListener("click", () => {
+    const it = item();
+    const max = state.tab === "buy" ? (it.stock ?? 1) : it.stock;
+    if (state.qty < max) { state.qty++; renderDetail(); }
+  });
+
+  els.haggle.addEventListener("click", () => {
+    const it = item();
+    if (state.haggled || state.tab === "appraise" || it.price == null || it.stock === 0) return;
+    state.haggled = true;
+    renderList();
+    renderDetail();
+    say(state.tab === "buy"
+      ? "呼唔……那便宜你两个铜板吧~ 你赚大了呢~"
+      : "诶~~ 那多给你一枚铜板哦~ 缇比亏死了呢~");
+  });
+
+  els.action.addEventListener("click", () => {
+    const it = item();
+    const u = unitOf(it);
+    if (state.tab === "buy") {
+      const cost = u * state.qty;
+      if (state.gold < cost) { say("诶~~ 金币不够呢。赊账的话……利息很贵的哦~"); flashGold(); return; }
+      state.gold -= cost;
+      it.stock -= state.qty;
+      say(pick(["多谢惠顾~ 下次也要带够钱来哦~", "多谢惠顾~ 勇者大人今天也很帅气呢~"]));
+    } else if (state.tab === "sell") {
+      state.gold += u * state.qty;
+      it.stock -= state.qty;
+      say("成交~ 下次有什么好东西，也要先拿来给缇比看哦~");
+    } else {
+      if (state.gold < it.fee) { say("诶~~ 鉴定费也是钱呢。赊账的话……利息很贵的哦~"); flashGold(); return; }
+      state.gold -= it.fee;
+      it.appraised = true;
+      say(it.verdict);
+    }
+    state.qty = 1;
+    state.haggled = false;
+    renderGold(true);
+    renderList();
+    renderDetail();
+  });
+
+  /* ---------- 初始化 ---------- */
+  els.glyph.style.color = "#2b1f0c";
+  renderGold();
+  renderList();
+  renderDetail();
+})();
+</script>
+</body>
+</html>

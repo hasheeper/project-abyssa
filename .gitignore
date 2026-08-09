@@ -2,6 +2,11 @@ node_modules
 dist
 character-status-dist
 battle-dist
+shop-dist
+dice-dist
+map-dist
+novel-dist
+rp-dist
 storybook-static
 .DS_Store
 coverage

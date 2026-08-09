@@ -40,6 +40,8 @@ export type {
   CharacterProfile,
   CharacterStatusScreenProps
 } from "./components/CharacterStatusScreen";
+export { CurrencyAmount } from "./components/CurrencyAmount";
+export type { CurrencyAmountProps, CurrencyKind } from "./components/CurrencyAmount";
 export { DiamondWatermark } from "./components/DiamondWatermark";
 export type {
   DiamondWatermarkConfig,
@@ -88,6 +90,30 @@ export type {
   RpgDialogueProps,
   RpgDialogueVariant
 } from "./components/RpgDialogue";
+export { PaperDoll } from "./components/PaperDoll";
+export type { PaperDollProps } from "./components/PaperDoll";
+export { RpScene } from "./components/RpScene";
+export type {
+  RpActor,
+  RpMessage,
+  RpSceneProps,
+  RpSeat
+} from "./components/RpScene";
+export { VisualNovelScene } from "./components/VisualNovelScene";
+export type {
+  NovelActor,
+  NovelLine,
+  VisualNovelSceneProps
+} from "./components/VisualNovelScene";
+export {
+  CHARACTER_EXPRESSIONS,
+  EXPRESSION_LABELS,
+  getExpressionParts,
+  hasCharacter
+} from "./components/expressions";
+export type { ExpressionId, ExpressionParts } from "./components/expressions";
+export { CHARACTER_CALIBRATION, getCalibration } from "./components/spriteCalibration";
+export type { SpriteCalibration } from "./components/spriteCalibration";
 export {
   RetroRpgDirectionPad,
   RpgDirectionPad

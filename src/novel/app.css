@@ -1,0 +1,81 @@
+.novel-app {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #101616;
+  color: var(--abyssa-text);
+  font-family: var(--abyssa-font-body);
+  overflow: hidden;
+}
+
+.novel-app__toolbar {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 20px;
+  border-bottom: 1px solid #2a3131;
+}
+
+.novel-app__title p {
+  margin: 0;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--abyssa-teal);
+}
+
+.novel-app__title h1 {
+  margin: 2px 0 0;
+  font-size: 20px;
+  letter-spacing: 0.1em;
+}
+
+.novel-app__tabs {
+  display: flex;
+  gap: 8px;
+}
+
+.novel-app__tabs button {
+  padding: 7px 18px;
+  border: 1px solid #3a4444;
+  background: #1d2121;
+  color: var(--abyssa-text-muted);
+  font-family: inherit;
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+  transition: all 0.2s var(--abyssa-ease);
+}
+
+.novel-app__tabs button:hover {
+  border-color: var(--abyssa-teal-dark);
+  color: var(--abyssa-text);
+}
+
+.novel-app__tabs button[data-active="true"] {
+  border-color: var(--abyssa-teal);
+  background: #233231;
+  color: var(--abyssa-teal);
+}
+
+.novel-app__stage {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+}
+
+.novel-app__stage .abyssa-novel {
+  position: absolute;
+  inset: 0;
+  height: auto;
+  min-height: 0;
+}
+
+.novel-app__hint {
+  padding: 10px;
+  text-align: center;
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  color: var(--abyssa-text-muted);
+  border-top: 1px solid #2a3131;
+}

@@ -1,0 +1,86 @@
+.rp-app {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #101616;
+  color: var(--abyssa-text);
+  font-family: var(--abyssa-font-body);
+  overflow: hidden;
+}
+
+.rp-app__toolbar {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 20px;
+  border-bottom: 1px solid #2a3131;
+}
+
+.rp-app__title p {
+  margin: 0;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--abyssa-teal);
+}
+
+.rp-app__title h1 {
+  margin: 2px 0 0;
+  font-size: 20px;
+  letter-spacing: 0.1em;
+}
+
+.rp-app__actions {
+  display: flex;
+  gap: 8px;
+}
+
+.rp-app__actions button {
+  padding: 7px 18px;
+  border: 1px solid #3a4444;
+  background: #1d2121;
+  color: var(--abyssa-text-muted);
+  font-family: inherit;
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+  transition: all 0.2s var(--abyssa-ease);
+}
+
+.rp-app__actions button:hover:not(:disabled) {
+  border-color: var(--abyssa-teal-dark);
+  color: var(--abyssa-text);
+}
+
+.rp-app__actions button[data-active="true"] {
+  border-color: var(--abyssa-teal);
+  background: #233231;
+  color: var(--abyssa-teal);
+}
+
+.rp-app__actions button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.rp-app__stage {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+}
+
+.rp-app__stage .abyssa-rp {
+  position: absolute;
+  inset: 0;
+  height: auto;
+  min-height: 0;
+}
+
+.rp-app__hint {
+  padding: 10px;
+  text-align: center;
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  color: var(--abyssa-text-muted);
+  border-top: 1px solid #2a3131;
+}
