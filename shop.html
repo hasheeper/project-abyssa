@@ -1,8 +1,13 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="zh-CN" class="abyssa-stage-root">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- viewport-fit=cover:让页面铺到刘海/圆角之下,再由 CSS 的
+         env(safe-area-inset-*) 把内容推回安全区。不加 cover 的话
+         安全区变量恒为 0,手机横屏下最左侧 44px 的纵向分类条会被
+         刘海压住。user-scalable=no 是因为舞台已按视口等比缩放,
+         双指缩放只会让人缩到构图之外。 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
     <meta name="theme-color" content="#17110a" />
     <meta name="description" content="Abyssa UI · 守望者杂货铺商店界面" />
     <title>守望者杂货铺 · Abyssa UI</title>

@@ -13,6 +13,7 @@ import {
 } from "../index";
 import { resolveItemIcon as resolveCatalogItemIcon } from "../assets/svg/items/catalog";
 import { ShopMetalCorner } from "./ShopMetalCorner";
+import { Stage } from "../stage";
 
 type Mode = "buy" | "sell" | "appraise";
 type Currency = "lira" | "crystal";
@@ -220,7 +221,8 @@ export function ShopPage() {
 
   const action = unavailable ? appraised.has(item.id) ? "已鉴定" : item.unavailable ? "非卖品" : "售罄" : actionLabels[mode];
 
-  return <AbyssaProvider className="abyssa-shop-screen" data-skin="black-gold">
+  return <Stage background="var(--abyssa-shop-backdrop)">
+    <AbyssaProvider className="abyssa-shop-screen" data-skin="black-gold">
     <header className="abyssa-shop-screen__header"><RpgHeader label="WARDEN SHOP" /></header>
     <div className="abyssa-shop-screen__shell">
       <span className="abyssa-shop-screen__shell-rails" aria-hidden="true">
@@ -288,5 +290,6 @@ export function ShopPage() {
         </div>
       </div>
     </div>
-  </AbyssaProvider>;
+    </AbyssaProvider>
+  </Stage>;
 }
