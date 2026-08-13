@@ -1,0 +1,90 @@
+/* ==========================================================================
+   漫符层 —— 立绘头顶的循环 APNG。
+   位置模型与坐标系的完整说明见 src/components/emotes.ts 顶部。
+   ========================================================================== */
+
+/* .actor-beat 是漫符的定位父级。
+   它在 rp.css 里没有 position,补在这里而不是改 rp.css:
+   position: relative 是**漫符层的需求**,rp 自身不需要它。
+   放在这边,不引入漫符时那份文件就完全不受影响。
+
+   本文件必须在 rp.css **之后**引入 —— 两处选择器特异性相同,靠顺序取胜。 */
+.abyssa-rp__actor-beat {
+  position: relative;
+}
+
+.abyssa-emote {
+  position: absolute;
+  /* 原点 = 立绘盒子的顶部中心。x/y/size 三者都以立绘盒子**宽度**为基准,
+     所以这里的 left/top 也必须用宽度百分比:
+     top 用百分比时 CSS 的参照是父级高度,那会让 y 与 x 基准不一致 ——
+     竖长方形容器下两者差 1.67 倍,调好的值换取景就散了。
+     故 top 固定 0,纵向位移全部交给 translate(它的百分比参照自身,
+     而自身是正方形,与 size 同基准)。 */
+  left: 50%;
+  top: 0;
+  width: var(--abyssa-emote-size);
+  aspect-ratio: 1;
+
+  /* -50% 先把自身横向居中,再叠上调校量。
+     x/y 的百分比参照漫符自身边长,而边长 = size% × 立绘宽,
+     于是「y 移动一个自身高度」在任何取景下都等价。 */
+  translate: calc(-50% + var(--abyssa-emote-x) * 1) calc(var(--abyssa-emote-y) * 1);
+
+  /* 压在立绘之上。立绘各层都在 .__calibration 里,没有自己的 z-index,
+     漫符作为 beat 的后一个子元素本就在其上 —— 这里显式写出来是为了
+     防止之后给立绘层加 z-index 时静默失效。 */
+  z-index: 1;
+  pointer-events: none;
+  line-height: 0;
+}
+
+.abyssa-emote img {
+  /* 两张图**必须**脱离常规流,叠在同一处。
+     用静态流的话它们会上下排开:两者都是 display:block + height:100%,
+     于是第二张整个落到第一张下方,而本元素没有 overflow:hidden,直接溢出可见。
+     曾经就这样漏出过一个「小小的影子」—— 静帧是第 0 帧,而多数漫符的
+     第 0 帧几乎是空的(ellipsis 只有 77px 内容、dizzy 全空),
+     所以漏出来的是一小片刚起头的符号,看着像本体的淡淡副本。
+
+     绝对定位同时也是一道兜底:即使下面的显隐规则哪天又失效,
+     两张图也只会精确重合,不会再多出第二个身位。 */
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  /* 漫符是方画布 + 大量透明留白,contain 保证不被裁 */
+  object-fit: contain;
+}
+
+/* ============ 以下选择器都必须带上 .abyssa-emote 前缀 ============
+   上面那条 `.abyssa-emote img` 含一个类 + 一个类型 = 特异性 (0,1,1)。
+   单写 `.abyssa-emote__still` 只有 (0,1,0),**压不过它**,
+   于是 display:none 从未生效、静帧一直在渲染 —— 就是上面说的那个影子。
+
+   加一层类前缀后是 (0,2,0),严格大于 (0,1,1),与源码顺序无关。
+   不要「靠写在后面取胜」:那要求 (0,1,1) 与之相等,而这里并不相等。 */
+
+/* 默认播动画、隐藏静帧 */
+.abyssa-emote .abyssa-emote__still { display: none; }
+
+/* 显式要求静帧(studio 的「冻结动画」用它逐帧对齐位置)。
+   带属性选择器,(0,3,0) —— 压过上面两条,也压过下面的 reduced-motion。 */
+.abyssa-emote[data-still="true"] .abyssa-emote__anim { display: none; }
+.abyssa-emote[data-still="true"] .abyssa-emote__still { display: block; }
+
+/* ============ 动效敏感:换图,而不是暂停 ============
+   APNG 的播放由图像解码器驱动,CSS 与 JS 都碰不到:
+   animation-play-state 管不到它,也没有 pause() 可调。
+   所以这条路径只能换成静态首帧。
+
+   不选择「整个隐藏」:漫符携带情绪信息(害羞 / 疑问 / 沮丧),
+   不是纯装饰。按 rp.css 全文一致的判据 —— 状态标识保留、纯运动砍掉 ——
+   应当留下静态版本。 */
+@media (prefers-reduced-motion: reduce) {
+  /* 同样必须带前缀 —— 理由见上。裸写 .abyssa-emote__anim 是 (0,1,0),
+     压不过 `.abyssa-emote img` 的 (0,1,1),动画帧根本不会被隐藏。 */
+  .abyssa-emote .abyssa-emote__anim { display: none; }
+  .abyssa-emote .abyssa-emote__still { display: block; }
+}

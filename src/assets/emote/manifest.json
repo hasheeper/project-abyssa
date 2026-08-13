@@ -1,0 +1,157 @@
+{
+  "frames": 30,
+  "delayMs": 67,
+  "size": 192,
+  "emotes": [
+    {
+      "id": "blush",
+      "label": "害羞",
+      "origin": "はずかし",
+      "source": "17はずかし_rend.gif",
+      "sourceFrames": 110,
+      "sourceDuration": 3.3,
+      "speed": 1.64,
+      "bytes": 244229
+    },
+    {
+      "id": "sweat",
+      "label": "冷汗",
+      "origin": "あせあせA 連続",
+      "source": "23あせあせA_連続_rend.gif",
+      "sourceFrames": 103,
+      "sourceDuration": 3.09,
+      "speed": 1.54,
+      "bytes": 82982
+    },
+    {
+      "id": "glitter",
+      "label": "闪耀",
+      "origin": "キラキラA 一部",
+      "source": "39キラキラA_一部_rend.gif",
+      "sourceFrames": 112,
+      "sourceDuration": 3.36,
+      "speed": 1.67,
+      "bytes": 140958
+    },
+    {
+      "id": "note",
+      "label": "音符",
+      "origin": "音符A2 1個 黄色",
+      "source": "43音符A2_1個_黄色_rend.gif",
+      "sourceFrames": 60,
+      "sourceDuration": 1.8,
+      "speed": 0.9,
+      "bytes": 71412
+    },
+    {
+      "id": "heart",
+      "label": "爱心",
+      "origin": "ハートB 3連",
+      "source": "46ハートB_3連_rend.gif",
+      "sourceFrames": 128,
+      "sourceDuration": 3.84,
+      "speed": 1.91,
+      "bytes": 149964
+    },
+    {
+      "id": "gloom",
+      "label": "沮丧",
+      "origin": "がっかりB ぐねぐね",
+      "source": "52_がっかりB_ぐねぐね_GIF.gif",
+      "sourceFrames": 180,
+      "sourceDuration": 5.4,
+      "speed": 2.69,
+      "bytes": 282343
+    },
+    {
+      "id": "sleepy",
+      "label": "困倦",
+      "origin": "ねむけ",
+      "source": "62ねむけ_rend.gif",
+      "sourceFrames": 65,
+      "sourceDuration": 1.95,
+      "speed": 0.97,
+      "bytes": 62806
+    },
+    {
+      "id": "exclaim",
+      "label": "惊讶",
+      "origin": "びっくり",
+      "source": "bikkuri_animan.apng",
+      "sourceFrames": 30,
+      "sourceDuration": 2.01,
+      "speed": 1,
+      "bytes": 740238
+    },
+    {
+      "id": "dizzy",
+      "label": "晕眩",
+      "origin": "ぐるぐる",
+      "source": "guruguru_anim.apng",
+      "sourceFrames": 30,
+      "sourceDuration": 2.01,
+      "speed": 1,
+      "bytes": 916998
+    },
+    {
+      "id": "question",
+      "label": "疑问",
+      "origin": "はてな",
+      "source": "hatena_animan.apng",
+      "sourceFrames": 30,
+      "sourceDuration": 2.01,
+      "speed": 1,
+      "bytes": 541477
+    },
+    {
+      "id": "sparkle",
+      "label": "星光",
+      "origin": "キラキラ",
+      "source": "kirakira_anim.apng",
+      "sourceFrames": 30,
+      "sourceDuration": 2.01,
+      "speed": 1,
+      "bytes": 611249
+    },
+    {
+      "id": "idea",
+      "label": "灵光",
+      "origin": "ぴこん",
+      "source": "pikon_anim.apng",
+      "sourceFrames": 30,
+      "sourceDuration": 2.01,
+      "speed": 1,
+      "bytes": 772003
+    },
+    {
+      "id": "ellipsis",
+      "label": "无言",
+      "origin": "てんてんてん",
+      "source": "v2/15てんてんてん_rend.gif",
+      "sourceFrames": 110,
+      "sourceDuration": 3.3,
+      "speed": 1.64,
+      "bytes": 207793
+    },
+    {
+      "id": "anger",
+      "label": "愤怒",
+      "origin": "怒",
+      "source": "v2/10“{‚č_rend.gif",
+      "sourceFrames": 103,
+      "sourceDuration": 3.09,
+      "speed": 1.54,
+      "bytes": 235252
+    },
+    {
+      "id": "sweatdrop",
+      "label": "流汗",
+      "origin": "あせ",
+      "source": "v2/22_あせ_rend.gif",
+      "sourceFrames": 120,
+      "sourceDuration": 3.6,
+      "speed": 1.79,
+      "bytes": 142392
+    }
+  ]
+}

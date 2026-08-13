@@ -18,17 +18,16 @@ export interface SpriteCalibration {
 }
 
 export const CHARACTER_CALIBRATION: Record<string, SpriteCalibration> = {
-  // 实测:内容几乎撑满全画布(含头发/特效),视觉身高差异主要靠 scale 微调
-  abyssa:   { scale: 1.0,  x: 0,     y: 0 },
-  alvitr:   { scale: 1.0,  x: 0,     y: 0 },
-  elora:    { scale: 0.96, x: 0.005, y: 0 },   // top=41 略矮
-  eustice:  { scale: 0.97, x: 0,     y: 0 },
-  kororo:   { scale: 1.0,  x: 0,     y: 0 },
-  lenore:   { scale: 0.97, x: 0.004, y: 0 },
-  marietta: { scale: 0.96, x: 0,     y: 0 },   // 内容略窄
-  norma:    { scale: 0.99, x: 0,     y: 0 },
-  tibby:    { scale: 0.98, x: 0,     y: 0 },
-  vivienne: { scale: 0.98, x: 0,     y: 0 }
+  abyssa:   { scale: 0.875, x: 0.008,  y: -0.044 },   // 艾比希斯·贝尔泽兰
+  alvitr:   { scale: 0.945, x: -0.002, y: -0.073 },   // 阿尔薇特·塞维琳
+  elora:    { scale: 0.905, x: -0.034, y: -0.044 },   // 艾洛拉·亚金特
+  eustice:  { scale: 0.925, x: 0.009,  y: -0.037 },   // 尤斯缇丝·格里芬
+  kororo:   { scale: 0.9,   x: -0.019, y: -0.076 },   // 柯萝萝·拉普拉斯
+  lenore:   { scale: 0.885, x: 0.011,  y: -0.042 },   // 蕾诺尔·伏尼契
+  marietta: { scale: 0.955, x: 0.005,  y: -0.032 },   // 玛丽埃塔·克雷格
+  norma:    { scale: 0.86,  x: -0.03,  y: -0.064 },   // 诺玛·洛克
+  tibby:    { scale: 0.88,  x: -0.023, y: -0.071 },   // 缇比·奥雷利亚
+  vivienne: { scale: 0.95,  x: 0.009,  y: -0.045 }    // 薇薇安·桑格温
 };
 
 export function getCalibration(characterId: string): Required<SpriteCalibration> {

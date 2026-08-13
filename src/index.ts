@@ -114,6 +114,29 @@ export {
 export type { ExpressionId, ExpressionParts } from "./components/expressions";
 export { CHARACTER_CALIBRATION, getCalibration } from "./components/spriteCalibration";
 export type { SpriteCalibration } from "./components/spriteCalibration";
+export { Emote } from "./components/Emote";
+export type { EmoteProps } from "./components/Emote";
+export {
+  EMOTES,
+  EMOTE_ADJUST,
+  EMOTE_IDS,
+  EMOTE_LABELS,
+  EMOTE_PLACEMENT,
+  hasEmote,
+  resolveEmotePlacement
+} from "./components/emotes";
+export type { EmoteAdjustTable, EmoteDef, EmotePlacement } from "./components/emotes";
+export {
+  IDLE_LABELS,
+  MOTION_LABELS,
+  jump,
+  nod,
+  playMotion,
+  shakeHeavy,
+  shakeLight,
+  waver
+} from "./components/motions";
+export type { IdleId, MotionId, MotionSpec } from "./components/motions";
 export {
   RetroRpgDirectionPad,
   RpgDirectionPad
