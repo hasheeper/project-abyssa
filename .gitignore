@@ -1,13 +1,12 @@
 node_modules
+
+# 构建产物：库 dist + 各应用 <app>-dist（新增应用无需再改这里）
 dist
-character-status-dist
-battle-dist
-shop-dist
-dice-dist
-map-dist
-novel-dist
-rp-dist
+*-dist/
 storybook-static
+
+# static-preview/ 是 build:preview 的产物,但刻意提交以便直接分享静态预览,故不忽略。
+
 .DS_Store
 coverage
 *.log
