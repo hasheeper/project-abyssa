@@ -1,0 +1,510 @@
+/* ===== 立绘参数工作台 =====
+   舞台部分**完全复用** rp.css 的 .abyssa-rp / .abyssa-rp__seat / .abyssa-rp__actor,
+   这个文件只写工具自身的外壳(工具栏、两侧面板、导出层)。
+
+   一条硬约束:凡是会影响席位几何或立绘尺寸的属性,这里一律不碰。
+   在这里覆盖 seat 宽度或 actor 的 inset,调出来的参数搬回 rp 就是错的,
+   而且错得很隐蔽 —— 看起来对齐了,实际差一个 padding。 */
+
+.studio {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+  background: #0e1414;
+  color: var(--abyssa-text);
+  font-family: var(--abyssa-font-body);
+}
+
+/* ---------- 顶栏 ---------- */
+.studio-bar {
+  display: flex;
+  flex: none;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 18px;
+  border-bottom: 1px solid #2a3131;
+}
+
+.studio-bar__title p {
+  margin: 0;
+  color: var(--abyssa-teal);
+  font-size: 10.5px;
+  letter-spacing: 0.2em;
+}
+
+.studio-bar__title h1 {
+  margin: 2px 0 0;
+  font-size: 19px;
+  letter-spacing: 0.1em;
+}
+
+.studio-bar__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ---------- 通用控件 ---------- */
+.studio-btn {
+  padding: 6px 15px;
+  border: 1px solid #3a4444;
+  background: #1d2121;
+  color: var(--abyssa-text-muted);
+  font-family: inherit;
+  font-size: 12.5px;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition:
+    border-color 0.2s var(--abyssa-ease),
+    color 0.2s var(--abyssa-ease),
+    background 0.2s var(--abyssa-ease);
+}
+
+.studio-btn:hover {
+  border-color: var(--abyssa-teal-dark);
+  color: var(--abyssa-text);
+}
+
+.studio-btn[data-on] {
+  border-color: var(--abyssa-teal);
+  background: #233231;
+  color: var(--abyssa-teal);
+}
+
+.studio-btn--ghost {
+  background: transparent;
+}
+
+/* 分段控件:取景、导出页签共用 */
+.studio-seg {
+  display: inline-flex;
+  border: 1px solid #3a4444;
+}
+
+.studio-seg button {
+  padding: 6px 13px;
+  border: 0;
+  background: #1a1e1e;
+  color: var(--abyssa-text-muted);
+  font-family: inherit;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: all 0.18s var(--abyssa-ease);
+}
+
+.studio-seg button + button { border-left: 1px solid #3a4444; }
+
+.studio-seg button[data-on] {
+  background: #233231;
+  color: var(--abyssa-teal);
+}
+
+/* ---------- 三栏主体 ---------- */
+.studio-body {
+  display: grid;
+  /* 两侧面板定宽,中间舞台吃掉剩下的 —— 面板宽度不能跟着内容浮动,
+     否则舞台可用宽随之变化,席位框宽(clamp 里含 vw)也跟着变,
+     调参数时画面会自己漂。 */
+  grid-template-columns: 286px minmax(0, 1fr) 286px;
+  flex: 1;
+  min-height: 0;
+}
+
+/* ---------- 侧面板 ---------- */
+.studio-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  padding: 14px;
+  overflow-y: auto;
+  background: #121818;
+  scrollbar-width: thin;
+  scrollbar-color: var(--abyssa-ornament-dark) transparent;
+}
+
+.studio-panel[data-seat="left"] { border-right: 1px solid #2a3131; }
+.studio-panel[data-seat="right"] { border-left: 1px solid #2a3131; }
+
+.studio-panel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.studio-panel__seat {
+  color: var(--abyssa-teal);
+  font-family: var(--abyssa-font-display);
+  font-size: 12px;
+  letter-spacing: 0.2em;
+}
+
+.studio-panel__dirty {
+  padding: 2px 8px;
+  border: 1px solid color-mix(in srgb, var(--abyssa-teal) 40%, transparent);
+  color: var(--abyssa-teal-soft);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+}
+
+.studio-select {
+  padding: 7px 9px;
+  border: 1px solid #3a4444;
+  background: #1a1f1f;
+  color: var(--abyssa-text);
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.studio-toggle {
+  padding: 7px;
+  border: 1px solid #3a4444;
+  background: #1a1f1f;
+  color: var(--abyssa-text-muted);
+  font-family: inherit;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: all 0.2s var(--abyssa-ease);
+}
+
+.studio-toggle[data-on] {
+  border-color: var(--abyssa-teal);
+  background: #233231;
+  color: var(--abyssa-teal);
+}
+
+/* ---------- 分组 ---------- */
+.studio-group {
+  padding: 10px;
+  border: 1px solid #262e2e;
+  background: #161b1b;
+}
+
+.studio-group h3 {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px;
+  margin: 0 0 6px;
+  color: var(--abyssa-text-soft);
+  font-family: var(--abyssa-font-display);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+}
+
+/* 参数的落地位置直接标在标题上 —— 两级参数最容易混,
+   把目标文件名摆在眼前比写在文档里有用。 */
+.studio-group h3 em {
+  color: var(--abyssa-text-muted);
+  font-size: 9.5px;
+  font-style: normal;
+  letter-spacing: 0.04em;
+}
+
+.studio-group__note {
+  margin: 0 0 9px;
+  color: var(--abyssa-text-muted);
+  font-size: 10.5px;
+  line-height: 1.65;
+}
+
+.studio-group__note b { color: var(--abyssa-teal-soft); }
+
+/* 同一分组内的第二个标题(动作 / 持续状态并排在一个 section 里)。
+   加上边距与分隔线,免得两组按钮看起来是一组。 */
+.studio-group__sub {
+  padding-top: 9px;
+  margin-top: 11px;
+  border-top: 1px solid #262e2e;
+}
+
+/* ---------- 动作按钮 ----------
+   一次性动作与持续状态共用这套样式,但行为不同:
+   前者点了就播(无选中态),后者是互斥开关(有 data-on)。
+   视觉上不刻意区分 —— 有没有高亮本身就说明了这件事。 */
+.studio-motions {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+}
+
+.studio-motions button {
+  padding: 6px 0;
+  border: 1px solid #333c3c;
+  background: #1a1f1f;
+  color: var(--abyssa-text-soft);
+  font-family: inherit;
+  font-size: 11.5px;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: all 0.16s var(--abyssa-ease);
+}
+
+.studio-motions button:hover { border-color: var(--abyssa-teal-dark); }
+
+.studio-motions button:active { background: #253434; }
+
+.studio-motions button[data-on] {
+  border-color: var(--abyssa-teal);
+  background: #233231;
+  color: var(--abyssa-teal);
+}
+
+/* ---------- 数值控件 ---------- */
+.studio-field {
+  display: block;
+  margin-top: 8px;
+}
+
+.studio-field__label {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 3px;
+  color: var(--abyssa-text-soft);
+  font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+  font-size: 11px;
+}
+
+.studio-field__label em {
+  color: var(--abyssa-text-muted);
+  font-size: 9.5px;
+  font-style: normal;
+}
+
+.studio-field__row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.studio-field__row input[type="range"] {
+  flex: 1;
+  min-width: 0;
+  height: 3px;
+  accent-color: var(--abyssa-teal);
+  background: #2b3434;
+  cursor: pointer;
+}
+
+.studio-field__num {
+  flex: none;
+  width: 66px;
+  padding: 4px 6px;
+  border: 1px solid #3a4444;
+  background: #101515;
+  color: var(--abyssa-teal-soft);
+  font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+  font-size: 11.5px;
+  text-align: right;
+}
+
+/* ---------- 表情网格 ----------
+   用网格而非下拉:十人共 298 个表情引用、每人 14~16 个组合,
+   网格能一眼看全,还能顺手发现映射表里配错的组合(点过去立绘不对)。 */
+.studio-exprs {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.studio-exprs button {
+  padding: 5px 0;
+  border: 1px solid #333c3c;
+  background: #1a1f1f;
+  color: var(--abyssa-text-muted);
+  font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.16s var(--abyssa-ease);
+}
+
+.studio-exprs button:hover { border-color: var(--abyssa-teal-dark); }
+
+.studio-exprs button[data-on] {
+  border-color: var(--abyssa-teal);
+  background: #233231;
+  color: var(--abyssa-teal);
+}
+
+/* 专属表情(star-eyes / >_< / wink 等)代号长,横跨多列并缩小字号。
+   与标准 a–n 区分开:它们只有部分角色有,视觉上分开能避免误以为通用。 */
+.studio-exprs button[data-special] {
+  grid-column: span 3;
+  font-size: 9.5px;
+  letter-spacing: 0.02em;
+}
+
+.studio-exprs__label {
+  margin: 6px 0 0;
+  color: var(--abyssa-teal-soft);
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-align: center;
+}
+
+/* ---------- 舞台 ---------- */
+.studio-stage {
+  position: relative;
+  min-width: 0;
+  padding: 12px;
+}
+
+/* .abyssa-rp 自身是 height:100% + min-height:480px,
+   这里给它一个确定的高度容器。不改它的 grid-template-columns —— 那是几何等价性的关键。 */
+.studio-stage .abyssa-rp {
+  height: 100%;
+  min-height: 0;
+}
+
+.studio-stage__center {
+  display: flex;
+  z-index: 2;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-inline: 1px dashed #2f3838;
+  background: rgb(11 16 16 / 55%);
+  color: var(--abyssa-text-muted);
+  text-align: center;
+}
+
+.studio-stage__center p {
+  margin: 0;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+}
+
+.studio-stage__center span {
+  max-width: 200px;
+  color: #5f6b6b;
+  font-size: 10px;
+  line-height: 1.7;
+}
+
+/* ---------- 辅助线 ----------
+   竖中线 + 三分/六分横线。用于判断立绘是否居中、头顶与地面留白是否合理。
+   放在 seat 内、z-index 高于立绘,但 pointer-events:none 不挡操作。 */
+.studio-guides {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.studio-guides i {
+  position: absolute;
+  background: color-mix(in srgb, var(--abyssa-teal) 34%, transparent);
+}
+
+.studio-guides i[data-axis="v"] {
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+}
+
+.studio-guides i[data-axis="h3"] {
+  top: 33.333%;
+  right: 0;
+  left: 0;
+  height: 1px;
+}
+
+.studio-guides i[data-axis="h6"] {
+  top: 66.667%;
+  right: 0;
+  left: 0;
+  height: 1px;
+}
+
+/* ---------- 冻结动画 ----------
+   关掉一切过渡与关键帧。调位置时必须有这个开关:
+   .abyssa-rp__actor 有 translate 的 0.5s 过渡、PaperDoll 换图有 0.16s 淡入,
+   两者叠在一起会让「刚拖完滑块的那一刻」看到的不是最终位置。
+
+   用 !important 是必要的:要压过 rp.css 与 paper-doll.css 里已声明的
+   transition/animation,而那些选择器的特异性比这里高。
+   这是纯工具层的开关,不进产物,不影响 rp 本身。 */
+.studio[data-freeze] .abyssa-rp *,
+.studio[data-freeze] .abyssa-rp {
+  transition: none !important;
+  animation: none !important;
+}
+
+/* ---------- 导出层 ---------- */
+.studio-export {
+  position: fixed;
+  z-index: 20;
+  display: grid;
+  inset: 0;
+  padding: 24px;
+  background: rgb(6 10 10 / 78%);
+  place-items: center;
+}
+
+.studio-export__box {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: min(760px, 100%);
+  max-height: 100%;
+  padding: 16px;
+  border: 1px solid #3a4444;
+  background: #141a1a;
+}
+
+.studio-export__box header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.studio-export__hint {
+  margin: 0;
+  color: var(--abyssa-text-muted);
+  font-size: 11px;
+  line-height: 1.7;
+}
+
+.studio-export__box textarea {
+  min-height: 300px;
+  padding: 11px;
+  border: 1px solid #2c3535;
+  background: #0d1212;
+  color: var(--abyssa-teal-soft);
+  font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.75;
+  resize: vertical;
+  white-space: pre;
+}
+
+/* ---------- 底栏 ---------- */
+.studio-foot {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 18px;
+  border-top: 1px solid #2a3131;
+  color: var(--abyssa-text-muted);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+}
+
+/* 窄屏:面板收窄,低于 1180px 时舞台会被挤得没法看,改为纵向堆叠。
+   注意 820px 以下 rp.css 会把席位整个 display:none —— 那时这个工具没有意义,
+   所以不为更窄的屏做适配。 */
+@media (max-width: 1180px) {
+  .studio-body { grid-template-columns: 244px minmax(0, 1fr) 244px; }
+}
