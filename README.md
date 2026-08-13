@@ -28,6 +28,11 @@
 - `StatusPanel`：数据驱动的身份、属性、特性和记录面板
 - `CharacterStatusScreen`：完整角色状态组合页面
 - `BattleScreen`：支持回合顺序、四姿态角色图集、目标选择、队伍状态与四向指令的战斗 UI 组合
+- `RpgDirectionPad`：四向指令方向盘
+- `PaperDoll`：分层立绘，按角色画布校准表拼合表情部件
+- `RpScene`：跑团分屏场景，含席位立绘、进退场、说话者气泡与判定条
+- `Emote`：头顶漫符气泡，15 个统一规格 APNG，支持逐角色位置微调
+- `motions`：立绘动作关键帧生成器（`playMotion` + `nod`/`waver`/`jump`/`shakeLight`/`shakeHeavy`）
 
 ## 本地运行
 
@@ -44,13 +49,36 @@ npm run storybook
 
 Storybook 默认运行在 `http://127.0.0.1:6006/`。
 
-战斗界面的独立交互预览使用现有四人队与混沌领域素材：
+### 应用预览
+
+组件库之外，仓库还带 9 套独立的 Vite 应用，各自验证一类组合场景。它们只负责 UI 状态与回调，不含规则引擎：
+
+| 命令 | 说明 |
+| --- | --- |
+| `npm run dev` | 组件目录（默认，5173） |
+| `npm run dev:battle` | 战斗界面，四人队与混沌领域素材 |
+| `npm run dev:dice` | 骰局。依赖外部 LLM 服务，见下 |
+| `npm run dev:map` | three.js + GSAP 副本地图 |
+| `npm run dev:novel` | 视觉小说 |
+| `npm run dev:rp` | 跑团分屏场景 |
+| `npm run dev:shop` | 商店界面 |
+| `npm run dev:studio` | 立绘参数工作台（5176），调校准与站位并导出参数表 |
+| `npm run dev:character-status` | 角色状态页 |
+
+每个应用都有对应的 `build:*` 与 `preview:*`，产物落在 `<app>-dist/`。
+
+`dev:dice` 的 `/api` 会代理到 `127.0.0.1:8787`，那是一个不在本仓库内的 LLM 服务；先跑 `npm run setup:dice-runtime` 配置管线。
+
+### 素材管线
 
 ```bash
-npm run dev:battle
+npm run icons:sync      # 同步 game-icons 图标；--check 版本检测漂移
+npm run emotes:build    # 把混合来源的 GIF/APNG 收敛成 30 帧 / 67ms / 192px
+npm run emotes:check
+npm run pack:setting    # 打包 st/setting/ 世界观设定
 ```
 
-它只负责 UI 状态与回调，不包含伤害结算、技能清单或回合规则引擎。
+`emotes:build` 需要 `ffmpeg`，源目录默认 `~/Downloads/emo`，可用 `--source=` 覆盖。
 
 ## 构建与验证
 
@@ -58,7 +86,6 @@ npm run dev:battle
 npm run typecheck
 npm test
 npm run build
-npm run build:battle
 npm run build-storybook
 ```
 
@@ -158,16 +185,22 @@ export function StatusPage() {
 ```text
 src/
   components/     组件、Storybook 用例与交互测试
-  demo/           可搜索、可预览、可复制调用的组件目录
   hooks/          受控/非受控状态工具
+  utils/          类名拼接等小工具
   styles/         设计令牌和组件样式
+  assets/         svg / png / emote 素材
   index.ts        公共导出入口
+  demo/           可搜索、可预览、可复制调用的组件目录
+  battle/ dice/ map/ novel/ rp/ shop/ studio/ character-status/
+                  各应用入口与专属数据,共用上面的组件库
+scripts/          素材管线与构建工具(.mjs)
 references/
   html/           英文命名的视觉原型 HTML
   images/         英文命名的视觉参考图片
+st/setting/       世界观与角色设定文本
 ```
 
-视觉原型统一归档在 `references/`，不参与组件库生产构建；根目录仅保留 Vite 的 `index.html` 应用入口。
+视觉原型统一归档在 `references/`，不参与组件库生产构建。根目录只保留各应用的 Vite HTML 入口（`index.html` 及 `battle.html`、`dice.html` 等）与对应的 `vite.*.config.ts`。
 
 ## 素材说明
 
