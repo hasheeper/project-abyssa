@@ -1,0 +1,54 @@
+/* ===== 固定画布舞台 —— 共享基底 =====
+   结构与取舍见 Stage.tsx 顶部。这里只放几何。 */
+
+.abyssa-stage {
+  position: relative;
+  width: 100%;
+  /* dvh 而非 vh:手机横屏地址栏收起/展开时 vh 不跟着变,底部会被裁掉。 */
+  height: 100dvh;
+  /* 画布按 contain 缩放后不会超出,但缩放前的布局尺寸会 —— 见下方
+     canvas 的说明。这里兜住,避免出现无意义的滚动条。 */
+  overflow: hidden;
+  /* 兑现 HTML 的 viewport-fit=cover。不让出安全区的话,手机横屏下
+     刘海会压住贴边的 UI(shop 最左侧的纵向分类条只有 44px 宽)。 */
+  padding: env(safe-area-inset-top) env(safe-area-inset-right)
+           env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+/*
+ * 固定画布。--abyssa-stage-scale 由 useStageScale 写入。
+ *
+ * ============ 为什么 absolute ============
+ * transform: scale() 只改变**绘制**,不改变布局尺寸。画布布局高恒为设计值,
+ * 若参与文档流,父容器就按设计值算高度,缩小后会留下无意义的滚动条。
+ * 脱离流后父容器高度只由 100dvh 决定。
+ *
+ * ============ 居中为什么不能用 inset:0 + margin:auto ============
+ * 这是 shop 试点踩过的坑:margin:auto 居中只在元素**小于**容器时成立。
+ * 画布布局宽恒为设计值(scale 不改布局),视口一旦窄于它(常态)就变成
+ * 过约束,CSS 规范此时丢弃一侧 margin,元素被钉在边缘 —— 表现就是
+ * 「窗口越小越偏左」。
+ *
+ * 正解:left/top 50% 把布局原点移到容器中心,再 translate(-50%,-50%)
+ * 退回自身一半。translate 与 scale 同在 transform 里,都作用于绘制,
+ * 与布局尺寸无关,因此不受溢出影响。
+ * 顺序必须是 translate 再 scale:transform 从右往左作用,先缩放再平移,
+ * 平移量才不会被缩放系数放大。
+ */
+.abyssa-stage__canvas {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--abyssa-stage-w, 1600px);
+  height: var(--abyssa-stage-h, 900px);
+  overflow: hidden;
+  transform: translate(-50%, -50%) scale(var(--abyssa-stage-scale, 1));
+}
+
+/* 画布外一律不画东西 —— 界面就是画布这一块,外面是屏幕剩下的空地。
+   底纹若铺满视口,会让人误以为超出画布的部分也属于界面。 */
+.abyssa-stage-root,
+.abyssa-stage-root body {
+  margin: 0;
+  background: #000;
+}
