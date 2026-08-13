@@ -70,30 +70,33 @@ html {
   color-scheme: dark;
 }
 
-body {
-  min-width: 320px;
-  min-height: 100vh;
-  margin: 0;
-  color: var(--abyssa-text);
-  background:
+/* 底纹挂进画布(由 Stage 的 background 消费),随界面缩放并止于画布边界。
+   原来铺在 body 上会漫满整个视口,让人误以为超出画布的部分也属于界面。
+   画布外一律纯黑,见 stage.css 的 .abyssa-stage-root。 */
+:root {
+  --abyssa-dice-backdrop:
     radial-gradient(
       ellipse at 50% -10%,
       rgb(170 135 74 / 13%),
       transparent 48%
-    ),
-    linear-gradient(90deg, transparent 0 119px, rgb(0 0 0 / 23%) 119px 121px),
+    )
+    0 0 / auto,
+    linear-gradient(90deg, transparent 0 119px, rgb(0 0 0 / 23%) 119px 121px)
+    0 0 / 121px 100%,
     repeating-linear-gradient(
       3deg,
       transparent 0 9px,
       rgb(255 225 170 / 1.5%) 10px,
       transparent 12px
-    ),
+    )
+    0 0 / auto,
     #120c07;
-  background-size:
-    auto,
-    121px 100%,
-    auto,
-    auto;
+}
+
+body {
+  min-width: 320px;
+  margin: 0;
+  color: var(--abyssa-text);
   font-family: var(--font-body);
 }
 
@@ -256,11 +259,31 @@ button:focus-visible {
        页面顶部
        ========================================================= */
 
+/* ============ 整组等比缩放 ============
+   实测内容自然尺寸是 1440x1043,而画布是 1600x900 —— 高度差 143px。
+   若不处理,底部(action-dock / 终局面板)会被画布的 overflow:hidden 裁掉。
+
+   与 shop 同一手法:内容一个 px 都不改,整组按比例缩到画布内。
+     k = (900 - 上下各8) / 1043 = 0.84756
+   缩放后 1220.5x884,水平余量单侧 189.8px,宽度不受限(高度是紧约束)。
+
+   为什么不改内容尺寸:那要动 2894 行里几百个 px,且会破坏 --dice-size
+   与 perspective:620px 的比例关系(骰子透视强度依赖两者的比值)。
+   已实测:整组 scale 下 face/die 比恒为 0.946565,透视零失真。 */
 .game-shell {
+  --dice-shell-k: 0.84756;
+
   position: relative;
-  width: min(calc(100% - 28px), 1440px);
-  margin-inline: auto;
+  /* 设计宽定值。画布等比缩放,这里不能再用 % / vw —— 会与外层 scale
+     叠加成二次缩放。见 stage/README.md 铁律 1。 */
+  width: 1440px;
   padding: 24px 0 70px;
+  /* transform 只改绘制不改布局:布局仍是 1440x1043,会把画布撑破并产生
+     溢出。故用负 margin 抵掉缩放差额,让布局盒子回到视觉尺寸。 */
+  margin-block: calc((884px - 1043px) / 2);
+  margin-inline: calc((1600px - 1440px) / 2 + (1440px - 1220.5px) / 2);
+  transform: scale(var(--dice-shell-k));
+  transform-origin: center center;
 }
 
 .dice-runtime-state {
@@ -413,9 +436,9 @@ button:focus-visible {
 }
 
 .dice-outer-frame__surface {
-  --dice-surface-bottom: clamp(22px, 2.5vw, 34px);
+  --dice-surface-bottom: 34px;
   min-width: 0;
-  padding: clamp(26px, 2.75vw, 38px) clamp(18px, 2.5vw, 34px)
+  padding: 38px 34px
     var(--dice-surface-bottom);
   border: 2px solid #150c05;
   background:
@@ -988,7 +1011,7 @@ button:focus-visible {
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
-  gap: clamp(10px, 1.6vw, 18px);
+  gap: 18px;
 }
 
 /* =========================================================
@@ -1483,7 +1506,7 @@ button:focus-visible {
 .dice-action-button__copy strong {
   color: var(--abyssa-shape-text);
   justify-self: end;
-  font-size: clamp(12px, 0.9vw, 15px);
+  font-size: 12.96px;
   font-weight: 600;
   letter-spacing: 0.12em;
   text-indent: 0.12em;
@@ -1494,7 +1517,7 @@ button:focus-visible {
   justify-self: start;
   color: color-mix(in srgb, var(--abyssa-shape-text) 62%, transparent);
   font-family: var(--font-display);
-  font-size: clamp(7px, 0.48vw, 8px);
+  font-size: 7px;
   letter-spacing: 0.1em;
   white-space: nowrap;
 }
@@ -1849,13 +1872,19 @@ button:focus-visible {
        回合切换横幅
        ========================================================= */
 
+/* ============ position: fixed 在缩放画布内的行为 ============
+   Stage 的画布带 transform,它会成为 fixed 定位的**包含块**(规范:
+   有 transform 的祖先会为 fixed 后代建立包含块)。于是这里的 fixed
+   实际是相对画布而非视口 —— 这正是想要的:横幅跟着界面一起缩放、
+   一起居中,而不是浮在屏幕正中盖住画布外的空地。
+   保留 fixed 而不改 absolute,是因为效果已正确且改动更小。 */
 .turn-banner {
   position: fixed;
   top: 50%;
   left: 50%;
   z-index: 80;
   display: grid;
-  width: min(620px, 88vw);
+  width: 620px;
   min-height: 94px;
   padding: 16px 70px;
   place-items: center;
@@ -1881,7 +1910,7 @@ button:focus-visible {
 
 .turn-banner strong {
   color: var(--abyssa-text);
-  font-size: clamp(18px, 3vw, 28px);
+  font-size: 28px;
   font-weight: 600;
   letter-spacing: 0.34em;
   text-indent: 0.34em;
@@ -1900,6 +1929,8 @@ button:focus-visible {
        终局
        ========================================================= */
 
+/* 同 .turn-banner:fixed 相对缩放画布,遮罩因此只覆盖画布范围,
+   画布外保持纯黑,不会出现「遮罩盖住空地」的割裂感。 */
 .result-overlay {
   position: fixed;
   inset: 0;
@@ -1913,7 +1944,7 @@ button:focus-visible {
 
 .result-panel {
   width: min(100%, 500px);
-  max-height: calc(100vh - 40px);
+  max-height: 860px;
   padding: 35px 34px 31px;
   overflow: auto;
   text-align: center;
@@ -2715,142 +2746,11 @@ button:focus-visible {
        响应式
        ========================================================= */
 
-@media (max-width: 1100px) {
-  .game-layout {
-    grid-template-columns: 1fr;
-  }
 
-  .tibby-stage {
-    width: min(100%, 600px);
-    margin-inline: auto;
-  }
 
-  .portrait-panel {
-    height: 520px;
-  }
 
-  .score-options {
-    grid-template-columns: repeat(3, minmax(105px, 1fr));
-  }
-}
 
-@media (max-width: 860px) {
-  .tibby-stage {
-    width: min(100%, 560px);
-    margin-inline: auto;
-  }
 
-  .portrait-panel {
-    height: 470px;
-  }
-}
-
-@media (max-width: 620px) {
-  .result-panel__report-actions {
-    grid-template-columns: 1fr;
-  }
-
-  .game-shell {
-    width: min(calc(100% - 16px), 1440px);
-  }
-
-  .dice-outer-frame {
-    padding: 12px;
-  }
-
-  .dice-outer-frame__rails [data-edge="top"],
-  .dice-outer-frame__rails [data-edge="bottom"] {
-    height: 12px;
-  }
-
-  .dice-outer-frame__rails [data-edge="right"],
-  .dice-outer-frame__rails [data-edge="left"] {
-    width: 12px;
-  }
-
-  .dice-outer-frame__surface {
-    --dice-surface-bottom: 0px;
-    padding: 44px 10px var(--dice-surface-bottom);
-  }
-
-  .action-dock {
-    padding-inline: 13px;
-    transform: translateY(6px);
-  }
-
-  .dice-board {
-    padding: 20px 13px;
-  }
-
-  .table-status {
-    min-height: 98px;
-  }
-
-  .table-status__surface {
-    min-height: 88px;
-    padding-inline: 36px;
-    gap: 7px;
-    grid-template-columns: minmax(82px, 0.72fr) minmax(142px, 1fr) minmax(
-        82px,
-        0.72fr
-      );
-  }
-
-  .table-status__coin-field {
-    min-width: 142px;
-  }
-
-  .table-status__phase strong {
-    font-size: 11px;
-  }
-
-  .table-status__pot .abyssa-currency-amount {
-    font-size: 18px;
-  }
-
-  .dice-board--opponent {
-    --dice-size: 51px;
-    --dice-half: 25.5px;
-  }
-
-  .dice-board--player {
-    --dice-size: 59px;
-    --dice-half: 29.5px;
-  }
-
-  .dice-row {
-    gap: 9px;
-  }
-
-  .player-controls {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .player-controls__hint {
-    grid-column: 1 / -1;
-    text-align: center;
-  }
-
-  .score-options {
-    grid-template-columns: repeat(2, minmax(105px, 1fr));
-  }
-
-  .duel-status {
-    gap: 7px;
-  }
-
-  .round-counter {
-    gap: 6px;
-  }
-
-  .round-counter__copy {
-    min-width: 71px;
-  }
-
-  .portrait-panel {
-    height: 390px;
-  }
-}
 
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -2892,3 +2792,17 @@ button:focus-visible {
     animation-duration: 0.9s !important;
   }
 }
+
+/* ============================================================
+   已移除三条视口重排媒体查询(max-width 1100 / 860 / 620),共 ~150 行。
+
+   理由:画布改成固定尺寸 + 整体等比缩放后,视口变化时是**整个画布连同
+   内部一起缩放**,内部布局在任何视口下都是同一套设计尺寸,不再重排。
+   此时按视口宽切换 grid-template-columns / --dice-size 会与外层 scale
+   叠加成「缩放 + 重排」混合态:骰子被换成 51px 却仍被整体缩放,
+   构图与透视基准同时错位。
+
+   手机横屏由 16:9 贴合 + 等比缩放覆盖,这也是目标场景。
+   若日后要支持手机竖屏,用 @container 查询舞台自身尺寸重排,而非查视口。
+   见 src/stage/README.md 铁律 2。
+   ============================================================ */

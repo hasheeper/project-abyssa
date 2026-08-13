@@ -40,6 +40,7 @@ import { TableStatus } from "./components/TableStatus";
 import type { CoinTransfer } from "./components/TableStatus";
 import { TibbyStage } from "./components/TibbyStage";
 import { TurnBanner } from "./components/TurnBanner";
+import { Stage } from "../stage";
 import {
   createDiceRuntimePort,
   type BattleReportStage,
@@ -712,7 +713,7 @@ export function DiceApp() {
     game.phase === "private-lock";
 
   return (
-    <>
+    <Stage background="var(--abyssa-dice-backdrop)">
       <div className="game-shell">
         <DiceHeader />
         <output
@@ -838,7 +839,7 @@ export function DiceApp() {
           onNextHand={dealNextHand}
         />
       )}
-    </>
+    </Stage>
   );
 }
 
