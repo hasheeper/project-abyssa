@@ -42,6 +42,11 @@
   width: var(--abyssa-stage-w, 1600px);
   height: var(--abyssa-stage-h, 900px);
   overflow: hidden;
+  /* 画布内容默认居中。应用若自身也要做整组缩放(内容自然尺寸大于画布,
+     如 dice),只需用负 margin 把布局盒子抵消成视觉尺寸,居中交给这里 ——
+     千万不要再手算左右偏移量去「摆正」,那正是 dice 偏右的成因。 */
+  display: grid;
+  place-items: center;
   transform: translate(-50%, -50%) scale(var(--abyssa-stage-scale, 1));
 }
 

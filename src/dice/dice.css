@@ -278,10 +278,16 @@ button:focus-visible {
      叠加成二次缩放。见 stage/README.md 铁律 1。 */
   width: 1440px;
   padding: 24px 0 70px;
-  /* transform 只改绘制不改布局:布局仍是 1440x1043,会把画布撑破并产生
-     溢出。故用负 margin 抵掉缩放差额,让布局盒子回到视觉尺寸。 */
-  margin-block: calc((884px - 1043px) / 2);
-  margin-inline: calc((1600px - 1440px) / 2 + (1440px - 1220.5px) / 2);
+  /* transform 只改绘制不改布局:布局仍是 1440x1043,会把画布撑破。
+     负 margin 把布局盒子抵消成**视觉尺寸** 1220.5x884,
+     居中则完全交给画布的 grid place-items:center。
+
+     曾经在这里手算过左右偏移((1600-1440)/2 + 缩放差额/2),结果把
+     「画布余量」和「缩放差额」重复计入,左右各多推 80px,界面明显偏右
+     (实测左 299.5 / 右 80.0)。教训:居中永远交给布局系统,
+     不要手算偏移量。 */
+  margin-block: calc((1043px * var(--dice-shell-k) - 1043px) / 2);
+  margin-inline: calc((1440px * var(--dice-shell-k) - 1440px) / 2);
   transform: scale(var(--dice-shell-k));
   transform-origin: center center;
 }
