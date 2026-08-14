@@ -273,8 +273,9 @@ button:focus-visible {
 .game-shell {
   --dice-shell-k: var(--abyssa-frame-k);
 
-  /* 整组自然高 = 招牌露出 68.4 + shell 945 = 1013.4,与 shop 完全相同,
-     缩放后 884 恰好用满画布可用高。
+  /* 整组自然高 = 招牌露出 87.03 + shell 945 = 1032.03,与 shop 完全相同。
+     不再吃满画布:整组上移到与 character-status 对齐(主体外沿
+     y 101.44 -> 785.83),下方留空。
      曾有 padding: 24px 0 70px,实测那 94px 内**零元素占用**(纯死空间,
      白吃缩放预算),已删除。 */
   position: relative;
@@ -290,9 +291,18 @@ button:focus-visible {
      「画布余量」和「缩放差额」重复计入,左右各多推 80px,界面明显偏右
      (实测左 299.5 / 右 80.0)。教训:居中永远交给布局系统,
      不要手算偏移量。 */
-  margin-block: calc((1013.4px * var(--dice-shell-k) - 1013.4px) / 2);
+  margin-block: calc((1032.03px * var(--dice-shell-k) - 1032.03px) / 2);
   margin-inline: calc((1390px * var(--dice-shell-k) - 1390px) / 2);
-  transform: scale(var(--dice-shell-k));
+  /* 上移 37.88px(实测标定)。画布 grid 居中的起点受招牌负 margin 影响,
+     按自然高推算会偏,故以实测标定为准:目标是主体外沿顶落在 y=101.44,
+     与 character-status 对齐。
+     注意这里的位移量**不受 k 缩放**(实测斜率 1.000):transform 从右往左
+     作用,scale 先执行,translate 后执行,故它是画布px 而非设计px。
+     用 translateY 而非不对称 margin —— 后者会与 place-items:center
+     打架(character-status 上踩过,下推量只生效一半)。
+     translate 必须写在 scale 之前:transform 从右往左作用,先缩放再平移,
+     平移量才不被 k 放大。 */
+  transform: translateY(-37.88px) scale(var(--dice-shell-k));
   transform-origin: center center;
 }
 
