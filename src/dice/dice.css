@@ -279,10 +279,19 @@ button:focus-visible {
      曾有 padding: 24px 0 70px,实测那 94px 内**零元素占用**(纯死空间,
      白吃缩放预算),已删除。 */
   position: relative;
-  /* 宽度 = shell 自然宽,与 shop 相同(画框几何全共享)。
+  /* 宽度 = shell 自然宽 = board 1395.67 + (brass3+描边1 + rail22+描边2)*2
+     = 1451.67,与 shop 相同(画框几何全共享)。board 因可用区锁 5:3 而加宽,
+     这里必须同步,否则 shell 比 board 窄、整块会偏移。
      画布已等比缩放,这里不能再用 % / vw —— 会与外层 scale 叠加成
      二次缩放。见 stage/README.md 铁律 1。 */
-  width: 1390px;
+  width: calc(
+    var(--abyssa-frame-interior-h) * 5 / 3 + var(--abyssa-frame-pad-inline) * 2 +
+      var(--abyssa-frame-border) * 2 +
+      (
+          var(--abyssa-frame-brass) + var(--abyssa-frame-border-hair) +
+            var(--abyssa-frame-rail) + var(--abyssa-frame-border)
+        ) * 2
+  );
   /* transform 只改绘制不改布局:布局仍是自然尺寸,会把画布撑破。
      负 margin 把布局盒子抵消成**视觉尺寸**,
      居中则完全交给画布的 grid place-items:center。
@@ -292,17 +301,36 @@ button:focus-visible {
      (实测左 299.5 / 右 80.0)。教训:居中永远交给布局系统,
      不要手算偏移量。 */
   margin-block: calc((1032.03px * var(--dice-shell-k) - 1032.03px) / 2);
-  margin-inline: calc((1390px * var(--dice-shell-k) - 1390px) / 2);
-  /* 上移 37.88px(实测标定)。画布 grid 居中的起点受招牌负 margin 影响,
+  margin-inline: calc(
+    (
+        (
+            var(--abyssa-frame-interior-h) * 5 / 3 +
+              var(--abyssa-frame-pad-inline) * 2 + var(--abyssa-frame-border) * 2 +
+              (
+                  var(--abyssa-frame-brass) + var(--abyssa-frame-border-hair) +
+                    var(--abyssa-frame-rail) + var(--abyssa-frame-border)
+                ) * 2
+          ) * var(--dice-shell-k) -
+          (
+            var(--abyssa-frame-interior-h) * 5 / 3 +
+              var(--abyssa-frame-pad-inline) * 2 + var(--abyssa-frame-border) * 2 +
+              (
+                  var(--abyssa-frame-brass) + var(--abyssa-frame-border-hair) +
+                    var(--abyssa-frame-rail) + var(--abyssa-frame-border)
+                ) * 2
+          )
+      ) / 2
+  );
+  /* 上移 11.41px(实测标定)。画布 grid 居中的起点受招牌负 margin 影响,
      按自然高推算会偏,故以实测标定为准:目标是主体外沿顶落在 y=101.44,
-     与 character-status 对齐。
+     与 character-status / shop 对齐。
      注意这里的位移量**不受 k 缩放**(实测斜率 1.000):transform 从右往左
      作用,scale 先执行,translate 后执行,故它是画布px 而非设计px。
      用 translateY 而非不对称 margin —— 后者会与 place-items:center
      打架(character-status 上踩过,下推量只生效一半)。
      translate 必须写在 scale 之前:transform 从右往左作用,先缩放再平移,
      平移量才不被 k 放大。 */
-  transform: translateY(-37.88px) scale(var(--dice-shell-k));
+  transform: translateY(-11.41px) scale(var(--dice-shell-k));
   transform-origin: center center;
 }
 
@@ -491,7 +519,14 @@ button:focus-visible {
   display: grid;
   /* 画框几何全部来自共享令牌 —— padding 决定画框宽度,属于几何不是皮肤,
      各应用自定会让 board/shell 的可见边缘错位(上一版就是这么错的)。 */
-  width: var(--abyssa-frame-board-w);
+  /* 宽由「内容可用区锁 5:3」反推,与 shop / character-status 同一规则:
+       可用区高 787(不动) -> 宽 = 787 * 5/3 = 1311.67
+       board = 1311.67 + padding 40*2 + 描边 2*2 = 1395.67
+     内容在其中居中,两侧留空。不反过来压高度 —— 那会裁掉内容。 */
+  width: calc(
+    var(--abyssa-frame-interior-h) * 5 / 3 + var(--abyssa-frame-pad-inline) * 2 +
+      var(--abyssa-frame-border) * 2
+  );
   height: var(--abyssa-frame-board-h);
   min-width: 0;
   padding: var(--abyssa-frame-pad-top) var(--abyssa-frame-pad-inline)
@@ -523,9 +558,12 @@ button:focus-visible {
    board 背景。这个除法是**无单位数字相除**,calc 合法,与「长度÷长度」
    那条禁忌无关。 */
 .game-layout {
-  /* k2 = interior宽 1250 / 内容自然宽 1320。宽度是紧约束,
-     高度方向本有富余 —— 组件已长高吃掉它(见 tray/table-status)。 */
-  --dice-layout-k: calc(1250 / 1320);
+  /* k2 = interior高 787 / 内容自然高 831。
+     **高度**是紧约束(787/831 = 0.94705 < 宽度需求 1311.67/1385 = 0.94705),
+     可用区加宽到 1311.67 后,内容自然宽同步加到 1385 才刚好填满:
+       1385 * 0.94705 = 1311.67 ✓
+     原写 1250/1320 是旧 interior 宽的遗留,会让内容比可用区窄 48。 */
+  --dice-layout-k: calc(787 / 831);
   /* 操作面板越过 board 内沿的下沉量(设计px)。见 .action-dock。 */
   --dice-dock-sink: 18px;
   /* 内容整组向上出血进 board 的上边距(设计px)。
@@ -543,7 +581,9 @@ button:focus-visible {
   --dice-layout-h: 831px;
 
   display: grid;
-  width: 1320px;
+  /* 1385 = 可用区宽 1311.67 / k2,使内容刚好填满加宽后的可用区。
+     多出的 65(原 1320)由右列 minmax(560px,1fr) 吸收。 */
+  width: 1385px;
   /* A dialogue panel needs a real reading width; a 300px portrait rail
          makes the shared component look horizontally crushed. */
   grid-template-columns: minmax(390px, 425px) minmax(560px, 1fr);
@@ -556,7 +596,7 @@ button:focus-visible {
     var(--dice-layout-h) * var(--dice-layout-k) - var(--dice-layout-h) +
       var(--dice-content-rise)
   );
-  margin-inline: calc((1320px * var(--dice-layout-k) - 1320px) / 2);
+  margin-inline: calc((1385px * var(--dice-layout-k) - 1385px) / 2);
   gap: 32px;
   transform: scale(var(--dice-layout-k));
   transform-origin: center top;
