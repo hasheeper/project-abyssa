@@ -328,7 +328,7 @@ button:focus-visible {
      k = 560 / 660 = 0.848485   ->  660x116 缩成 560x98.4
    露出高则由共享令牌统一(它决定 shell 顶边 y,不统一 shell 就跟着错位)。 */
 .game-header {
-  --dice-header-k: calc(560 / 660);
+  --dice-header-k: calc(560 / 660 * var(--abyssa-frame-header-scale));
 
   position: relative;
   z-index: 4;
@@ -340,8 +340,9 @@ button:focus-visible {
      故 margin-bottom = 68.4 - 116 = -47.6。
      水平:布局盒子居中即视觉居中(origin 含 center),用 auto 交给布局系统。 */
   margin-inline: auto;
+  /* 布局高恒 116(transform 不改布局),让流内只占露出高。
+     放大倍数只影响绘制,故这里与放大无关。 */
   margin-bottom: calc(var(--abyssa-frame-header-expose) - 116px);
-  /* 布局高恒 116(transform 不改布局),故上面这行让流内只占露出高。 */
   pointer-events: none;
   transform: scale(var(--dice-header-k));
   transform-origin: center top;
@@ -500,7 +501,11 @@ button:focus-visible {
    board 背景。这个除法是**无单位数字相除**,calc 合法,与「长度÷长度」
    那条禁忌无关。 */
 .game-layout {
-  --dice-layout-k: 0.94697;
+  /* k2 = interior宽 1250 / 内容自然宽 1320。宽度是紧约束,
+     高度方向本有富余 —— 组件已长高吃掉它(见 tray/table-status)。 */
+  --dice-layout-k: calc(1250 / 1320);
+  /* 内容自然高。组件长高后从 735 变为 831。 */
+  --dice-layout-h: 831px;
 
   display: grid;
   width: 1320px;
@@ -509,7 +514,9 @@ button:focus-visible {
   grid-template-columns: minmax(390px, 425px) minmax(560px, 1fr);
   align-items: stretch;
   /* 负 margin 把布局盒子抵成视觉尺寸,居中交给 surface 的 place-items。 */
-  margin-block: calc((739px * var(--dice-layout-k) - 739px) / 2);
+  margin-block: calc(
+    (var(--dice-layout-h) * var(--dice-layout-k) - var(--dice-layout-h)) / 2
+  );
   margin-inline: calc((1320px * var(--dice-layout-k) - 1320px) / 2);
   gap: 32px;
   transform: scale(var(--dice-layout-k));
@@ -787,16 +794,20 @@ button:focus-visible {
   gap: 17px;
 }
 
+/* 操作面板下沉,与画框衔接。
+   它是 duel 这一列的最后一项,margin-top:auto 把它推到底。
+   出血量必须换算到内容坐标系:内容整组被 scale(k2) 缩过,
+   要在屏幕上盖住 board 的 38px 下边距,这里得写 38/k2。
+   写成 calc 而非算好的常数,padding 令牌改了它自己会跟上。 */
 .action-dock {
   position: relative;
   z-index: 3;
   display: grid;
   min-height: 54px;
   margin-top: auto;
-  margin-bottom: calc(var(--dice-surface-bottom) * -1);
-  padding: 13px 24px 9px;
+  margin-bottom: calc(var(--abyssa-frame-pad-bottom) / var(--dice-layout-k) * -1);
+  padding: 13px 24px 23px;
   isolation: isolate;
-  transform: translateY(10px);
 }
 
 .action-dock__surface {
@@ -1031,7 +1042,9 @@ button:focus-visible {
 .dice-board__tray {
   position: relative;
   display: grid;
-  min-height: 170px;
+  /* 竖向本有富余(k2 由宽度决定,高度方向留了 91 设计px 没用),
+     组件高度长起来吃掉它,而不是让内容缩在中间。 */
+  min-height: 205px;
   padding: 34px 28px 32px;
   place-items: center;
   overflow: visible;
@@ -2119,7 +2132,7 @@ button:focus-visible {
 .table-status {
   position: relative;
   display: grid;
-  min-height: 104px;
+  min-height: 118px;
   padding: 5px;
   overflow: hidden;
   border: 1px solid #090603;
@@ -2154,7 +2167,7 @@ button:focus-visible {
   position: relative;
   display: grid;
   min-width: 0;
-  min-height: 94px;
+  min-height: 108px;
   padding: 11px 48px;
   overflow: hidden;
   align-items: center;

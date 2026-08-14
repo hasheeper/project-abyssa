@@ -73,7 +73,9 @@ body { font-family: "Noto Serif SC", "Songti SC", serif; }
 /* 招牌 —— 上部贴边并压在下方内容之上。
    absolute 而不是参与 grid:招牌是「挂在墙上的牌子」,允许遮挡门面。
    参与流的话它会把 shell 往下推,shell 就吃不满画布高度。 */
-.abyssa-shop-screen__header { position: absolute; top: 8px; left: 50%; z-index: 4; display: grid; width: 560px; justify-items: center; pointer-events: none; transform: translateX(-50%) scale(var(--shop-frame-k)); transform-origin: top center; }
+/* 招牌整体放大由共享令牌控制,露出高不变(见 stage.css),
+   放大出来的部分往下压进 board。 */
+.abyssa-shop-screen__header { position: absolute; top: 8px; left: 50%; z-index: 4; display: grid; width: 560px; justify-items: center; pointer-events: none; transform: translateX(-50%) scale(calc(var(--shop-frame-k) * var(--abyssa-frame-header-scale))); transform-origin: top center; }
 .abyssa-shop-screen__header .abyssa-rpg-header { position: relative; width: 560px; }
 .abyssa-shop-screen__shell {
   position: relative;
