@@ -1729,13 +1729,14 @@
 .abyssa-status-panel blockquote::before { position: absolute; top: -3.6px; left: 3.6px; color: var(--abyssa-ornament); font-family: Georgia, serif; font-size: 18.9px; content: "“"; }
 
 /* Full composed screen */
-/* 自然宽 1440 -> 1364:固定画布下宽度是「比 shop/dice 略宽」的调节旋钮,
-   1440 时画布宽 1341(比 shop shell 1212.5 宽 10.6%)过头,1364 时 1270(+4.8%)。
+/* 自然宽:固定画布下这是「比 shop/dice 略宽多少」的调节旋钮。
+   1440 -> 画布 1341(+10.6%) 过头;1364 -> 1296(+6.9%) 仍偏宽;
+   1300 -> 画布 1235.7,比 shop shell(1212.5)宽 +1.9%,合适。
    四处 cqi(header-half 37 / top-ornament 20 / corner 13.5 / edge-inset 12.42)
-   在 1364 下仍全部落在各自 clamp 的上限,故装饰尺寸不受影响。 */
+   在 1300 下仍全部落在各自 clamp 的上限,故装饰尺寸不受宽度变化影响。 */
 .abyssa-character-screen {
   container: abyssa-character-screen / inline-size;
-  width: min(100%, 1364px);
+  width: min(100%, 1300px);
   margin-inline: auto;
   color: var(--abyssa-text, #edf0f0);
 }
