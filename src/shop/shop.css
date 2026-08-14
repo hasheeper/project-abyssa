@@ -20,7 +20,7 @@ body { font-family: "Noto Serif SC", "Songti SC", serif; }
   --abyssa-text: #e9dcc5; --abyssa-text-soft: #cdbda1; --abyssa-text-muted: #88785d; --abyssa-focus: #eee0bc;
   --abyssa-shadow: 0 14px 30px rgb(5 3 1 / 52%);
 
-  /* ============ 边框整组等比缩放(B 方案) ============
+  /* ============ 边框整组等比缩放 ============
      问题:board 从原型的 1334x889 收到能塞进 1600x900 画布的尺寸后,
      边框的**绝对数值**没变(rails 22 / brass 3 / border 2),但相对 board
      的**占比**涨了 ~17%,看起来就是「边框变粗了」。
@@ -38,8 +38,11 @@ body { font-family: "Noto Serif SC", "Songti SC", serif; }
      附带收益:board 回到原型的 1334x889,其内可用区正好是 1250x787,
      与内容自然尺寸分毫不差 —— 于是上一版为了塞进小 board 而加的
      scale(0.86658) 补丁可以整个删掉。这也反证 1334x889 是原型的
-     真实设计意图。 */
-  --shop-frame-k: 0.87229;
+     真实设计意图。
+
+     这些数值现已升为**全应用共享契约**(见 stage/stage.css 的画框契约):
+     shop 是契约的基准来源,所以这里只是引用,数值一个都没变。 */
+  --shop-frame-k: var(--abyssa-frame-k);
 
   position: relative;
   display: grid;
@@ -81,10 +84,10 @@ body { font-family: "Noto Serif SC", "Songti SC", serif; }
      让整组(视觉高 884)在 900 画布内垂直居中。 */
   display: grid;
   margin-top: calc(8px + 68.4px * var(--shop-frame-k));
-  padding: 22px;
+  padding: var(--abyssa-frame-rail);
   transform: scale(var(--shop-frame-k));
   transform-origin: top center;
-  border: 2px solid #090603;
+  border: var(--abyssa-frame-border) solid #090603;
   background: #1a1008;
   box-shadow:
     0 0 0 2px #3a2817,
@@ -107,15 +110,15 @@ body { font-family: "Noto Serif SC", "Songti SC", serif; }
   background-image: linear-gradient(180deg, rgb(255 224 165 / 10%), transparent 25%, rgb(0 0 0 / 34%) 78%, rgb(0 0 0 / 66%));
   box-shadow: inset 0 1px rgb(151 102 51 / 32%), inset 0 -2px rgb(0 0 0 / 56%);
 }
-.abyssa-shop-screen__shell-rails [data-edge="top"] { top: 0; left: 0; width: 100%; height: 22px; clip-path: polygon(0 0, 100% 0, calc(100% - 22px) 100%, 22px 100%); }
-.abyssa-shop-screen__shell-rails [data-edge="right"] { top: 0; right: 0; width: 22px; height: 100%; clip-path: polygon(0 0, 100% 22px, 100% calc(100% - 22px), 0 100%); background-image: linear-gradient(90deg, rgb(255 224 165 / 8%), transparent 30%, rgb(0 0 0 / 58%)); }
-.abyssa-shop-screen__shell-rails [data-edge="bottom"] { right: 0; bottom: 0; width: 100%; height: 22px; clip-path: polygon(22px 0, calc(100% - 22px) 0, 100% 100%, 0 100%); background-image: linear-gradient(180deg, rgb(0 0 0 / 58%), transparent 38%, rgb(255 224 165 / 7%)); }
-.abyssa-shop-screen__shell-rails [data-edge="left"] { top: 0; left: 0; width: 22px; height: 100%; clip-path: polygon(0 22px, 100% 0, 100% 100%, 0 calc(100% - 22px)); background-image: linear-gradient(90deg, rgb(0 0 0 / 62%), transparent 62%, rgb(255 224 165 / 7%)); }
+.abyssa-shop-screen__shell-rails [data-edge="top"] { top: 0; left: 0; width: 100%; height: var(--abyssa-frame-rail); clip-path: polygon(0 0, 100% 0, calc(100% - var(--abyssa-frame-rail)) 100%, var(--abyssa-frame-rail) 100%); }
+.abyssa-shop-screen__shell-rails [data-edge="right"] { top: 0; right: 0; width: var(--abyssa-frame-rail); height: 100%; clip-path: polygon(0 0, 100% var(--abyssa-frame-rail), 100% calc(100% - var(--abyssa-frame-rail)), 0 100%); background-image: linear-gradient(90deg, rgb(255 224 165 / 8%), transparent 30%, rgb(0 0 0 / 58%)); }
+.abyssa-shop-screen__shell-rails [data-edge="bottom"] { right: 0; bottom: 0; width: 100%; height: var(--abyssa-frame-rail); clip-path: polygon(var(--abyssa-frame-rail) 0, calc(100% - var(--abyssa-frame-rail)) 0, 100% 100%, 0 100%); background-image: linear-gradient(180deg, rgb(0 0 0 / 58%), transparent 38%, rgb(255 224 165 / 7%)); }
+.abyssa-shop-screen__shell-rails [data-edge="left"] { top: 0; left: 0; width: var(--abyssa-frame-rail); height: 100%; clip-path: polygon(0 var(--abyssa-frame-rail), 100% 0, 100% 100%, 0 calc(100% - var(--abyssa-frame-rail))); background-image: linear-gradient(90deg, rgb(0 0 0 / 62%), transparent 62%, rgb(255 224 165 / 7%)); }
 .abyssa-shop-screen__shell-brass {
   position: relative;
   z-index: 1;
-  padding: 3px;
-  border: 1px solid #24170a;
+  padding: var(--abyssa-frame-brass);
+  border: var(--abyssa-frame-border-hair) solid #24170a;
   background: linear-gradient(135deg, #4e3518, #c29b58 18%, #745024 45%, #d2af69 72%, #4d3317);
   box-shadow: inset 0 0 0 1px rgb(255 231 177 / 26%), 0 0 0 1px #0d0804;
 }
@@ -126,11 +129,13 @@ body { font-family: "Noto Serif SC", "Songti SC", serif; }
 .abyssa-shop-screen__shell-board {
   position: relative;
   min-width: 0;
-  width: 1334px;
-  height: 889px;
+  /* 尺寸由共享 interior + 本应用的 padding 皮肤推导:
+     1250+40+40+2*2 = 1334 / 787+60+38+2*2 = 889 —— 与原型数值完全一致。 */
+  width: calc(var(--abyssa-frame-interior-w) + 40px + 40px + var(--abyssa-frame-border) * 2);
+  height: calc(var(--abyssa-frame-interior-h) + 60px + 38px + var(--abyssa-frame-border) * 2);
   padding: 60px 40px 38px;
   overflow: hidden;
-  border: 2px solid #211307;
+  border: var(--abyssa-frame-border) solid #211307;
   background-color: #2a1a0c;
   background-image: url("../assets/bg/shop.png");
   background-position: center top;

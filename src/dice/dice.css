@@ -264,30 +264,32 @@ button:focus-visible {
    若不处理,底部(action-dock / 终局面板)会被画布的 overflow:hidden 裁掉。
 
    与 shop 同一手法:内容一个 px 都不改,整组按比例缩到画布内。
-     k = (900 - 上下各8) / 1043 = 0.84756
-   缩放后 1220.5x884,水平余量单侧 189.8px,宽度不受限(高度是紧约束)。
+   k 现由共享画框契约提供(stage/stage.css),不再是本应用手算的魔数 ——
+   所有应用共享同一个 k,同一个设计 px 在各应用里物理尺寸才一致。
 
    为什么不改内容尺寸:那要动 2894 行里几百个 px,且会破坏 --dice-size
    与 perspective:620px 的比例关系(骰子透视强度依赖两者的比值)。
    已实测:整组 scale 下 face/die 比恒为 0.946565,透视零失真。 */
 .game-shell {
-  --dice-shell-k: 0.84756;
+  --dice-shell-k: var(--abyssa-frame-k);
 
+  /* 整组自然高 = 招牌露出 86 + shell 919 = 1005;缩放后 876.7 <= 884 ✓
+     曾有 padding: 24px 0 70px,实测那 94px 内**零元素占用**(纯死空间,
+     白吃缩放预算),已删除。 */
   position: relative;
   /* 设计宽定值。画布等比缩放,这里不能再用 % / vw —— 会与外层 scale
      叠加成二次缩放。见 stage/README.md 铁律 1。 */
-  width: 1440px;
-  padding: 24px 0 70px;
-  /* transform 只改绘制不改布局:布局仍是 1440x1043,会把画布撑破。
-     负 margin 把布局盒子抵消成**视觉尺寸** 1220.5x884,
+  width: 1378px;
+  /* transform 只改绘制不改布局:布局仍是自然尺寸,会把画布撑破。
+     负 margin 把布局盒子抵消成**视觉尺寸**,
      居中则完全交给画布的 grid place-items:center。
 
      曾经在这里手算过左右偏移((1600-1440)/2 + 缩放差额/2),结果把
      「画布余量」和「缩放差额」重复计入,左右各多推 80px,界面明显偏右
      (实测左 299.5 / 右 80.0)。教训:居中永远交给布局系统,
      不要手算偏移量。 */
-  margin-block: calc((1043px * var(--dice-shell-k) - 1043px) / 2);
-  margin-inline: calc((1440px * var(--dice-shell-k) - 1440px) / 2);
+  margin-block: calc((1005px * var(--dice-shell-k) - 1005px) / 2);
+  margin-inline: calc((1378px * var(--dice-shell-k) - 1378px) / 2);
   transform: scale(var(--dice-shell-k));
   transform-origin: center center;
 }
@@ -339,8 +341,8 @@ button:focus-visible {
 .dice-outer-frame {
   position: relative;
   z-index: 1;
-  padding: 18px;
-  border: 2px solid #080503;
+  padding: var(--abyssa-frame-rail);
+  border: var(--abyssa-frame-border) solid #080503;
   background: #160e07;
   box-shadow:
     0 0 0 2px #4a321a,
@@ -371,20 +373,20 @@ button:focus-visible {
   top: 0;
   left: 0;
   width: 100%;
-  height: 18px;
+  height: var(--abyssa-frame-rail);
   background-image: linear-gradient(
     180deg,
     rgb(255 224 165 / 9%),
     transparent 32%,
     rgb(0 0 0 / 68%)
   );
-  clip-path: polygon(0 0, 100% 0, calc(100% - 18px) 100%, 18px 100%);
+  clip-path: polygon(0 0, 100% 0, calc(100% - var(--abyssa-frame-rail)) 100%, var(--abyssa-frame-rail) 100%);
 }
 
 .dice-outer-frame__rails [data-edge="right"] {
   top: 0;
   right: 0;
-  width: 18px;
+  width: var(--abyssa-frame-rail);
   height: 100%;
   background-image: linear-gradient(
     90deg,
@@ -392,27 +394,27 @@ button:focus-visible {
     transparent 36%,
     rgb(0 0 0 / 72%)
   );
-  clip-path: polygon(0 0, 100% 18px, 100% calc(100% - 18px), 0 100%);
+  clip-path: polygon(0 0, 100% var(--abyssa-frame-rail), 100% calc(100% - var(--abyssa-frame-rail)), 0 100%);
 }
 
 .dice-outer-frame__rails [data-edge="bottom"] {
   right: 0;
   bottom: 0;
   width: 100%;
-  height: 18px;
+  height: var(--abyssa-frame-rail);
   background-image: linear-gradient(
     180deg,
     rgb(0 0 0 / 65%),
     transparent 45%,
     rgb(255 224 165 / 6%)
   );
-  clip-path: polygon(18px 0, calc(100% - 18px) 0, 100% 100%, 0 100%);
+  clip-path: polygon(var(--abyssa-frame-rail) 0, calc(100% - var(--abyssa-frame-rail)) 0, 100% 100%, 0 100%);
 }
 
 .dice-outer-frame__rails [data-edge="left"] {
   top: 0;
   left: 0;
-  width: 18px;
+  width: var(--abyssa-frame-rail);
   height: 100%;
   background-image: linear-gradient(
     90deg,
@@ -420,14 +422,14 @@ button:focus-visible {
     transparent 68%,
     rgb(255 224 165 / 5%)
   );
-  clip-path: polygon(0 18px, 100% 0, 100% 100%, 0 calc(100% - 18px));
+  clip-path: polygon(0 var(--abyssa-frame-rail), 100% 0, 100% 100%, 0 calc(100% - var(--abyssa-frame-rail)));
 }
 
 .dice-outer-frame__metal {
   position: relative;
   z-index: 1;
-  padding: 3px;
-  border: 1px solid #1b1007;
+  padding: var(--abyssa-frame-brass);
+  border: var(--abyssa-frame-border-hair) solid #1b1007;
   background: linear-gradient(
     135deg,
     #3d2915,
@@ -443,10 +445,23 @@ button:focus-visible {
 
 .dice-outer-frame__surface {
   --dice-surface-bottom: 34px;
+  /* grid + place-items 让内容在 interior 内居中(内容比 interior 更扁,
+     竖向会余 87.2px)。居中交给布局系统,不手算偏移。 */
+  display: grid;
   min-width: 0;
-  padding: 38px 34px
-    var(--dice-surface-bottom);
-  border: 2px solid #150c05;
+  place-items: center;
+  /* padding 是本应用的皮肤(shop 用 60/40/38),不统一;
+     统一的是它包住的**内容可用区** —— 由共享 interior 令牌钉死,
+     于是 board 尺寸随皮肤不同(此处 1322x863,shop 1334x889),
+     但内部区域两边完全相同。 */
+  padding: 38px 34px var(--dice-surface-bottom);
+  /* 尺寸由共享 interior + 本应用 padding 皮肤推导 */
+  width: calc(var(--abyssa-frame-interior-w) + 34px * 2 + var(--abyssa-frame-border) * 2);
+  height: calc(
+    var(--abyssa-frame-interior-h) + 38px + var(--dice-surface-bottom) +
+      var(--abyssa-frame-border) * 2
+  );
+  border: var(--abyssa-frame-border) solid #150c05;
   background:
     radial-gradient(ellipse at 50% 0%, rgb(170 135 74 / 10%), transparent 44%),
     repeating-linear-gradient(
@@ -465,13 +480,27 @@ button:focus-visible {
        主布局
        ========================================================= */
 
+/* 内容层 fit 进共享 interior。
+   自然尺寸 1320x739,interior 1250x787:
+     k2 = min(1250/1320, 787/739) = 0.94697   （宽是紧约束）
+   缩放后 1250x699.8,竖向余 87.2 —— 内容在 interior 内居中,余量露出
+   board 背景。这个除法是**无单位数字相除**,calc 合法,与「长度÷长度」
+   那条禁忌无关。 */
 .game-layout {
+  --dice-layout-k: 0.94697;
+
   display: grid;
+  width: 1320px;
   /* A dialogue panel needs a real reading width; a 300px portrait rail
          makes the shared component look horizontally crushed. */
   grid-template-columns: minmax(390px, 425px) minmax(560px, 1fr);
   align-items: stretch;
+  /* 负 margin 把布局盒子抵成视觉尺寸,居中交给 surface 的 place-items。 */
+  margin-block: calc((739px * var(--dice-layout-k) - 739px) / 2);
+  margin-inline: calc((1320px * var(--dice-layout-k) - 1320px) / 2);
   gap: 32px;
+  transform: scale(var(--dice-layout-k));
+  transform-origin: center center;
 }
 
 /* =========================================================
