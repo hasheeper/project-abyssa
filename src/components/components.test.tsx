@@ -350,7 +350,7 @@ describe("Abyssa controls", () => {
     expect(demoCharacters.find((character) => character.id === "abyssa")?.outfits).toHaveLength(2);
   });
 
-  it("lays every portrait out in one row and skips disabled items", () => {
+  it("centers the portrait carousel without scrolling the page and skips disabled items", () => {
     const onValueChange = vi.fn();
     const { container } = render(
       <CharacterPortraitSelector
@@ -363,20 +363,26 @@ describe("Abyssa controls", () => {
         onValueChange={onValueChange}
       />
     );
+    const viewport = container.querySelector(
+      ".abyssa-character-portrait-selector__viewport"
+    ) as HTMLDivElement;
+    const scrollTo = vi.fn();
+    Object.defineProperty(viewport, "scrollTo", { configurable: true, value: scrollTo });
+    Object.defineProperties(viewport, {
+      clientWidth: { configurable: true, value: 200 },
+      scrollWidth: { configurable: true, value: 600 },
+      scrollLeft: { configurable: true, value: 50, writable: true },
+      getBoundingClientRect: {
+        configurable: true,
+        value: () => ({ left: 100, right: 300, width: 200 } as DOMRect)
+      }
+    });
+    const secondCharacter = screen.getByRole("button", { name: "角色二" });
+    Object.defineProperty(secondCharacter, "getBoundingClientRect", {
+      configurable: true,
+      value: () => ({ left: 350, right: 410, width: 60 } as DOMRect)
+    });
 
-    // 一排全展开:不再有翻页箭头,也不再有横向滚动层。
-    expect(screen.queryByRole("button", { name: "上一个角色" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "下一个角色" })).not.toBeInTheDocument();
-    expect(
-      container.querySelector(".abyssa-character-portrait-selector__viewport")
-    ).not.toBeInTheDocument();
-
-    // 缎带边框保留。
-    expect(
-      container.querySelector(".abyssa-character-portrait-selector__ribbon-art")
-    ).toBeInTheDocument();
-
-    // 禁用项被跳过,默认落到第一个可用项。
     expect(screen.getByRole("button", { name: "角色零" })).toHaveAttribute(
       "aria-pressed",
       "true"
@@ -384,33 +390,34 @@ describe("Abyssa controls", () => {
     expect(screen.getByRole("button", { name: "禁用角色" })).not.toHaveAttribute(
       "aria-current"
     );
+    expect(screen.getByRole("button", { name: "上一个角色" })).toHaveAttribute(
+      "data-shape",
+      "diamond"
+    );
+    expect(screen.getByRole("button", { name: "下一个角色" })).toHaveAttribute(
+      "data-shape",
+      "diamond"
+    );
     expect(screen.getByRole("button", { name: "角色零" })).toHaveAttribute(
       "data-shape",
       "square"
     );
-
-    // 所有头像同时在场(一排展开的直接体现)。
     expect(
-      container.querySelectorAll(".abyssa-character-portrait-selector__item")
-    ).toHaveLength(3);
+      container.querySelector(".abyssa-character-portrait-selector__ribbon-art")
+    ).toBeInTheDocument();
 
-    // 点选与键盘导航保留,禁用项被跳过。
-    fireEvent.click(screen.getByRole("button", { name: "角色二" }));
+    fireEvent.click(screen.getByRole("button", { name: "下一个角色" }));
     expect(onValueChange).toHaveBeenLastCalledWith("two");
     expect(screen.getByRole("button", { name: "角色二" })).toHaveAttribute(
       "aria-pressed",
       "true"
     );
+    expect(scrollTo).toHaveBeenLastCalledWith({ left: 230, behavior: "smooth" });
 
     fireEvent.keyDown(screen.getByRole("group", { name: "角色选择" }), {
       key: "ArrowRight"
     });
     expect(onValueChange).toHaveBeenLastCalledWith("zero");
-
-    fireEvent.keyDown(screen.getByRole("group", { name: "角色选择" }), {
-      key: "ArrowLeft"
-    });
-    expect(onValueChange).toHaveBeenLastCalledWith("two");
   });
 
   it("renders outfits, internal tabs and the centered character portrait selector", () => {
@@ -557,13 +564,12 @@ describe("Abyssa controls", () => {
     expect(topOrnaments[1]?.getAttribute("src")).toBe(topOrnaments[0]?.getAttribute("src"));
     expect(screen.queryByRole("group", { name: "换装选择" })).not.toBeInTheDocument();
 
-    // 切换栏已改为一排全展开(无翻页箭头),直接点头像切换。
-    fireEvent.click(screen.getByRole("button", { name: "尤斯缇丝·格里芬" }));
+    fireEvent.click(screen.getByRole("button", { name: "下一个角色" }));
     expect(screen.getByRole("button", { name: "尤斯缇丝·格里芬" })).toHaveAttribute(
       "aria-pressed",
       "true"
     );
-    fireEvent.click(screen.getByRole("button", { name: "薇薇安·桑格温" }));
+    fireEvent.click(screen.getByRole("button", { name: "上一个角色" }));
     expect(screen.getByRole("button", { name: "薇薇安·桑格温" })).toHaveAttribute(
       "aria-pressed",
       "true"
