@@ -520,8 +520,12 @@ button:focus-visible {
   --dice-dock-sink: 18px;
   /* 内容整组向上出血进 board 的上边距(设计px)。
      上边距 60 而下边距 38,加上招牌只压到 y≈106,原先顶部空出一条
-     明显的带子(招牌底到内容顶 40.7px)。内容往上提一截,重心才不偏下。 */
-  --dice-content-rise: 20px;
+     明显的带子(招牌底到内容顶 40.7px)。内容往上提一截,重心才不偏下。
+     20 上提过头,回调到 14 —— 两列都随之下移约 5 画布px。 */
+  --dice-content-rise: 14px;
+  /* 左列(立绘)在组上移之外再单独下移。立绘顶部本就比右列的 board
+     多一段留白,跟着整组上提会显得头重。合计下移约 10 画布px。 */
+  --dice-portrait-drop: 6px;
   /* 内容自然高。**必须恰好等于 interior 高 / k2 = 787/0.94697 = 831**,
      使视觉高与 interior 严丝合缝。若设小了,surface 的 place-items:center
      会把内容按剩余空间的一半往下推,rise 的上移量就被抵掉一部分
@@ -552,8 +556,11 @@ button:focus-visible {
        左侧：缇比角色演出
        ========================================================= */
 
+/* 左列。--dice-portrait-drop 让立绘在整组上移之外再单独下移一点
+   (整组上提是为了压掉顶部空白,但立绘顶部本就留白更多,跟着提会头重)。 */
 .tibby-stage {
   min-width: 0;
+  padding-top: var(--dice-portrait-drop);
 }
 
 .tibby-stage__recess {
@@ -1092,7 +1099,7 @@ button:focus-visible {
   display: grid;
   /* 竖向本有富余(k2 由宽度决定,高度方向留了 91 设计px 没用),
      组件高度长起来吃掉它,而不是让内容缩在中间。 */
-  min-height: 225px;
+  min-height: 222px;
   padding: 34px 28px 32px;
   place-items: center;
   overflow: visible;
