@@ -55,7 +55,7 @@
   --font-kai: "Kaiti SC", "STKaiti", "KaiTi", serif;
 
   /* 立绘裁切微调 */
-  --tibby-image-scale: 1.24;
+  --tibby-image-scale: 1.3;
   --tibby-image-x: 50%;
   --tibby-image-y: 8%;
   --tibby-image-lift: -15px;
@@ -296,10 +296,19 @@ button:focus-visible {
   transform-origin: center center;
 }
 
+/* 运行时状态角标。原来 top:44/right:4 是相对 game-shell,而 shell 上方
+   是招牌的留空区 —— 实测它整个浮在画框**外**的黑底上(y 46.4-63.8,
+   而画框顶在 67.68)。改为挂进画框内,贴 board 右上角内侧。 */
 .dice-runtime-state {
   position: absolute;
-  top: 44px;
-  right: 4px;
+  top: calc(
+    var(--abyssa-frame-header-expose) + var(--abyssa-frame-rail) +
+      var(--abyssa-frame-brass) + var(--abyssa-frame-border) * 3 + 8px
+  );
+  right: calc(
+    var(--abyssa-frame-rail) + var(--abyssa-frame-brass) +
+      var(--abyssa-frame-border) * 3 + 8px
+  );
   z-index: 5;
   padding: 5px 9px;
   border: 1px solid rgb(170 135 74 / 32%);
@@ -504,8 +513,10 @@ button:focus-visible {
   /* k2 = interior宽 1250 / 内容自然宽 1320。宽度是紧约束,
      高度方向本有富余 —— 组件已长高吃掉它(见 tray/table-status)。 */
   --dice-layout-k: calc(1250 / 1320);
+  /* 操作面板越过 board 内沿的下沉量(设计px)。见 .action-dock。 */
+  --dice-dock-sink: 12px;
   /* 内容自然高。组件长高后从 735 变为 831。 */
-  --dice-layout-h: 831px;
+  --dice-layout-h: 830px;
 
   display: grid;
   width: 1320px;
@@ -609,8 +620,11 @@ button:focus-visible {
   transform: rotate(45deg);
 }
 
+/* 立绘面板。左列容器高 831,原先 recess 只有 736 —— 底部空 95px,
+   与右列不齐。这里把高度长起来吃掉它(与 dialogue 分摊),
+   立绘画布变大,人物随之更大。 */
 .portrait-panel {
-  height: 550px;
+  height: 622px;
   overflow: hidden;
 }
 
@@ -736,13 +750,20 @@ button:focus-visible {
          content-area minimum, not a scaled or stretched border. */
   width: calc(100% - 36px);
   justify-self: center;
-  min-height: 154px;
   --abyssa-dialogue-fill: #1d1610;
   --abyssa-dialogue-text: #e3d7bd;
   --abyssa-dialogue-middle: #7d684a;
   --abyssa-dialogue-ornament: #6b5838;
   --abyssa-dialogue-pattern-main: rgb(201 163 92 / 4%);
   --abyssa-dialogue-pattern-second: rgb(255 244 214 / 1.5%);
+}
+
+/* 共享组件的 .abyssa-dialogue[data-auto-height] 定了 min-height:112px,
+   选择器权重高于单类,故这里用同等权重 + 本应用类名压过它。
+   长高是为了和右列对齐(左列原先底部空 95px)。 */
+.tibby-dialogue[data-auto-height],
+.tibby-dialogue[data-auto-height] .abyssa-dialogue__content {
+  min-height: 130px;
 }
 
 .tibby-dialogue [fill="#111515"] {
@@ -805,7 +826,15 @@ button:focus-visible {
   display: grid;
   min-height: 54px;
   margin-top: auto;
-  margin-bottom: calc(var(--abyssa-frame-pad-bottom) / var(--dice-layout-k) * -1);
+  /* 出血到画框上。--dice-dock-sink 是「越过 board 内沿再往下多少设计px」:
+       0  = 贴 board 内沿
+       6  = 压到 brass 外沿
+       12 = 压在 rail 中段(当前值)
+     两段都要除以 k2 换算进内容坐标系(内容整组被 scale(k2) 缩过)。 */
+  margin-bottom: calc(
+    (var(--abyssa-frame-pad-bottom) + var(--dice-dock-sink)) /
+      var(--dice-layout-k) * -1
+  );
   padding: 13px 24px 23px;
   isolation: isolate;
 }
@@ -1044,7 +1073,7 @@ button:focus-visible {
   display: grid;
   /* 竖向本有富余(k2 由宽度决定,高度方向留了 91 设计px 没用),
      组件高度长起来吃掉它,而不是让内容缩在中间。 */
-  min-height: 205px;
+  min-height: 211px;
   padding: 34px 28px 32px;
   place-items: center;
   overflow: visible;
