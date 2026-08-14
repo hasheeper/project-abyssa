@@ -1729,17 +1729,26 @@
 .abyssa-status-panel blockquote::before { position: absolute; top: -3.6px; left: 3.6px; color: var(--abyssa-ornament); font-family: Georgia, serif; font-size: 21.7px; content: "“"; }
 
 /* Full composed screen */
-/* 自然宽由「内部可用区锁 3:2」反推,不再是自由旋钮:
-     layout 高 646(不动) -> layout 宽 = 646 * 1.5 = 969
-     shell  = 969 + RpgFrame padding 37*2 = 1043
-   注意锁的是 __layout(内部可用区)而非 shell 外沿 —— 与 shop 不同,
-   shop 锁的是 board 外沿 1334x889,其内可用区 1250x787 并不是 3:2。
+/* 自然宽由「内部可用区锁 5:3」反推,不是自由旋钮:
+     layout 高 646(不动) -> layout 宽 = 646 * 5/3 = 1076.67
+     shell  = 1076.67 + RpgFrame padding 37*2 = 1150.67
+   用 calc 保持精确,不写成整数 1151(那样比例会差 0.0005)。
 
-   高度链条完全不受影响:screen 自然高仍是 900,故 k2、字号、translateY
-   都不用动。代价是右侧 details 从 868 收到 611(-29.6%)。 */
+   锁的是 __layout(内部可用区)而非 shell 外沿 —— 与 shop 不同,shop 锁的是
+   board 外沿 1334x889,其内可用区 1250x787 并不是 3:2。
+
+   ============ 为什么是 5:3 而不是 3:2 ============
+   先按 3:2 做过,layout 969x646,画布宽只有 951.8 —— 占画布可用宽的 60.1%,
+   过窄。5:3 -> 1094.1,占用率 69.1%,且 details 从 611 回到 719(+17.7%),
+   缓解右侧面板拥挤(它的内容余量本来就是 0)。
+
+   占用率上不去的根因不在比例:画布是 16:9 而界面比它方,高度一吃满宽度就
+   填不满。参照 shop,它的 shell 也只占 76.5%,同样是高度受限。
+
+   高度链条完全不受影响:screen 自然高仍 900,故 k2、字号、translateY 不动。 */
 .abyssa-character-screen {
   container: abyssa-character-screen / inline-size;
-  width: min(100%, 1043px);
+  width: min(100%, calc(646px * 5 / 3 + 74px));
   margin-inline: auto;
   color: var(--abyssa-text, #edf0f0);
 }
