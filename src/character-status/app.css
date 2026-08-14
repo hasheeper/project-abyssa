@@ -49,13 +49,15 @@ button { font: inherit; }
 }
 
 /* ============ 内容整组按高度吃满画布 ============
-   自然尺寸 1440x886(实测值。招牌改压边后只露出 68.4 占流,shell 686,
-   切换栏 116,余下是各层间隙 —— 别手算这个数,量出来的才对)。
+   自然尺寸 1364x900(实测值 —— 别手算,量出来的才对:曾手算成 870.4,
+   实际 886,差了 15.6 的各层间隙)。
+   宽度 1364 是「比 shop/dice 略宽」的调节旋钮:1440 时画布宽 1341,
+   比 shop shell 1212.5 宽 10.6% 过头;1364 -> 1270.7,+4.8% 合适。
 
    还要算上招牌两侧的 PNG 装饰:它高 179 而招牌行只有 95,垂直居中后向上
    探出 screen 顶 48.9px。文档流版有 padding-top:70 兜着,改压边后没了,
    若不计入就会被画布裁平顶部。
-     实际占位高 = 48.9 + 886 = 934.9
+     实际占位高 = 48.9 + 900 = 948.9
 
    ============ 主约束为什么是高度 ============
    本应用宽高比 1440/870.4 = 1.655,而 shop 是 1390/1013.4 = 1.372 ——
@@ -65,25 +67,25 @@ button { font: inherit; }
 
    选高度:三个应用整组高都恰好吃满画布可用高 884,这是「一样大」最直观的
    含义,也与 shop/dice 的做法一致(它们的 1013.4 * 0.87229 正好 = 884)。
-     k2 = 884 / 934.9 = 0.94556
-   宽度随之为 1440 * 0.94556 = 1361.6 < 1584(画布可用宽),不受限。
+     k2 = 884 / 948.9 = 0.93161
+   宽度随之为 1364 * 0.93161 = 1270.7 < 1584(画布可用宽),不受限。
 
    踩过的错:先按内容区对齐(k2 = 1250/1366*0.87229 = 0.798),内容区宽度
    确实等于 shop 的 1090.4,但整组高只有 684.9 —— 画布高度空出 23%,
    界面明显偏小。当时只盯着内容区那一个数,没检查高度利用率。 */
 .abyssa-character-screen {
-  --character-status-k: calc(884 / 934.9);
+  --character-status-k: calc(884 / 948.9);
 
   /* transform 只改绘制不改布局,负 margin 把布局盒子抵成视觉尺寸,
      居中交给 __main 的 place-items。不手算偏移。 */
   /* margin-top 额外加上装饰探出量,把整组往下推,让装饰顶边而非 screen
      顶边贴住画布上沿。 */
   margin-block: calc(
-      (886px * var(--character-status-k) - 886px) / 2 +
+      (900px * var(--character-status-k) - 900px) / 2 +
         48.9px * var(--character-status-k)
     )
-    calc((886px * var(--character-status-k) - 886px) / 2);
-  margin-inline: calc((1440px * var(--character-status-k) - 1440px) / 2);
+    calc((900px * var(--character-status-k) - 900px) / 2);
+  margin-inline: calc((1364px * var(--character-status-k) - 1364px) / 2);
   transform: scale(var(--character-status-k));
   transform-origin: center center;
 }
