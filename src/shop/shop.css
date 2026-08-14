@@ -83,7 +83,7 @@ body { font-family: "Noto Serif SC", "Songti SC", serif; }
      68.4 是招牌压边 30px 后 shell 该在的位置(招牌高 98.4);再加 8px
      让整组(视觉高 884)在 900 画布内垂直居中。 */
   display: grid;
-  margin-top: calc(8px + 68.4px * var(--shop-frame-k));
+  margin-top: calc(8px + var(--abyssa-frame-header-expose) * var(--shop-frame-k));
   padding: var(--abyssa-frame-rail);
   transform: scale(var(--shop-frame-k));
   transform-origin: top center;
@@ -131,9 +131,10 @@ body { font-family: "Noto Serif SC", "Songti SC", serif; }
   min-width: 0;
   /* 尺寸由共享 interior + 本应用的 padding 皮肤推导:
      1250+40+40+2*2 = 1334 / 787+60+38+2*2 = 889 —— 与原型数值完全一致。 */
-  width: calc(var(--abyssa-frame-interior-w) + 40px + 40px + var(--abyssa-frame-border) * 2);
-  height: calc(var(--abyssa-frame-interior-h) + 60px + 38px + var(--abyssa-frame-border) * 2);
-  padding: 60px 40px 38px;
+  width: var(--abyssa-frame-board-w);
+  height: var(--abyssa-frame-board-h);
+  padding: var(--abyssa-frame-pad-top) var(--abyssa-frame-pad-inline)
+    var(--abyssa-frame-pad-bottom);
   overflow: hidden;
   border: var(--abyssa-frame-border) solid #211307;
   background-color: #2a1a0c;

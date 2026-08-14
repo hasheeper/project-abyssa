@@ -13,12 +13,21 @@
  * 含义的数字 —— dice 要么缩 5.3%,要么吞 87px 死留白。而 map 连 board
  * 这一层都没有,根本对齐不进来。
  *
- * 所以统一的是**配方**,不是尺寸:
- *   共享(下面的令牌) —— 内容可用区、rail/brass 厚度、三层描边、整组 k
- *   各应用自己的     —— board padding(皮肤厚薄)、渐变高光、金属角、招牌
+ * 所以统一的是**画框几何**,不是内容:
+ *   共享 —— shell/board 尺寸、padding、rail/brass 厚度、三层描边、
+ *            招牌露出高、整组 k
+ *   各应用自己的 —— 渐变/高光/纹理、金属角有无、招牌上的字
  *
- * 这样 board 尺寸仍随皮肤不同(shop 1334x889 / dice 1322x863),但
- * **内部可用区完全相同**,且 rail 在屏幕上恒为同一厚度。
+ * ============ 曾经错过一次:只对齐 interior ============
+ * 上一版让各应用保留自己的 board padding(误以为「边框随本来样式」指的是
+ * padding),board 尺寸改由 interior + 各自 padding 推导。结果 padding 不同
+ * -> board 不同 -> shell 不同 -> **所有可见边缘全部错位**,实测:
+ *     shell/brass/board  Δ 最大 22.68px
+ *     招牌               Δ 最大 87.23px
+ *     interior           Δ 0.00px  ← 唯一对齐的,恰恰是唯一看不见的
+ * 教训:画框是给人看的,不变量必须定在**可见边缘的绝对位置**上。
+ * padding 决定画框宽度,属于几何,必须共享;「样式」只指皮肤(渐变、高光、
+ * 金属角),不含任何影响尺寸的量。
  *
  * ============ 为什么不变量是「屏幕厚度」而不是「rail/board 比率」 ============
  * board 尺寸不同时这两者互斥。选比率恒定 = 把同一张画框照片放大缩小,
@@ -37,18 +46,41 @@
  * 这是**无单位数字相除**,calc() 合法 —— 与「长度÷长度」那条禁忌无关。
  */
 :root {
-  /* 内容可用区(设计 px)。所有应用的 UI 都画在这个矩形里。 */
+  /* ===== 画框几何(设计 px)。全部共享 —— 任一项各应用自定就会让
+     可见边缘错位。 ===== */
+
+  /* 内容可用区。所有应用的 UI 都画在这个矩形里。 */
   --abyssa-frame-interior-w: 1250px;
   --abyssa-frame-interior-h: 787px;
 
-  /* 边框骨架。厚度共享,皮肤(渐变/高光/金属角)由各应用自己写。 */
+  /* board 内边距。**必须共享**:它决定画框宽度,不是皮肤。 */
+  --abyssa-frame-pad-top: 60px;
+  --abyssa-frame-pad-inline: 40px;
+  --abyssa-frame-pad-bottom: 38px;
+
+  /* 边框骨架厚度。 */
   --abyssa-frame-rail: 22px;
   --abyssa-frame-brass: 3px;
   --abyssa-frame-border: 2px;
   --abyssa-frame-border-hair: 1px;
 
-  /* 整组缩放系数。招牌 + shell 的自然高恰好用满画布可用高。 */
+  /* 招牌露出在 shell 之上的高度。决定 shell 顶边 y,必须共享。 */
+  --abyssa-frame-header-expose: 68.4px;
+
+  /* 整组缩放系数。招牌露出 + shell 的自然高恰好用满画布可用高。 */
   --abyssa-frame-k: 0.87229;
+
+  /* 以上推导量(勿手写,供应用引用):
+       board = interior + padding + 描边*2  = 1334x889
+       shell = board + (brass+hair)*2 + (rail+border)*2 = 1390x945 */
+  --abyssa-frame-board-w: calc(
+    var(--abyssa-frame-interior-w) + var(--abyssa-frame-pad-inline) * 2 +
+      var(--abyssa-frame-border) * 2
+  );
+  --abyssa-frame-board-h: calc(
+    var(--abyssa-frame-interior-h) + var(--abyssa-frame-pad-top) +
+      var(--abyssa-frame-pad-bottom) + var(--abyssa-frame-border) * 2
+  );
 }
 
 .abyssa-stage {
