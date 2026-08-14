@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { RpScene } from "../components/RpScene";
+import { Stage } from "../stage";
 import { ACTORS, TRANSCRIPT } from "./transcript";
 
 const background = import.meta.env.DEV
@@ -42,30 +43,32 @@ export function App() {
   const ended = count >= TRANSCRIPT.length;
 
   return (
-    <main className="rp-app">
-      <header className="rp-app__toolbar">
-        <div className="rp-app__title">
-          <p>ABYSSA UI · SPLIT-SCREEN RP</p>
-          <h1>跑团 / AI RP 界面</h1>
-        </div>
-        <nav className="rp-app__actions" aria-label="播放控制">
-          <button type="button" onClick={advance} disabled={ended}>
-            下一条
-          </button>
-          <button type="button" data-active={auto} onClick={() => setAuto((value) => !value)} disabled={ended}>
-            自动播放
-          </button>
-          <button type="button" onClick={restart}>
-            重新开始
-          </button>
-        </nav>
-      </header>
+    <Stage background="var(--abyssa-rp-backdrop)">
+      <main className="rp-app">
+        <header className="rp-app__toolbar">
+          <div className="rp-app__title">
+            <p>ABYSSA UI · SPLIT-SCREEN RP</p>
+            <h1>跑团 / AI RP 界面</h1>
+          </div>
+          <nav className="rp-app__actions" aria-label="播放控制">
+            <button type="button" onClick={advance} disabled={ended}>
+              下一条
+            </button>
+            <button type="button" data-active={auto} onClick={() => setAuto((value) => !value)} disabled={ended}>
+              自动播放
+            </button>
+            <button type="button" onClick={restart}>
+              重新开始
+            </button>
+          </nav>
+        </header>
 
-      <section className="rp-app__stage" aria-label="分屏 RP 预览">
-        <RpScene actors={ACTORS} messages={messages} background={background} />
-      </section>
+        <section className="rp-app__stage" aria-label="分屏 RP 预览">
+          <RpScene actors={ACTORS} messages={messages} background={background} />
+        </section>
 
-      <footer className="rp-app__hint">空格 / 回车 推进 ｜ 滚轮向上回看历史</footer>
-    </main>
+        <footer className="rp-app__hint">空格 / 回车 推进 ｜ 滚轮向上回看历史</footer>
+      </main>
+    </Stage>
   );
 }

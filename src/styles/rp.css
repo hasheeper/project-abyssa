@@ -4,9 +4,11 @@
    进出被框裁住,滑动才有入画感。 */
 .abyssa-rp {
   /* —— 可调参数 —— */
-  --abyssa-rp-seat-w: clamp(226px, 24.5vw, 386px); /* 立绘框宽度 */
+  /* 固定画布下钉成定值:24.5vw 在内容区 1350 宽时算得 330.75。
+     vw 会与画布缩放叠加成二次缩放(stage/README.md 铁律 1)。 */
+  --abyssa-rp-seat-w: 330.75px;                    /* 立绘框宽度 */
   --abyssa-rp-seat-gap: 14px;                      /* 框与舞台左右边缘的距离,给外层描边留位 */
-  --abyssa-rp-seat-my: clamp(28px, 7.5vh, 84px);   /* 框的上下边距,同时决定框有多矮 */
+  --abyssa-rp-seat-my: 67.5px;                     /* 框的上下边距(原 7.5vh @900) */
   --abyssa-rp-seat-pad: 9px;                       /* 框内留白,立绘不贴边 */
   --abyssa-rp-dim: 0.5;                            /* 非说话者的不透明度 */
 
@@ -266,12 +268,12 @@
 /* 全名有到九个汉字的(艾比希斯·贝尔泽兰),窄席位放不下 17px。
    跟着席位宽收缩,上限即组件库原值。 */
 .abyssa-rp__seat-name .abyssa-nameplate__content strong {
-  font-size: clamp(12.5px, 1.15vw, 17px);
+  font-size: 15.53px; /* 原 clamp(12.5px,1.15vw,17px) @1350 */
   letter-spacing: 0.14em;
 }
 
 .abyssa-rp__seat-name .abyssa-nameplate__content span {
-  font-size: clamp(8px, 0.66vw, 10px);
+  font-size: 8.91px; /* 原 clamp(8px,0.66vw,10px) @1350 */
   letter-spacing: 0.16em;
 }
 
@@ -299,7 +301,7 @@
   flex-direction: column;
   gap: 13px;
   min-height: 0;
-  padding: 18px clamp(12px, 2.2vw, 26px) 22px;
+  padding: 18px 26px 22px; /* 原 clamp(12px,2.2vw,26px) 已达上限 */
   overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-width: thin;
@@ -956,7 +958,7 @@
      尖端在 viewBox x=2,盒心压在气泡边框上,所以
         外探 = box × scale × 0.53   (含半个 7px 外描边)
      26px × 1 → 13.8px。而 .abyssa-rp__log 的横向 padding 是
-     clamp(12px, 2.2vw, 26px),箭头在 820px 以下已 display:none,
+     26px(原 clamp 的上限),
      故最窄生效视口 820px 处 padding = 18px > 13.8px,尖端不会顶到内容边缘。
 
      这一点必须守住:.abyssa-rp__log 是 overflow-y: auto,按规范另一轴
@@ -1502,30 +1504,13 @@
   letter-spacing: 0.24em;
 }
 
-/* ---------- 窄屏 ---------- */
-@media (max-width: 1100px) {
-  .abyssa-rp {
-    --abyssa-rp-seat-w: clamp(172px, 20.5vw, 252px);
-    --abyssa-rp-seat-gap: 9px;
-    --abyssa-rp-seat-my: clamp(16px, 4.5vh, 40px);
-    --abyssa-rp-seat-pad: 6px;
-  }
-  .abyssa-rp__seat > .abyssa-frame__ornaments { inset: 4px; }
-  .abyssa-rp__seat > .abyssa-frame__ornaments i { width: 9px; height: 9px; }
-}
+/* 原有 @media (max-width: 1100px) 的窄屏档已删除:固定画布下内容区宽恒为
+   1350,该查询永不触发,属死代码。 */
 
-@media (max-width: 820px) {
-  .abyssa-rp {
-    grid-template-columns: minmax(0, 1fr);
-    min-height: 420px;
-  }
-  .abyssa-rp__seat { display: none; }
-  .abyssa-rp__center { border-inline: none; }
-  /* 窄屏内容行放到满宽 */
-  .abyssa-rp__message[data-kind="say"] { --abyssa-rp-row-w: 100%; }
-  /* 席位已隐藏,箭头没有指向对象 */
-  .abyssa-rp__arrow { display: none; }
-}
+
+/* 原有 @media (max-width: 820px) 的单栏档(隐藏左右席位)同样删除:
+   固定画布下内容区宽恒为 1350,永不触发。 */
+
 
 /* 动效减弱:降级为纯淡入淡出,而不是把时长清零。
    清零等于硬切,而减弱的诉求是「不要大幅位移」,不是「不要过渡」。

@@ -5,6 +5,7 @@ import "../styles/tokens.css";
 import "../styles/components.css";
 import "../styles/paper-doll.css";
 import "../styles/rp.css";
+import "../stage/stage.css";
 import "./app.css";
 
 createRoot(document.getElementById("root")!).render(

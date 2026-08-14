@@ -1,5 +1,29 @@
+/* ===== 跑团 / AI RP 主界面 =====
+   与 shop / dice / character-status 的关键区别:那三个是**弹入弹出的独立
+   功能面板**,所以套画框(rails + brass + board);rp 是**主要交互场所**,
+   常驻在场,不做边框化 —— 内容直接铺在画布上。
+
+   几何:
+     外层  仍是共享的 16:9 画布 1600x900(Stage 基底不变)
+     中间  内容区锁 3:2 且**高度全占满** —— 900 高 -> 1350 宽,
+           画布左右各余 125,那部分留给画布底纹。
+   与其他应用的可用区(1023.4x614.05)相比明显更大,这是主界面该有的分量。 */
+
+/* 画布外一律纯黑(stage.css 的 .abyssa-stage-root 负责),
+   底纹挂进画布内,随界面缩放并止于画布边界。 */
+:root {
+  --abyssa-rp-backdrop:
+    radial-gradient(circle at 50% 30%, rgb(74 102 100 / 12%), transparent 60%),
+    #101616;
+}
+
+/* 中间内容区:3:2、高度铺满画布,水平居中。
+   高度用 100% 而非 100vh —— 画布已给定高度,vh 会与画布缩放叠加
+   (见 stage/README.md 铁律 1)。 */
 .rp-app {
-  height: 100vh;
+  width: calc(900px * 3 / 2);
+  height: 100%;
+  margin-inline: auto;
   display: flex;
   flex-direction: column;
   background: #101616;
