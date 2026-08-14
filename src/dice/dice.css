@@ -378,10 +378,13 @@ button:focus-visible {
     0 20px 42px rgb(4 2 1 / 52%);
 }
 
+/* 木质压条。z 必须高于 __metal(z:1) —— 操作面板出血到画框上时,
+   要被压条**盖住**(面板在边框之下),而不是骑在边框上面。
+   压条只占 padding 区的四条边,抬高 z 不会遮住 board 内的内容。 */
 .dice-outer-frame__rails {
   position: absolute;
   inset: 0;
-  z-index: 0;
+  z-index: 2;
   display: block;
   pointer-events: none;
 }
@@ -514,9 +517,16 @@ button:focus-visible {
      高度方向本有富余 —— 组件已长高吃掉它(见 tray/table-status)。 */
   --dice-layout-k: calc(1250 / 1320);
   /* 操作面板越过 board 内沿的下沉量(设计px)。见 .action-dock。 */
-  --dice-dock-sink: 12px;
-  /* 内容自然高。组件长高后从 735 变为 831。 */
-  --dice-layout-h: 830px;
+  --dice-dock-sink: 18px;
+  /* 内容整组向上出血进 board 的上边距(设计px)。
+     上边距 60 而下边距 38,加上招牌只压到 y≈106,原先顶部空出一条
+     明显的带子(招牌底到内容顶 40.7px)。内容往上提一截,重心才不偏下。 */
+  --dice-content-rise: 20px;
+  /* 内容自然高。**必须恰好等于 interior 高 / k2 = 787/0.94697 = 831**,
+     使视觉高与 interior 严丝合缝。若设小了,surface 的 place-items:center
+     会把内容按剩余空间的一半往下推,rise 的上移量就被抵掉一部分
+     (踩过:设成 801 时内容被反推 12.4px)。 */
+  --dice-layout-h: 831px;
 
   display: grid;
   width: 1320px;
@@ -524,14 +534,18 @@ button:focus-visible {
          makes the shared component look horizontally crushed. */
   grid-template-columns: minmax(390px, 425px) minmax(560px, 1fr);
   align-items: stretch;
-  /* 负 margin 把布局盒子抵成视觉尺寸,居中交给 surface 的 place-items。 */
-  margin-block: calc(
-    (var(--dice-layout-h) * var(--dice-layout-k) - var(--dice-layout-h)) / 2
+  /* transform-origin 改成 center top:视觉顶边 == 布局顶边,于是「内容上移」
+     可以直接用 margin-top 表达,不必再折算居中偏移。
+     竖向缩放差额全部由 margin-bottom 吸收(布局盒子抵成视觉高)。 */
+  margin-top: calc(var(--dice-content-rise) * -1);
+  margin-bottom: calc(
+    var(--dice-layout-h) * var(--dice-layout-k) - var(--dice-layout-h) +
+      var(--dice-content-rise)
   );
   margin-inline: calc((1320px * var(--dice-layout-k) - 1320px) / 2);
   gap: 32px;
   transform: scale(var(--dice-layout-k));
-  transform-origin: center center;
+  transform-origin: center top;
 }
 
 /* =========================================================
@@ -831,9 +845,14 @@ button:focus-visible {
        6  = 压到 brass 外沿
        12 = 压在 rail 中段(当前值)
      两段都要除以 k2 换算进内容坐标系(内容整组被 scale(k2) 缩过)。 */
+  /* 还要加回 --dice-content-rise:整组上移是靠 margin-top 负值实现的,
+     dock 作为最后一项会被一起带上去,这里补回来它才留在原位。
+     全部除以 k2 换算进内容坐标系(内容整组被 scale(k2) 缩过)。 */
   margin-bottom: calc(
-    (var(--abyssa-frame-pad-bottom) + var(--dice-dock-sink)) /
-      var(--dice-layout-k) * -1
+    (
+        var(--abyssa-frame-pad-bottom) + var(--dice-dock-sink) +
+          var(--dice-content-rise)
+      ) / var(--dice-layout-k) * -1
   );
   padding: 13px 24px 23px;
   isolation: isolate;
@@ -1073,7 +1092,7 @@ button:focus-visible {
   display: grid;
   /* 竖向本有富余(k2 由宽度决定,高度方向留了 91 设计px 没用),
      组件高度长起来吃掉它,而不是让内容缩在中间。 */
-  min-height: 211px;
+  min-height: 225px;
   padding: 34px 28px 32px;
   place-items: center;
   overflow: visible;
