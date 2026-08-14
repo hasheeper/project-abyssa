@@ -1528,7 +1528,7 @@
   box-shadow: 0 3px 9px rgb(0 0 0 / 36%);
   content: attr(data-tooltip);
   font-family: var(--abyssa-font-display);
-  font-size: 7.2px;
+  font-size: 8.3px;
   font-weight: 600;
   letter-spacing: 1.1px;
   line-height: 1;
@@ -1543,7 +1543,7 @@
 .abyssa-status-panel__affiliation[data-tone="demon-cadre"] .abyssa-status-panel__affiliation-icon { background-position: 0 50%; }
 .abyssa-status-panel__affiliation[data-tone="demon-lord"] { --abyssa-affiliation-glow: rgb(203 75 82 / 44%); --abyssa-affiliation-ink: #ce6f78; }
 .abyssa-status-panel__affiliation[data-tone="demon-lord"] .abyssa-status-panel__affiliation-icon { background-position: 50% 50%; }
-.abyssa-status-panel__heading h3 { margin: 0; color: var(--abyssa-text); font-size: 23.4px; font-weight: 600; letter-spacing: 4.5px; line-height: 33.75px; }
+.abyssa-status-panel__heading h3 { margin: 0; color: var(--abyssa-text); font-size: 26.9px; font-weight: 600; letter-spacing: 4.5px; line-height: 33.75px; }
 .abyssa-status-panel__title-accent,
 .abyssa-status-panel__title-root {
   display: inline-block;
@@ -1556,7 +1556,7 @@
   text-shadow: 0 0 10px color-mix(in srgb, var(--abyssa-teal) 30%, transparent);
 }
 .abyssa-status-panel__title-root { color: #fff; }
-.abyssa-status-panel__heading p { margin: 3.6px 0 0; color: var(--abyssa-teal-soft); font-family: var(--abyssa-font-display); font-size: 9.9px; letter-spacing: 1.98px; line-height: 13.05px; }
+.abyssa-status-panel__heading p { margin: 3.6px 0 0; color: var(--abyssa-teal-soft); font-family: var(--abyssa-font-display); font-size: 11.4px; letter-spacing: 1.98px; line-height: 13.05px; }
 .abyssa-status-panel__state {
   display: inline-flex;
   flex: none;
@@ -1564,7 +1564,7 @@
   gap: 8.1px;
   padding-bottom: 2.7px;
   color: var(--abyssa-teal-soft);
-  font-size: 11.7px;
+  font-size: 13.5px;
   letter-spacing: 1.8px;
 }
 .abyssa-status-panel__state::before { width: 7.2px; height: 7.2px; border: 1px solid var(--abyssa-teal-soft); background: var(--abyssa-teal-dark); content: ""; transform: rotate(45deg); }
@@ -1575,16 +1575,16 @@
 .abyssa-status-panel__stats > div { display: grid; grid-template-columns: auto minmax(14.4px, 1fr) auto; align-items: baseline; gap: 8.1px; }
 .abyssa-status-panel__stats > div { height: 18px; }
 .abyssa-status-panel__fields dt,
-.abyssa-status-panel__stats dt { color: var(--abyssa-text-muted); font-size: 10.8px; letter-spacing: .9px; line-height: 15.75px; white-space: nowrap; }
+.abyssa-status-panel__stats dt { color: var(--abyssa-text-muted); font-size: 12.4px; letter-spacing: .9px; line-height: 15.75px; white-space: nowrap; }
 .abyssa-status-panel__stats dt { color: var(--abyssa-text-soft); line-height: 18px; }
 .abyssa-status-panel__fields dt small,
-.abyssa-status-panel__stats dt small { margin-left: 3.6px; color: var(--abyssa-text-muted); font-family: var(--abyssa-font-display); font-size: 7.2px; letter-spacing: .9px; }
+.abyssa-status-panel__stats dt small { margin-left: 3.6px; color: var(--abyssa-text-muted); font-family: var(--abyssa-font-display); font-size: 8.3px; letter-spacing: .9px; }
 .abyssa-status-panel__fields i,
 .abyssa-status-panel__stats i { height: 1px; border-bottom: 1px dotted rgb(148 162 163 / 39%); }
 .abyssa-status-panel__fields dd,
 .abyssa-status-panel__stats dd { margin: 0; color: var(--abyssa-text); white-space: nowrap; }
-.abyssa-status-panel__fields dd { font-size: 10.8px; line-height: 15.75px; }
-.abyssa-status-panel__stats dd { min-width: 27.9px; font-family: var(--abyssa-font-display); font-size: 13.5px; font-weight: 500; line-height: 18px; text-align: right; }
+.abyssa-status-panel__fields dd { font-size: 12.4px; line-height: 15.75px; }
+.abyssa-status-panel__stats dd { min-width: 27.9px; font-family: var(--abyssa-font-display); font-size: 15.5px; font-weight: 500; line-height: 18px; text-align: right; }
 .abyssa-status-panel__stats dd[data-accent] { color: var(--abyssa-teal-soft); }
 
 .abyssa-status-panel__parameters { padding-bottom: 13.5px; }
@@ -1597,7 +1597,7 @@
 }
 .abyssa-status-panel__divider::before,
 .abyssa-status-panel__divider::after { flex: 1; height: 1px; background: rgb(124 139 140 / 52%); content: ""; }
-.abyssa-status-panel__divider span { position: relative; min-width: 140.4px; padding: 0 19.8px; color: var(--abyssa-text-soft); font-family: var(--abyssa-font-display); font-size: 9.9px; letter-spacing: 1.98px; text-align: center; }
+.abyssa-status-panel__divider span { position: relative; min-width: 140.4px; padding: 0 19.8px; color: var(--abyssa-text-soft); font-family: var(--abyssa-font-display); font-size: 11.4px; letter-spacing: 1.98px; text-align: center; }
 .abyssa-status-panel__divider span::before,
 .abyssa-status-panel__divider span::after { position: absolute; top: 50%; width: 5.4px; height: 5.4px; border: 1px solid var(--abyssa-ornament); content: ""; transform: translateY(-50%) rotate(45deg); }
 .abyssa-status-panel__divider span::before { left: 5.4px; }
@@ -1624,7 +1624,7 @@
   content: "";
   pointer-events: none;
 }
-.abyssa-status-panel__subsection-title { display: flex; align-items: center; gap: 8.1px; margin: 0 0 9.9px; color: var(--abyssa-teal-soft); font-family: var(--abyssa-font-display); font-size: 9px; font-weight: 400; letter-spacing: 1.8px; line-height: 12.15px; }
+.abyssa-status-panel__subsection-title { display: flex; align-items: center; gap: 8.1px; margin: 0 0 9.9px; color: var(--abyssa-teal-soft); font-family: var(--abyssa-font-display); font-size: 10.4px; font-weight: 400; letter-spacing: 1.8px; line-height: 14px; }
 .abyssa-status-panel__subsection-title::before { width: 6.3px; height: 6.3px; border: 1px solid var(--abyssa-teal-dark); content: ""; transform: rotate(45deg); }
 .abyssa-status-panel__traits { display: grid; gap: 7px; }
 .abyssa-status-panel__traits article {
@@ -1685,8 +1685,8 @@
 }
 .abyssa-status-panel__trait-icon[data-empty]::after { width: 3px; height: 3px; background: var(--abyssa-teal-dark); }
 .abyssa-status-panel__trait-copy { min-width: 0; }
-.abyssa-status-panel__traits h5 { margin: 0; color: var(--abyssa-text); font-size: 10.8px; font-weight: 600; letter-spacing: .9px; line-height: 15.75px; }
-.abyssa-status-panel__traits p { overflow: hidden; margin: 1px 0 0; color: var(--abyssa-text-muted); font-size: 7.8px; letter-spacing: .45px; line-height: 1.35; text-overflow: ellipsis; white-space: nowrap; }
+.abyssa-status-panel__traits h5 { margin: 0; color: var(--abyssa-text); font-size: 12.4px; font-weight: 600; letter-spacing: .9px; line-height: 17px; }
+.abyssa-status-panel__traits p { overflow: hidden; margin: 1px 0 0; color: var(--abyssa-text-muted); font-size: 9px; letter-spacing: .45px; line-height: 1.35; text-overflow: ellipsis; white-space: nowrap; }
 .abyssa-status-panel__trait-tooltip {
   position: absolute;
   right: 7px;
@@ -1714,7 +1714,7 @@
   transform: translateY(0);
   visibility: visible;
 }
-.abyssa-status-panel__record { position: relative; z-index: 1; margin: 0; color: var(--abyssa-text-soft); font-size: 9.9px; line-height: 1.85; text-align: justify; }
+.abyssa-status-panel__record { position: relative; z-index: 1; margin: 0; color: var(--abyssa-text-soft); font-size: 11.4px; line-height: 1.8; text-align: justify; }
 .abyssa-status-panel__record-initial {
   float: left;
   margin: .08em .22em 0 0;
@@ -1725,8 +1725,8 @@
   line-height: .78;
   text-shadow: 0 0 8px color-mix(in srgb, var(--abyssa-teal) 26%, transparent);
 }
-.abyssa-status-panel blockquote { position: relative; align-self: end; width: 100%; margin: 0; padding: 9px 11.7px 8.1px; border-block: 1px solid var(--abyssa-quote-line, color-mix(in srgb, var(--abyssa-teal-soft) 42%, transparent)); color: var(--abyssa-teal-soft); font-family: "Kaiti SC", "STKaiti", "KaiTi", "FZKai-Z03", cursive; font-size: 13.2px; font-style: normal; letter-spacing: .08em; line-height: 1.7; }
-.abyssa-status-panel blockquote::before { position: absolute; top: -3.6px; left: 3.6px; color: var(--abyssa-ornament); font-family: Georgia, serif; font-size: 18.9px; content: "“"; }
+.abyssa-status-panel blockquote { position: relative; align-self: end; width: 100%; margin: 0; padding: 9px 11.7px 8.1px; border-block: 1px solid var(--abyssa-quote-line, color-mix(in srgb, var(--abyssa-teal-soft) 42%, transparent)); color: var(--abyssa-teal-soft); font-family: "Kaiti SC", "STKaiti", "KaiTi", "FZKai-Z03", cursive; font-size: 15.2px; font-style: normal; letter-spacing: .08em; line-height: 1.65; }
+.abyssa-status-panel blockquote::before { position: absolute; top: -3.6px; left: 3.6px; color: var(--abyssa-ornament); font-family: Georgia, serif; font-size: 21.7px; content: "“"; }
 
 /* Full composed screen */
 /* 自然宽:固定画布下这是「比 shop/dice 略宽多少」的调节旋钮。
@@ -2147,7 +2147,7 @@
     0 14px 34px rgb(5 10 12 / 36%);
 }
 .abyssa-character-screen .abyssa-status-panel__title-line { gap: 6px; }
-.abyssa-character-screen .abyssa-status-panel__heading h3 { font-size: 25.2px; letter-spacing: 4.8px; line-height: 36px; }
+.abyssa-character-screen .abyssa-status-panel__heading h3 { font-size: 29px; letter-spacing: 4.8px; line-height: 36px; }
 .abyssa-character-screen .abyssa-status-panel__affiliation { width: 40px; height: 50px; }
 .abyssa-character-screen__shell::before {
   inset: var(--abyssa-character-shell-inner-inset-theme, 6px);
