@@ -1729,14 +1729,17 @@
 .abyssa-status-panel blockquote::before { position: absolute; top: -3.6px; left: 3.6px; color: var(--abyssa-ornament); font-family: Georgia, serif; font-size: 21.7px; content: "“"; }
 
 /* Full composed screen */
-/* 自然宽:固定画布下这是「比 shop/dice 略宽多少」的调节旋钮。
-   1440 -> 画布 1341(+10.6%) 过头;1364 -> 1296(+6.9%) 仍偏宽;
-   1300 -> 画布 1235.7,比 shop shell(1212.5)宽 +1.9%,合适。
-   四处 cqi(header-half 37 / top-ornament 20 / corner 13.5 / edge-inset 12.42)
-   在 1300 下仍全部落在各自 clamp 的上限,故装饰尺寸不受宽度变化影响。 */
+/* 自然宽由「内部可用区锁 3:2」反推,不再是自由旋钮:
+     layout 高 646(不动) -> layout 宽 = 646 * 1.5 = 969
+     shell  = 969 + RpgFrame padding 37*2 = 1043
+   注意锁的是 __layout(内部可用区)而非 shell 外沿 —— 与 shop 不同,
+   shop 锁的是 board 外沿 1334x889,其内可用区 1250x787 并不是 3:2。
+
+   高度链条完全不受影响:screen 自然高仍是 900,故 k2、字号、translateY
+   都不用动。代价是右侧 details 从 868 收到 611(-29.6%)。 */
 .abyssa-character-screen {
   container: abyssa-character-screen / inline-size;
-  width: min(100%, 1300px);
+  width: min(100%, 1043px);
   margin-inline: auto;
   color: var(--abyssa-text, #edf0f0);
 }

@@ -49,7 +49,7 @@ button { font: inherit; }
 }
 
 /* ============ 内容整组按高度吃满画布 ============
-   自然尺寸 1300x900(实测值 —— 别手算,量出来的才对:曾手算成 870.4,
+   自然尺寸 1043x900(实测值 —— 别手算,量出来的才对:曾手算成 870.4,
    实际 886,差了 15.6 的各层间隙)。宽度旋钮见 components.css 的 __screen。
 
    ============ 装饰探出量只计入一半 ============
@@ -93,7 +93,7 @@ button { font: inherit; }
      translateY 在 transform 里,与居中无关,而且它和 scale 同属绘制,
      写多少就推多少(单位是设计px,视觉量 = 值 * k2)。 */
   margin-block: calc((900px * var(--character-status-k) - 900px) / 2);
-  margin-inline: calc((1300px * var(--character-status-k) - 1300px) / 2);
+  margin-inline: calc((1043px * var(--character-status-k) - 1043px) / 2);
   /* 下推 14.4 设计px:让装饰顶超出画布约 10 画布px(即「回收一半黑边」),
      同时界面底恰好落在 y=892(画布下沿留 8)。
      招牌顶随之从 y=53.4 提到 36.5。translate 必须写在 scale 之前 ——
