@@ -1761,7 +1761,13 @@
   --abyssa-character-header-half-width: min(37cqi, 270px);
   position: relative;
   z-index: 3;
-  margin-bottom: calc(var(--abyssa-frame-header-expose, 68.4px) - 95px);
+  /* 招牌流内只占「露出高」,其余压进下方边框。
+     用本应用自己的 68.4 而**不是**共享的 --abyssa-frame-header-expose ——
+     后者是 shop/dice 的值(87.03),两者 k 不同,自然值本就该不同:
+       shop/dice 87.03 * 0.72422 = 63.03 画布px
+       本应用    68.40 * 0.95054 = 65.02 画布px
+     曾错误共用,导致本应用招牌与主体之间多出 17.71 画布px 空隙。 */
+  margin-bottom: calc(var(--abyssa-character-header-expose, 68.4px) - 95px);
 }
 .abyssa-character-screen__header-row > .abyssa-rpg-header {
   position: relative;

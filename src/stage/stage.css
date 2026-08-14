@@ -66,27 +66,31 @@
 
   /* 招牌露出在 shell 之上的高度(设计px)。决定 shell 顶边 y。
      注意各应用的 k 不同,故「自然值」不同而「视觉值」一致:
-       shop/dice  87.03 * 0.72422 = 63.03 画布px
-       character-status 68.4 * 0.95054 = 65.02 画布px
-     这里的值供 shop/dice 使用;character-status 在 components.css 里
-     用它算招牌流内高,两者恰好各自成立。 */
-  --abyssa-frame-header-expose: 87.03px;
+       shop/dice        80.78 * 0.78024 = 63.03 画布px
+       character-status 68.40 * 0.95054 = 65.02 画布px
+     本令牌**只供 shop/dice**;character-status 用自己的
+     --abyssa-character-header-expose(见 components.css)。
+     曾让两者共用,结果改动此值把 character-status 的招牌与主体之间顶出
+     17.71 画布px 空隙。 */
+  --abyssa-frame-header-expose: 80.78px;
 
   /* 招牌整体放大倍数。只放大招牌本身,**不动露出高** —— 于是 shell 顶边
      和整个画框的几何完全不受影响,放大出来的部分往下压进 board
      (招牌本就允许遮挡下方)。
      若改成放大露出高,整组自然高会变大、k 变小,画框反而缩小,方向就错了。
-     1.27103 使招牌视觉高 = 98 * 1.27103 * 0.72422 = 90.21,与
+     1.17978 使招牌视觉高 = 98 * 1.17978 * 0.78024 = 90.21,与
      character-status 的招牌完全等高。 */
-  --abyssa-frame-header-scale: 1.27103;
+  --abyssa-frame-header-scale: 1.17978;
 
   /* 整组缩放系数(shop 与 dice 共用;character-status 有自己的 k)。
      ============ 为什么不再吃满画布高 ============
-     原值 0.87229 让整组顶到画布底(y 891.97)。现改为与 character-status
-     对齐:主体外沿落在 y 101.44 -> 785.83,其下留空。
-       k = 684.39 / 945 = 0.72422
-     (684.39 是 cs 主体外沿的画布高,945 是 shop/dice shell 的自然高) */
-  --abyssa-frame-k: 0.72422;
+     对齐的是**内容可用区**而非主体外沿:让 shop/dice 的可用区画布尺寸
+     等于 character-status 的 1023.40x614.05(它已锁 5:3)。
+       k = 614.05 / 787 = 0.78024
+     (787 是 shop/dice 可用区的自然高)
+     曾按主体外沿对齐(k=0.72422),那让 shop/dice 整体缩了 17% 明显偏小 ——
+     外沿含边框,而三个应用的边框厚度本就不同,对齐外沿没有意义。 */
+  --abyssa-frame-k: 0.78024;
 
   /* 以上推导量(勿手写,供应用引用):
        board = interior + padding + 描边*2  = 1334x889

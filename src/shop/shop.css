@@ -135,7 +135,15 @@ body { font-family: "Noto Serif SC", "Songti SC", serif; }
   min-width: 0;
   /* 尺寸由共享 interior + 本应用的 padding 皮肤推导:
      1250+40+40+2*2 = 1334 / 787+60+38+2*2 = 889 —— 与原型数值完全一致。 */
-  width: var(--abyssa-frame-board-w);
+  /* 宽由「内容可用区锁 5:3」反推,与 character-status 同一规则:
+       可用区高 787(不动) -> 宽 = 787 * 5/3 = 1311.67
+       board = 1311.67 + padding 40*2 + 描边 2*2 = 1395.67
+     内容自然宽仍是 1250,在 1311.67 的可用区内居中,两侧各留 30.8 自然px。
+     不反过来压高度:那会把可用区高压到 750,而内容自然高 783 会被裁。 */
+  width: calc(
+    var(--abyssa-frame-interior-h) * 5 / 3 + var(--abyssa-frame-pad-inline) * 2 +
+      var(--abyssa-frame-border) * 2
+  );
   height: var(--abyssa-frame-board-h);
   padding: var(--abyssa-frame-pad-top) var(--abyssa-frame-pad-inline)
     var(--abyssa-frame-pad-bottom);
