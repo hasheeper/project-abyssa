@@ -1,44 +1,72 @@
 * { box-sizing: border-box; }
 
+/* 画布外一律纯黑(由 stage.css 的 .abyssa-stage-root 负责),
+   底纹挂进画布内,随界面缩放并止于画布边界。 */
+:root {
+  --abyssa-character-status-backdrop:
+    radial-gradient(circle at 50% 22%, rgb(74 102 100 / 15%), transparent 55%),
+    linear-gradient(90deg, rgb(255 255 255 / 1.2%) 1px, transparent 1px) 0 0 / 48px 48px,
+    linear-gradient(rgb(255 255 255 / 1.2%) 1px, transparent 1px) 0 0 / 48px 48px,
+    #0b1010;
+}
+
 html {
   min-width: 320px;
   min-height: 100%;
   overflow-x: hidden;
-  background: #090d0d;
 }
 
 body {
   min-width: 320px;
-  min-height: 100vh;
   margin: 0;
   overflow-x: hidden;
 }
 
 button { font: inherit; }
 
+/* 固定画布下不再用 100vh —— 高度由画布给。
+   原先 #root/.character-status-app 各写一遍 min-height:100vh,
+   在 Stage 内会把画布撑破。 */
 #root,
 .character-status-app {
-  min-height: 100vh;
+  width: 100%;
+  height: 100%;
 }
 
 .character-status-app {
   color: var(--abyssa-text);
-  background:
-    radial-gradient(circle at 50% 22%, rgb(74 102 100 / 15%), transparent 38rem),
-    linear-gradient(90deg, rgb(255 255 255 / 1.2%) 1px, transparent 1px) 0 0 / 48px 48px,
-    linear-gradient(rgb(255 255 255 / 1.2%) 1px, transparent 1px) 0 0 / 48px 48px,
-    #0b1010;
 }
 
+/* 原为 padding: clamp(12px,2vw,28px) clamp(10px,3vw,44px) clamp(24px,4vw,56px)。
+   画布已等比缩放,vw 会与外层 scale 叠加成二次缩放(见 stage/README.md
+   铁律 1)。固定画布下这层外边距由画布的上下留白负责,故归零。 */
 .character-status-app__main {
+  display: grid;
   width: 100%;
-  min-height: 100vh;
-  overflow-x: clip;
-  padding: clamp(12px, 2vw, 28px) clamp(10px, 3vw, 44px) clamp(24px, 4vw, 56px);
+  height: 100%;
+  padding: 0;
+  place-items: center;
 }
 
-@media (max-width: 520px) {
-  .character-status-app__main {
-    padding-inline: 6px;
-  }
+/* ============ 内容整组 fit 进画布 ============
+   实测内容自然尺寸 1440x957,画布 1600x900 —— 高度差 141px,
+   不处理则底部(切换栏)被画布 overflow:hidden 裁掉,实测 182 个元素溢出。
+
+   与 shop/dice 同一手法:内容一个 px 都不改,整组按比例缩到画布内。
+     k2 = (900 - 上下各 8) / 957 = 0.92372
+   缩放后 1330.2x884,宽度 1330 < 1584 不受限(高度是紧约束)。
+
+   注:这是**过渡值**。目标是让内容可用区在屏幕上与 shop/dice 的
+   interior(1090.4 屏幕px)一致,那要求整组自然高 <= 1013.4 —— 现在是
+   957 + 招牌 95 在流内,超了。见下一步:切换栏须压到 <= 84 自然px、
+   招牌须改成压边露出而非占流。 */
+.abyssa-character-screen {
+  --character-status-k: 0.92372;
+
+  /* transform 只改绘制不改布局,负 margin 把布局盒子抵成视觉尺寸,
+     居中交给 __main 的 place-items。不手算偏移。 */
+  margin-block: calc((957px * var(--character-status-k) - 957px) / 2);
+  margin-inline: calc((1440px * var(--character-status-k) - 1440px) / 2);
+  transform: scale(var(--character-status-k));
+  transform-origin: center center;
 }
