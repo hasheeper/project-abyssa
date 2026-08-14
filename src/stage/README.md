@@ -84,3 +84,64 @@ import "../stage/stage.css";
 - 左右间隙差 ≈ 0（`margin:auto` 那个 bug 的判据就是这里不为 0）
 - **不同视口下内容的设计值必须完全一致** —— 这是等比的硬证据
 - 无页面滚动、内容无溢出
+
+## 画框契约
+
+`stage.css` 的 `:root` 里有一组共享令牌，规定了「中间主要显示区域」的几何。
+
+| 令牌 | 值 | 含义 |
+|---|---|---|
+| `--abyssa-frame-interior-w/h` | 1250×787 | **内容可用区**。所有 UI 都画在这个矩形里 |
+| `--abyssa-frame-rail` | 22px | 外层木质压条厚度 |
+| `--abyssa-frame-brass` | 3px | 黄铜夹层厚度 |
+| `--abyssa-frame-border` / `-hair` | 2px / 1px | 三层描边 |
+| `--abyssa-frame-k` | 0.87229 | 整组缩放系数（所有应用共享） |
+
+### 统一的是配方，不是尺寸
+
+`board` 尺寸**不在契约里**，因为它是内容的下游产物（内容自然尺寸 + padding）。
+各应用的 `padding` 是自己的皮肤，所以 board 尺寸本就不同：
+
+```
+shop  padding 60/40/38  ->  board 1334x889
+dice  padding 38/34/34  ->  board 1322x863
+```
+
+强行把 board 对齐成同一个值，等于让内容去迁就一个没有设计含义的数字
+（dice 要么缩 5.3%，要么吞 87px 死留白），而 map 连 board 这一层都没有。
+
+**但两边的内部可用区完全相同，rail 在屏幕上恒为同一厚度。** 这才是
+「同一套画框」的实质。
+
+### 不变量为什么是「屏幕厚度」而不是「占比」
+
+board 尺寸不同时这两者互斥：
+
+- 占比恒定 = 把同一张画框照片放大缩小 → 大 board 的框更粗
+- **厚度恒定** = 同一批木料铜条做的画框，不同尺寸的画用同宽压条
+
+后者才是「一套」的物理隐喻。因为所有应用共享同一个 `k`，令牌里的设计 px
+恒定即等价于屏幕厚度恒定。
+
+### 接入新应用
+
+1. `board` 尺寸由 interior + 自己的 padding 推导，不要写死：
+   ```css
+   width: calc(var(--abyssa-frame-interior-w) + <padL> + <padR> + var(--abyssa-frame-border) * 2);
+   ```
+2. 内容自然尺寸若不等于 interior，用**无单位除法**算 fit 系数：
+   ```css
+   --k2: 0.94697;  /* = min(1250/自然宽, 787/自然高) */
+   transform: scale(var(--k2));
+   margin-inline: calc((<自然宽>px * var(--k2) - <自然宽>px) / 2);
+   ```
+   长度÷数字在 `calc()` 里合法；长度÷长度不合法（铁律见上）。
+3. 余量交给 `place-items: center`，**绝不手算偏移** —— 那是 dice 偏右
+   219.5px 的成因。
+
+### 实测基准（1600×900 视口，视觉 px）
+
+```
+内容宽    shop 1090.4  ==  dice 1090.4   差 0.0
+rail厚度  shop 24.45   vs  dice 24.40    差 0.05
+```
