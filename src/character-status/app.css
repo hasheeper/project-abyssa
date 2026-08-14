@@ -48,24 +48,32 @@ button { font: inherit; }
   place-items: center;
 }
 
-/* ============ 内容整组 fit 进画布 ============
-   实测内容自然尺寸 1440x957,画布 1600x900 —— 高度差 141px,
-   不处理则底部(切换栏)被画布 overflow:hidden 裁掉,实测 182 个元素溢出。
+/* ============ 内容整组 fit 进共享 interior ============
+   自然尺寸 1440x858(压缩前是 1440x957:切换栏 116->88、招牌 95 从占流改成
+   露出 68.4,共省 99)。
 
-   与 shop/dice 同一手法:内容一个 px 都不改,整组按比例缩到画布内。
-     k2 = (900 - 上下各 8) / 957 = 0.92372
-   缩放后 1330.2x884,宽度 1330 < 1584 不受限(高度是紧约束)。
+   对齐的是**内容区**(.__layout,自然宽 1366),不是整个界面的外沿 ——
+   踩过一次:先按 1250/1440 缩,那让 screen 外沿等于 1250,但 shop/dice 的
+   1250 是画框**内部**的内容区(外沿是 1390),对错了一层,结果内容区宽
+   1185.8 比 shop/dice 的 1090.4 宽了 8.7%。
 
-   注:这是**过渡值**。目标是让内容可用区在屏幕上与 shop/dice 的
-   interior(1090.4 屏幕px)一致,那要求整组自然高 <= 1013.4 —— 现在是
-   957 + 招牌 95 在流内,超了。见下一步:切换栏须压到 <= 84 自然px、
-   招牌须改成压边露出而非占流。 */
+   正解:让 layout 缩放后等于 interior 在屏幕上的宽度。
+     interior 1250 设计px -> 屏幕 1250 * 0.87229 = 1090.36
+     k2 = 1090.36 / 1366 = 0.79821
+   写成 calc(1250 / 1366 * 0.87229) 保留语义:内容自然宽 1366 缩到
+   interior 的屏幕尺寸。0.87229 是画框契约的整组 k(见 stage/stage.css)。
+
+   缩放后 screen 1149.4x684.9,高度 684.9 <= 884 有余量,宽度是紧约束。
+
+   这些除法都是**无单位数字相除**,calc 合法(与「长度÷长度」那条禁忌无关)。 */
 .abyssa-character-screen {
-  --character-status-k: 0.92372;
+  --character-status-k: calc(
+    1250 / 1366 * 0.87229
+  );
 
   /* transform 只改绘制不改布局,负 margin 把布局盒子抵成视觉尺寸,
      居中交给 __main 的 place-items。不手算偏移。 */
-  margin-block: calc((957px * var(--character-status-k) - 957px) / 2);
+  margin-block: calc((858px * var(--character-status-k) - 858px) / 2);
   margin-inline: calc((1440px * var(--character-status-k) - 1440px) / 2);
   transform: scale(var(--character-status-k));
   transform-origin: center center;

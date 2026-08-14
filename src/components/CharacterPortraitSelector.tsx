@@ -1,11 +1,10 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useMemo } from "react";
 import type {
   HTMLAttributes,
   KeyboardEventHandler
 } from "react";
 import { useControllableState } from "../hooks/useControllableState";
 import { cx } from "../utils/cx";
-import { ArrowButton } from "./ArrowButton";
 import { RibbonFrameArt } from "./RibbonButton";
 import { RpgShapeButton } from "./RpgShapeButton";
 import type { StatusPanelAffiliationTone } from "./StatusPanel";
@@ -53,8 +52,6 @@ export function CharacterPortraitSelector({
     defaultValue: initialValue,
     onChange: onValueChange
   });
-  const viewportRef = useRef<HTMLDivElement | null>(null);
-  const selectedItemRef = useRef<HTMLButtonElement | null>(null);
   const resolvedSelectedId = enabledItems.some((item) => item.id === selectedId)
     ? selectedId
     : enabledItems[0]?.id ?? "";
@@ -83,39 +80,11 @@ export function CharacterPortraitSelector({
 
   const previousId = findAdjacentId(-1);
   const nextId = findAdjacentId(1);
-  const canSelectPrevious =
-    previousId !== undefined && previousId !== resolvedSelectedId;
-  const canSelectNext = nextId !== undefined && nextId !== resolvedSelectedId;
 
   const selectId = (id: string | undefined) => {
     if (id === undefined || id === selectedId) return;
     setSelectedId(id);
   };
-
-  useEffect(() => {
-    const viewport = viewportRef.current;
-    const selectedItem = selectedItemRef.current;
-    if (!viewport || !selectedItem) return;
-
-    const viewportRect = viewport.getBoundingClientRect();
-    const selectedItemRect = selectedItem.getBoundingClientRect();
-    const selectedItemCenter =
-      selectedItemRect.left -
-      viewportRect.left +
-      viewport.scrollLeft +
-      selectedItemRect.width / 2;
-    const requestedLeft = selectedItemCenter - viewport.clientWidth / 2;
-    const left = Math.max(
-      0,
-      Math.min(requestedLeft, viewport.scrollWidth - viewport.clientWidth)
-    );
-
-    if (typeof viewport.scrollTo === "function") {
-      viewport.scrollTo({ left, behavior: "smooth" });
-    } else {
-      viewport.scrollLeft = left;
-    }
-  }, [resolvedSelectedId]);
 
   const handleKeyDown: KeyboardEventHandler<HTMLDivElement> = (event) => {
     onKeyDown?.(event);
@@ -151,17 +120,6 @@ export function CharacterPortraitSelector({
       onKeyDown={handleKeyDown}
       {...props}
     >
-      <ArrowButton
-        className="abyssa-character-portrait-selector__arrow abyssa-character-portrait-selector__arrow--previous"
-        direction="left"
-        label="上一个角色"
-        size="sm"
-        shape="diamond"
-        watermark={false}
-        disabled={!canSelectPrevious}
-        onClick={() => selectId(previousId)}
-      />
-
       <div className="abyssa-character-portrait-selector__ribbon">
         <RibbonFrameArt
           className="abyssa-character-portrait-selector__ribbon-art"
@@ -170,49 +128,43 @@ export function CharacterPortraitSelector({
           preserveAspectRatio="none"
         />
         <div className="abyssa-character-portrait-selector__well">
-          <div
-            ref={viewportRef}
-            className="abyssa-character-portrait-selector__viewport"
-          >
-            <div className="abyssa-character-portrait-selector__track">
-              {items.map((item) => {
-                const selected = item.id === resolvedSelectedId;
-                return (
-                  <RpgShapeButton
-                    key={item.id}
-                    ref={selected ? selectedItemRef : undefined}
-                    className="abyssa-character-portrait-selector__item"
-                    label={item.label}
-                    shape="square"
-                    variant={selected ? "teal" : "dark"}
-                    selected={selected}
-                    disabled={item.disabled}
-                    watermark={false}
-                    data-character-id={item.id}
-                    data-tone={item.tone}
-                    aria-current={selected ? "true" : undefined}
-                    tabIndex={selected ? 0 : -1}
-                    onClick={() => selectId(item.id)}
-                  >
-                    <span className="abyssa-character-portrait-selector__portrait">
-                      {item.thumbnailUrl && (
-                        <img
-                          className="abyssa-character-portrait-selector__image"
-                          src={item.thumbnailUrl}
-                          alt={item.thumbnailAlt ?? ""}
-                        />
-                      )}
-                      <span
-                        className="abyssa-character-portrait-selector__number"
-                        aria-hidden="true"
-                      >
-                        {item.number}
-                      </span>
+          <div className="abyssa-character-portrait-selector__track">
+            {items.map((item) => {
+              const selected = item.id === resolvedSelectedId;
+              return (
+                <RpgShapeButton
+                  key={item.id}
+                  className="abyssa-character-portrait-selector__item"
+                  label={item.label}
+                  shape="square"
+                  variant={selected ? "teal" : "dark"}
+                  selected={selected}
+                  disabled={item.disabled}
+                  watermark={false}
+                  data-character-id={item.id}
+                  data-tone={item.tone}
+                  aria-current={selected ? "true" : undefined}
+                  tabIndex={selected ? 0 : -1}
+                  onClick={() => selectId(item.id)}
+                >
+                  <span className="abyssa-character-portrait-selector__portrait">
+                    {item.thumbnailUrl && (
+                      <img
+                        className="abyssa-character-portrait-selector__image"
+                        src={item.thumbnailUrl}
+                        alt={item.thumbnailAlt ?? ""}
+                      />
+                    )}
+                    <span
+                      className="abyssa-character-portrait-selector__number"
+                      aria-hidden="true"
+                    >
+                      {item.number}
                     </span>
-                  </RpgShapeButton>
-                );
-              })}
-            </div>
+                  </span>
+                </RpgShapeButton>
+              );
+            })}
           </div>
         </div>
         <RibbonFrameArt
@@ -223,17 +175,6 @@ export function CharacterPortraitSelector({
           preserveAspectRatio="none"
         />
       </div>
-
-      <ArrowButton
-        className="abyssa-character-portrait-selector__arrow abyssa-character-portrait-selector__arrow--next"
-        direction="right"
-        label="下一个角色"
-        size="sm"
-        shape="diamond"
-        watermark={false}
-        disabled={!canSelectNext}
-        onClick={() => selectId(nextId)}
-      />
     </div>
   );
 }
