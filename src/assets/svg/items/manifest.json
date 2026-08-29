@@ -1,7 +1,7 @@
 {
   "source": "https://github.com/game-icons/icons",
   "sourceCommit": "82d948812bfe3f269ef8f731dcdb07b08160edc4",
-  "count": 316,
+  "count": 317,
   "icons": [
     {
       "id": "stiletto",
@@ -1293,6 +1293,21 @@
       "description": "Twist this hammer like a lever to remove old rusty nails from a piece of timber.",
       "metadataStatus": "verified",
       "sha256": "80b6995738c8c0177186392cdeda19a21d9d62212546ba25d415d0aa327c81c3"
+    },
+    {
+      "id": "hammer-nails",
+      "sourcePath": "lorc/hammer-nails.svg",
+      "sourceUrl": "https://github.com/game-icons/icons/blob/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/hammer-nails.svg",
+      "pageUrl": "https://game-icons.net/1x1/lorc/hammer-nails.html",
+      "author": "Lorc",
+      "license": "CC BY 3.0",
+      "tags": [
+        "hammer",
+        "tool"
+      ],
+      "description": "Hammers are maybe one of the most common member of any good toolbox. They're used to restore wood boxes or build cabinets.",
+      "metadataStatus": "verified",
+      "sha256": "72d51e2b34e46e777ba670fdcee2b6ff1988c0696dd0a8bbd2fb18a008f03215"
     },
     {
       "id": "flat-hammer",

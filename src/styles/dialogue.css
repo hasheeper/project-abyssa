@@ -26,6 +26,66 @@
 .abyssa-dialogue > svg { position: absolute; inset: 0; display: block; width: 100%; height: 100%; overflow: visible; shape-rendering: geometricPrecision; }
 .abyssa-dialogue[data-nameplate="false"] { aspect-ratio: 1200 / 187; }
 .abyssa-dialogue[data-nameplate="false"] .abyssa-dialogue__content { top: 29%; }
+.abyssa-dialogue__name-measure { display: inline-flex; align-items: baseline; white-space: nowrap; }
+
+/* 主名:字距放开一档,不再密排。
+   末字后面会多出一格字距(.16em),不用负 margin 去抵 ——
+   负 margin 让盒宽小于绘制宽,父容器按 max-content 收缩后
+   内容反而溢出(实测 3px)。多出的一格由牌宽量测如实计入,
+   与副名之间的间隔在 __name-secondary 上按净值调。 */
+.abyssa-dialogue__name-main {
+  letter-spacing: .16em;
+}
+
+/* 英文副名:小一档、更暗、字距更开(西文全大写必须开字距才不糊)。
+   顶上压一条细分割线,线左端带一个小方点 —— 与消息流 roll 卡
+   的「线 + 点」同一套装饰语言,给副名一个明确的归属边界。 */
+.abyssa-dialogue__name-secondary {
+  position: relative;
+  /* 净间隔:主名末字已带 .16em 尾距,这里补到视觉 1.15em ——
+     分割线要在两者之间站得住,间隔太紧线就贴上主名了。 */
+  margin-left: .98em;
+  color: var(--abyssa-dialogue-name-secondary, #7f8c8d);
+  font-family: var(--abyssa-font-display, Georgia, serif);
+  font-size: .5em;
+  font-weight: 500;
+  /* 字距再开一档。 */
+  letter-spacing: .3em;
+  white-space: nowrap;
+}
+
+/* 分割线:与副名等宽。渐变方向朝**右端收实** —— 末端有菱点收尾,
+   线就该往那头聚起来;反着来会让点像是挂在虚线头上。 */
+.abyssa-dialogue__name-secondary::before {
+  content: "";
+  position: absolute;
+  top: -.62em;
+  right: .3em;
+  left: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--abyssa-dialogue-name-secondary, #7f8c8d) 30%, transparent),
+    var(--abyssa-dialogue-name-secondary, #7f8c8d)
+  );
+  opacity: .58;
+}
+
+/* 线尾的小菱点:旋转 45° 的方形,与组件库的菱形语言同源(不用圆点)。
+   translate(50%,-50%) 把菱心精确压在线的右端点上 ——
+   靠 right/top 定位盒子边缘会偏半个身位。 */
+.abyssa-dialogue__name-secondary::after {
+  content: "";
+  position: absolute;
+  top: -.62em;
+  right: .3em;
+  width: 3.4px;
+  height: 3.4px;
+  background: var(--abyssa-dialogue-name-secondary, #7f8c8d);
+  transform: translate(50%, -50%) rotate(45deg);
+  opacity: .9;
+}
+
 .abyssa-dialogue[data-auto-height] { min-height: 112px; aspect-ratio: auto; overflow: hidden; }
 .abyssa-dialogue__auto-frame { position: absolute; z-index: 0; inset: 0; display: block; pointer-events: none; }
 .abyssa-dialogue__auto-frame > span { position: absolute; display: block; }
@@ -49,21 +109,33 @@
 .abyssa-dialogue[data-auto-height] .abyssa-dialogue__content { position: relative; z-index: 1; top: auto; right: auto; bottom: auto; left: auto; min-height: 112px; padding: 28px 9.5% 26px; overflow: visible; overflow-wrap: anywhere; white-space: pre-wrap; }
 .abyssa-dialogue[data-auto-height][data-nameplate="true"] .abyssa-dialogue__content { padding-top: 56px; }
 .abyssa-dialogue__name {
+  /* 竖直定位锚在**牌体中线**上,不是"顶边 + 高度"两个量各算各的 ——
+     那样字号一变上下就偏。牌体 y 11~64,中线 37.5/260 = 14.42%,
+     translateY(-50%) 把文字块自身高度居中扣掉,字号再改也不歪。
+     水平左缘对齐牌内文字起点 48/1200。 */
   position: absolute;
-  top: 4.5%;
-  left: 3%;
+  top: calc(37.5 / 260 * 100%);
+  left: calc(48 / 1200 * 100%);
   display: flex;
   align-items: center;
-  justify-content: center;
-  width: 38%;
-  height: 18%;
-  padding-inline: 3%;
+  justify-content: flex-start;
+  transform: translateY(-50%);
+  /* 宽度由内容驱动,不能反过来由牌宽算 —— 那会与组件的量测
+     形成循环依赖:文字不溢出时量到的是框宽而非文字宽,
+     所有短名都收敛到同一个值。max-content 让量测拿到纯文字宽度,
+     牌宽单向跟随它。 */
+  width: max-content;
+  max-width: calc((var(--abyssa-dialogue-name-max, 616) - 48) / 1200 * 100%);
+  /* 高度由内容驱动:牌内竖直居中已由中线锚定保证。 */
+  height: auto;
   overflow: hidden;
-  color: #e8eded;
+  /* 名字不该是纯白:牌面 #111515 上放 #e8eded 是接近最大对比,
+     刺眼且抢正文。退到 text-soft 一档 —— 仍清晰,但不发光。 */
+  color: var(--abyssa-dialogue-name-ink, #ccd4d4);
   font-family: var(--abyssa-font-display, Georgia, serif);
   font-size: clamp(15px, 2.25cqi, 27px);
   font-weight: 600;
-  letter-spacing: .16em;
+  /* 字距挪到 __name-main 上(要抵消末字那一格),这里不设。 */
   white-space: nowrap;
   pointer-events: none;
 }

@@ -88,6 +88,7 @@
   {"id":"cargo-crate","source":"delapouite/cargo-crate.svg","author":"Delapouite","category":"tools","zh":["货箱","板条箱","运输箱"],"en":["cargo crate","crate"],"priority":90,"review":"verified","states":["normal"]},
   {"id":"barrel","source":"delapouite/barrel.svg","author":"Delapouite","category":"tools","zh":["木桶","酒桶","桶"],"en":["barrel","cask"],"priority":85,"review":"verified","states":["normal"]},
   {"id":"claw-hammer","source":"lorc/claw-hammer.svg","author":"Lorc","category":"tools","zh":["羊角锤","拔钉锤","工具锤"],"en":["claw hammer","hammer"],"priority":95,"review":"verified","states":["normal"]},
+  {"id":"hammer-nails","source":"lorc/hammer-nails.svg","author":"Lorc","category":"tools","zh":["锤子与钉子","修缮锤","木工锤"],"en":["hammer and nails","repair hammer"],"priority":95,"review":"verified","states":["normal"]},
   {"id":"flat-hammer","source":"lorc/flat-hammer.svg","author":"Lorc","category":"tools","zh":["锻造锤","平头锤","铁锤"],"en":["flat hammer","smithing hammer"],"priority":95,"review":"verified","states":["normal"]},
   {"id":"skeleton-key","source":"lorc/skeleton-key.svg","author":"Lorc","category":"tools","zh":["万能钥匙","古钥匙","骷髅钥匙"],"en":["skeleton key","master key"],"priority":105,"review":"verified","states":["normal"]},
   {"id":"padlock","source":"lorc/padlock.svg","author":"Lorc","category":"tools","zh":["挂锁","锁头","锁具"],"en":["padlock","lock"],"priority":95,"review":"verified","states":["locked"]},

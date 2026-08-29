@@ -5,7 +5,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const SOURCE_COMMIT = "82d948812bfe3f269ef8f731dcdb07b08160edc4";
-const EXPECTED_ICON_COUNT = 316;
+const EXPECTED_ICON_COUNT = 317;
 const PROJECT_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const ITEMS_ROOT = join(PROJECT_ROOT, "src/assets/svg/items");
 const ICONS_ROOT = join(ITEMS_ROOT, "game-icons");

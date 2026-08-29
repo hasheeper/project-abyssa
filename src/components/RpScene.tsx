@@ -188,6 +188,10 @@ export interface RpActor {
   secondaryName?: string;
   /** 气泡头像 url。不传则退化为短名首字。 */
   avatar?: string;
+  /** 无纸娃娃拆件时使用的完整立绘 url。 */
+  portrait?: string;
+  /** 独立产品构建中纸娃娃拆件的根路径。 */
+  spriteBaseUrl?: string;
   /** 气泡标签与尾巴的强调色。席位名牌不用,那里走组件库配色。 */
   accent?: string;
   /** 未指定表情时的默认值。 */
@@ -224,35 +228,60 @@ export interface RpSceneProps extends Omit<HTMLAttributes<HTMLDivElement>, "chil
   crop?: "full" | "upper" | "knee";
   /** 日志顶部插槽(章节标题、连接状态等)。 */
   header?: ReactNode;
+  /**
+   * 呈现模式,默认 play(演绎)。
+   *   play  演绎 —— 最后一条对白是「当前发言」:居中展开、聚焦装置、
+   *         逐字打出;其余退为历史并压暗(focus + context)。
+   *   log   查阅 —— 没有「当前」:所有消息统一按历史形态渲染
+   *         (含最后一条:收窄靠边、露头像框),但**不压暗**。
+   *         压暗编码的是「与焦点的距离」,查阅态没有焦点,
+   *         人人平等地清晰 —— 这就是「开始查阅」的感觉。
+   * 立绘不受影响:台上是谁、谁在说话由消息数据决定,与呈现模式无关。
+   */
+  mode?: "play" | "log";
+  /**
+   * 挂载时已在场的消息是否跳过入场演出(逐字打字机 + 气泡落位)。
+   *
+   * 用于版式切换回分屏:那批消息用户在 GAL 里已经读过了,
+   * 重新挂载时再逐字打一遍,与过场的整体淡入叠在一起,
+   * 读起来是"内容自己又演了一遍",很怪。
+   * 只影响**挂载那一批**;之后新推进的消息照常演出。
+   */
+  hydrate?: boolean;
 }
 
 /**
- * 重放消息推导两栏站位。
+ * 重放消息推导两栏站位(纯函数)。
  * 返回当前台上的角色,以及每条对白发生时说话者所站的栏位。
+ *
+ * 导出给 GAL 模式复用 —— 两个模式必须共享同一套站位推导,
+ * 否则同一条消息在分屏与 GAL 里左右相反,切换动画就对不上位。
  */
+export function deriveRpStage(messages: RpMessage[]) {
+  const slots: Record<RpSeat, string | null> = { left: null, right: null };
+  const lastSpoke: Record<RpSeat, number> = { left: -1, right: -1 };
+  const sideByMessage = new Map<string, RpSeat>();
+  let tick = 0;
+
+  for (const message of messages) {
+    if (message.kind !== "say") continue;
+    let side: RpSeat;
+    if (slots.left === message.actorId) side = "left";
+    else if (slots.right === message.actorId) side = "right";
+    else if (slots.left === null) side = "left";
+    else if (slots.right === null) side = "right";
+    else side = lastSpoke.left <= lastSpoke.right ? "left" : "right";
+
+    slots[side] = message.actorId;
+    lastSpoke[side] = tick++;
+    sideByMessage.set(message.id, side);
+  }
+
+  return { slots, sideByMessage };
+}
+
 function useStage(messages: RpMessage[]) {
-  return useMemo(() => {
-    const slots: Record<RpSeat, string | null> = { left: null, right: null };
-    const lastSpoke: Record<RpSeat, number> = { left: -1, right: -1 };
-    const sideByMessage = new Map<string, RpSeat>();
-    let tick = 0;
-
-    for (const message of messages) {
-      if (message.kind !== "say") continue;
-      let side: RpSeat;
-      if (slots.left === message.actorId) side = "left";
-      else if (slots.right === message.actorId) side = "right";
-      else if (slots.left === null) side = "left";
-      else if (slots.right === null) side = "right";
-      else side = lastSpoke.left <= lastSpoke.right ? "left" : "right";
-
-      slots[side] = message.actorId;
-      lastSpoke[side] = tick++;
-      sideByMessage.set(message.id, side);
-    }
-
-    return { slots, sideByMessage };
-  }, [messages]);
+  return useMemo(() => deriveRpStage(messages), [messages]);
 }
 
 function prefersReducedMotion() {
@@ -348,7 +377,13 @@ function SeatActor({ actor, seat, phase, active, expression, crop, onExited }: S
             否则循环动画会把一次性动作整条压住。 */}
         <div className="abyssa-rp__actor-idle">
           <div className="abyssa-rp__actor-beat">
-            <PaperDoll characterId={actor.id} expression={expression} crop={crop} alt={actor.name} />
+            <PaperDoll
+              characterId={actor.id}
+              expression={expression}
+              crop={crop}
+              alt={actor.name}
+              spriteBaseUrl={actor.spriteBaseUrl}
+            />
           </div>
         </div>
       </div>
@@ -445,11 +480,18 @@ function useLitAux(messages: RpMessage[]) {
 }
 
 export const RpScene = forwardRef<HTMLDivElement, RpSceneProps>(function RpScene(
-  { actors, messages, background, crop = "knee", header, className, ...props },
+  { actors, messages, background, crop = "knee", header, mode = "play", hydrate = false, className, ...props },
   ref
 ) {
   const logRef = useRef<HTMLDivElement>(null);
   const [stick, setStick] = useState(true);
+
+  // 挂载那一刻已在场的消息 id。hydrate 时它们不播入场演出。
+  // 用 ref 而非 state:这是一份"出生证明",永不更新。
+  const hydratedIds = useRef<Set<string> | null>(null);
+  if (hydratedIds.current === null) {
+    hydratedIds.current = hydrate ? new Set(messages.map((message) => message.id)) : new Set();
+  }
 
   const actorById = useMemo(() => {
     const map = new Map<string, RpActor>();
@@ -494,6 +536,12 @@ export const RpScene = forwardRef<HTMLDivElement, RpSceneProps>(function RpScene
   }, [messages]);
 
   const lastSpeakerId = currentSay?.actorId;
+
+  // 查阅态没有「当前」:摘掉 data-current,最后一条对白与其他历史
+  // 完全同形(收窄靠边、露头像框、无聚焦装置、无逐字)。
+  // 立绘的 active(上浮/明暗)仍由 lastSpeakerId 驱动 —— 台上的事
+  // 属于舞台,不属于呈现模式。
+  const focusId = mode === "play" ? currentSay?.id : undefined;
 
   // 该亮的功能气泡 —— 紧贴当前发言的那一段(见 useLitAux 的说明)。
   const litAux = useLitAux(messages);
@@ -586,6 +634,9 @@ export const RpScene = forwardRef<HTMLDivElement, RpSceneProps>(function RpScene
   };
 
   const renderMessage = (message: RpMessage) => {
+    // 出生即在场的消息:跳过入场演出(打字机 / 气泡落位),直接是终态。
+    const settled = hydratedIds.current?.has(message.id) || undefined;
+
     if (message.kind === "say") {
       const actor = actorById.get(message.actorId);
       const seat = sideByMessage.get(message.id) ?? "left";
@@ -597,8 +648,9 @@ export const RpScene = forwardRef<HTMLDivElement, RpSceneProps>(function RpScene
           key={message.id}
           className="abyssa-rp__message"
           data-kind="say"
+          data-settled={settled}
           data-seat={seat}
-          data-current={message.id === currentSay?.id || undefined}
+          data-current={message.id === focusId || undefined}
           data-onstage={onStage || undefined}
           style={actor?.accent ? ({ "--abyssa-rp-accent": actor.accent } as CSSProperties) : undefined}
         >
@@ -711,8 +763,9 @@ export const RpScene = forwardRef<HTMLDivElement, RpSceneProps>(function RpScene
           key={message.id}
           className="abyssa-rp__message"
           data-kind="roll"
+          data-settled={settled}
           data-outcome={message.outcome}
-          data-recent={litAux.has(message.id) || undefined}
+          data-recent={(mode === "play" && litAux.has(message.id)) || undefined}
         >
           <span className="abyssa-rp__roll-label">{message.label}</span>
           <span className="abyssa-rp__roll-formula">
@@ -725,7 +778,7 @@ export const RpScene = forwardRef<HTMLDivElement, RpSceneProps>(function RpScene
 
     if (message.kind === "chapter") {
       return (
-        <div key={message.id} className="abyssa-rp__message" data-kind="chapter">
+        <div key={message.id} className="abyssa-rp__message" data-kind="chapter" data-settled={settled}>
           <span>{message.text}</span>
         </div>
       );
@@ -738,7 +791,8 @@ export const RpScene = forwardRef<HTMLDivElement, RpSceneProps>(function RpScene
         key={message.id}
         className="abyssa-rp__message"
         data-kind={message.kind}
-        data-recent={litAux.has(message.id) || undefined}
+        data-settled={settled}
+        data-recent={(mode === "play" && litAux.has(message.id)) || undefined}
       >
         <TypedText text={message.text} />
       </div>
@@ -746,7 +800,7 @@ export const RpScene = forwardRef<HTMLDivElement, RpSceneProps>(function RpScene
   };
 
   return (
-    <div ref={ref} className={cx("abyssa-rp", className)} {...props}>
+    <div ref={ref} className={cx("abyssa-rp", className)} data-mode={mode} {...props}>
       {background && (
         <div className="abyssa-rp__bg" style={{ backgroundImage: `url(${background})` }} aria-hidden="true" />
       )}

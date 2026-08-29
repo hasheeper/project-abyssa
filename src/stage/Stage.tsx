@@ -25,11 +25,22 @@ import { useStageScale } from "./useStageScale";
  * 详见 useStageScale.ts 顶部记录的失败路线。
  */
 
+/**
+ * 共享画布尺寸 —— 精确 16:9。
+ *
+ * 这是**唯一**来源。应用若需要在 JS 里参与几何计算(如满幅铺底的世界缩放),
+ * 必须 import 这两个常量,不要重新写一遍 1600 / 900。
+ * mansion 曾自己写 `const STAGE_WIDTH = 1600`,与这里的默认参数、
+ * stage.css 的兜底值形成三份同义常量 —— 改画布尺寸得记住改三处。
+ */
+export const STAGE_CANVAS_WIDTH = 1600;
+export const STAGE_CANVAS_HEIGHT = 900;
+
 export interface StageProps {
   children: ReactNode;
-  /** 画布宽。默认 1600。 */
+  /** 画布宽。默认 STAGE_CANVAS_WIDTH。 */
   width?: number;
-  /** 画布高。默认 900(与 1600 构成精确 16:9)。 */
+  /** 画布高。默认 STAGE_CANVAS_HEIGHT(与宽构成精确 16:9)。 */
   height?: number;
   /** 画布内的背景。挂在画布上而不是 body,底纹才会随界面缩放并止于画布边界。 */
   background?: string;
@@ -41,8 +52,8 @@ export interface StageProps {
 
 export function Stage({
   children,
-  width = 1600,
-  height = 900,
+  width = STAGE_CANVAS_WIDTH,
+  height = STAGE_CANVAS_HEIGHT,
   background,
   canvasClassName,
   className,

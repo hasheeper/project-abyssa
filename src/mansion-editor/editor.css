@@ -1,0 +1,225 @@
+:root {
+  color: #ede4d1;
+  background: #16191d;
+  font-family: Inter, "Noto Sans SC", system-ui, sans-serif;
+  font-synthesis: none;
+}
+
+* { box-sizing: border-box; }
+html, body, #root { width: 100%; height: 100%; margin: 0; overflow: hidden; }
+button, input, select { font: inherit; }
+button { color: inherit; }
+
+.mansion-editor {
+  display: grid;
+  grid-template-rows: 58px minmax(0, 1fr);
+  width: 100%;
+  height: 100%;
+  background: #171a1f;
+}
+
+.mansion-editor--loading,
+.mansion-editor--error {
+  display: grid;
+  place-items: center;
+  color: #d8ccb2;
+}
+
+.mansion-editor__topbar {
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 0 18px;
+  border-bottom: 1px solid #3a352f;
+  background: #211f1d;
+  box-shadow: 0 4px 18px #0008;
+}
+
+.mansion-editor__topbar > div:first-child {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+}
+
+.mansion-editor__topbar strong { font-family: Georgia, "Noto Serif SC", serif; font-size: 18px; }
+.mansion-editor__topbar span { color: #978e80; font-size: 12px; }
+.mansion-editor__view-actions { display: flex; align-items: center; gap: 8px; }
+.mansion-editor__view-actions output { width: 50px; color: #d4b778; text-align: right; font-size: 12px; }
+
+.mansion-editor button,
+.mansion-editor__file-button {
+  min-height: 32px;
+  padding: 6px 10px;
+  border: 1px solid #575047;
+  border-radius: 4px;
+  background: #302d29;
+  cursor: pointer;
+}
+
+.mansion-editor button:hover,
+.mansion-editor__file-button:hover { border-color: #af915b; background: #3a342c; }
+.mansion-editor button:disabled { cursor: not-allowed; opacity: .4; }
+.mansion-editor button.is-primary { border-color: #a98042; background: #6c4e25; }
+.mansion-editor button.is-danger { width: 100%; color: #e9aba4; }
+
+.mansion-editor__workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  min-height: 0;
+}
+
+.mansion-editor__viewport {
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+  touch-action: none;
+  background-color: #282a2d;
+  background-image:
+    linear-gradient(45deg, #2d3034 25%, transparent 25%),
+    linear-gradient(-45deg, #2d3034 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #2d3034 75%),
+    linear-gradient(-45deg, transparent 75%, #2d3034 75%);
+  background-position: 0 0, 0 12px, 12px -12px, -12px 0;
+  background-size: 24px 24px;
+  cursor: grab;
+}
+
+.mansion-editor__viewport.is-drawing { cursor: crosshair; }
+.mansion-editor__viewport:active { cursor: grabbing; }
+
+.mansion-editor__canvas {
+  position: absolute;
+  left: 0;
+  top: 0;
+  overflow: hidden;
+  transform-origin: 0 0;
+  background: #f4f1eb;
+  box-shadow: 0 12px 50px #000a;
+  will-change: transform;
+}
+
+.mansion-editor__layer {
+  position: absolute;
+  display: block;
+  pointer-events: none;
+  user-select: none;
+}
+
+.mansion-editor__regions {
+  position: absolute;
+  z-index: 100;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.mansion-editor__regions polygon,
+.mansion-editor__regions rect,
+.mansion-editor__regions circle { pointer-events: all; }
+.mansion-editor__regions circle { cursor: move; }
+
+.mansion-editor__hint {
+  position: absolute;
+  left: 50%;
+  bottom: 14px;
+  z-index: 5;
+  translate: -50% 0;
+  padding: 7px 12px;
+  border: 1px solid #625b50;
+  border-radius: 999px;
+  background: #17191de8;
+  color: #bdb5a7;
+  font-size: 11px;
+  pointer-events: none;
+}
+
+.mansion-editor__sidebar {
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow-y: auto;
+  border-left: 1px solid #3b3731;
+  background: #211f1d;
+}
+
+.mansion-editor__sidebar section { padding: 14px; border-bottom: 1px solid #39342e; }
+.mansion-editor__section-title { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.mansion-editor__section-actions { display: flex; gap: 6px; }
+.mansion-editor__section-title h2 { margin: 0; font: 600 14px/1.3 Georgia, "Noto Serif SC", serif; }
+.mansion-editor__section-title > span { color: #90877a; font-size: 11px; }
+
+.mansion-editor__fields { display: grid; gap: 9px; margin-top: 12px; }
+.mansion-editor__fields label { display: grid; gap: 4px; color: #a9a092; font-size: 11px; }
+.mansion-editor__fields input,
+.mansion-editor__fields select {
+  width: 100%;
+  height: 34px;
+  padding: 0 9px;
+  border: 1px solid #4a453e;
+  border-radius: 3px;
+  outline: none;
+  color: #eee5d5;
+  background: #17191c;
+}
+.mansion-editor__fields input:focus,
+.mansion-editor__fields select:focus { border-color: #b68e50; }
+.mansion-editor__inline-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.mansion-editor__draft-note {
+  padding: 9px 10px;
+  border: 1px dashed #6b5a40;
+  border-radius: 3px;
+  color: #c5b89e;
+  background: #2a251f;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.mansion-editor__region-list { display: grid; gap: 4px; margin-top: 12px; }
+.mansion-editor__region-list > p { margin: 3px 0; color: #8f877b; font-size: 12px; line-height: 1.7; }
+.mansion-editor__region-list > button {
+  display: grid;
+  grid-template-columns: 8px minmax(0, 1fr);
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  text-align: left;
+}
+.mansion-editor__region-list > button.is-selected { border-color: #c59b5a; background: #413728; }
+.mansion-editor__region-list i { width: 8px; height: 30px; border-radius: 2px; }
+.mansion-editor__region-list span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mansion-editor__region-list small,
+.mansion-editor__layer-list small { display: block; color: #8f877b; font-size: 10px; }
+
+.mansion-editor__layer-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px 10px;
+  max-height: 230px;
+  margin-top: 10px;
+  overflow-y: auto;
+}
+.mansion-editor__layer-list label { display: flex; align-items: center; gap: 6px; min-width: 0; font-size: 11px; }
+.mansion-editor__layer-list span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.mansion-editor__export-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-top: 10px; }
+.mansion-editor__file-button { display: grid; place-items: center; font-size: 13px; }
+.mansion-editor__file-button input { display: none; }
+.mansion-editor__sidebar footer {
+  position: sticky;
+  bottom: 0;
+  margin-top: auto;
+  padding: 10px 14px;
+  border-top: 1px solid #3a352f;
+  color: #a99e8e;
+  background: #191a1c;
+  font-size: 11px;
+}
+
+@media (max-width: 900px) {
+  .mansion-editor__workspace { grid-template-columns: minmax(0, 1fr) 280px; }
+  .mansion-editor__topbar span { display: none; }
+}

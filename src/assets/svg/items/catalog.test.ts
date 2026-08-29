@@ -7,10 +7,10 @@ import selection from "./selection.json";
 import { itemIconCatalog, resolveItemIcon } from "./catalog";
 
 describe("curated RPG item icon catalog", () => {
-  it("contains exactly 316 unique, attributed and verified entries", () => {
-    expect(itemIconCatalog).toHaveLength(316);
-    expect(new Set(itemIconCatalog.map((entry) => entry.id)).size).toBe(316);
-    expect(new Set(itemIconCatalog.map((entry) => entry.source)).size).toBe(316);
+  it("contains exactly 317 unique, attributed and verified entries", () => {
+    expect(itemIconCatalog).toHaveLength(317);
+    expect(new Set(itemIconCatalog.map((entry) => entry.id)).size).toBe(317);
+    expect(new Set(itemIconCatalog.map((entry) => entry.source)).size).toBe(317);
     expect(itemIconCatalog.every((entry) => entry.review === "verified")).toBe(true);
     expect(itemIconCatalog.every((entry) => entry.author && entry.license && entry.sourceUrl && entry.pageUrl)).toBe(true);
     expect(manifest.icons.every((entry) => entry.metadataStatus === "verified")).toBe(true);

@@ -1,0 +1,5009 @@
+:root {
+  --abyssa-battle-backdrop:
+    radial-gradient(
+      ellipse at 50% -14%,
+      rgb(176 137 77 / 10%),
+      transparent 46%
+    )
+    0 0 / auto,
+    radial-gradient(
+      ellipse at 50% 44%,
+      rgb(78 57 37 / 14%),
+      transparent 64%
+    )
+    0 0 / auto,
+    linear-gradient(
+      90deg,
+      transparent 0 119px,
+      rgb(0 0 0 / 18%) 119px 121px
+    )
+    0 0 / 121px 100%,
+    repeating-linear-gradient(
+      3deg,
+      transparent 0 9px,
+      rgb(255 225 170 / 1.1%) 10px,
+      transparent 12px
+    )
+    0 0 / auto,
+    linear-gradient(180deg, #0d0906, #060403 82%);
+}
+
+.abyssa-expedition-theme {
+  --abyssa-header-fill: #21170e;
+  --abyssa-header-middle-frame: #9b7a42;
+  --abyssa-header-ornament: #d9b877;
+  --abyssa-header-pattern: rgb(232 200 122 / 12%);
+  --abyssa-header-text: #e8c87a;
+  --abyssa-frame-dark: #120d08;
+  --abyssa-frame-deep: #070503;
+  --abyssa-text-soft: #cdbda1;
+  --abyssa-text-muted: #88785d;
+  --abyssa-accent-soft: #d7bb7c;
+  --font-display: var(--abyssa-font-display);
+  --font-body: var(--abyssa-font-body);
+  width: 1600px;
+  height: 900px;
+  color: #e8dcc0;
+  font-family: var(--abyssa-font-body);
+}
+
+.abyssa-expedition {
+  position: relative;
+  width: 1600px;
+  height: 900px;
+  overflow: hidden;
+  background: transparent;
+}
+
+.abyssa-expedition::after {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 48%, rgb(0 0 0 / 42%) 100%);
+  content: "";
+  pointer-events: none;
+}
+
+/* 所有几何直接来自 src/stage/stage.css 的共享画框契约。 */
+.abyssa-expedition-frame {
+  --expedition-shell-w: calc(
+    var(--abyssa-frame-board-w) +
+      (
+          var(--abyssa-frame-brass) + var(--abyssa-frame-border-hair) +
+            var(--abyssa-frame-rail) + var(--abyssa-frame-border)
+        ) * 2
+  );
+  --expedition-shell-h: calc(
+    var(--abyssa-frame-board-h) +
+      (
+          var(--abyssa-frame-brass) + var(--abyssa-frame-border-hair) +
+            var(--abyssa-frame-rail) + var(--abyssa-frame-border)
+        ) * 2
+  );
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--expedition-shell-w);
+  height: calc(var(--abyssa-frame-header-expose) + var(--expedition-shell-h));
+  transform: translate(-50%, -50%) scale(var(--abyssa-frame-k));
+  transform-origin: center;
+  z-index: 1;
+}
+
+.abyssa-expedition-frame__header {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  z-index: 3;
+  width: 560px;
+  height: 116px;
+  transform: translateX(-50%) scale(var(--abyssa-frame-header-scale));
+  transform-origin: top center;
+}
+
+.abyssa-expedition-frame__header .abyssa-rpg-header {
+  --abyssa-header-fill: #24170d;
+  --abyssa-header-text: #e8c87a;
+  --abyssa-header-ornament: #c59d59;
+  --abyssa-header-middle-frame: #8a6f3f;
+  --abyssa-header-pattern: rgb(232 200 122 / 10%);
+  --abyssa-frame-dark: #120b07;
+  --abyssa-frame-deep: #070402;
+  width: 560px;
+  filter: drop-shadow(0 8px 10px rgb(0 0 0 / 58%));
+}
+
+.abyssa-expedition-frame__header > span {
+  position: absolute;
+  top: 49px;
+  left: 50%;
+  color: #9b8a68;
+  font-family: var(--abyssa-font-display);
+  font-size: 8px;
+  letter-spacing: 5px;
+  pointer-events: none;
+  transform: translateX(-50%);
+}
+
+.abyssa-expedition-frame__shell {
+  position: absolute;
+  top: var(--abyssa-frame-header-expose);
+  left: 0;
+  width: var(--expedition-shell-w);
+  height: var(--expedition-shell-h);
+  padding: var(--abyssa-frame-rail);
+  border: var(--abyssa-frame-border) solid #090603;
+  background: #1a1008;
+  box-shadow: 0 0 0 2px #3a2817, 0 0 0 4px #0b0704;
+}
+
+.abyssa-expedition-frame__rails,
+.abyssa-expedition-frame__rails i {
+  position: absolute;
+  display: block;
+  pointer-events: none;
+}
+
+.abyssa-expedition-frame__rails {
+  inset: 0;
+  z-index: 2;
+}
+
+.abyssa-expedition-frame__rails i {
+  border: 1px solid #090603;
+  background: linear-gradient(180deg, rgb(255 224 165 / 10%), transparent 28%, rgb(0 0 0 / 62%)), #25170c;
+}
+
+.abyssa-expedition-frame__rails [data-edge="top"] {
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: var(--abyssa-frame-rail);
+  clip-path: polygon(0 0, 100% 0, calc(100% - var(--abyssa-frame-rail)) 100%, var(--abyssa-frame-rail) 100%);
+}
+
+.abyssa-expedition-frame__rails [data-edge="right"] {
+  top: 0;
+  right: 0;
+  width: var(--abyssa-frame-rail);
+  height: 100%;
+  clip-path: polygon(0 0, 100% var(--abyssa-frame-rail), 100% calc(100% - var(--abyssa-frame-rail)), 0 100%);
+}
+
+.abyssa-expedition-frame__rails [data-edge="bottom"] {
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: var(--abyssa-frame-rail);
+  clip-path: polygon(var(--abyssa-frame-rail) 0, calc(100% - var(--abyssa-frame-rail)) 0, 100% 100%, 0 100%);
+}
+
+.abyssa-expedition-frame__rails [data-edge="left"] {
+  top: 0;
+  left: 0;
+  width: var(--abyssa-frame-rail);
+  height: 100%;
+  clip-path: polygon(0 var(--abyssa-frame-rail), 100% 0, 100% 100%, 0 calc(100% - var(--abyssa-frame-rail)));
+}
+
+.abyssa-expedition-frame__brass {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  padding: var(--abyssa-frame-brass);
+  border: var(--abyssa-frame-border-hair) solid #24170a;
+  background: linear-gradient(135deg, #4e3518, #c29b58 18%, #745024 46%, #d2af69 73%, #4d3317);
+}
+
+.abyssa-expedition-frame__board {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  padding: var(--abyssa-frame-pad-top) var(--abyssa-frame-pad-inline)
+    var(--abyssa-frame-pad-bottom);
+  border: var(--abyssa-frame-border) solid #211307;
+  background:
+    radial-gradient(
+      ellipse at 50% -8%,
+      rgb(170 135 74 / 8%),
+      transparent 46%
+    ),
+    radial-gradient(
+      ellipse at 50% 48%,
+      rgb(74 50 28 / 9%),
+      transparent 68%
+    ),
+    repeating-linear-gradient(
+      2deg,
+      transparent 0 11px,
+      rgb(255 225 175 / 1%) 12px,
+      transparent 14px
+    ),
+    linear-gradient(180deg, #1a1009, #100a06);
+  box-shadow:
+    inset 0 0 0 1px rgb(209 163 83 / 20%),
+    inset 0 1px 0 rgb(255 232 184 / 5%),
+    inset 0 0 72px rgb(3 2 1 / 72%);
+}
+
+.abyssa-expedition-frame__interior {
+  display: grid;
+  width: var(--abyssa-frame-interior-w);
+  height: var(--abyssa-frame-interior-h);
+  grid-template-columns: 936px 300px;
+  gap: 14px;
+}
+
+.abyssa-expedition-regions__battlefield {
+  display: grid;
+  min-width: 0;
+  min-height: 0;
+  /* 敌方 / 我方（角色卡与骰盘共用一个大框）。
+     总高仍为 787（280+497+gap 10），底部操作栏位置不变。 */
+  grid-template-rows: 280px 497px;
+  gap: 10px;
+}
+
+.abyssa-expedition-region {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  border: 1px solid #3f301e;
+  background:
+    linear-gradient(180deg, rgb(51 35 20 / 10%), transparent 28%),
+    rgb(5 4 3 / 16%);
+  box-shadow:
+    inset 0 0 0 1px rgb(0 0 0 / 64%),
+    inset 0 0 38px rgb(0 0 0 / 24%),
+    0 1px 0 rgb(217 184 119 / 4%);
+}
+
+.abyssa-expedition-region::before {
+  position: absolute;
+  inset: 4px;
+  border: 1px solid rgb(217 184 119 / 10%);
+  content: "";
+  pointer-events: none;
+}
+
+.abyssa-expedition-enemies {
+  z-index: 3;
+  grid-column: 1;
+  grid-row: 1;
+  isolation: isolate;
+  overflow: visible;
+  background: #0b0908 url("../assets/png3/background/domains_of_chaos-1.png") center 48% / cover no-repeat;
+}
+
+.abyssa-expedition-enemies__haze {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    radial-gradient(ellipse at 18% 52%, rgb(143 153 140 / 18%), transparent 25%),
+    radial-gradient(ellipse at 50% 52%, rgb(150 144 150 / 17%), transparent 24%),
+    radial-gradient(ellipse at 82% 51%, rgb(137 151 156 / 10%), transparent 25%),
+    radial-gradient(ellipse at 50% 46%, transparent 20%, rgb(5 7 7 / 26%) 82%),
+    linear-gradient(180deg, rgb(5 8 9 / 24%), rgb(5 6 6 / 8%) 44%, rgb(5 5 4 / 44%));
+  backdrop-filter: brightness(.48) saturate(.42) contrast(.96) blur(.75px);
+  pointer-events: none;
+}
+
+.abyssa-expedition-enemies__formation {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: grid;
+  overflow: hidden;
+  overflow: clip;
+  contain: paint;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.abyssa-expedition-enemy {
+  position: relative;
+  display: grid;
+  min-width: 0;
+  padding-top: 16px;
+  justify-items: center;
+  grid-template-rows: 43px 1fr;
+}
+
+.abyssa-expedition-enemy header {
+  position: relative;
+  z-index: 4;
+  display: grid;
+  align-content: start;
+  gap: 7px;
+  justify-items: center;
+}
+
+.abyssa-expedition-enemy__stats {
+  display: flex;
+  min-height: 18px;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+/* 狂暴状态独立于当前意图：预警倒数，生效后常驻至怪物死亡。 */
+.abyssa-expedition-enemy__frenzy-status {
+  position: absolute;
+  z-index: 7;
+  top: 84px;
+  left: 50%;
+  display: grid;
+  min-width: 132px;
+  padding: 5px 9px 4px;
+  border: 1px solid #a9752f;
+  color: #f0c775;
+  background:
+    linear-gradient(135deg, rgb(235 172 68 / 16%), transparent 62%),
+    rgb(29 18 8 / 94%);
+  box-shadow: 0 2px 7px rgb(0 0 0 / 74%), 0 0 12px rgb(221 143 48 / 28%);
+  font-family: var(--font-display);
+  line-height: 1;
+  pointer-events: none;
+  text-align: center;
+  transform: translateX(-50%);
+  will-change: opacity;
+  animation: expedition-frenzy-warning 1.25s ease-in-out infinite;
+}
+
+.abyssa-expedition-enemy__frenzy-status small {
+  font-size: 9px;
+  letter-spacing: .18em;
+}
+
+.abyssa-expedition-enemy__frenzy-status b {
+  margin-top: 3px;
+  color: #ffe2a0;
+  font-size: 13px;
+  letter-spacing: .08em;
+}
+
+.abyssa-expedition-enemy__frenzy-status em {
+  margin-top: 3px;
+  color: #cfa35d;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-style: normal;
+  letter-spacing: .08em;
+}
+
+.abyssa-expedition-enemy__frenzy-status[data-imminent] {
+  border-color: #cf5c43;
+  color: #ffad91;
+  box-shadow: 0 2px 7px rgb(0 0 0 / 74%), 0 0 16px rgb(215 76 51 / 44%);
+}
+
+.abyssa-expedition-enemy__frenzy-status[data-active] {
+  border-color: #c94e3d;
+  color: #ffb09c;
+  background:
+    radial-gradient(circle at 50% 0%, rgb(218 73 52 / 24%), transparent 68%),
+    rgb(35 10 8 / 96%);
+  box-shadow: 0 2px 7px rgb(0 0 0 / 78%), 0 0 16px rgb(214 62 43 / 42%);
+  animation: none;
+}
+
+.abyssa-expedition-enemy__frenzy-status[data-active] b {
+  color: #ffe0d7;
+}
+
+.abyssa-expedition-enemy__frenzy-status[data-active] em {
+  color: #e58d79;
+}
+
+@keyframes expedition-frenzy-warning {
+  50% { opacity: .78; }
+}
+
+.abyssa-expedition-enemy header strong {
+  color: #b4a58b;
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: .055em;
+  line-height: 1;
+  text-shadow: 0 2px 3px #000;
+}
+
+.abyssa-expedition-enemy__health {
+  display: flex;
+  height: 11px;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.abyssa-expedition-enemy__attack {
+  display: flex;
+  height: 17px;
+  align-items: baseline;
+  gap: 4px;
+  color: #b98255;
+  font-family: var(--font-display);
+  line-height: 1;
+  text-shadow: 0 1px 2px #000;
+}
+
+.abyssa-expedition-enemy__attack small {
+  color: #806c55;
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: .1em;
+}
+
+.abyssa-expedition-enemy__attack b {
+  color: #cf9862;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.abyssa-expedition-enemy__health i {
+  display: block;
+  width: 9px;
+  height: 9px;
+  border: 1px solid #3a2b1c;
+  border-radius: 50%;
+  background: #33291f;
+  box-shadow: inset 0 1px 2px #0a0704, 0 1px 1px rgb(0 0 0 / 52%);
+}
+
+.abyssa-expedition-enemy__health i[data-filled] {
+  border-color: #6d512c;
+  background: radial-gradient(circle at 35% 28%, #ecd290 0 19%, #b78943 64%, #59401f 100%);
+  box-shadow: inset 0 1px 1px rgb(255 238 184 / 35%), 0 1px 2px #000;
+}
+
+.abyssa-expedition-enemy > img {
+  position: relative;
+  z-index: 2;
+  align-self: end;
+  width: 188px;
+  height: 188px;
+  margin-bottom: 74px;
+  object-fit: contain;
+  opacity: .98;
+  filter:
+    grayscale(.72)
+    sepia(.1)
+    saturate(.58)
+    brightness(.92)
+    contrast(1.2)
+    drop-shadow(0 7px 7px rgb(0 0 0 / 88%));
+  transform: translateY(-18px);
+}
+
+.abyssa-expedition-enemy[data-art="sentinel"] > img {
+  width: 232px;
+  height: 232px;
+}
+
+.abyssa-expedition-enemy[data-art="amalgam"] > img {
+  width: 210px;
+  height: 210px;
+}
+
+.abyssa-expedition-enemy[data-art="choir"] > img {
+  width: 282px;
+  height: 178px;
+}
+
+.abyssa-expedition-enemies__intent-lines {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.abyssa-expedition-intent-line__shadow,
+.abyssa-expedition-intent-line__body {
+  fill: none;
+  stroke-linecap: round;
+  stroke-dasharray: 12px 9px;
+}
+
+.abyssa-expedition-intent-line__shadow {
+  stroke: rgb(38 8 7 / 88%);
+  stroke-width: 7.5px;
+  transform: translateY(1px);
+}
+
+.abyssa-expedition-intent-line__body {
+  stroke: rgb(192 73 66 / 90%);
+  stroke-width: 3.6px;
+  filter: drop-shadow(0 1px 1px rgb(0 0 0 / 62%));
+  animation: expedition-intent-flow 980ms linear infinite;
+}
+
+/* 命中演出只有数百毫秒，期间冻结无关的虚线流动，避免与斩击争抢合成帧。 */
+.abyssa-expedition[data-attack-phase] .abyssa-expedition-intent-line__body,
+.abyssa-expedition[data-support-phase] .abyssa-expedition-intent-line__body {
+  animation-play-state: paused;
+}
+
+.abyssa-expedition-intent-line__socket {
+  fill: #250b08;
+  stroke: #a64e47;
+  stroke-width: 2px;
+  filter: drop-shadow(0 2px 2px rgb(0 0 0 / 72%));
+}
+
+@keyframes expedition-intent-flow {
+  to { stroke-dashoffset: -21px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .abyssa-expedition-intent-line__body { animation: none; }
+}
+
+/* Right rail: restrained casino ledger, with the multiplier as the sole hero
+   numeral and a mechanical purse odometer below it. */
+.abyssa-expedition-sidebar {
+  display: flex;
+  padding: 22px 18px 20px;
+  overflow: hidden;
+  flex-direction: column;
+  background:
+    radial-gradient(ellipse at 50% 2%, rgb(206 145 72 / 12%), transparent 30%),
+    repeating-linear-gradient(2deg, transparent 0 10px, rgb(236 180 105 / 2.8%) 11px, transparent 13px),
+    linear-gradient(90deg, rgb(10 5 3 / 34%), transparent 14%, transparent 86%, rgb(8 4 2 / 38%)),
+    linear-gradient(180deg, #2a180d, #1a0f08 50%, #120a06);
+  box-shadow:
+    inset 0 0 0 1px rgb(0 0 0 / 78%),
+    inset 0 0 48px rgb(0 0 0 / 45%),
+    inset 0 1px 0 rgb(237 205 141 / 8%);
+}
+
+.abyssa-expedition-sidebar::before {
+  inset: 7px;
+  border-color: rgb(193 151 78 / 18%);
+}
+
+.abyssa-expedition-sidebar__corners {
+  position: absolute;
+  inset: 9px;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.abyssa-expedition-sidebar__corners i {
+  position: absolute;
+  width: 17px;
+  height: 17px;
+  border-color: #836334;
+  border-style: solid;
+  opacity: .75;
+}
+
+.abyssa-expedition-sidebar__corners [data-corner="tl"] { top: 0; left: 0; border-width: 2px 0 0 2px; }
+.abyssa-expedition-sidebar__corners [data-corner="tr"] { top: 0; right: 0; border-width: 2px 2px 0 0; }
+.abyssa-expedition-sidebar__corners [data-corner="br"] { right: 0; bottom: 0; border-width: 0 2px 2px 0; }
+.abyssa-expedition-sidebar__corners [data-corner="bl"] { bottom: 0; left: 0; border-width: 0 0 2px 2px; }
+
+.abyssa-expedition-sidebar__header {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  height: 54px;
+  padding: 10px 12px 9px;
+  place-items: center;
+  border: 2px solid #160c06;
+  background:
+    repeating-linear-gradient(2deg, transparent 0 7px, rgb(241 189 116 / 3%) 8px, transparent 10px),
+    linear-gradient(180deg, #3a2212, #211208);
+  box-shadow:
+    0 0 0 1px #6f4b25,
+    inset 0 2px 0 rgb(255 222 158 / 9%),
+    inset 0 -3px 5px rgb(0 0 0 / 42%),
+    0 3px 7px rgb(0 0 0 / 38%);
+  clip-path: polygon(9px 0, calc(100% - 9px) 0, 100% 9px, 100% calc(100% - 9px), calc(100% - 9px) 100%, 9px 100%, 0 calc(100% - 9px), 0 9px);
+}
+
+.abyssa-expedition-sidebar__header span {
+  color: #d7bc80;
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: .22em;
+  line-height: 1;
+  text-indent: .22em;
+}
+
+.abyssa-expedition-sidebar__header small {
+  color: #78674f;
+  font-family: var(--font-display);
+  font-size: 7px;
+  letter-spacing: .18em;
+  line-height: 1;
+  text-indent: .18em;
+}
+
+.abyssa-expedition-multiplier {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  min-height: 188px;
+  margin-top: 14px;
+  padding: 15px 12px 13px;
+  place-items: center;
+  border: 3px solid #160b05;
+  background:
+    radial-gradient(ellipse at 50% 38%, rgb(210 148 73 / 8%), transparent 48%),
+    repeating-linear-gradient(1deg, transparent 0 8px, rgb(237 181 106 / 3%) 9px, transparent 11px),
+    linear-gradient(105deg, #2b170b, #1d1008 48%, #2a160b);
+  box-shadow:
+    0 0 0 1px #745029,
+    inset 0 0 0 2px rgb(224 174 95 / 13%),
+    inset 0 3px 5px rgb(255 220 155 / 5%),
+    inset 0 -7px 12px rgb(0 0 0 / 36%),
+    0 5px 10px rgb(0 0 0 / 38%);
+  grid-template-rows: auto 1fr auto auto;
+}
+
+.abyssa-expedition-multiplier::before,
+.abyssa-expedition-multiplier::after {
+  position: absolute;
+  top: 10px;
+  width: 6px;
+  height: 6px;
+  border: 1px solid #211207;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #e1bd70, #6d4519 72%);
+  box-shadow: 0 1px 2px #000;
+  content: "";
+}
+
+.abyssa-expedition-multiplier::before { left: 10px; }
+.abyssa-expedition-multiplier::after { right: 10px; }
+
+.abyssa-expedition-sidebar__section-title {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 9px;
+}
+
+.abyssa-expedition-sidebar__section-title i {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #725027);
+  flex: 1;
+}
+
+.abyssa-expedition-sidebar__section-title i:last-child { transform: scaleX(-1); }
+
+.abyssa-expedition-sidebar__section-title span {
+  color: #9d835b;
+  font-family: var(--font-display);
+  font-size: 8px;
+  letter-spacing: .16em;
+  text-indent: .16em;
+}
+
+.abyssa-expedition-multiplier__readout {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  filter: drop-shadow(0 5px 2px rgb(0 0 0 / 58%));
+}
+
+.abyssa-expedition-multiplier__readout span {
+  margin-right: 3px;
+  color: #a98249;
+  font-family: var(--font-display);
+  font-size: 28px;
+  text-shadow: 0 2px 1px #080402;
+}
+
+.abyssa-expedition-multiplier__readout strong {
+  color: #f2d488;
+  font-family: var(--font-display);
+  font-size: 53px;
+  font-weight: 600;
+  letter-spacing: -.05em;
+  line-height: .88;
+  text-shadow:
+    0 1px 0 #fff0b6,
+    0 3px 0 #6f431b,
+    0 5px 4px rgb(0 0 0 / 52%);
+}
+
+.abyssa-expedition-multiplier__ticks {
+  display: flex;
+  width: 86%;
+  height: 8px;
+  align-items: center;
+  justify-content: space-between;
+  border-block: 1px solid rgb(116 80 38 / 34%);
+}
+
+.abyssa-expedition-multiplier__ticks i {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: #72502b;
+  box-shadow: 0 1px 1px #000;
+}
+
+.abyssa-expedition-multiplier__ticks i[data-major] { width: 5px; height: 5px; background: #b08347; }
+
+.abyssa-expedition-multiplier > small {
+  color: #675946;
+  font-family: var(--font-display);
+  font-size: 7px;
+  letter-spacing: .18em;
+  text-indent: .18em;
+}
+
+.abyssa-expedition-sidebar__divider {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  height: 24px;
+  place-items: center;
+}
+
+.abyssa-expedition-sidebar__divider::before,
+.abyssa-expedition-sidebar__divider::after {
+  width: 43%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #624720);
+  content: "";
+  position: absolute;
+}
+
+.abyssa-expedition-sidebar__divider::before { left: 0; }
+.abyssa-expedition-sidebar__divider::after { right: 0; transform: scaleX(-1); }
+
+.abyssa-expedition-sidebar__divider i {
+  width: 8px;
+  height: 8px;
+  border: 1px solid #8f6b32;
+  background: #1a0e07;
+  transform: rotate(45deg);
+}
+
+.abyssa-expedition-purse {
+  position: relative;
+  z-index: 2;
+  padding: 16px 13px 15px;
+  border: 3px solid #150c06;
+  background:
+    repeating-linear-gradient(2deg, transparent 0 7px, rgb(236 178 101 / 3%) 8px, transparent 10px),
+    linear-gradient(105deg, #2b190d, #1c1008 52%, #28160b);
+  box-shadow:
+    0 0 0 1px #684822,
+    inset 0 0 0 2px rgb(226 174 91 / 10%),
+    inset 0 3px 5px rgb(255 225 168 / 4%),
+    inset 0 -6px 10px rgb(0 0 0 / 34%),
+    0 4px 9px rgb(0 0 0 / 34%);
+}
+
+.abyssa-expedition-purse__heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.abyssa-expedition-purse__coin {
+  width: 34px;
+  height: 34px;
+  color: #d7ae57;
+  background: currentColor;
+  filter: drop-shadow(0 2px 1px rgb(0 0 0 / 58%));
+  mask: url("../assets/svg/items/game-icons/swap-bag.svg") center / contain no-repeat;
+}
+
+.abyssa-expedition-purse__heading div { display: grid; gap: 3px; }
+
+.abyssa-expedition-purse__heading strong {
+  color: #d3bd8a;
+  font-family: var(--font-display);
+  font-size: 13px;
+  letter-spacing: .2em;
+}
+
+.abyssa-expedition-purse__heading small {
+  color: #76664d;
+  font-family: var(--font-display);
+  font-size: 7px;
+  letter-spacing: .14em;
+}
+
+.abyssa-expedition-odometer {
+  --odometer-digit-h: 56px;
+  position: relative;
+  display: flex;
+  height: 82px;
+  margin-top: 15px;
+  padding: 12px 18px;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  border: 3px solid #120905;
+  background:
+    repeating-linear-gradient(2deg, transparent 0 6px, rgb(246 193 114 / 4%) 7px, transparent 9px),
+    linear-gradient(180deg, #59371a 0, #2d190c 11px, #1a0e07 calc(100% - 11px), #5b391b 100%);
+  box-shadow:
+    0 0 0 1px #79532a,
+    inset 0 2px 0 rgb(255 224 162 / 12%),
+    inset 0 -3px 6px rgb(0 0 0 / 45%),
+    0 4px 8px rgb(0 0 0 / 40%);
+  clip-path: polygon(7px 0, calc(100% - 7px) 0, 100% 7px, 100% calc(100% - 7px), calc(100% - 7px) 100%, 7px 100%, 0 calc(100% - 7px), 0 7px);
+}
+
+.abyssa-expedition-odometer::before {
+  position: absolute;
+  inset: 10px 15px;
+  border: 2px solid #0c0704;
+  background: #120c08;
+  box-shadow: inset 0 8px 12px #000, inset 0 -8px 12px #000, 0 0 0 1px #7a552d;
+  content: "";
+}
+
+.abyssa-expedition-odometer::after {
+  position: absolute;
+  top: 50%;
+  right: 15px;
+  left: 15px;
+  z-index: 4;
+  height: 18px;
+  border-block: 1px solid rgb(228 190 112 / 12%);
+  background: linear-gradient(180deg, rgb(255 240 192 / 2%), transparent 45%, rgb(0 0 0 / 7%));
+  content: "";
+  pointer-events: none;
+  transform: translateY(-50%);
+}
+
+.abyssa-expedition-odometer__reel {
+  position: relative;
+  z-index: 2;
+  display: block;
+  width: 35px;
+  height: 56px;
+  overflow: hidden;
+  border-inline: 1px solid #6a4b29;
+  background:
+    radial-gradient(ellipse at 50% 50%, #3b2d1b 0 30%, #17100a 72%),
+    #140e09;
+  box-shadow:
+    inset 0 13px 12px rgb(0 0 0 / 78%),
+    inset 0 -13px 12px rgb(0 0 0 / 76%),
+    inset 3px 0 4px rgb(255 222 147 / 2%),
+    inset -3px 0 4px rgb(0 0 0 / 46%);
+}
+
+.abyssa-expedition-odometer__reel::before {
+  position: absolute;
+  z-index: 3;
+  inset: 50% 0 auto;
+  height: 1px;
+  background: rgb(239 203 132 / 13%);
+  content: "";
+}
+
+/* 位移交由组件的内联 transform 驱动（累计位移、只向前滚），
+   此处不再用 keyframe，否则会覆盖内联 transform。 */
+.abyssa-expedition-odometer__strip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: grid;
+  width: 100%;
+  grid-template-rows: repeat(30, var(--odometer-digit-h));
+  will-change: transform;
+}
+
+.abyssa-expedition-odometer__reel[data-order="0"] { --odometer-delay: 0; }
+.abyssa-expedition-odometer__reel[data-order="1"] { --odometer-delay: 1; margin-right: 8px; }
+.abyssa-expedition-odometer__reel[data-order="2"] { --odometer-delay: 2; }
+.abyssa-expedition-odometer__reel[data-order="3"] { --odometer-delay: 3; }
+.abyssa-expedition-odometer__reel[data-order="4"] { --odometer-delay: 4; }
+
+.abyssa-expedition-odometer__strip i,
+.abyssa-expedition-odometer__strip b {
+  display: grid;
+  height: var(--odometer-digit-h);
+  place-items: center;
+  color: #655840;
+  font-family: var(--font-display);
+  font-size: 27px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.abyssa-expedition-odometer__strip b {
+  color: #f0d792;
+  text-shadow: 0 1px 1px #000, 0 0 7px rgb(213 168 74 / 20%);
+}
+
+.abyssa-expedition-odometer__screw {
+  position: absolute;
+  z-index: 6;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  border: 1px solid #211307;
+  border-radius: 50%;
+  background: radial-gradient(circle at 36% 30%, #d0a85b, #5d3b16 72%);
+  box-shadow: 0 1px 2px #000;
+  transform: translateY(-50%);
+}
+
+.abyssa-expedition-odometer__screw::after {
+  position: absolute;
+  top: 2px;
+  left: 1px;
+  width: 4px;
+  height: 1px;
+  background: #3a240f;
+  content: "";
+  transform: rotate(-18deg);
+}
+
+.abyssa-expedition-odometer__screw[data-side="left"] { left: 5px; }
+.abyssa-expedition-odometer__screw[data-side="right"] { right: 5px; }
+
+.abyssa-expedition-purse__footer {
+  display: flex;
+  margin-top: 12px;
+  padding-top: 10px;
+  align-items: baseline;
+  justify-content: space-between;
+  border-top: 1px solid #342717;
+}
+
+.abyssa-expedition-purse__footer span {
+  color: #75664f;
+  font-family: var(--font-display);
+  font-size: 7px;
+  letter-spacing: .16em;
+}
+
+.abyssa-expedition-purse__footer strong {
+  color: #cda957;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: .06em;
+}
+
+/* Party nameplates: portrait-first cards based on the supplied tabletop
+   reference. Full-height repository PNGs are cropped in the viewport. */
+.abyssa-expedition-party {
+  --party-card-gap: 8px;
+  grid-column: 1;
+  grid-row: 2;
+  padding: 8px 18px;
+  overflow: visible;
+  background:
+    linear-gradient(180deg, rgb(226 188 124 / 4%), transparent 26%, rgb(0 0 0 / 8%)),
+    repeating-linear-gradient(2deg, transparent 0 9px, rgb(255 224 165 / 1%) 10px, transparent 12px),
+    #1b120b;
+  box-shadow:
+    inset 0 0 0 1px rgb(217 184 119 / 8%),
+    inset 0 1px 0 rgb(255 231 177 / 4%),
+    inset 0 0 36px rgb(13 7 3 / 22%),
+    0 1px 0 rgb(217 184 119 / 4%);
+}
+
+.abyssa-expedition-party__cards {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  width: 100%;
+  height: 285px;
+  transform: translateY(14px);
+  padding-inline: 34px;
+  align-items: stretch;
+  gap: 0;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  justify-items: center;
+}
+
+.abyssa-expedition-party-column {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  width: 100%;
+  height: 100%;
+  align-content: center;
+  grid-template-rows: 216px 35px 34px;
+  justify-items: center;
+}
+
+.abyssa-expedition-party-card {
+  --party-tone: #745a35;
+  --party-tone-deep: #2c2115;
+  --party-tone-soft: #b7955c;
+  position: relative;
+  display: grid;
+  width: 160px;
+  height: 216px;
+  min-width: 0;
+  min-height: 0;
+  border: 2px solid #090603;
+  background: var(--party-tone-deep);
+  box-shadow:
+    0 0 0 1px #5b4528,
+    0 3px 8px rgb(0 0 0 / 52%),
+    inset 0 0 0 1px rgb(235 207 151 / 10%);
+  grid-template-rows: minmax(0, 1fr) 37px;
+  isolation: isolate;
+}
+
+.abyssa-expedition-party-nameplate {
+  position: relative;
+  z-index: 7;
+  display: grid;
+  width: 160px;
+  height: 31px;
+  margin-top: 3px;
+  place-items: center;
+  border: 1px solid #201307;
+  background:
+    linear-gradient(180deg, rgb(255 225 175 / 5%), transparent 42%),
+    #1b1109;
+  box-shadow:
+    0 0 0 1px #684b25,
+    inset 0 0 0 2px rgb(0 0 0 / 34%),
+    inset 0 0 0 3px rgb(211 171 92 / 8%),
+    0 2px 4px rgb(0 0 0 / 48%);
+  clip-path: polygon(7px 0, calc(100% - 7px) 0, 100% 7px, 100% 100%, 0 100%, 0 7px);
+}
+
+.abyssa-expedition-party-nameplate::before {
+  position: absolute;
+  top: 3px;
+  right: 4px;
+  bottom: 3px;
+  left: 4px;
+  border: 1px solid rgb(176 139 70 / 25%);
+  content: "";
+}
+
+.abyssa-expedition-party-nameplate strong {
+  position: relative;
+  z-index: 1;
+  color: #cdbd9f;
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .16em;
+  line-height: 1;
+  text-indent: .16em;
+  text-transform: uppercase;
+}
+
+.abyssa-expedition-party-link {
+  position: relative;
+  z-index: 10;
+  display: block;
+  width: 48px;
+  /* 卡牌与名牌放大后缩短空白段，终点仍精确落在锁定菱形中心。 */
+  height: 36px;
+  pointer-events: none;
+  opacity: .23;
+  transition: opacity 180ms ease, filter 180ms ease;
+}
+
+.abyssa-expedition-party-link svg {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  /* 严格截断菱形一端的圆角描边与光晕，避免丝线穿进骰面。 */
+  overflow: hidden;
+}
+
+.abyssa-expedition-party-link::after {
+  position: absolute;
+  /* 7px 内容 + 1px 边框的旋转中心与 SVG 起点完全重合。 */
+  bottom: -4.5px;
+  left: 50%;
+  width: 7px;
+  height: 7px;
+  border: 1px solid #8d6b35;
+  background: #1c1209;
+  box-shadow: 0 0 0 2px rgb(13 8 4 / 72%);
+  content: "";
+  transform: translateX(-50%) rotate(45deg);
+}
+
+.abyssa-expedition-party-link path {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.abyssa-expedition-party-link__under {
+  stroke: rgb(7 4 2 / 76%);
+  stroke-width: 4px;
+}
+
+.abyssa-expedition-party-link__main {
+  stroke: #8c6c3d;
+  stroke-width: 1.4px;
+}
+
+.abyssa-expedition-party-link__aura,
+.abyssa-expedition-party-link__high {
+  opacity: 0;
+}
+
+.abyssa-expedition-party-column[data-active] .abyssa-expedition-party-nameplate {
+  box-shadow:
+    0 0 0 1px #a47b39,
+    inset 0 0 0 2px rgb(0 0 0 / 34%),
+    inset 0 0 0 3px rgb(231 199 127 / 16%),
+    0 0 10px rgb(219 179 91 / 18%);
+}
+
+.abyssa-expedition-party-column[data-active] .abyssa-expedition-party-nameplate strong {
+  color: #f0d89c;
+}
+
+.abyssa-expedition-party-column[data-active] .abyssa-expedition-party-link {
+  opacity: 1;
+}
+
+.abyssa-expedition-party-column[data-active] .abyssa-expedition-party-link__under {
+  stroke: rgb(28 16 5 / 84%);
+  stroke-width: 4px;
+}
+
+.abyssa-expedition-party-column[data-active] .abyssa-expedition-party-link__main {
+  stroke: #ffe7a5;
+  stroke-width: 2px;
+}
+
+.abyssa-expedition-party-column[data-active] .abyssa-expedition-party-link__aura {
+  stroke: #d7a94b;
+  stroke-width: 8px;
+  opacity: .13;
+}
+
+.abyssa-expedition-party-column[data-active] .abyssa-expedition-party-link__high {
+  stroke: #fff8dc;
+  stroke-width: 1px;
+  opacity: .7;
+}
+
+.abyssa-expedition-party-column[data-active] .abyssa-expedition-party-link::after {
+  border-color: #efd086;
+  background: #d6a84f;
+  box-shadow: 0 0 0 2px #2a1909, 0 0 8px rgb(255 220 132 / 72%);
+}
+
+.abyssa-expedition-party-card[data-tone="crimson"] { --party-tone: #7b342f; --party-tone-deep: #351713; --party-tone-soft: #c27463; }
+.abyssa-expedition-party-card[data-tone="steel"] { --party-tone: #3d6079; --party-tone-deep: #182934; --party-tone-soft: #7ca1b5; }
+.abyssa-expedition-party-card[data-tone="verdant"] { --party-tone: #477051; --party-tone-deep: #1b3422; --party-tone-soft: #82a775; }
+.abyssa-expedition-party-card[data-tone="ochre"] { --party-tone: #7d643d; --party-tone-deep: #332919; --party-tone-soft: #b99a60; }
+.abyssa-expedition-party-card[data-tone="violet"] { --party-tone: #654b72; --party-tone-deep: #2c2034; --party-tone-soft: #9d7fad; }
+
+.abyssa-expedition-party-card::after {
+  position: absolute;
+  inset: 3px;
+  z-index: 5;
+  border: 1px solid color-mix(in srgb, var(--party-tone-soft) 64%, #21150c);
+  content: "";
+  pointer-events: none;
+}
+
+.abyssa-expedition-party-card__crest {
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  z-index: 8;
+  width: 16px;
+  height: 16px;
+  border: 2px solid #171006;
+  background: linear-gradient(135deg, #e0c27b, #846127 70%);
+  box-shadow: 0 0 0 1px #9c7a3e, 0 2px 4px rgb(0 0 0 / 62%);
+  transform: translateX(-50%) rotate(45deg);
+}
+
+.abyssa-expedition-party-card__crest::after {
+  position: absolute;
+  inset: 4px;
+  border: 1px solid #493319;
+  content: "";
+}
+
+.abyssa-expedition-party-card__portrait {
+  position: relative;
+  min-height: 0;
+  margin: 4px 4px 0;
+  overflow: hidden;
+  border: 1px solid #100b07;
+  background:
+    radial-gradient(circle at 50% 30%, color-mix(in srgb, var(--party-tone) 72%, #d9c49a), transparent 58%),
+    linear-gradient(180deg, var(--party-tone-deep), #0d0906);
+  box-shadow: inset 0 0 24px rgb(0 0 0 / 58%);
+}
+
+.abyssa-expedition-party-card__portrait-pattern {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(45deg, transparent 47%, rgb(236 213 168 / 5%) 48% 52%, transparent 53%),
+    linear-gradient(-45deg, transparent 47%, rgb(236 213 168 / 4%) 48% 52%, transparent 53%);
+  background-size: 26px 26px;
+  opacity: .75;
+}
+
+.abyssa-expedition-party-card__portrait img {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  z-index: 2;
+  display: block;
+  width: 120%;
+  max-width: none;
+  height: auto;
+  filter: drop-shadow(0 4px 3px rgb(0 0 0 / 42%));
+  transform: translateX(-50%);
+}
+
+.abyssa-expedition-party-card[data-character="abyssa"] .abyssa-expedition-party-card__portrait img { width: 119%; top: -7px; }
+.abyssa-expedition-party-card[data-character="eustice"] .abyssa-expedition-party-card__portrait img { width: 126%; top: -5px; }
+.abyssa-expedition-party-card[data-character="elora"] .abyssa-expedition-party-card__portrait img { width: 120%; top: -4px; }
+.abyssa-expedition-party-card[data-character="kororo"] .abyssa-expedition-party-card__portrait img { width: 121%; top: -5px; }
+.abyssa-expedition-party-card[data-character="norma"] .abyssa-expedition-party-card__portrait img { width: 123%; top: -4px; }
+
+.abyssa-expedition-party-card__health {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 4;
+  display: grid;
+  min-height: 36px;
+  padding: 4px 5px 3px;
+  border-top: 2px solid #0a0603;
+  border-bottom: 0;
+  background: linear-gradient(180deg, rgb(18 12 8 / 92%), #120c08);
+  box-shadow: 0 -5px 12px rgb(0 0 0 / 26%);
+  grid-template-columns: 31px minmax(0, 1fr);
+  align-items: center;
+  gap: 5px;
+}
+
+/* 左侧徽标：枪铁灰盾牌，内部就是盾牌层数。
+   构造法与原红色 HP 徽标一致——亮面在上、边框比主色更亮。
+   金属取灰而非取色：极低饱和的冷灰，靠明暗差做浮雕，不靠色相。 */
+.abyssa-expedition-party-card__shield {
+  display: grid;
+  width: 29px;
+  height: 27px;
+  place-items: center;
+  border: 1px solid #9ea4a7;
+  color: #eef0f1;
+  background: linear-gradient(180deg, #7e858a, #33383c);
+  box-shadow:
+    inset 0 0 0 2px rgb(255 255 255 / 12%),
+    inset 0 2px 2px rgb(255 255 255 / 15%),
+    0 1px 2px #000;
+  clip-path: polygon(50% 0, 94% 20%, 88% 76%, 50% 100%, 12% 76%, 6% 20%);
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-shadow: 0 1px 2px rgb(0 0 0 / 72%);
+}
+
+/* 有盾时透出一圈冷白反光，是金属高光而非彩色辉光 */
+.abyssa-expedition-party-card__shield:not([data-empty]) {
+  filter: drop-shadow(0 0 4px rgb(214 220 224 / 34%));
+}
+
+/* 无盾时收成空槽：脱色压暗，只留形状 */
+.abyssa-expedition-party-card__shield[data-empty] {
+  border-color: #464b4e;
+  color: #6b7276;
+  background: linear-gradient(180deg, #2f3336, #191c1e);
+  box-shadow: inset 0 0 0 2px rgb(255 255 255 / 4%), 0 1px 2px #000;
+}
+
+/* 一排按六格排布：上限三心只占左半，不渲染多余心 */
+.abyssa-expedition-party-card__hearts {
+  display: grid;
+  min-width: 0;
+  align-items: center;
+  gap: 1px;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.abyssa-expedition-party-card__hearts i {
+  display: block;
+  width: 16px;
+  height: 16px;
+  background: #4a2d26;
+  filter: drop-shadow(0 1px 0 #050302);
+  mask-image: url("../assets/svg/8-1-heart-drop.svg");
+  mask-position: center;
+  mask-repeat: no-repeat;
+  mask-size: contain;
+  opacity: .58;
+}
+
+.abyssa-expedition-party-card__hearts i[data-filled] {
+  background: linear-gradient(180deg, #e36e58, #9f342a 72%);
+  filter: drop-shadow(0 1px 0 #511a15) drop-shadow(0 0 3px rgb(202 75 56 / 24%));
+  opacity: 1;
+}
+
+.abyssa-expedition-party-card__hearts i[data-pending-damage] {
+  background: repeating-linear-gradient(135deg, #edc762 0 3px, #b97d28 3px 5px);
+  filter: drop-shadow(0 1px 0 #51360f) drop-shadow(0 0 3px rgb(229 180 65 / 38%));
+  opacity: 1;
+}
+
+
+.abyssa-expedition-party-card__skills {
+  position: relative;
+  z-index: 3;
+  display: grid;
+  padding: 4px 5px 5px;
+  background: color-mix(in srgb, var(--party-tone-deep) 82%, #0c0805);
+  gap: 3px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.abyssa-expedition-party-card__skills span {
+  display: grid;
+  min-width: 0;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--party-tone-soft) 48%, #160e08);
+  color: #e1d4bb;
+  background:
+    linear-gradient(135deg, rgb(255 255 255 / 5%), transparent 48%),
+    color-mix(in srgb, var(--party-tone) 58%, #15100b);
+  box-shadow: inset 0 0 0 2px rgb(0 0 0 / 24%), 0 1px 0 rgb(236 213 168 / 7%);
+}
+
+.abyssa-expedition-party-card__skills span[data-empty] {
+  border-color: color-mix(in srgb, var(--party-tone-soft) 25%, #100a06);
+  background: rgb(8 5 3 / 36%);
+  box-shadow: inset 0 2px 5px rgb(0 0 0 / 48%);
+}
+
+.abyssa-expedition-party-card__skills span > i {
+  display: block;
+  width: 22px;
+  height: 22px;
+  color: #e4d9c1;
+  background: currentColor;
+  filter: drop-shadow(0 1px 1px rgb(0 0 0 / 72%));
+  mask-position: center;
+  mask-repeat: no-repeat;
+  mask-size: contain;
+}
+
+.abyssa-expedition-party-card__skills [data-icon="all-for-one"] { mask-image: url("../assets/svg/0-0-all-for-one.svg"); }
+.abyssa-expedition-party-card__skills [data-icon="sword"] { mask-image: url("../assets/svg/0-1-bouncing-sword.svg"); }
+.abyssa-expedition-party-card__skills [data-icon="miracle"] { mask-image: url("../assets/svg/1-0-embrassed-energy.svg"); }
+.abyssa-expedition-party-card__skills [data-icon="wand"] { mask-image: url("../assets/svg/1-1-fairy-wand.svg"); }
+.abyssa-expedition-party-card__skills [data-icon="gravity"] { mask-image: url("../assets/svg/2-0-pentagram-rose.svg"); }
+.abyssa-expedition-party-card__skills [data-icon="star"] { mask-image: url("../assets/svg/2-1-explosion-rays.svg"); }
+.abyssa-expedition-party-card__skills [data-icon="arsenal"] { mask-image: url("../assets/svg/3-0-assassin-pocket.svg"); }
+.abyssa-expedition-party-card__skills [data-icon="mask"] { mask-image: url("../assets/svg/3-1-duality-mask.svg"); }
+.abyssa-expedition-party-card__skills [data-icon="moon"] { mask-image: url("../assets/svg/4-0-moon.svg"); }
+.abyssa-expedition-party-card__skills [data-icon="goo"] { mask-image: url("../assets/svg/4-1-goo-explosion.svg"); }
+.abyssa-expedition-party-card__skills [data-icon="split-cross"] { mask-image: url("../assets/svg/6-0-split-cross.svg"); }
+.abyssa-expedition-party-card__skills [data-icon="fast-arrow"] { mask-image: url("../assets/svg/6-1-fast-arrow.svg"); }
+.abyssa-expedition-party-card__skills [data-icon="heart"] { mask-image: url("../assets/svg/8-1-heart-drop.svg"); }
+
+/* 明暗骰面板与 CSS 3D 骰子，保持原组件 DOM 与选中结构。 */
+.abyssa-expedition-dice-panel {
+  --dice-size: 104px;
+  --dice-half: 52px;
+  --dice-surface-start: #6a482c;
+  --dice-surface-mid: #3b2517;
+  --dice-surface-end: #180e08;
+  --dice-edge: #987044;
+  --dice-pip-start: #393532;
+  --dice-pip-end: #070809;
+  height: 217px;
+  padding: 4px 18px 13px;
+  align-self: end;
+  grid-column: 1;
+  grid-row: 2;
+  overflow: visible;
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+  isolation: isolate;
+}
+
+/* 骰盘已经位于我方大框内部，不再另起一层外框和角饰。 */
+.abyssa-expedition-dice-panel::before,
+.abyssa-expedition-dice-panel__corners {
+  display: none;
+}
+
+.abyssa-expedition-dice-panel__corners {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.abyssa-expedition-dice-panel__corners i {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-color: #9a7d46;
+  border-style: solid;
+  opacity: .85;
+}
+
+.abyssa-expedition-dice-panel__corners [data-corner="tl"] { top: 8px; left: 8px; border-width: 2px 0 0 2px; }
+.abyssa-expedition-dice-panel__corners [data-corner="tr"] { top: 8px; right: 8px; border-width: 2px 2px 0 0; }
+.abyssa-expedition-dice-panel__corners [data-corner="br"] { right: 8px; bottom: 8px; border-width: 0 2px 2px 0; }
+.abyssa-expedition-dice-panel__corners [data-corner="bl"] { bottom: 8px; left: 8px; border-width: 0 0 2px 2px; }
+
+.abyssa-expedition-dice-panel__tray {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  height: 168px;
+  /* 左右各让出 1px 边框宽，使骰位中心与上方角色五列共用同一锚点。 */
+  padding: 26px 33px;
+  place-items: center;
+  overflow: visible;
+  border: 1px solid #060402;
+  background:
+    linear-gradient(180deg, rgb(222 181 111 / 7%), transparent 18%, rgb(0 0 0 / 24%) 78%),
+    radial-gradient(ellipse at 50% 40%, #17100a 0%, #100a06 68%, #0c0704 100%);
+  box-shadow:
+    0 0 0 1px rgb(146 104 56 / 24%),
+    inset 0 0 0 2px rgb(170 135 74 / 11%),
+    inset 0 2px 0 rgb(255 225 164 / 6%),
+    inset 0 12px 22px rgb(0 0 0 / 55%),
+    inset 0 -12px 21px rgb(0 0 0 / 57%),
+    inset 10px 0 16px rgb(0 0 0 / 19%),
+    inset -10px 0 16px rgb(0 0 0 / 19%),
+    0 3px 7px rgb(0 0 0 / 30%);
+}
+
+.abyssa-expedition-dice-panel__pattern {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.abyssa-expedition-dice-panel__pattern::before {
+  position: absolute;
+  inset: -30px;
+  background:
+    linear-gradient(45deg, transparent 47%, rgb(215 187 124 / 5%) 48% 52%, transparent 53%),
+    linear-gradient(-45deg, transparent 47%, rgb(215 187 124 / 5%) 48% 52%, transparent 53%);
+  background-size: 38px 38px;
+  content: "";
+}
+
+.abyssa-expedition-dice-panel__row {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  width: 100%;
+  align-items: center;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  justify-items: center;
+}
+
+/* Expedition die-face rig v2.1. The battle screen owns this configurable
+   face engine; Dice's plain pip component remains untouched. */
+.expedition-die {
+  --expedition-die-engraving: #e2d4ae;
+  --expedition-die-corner-ink: #b9aa8e;
+  --expedition-die-edge: rgb(217 184 119 / 10%);
+  --expedition-die-socket: rgb(0 0 0 / 50%);
+  position: relative;
+  width: var(--dice-size);
+  height: var(--dice-size);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  perspective: 620px;
+  transition: translate 160ms ease, filter 160ms ease, opacity 160ms ease;
+}
+
+.expedition-die[data-rolling] {
+  animation: expedition-die-tumble calc(var(--expedition-die-roll-duration) * .75) ease;
+}
+
+.expedition-die__cube {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transition: transform var(--expedition-die-roll-duration, .9s) cubic-bezier(.2, .75, .3, 1);
+  will-change: transform;
+}
+
+.expedition-die__face {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border: 1px solid rgb(0 0 0 / 80%);
+  border-radius: 15%;
+  background:
+    linear-gradient(148deg,
+      color-mix(in srgb, var(--expedition-die-theme) 60%, #26190f) 0%,
+      color-mix(in srgb, var(--expedition-die-theme) 38%, #170f08) 56%,
+      color-mix(in srgb, var(--expedition-die-theme) 22%, #0d0804) 100%);
+  box-shadow:
+    inset 0 0 0 2px var(--expedition-die-edge),
+    inset 0 2px 3px rgb(255 255 255 / 15%),
+    inset 0 -6px 12px rgb(0 0 0 / 50%);
+  backface-visibility: hidden;
+}
+
+.expedition-die__face[data-face="1"] { transform: translateZ(var(--dice-half)); }
+.expedition-die__face[data-face="6"] { transform: rotateY(180deg) translateZ(var(--dice-half)); }
+.expedition-die__face[data-face="3"] { transform: rotateY(90deg) translateZ(var(--dice-half)); }
+.expedition-die__face[data-face="4"] { transform: rotateY(-90deg) translateZ(var(--dice-half)); }
+.expedition-die__face[data-face="2"] { transform: rotateX(90deg) translateZ(var(--dice-half)); }
+.expedition-die__face[data-face="5"] { transform: rotateX(-90deg) translateZ(var(--dice-half)); }
+
+.expedition-die__gloss {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(58% 42% at 30% 20%, rgb(255 255 255 / 13%), transparent 66%);
+  pointer-events: none;
+}
+
+.expedition-die__corner {
+  position: absolute;
+  top: 6%;
+  left: 8.5%;
+  display: flex;
+  align-items: center;
+  color: var(--expedition-die-corner-ink);
+  flex-direction: column;
+  line-height: 1;
+}
+
+.expedition-die__corner > b {
+  color: #b9aa8e;
+  font-family: var(--font-display);
+  font-size: calc(var(--dice-size) * .185);
+  font-weight: 600;
+  text-shadow: 0 1px 1px rgb(0 0 0 / 76%);
+  transition: color 140ms ease, text-shadow 140ms ease;
+}
+
+.expedition-die__corner > i {
+  display: block;
+  width: calc(var(--dice-size) * .135);
+  height: calc(var(--dice-size) * .135);
+  margin-top: calc(var(--dice-size) * .012);
+  filter: grayscale(.08) brightness(.86) drop-shadow(0 1px 1px rgb(0 0 0 / 68%));
+  opacity: .74;
+  transition: color 140ms ease, filter 140ms ease, opacity 140ms ease;
+}
+
+.expedition-die svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  fill: none;
+  stroke: currentcolor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.9;
+}
+
+.expedition-die svg [data-fill] { fill: currentcolor; stroke: none; }
+.expedition-die svg [data-cut] { fill: rgb(0 0 0 / 42%); stroke: none; }
+.expedition-die svg [data-fine] { stroke-width: 1.4; }
+.expedition-die svg [data-heavy] { stroke-width: 2.8; }
+.expedition-die svg [data-wax] { fill: #8e3030; stroke: #5d1c1c; stroke-width: 1.6; }
+.expedition-die svg [data-wax-mark] { fill: #571818; stroke: none; }
+
+.expedition-die__verb {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 52%;
+  height: 52%;
+  color: var(--expedition-die-engraving);
+  filter: drop-shadow(0 2px 2px rgb(0 0 0 / 60%));
+  transform: translate(-50%, -50%);
+  transition: opacity 300ms ease, transform 350ms ease;
+}
+
+.expedition-die__verb-glyph {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: currentcolor;
+  mask: var(--expedition-die-verb-icon) center / contain no-repeat;
+  -webkit-mask: var(--expedition-die-verb-icon) center / contain no-repeat;
+}
+
+.expedition-die__rail {
+  position: absolute;
+  right: 8.5%;
+  bottom: 8.5%;
+  display: flex;
+  width: calc(var(--dice-size) * .135);
+  height: auto;
+  padding: calc(var(--dice-size) * .085) 0;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: calc(var(--dice-size) * .032);
+  border-radius: calc(var(--dice-size) * .07);
+  background: linear-gradient(180deg, rgb(0 0 0 / 34%), rgb(0 0 0 / 10%) 60%, rgb(255 255 255 / 5%));
+  box-shadow:
+    inset 0 2px 3px rgb(0 0 0 / 60%),
+    inset 0 -1px rgb(255 255 255 / 7%),
+    0 1px rgb(255 255 255 / 5%);
+  transition: opacity 300ms ease;
+}
+
+.expedition-die__stud {
+  display: block;
+  width: calc(var(--dice-size) * .079);
+  height: calc(var(--dice-size) * .079);
+  color: var(--expedition-die-socket);
+  flex: none;
+  transition: color 250ms ease, filter 250ms ease;
+}
+
+.expedition-die__stud svg { overflow: visible; }
+.expedition-die__stud svg [data-gem-shine] { fill: rgb(255 255 255 / 24%); stroke: none; }
+.expedition-die__stud svg [data-gem-edge] { fill: none; stroke: rgb(0 0 0 / 45%); stroke-width: 1; }
+.expedition-die__stud svg [data-gem-off-fill] { fill: currentcolor; stroke: none; opacity: .55; }
+.expedition-die__stud svg [data-gem-off-edge] { fill: none; stroke: rgb(255 255 255 / 13%); stroke-width: 1.4; }
+.expedition-die__stud svg [data-gem-core] { fill: rgb(90 60 10 / 45%); stroke: none; }
+.expedition-die__stud svg [data-wild-rays] { fill: none; stroke: currentcolor; stroke-width: 1.5; }
+
+.expedition-die__stud[data-on] {
+  color: var(--expedition-die-engraving);
+  filter: drop-shadow(0 1px 1px rgb(0 0 0 / 60%)) drop-shadow(0 0 4px rgb(232 200 122 / 35%));
+}
+
+.expedition-die__rail[data-wild] {
+  padding: calc(var(--dice-size) * .1) 0;
+  gap: 0;
+}
+
+/* 无行动面复用既有 rail 凹刻，只把三格长槽缩成单格短槽。 */
+.expedition-die__rail[data-blank] {
+  box-sizing: border-box;
+  height: calc(var(--dice-size) * .23);
+  padding: calc(var(--dice-size) * .018) 0;
+  gap: 0;
+  color: #ad433f;
+}
+
+.expedition-die__unusable-mark {
+  display: block;
+  width: 100%;
+  height: 100%;
+  color: inherit;
+  filter:
+    drop-shadow(0 1px 0 rgb(27 3 4 / 96%))
+    drop-shadow(0 0 2px rgb(143 38 35 / 32%));
+}
+
+.expedition-die__unusable-mark svg [data-unusable-cut] {
+  fill: currentcolor;
+  stroke: #551615;
+  stroke-linejoin: miter;
+  stroke-width: .7;
+}
+
+.expedition-die__unusable-mark svg [data-unusable-bevel] {
+  fill: none;
+  stroke: #dc8175;
+  stroke-width: .65;
+  opacity: .38;
+}
+
+.expedition-die__stud[data-wild] {
+  width: calc(var(--dice-size) * .125);
+  height: calc(var(--dice-size) * .125);
+  color: #f7e3a4;
+  filter: drop-shadow(0 0 8px rgb(247 227 164 / 70%));
+  animation: expedition-wild-stud 1.9s ease-in-out infinite;
+}
+
+/* 高 power 面（4/5）：一颗大菱形，不排小菱形、更不写数字。
+   与 data-wild 同一套构造法——收 gap、放大、加辉光。 */
+.expedition-die__rail[data-grand] {
+  padding: calc(var(--dice-size) * .1) 0;
+  gap: 0;
+}
+
+.expedition-die__stud[data-grand] {
+  width: calc(var(--dice-size) * .132);
+  height: calc(var(--dice-size) * .132);
+  color: #ffe9b0;
+  filter:
+    drop-shadow(0 1px 1px rgb(0 0 0 / 60%))
+    drop-shadow(0 0 9px rgb(255 216 128 / 62%));
+}
+
+/* power 5：再推一档亮度与体积，拉开与 4 的差别 */
+.expedition-die__rail[data-power="5"] .expedition-die__stud[data-grand] {
+  width: calc(var(--dice-size) * .152);
+  height: calc(var(--dice-size) * .152);
+  color: #fff6d6;
+  filter:
+    drop-shadow(0 1px 1px rgb(0 0 0 / 60%))
+    drop-shadow(0 0 7px rgb(255 232 160 / 78%))
+    drop-shadow(0 0 15px rgb(255 200 96 / 46%));
+}
+
+/* 大菱形的内高光更张扬一些 */
+.expedition-die__stud[data-grand] svg [data-gem-shine] {
+  fill: rgb(255 255 255 / 38%);
+}
+
+.expedition-die__face[data-quality="rust"] {
+  --expedition-die-engraving: #a98a63;
+  --expedition-die-edge: rgb(196 58 58 / 90%);
+  --expedition-die-socket: rgb(70 16 16 / 75%);
+  box-shadow:
+    inset 0 0 0 2px #bb3c3c,
+    inset 0 0 0 4px rgb(120 26 26 / 50%),
+    inset 0 2px 3px rgb(255 255 255 / 10%),
+    inset 0 -6px 12px rgb(0 0 0 / 55%),
+    inset 0 0 22px rgb(180 50 50 / 18%);
+}
+
+.expedition-die__face[data-quality="gild"] {
+  --expedition-die-engraving: #f5e2a8;
+  --expedition-die-edge: rgb(240 214 150 / 92%);
+  animation: expedition-gild-face 2.4s ease-in-out infinite;
+}
+
+.expedition-die__face[data-quality="none"] {
+  --expedition-die-engraving: #8d8d92;
+  --expedition-die-edge: rgb(190 190 200 / 22%);
+  --expedition-die-socket: rgb(255 255 255 / 6%);
+  background:
+    linear-gradient(148deg,
+      color-mix(in srgb, var(--expedition-die-theme) 46%, #33333a),
+      color-mix(in srgb, var(--expedition-die-theme) 20%, #12121a));
+}
+
+.expedition-die__face[data-quality="none"] .expedition-die__gloss {
+  background: radial-gradient(56% 40% at 32% 20%, rgb(255 255 255 / 30%), transparent 62%);
+}
+
+.expedition-die__face[data-quality="none"] .expedition-die__verb { opacity: .15; }
+.expedition-die__face[data-quality="none"] .expedition-die__rail { opacity: .18; }
+.expedition-die__face[data-quality="none"] .expedition-die__corner { color: #d8d0ba; }
+
+.expedition-die__shadow {
+  position: absolute;
+  right: 4%;
+  bottom: -15px;
+  left: 4%;
+  height: 14px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgb(0 0 0 / 68%), transparent 70%);
+  pointer-events: none;
+  transition: scale 160ms ease, opacity 160ms ease;
+}
+
+/* 铭面计数共用同一圆牌；锈铭与金铭同时存在时横向并排。 */
+.expedition-die__quality-counts {
+  position: absolute;
+  z-index: 8;
+  right: -6px;
+  bottom: -18px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  pointer-events: none;
+}
+
+.expedition-die__quality-count {
+  display: grid;
+  width: 25px;
+  height: 25px;
+  place-items: center;
+  border: 1px solid;
+  border-radius: 50%;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.expedition-die__quality-count[data-quality="rust"] {
+  border-color: #98564f;
+  color: #f4dfd4;
+  background: linear-gradient(145deg, #91383c 0%, #681f29 54%, #351016 100%);
+  box-shadow:
+    0 0 0 2px #1f0a09,
+    0 4px 8px rgb(0 0 0 / 76%),
+    inset 0 1px rgb(255 222 205 / 16%),
+    inset 0 -3px 5px rgb(22 3 7 / 48%);
+  text-shadow: 0 1px 2px #210508;
+}
+
+.expedition-die__quality-count[data-quality="gild"] {
+  border-color: #9c814c;
+  color: #f5e7bd;
+  background: linear-gradient(145deg, #a3843d 0%, #6e5423 54%, #34260e 100%);
+  box-shadow:
+    0 0 0 2px #1d1608,
+    0 4px 8px rgb(0 0 0 / 76%),
+    inset 0 1px rgb(255 238 181 / 20%),
+    inset 0 -3px 5px rgb(27 17 3 / 52%);
+  text-shadow: 0 1px 2px #241703;
+}
+
+.expedition-die[data-held] {
+  translate: 0 -9px;
+}
+
+.expedition-die[data-held] .expedition-die__shadow {
+  opacity: .58;
+  scale: .76;
+}
+
+.expedition-die__selection {
+  --lock-light: #e5cc8b;
+  --lock-mid: #a57b39;
+  --lock-dark: #4b3012;
+  --lock-line: rgb(225 196 130 / 58%);
+  --lock-aura: rgb(215 187 124 / 16%);
+  position: absolute;
+  z-index: 5;
+  inset: -6px;
+  display: block;
+  filter: drop-shadow(0 3px 3px rgb(0 0 0 / 54%));
+  pointer-events: none;
+  animation: expedition-die-lock-in 220ms cubic-bezier(.2, .76, .24, 1) both;
+}
+
+.expedition-die__selection [data-part="inner-frame"] {
+  position: absolute;
+  inset: 4px;
+  border: 1px solid var(--lock-line);
+  border-radius: 10px;
+  background: radial-gradient(circle, transparent 55%, var(--lock-aura));
+  box-shadow: inset 0 0 0 1px rgb(5 3 2 / 34%), 0 0 0 1px rgb(5 3 2 / 42%);
+}
+
+.expedition-die__selection [data-corner] {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  background: linear-gradient(135deg, var(--lock-light), var(--lock-mid) 42%, var(--lock-dark) 88%);
+  clip-path: polygon(0 0, 100% 0, 100% 3px, 4px 3px, 4px 100%, 0 100%);
+  box-shadow: inset 1px 1px rgb(255 245 211 / 18%);
+}
+
+.expedition-die__selection [data-corner="tl"] { top: 0; left: 0; }
+.expedition-die__selection [data-corner="tr"] { top: 0; right: 0; transform: rotate(90deg); }
+.expedition-die__selection [data-corner="br"] { right: 0; bottom: 0; transform: rotate(180deg); }
+.expedition-die__selection [data-corner="bl"] { bottom: 0; left: 0; transform: rotate(270deg); }
+
+.expedition-die__selection [data-part="seal"] {
+  position: absolute;
+  top: -5px;
+  left: 50%;
+  z-index: 2;
+  display: grid;
+  width: 14px;
+  height: 14px;
+  place-items: center;
+  border: 1px solid var(--lock-light);
+  background: linear-gradient(135deg, var(--lock-mid), var(--lock-dark));
+  box-shadow: 0 0 0 2px #100a06, 0 0 0 3px color-mix(in srgb, var(--lock-mid) 74%, #120a05), 0 2px 4px rgb(0 0 0 / 58%);
+  transform: translateX(-50%) rotate(45deg);
+}
+
+.expedition-die__selection [data-part="seal-core"] {
+  display: block;
+  width: 4px;
+  height: 4px;
+  border: 1px solid var(--lock-dark);
+  background: var(--lock-light);
+}
+
+.expedition-die:not(:disabled):hover { filter: brightness(1.08); }
+.expedition-die:focus-visible { outline: 2px solid #d7bb7c; outline-offset: 7px; }
+.expedition-die:disabled { cursor: default; }
+
+@keyframes expedition-die-tumble {
+  0%, 100% { transform: translateY(0); }
+  30% { transform: translateY(calc(var(--dice-size) * -.45)); }
+  60% { transform: translateY(3px); }
+}
+
+@keyframes expedition-die-lock-in {
+  from { opacity: 0; transform: scale(.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes expedition-wild-stud {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+
+@keyframes expedition-gild-face {
+  0%, 100% {
+    box-shadow:
+      inset 0 0 0 2px #d9b877,
+      inset 0 2px 3px rgb(255 255 255 / 16%),
+      inset 0 -6px 12px rgb(0 0 0 / 50%),
+      inset 0 0 16px rgb(232 200 122 / 16%);
+  }
+  50% {
+    box-shadow:
+      inset 0 0 0 2px #f6e5b0,
+      inset 0 2px 3px rgb(255 255 255 / 20%),
+      inset 0 -6px 12px rgb(0 0 0 / 50%),
+      inset 0 0 34px rgb(232 200 122 / 42%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .expedition-die,
+  .expedition-die__cube,
+  .expedition-die__face,
+  .expedition-die__stud { animation: none; transition: none; }
+}
+
+.abyssa-expedition-dice-panel .die {
+  position: relative;
+  width: var(--dice-size);
+  height: var(--dice-size);
+  flex: 0 0 var(--dice-size);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  perspective: 620px;
+  transition: translate 160ms ease, filter 160ms ease, opacity 160ms ease;
+}
+
+.abyssa-expedition-dice-panel .die__cube {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transition: transform var(--roll-duration, .9s) cubic-bezier(.2, .75, .3, 1);
+  will-change: transform;
+}
+
+.abyssa-expedition-dice-panel .die__face {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  padding: 13%;
+  overflow: hidden;
+  border: 1px solid var(--dice-edge);
+  border-radius: 11px;
+  background:
+    repeating-linear-gradient(3deg, transparent 0 6px, rgb(255 224 172 / 3.8%) 7px, transparent 9px),
+    repeating-linear-gradient(91deg, transparent 0 20px, rgb(15 7 3 / 7%) 21px, transparent 23px),
+    linear-gradient(92deg, rgb(0 0 0 / 8%), transparent 22% 76%, rgb(0 0 0 / 13%)),
+    linear-gradient(145deg, var(--dice-surface-start), var(--dice-surface-mid) 52%, var(--dice-surface-end));
+  box-shadow:
+    inset 0 0 0 1px rgb(18 8 3 / 34%),
+    inset 0 0 0 3px rgb(255 222 165 / 6%),
+    inset 0 2px 2px rgb(255 229 181 / 10%),
+    inset 0 -8px 12px rgb(9 4 2 / 44%),
+    0 4px 9px rgb(0 0 0 / 36%);
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  backface-visibility: hidden;
+}
+
+.abyssa-expedition-dice-panel .die__face[data-face="1"] { transform: rotateY(0deg) translateZ(var(--dice-half)); }
+.abyssa-expedition-dice-panel .die__face[data-face="2"] { transform: rotateY(90deg) translateZ(var(--dice-half)); }
+.abyssa-expedition-dice-panel .die__face[data-face="3"] { transform: rotateX(90deg) translateZ(var(--dice-half)); }
+.abyssa-expedition-dice-panel .die__face[data-face="4"] { transform: rotateX(-90deg) translateZ(var(--dice-half)); }
+.abyssa-expedition-dice-panel .die__face[data-face="5"] { transform: rotateY(-90deg) translateZ(var(--dice-half)); }
+.abyssa-expedition-dice-panel .die__face[data-face="6"] { transform: rotateY(180deg) translateZ(var(--dice-half)); }
+
+.abyssa-expedition-dice-panel .die__pip {
+  position: relative;
+  z-index: 1;
+  width: 83%;
+  aspect-ratio: 1;
+  align-self: center;
+  justify-self: center;
+  overflow: hidden;
+  border: 1px solid rgb(14 8 5 / 78%);
+  border-radius: 50%;
+  background: radial-gradient(circle at 36% 28%, rgb(255 255 255 / 10%), transparent 25%), radial-gradient(circle at 48% 52%, var(--dice-pip-start), var(--dice-pip-end) 70%);
+  box-shadow: inset 0 3px 5px rgb(0 0 0 / 86%), inset 0 0 0 1px rgb(255 255 255 / 9%), 0 1px 2px rgb(0 0 0 / 46%);
+}
+
+.abyssa-expedition-dice-panel .die__pip::after {
+  position: absolute;
+  z-index: 2;
+  inset: 2px;
+  border-radius: inherit;
+  background: linear-gradient(145deg, rgb(255 255 255 / 12%), transparent 32% 68%, rgb(255 255 255 / 3%));
+  content: "";
+}
+
+.abyssa-expedition-dice-panel .die__pip-light {
+  position: absolute;
+  inset: 0;
+  display: block;
+  border-radius: inherit;
+  background: radial-gradient(circle at 50% 54%, #f7df9b 0 24%, #d9a548 58%, #86501a 100%);
+  box-shadow: inset 0 3px 4px rgb(76 39 8 / 46%), inset 0 0 5px rgb(255 226 146 / 38%), 0 0 7px rgb(208 145 50 / 24%);
+  mix-blend-mode: screen;
+  opacity: 0;
+}
+
+.abyssa-expedition-dice-panel .die[data-covered="false"][data-rolling="false"] .die__face[data-result="true"] .die__pip-light { opacity: .9; }
+.abyssa-expedition-dice-panel .die[data-covered="false"][data-rolling="false"] .die__face[data-result="true"] .die__pip { border-color: #b98638; }
+.abyssa-expedition-dice-panel .die__pip[data-p="tl"] { grid-area: 1 / 1; }
+.abyssa-expedition-dice-panel .die__pip[data-p="tc"] { grid-area: 1 / 2; }
+.abyssa-expedition-dice-panel .die__pip[data-p="tr"] { grid-area: 1 / 3; }
+.abyssa-expedition-dice-panel .die__pip[data-p="ml"] { grid-area: 2 / 1; }
+.abyssa-expedition-dice-panel .die__pip[data-p="mc"] { grid-area: 2 / 2; }
+.abyssa-expedition-dice-panel .die__pip[data-p="mr"] { grid-area: 2 / 3; }
+.abyssa-expedition-dice-panel .die__pip[data-p="bl"] { grid-area: 3 / 1; }
+.abyssa-expedition-dice-panel .die__pip[data-p="bc"] { grid-area: 3 / 2; }
+.abyssa-expedition-dice-panel .die__pip[data-p="br"] { grid-area: 3 / 3; }
+
+.abyssa-expedition-dice-panel .die__shadow {
+  position: absolute;
+  right: 7%;
+  bottom: -14px;
+  left: 7%;
+  height: 13px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgb(0 0 0 / 62%), transparent 70%);
+  pointer-events: none;
+  transition: scale 160ms ease, opacity 160ms ease;
+}
+
+.abyssa-expedition-dice-panel .die[data-held="true"] {
+  translate: 0 -9px;
+}
+
+.abyssa-expedition-dice-panel .die[data-held="true"] .die__shadow {
+  opacity: .58;
+  scale: .76;
+}
+
+.abyssa-expedition-dice-panel .die__selection {
+  --lock-light: #e5cc8b;
+  --lock-mid: #a57b39;
+  --lock-dark: #4b3012;
+  --lock-line: rgb(225 196 130 / 58%);
+  --lock-aura: rgb(215 187 124 / 16%);
+  position: absolute;
+  z-index: 5;
+  inset: -6px;
+  display: block;
+  pointer-events: none;
+  filter: drop-shadow(0 3px 3px rgb(0 0 0 / 54%));
+  animation: expedition-die-lock-in 220ms cubic-bezier(.2, .76, .24, 1) both;
+}
+
+.abyssa-expedition-dice-panel .die__selection [data-part="inner-frame"] {
+  position: absolute;
+  inset: 4px;
+  border: 1px solid var(--lock-line);
+  border-radius: 10px;
+  background: radial-gradient(circle, transparent 55%, var(--lock-aura));
+  box-shadow: inset 0 0 0 1px rgb(5 3 2 / 34%), 0 0 0 1px rgb(5 3 2 / 42%);
+}
+
+.abyssa-expedition-dice-panel .die__selection [data-corner] {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  background: linear-gradient(135deg, var(--lock-light), var(--lock-mid) 42%, var(--lock-dark) 88%);
+  clip-path: polygon(0 0, 100% 0, 100% 3px, 4px 3px, 4px 100%, 0 100%);
+  box-shadow: inset 1px 1px rgb(255 245 211 / 18%);
+}
+
+.abyssa-expedition-dice-panel .die__selection [data-corner="tl"] { top: 0; left: 0; }
+.abyssa-expedition-dice-panel .die__selection [data-corner="tr"] { top: 0; right: 0; transform: rotate(90deg); }
+.abyssa-expedition-dice-panel .die__selection [data-corner="br"] { right: 0; bottom: 0; transform: rotate(180deg); }
+.abyssa-expedition-dice-panel .die__selection [data-corner="bl"] { bottom: 0; left: 0; transform: rotate(270deg); }
+
+.abyssa-expedition-dice-panel .die__selection [data-part="seal"] {
+  position: absolute;
+  z-index: 2;
+  top: -5px;
+  left: 50%;
+  display: grid;
+  width: 14px;
+  height: 14px;
+  place-items: center;
+  border: 1px solid var(--lock-light);
+  background: linear-gradient(135deg, var(--lock-mid), var(--lock-dark));
+  box-shadow: 0 0 0 2px #100a06, 0 0 0 3px color-mix(in srgb, var(--lock-mid) 74%, #120a05), 0 2px 4px rgb(0 0 0 / 58%);
+  transform: translateX(-50%) rotate(45deg);
+}
+
+.abyssa-expedition-dice-panel .die__selection [data-part="seal-core"] {
+  display: block;
+  width: 4px;
+  height: 4px;
+  border: 1px solid var(--lock-dark);
+  background: var(--lock-light);
+}
+
+.abyssa-expedition-dice-panel .die[data-held="true"] .die__face { border-color: #b58b47; }
+.abyssa-expedition-dice-panel .die:not(:disabled):hover { filter: brightness(1.08); }
+.abyssa-expedition-dice-panel .die:focus-visible { outline: 2px solid #d7bb7c; outline-offset: 7px; }
+
+@keyframes expedition-die-lock-in {
+  from { opacity: 0; transform: scale(.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.abyssa-expedition-dice-panel > .action-dock {
+  position: absolute;
+  right: auto;
+  bottom: -70px;
+  left: 50%;
+  z-index: 9;
+  width: 660px;
+  margin: 0;
+  /* 菱形撤回悬在左外沿，不能被裁 */
+  overflow: visible;
+  transform: translateX(-50%);
+}
+
+.abyssa-expedition-action-controls {
+  display: grid;
+  align-items: center;
+  gap: 18px;
+  grid-template-columns: 150px 110px 150px;
+  justify-content: center;
+}
+
+.abyssa-expedition-action-controls .dice-action-button {
+  width: 150px;
+  min-width: 0;
+}
+
+/* Match Dice/TableStatus: the sidebar is the same dark-wood table surface,
+   and its two readouts inherit the exact phase/pot plaque construction. */
+.abyssa-expedition-sidebar {
+  padding: 12px 13px 20px;
+  border: 1px solid #090603;
+  background:
+    linear-gradient(180deg, rgb(227 190 116 / 8%), transparent 28%, rgb(0 0 0 / 38%)),
+    repeating-linear-gradient(2deg, transparent 0 8px, rgb(255 224 165 / 1.5%) 9px, transparent 11px),
+    #24170b;
+  box-shadow:
+    0 0 0 2px #4a321a,
+    0 0 0 4px #080503,
+    inset 0 0 14px rgb(0 0 0 / 84%);
+}
+
+.abyssa-expedition-sidebar::before {
+  inset: 5px;
+  border: 1px solid #56391d;
+  background:
+    radial-gradient(ellipse at 50% 48%, rgb(166 111 53 / 15%), transparent 49%),
+    linear-gradient(90deg, rgb(0 0 0 / 18%), transparent 18% 82%, rgb(0 0 0 / 24%)),
+    repeating-linear-gradient(2deg, transparent 0 7px, rgb(236 190 119 / 2.8%) 8px, transparent 10px),
+    repeating-linear-gradient(89deg, transparent 0 71px, rgb(5 2 1 / 18%) 72px 73px, transparent 74px),
+    #1b1108;
+  box-shadow:
+    inset 0 0 0 1px rgb(224 178 102 / 6%),
+    inset 0 0 34px rgb(0 0 0 / 82%),
+    inset 0 8px 14px rgb(0 0 0 / 42%),
+    inset 0 -5px 11px rgb(90 53 19 / 10%);
+  clip-path: polygon(12px 0, calc(100% - 12px) 0, 100% 12px, 100% calc(100% - 12px), calc(100% - 12px) 100%, 12px 100%, 0 calc(100% - 12px), 0 12px);
+}
+
+.abyssa-expedition-sidebar__header {
+  height: 36px;
+  padding: 6px 10px 4px;
+  border: 0;
+  background: none;
+  box-shadow: none;
+  clip-path: none;
+}
+
+.abyssa-expedition-sidebar__header span { color: #9d8b6b; font-size: 12px; }
+.abyssa-expedition-sidebar__header small { color: #6f624e; }
+
+.abyssa-expedition-multiplier,
+.abyssa-expedition-purse {
+  border: 1px solid #090603;
+  background:
+    linear-gradient(180deg, rgb(255 225 175 / 6%), transparent 27%, rgb(0 0 0 / 34%)),
+    repeating-linear-gradient(2deg, transparent 0 7px, rgb(255 225 175 / 1.8%) 8px, transparent 10px),
+    #24180d;
+  box-shadow:
+    0 0 0 1px #72572f,
+    0 0 0 2px #0b0704,
+    inset 0 0 0 1px rgb(209 163 83 / 16%),
+    inset 0 1px rgb(255 231 177 / 8%),
+    inset 0 -5px 8px rgb(0 0 0 / 44%),
+    0 4px 7px rgb(0 0 0 / 38%);
+  clip-path: polygon(5px 0, calc(100% - 5px) 0, 100% 5px, 100% calc(100% - 5px), calc(100% - 5px) 100%, 5px 100%, 0 calc(100% - 5px), 0 5px);
+}
+
+.abyssa-expedition-multiplier {
+  min-height: 148px;
+  margin: 10px 20px 0;
+  padding: 10px 12px 10px;
+  grid-template-rows: auto 1fr auto;
+}
+
+.abyssa-expedition-multiplier::before,
+.abyssa-expedition-multiplier::after { display: none; }
+
+.abyssa-expedition-sidebar__section-title span,
+.abyssa-expedition-purse__heading small,
+.abyssa-expedition-purse__footer span {
+  color: #8c7b63;
+  font-weight: 700;
+  text-shadow: 0 1px 2px #000;
+}
+
+.abyssa-expedition-sidebar__section-title {
+  justify-content: center;
+}
+
+.abyssa-expedition-sidebar__section-title span {
+  color: #a79570;
+  font-size: 9px;
+  letter-spacing: .13em;
+  text-indent: .13em;
+}
+
+.abyssa-expedition-sidebar__section-title i {
+  background: linear-gradient(90deg, transparent, #80663d 18% 82%, transparent);
+  box-shadow: 0 1px rgb(0 0 0 / 48%);
+}
+
+.abyssa-expedition-multiplier__readout strong {
+  color: #d1b77d;
+  font-size: 62px;
+  font-weight: 600;
+  text-shadow:
+    0 1px 0 rgb(255 237 191 / 18%),
+    0 3px 0 #553719,
+    0 4px 5px rgb(0 0 0 / 62%);
+}
+
+.abyssa-expedition-multiplier__readout span {
+  color: #927a50;
+  margin-right: 0;
+  margin-left: 4px;
+  font-size: 31px;
+  text-transform: lowercase;
+}
+
+.abyssa-expedition-multiplier__readout small {
+  align-self: flex-end;
+  margin-bottom: 9px;
+  margin-left: 7px;
+  color: #746e65;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-variant-numeric: lining-nums tabular-nums;
+  font-weight: 600;
+  letter-spacing: .02em;
+  line-height: 1;
+  text-shadow: 0 1px 2px #000;
+}
+
+.abyssa-expedition-multiplier__readout {
+  position: relative;
+  z-index: 1;
+  align-self: center;
+  padding-top: 2px;
+}
+
+.abyssa-expedition-multiplier__readout::before {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: -1;
+  width: 175px;
+  height: 72px;
+  background: radial-gradient(ellipse, rgb(217 151 55 / 16%), transparent 68%);
+  content: "";
+  transform: translate(-50%, -50%);
+}
+
+.abyssa-expedition-multiplier__equation {
+  display: grid;
+  width: 100%;
+  align-self: center;
+  align-items: end;
+  gap: 7px;
+  grid-template-columns: minmax(0, .88fr) auto minmax(0, 1.12fr);
+}
+
+.abyssa-expedition-multiplier__equation div {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+  justify-items: center;
+}
+
+.abyssa-expedition-multiplier__equation small {
+  color: #726653;
+  font-family: var(--font-display);
+  font-size: 6px;
+  font-weight: 700;
+  letter-spacing: .17em;
+  line-height: 1;
+  text-indent: .17em;
+  text-shadow: 0 1px 2px #000;
+}
+
+.abyssa-expedition-multiplier__equation strong {
+  color: #a99b7d;
+  font-family: var(--font-body);
+  font-size: 19px;
+  font-variant-numeric: lining-nums tabular-nums;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1;
+  text-shadow: 0 2px 3px rgb(0 0 0 / 62%);
+}
+
+.abyssa-expedition-multiplier__equation > span {
+  align-self: end;
+  padding-bottom: 1px;
+  color: #9e804c;
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+  text-shadow: 0 2px 3px #000;
+}
+
+.abyssa-expedition-multiplier__equation [data-value="result"] strong {
+  color: #d1b77d;
+  font-size: 24px;
+  text-shadow:
+    0 1px 0 rgb(255 237 191 / 14%),
+    0 2px 0 #4e3217,
+    0 3px 4px rgb(0 0 0 / 58%);
+}
+
+.abyssa-expedition-multiplier__factor {
+  display: flex;
+  align-self: center;
+  align-items: baseline;
+  justify-content: center;
+  filter: drop-shadow(0 3px 3px rgb(0 0 0 / 54%));
+}
+
+.abyssa-expedition-multiplier__factor span {
+  margin-right: 3px;
+  color: #91774d;
+  font-family: var(--font-display);
+  font-size: 23px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.abyssa-expedition-multiplier__factor strong {
+  color: #d1b77d;
+  font-family: var(--font-display);
+  font-size: 49px;
+  font-weight: 600;
+  letter-spacing: -.035em;
+  line-height: .9;
+  text-shadow:
+    0 1px 0 rgb(255 237 191 / 16%),
+    0 3px 0 #503318,
+    0 4px 4px rgb(0 0 0 / 52%);
+}
+
+/* 倍率拆解：牌型 × 层基础倍率，说明这个数字是怎么来的 */
+.abyssa-expedition-multiplier__breakdown {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 3px;
+  color: #8d7a56;
+  font-family: var(--font-display);
+  font-size: 9px;
+  letter-spacing: .06em;
+}
+
+.abyssa-expedition-multiplier__breakdown i {
+  color: #61503a;
+  font-style: normal;
+}
+
+.abyssa-expedition-multiplier__amounts {
+  display: grid;
+  width: 100%;
+  padding-top: 8px;
+  align-items: end;
+  gap: 7px;
+  border-top: 1px solid rgb(128 102 61 / 32%);
+  grid-template-columns: 1fr auto 1fr;
+}
+
+.abyssa-expedition-multiplier__amounts div {
+  display: flex;
+  min-width: 0;
+  align-items: baseline;
+  gap: 5px;
+}
+
+.abyssa-expedition-multiplier__amounts [data-value="result"] { justify-content: flex-end; }
+
+.abyssa-expedition-multiplier__amounts strong {
+  color: #a99b7d;
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-variant-numeric: lining-nums tabular-nums;
+  font-weight: 700;
+  line-height: 1;
+  text-shadow: 0 2px 3px rgb(0 0 0 / 60%);
+}
+
+.abyssa-expedition-multiplier__amounts [data-value="result"] strong {
+  color: #c7ad76;
+  font-size: 18px;
+}
+
+.abyssa-expedition-multiplier__amounts > i {
+  color: #705b39;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-style: normal;
+  line-height: 1;
+}
+
+/* 最后一只怪物倒下后的短暂结算预览：只提高刻边与文字对比，避免雾状泛光。 */
+.abyssa-expedition-multiplier[data-finalizing] {
+  box-shadow:
+    0 0 0 1px #95713a,
+    0 0 0 2px #0b0704,
+    inset 0 0 0 1px rgb(224 181 100 / 22%),
+    inset 0 1px rgb(255 235 190 / 11%),
+    inset 0 -5px 8px rgb(0 0 0 / 44%),
+    0 4px 7px rgb(0 0 0 / 38%);
+}
+
+.abyssa-expedition-multiplier[data-finalizing] .abyssa-expedition-sidebar__section-title span,
+.abyssa-expedition-multiplier[data-finalizing] .abyssa-expedition-multiplier__amounts [data-value="result"] strong {
+  color: #e0c17c;
+}
+
+.abyssa-expedition-multiplier__meter {
+  position: relative;
+  width: 100%;
+  height: 22px;
+  padding: 4px;
+  border: 1px solid #090603;
+  background:
+    linear-gradient(180deg, rgb(255 229 170 / 5%), transparent 45%),
+    #160e08;
+  box-shadow:
+    0 0 0 1px #5e4323,
+    inset 0 2px 4px rgb(0 0 0 / 64%),
+    0 2px 3px rgb(0 0 0 / 34%);
+  clip-path: polygon(3px 0, calc(100% - 3px) 0, 100% 3px, 100% calc(100% - 3px), calc(100% - 3px) 100%, 3px 100%, 0 calc(100% - 3px), 0 3px);
+  justify-self: stretch;
+}
+
+.abyssa-expedition-multiplier__meter > span {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  background: #21140a;
+  box-shadow: inset 0 2px 3px rgb(0 0 0 / 58%);
+}
+
+.abyssa-expedition-multiplier__meter i {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 72%;
+  border-right: 1px solid #fff2b4;
+  background:
+    linear-gradient(180deg, rgb(255 246 196 / 48%), transparent 36%),
+    linear-gradient(90deg, #a96d1f, #d8952f 58%, #f1c461);
+  box-shadow: inset 0 -3px 4px rgb(112 53 7 / 42%), 0 0 7px rgb(227 160 61 / 34%);
+}
+
+.abyssa-expedition-multiplier__meter b {
+  position: absolute;
+  top: -5px;
+  bottom: -5px;
+  left: 72%;
+  width: 2px;
+  background: #f4d58a;
+  box-shadow: 0 0 5px rgb(255 211 105 / 62%);
+  transform: translateX(-50%);
+}
+
+.abyssa-expedition-multiplier__ticks {
+  width: min(70%, 76px);
+  height: 1px;
+  border: 0;
+  background: linear-gradient(90deg, transparent, #80663d 18% 82%, transparent);
+  box-shadow: 0 1px rgb(0 0 0 / 48%);
+}
+
+.abyssa-expedition-multiplier__ticks i { display: none; }
+
+.abyssa-expedition-sidebar__divider { height: 16px; }
+
+.abyssa-expedition-purse {
+  margin: 0 20px;
+  padding: 10px 12px 11px;
+}
+
+.abyssa-expedition-purse__coin {
+  width: 28px;
+  height: 28px;
+  color: #a68a4c;
+}
+
+.abyssa-expedition-purse__heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.abyssa-expedition-purse__heading strong {
+  color: #ad9c7d;
+  font-family: var(--font-display);
+  font-size: 12px;
+  letter-spacing: .12em;
+}
+
+.abyssa-expedition-purse__heading small {
+  font-size: 7px;
+  letter-spacing: .14em;
+}
+
+.abyssa-expedition-purse__divider {
+  display: block;
+  width: 100%;
+  height: 1px;
+  margin: 6px 0 8px;
+  background: linear-gradient(90deg, transparent, #80663d 12% 88%, transparent);
+  box-shadow: 0 1px rgb(0 0 0 / 48%);
+}
+
+.abyssa-expedition-purse__amount {
+  display: flex;
+  min-height: 42px;
+  align-items: center;
+  justify-content: center;
+  gap: 11px;
+}
+
+.abyssa-expedition-purse__currency {
+  display: flex;
+  min-width: 0;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.abyssa-expedition-purse__currency .abyssa-currency-amount {
+  gap: 7px;
+  color: #c8b487;
+  font-family: var(--font-body);
+  font-size: 31px;
+  font-variant-numeric: lining-nums tabular-nums;
+  font-weight: 800;
+  letter-spacing: .015em;
+  line-height: 1;
+  text-shadow:
+    0 1px 0 rgb(255 239 202 / 14%),
+    0 2px 0 #4f351d,
+    0 3px 4px rgb(0 0 0 / 58%);
+}
+
+.abyssa-expedition-purse__currency[data-kind="gold"] .abyssa-currency-amount > i {
+  width: 16px;
+  height: 16px;
+}
+
+.abyssa-expedition-purse__currency[data-kind="gold"] .abyssa-currency-amount > i [data-part="ring"] { inset: 3px; }
+.abyssa-expedition-purse__currency[data-kind="gold"] .abyssa-currency-amount > i [data-part="mark"] { width: 5px; height: 5px; }
+
+.abyssa-expedition-purse__currency[data-kind="crystal"] .abyssa-currency-amount {
+  gap: 7px;
+  color: #ad91ca;
+  font-size: 24px;
+  font-weight: 700;
+  text-shadow: 0 2px 3px rgb(0 0 0 / 64%);
+}
+
+.abyssa-expedition-purse__currency[data-kind="crystal"] .abyssa-currency-amount > i {
+  width: 11px;
+  height: 11px;
+  box-shadow: 0 0 5px rgb(160 93 220 / 38%);
+}
+
+.abyssa-expedition-purse__currency-divider {
+  width: 1px;
+  height: 29px;
+  background: linear-gradient(transparent, #5d472c, transparent);
+  flex: none;
+}
+
+.abyssa-expedition-loot {
+  position: relative;
+  height: 160px;
+  margin-top: 10px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  border: 1px solid rgb(117 88 50 / 25%);
+  background:
+    linear-gradient(90deg, rgb(0 0 0 / 15%), transparent 18% 82%, rgb(0 0 0 / 18%)),
+    repeating-linear-gradient(2deg, transparent 0 7px, rgb(236 190 119 / 1.5%) 8px, transparent 10px),
+    rgb(23 16 8 / 62%);
+  box-shadow:
+    inset 0 5px 9px rgb(0 0 0 / 24%),
+    inset 0 -4px 8px rgb(0 0 0 / 18%);
+  scrollbar-color: #72572f #130c07;
+  scrollbar-width: thin;
+}
+
+.abyssa-expedition-loot::-webkit-scrollbar { width: 6px; }
+.abyssa-expedition-loot::-webkit-scrollbar-track { background: #130c07; }
+.abyssa-expedition-loot::-webkit-scrollbar-thumb {
+  border: 1px solid #2a1b0d;
+  background: #72572f;
+  box-shadow: inset 0 0 0 1px rgb(226 183 104 / 14%);
+}
+
+.abyssa-expedition-loot:focus-visible {
+  outline: 1px solid #9a7a45;
+  outline-offset: 2px;
+}
+
+.abyssa-expedition-loot__list {
+  display: grid;
+  padding: 5px;
+  gap: 4px;
+}
+
+.abyssa-expedition-loot__item {
+  display: grid;
+  min-height: 37px;
+  padding: 5px 9px 5px 7px;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid rgb(104 76 40 / 28%);
+  background:
+    linear-gradient(180deg, rgb(255 230 177 / 3%), transparent 42%),
+    rgb(46 29 14 / 26%);
+  grid-template-columns: 25px minmax(0, 1fr) auto;
+}
+
+.abyssa-expedition-loot__item > i {
+  display: block;
+  width: 22px;
+  height: 22px;
+  color: #9f8964;
+  background: currentColor;
+  filter: drop-shadow(0 1px 1px #000);
+  mask-position: center;
+  mask-repeat: no-repeat;
+  mask-size: contain;
+}
+
+.abyssa-expedition-loot__item > i[data-icon="ore"] { mask-image: url("../assets/svg/items/game-icons/ore.svg"); }
+.abyssa-expedition-loot__item > i[data-icon="crystal"] { color: #9380a9; mask-image: url("../assets/svg/items/game-icons/crystal-cluster.svg"); }
+.abyssa-expedition-loot__item > i[data-icon="herbs"] { color: #78856a; mask-image: url("../assets/svg/items/game-icons/herbs-bundle.svg"); }
+.abyssa-expedition-loot__item > i[data-icon="scroll"] { mask-image: url("../assets/svg/items/game-icons/tied-scroll.svg"); }
+.abyssa-expedition-loot__item > i[data-icon="fang"] { color: #a0957e; mask-image: url("../assets/svg/items/game-icons/pretty-fangs.svg"); }
+.abyssa-expedition-loot__item > i[data-icon="dust"] { color: #aa8b4c; mask-image: url("../assets/svg/items/game-icons/pollen-dust.svg"); }
+
+.abyssa-expedition-loot__item > span {
+  overflow: hidden;
+  color: #a99a80;
+  font-family: var(--font-display);
+  font-size: 9px;
+  letter-spacing: .08em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.abyssa-expedition-loot__item > strong {
+  color: #bba676;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.abyssa-expedition-battle-log {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  min-height: 0;
+  margin: 12px 20px 0;
+  overflow: hidden;
+  flex: 1 1 auto;
+  flex-direction: column;
+  border: 0;
+  border-top: 1px solid rgb(111 83 47 / 38%);
+  background: rgb(12 8 5 / 26%);
+}
+
+.abyssa-expedition-battle-log header {
+  height: 30px;
+  padding: 9px 3px 8px;
+  color: #8f8068;
+  font-family: var(--font-display);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .18em;
+  line-height: 1;
+  text-indent: .18em;
+}
+
+.abyssa-expedition-battle-log ol {
+  min-height: 0;
+  padding: 0 2px 8px;
+  margin: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  flex: 1 1 auto;
+  border-top: 1px solid rgb(111 83 47 / 24%);
+  list-style: none;
+  scrollbar-color: #594326 transparent;
+  scrollbar-width: thin;
+}
+
+.abyssa-expedition-battle-log li {
+  display: grid;
+  min-height: 38px;
+  padding: 8px 3px 7px;
+  align-items: center;
+  gap: 7px;
+  border-bottom: 1px solid rgb(111 83 47 / 18%);
+  grid-template-columns: 22px minmax(0, 1fr);
+}
+
+.abyssa-expedition-battle-log time {
+  color: #756750;
+  font-family: var(--font-display);
+  font-size: 9.5px;
+  letter-spacing: .06em;
+}
+
+.abyssa-expedition-battle-log li span {
+  overflow: hidden;
+  color: #aaa08f;
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.3;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.abyssa-expedition-battle-log li b {
+  color: #b8aa8f;
+  font-weight: 700;
+}
+
+.abyssa-expedition-battle-log li b[data-tone="steel"] { color: #8eaabd; }
+.abyssa-expedition-battle-log li b[data-tone="ochre"] { color: #c59a5e; }
+.abyssa-expedition-battle-log li b[data-tone="verdant"] { color: #91a984; }
+.abyssa-expedition-battle-log li b[data-tone="violet"] { color: #a697bc; }
+.abyssa-expedition-battle-log li b[data-tone="crimson"] { color: #bd7d75; }
+.abyssa-expedition-battle-log li b[data-tone="enemy"] { color: #b56e69; }
+.abyssa-expedition-battle-log li b[data-tone="loot"] { color: #9b8bb1; }
+.abyssa-expedition-battle-log li b[data-tone="value"] { color: #c2a969; }
+.abyssa-expedition-battle-log li b[data-tone="system"] { color: #9a8d77; }
+
+.abyssa-expedition-odometer {
+  --odometer-digit-h: 55px;
+  height: 74px;
+  margin-top: 13px;
+  padding: 9px 17px;
+  border: 1px solid #090603;
+  background:
+    linear-gradient(180deg, rgb(255 225 175 / 5%), transparent 24%, rgb(0 0 0 / 35%)),
+    repeating-linear-gradient(2deg, transparent 0 7px, rgb(255 225 175 / 1.6%) 8px, transparent 10px),
+    #21150b;
+  box-shadow:
+    0 0 0 1px #634924,
+    0 0 0 2px #0b0704,
+    inset 0 1px rgb(255 231 177 / 7%),
+    inset 0 -5px 8px rgb(0 0 0 / 46%),
+    0 3px 6px rgb(0 0 0 / 34%);
+}
+
+.abyssa-expedition-odometer::before {
+  inset: 8px 14px;
+  border: 1px solid #090603;
+  background: #130d08;
+  box-shadow: inset 0 8px 11px #000, inset 0 -8px 11px #000, 0 0 0 1px rgb(154 119 64 / 42%);
+}
+
+.abyssa-expedition-odometer__reel {
+  height: 54px;
+  border-inline-color: #4c3a23;
+  background: radial-gradient(ellipse at 50% 50%, #342719 0 30%, #17100a 72%);
+}
+
+/* 行高统一由 --odometer-digit-h 驱动，此处无需重复声明 */
+
+/* ============================================================
+   引擎接入：交互态、意图徽章、弹窗、提示
+============================================================ */
+
+/* ---------- 敌人：仅在"拿着可施放的骰"时才可点 ---------- */
+
+.abyssa-expedition-enemy[data-targetable] {
+  cursor: pointer;
+}
+
+.abyssa-expedition-enemy[data-targetable]:hover > img {
+  filter:
+    grayscale(.42)
+    sepia(.1)
+    saturate(.78)
+    brightness(1.06)
+    contrast(1.2)
+    drop-shadow(0 7px 7px rgb(0 0 0 / 88%))
+    drop-shadow(0 0 14px rgb(212 106 94 / 40%));
+}
+
+.abyssa-expedition-enemy[data-targetable]:hover .abyssa-expedition-enemy__health i[data-filled] {
+  border-color: #b3653c;
+}
+
+/* ---------- 意图徽章：一个图形 + 一个数字，不写废话 ---------- */
+
+.abyssa-expedition-intent {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 9px 3px 7px;
+  border: 1px solid #70413b;
+  border-radius: 3px;
+  color: #e8b0a7;
+  background:
+    linear-gradient(135deg, rgb(212 106 94 / 14%), transparent 60%),
+    rgb(30 15 13 / 92%);
+  box-shadow: 0 2px 6px rgb(0 0 0 / 66%);
+  cursor: default;
+  font: inherit;
+  gap: 5px;
+}
+
+.abyssa-expedition-intent > .abyssa-expedition-glyph {
+  width: 14px;
+  height: 14px;
+}
+
+.abyssa-expedition-intent b {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: .04em;
+  line-height: 1;
+}
+
+/* 非攻击意图：标题是文字，字号收一档 */
+.abyssa-expedition-intent:not([data-kind="attack"]) b {
+  font-size: 11px;
+  letter-spacing: .08em;
+}
+
+.abyssa-expedition-intent[data-kind="seal"],
+.abyssa-expedition-intent[data-kind="charge"] {
+  border-color: #5c4a6e;
+  color: #c1a9d8;
+  background:
+    linear-gradient(135deg, rgb(189 148 219 / 12%), transparent 60%),
+    rgb(24 17 30 / 92%);
+}
+
+.abyssa-expedition-intent[data-kind="countdown"],
+.abyssa-expedition-intent[data-kind="summon"] {
+  border-color: #6e5a31;
+  color: #dcb96a;
+  background:
+    linear-gradient(135deg, rgb(200 163 92 / 12%), transparent 60%),
+    rgb(28 21 11 / 92%);
+}
+
+/* 可格挡：拿着盾骰时才亮 */
+.abyssa-expedition-intent[data-blockable] {
+  border-color: #7ba0c4;
+  cursor: pointer;
+  transition: box-shadow 120ms ease, transform 120ms ease;
+}
+
+.abyssa-expedition-intent[data-blockable]:hover {
+  box-shadow: 0 2px 6px rgb(0 0 0 / 66%), 0 0 12px rgb(121 175 208 / 44%);
+  transform: translateY(-1px);
+}
+
+/* 徽章与连线同一套威胁语言 */
+
+/* 黄：掉血不致死 */
+.abyssa-expedition-intent[data-threat="normal"] {
+  border-color: #8a6a30;
+  color: #e6c078;
+  background:
+    linear-gradient(135deg, rgb(226 176 74 / 14%), transparent 60%),
+    rgb(31 23 12 / 92%);
+}
+
+/* 红：致死，加辉光与脉冲 */
+.abyssa-expedition-intent[data-threat="lethal"] {
+  border-color: #c0483c;
+  color: #ffb9ae;
+  background:
+    linear-gradient(135deg, rgb(216 62 52 / 22%), transparent 60%),
+    rgb(40 13 11 / 94%);
+  box-shadow: 0 2px 6px rgb(0 0 0 / 66%), 0 0 12px rgb(216 62 52 / 52%);
+  animation: expedition-intent-lethal 900ms ease-in-out infinite;
+}
+
+@keyframes expedition-intent-lethal {
+  50% { box-shadow: 0 2px 6px rgb(0 0 0 / 66%), 0 0 18px rgb(216 62 52 / 78%); }
+}
+
+/* 灰：已挡尽，完全无效 */
+.abyssa-expedition-intent[data-threat="blocked"] {
+  border-color: #55595c;
+  color: #9aa0a4;
+  background:
+    linear-gradient(135deg, rgb(160 168 172 / 10%), transparent 60%),
+    rgb(22 25 27 / 92%);
+  opacity: .8;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .abyssa-expedition-intent[data-threat="lethal"] { animation: none; }
+}
+
+/* ---------- 意图连线：三档威胁 ---------- */
+
+.abyssa-expedition-enemies__intent-lines g[data-kind="seal"] .abyssa-expedition-intent-line__body {
+  stroke: rgb(163 130 199 / 88%);
+}
+
+/* 黄：会掉血但不致死 */
+.abyssa-expedition-enemies__intent-lines g[data-threat="normal"] .abyssa-expedition-intent-line__body {
+  stroke: rgb(226 176 74 / 92%);
+}
+
+/* 红：这一下会打空目标，令其力竭 */
+.abyssa-expedition-enemies__intent-lines g[data-threat="lethal"] .abyssa-expedition-intent-line__body {
+  stroke: rgb(216 62 52 / 96%);
+  stroke-width: 4.4px;
+  filter: drop-shadow(0 1px 1px rgb(0 0 0 / 62%)) drop-shadow(0 0 7px rgb(216 62 52 / 62%));
+  animation-duration: 620ms;
+}
+
+.abyssa-expedition-enemies__intent-lines g[data-threat="lethal"] .abyssa-expedition-intent-line__shadow {
+  stroke: rgb(58 8 6 / 92%);
+  stroke-width: 8.5px;
+}
+
+/* 灰：已挡尽，完全无效 */
+.abyssa-expedition-enemies__intent-lines g[data-threat="blocked"] {
+  opacity: .42;
+}
+
+.abyssa-expedition-enemies__intent-lines g[data-threat="blocked"] .abyssa-expedition-intent-line__body {
+  stroke: rgb(150 156 160 / 78%);
+  stroke-width: 2.6px;
+  filter: none;
+  animation: none;
+}
+
+/* ---------- 队员卡 ---------- */
+
+.abyssa-expedition-party-card[data-clickable] {
+  cursor: pointer;
+}
+
+/* 状态优先级（低 → 高），我方操作态一律压过敌方威胁态：
+     被瞄准 / 已挡下  <  可治疗目标  <  待指挥  <  已拿起
+   书写顺序即优先级，因此敌方威胁态必须写在最前。 */
+
+/* 敌方威胁：正被瞄准 */
+.abyssa-expedition-party-card[data-targeted] {
+  border-color: #8a4a42;
+  box-shadow:
+    0 0 0 1px rgb(212 106 94 / 40%),
+    0 0 14px rgb(212 106 94 / 22%);
+}
+
+/* 敌方威胁已挡下 */
+.abyssa-expedition-party-card[data-safe] {
+  border-color: #55704b;
+  box-shadow:
+    0 0 0 1px rgb(143 185 120 / 36%),
+    0 0 12px rgb(143 185 120 / 18%);
+}
+
+/* 我方操作态：拿着治疗骰时的可施放目标——压过威胁态 */
+.abyssa-expedition-party-card[data-healable],
+.abyssa-expedition-party-card[data-healable][data-targeted],
+.abyssa-expedition-party-card[data-healable][data-safe] {
+  border-color: #7ba06c;
+  box-shadow:
+    0 0 0 1px rgb(143 185 120 / 56%),
+    0 0 18px rgb(143 185 120 / 32%);
+}
+
+/* 我方操作态：骰子已装载、等待指挥 */
+.abyssa-expedition-party-card[data-ready],
+.abyssa-expedition-party-card[data-ready][data-targeted],
+.abyssa-expedition-party-card[data-ready][data-safe] {
+  border-color: #9c7a3c;
+  box-shadow:
+    0 0 0 1px rgb(214 174 96 / 42%),
+    0 0 14px rgb(214 174 96 / 20%);
+}
+
+/* 我方操作态：已拿起——最高优先级，任何威胁态都不得覆盖 */
+.abyssa-expedition-party-card[data-held],
+.abyssa-expedition-party-card[data-held][data-targeted],
+.abyssa-expedition-party-card[data-held][data-safe],
+.abyssa-expedition-party-card[data-held][data-ready] {
+  border-color: #e0bd72;
+  box-shadow:
+    0 0 0 2px rgb(224 189 114 / 72%),
+    0 0 22px rgb(224 189 114 / 32%);
+}
+
+.abyssa-expedition-party-card[data-downed] {
+  cursor: not-allowed;
+  filter: grayscale(1) brightness(.62);
+}
+
+.abyssa-expedition-party-card__downed-label {
+  position: absolute;
+  z-index: 5;
+  top: 42%;
+  left: 50%;
+  padding: 3px 12px;
+  border: 1px solid #5a4632;
+  color: #b9a789;
+  background: rgb(10 7 4 / 88%);
+  font-family: var(--font-display);
+  font-size: 13px;
+  letter-spacing: .3em;
+  transform: translate(-50%, -50%) rotate(-8deg);
+}
+
+/* ---------- 骰位状态：装载/消耗，不挂任何文字 ---------- */
+
+.abyssa-expedition-die-slot {
+  position: relative;
+  display: grid;
+  justify-items: center;
+}
+
+/* 未装载：略微下沉，等待玩家装载 */
+.abyssa-expedition-die-slot:not([data-loaded]) .expedition-die {
+  opacity: 1;
+  translate: 0 4px;
+}
+
+/* 已装载：抬起并锁定（不参与重掷） */
+.abyssa-expedition-die-slot[data-loaded] .expedition-die {
+  opacity: 1;
+  translate: 0 -3px;
+}
+
+/* 已消耗：本回合该角色行动完毕 */
+.abyssa-expedition-die-slot[data-spent] .expedition-die {
+  cursor: default;
+  filter: grayscale(.85) brightness(.6);
+  opacity: .42;
+  translate: 0 2px;
+}
+
+.abyssa-expedition-die-slot[data-sealed] .expedition-die {
+  filter: grayscale(.7) contrast(.9);
+  opacity: .34;
+}
+
+.abyssa-expedition-die-slot[data-unrolled] .expedition-die {
+  opacity: .6;
+}
+
+/* 力竭骰始终留在原角色槽位，仅置灰、禁用，不缩小也不隐藏。 */
+.abyssa-expedition-die-slot[data-downed] .expedition-die,
+.abyssa-expedition-die-slot[data-downed][data-sealed] .expedition-die,
+.abyssa-expedition-die-slot[data-downed][data-spent] .expedition-die {
+  cursor: not-allowed;
+  filter: grayscale(1) brightness(.48) contrast(.9);
+  opacity: .58;
+  translate: 0 4px;
+  animation: none;
+}
+
+/* ---------- 行动条布局（5 列） ---------- */
+
+/* REROLL / 重掷读数 / 牌型读数 / END TURN / 菱形撤回。
+   撤回按钮对齐面板右端，牌型占据中段留出的空间。 */
+.abyssa-expedition-action-controls {
+  /* 沿用原始基准：按钮 150px、读数槽 110px，均定宽不挤压 */
+  grid-template-columns: 150px 96px 150px 150px;
+  gap: 18px;
+  justify-content: center;
+}
+
+.abyssa-expedition-action-controls .dice-action-button {
+  width: 100%;
+  min-width: 0;
+}
+
+/* ---------- 菱形撤回：紧挨操作栏左侧，不占内部栅格 ---------- */
+
+.abyssa-expedition-undo.abyssa-icon-button {
+  --abyssa-icon-fill: #24180d;
+  --abyssa-icon-middle: #72572f;
+  --abyssa-icon-ornament: #8d7040;
+  --abyssa-icon-ink: #e9dcc5;
+  --abyssa-icon-pattern-dark: rgb(215 187 124 / 5%);
+  --abyssa-icon-pattern-light: rgb(255 244 214 / 2%);
+  position: absolute;
+  z-index: 4;
+  /* 纵向：以 dock 上边框线为中心，按钮上下各跨一半（64/2 = 32px）。
+     横向：右边缘贴齐 dock 左沿，不进入内容区、不压 REROLL。 */
+  bottom: 100%;
+  right: 100%;
+  width: 64px;
+  height: 64px;
+  margin-bottom: -32px;
+}
+
+.abyssa-expedition-undo .abyssa-icon-button__custom > svg {
+  fill: currentcolor;
+  /* 回旋箭头原朝右，镜像成"回退"方向 */
+  transform: scaleX(-1);
+}
+
+.abyssa-expedition-undo:not(:disabled):hover {
+  --abyssa-icon-ink: #fff3d2;
+  --abyssa-icon-middle: #a67f43;
+}
+
+.abyssa-expedition-undo:disabled {
+  cursor: not-allowed;
+  filter: grayscale(.7) brightness(.62);
+  opacity: .5;
+}
+
+/* ---------- 牌型读数凹槽 ---------- */
+
+.abyssa-expedition-hand {
+  position: relative;
+  display: grid;
+  min-width: 0;
+  height: 40px;
+  padding: 3px 13px 4px;
+  overflow: hidden;
+  align-content: center;
+  border: 1px solid rgb(126 90 44 / 82%);
+  background:
+    linear-gradient(135deg, rgb(215 187 124 / 4%) 25%, transparent 25%) 0 0 / 14px 14px,
+    linear-gradient(225deg, rgb(215 187 124 / 3%) 25%, transparent 25%) 0 0 / 14px 14px,
+    radial-gradient(ellipse at 50% 120%, rgb(150 112 52 / 22%), transparent 62%),
+    linear-gradient(180deg, rgb(0 0 0 / 40%), transparent 54%),
+    #130c06;
+  box-shadow:
+    inset 0 2px 8px rgb(0 0 0 / 84%),
+    inset 0 0 0 1px rgb(215 187 124 / 14%),
+    inset 0 -1px 0 rgb(255 231 177 / 6%),
+    0 1px 0 rgb(215 187 124 / 10%);
+  font-family: var(--font-display);
+  text-align: center;
+}
+
+/* 牌桌感：左右各一道竖向刻线，把读数框成一张牌 */
+.abyssa-expedition-hand::before,
+.abyssa-expedition-hand::after {
+  position: absolute;
+  top: 6px;
+  bottom: 6px;
+  width: 1px;
+  background: linear-gradient(180deg, transparent, rgb(215 187 124 / 26%) 22% 78%, transparent);
+  content: "";
+}
+
+.abyssa-expedition-hand::before { left: 7px; }
+.abyssa-expedition-hand::after { right: 7px; }
+
+/* 两块读数各占一半、中间一道竖分隔——沿用侧栏 amounts 的 1fr auto 1fr 构造 */
+.abyssa-expedition-hand__body {
+  display: grid;
+  width: 100%;
+  min-width: 0;
+  align-items: center;
+  gap: 11px;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  /* key 变化时整块换挡 */
+  animation: expedition-hand-shift 420ms cubic-bezier(.16, .84, .28, 1) both;
+}
+
+.abyssa-expedition-hand__rule {
+  width: 1px;
+  height: 20px;
+  background: linear-gradient(transparent, rgb(160 126 68 / 72%), transparent);
+}
+
+/* 牌型名：大字号 + 多层浮雕，与右栏倍率读数同一套构造法 */
+.abyssa-expedition-hand__name {
+  min-width: 0;
+  overflow: hidden;
+  color: #b0a288;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: .12em;
+  line-height: 1;
+  text-align: right;
+  text-indent: .12em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.abyssa-expedition-hand__bonus {
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: start;
+  gap: 3px;
+  line-height: 1;
+}
+
+.abyssa-expedition-hand__bonus i {
+  color: #a3854d;
+  font-size: 10px;
+  font-style: normal;
+  text-shadow: 0 1px 1px #080402;
+}
+
+/* 倍率数字：赌场牌面主角——亮边压顶、深边垫底、外加暖辉 */
+.abyssa-expedition-hand__bonus b {
+  color: #6d6151;
+  font-size: 21px;
+  font-weight: 700;
+  letter-spacing: -.02em;
+  line-height: 1;
+}
+
+.abyssa-expedition-hand[data-scoring] .abyssa-expedition-hand__bonus b {
+  color: #f6da92;
+  text-shadow:
+    0 1px 0 #fff2be,
+    0 2px 0 #7a4c1c,
+    0 3px 3px rgb(0 0 0 / 56%),
+    0 0 9px rgb(246 218 146 / 36%);
+}
+
+/* 成牌：整槽点亮 */
+.abyssa-expedition-hand[data-scoring] {
+  border-color: rgb(198 158 84 / 88%);
+  box-shadow:
+    inset 0 2px 7px rgb(0 0 0 / 74%),
+    inset 0 0 0 1px rgb(235 205 135 / 26%),
+    inset 0 0 20px rgb(214 172 88 / 16%),
+    0 1px 0 rgb(215 187 124 / 14%);
+}
+
+.abyssa-expedition-hand[data-scoring] .abyssa-expedition-hand__name {
+  color: #f7e4b4;
+  text-shadow:
+    0 1px 0 #fff4c8,
+    0 2px 0 #6d4415,
+    0 4px 4px rgb(0 0 0 / 52%);
+}
+
+.abyssa-expedition-hand[data-idle] .abyssa-expedition-hand__name {
+  color: #6d6151;
+}
+
+/* 成牌瞬间从槽内扫过一道光 */
+.abyssa-expedition-hand__glow {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    100deg,
+    transparent 20%,
+    rgb(255 233 168 / 22%) 48%,
+    transparent 76%
+  );
+  opacity: 0;
+  pointer-events: none;
+}
+
+.abyssa-expedition-hand[data-scoring] .abyssa-expedition-hand__glow {
+  animation: expedition-hand-sweep 720ms ease-out;
+}
+
+@keyframes expedition-hand-shift {
+  from {
+    opacity: 0;
+    filter: blur(2px);
+    transform: translateY(-9px);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0);
+  }
+}
+
+@keyframes expedition-hand-sweep {
+  from { opacity: 1; transform: translateX(-100%); }
+  to { opacity: 0; transform: translateX(100%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .abyssa-expedition-hand__body { animation: none; }
+  .abyssa-expedition-hand[data-scoring] .abyssa-expedition-hand__glow { animation: none; }
+}
+
+/* ---------- 层区倍率列表复用战利品样式 ---------- */
+
+.abyssa-expedition-loot__item[data-current] {
+  border-color: #7a5c2e;
+  color: #ead8aa;
+  box-shadow: 0 0 0 1px rgb(200 163 92 / 34%);
+}
+
+.abyssa-expedition-loot__item[data-passed] {
+  opacity: .55;
+}
+
+/* ---------- 弹窗 ---------- */
+
+.abyssa-expedition-overlay {
+  position: absolute;
+  z-index: 60;
+  inset: 0;
+  display: grid;
+  padding: 24px;
+  background: rgb(4 2 1 / 72%);
+  place-items: center;
+}
+
+.abyssa-expedition-modal {
+  width: min(430px, 100%);
+  padding: 24px 26px 22px;
+  border: 1px solid #7a5c2e;
+  background:
+    linear-gradient(180deg, rgb(227 190 116 / 7%), transparent 30%),
+    #221709;
+  box-shadow:
+    0 22px 70px rgb(0 0 0 / 88%),
+    inset 0 0 0 1px rgb(0 0 0 / 72%),
+    inset 0 0 0 3px rgb(122 92 46 / 26%);
+  text-align: center;
+}
+
+.abyssa-expedition-modal[data-wide] {
+  width: min(560px, 100%);
+}
+
+.abyssa-expedition-modal h3 {
+  margin: 0 0 12px;
+  color: #ead8aa;
+  font-family: var(--font-display);
+  font-size: 19px;
+  font-weight: 600;
+  letter-spacing: .22em;
+}
+
+.abyssa-expedition-modal__body {
+  margin-bottom: 16px;
+  color: #b3a084;
+  font-size: 13px;
+  line-height: 1.9;
+}
+
+.abyssa-expedition-modal__body strong {
+  color: #ead8aa;
+}
+
+.abyssa-expedition-modal__body p {
+  margin: 0;
+}
+
+.abyssa-expedition-modal__body p[data-tone="bad"] {
+  color: #cf8074;
+}
+
+.abyssa-expedition-modal__body p[data-tone="dim"] {
+  margin-top: 8px;
+  color: #857659;
+  font-size: 11px;
+}
+
+.abyssa-expedition-modal__settlement {
+  margin: 10px 0 9px;
+  padding: 12px 14px 10px;
+  border: 1px solid #5f4524;
+  background:
+    linear-gradient(180deg, rgb(229 190 111 / 6%), transparent 42%),
+    #160f08;
+  box-shadow:
+    0 0 0 1px rgb(10 6 3 / 78%),
+    inset 0 0 0 1px rgb(200 154 77 / 8%),
+    inset 0 5px 12px rgb(0 0 0 / 32%);
+}
+
+.abyssa-expedition-modal__settlement-formula {
+  display: grid;
+  align-items: end;
+  gap: 8px;
+  grid-template-columns:
+    minmax(0, 1.08fr) auto
+    minmax(0, 1fr) auto
+    minmax(0, .9fr) auto
+    minmax(0, 1.25fr);
+}
+
+.abyssa-expedition-modal__settlement-formula > span {
+  display: grid;
+  min-width: 0;
+  gap: 5px;
+  justify-items: center;
+}
+
+.abyssa-expedition-modal__settlement-formula small {
+  color: #78694f;
+  font-family: var(--font-display);
+  font-size: 7px;
+  font-weight: 600;
+  letter-spacing: .1em;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.abyssa-expedition-modal__settlement-formula strong {
+  color: #c5b18a;
+  font-family: var(--font-body);
+  font-size: 18px;
+  font-variant-numeric: lining-nums tabular-nums;
+  line-height: 1;
+  text-shadow: 0 2px 2px rgb(0 0 0 / 68%);
+}
+
+.abyssa-expedition-modal__settlement-formula > i {
+  padding-bottom: 1px;
+  color: #806a43;
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-style: normal;
+  line-height: 1;
+}
+
+.abyssa-expedition-modal__settlement-formula [data-result] strong {
+  color: #e2c47d;
+  font-size: 21px;
+}
+
+.abyssa-expedition-modal__settlement > p {
+  margin-top: 9px;
+  padding-top: 7px;
+  border-top: 1px solid rgb(124 94 48 / 28%);
+  color: #786b57;
+  font-size: 10px;
+  letter-spacing: .03em;
+  line-height: 1.45;
+}
+
+.abyssa-expedition-modal__settlement > p[data-counted] {
+  color: #c7a966;
+}
+
+.abyssa-expedition-modal__settlement > footer {
+  display: flex;
+  margin-top: 6px;
+  align-items: baseline;
+  justify-content: center;
+  color: #766950;
+  font-size: 10px;
+  gap: 7px;
+  line-height: 1;
+}
+
+.abyssa-expedition-modal__settlement > footer i {
+  color: #866c3e;
+  font-style: normal;
+}
+
+.abyssa-expedition-modal__settlement > footer strong {
+  color: #d6ba78;
+  font-size: 13px;
+}
+
+.abyssa-expedition-modal__highlight strong {
+  color: #e0bd72;
+  font-size: 17px;
+}
+
+.abyssa-expedition-modal__total {
+  margin: 8px 0 !important;
+  color: #e0bd72;
+  font-family: var(--font-display);
+  font-size: 34px;
+  letter-spacing: .08em;
+}
+
+.abyssa-expedition-modal__facts {
+  margin-top: 14px;
+  padding: 10px 14px;
+  border: 1px dashed #7a5c2e;
+  text-align: left;
+}
+
+.abyssa-expedition-modal__facts header {
+  margin-bottom: 6px;
+  color: #c8a35c;
+  font-size: 11px;
+  letter-spacing: .1em;
+}
+
+.abyssa-expedition-modal__facts ul {
+  margin: 0;
+  padding: 0;
+  font-size: 12px;
+  line-height: 1.9;
+  list-style: none;
+}
+
+.abyssa-expedition-modal__actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.abyssa-expedition-modal__actions .dice-action-button {
+  min-width: 140px;
+}
+
+/* ---------- 日志文案（中文整行着色） ---------- */
+
+.abyssa-expedition-battle-log li b {
+  font-weight: 500;
+}
+
+/* 万能命数角标（凯尔·静谧之楔）：宝石代替数字，尺寸对齐数字视高 */
+.expedition-die__corner > b[data-wild-pip] {
+  display: block;
+  width: calc(var(--dice-size) * .17);
+  height: calc(var(--dice-size) * .17);
+  color: var(--expedition-die-suit);
+}
+
+.expedition-die__corner > b[data-wild-pip] svg {
+  overflow: visible;
+}
+
+.expedition-die__corner > b[data-wild-pip] [data-fill] {
+  fill: currentColor;
+  filter: drop-shadow(0 1px 2px rgb(0 0 0 / 70%));
+}
+
+.expedition-die__corner > b[data-wild-pip] [data-gem-shine] {
+  fill: rgb(255 248 226 / 62%);
+}
+
+/* ---------- 图形词表：所有战斗动词/意图统一 mask 渲染 ---------- */
+
+.abyssa-expedition-glyph {
+  display: inline-block;
+  width: 1.05em;
+  height: 1.05em;
+  flex: none;
+  background: currentColor;
+  filter: drop-shadow(0 1px 1px rgb(0 0 0 / 72%));
+  mask-image: var(--glyph-source);
+  mask-position: center;
+  mask-repeat: no-repeat;
+  mask-size: contain;
+  vertical-align: -.16em;
+}
+
+/* 拿起角色卡：在"已装载通电"基础上把光束再推一档 */
+.abyssa-expedition-party-column[data-held] .abyssa-expedition-party-link {
+  filter: drop-shadow(0 0 5px rgb(255 214 122 / 78%));
+}
+
+.abyssa-expedition-party-column[data-held] .abyssa-expedition-party-link__main {
+  stroke: #fff4cf;
+  stroke-width: 2.6px;
+}
+
+.abyssa-expedition-party-column[data-held] .abyssa-expedition-party-link__aura {
+  stroke-width: 11px;
+  opacity: .3;
+}
+
+.abyssa-expedition-party-column[data-held] .abyssa-expedition-party-link__high {
+  opacity: .92;
+}
+
+.abyssa-expedition-party-column[data-held] .abyssa-expedition-party-link::after {
+  box-shadow: 0 0 0 2px #2a1909, 0 0 13px rgb(255 226 146 / 92%);
+}
+
+/* ---------- 成牌点亮：参与牌型的数字与花色呈现亮起的凹刻 ----------
+   只用清晰的明暗刻边塑造质感，不使用模糊扩散的赛博辉光。 */
+
+.expedition-die__face[data-scoring] .expedition-die__corner {
+  color: #e5c680;
+}
+
+/* 数字：上沿压暗、下沿提亮，像槽内金属刻字被点亮。 */
+.expedition-die__face[data-scoring] .expedition-die__corner > b {
+  color: #efd394;
+  text-shadow:
+    0 -1px 0 #2a1808,
+    -1px 0 0 #2a1808,
+    1px 0 0 #8f6a33,
+    0 1px 0 #f4e3b5,
+    0 2px 1px rgb(8 5 2 / 88%);
+}
+
+/* 花色：同一方向的硬边刻影，不向外扩散。 */
+.expedition-die__face[data-scoring] .expedition-die__corner > i {
+  opacity: 1;
+  filter:
+    drop-shadow(0 -1px 0 #2a1808)
+    drop-shadow(-1px 0 0 #2a1808)
+    drop-shadow(1px 0 0 #8f6a33)
+    drop-shadow(0 1px 0 #f4e3b5);
+}
+
+.expedition-die__face[data-scoring] .expedition-die__corner > i svg [data-fill] {
+  fill: #e7c982;
+}
+
+.expedition-die__face[data-scoring] .expedition-die__corner > i svg {
+  stroke: #e7c982;
+}
+
+/* ---------- 狂暴：被围困的兽型拼命，视觉上必须一眼看出 ---------- */
+
+.abyssa-expedition-enemy[data-frenzied] > img {
+  filter:
+    grayscale(.28)
+    sepia(.16)
+    saturate(1.35)
+    brightness(1.04)
+    contrast(1.28)
+    drop-shadow(0 7px 7px rgb(0 0 0 / 88%))
+    drop-shadow(0 0 16px rgb(206 62 48 / 62%));
+  animation: expedition-frenzy-throb 820ms ease-in-out infinite;
+}
+
+.abyssa-expedition-enemy[data-frenzied] .abyssa-expedition-enemy__attack b {
+  color: #ff9a86;
+  text-shadow: 0 1px 0 #4a1410, 0 0 9px rgb(255 122 98 / 62%);
+}
+
+/* 自伤：血条透出裂痕般的暗红 */
+.abyssa-expedition-enemy[data-frenzied] .abyssa-expedition-enemy__health i[data-filled] {
+  border-color: #9c3a2c;
+  background: radial-gradient(circle at 35% 28%, #f0a88c 0 19%, #b3452f 64%, #5c1c12 100%);
+}
+
+@keyframes expedition-frenzy-throb {
+  50% { transform: translateY(-18px) scale(1.02); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .abyssa-expedition-enemy[data-frenzied] > img,
+  .abyssa-expedition-enemy__frenzy-status { animation: none; }
+}
+
+/* ---------- 转轮读数：容器与配件 ---------- */
+
+.abyssa-expedition-odometer__reels {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+}
+
+.abyssa-expedition-odometer__prefix {
+  position: relative;
+  z-index: 2;
+  margin-right: 7px;
+  align-self: center;
+  color: #a98249;
+  font-family: var(--font-display);
+  font-size: 22px;
+  text-shadow: 0 2px 1px #080402;
+}
+
+/* 小数点：轮盘之间的固定刻位 */
+.abyssa-expedition-odometer__point {
+  position: relative;
+  z-index: 2;
+  width: 9px;
+  align-self: end;
+  margin-bottom: 14px;
+}
+
+.abyssa-expedition-odometer__point::after {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #d8b170;
+  content: "";
+  transform: translateX(-50%);
+}
+
+/* 前导零轮盘压暗 */
+.abyssa-expedition-odometer__reel[data-dim] .abyssa-expedition-odometer__strip b,
+.abyssa-expedition-odometer__reel[data-dim] .abyssa-expedition-odometer__strip i {
+  color: #4a4032;
+  text-shadow: none;
+}
+
+/* 包裹入袋时整块透出一次金光 */
+.abyssa-expedition-bag-odometer {
+  display: block;
+}
+
+.abyssa-expedition-bag-odometer[data-banking] .abyssa-expedition-odometer {
+  border-color: #a47a33;
+  box-shadow:
+    0 0 0 1px #8d6a2e,
+    0 0 0 2px #0b0704,
+    inset 0 1px rgb(255 231 177 / 12%),
+    inset 0 -5px 8px rgb(0 0 0 / 46%),
+    0 0 18px rgb(226 180 92 / 46%);
+}
+
+.abyssa-expedition-bag-odometer[data-banking] .abyssa-expedition-odometer__strip b {
+  color: #fff0bd;
+  text-shadow: 0 1px 1px #000, 0 0 12px rgb(255 216 122 / 68%);
+}
+
+/* ---------- 倍率转轮：侧栏主角，沿用原始大轮盘 ---------- */
+
+.abyssa-expedition-multiplier__reels {
+  margin-top: 4px;
+  margin-bottom: 2px;
+}
+
+/* ---------- 包裹转轮：次要读数，整体收一档 ---------- */
+
+.abyssa-expedition-bag-odometer .abyssa-expedition-odometer {
+  --odometer-digit-h: 40px;
+  height: 56px;
+  margin-top: 0;
+  padding: 6px 11px;
+}
+
+.abyssa-expedition-bag-odometer .abyssa-expedition-odometer::before {
+  inset: 5px 9px;
+}
+
+.abyssa-expedition-bag-odometer .abyssa-expedition-odometer__reel {
+  width: 27px;
+  height: 40px;
+}
+
+.abyssa-expedition-bag-odometer .abyssa-expedition-odometer__strip i,
+.abyssa-expedition-bag-odometer .abyssa-expedition-odometer__strip b {
+  font-size: 20px;
+}
+
+.abyssa-expedition-bag-odometer .abyssa-expedition-odometer__screw {
+  width: 5px;
+  height: 5px;
+}
+
+/* ============================================================
+   玩家攻击演出
+   旧 BattleScreen 的双斩线 / 顿帧 / 白闪语言，适配远征的卡牌布局。
+============================================================ */
+
+/* 新层与召唤物都从瘴气中显形；稳定 key 确保普通重渲染不会重播。 */
+.abyssa-expedition-enemy {
+  transform-origin: 50% 82%;
+  animation: expedition-enemy-enter 460ms cubic-bezier(.14, .78, .2, 1) backwards;
+}
+
+.abyssa-expedition-enemies::after {
+  position: absolute;
+  inset: 0;
+  z-index: 12;
+  background:
+    radial-gradient(circle at 50% 48%, rgb(255 250 230 / 62%), transparent 22%),
+    rgb(255 255 255 / 12%);
+  content: "";
+  opacity: 0;
+  pointer-events: none;
+}
+
+.abyssa-expedition[data-attack-phase="hitstop"] .abyssa-expedition-enemies::after {
+  opacity: .14;
+}
+
+.abyssa-expedition[data-attack-phase="impact"] .abyssa-expedition-enemies::after {
+  animation: expedition-attack-field-flash 150ms ease-out both;
+}
+
+.abyssa-expedition-enemy[data-attack-phase] {
+  z-index: 8;
+}
+
+.abyssa-expedition-enemy[data-attack-phase] > img {
+  will-change: transform, opacity;
+}
+
+.abyssa-expedition-attack-fx {
+  position: absolute;
+  inset: 38px 3% 28px;
+  z-index: 7;
+  display: block;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.abyssa-expedition-attack-flash,
+.abyssa-expedition-attack-burst,
+.abyssa-expedition-attack-slash {
+  position: absolute;
+  top: 52%;
+  left: 50%;
+  display: block;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.abyssa-expedition-attack-flash {
+  width: 78%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgb(255 255 255 / 96%) 0 4%, rgb(255 229 190 / 74%) 13%, transparent 61%);
+  filter: drop-shadow(0 0 10px rgb(255 199 128 / 70%));
+  transform: translate(-50%, -50%) scale(.25);
+}
+
+.abyssa-expedition-attack-burst {
+  width: 70%;
+  aspect-ratio: 1;
+  border: 2px solid rgb(255 220 163 / 78%);
+  border-radius: 50%;
+  box-shadow: inset 0 0 18px rgb(255 238 204 / 72%), 0 0 22px rgb(210 92 58 / 62%);
+  transform: translate(-50%, -50%) scale(.25);
+}
+
+.abyssa-expedition-attack-slash {
+  --expedition-slash-angle: -19deg;
+  width: 92%;
+  height: 9px;
+  background:
+    linear-gradient(180deg, transparent 0 20%, #fff 38% 58%, #ffdca1 64% 72%, transparent 88%),
+    linear-gradient(90deg, transparent, #fff 18% 78%, transparent);
+  clip-path: polygon(0 48%, 11% 8%, 100% 34%, 91% 100%);
+  filter:
+    drop-shadow(0 0 3px #fff)
+    drop-shadow(0 0 9px rgb(255 161 88 / 84%));
+  transform: translate(-50%, -50%) rotate(var(--expedition-slash-angle)) scaleX(0);
+  transform-origin: 16% 50%;
+}
+
+.abyssa-expedition-attack-slash[data-slash="two"] {
+  --expedition-slash-angle: 24deg;
+  width: 80%;
+  height: 7px;
+  transform-origin: 82% 50%;
+}
+
+.abyssa-expedition-enemy[data-attack-phase="anticipate"]::before {
+  position: absolute;
+  top: 47%;
+  left: 50%;
+  z-index: 6;
+  width: 58%;
+  aspect-ratio: 1;
+  border: 1px solid rgb(238 196 118 / 62%);
+  border-radius: 50%;
+  box-shadow: inset 0 0 20px rgb(216 92 54 / 20%), 0 0 12px rgb(239 190 105 / 28%);
+  content: "";
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(1.22);
+  animation: expedition-attack-lock 100ms ease-out both;
+  pointer-events: none;
+}
+
+.abyssa-expedition-enemy[data-attack-phase="hitstop"] > img {
+  filter: brightness(3.8) saturate(0) drop-shadow(0 0 11px #fff);
+}
+
+.abyssa-expedition-enemy[data-attack-phase="hitstop"] .abyssa-expedition-attack-slash[data-slash="one"] {
+  animation: expedition-slash-draw 90ms cubic-bezier(.1, .82, .18, 1) both;
+}
+
+.abyssa-expedition-enemy[data-attack-phase="impact"] > img {
+  animation: expedition-enemy-impact 260ms cubic-bezier(.18, .8, .2, 1) both;
+}
+
+.abyssa-expedition-enemy[data-attack-phase="impact"] .abyssa-expedition-attack-flash {
+  animation: expedition-attack-flash 180ms ease-out both;
+}
+
+.abyssa-expedition-enemy[data-attack-phase="impact"] .abyssa-expedition-attack-burst {
+  animation: expedition-attack-burst 300ms ease-out both;
+}
+
+.abyssa-expedition-enemy[data-attack-phase="impact"] .abyssa-expedition-attack-slash[data-slash="one"] {
+  animation: expedition-slash-burst 220ms ease-out both;
+}
+
+.abyssa-expedition-enemy[data-attack-phase="impact"] .abyssa-expedition-attack-slash[data-slash="two"] {
+  animation: expedition-slash-cross 240ms 22ms ease-out both;
+}
+
+.abyssa-expedition-enemy[data-attack-phase="defeat"] > header {
+  animation: expedition-enemy-ui-exit 260ms ease-in both;
+}
+
+.abyssa-expedition-enemy[data-attack-phase="defeat"] > img {
+  filter: grayscale(1) brightness(1.3) contrast(1.15) drop-shadow(0 0 12px rgb(255 218 160 / 72%));
+  animation: expedition-enemy-defeat 460ms cubic-bezier(.22, .68, .3, 1) both;
+}
+
+.abyssa-expedition-enemy[data-attack-phase="defeat"] .abyssa-expedition-attack-burst {
+  border-color: rgb(255 235 183 / 88%);
+  animation: expedition-defeat-ring 430ms ease-out both;
+}
+
+.abyssa-expedition-attack-damage {
+  position: absolute;
+  top: 29%;
+  left: 50%;
+  z-index: 10;
+  display: grid;
+  gap: 2px;
+  justify-items: center;
+  opacity: 0;
+  color: #fff3cb;
+  font-family: var(--font-display);
+  line-height: 1;
+  text-shadow:
+    0 2px 0 #3d0c08,
+    0 0 7px #fff,
+    0 0 15px rgb(231 82 53 / 92%);
+  transform: translate(-50%, 16px) scale(.78) rotate(-5deg);
+  pointer-events: none;
+}
+
+.abyssa-expedition-attack-damage b {
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: -.02em;
+}
+
+.abyssa-expedition-attack-damage small {
+  color: #e9c27e;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .24em;
+  opacity: 0;
+}
+
+.abyssa-expedition-enemy:is(
+  [data-attack-phase="impact"],
+  [data-attack-phase="recover"],
+  [data-attack-phase="defeat"]
+) .abyssa-expedition-attack-damage {
+  animation: expedition-attack-damage 560ms linear both;
+}
+
+.abyssa-expedition-enemy[data-attack-lethal] .abyssa-expedition-attack-damage {
+  animation-duration: 720ms;
+}
+
+.abyssa-expedition-enemy[data-attack-phase="defeat"] .abyssa-expedition-attack-damage small {
+  animation: expedition-defeat-label 300ms ease-out both;
+}
+
+/* 攻击者仍是卡面，但用上冲和持续通电明确动作来源。 */
+.abyssa-expedition-party-card[data-attacking] {
+  z-index: 8;
+  border-color: #f0d18d;
+  box-shadow:
+    0 0 0 2px rgb(240 209 141 / 78%),
+    0 0 25px rgb(238 175 78 / 46%);
+}
+
+.abyssa-expedition[data-attack-phase="anticipate"] .abyssa-expedition-party-card[data-attacking] {
+  animation: expedition-attacker-anticipate 100ms cubic-bezier(.12, .84, .18, 1) both;
+}
+
+.abyssa-expedition[data-attack-phase="hitstop"] .abyssa-expedition-party-card[data-attacking] {
+  transform: translateY(-7px) scale(1.025);
+}
+
+.abyssa-expedition[data-attack-phase="impact"] .abyssa-expedition-party-card[data-attacking] {
+  animation: expedition-attacker-impact 260ms ease-out both;
+}
+
+.abyssa-expedition-party-column[data-attacking] .abyssa-expedition-party-link {
+  filter: drop-shadow(0 0 6px rgb(255 218 130 / 86%));
+}
+
+.abyssa-expedition-party-column[data-attacking] .abyssa-expedition-party-link__main {
+  stroke: #fff7d9;
+  stroke-width: 3px;
+}
+
+@keyframes expedition-enemy-enter {
+  0% {
+    opacity: 0;
+    transform: translateY(24px) scale(.78);
+  }
+  58% {
+    opacity: .88;
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes expedition-attack-lock {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(1.22); }
+  100% { opacity: .76; transform: translate(-50%, -50%) scale(.92); }
+}
+
+@keyframes expedition-enemy-impact {
+  0% {
+    transform: translateY(-18px) translateX(0) rotate(0) scale(1);
+  }
+  22% {
+    transform: translateY(-20px) translateX(13px) rotate(3deg) scale(1.045);
+  }
+  46% { transform: translateY(-17px) translateX(-7px) rotate(-1.5deg) scale(.99); }
+  68% { transform: translateY(-19px) translateX(4px) rotate(.7deg) scale(1.01); }
+  100% {
+    transform: translateY(-18px) translateX(0) rotate(0) scale(1);
+  }
+}
+
+@keyframes expedition-enemy-defeat {
+  0% {
+    opacity: 1;
+    transform: translateY(-18px) translateX(0) rotate(0) scale(1);
+  }
+  24% {
+    opacity: 1;
+    transform: translateY(-22px) translateX(8px) rotate(2deg) scale(1.045);
+  }
+  62% {
+    opacity: .7;
+    transform: translateY(-8px) translateX(18px) rotate(4deg) scale(.92, 1.02);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(30px) translateX(28px) rotate(7deg) scale(.66, .34);
+  }
+}
+
+@keyframes expedition-enemy-ui-exit {
+  to { opacity: 0; transform: translateY(-7px); }
+}
+
+@keyframes expedition-slash-draw {
+  0% { opacity: 0; transform: translate(-50%, -50%) rotate(var(--expedition-slash-angle)) scaleX(0); }
+  22% { opacity: 1; }
+  100% { opacity: 1; transform: translate(-50%, -50%) rotate(var(--expedition-slash-angle)) scaleX(1); }
+}
+
+@keyframes expedition-slash-burst {
+  0% { opacity: 1; transform: translate(-50%, -50%) rotate(var(--expedition-slash-angle)) scaleX(1); }
+  100% { opacity: 0; transform: translate(-50%, -50%) rotate(var(--expedition-slash-angle)) scaleX(1.22); }
+}
+
+@keyframes expedition-slash-cross {
+  0% { opacity: 0; transform: translate(-50%, -50%) rotate(var(--expedition-slash-angle)) scaleX(0); }
+  24% { opacity: 1; transform: translate(-50%, -50%) rotate(var(--expedition-slash-angle)) scaleX(1); }
+  100% { opacity: 0; transform: translate(-50%, -50%) rotate(var(--expedition-slash-angle)) scaleX(1.18); }
+}
+
+@keyframes expedition-attack-flash {
+  0% { opacity: 1; transform: translate(-50%, -50%) scale(.22); }
+  42% { opacity: .92; }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(1.25); }
+}
+
+@keyframes expedition-attack-burst {
+  0% { opacity: .9; transform: translate(-50%, -50%) scale(.2); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(1.1); }
+}
+
+@keyframes expedition-defeat-ring {
+  0% { opacity: .72; transform: translate(-50%, -50%) scale(.52); }
+  55% { opacity: .88; }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(1.42); }
+}
+
+@keyframes expedition-attack-field-flash {
+  0% { opacity: .48; }
+  100% { opacity: 0; }
+}
+
+@keyframes expedition-attack-damage {
+  0% { opacity: 0; transform: translate(-50%, 16px) scale(.78) rotate(-5deg); }
+  10% { opacity: 1; transform: translate(-50%, 0) scale(1.16) rotate(-3deg); }
+  24% { opacity: 1; transform: translate(-50%, -7px) scale(1) rotate(-4deg); }
+  74% { opacity: .92; transform: translate(-50%, -21px) scale(1) rotate(-4deg); }
+  100% { opacity: 0; transform: translate(-50%, -38px) scale(.94) rotate(-4deg); }
+}
+
+@keyframes expedition-defeat-label {
+  0% { opacity: 0; letter-spacing: .45em; transform: translateY(4px); }
+  100% { opacity: 1; letter-spacing: .24em; transform: translateY(0); }
+}
+
+@keyframes expedition-attacker-anticipate {
+  0% { transform: translateY(0) scale(1); }
+  100% { transform: translateY(-7px) scale(1.025); }
+}
+
+@keyframes expedition-attacker-impact {
+  0% { transform: translateY(-7px) scale(1.025); }
+  24% { transform: translateY(-4px) scale(.985); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+/* ============================================================
+   玩家防御 / 治疗演出
+   每张卡拥有自己的裁剪层：大盾与治疗十字可覆盖卡面，但不会越出目标卡。
+============================================================ */
+
+.abyssa-expedition-support-fx {
+  --support-accent: #c7d0d5;
+  --support-bright: #fff9dc;
+  position: absolute;
+  inset: 3px;
+  z-index: 7;
+  display: block;
+  overflow: hidden;
+  overflow: clip;
+  contain: paint;
+  pointer-events: none;
+}
+
+.abyssa-expedition-support-fx[data-kind="heal"] {
+  --support-accent: #74d36d;
+  --support-bright: #e5ffd2;
+}
+
+.abyssa-expedition-support-fx__halo,
+.abyssa-expedition-support-fx__emblem,
+.abyssa-expedition-support-fx__particle,
+.abyssa-expedition-support-fx > strong {
+  position: absolute;
+  top: 43%;
+  left: 50%;
+  display: block;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.abyssa-expedition-support-fx__halo {
+  width: 112px;
+  aspect-ratio: 1;
+  border: 1px solid rgb(218 229 234 / 55%);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, rgb(255 255 255 / 26%) 0 7%, transparent 9% 39%, rgb(180 194 201 / 16%) 40% 52%, transparent 54%),
+    conic-gradient(from 24deg, transparent 0 14%, rgb(235 241 244 / 22%) 15% 18%, transparent 19% 48%, rgb(235 241 244 / 18%) 49% 53%, transparent 54%);
+  box-shadow: inset 0 0 18px rgb(217 227 232 / 18%);
+  transform: translate(-50%, -50%) scale(.4);
+}
+
+.abyssa-expedition-support-fx[data-kind="heal"] .abyssa-expedition-support-fx__halo {
+  border-color: rgb(139 232 124 / 58%);
+  background:
+    radial-gradient(circle, rgb(233 255 218 / 38%) 0 8%, transparent 10% 38%, rgb(101 207 91 / 19%) 40% 54%, transparent 56%),
+    conic-gradient(from 24deg, transparent 0 14%, rgb(196 255 171 / 25%) 15% 19%, transparent 20% 48%, rgb(196 255 171 / 20%) 49% 54%, transparent 55%);
+  box-shadow: inset 0 0 18px rgb(111 220 96 / 18%);
+}
+
+.abyssa-expedition-support-fx__emblem {
+  width: 94px;
+  aspect-ratio: 1;
+  background: linear-gradient(135deg, #fffdf0 0 14%, #cbd3d6 37%, #707a80 72%, #f0e4bd 100%);
+  mask-image: url("../assets/svg/ui/game-icon-cross-shield.svg");
+  mask-position: center;
+  mask-repeat: no-repeat;
+  mask-size: contain;
+  transform: translate(-50%, -50%) translateY(18px) scale(.42);
+}
+
+.abyssa-expedition-support-fx[data-kind="heal"] .abyssa-expedition-support-fx__emblem {
+  width: 72px;
+  background: linear-gradient(145deg, #ecffda 0 16%, #78dc68 46%, #267c3a 82%, #b8f69c 100%);
+  mask-image: url("../assets/svg/ui/game-icon-hospital-cross.svg");
+}
+
+.abyssa-expedition-support-fx > strong {
+  top: 14px;
+  color: var(--support-bright);
+  font-family: var(--font-display);
+  font-size: 27px;
+  font-weight: 700;
+  letter-spacing: .02em;
+  line-height: 1;
+  text-shadow: 0 2px 0 rgb(18 26 28 / 88%), 0 0 7px color-mix(in srgb, var(--support-accent) 72%, transparent);
+  transform: translateX(-50%) translateY(10px) scale(.82);
+}
+
+.abyssa-expedition-support-fx__particle {
+  --support-x: 0px;
+  --support-y: -54px;
+  --support-rotate: 0deg;
+  --support-delay: 0ms;
+  width: 17px;
+  aspect-ratio: 1;
+  background: linear-gradient(145deg, #edffdc, #66cf61 68%, #2d7c3c);
+  mask-image: url("../assets/svg/ui/game-icon-hospital-cross.svg");
+  mask-position: center;
+  mask-repeat: no-repeat;
+  mask-size: contain;
+  transform: translate(-50%, -50%) scale(.45);
+}
+
+.abyssa-expedition-support-fx__particle[data-particle="1"] { --support-x: -48px; --support-y: -64px; --support-rotate: -18deg; --support-delay: 0ms; }
+.abyssa-expedition-support-fx__particle[data-particle="2"] { --support-x: -27px; --support-y: -82px; --support-rotate: 12deg; --support-delay: 18ms; }
+.abyssa-expedition-support-fx__particle[data-particle="3"] { --support-x: 2px; --support-y: -73px; --support-rotate: -9deg; --support-delay: 34ms; }
+.abyssa-expedition-support-fx__particle[data-particle="4"] { --support-x: 31px; --support-y: -86px; --support-rotate: 16deg; --support-delay: 12ms; }
+.abyssa-expedition-support-fx__particle[data-particle="5"] { --support-x: 50px; --support-y: -61px; --support-rotate: -12deg; --support-delay: 42ms; }
+
+.abyssa-expedition-support-fx[data-phase] .abyssa-expedition-support-fx__halo,
+.abyssa-expedition-support-fx[data-phase] .abyssa-expedition-support-fx__emblem,
+.abyssa-expedition-support-fx[data-phase] .abyssa-expedition-support-fx__particle,
+.abyssa-expedition-support-fx[data-phase] > strong,
+.abyssa-expedition-party-card[data-support-phase] {
+  will-change: transform, opacity;
+}
+
+.abyssa-expedition-support-fx[data-phase="anticipate"] .abyssa-expedition-support-fx__halo {
+  animation: expedition-support-gather 90ms ease-out both;
+}
+
+.abyssa-expedition-support-fx[data-phase="release"] .abyssa-expedition-support-fx__halo {
+  animation: expedition-support-halo-release 120ms ease-out both;
+}
+
+.abyssa-expedition-support-fx[data-phase="release"] .abyssa-expedition-support-fx__emblem {
+  animation: expedition-support-emblem-release 120ms cubic-bezier(.12, .82, .2, 1) both;
+}
+
+.abyssa-expedition-support-fx[data-phase="impact"] .abyssa-expedition-support-fx__halo {
+  animation: expedition-support-halo-impact 240ms ease-out both;
+}
+
+.abyssa-expedition-support-fx[data-phase="impact"] .abyssa-expedition-support-fx__emblem {
+  animation: expedition-support-emblem-impact 240ms cubic-bezier(.18, .82, .2, 1) both;
+}
+
+.abyssa-expedition-support-fx[data-phase="impact"] > strong {
+  animation: expedition-support-value-impact 240ms ease-out both;
+}
+
+.abyssa-expedition-support-fx[data-kind="heal"][data-phase="impact"] .abyssa-expedition-support-fx__particle {
+  animation: expedition-heal-particle 190ms var(--support-delay) ease-out both;
+}
+
+.abyssa-expedition-support-fx[data-kind="guard"][data-phase="settle"] .abyssa-expedition-support-fx__emblem {
+  animation: expedition-guard-emblem-settle 300ms cubic-bezier(.34, .1, .32, 1) both;
+}
+
+.abyssa-expedition-support-fx[data-kind="heal"][data-phase="settle"] .abyssa-expedition-support-fx__emblem {
+  animation: expedition-heal-emblem-settle 300ms cubic-bezier(.34, .1, .32, 1) both;
+}
+
+.abyssa-expedition-support-fx[data-phase="settle"] > strong {
+  animation: expedition-support-value-settle 300ms ease-in both;
+}
+
+/* 施法者保留卡面来源感；目标卡的反馈写在后面，自疗时优先目标脉冲。 */
+.abyssa-expedition[data-support-phase] .abyssa-expedition-party-card[data-supporting] {
+  z-index: 8;
+  border-color: #c2cbd0;
+  box-shadow: 0 0 0 2px rgb(205 216 221 / 58%), 0 0 20px rgb(175 190 198 / 28%);
+}
+
+.abyssa-expedition[data-support-kind="heal"] .abyssa-expedition-party-card[data-supporting] {
+  border-color: #8ccf78;
+  box-shadow: 0 0 0 2px rgb(140 207 120 / 58%), 0 0 20px rgb(85 188 88 / 26%);
+}
+
+.abyssa-expedition[data-support-phase="anticipate"] .abyssa-expedition-party-card[data-supporting] {
+  animation: expedition-support-caster-anticipate 90ms ease-out both;
+}
+
+.abyssa-expedition[data-support-phase="release"] .abyssa-expedition-party-card[data-supporting] {
+  transform: translateY(-5px) scale(1.018);
+}
+
+.abyssa-expedition[data-support-phase="impact"] .abyssa-expedition-party-card[data-supporting] {
+  animation: expedition-support-caster-impact 240ms ease-out both;
+}
+
+.abyssa-expedition[data-support-phase="settle"] .abyssa-expedition-party-card[data-supporting] {
+  animation: expedition-support-caster-settle 300ms ease-out both;
+}
+
+.abyssa-expedition-party-card[data-support-phase] {
+  z-index: 9;
+}
+
+.abyssa-expedition-party-card[data-support-kind="guard"] {
+  border-color: #d3dadd;
+  box-shadow: 0 0 0 2px rgb(211 218 221 / 62%), 0 0 22px rgb(176 193 201 / 30%);
+}
+
+.abyssa-expedition-party-card[data-support-kind="heal"] {
+  border-color: #8bd176;
+  box-shadow: 0 0 0 2px rgb(139 209 118 / 62%), 0 0 22px rgb(79 191 82 / 28%);
+}
+
+.abyssa-expedition-party-card[data-support-phase="anticipate"] {
+  animation: expedition-support-target-anticipate 90ms ease-out both;
+}
+
+.abyssa-expedition-party-card[data-support-phase="release"] {
+  transform: scale(1.012);
+}
+
+.abyssa-expedition-party-card[data-support-phase="impact"] {
+  animation: expedition-support-target-impact 240ms ease-out both;
+}
+
+.abyssa-expedition-party-card[data-support-phase="settle"] {
+  animation: expedition-support-target-settle 300ms ease-out both;
+}
+
+.abyssa-expedition-party-card[data-support-kind="guard"][data-support-phase="impact"] .abyssa-expedition-party-card__shield {
+  animation: expedition-support-shield-badge 240ms ease-out both;
+}
+
+.abyssa-expedition-party-card[data-support-kind="heal"][data-support-phase="impact"] .abyssa-expedition-party-card__hearts i[data-filled] {
+  animation: expedition-support-heart 240ms ease-out both;
+}
+
+@keyframes expedition-support-gather {
+  from { opacity: 0; transform: translate(-50%, -50%) scale(.38); }
+  to { opacity: .42; transform: translate(-50%, -50%) scale(.72); }
+}
+
+@keyframes expedition-support-halo-release {
+  from { opacity: .42; transform: translate(-50%, -50%) scale(.72); }
+  to { opacity: .68; transform: translate(-50%, -50%) scale(1); }
+}
+
+@keyframes expedition-support-halo-impact {
+  0% { opacity: .74; transform: translate(-50%, -50%) scale(.96); }
+  34% { opacity: .92; }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(1.38); }
+}
+
+@keyframes expedition-support-emblem-release {
+  from { opacity: 0; transform: translate(-50%, -50%) translateY(18px) scale(.42); }
+  to { opacity: 1; transform: translate(-50%, -50%) translateY(0) scale(.94); }
+}
+
+@keyframes expedition-support-emblem-impact {
+  0% { opacity: 1; transform: translate(-50%, -50%) scale(.94); }
+  28% { opacity: 1; transform: translate(-50%, -50%) scale(1.13); }
+  58% { opacity: 1; transform: translate(-50%, -50%) scale(.98); }
+  100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+@keyframes expedition-support-value-impact {
+  0% { opacity: 0; transform: translateX(-50%) translateY(10px) scale(.82); }
+  28% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1.12); }
+  100% { opacity: 1; transform: translateX(-50%) translateY(-5px) scale(1); }
+}
+
+@keyframes expedition-support-value-settle {
+  from { opacity: 1; transform: translateX(-50%) translateY(-5px) scale(1); }
+  to { opacity: 0; transform: translateX(-50%) translateY(-26px) scale(.9); }
+}
+
+@keyframes expedition-guard-emblem-settle {
+  from { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  58% { opacity: .9; }
+  to { opacity: 0; transform: translate(-50%, -50%) translate(-50px, 76px) scale(.24); }
+}
+
+@keyframes expedition-heal-emblem-settle {
+  from { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  58% { opacity: .9; }
+  to { opacity: 0; transform: translate(-50%, -50%) translate(32px, 76px) scale(.24); }
+}
+
+@keyframes expedition-heal-particle {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(.42) rotate(0); }
+  24% { opacity: .96; }
+  100% { opacity: 0; transform: translate(-50%, -50%) translate(var(--support-x), var(--support-y)) scale(.82) rotate(var(--support-rotate)); }
+}
+
+@keyframes expedition-support-caster-anticipate {
+  from { transform: translateY(0) scale(1); }
+  to { transform: translateY(-5px) scale(1.018); }
+}
+
+@keyframes expedition-support-caster-impact {
+  0% { transform: translateY(-5px) scale(1.018); }
+  32% { transform: translateY(-2px) scale(.99); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+@keyframes expedition-support-caster-settle {
+  from { transform: translateY(0) scale(1); }
+  to { transform: translateY(0) scale(1); }
+}
+
+@keyframes expedition-support-target-anticipate {
+  from { transform: scale(1); }
+  to { transform: scale(1.012); }
+}
+
+@keyframes expedition-support-target-impact {
+  0% { transform: scale(1.012); }
+  26% { transform: scale(1.04); }
+  54% { transform: scale(.995); }
+  100% { transform: scale(1.012); }
+}
+
+@keyframes expedition-support-target-settle {
+  from { transform: scale(1.012); }
+  to { transform: scale(1); }
+}
+
+@keyframes expedition-support-shield-badge {
+  0% { transform: scale(.82); }
+  35% { transform: scale(1.22); }
+  100% { transform: scale(1); }
+}
+
+@keyframes expedition-support-heart {
+  0% { transform: translateY(1px) scale(.82); }
+  38% { transform: translateY(-1px) scale(1.22); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+/* ============================================================
+   敌方逐个行动 / 我方卡牌受击
+   行动只移动当前怪物与目标卡本身；party-column 不参与 transform，
+   因此骰子到角色卡的交缠连线不会随受击动画偏折。
+============================================================ */
+
+.abyssa-expedition-enemy[data-enemy-acting] {
+  --enemy-action-accent: #bd7651;
+  z-index: 9;
+}
+
+.abyssa-expedition-enemy[data-enemy-action-kind="charge"] { --enemy-action-accent: #b9904f; }
+.abyssa-expedition-enemy[data-enemy-action-kind="seal"] { --enemy-action-accent: #9271ad; }
+.abyssa-expedition-enemy[data-enemy-action-kind="countdown"] { --enemy-action-accent: #bd684c; }
+.abyssa-expedition-enemy[data-enemy-action-kind="summon"] { --enemy-action-accent: #778d6d; }
+
+/* 怪物身后的动作点亮限制在 formation 的 contain: paint 裁剪层里。 */
+.abyssa-expedition-enemy[data-enemy-acting]::after {
+  position: absolute;
+  inset: 54px 13% 24px;
+  z-index: 1;
+  border: 1px solid color-mix(in srgb, var(--enemy-action-accent) 42%, transparent);
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse at 50% 58%,
+    color-mix(in srgb, var(--enemy-action-accent) 24%, transparent),
+    transparent 67%
+  );
+  box-shadow: inset 0 0 22px color-mix(in srgb, var(--enemy-action-accent) 14%, transparent);
+  content: "";
+  opacity: 0;
+  transform: scale(.74);
+  pointer-events: none;
+}
+
+.abyssa-expedition-enemy[data-enemy-action-phase] > img,
+.abyssa-expedition-enemy[data-enemy-action-phase]::after {
+  will-change: transform, opacity;
+}
+
+.abyssa-expedition-enemy[data-enemy-acting] header strong {
+  color: color-mix(in srgb, var(--enemy-action-accent) 58%, #ead7ad);
+  text-shadow: 0 2px 3px #000, 0 0 8px color-mix(in srgb, var(--enemy-action-accent) 44%, transparent);
+}
+
+.abyssa-expedition-enemy[data-enemy-action-phase="anticipate"]::after {
+  animation: expedition-enemy-action-aura-gather 120ms ease-out both;
+}
+
+.abyssa-expedition-enemy[data-enemy-action-phase="lunge"]::after,
+.abyssa-expedition-enemy[data-enemy-action-phase="hitstop"]::after {
+  opacity: .48;
+  transform: scale(1);
+}
+
+.abyssa-expedition-enemy[data-enemy-action-phase="impact"]::after {
+  animation: expedition-enemy-action-aura-release 280ms ease-out both;
+}
+
+.abyssa-expedition-enemy[data-enemy-action-phase="recover"]::after {
+  opacity: 0;
+  transform: scale(1.12);
+}
+
+/* 只有真实攻击会向下扑击；其他意图停在原位做一次短脉冲。 */
+.abyssa-expedition-enemy[data-enemy-action-kind="attack"][data-enemy-action-phase="anticipate"] > img {
+  animation: expedition-enemy-strike-anticipate 120ms cubic-bezier(.14, .78, .2, 1) both;
+}
+
+.abyssa-expedition-enemy[data-enemy-action-kind="attack"][data-enemy-action-phase="lunge"] > img {
+  animation: expedition-enemy-strike-lunge 100ms cubic-bezier(.1, .84, .16, 1) both;
+}
+
+.abyssa-expedition-enemy[data-enemy-action-kind="attack"][data-enemy-action-phase="hitstop"] > img {
+  opacity: 1;
+  transform: translateY(-5px) scale(1.035);
+}
+
+.abyssa-expedition-enemy[data-enemy-action-kind="attack"][data-enemy-action-phase="impact"] > img {
+  animation: expedition-enemy-strike-recover 280ms cubic-bezier(.18, .8, .2, 1) both;
+}
+
+.abyssa-expedition-enemy[data-enemy-action-kind="attack"][data-enemy-action-phase="recover"] > img {
+  opacity: .98;
+  transform: translateY(-18px) scale(1);
+}
+
+.abyssa-expedition-enemy:not([data-enemy-action-kind="attack"])[data-enemy-action-phase="anticipate"] > img {
+  animation: expedition-enemy-intent-anticipate 120ms ease-out both;
+}
+
+.abyssa-expedition-enemy:not([data-enemy-action-kind="attack"]):is(
+  [data-enemy-action-phase="lunge"],
+  [data-enemy-action-phase="hitstop"]
+) > img {
+  transform: translateY(-20px) scale(1.015);
+}
+
+.abyssa-expedition-enemy:not([data-enemy-action-kind="attack"])[data-enemy-action-phase="impact"] > img {
+  animation: expedition-enemy-intent-release 260ms ease-out both;
+}
+
+.abyssa-expedition-enemy:not([data-enemy-action-kind="attack"])[data-enemy-action-phase="recover"] > img {
+  opacity: .98;
+  transform: translateY(-18px) scale(1);
+}
+
+/* 卡内专属裁剪层。所有闪光、盾徽和数字都不得越过卡框。 */
+.abyssa-expedition-enemy-hit-fx {
+  --enemy-hit-accent: #b2473d;
+  --enemy-hit-bright: #ffd0be;
+  position: absolute;
+  inset: 3px;
+  z-index: 10;
+  display: block;
+  overflow: hidden;
+  overflow: clip;
+  contain: paint;
+  isolation: isolate;
+  pointer-events: none;
+}
+
+.abyssa-expedition-party-card[data-enemy-hit-result="blocked"] .abyssa-expedition-enemy-hit-fx {
+  --enemy-hit-accent: #aeb9be;
+  --enemy-hit-bright: #f5f5e8;
+}
+
+.abyssa-expedition-party-card[data-enemy-hit-result="miss"] .abyssa-expedition-enemy-hit-fx {
+  --enemy-hit-accent: #7e776b;
+  --enemy-hit-bright: #c8c0ae;
+}
+
+.abyssa-expedition-party-card[data-enemy-hit-lethal] .abyssa-expedition-enemy-hit-fx {
+  --enemy-hit-accent: #d55246;
+  --enemy-hit-bright: #ffe0d2;
+}
+
+.abyssa-expedition-enemy-hit-fx__flash,
+.abyssa-expedition-enemy-hit-fx__impact,
+.abyssa-expedition-enemy-hit-fx__damage {
+  position: absolute;
+  display: block;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.abyssa-expedition-enemy-hit-fx__flash {
+  inset: 0;
+  background:
+    linear-gradient(106deg, transparent 18%, rgb(255 223 209 / 19%) 47%, transparent 71%),
+    radial-gradient(ellipse at 50% 43%, color-mix(in srgb, var(--enemy-hit-accent) 58%, transparent), transparent 66%),
+    linear-gradient(180deg, color-mix(in srgb, var(--enemy-hit-accent) 22%, transparent), transparent 68%);
+}
+
+.abyssa-expedition-enemy-hit-fx__impact {
+  top: 43%;
+  left: 50%;
+  width: 106px;
+  aspect-ratio: 1;
+  border: 1px solid color-mix(in srgb, var(--enemy-hit-accent) 68%, transparent);
+  border-radius: 50%;
+  box-shadow:
+    inset 0 0 18px color-mix(in srgb, var(--enemy-hit-accent) 34%, transparent),
+    0 0 10px color-mix(in srgb, var(--enemy-hit-accent) 26%, transparent);
+  transform: translate(-50%, -50%) scale(.48);
+}
+
+.abyssa-expedition-enemy-hit-fx__impact::before,
+.abyssa-expedition-enemy-hit-fx__impact::after {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: block;
+  content: "";
+  pointer-events: none;
+}
+
+/* 命中是两道收敛的刻痕，不复用玩家攻击的大范围斩线。 */
+.abyssa-expedition-party-card[data-enemy-hit-result="hit"] .abyssa-expedition-enemy-hit-fx__impact::before {
+  width: 88px;
+  height: 8px;
+  background: linear-gradient(180deg, transparent, #fff3e8 38% 52%, #cc5b4e 62%, transparent 78%);
+  clip-path: polygon(0 47%, 12% 8%, 100% 36%, 89% 100%);
+  box-shadow: 0 0 7px color-mix(in srgb, var(--enemy-hit-accent) 72%, transparent);
+  transform: translate(-50%, -50%) rotate(-17deg);
+}
+
+.abyssa-expedition-party-card[data-enemy-hit-result="hit"] .abyssa-expedition-enemy-hit-fx__impact::after {
+  width: 63px;
+  height: 5px;
+  background: linear-gradient(180deg, transparent, #ffe9dd 39% 55%, #a63f38 64%, transparent 82%);
+  clip-path: polygon(0 35%, 100% 49%, 86% 100%, 9% 70%);
+  box-shadow: 0 0 5px color-mix(in srgb, var(--enemy-hit-accent) 58%, transparent);
+  transform: translate(-50%, -50%) rotate(23deg);
+}
+
+/* 完全格挡：大盾留在卡内，横向冷光表达金属碰撞。 */
+.abyssa-expedition-party-card[data-enemy-hit-result="blocked"] .abyssa-expedition-enemy-hit-fx__impact {
+  border-color: rgb(222 231 234 / 66%);
+  background: radial-gradient(circle, rgb(229 236 238 / 22%), transparent 66%);
+  box-shadow: inset 0 0 20px rgb(204 216 221 / 28%), 0 0 10px rgb(210 222 227 / 22%);
+}
+
+.abyssa-expedition-party-card[data-enemy-hit-result="blocked"] .abyssa-expedition-enemy-hit-fx__impact::before {
+  width: 70px;
+  height: 78px;
+  background: linear-gradient(145deg, #fffdf0 0 12%, #cbd3d6 35%, #68737a 72%, #e3d9bd 100%);
+  filter: drop-shadow(0 2px 2px rgb(0 0 0 / 72%));
+  mask: url("../assets/svg/ui/game-icon-cross-shield.svg") center / contain no-repeat;
+  transform: translate(-50%, -50%) scale(.92);
+}
+
+.abyssa-expedition-party-card[data-enemy-hit-result="blocked"] .abyssa-expedition-enemy-hit-fx__impact::after {
+  width: 96px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #fff 27% 73%, transparent);
+  box-shadow: 0 0 7px rgb(231 240 243 / 74%);
+  transform: translate(-50%, -50%) rotate(-8deg);
+}
+
+.abyssa-expedition-party-card[data-enemy-hit-result="miss"] .abyssa-expedition-enemy-hit-fx__impact {
+  display: none;
+}
+
+.abyssa-expedition-enemy-hit-fx__damage {
+  top: 21px;
+  left: 50%;
+  z-index: 2;
+  color: var(--enemy-hit-bright);
+  font-family: var(--font-display);
+  font-size: 23px;
+  font-weight: 700;
+  letter-spacing: .01em;
+  line-height: 1;
+  text-align: center;
+  text-shadow: 0 2px 0 #32100d, 0 0 7px color-mix(in srgb, var(--enemy-hit-accent) 60%, transparent);
+  transform: translateX(-50%) translateY(8px) scale(.88);
+  white-space: nowrap;
+}
+
+.abyssa-expedition-enemy-hit-fx__damage :is(b, strong) {
+  color: inherit;
+  font: inherit;
+}
+
+.abyssa-expedition-party-card[data-enemy-hit-lethal] .abyssa-expedition-enemy-hit-fx__damage {
+  font-size: 27px;
+  text-shadow: 0 2px 0 #3c0d09, 0 0 9px rgb(218 73 61 / 72%);
+}
+
+.abyssa-expedition-party-card[data-enemy-hit-result="blocked"] .abyssa-expedition-enemy-hit-fx__damage {
+  color: #edf1ed;
+  font-size: 14px;
+  letter-spacing: .18em;
+  text-shadow: 0 2px 0 #22292c, 0 0 6px rgb(222 231 234 / 48%);
+  text-indent: .18em;
+}
+
+.abyssa-expedition-party-card[data-enemy-hit-result="miss"] .abyssa-expedition-enemy-hit-fx__damage {
+  color: #aca494;
+  font-size: 12px;
+  letter-spacing: .2em;
+  text-shadow: 0 2px 0 #17130e;
+  text-indent: .2em;
+}
+
+.abyssa-expedition-party-card[data-enemy-hit-phase] {
+  z-index: 9;
+}
+
+.abyssa-expedition-party-card[data-enemy-hit-result="hit"][data-enemy-hit-phase] {
+  border-color: #9e443c;
+  box-shadow: 0 0 0 1px rgb(192 73 62 / 42%), 0 0 12px rgb(155 49 42 / 20%);
+}
+
+.abyssa-expedition-party-card[data-enemy-hit-result="blocked"][data-enemy-hit-phase] {
+  border-color: #9ba6aa;
+  box-shadow: 0 0 0 1px rgb(209 219 223 / 38%), 0 0 11px rgb(181 197 203 / 18%);
+}
+
+.abyssa-expedition-party-card[data-enemy-hit-phase] .abyssa-expedition-enemy-hit-fx > *,
+.abyssa-expedition-party-card[data-enemy-hit-result="hit"][data-enemy-hit-phase],
+.abyssa-expedition-party-card[data-enemy-hit-result="blocked"][data-enemy-hit-phase],
+.abyssa-expedition-party-card__hearts i[data-lost-heart] {
+  will-change: transform, opacity;
+}
+
+.abyssa-expedition-party-card[data-enemy-hit-result="hit"][data-enemy-hit-phase="hitstop"] {
+  transform: translateX(-3px);
+}
+
+.abyssa-expedition-party-card[data-enemy-hit-result="hit"][data-enemy-hit-phase="impact"] {
+  animation: expedition-party-enemy-hit 280ms cubic-bezier(.16, .82, .2, 1) both;
+}
+
+.abyssa-expedition-party-card[data-enemy-hit-result="blocked"][data-enemy-hit-phase="impact"] {
+  animation: expedition-party-enemy-block 260ms ease-out both;
+}
+
+.abyssa-expedition-party-card[data-enemy-hit-phase="recover"] {
+  transform: none;
+}
+
+/* miss 只显示文字，不推动、不震动目标卡。 */
+.abyssa-expedition-party-card[data-enemy-hit-result="miss"][data-enemy-hit-phase] {
+  transform: none;
+}
+
+.abyssa-expedition-party-card[data-enemy-hit-result="hit"][data-enemy-hit-phase="hitstop"] .abyssa-expedition-enemy-hit-fx__flash {
+  opacity: .68;
+}
+
+.abyssa-expedition-party-card[data-enemy-hit-result="hit"][data-enemy-hit-phase="impact"] .abyssa-expedition-enemy-hit-fx__flash {
+  animation: expedition-party-hit-flash 230ms ease-out both;
+}
+
+.abyssa-expedition-party-card:is(
+  [data-enemy-hit-result="hit"],
+  [data-enemy-hit-result="blocked"]
+)[data-enemy-hit-phase="impact"] .abyssa-expedition-enemy-hit-fx__impact {
+  animation: expedition-party-hit-impact 270ms ease-out both;
+}
+
+.abyssa-expedition-party-card[data-enemy-hit-phase="impact"] .abyssa-expedition-enemy-hit-fx__damage {
+  animation: expedition-party-hit-damage 310ms ease-out both;
+}
+
+.abyssa-expedition-party-card[data-enemy-hit-phase="recover"] .abyssa-expedition-enemy-hit-fx > * {
+  opacity: 0;
+}
+
+.abyssa-expedition-party-card[data-enemy-hit-result="blocked"][data-enemy-hit-phase="impact"] .abyssa-expedition-party-card__shield {
+  animation: expedition-party-enemy-shield 260ms ease-out both;
+}
+
+/* data-lost-order 由右向左从 0 编号；延迟只错开熄灭，不延迟结算。 */
+.abyssa-expedition-party-card__hearts i[data-lost-heart] { --enemy-heart-loss-delay: 0ms; }
+.abyssa-expedition-party-card__hearts i[data-lost-order="1"] { --enemy-heart-loss-delay: 45ms; }
+.abyssa-expedition-party-card__hearts i[data-lost-order="2"] { --enemy-heart-loss-delay: 90ms; }
+.abyssa-expedition-party-card__hearts i[data-lost-order="3"] { --enemy-heart-loss-delay: 135ms; }
+.abyssa-expedition-party-card__hearts i[data-lost-order="4"] { --enemy-heart-loss-delay: 180ms; }
+.abyssa-expedition-party-card__hearts i[data-lost-order="5"] { --enemy-heart-loss-delay: 225ms; }
+
+.abyssa-expedition-party-card[data-enemy-hit-phase="impact"] .abyssa-expedition-party-card__hearts i[data-lost-heart] {
+  animation: expedition-party-heart-loss 210ms var(--enemy-heart-loss-delay) ease-out both;
+}
+
+/* 敌方演出期间冻结非关键无限动效，给当前怪物和目标卡留出合成预算。 */
+.abyssa-expedition[data-enemy-turn-phase] .abyssa-expedition-intent-line__body,
+.abyssa-expedition[data-enemy-turn-phase] .abyssa-expedition-intent[data-threat="lethal"],
+.abyssa-expedition[data-enemy-turn-phase] .abyssa-expedition-enemy__frenzy-status,
+.abyssa-expedition[data-enemy-turn-phase] .abyssa-expedition-enemy[data-frenzied]:not([data-enemy-action-phase]) > img,
+.abyssa-expedition[data-enemy-turn-phase] .expedition-die__stud[data-wild],
+.abyssa-expedition[data-enemy-turn-phase] .expedition-die__face[data-quality="gild"],
+.abyssa-expedition[data-enemy-turn-phase] .expedition-die__face[data-scoring] .expedition-die__corner > :is(b, i) {
+  animation-play-state: paused;
+}
+
+@keyframes expedition-enemy-action-aura-gather {
+  from { opacity: 0; transform: scale(.74); }
+  to { opacity: .48; transform: scale(1); }
+}
+
+@keyframes expedition-enemy-action-aura-release {
+  0% { opacity: .48; transform: scale(1); }
+  36% { opacity: .62; transform: scale(1.04); }
+  100% { opacity: 0; transform: scale(1.12); }
+}
+
+@keyframes expedition-enemy-strike-anticipate {
+  from { transform: translateY(-18px) scale(1); }
+  to { transform: translateY(-22px) scale(.99, 1.02); }
+}
+
+@keyframes expedition-enemy-strike-lunge {
+  from { transform: translateY(-22px) scale(.99, 1.02); }
+  to { transform: translateY(-5px) scale(1.035); }
+}
+
+@keyframes expedition-enemy-strike-recover {
+  0% { transform: translateY(-5px) scale(1.035); }
+  30% { transform: translateY(-11px) scale(.985, 1.015); }
+  68% { transform: translateY(-20px) scale(1.008); }
+  100% { transform: translateY(-18px) scale(1); }
+}
+
+@keyframes expedition-enemy-intent-anticipate {
+  from { opacity: .98; transform: translateY(-18px) scale(1); }
+  to { opacity: 1; transform: translateY(-20px) scale(1.015); }
+}
+
+@keyframes expedition-enemy-intent-release {
+  0% { opacity: 1; transform: translateY(-20px) scale(1.015); }
+  42% { opacity: .9; transform: translateY(-18px) scale(.99); }
+  100% { opacity: .98; transform: translateY(-18px) scale(1); }
+}
+
+@keyframes expedition-party-enemy-hit {
+  0% { transform: translateX(-3px); }
+  18% { transform: translateX(7px); }
+  40% { transform: translateX(-5px); }
+  62% { transform: translateX(3px); }
+  82% { transform: translateX(-1px); }
+  100% { transform: translateX(0); }
+}
+
+@keyframes expedition-party-enemy-block {
+  0% { transform: scale(1); }
+  24% { transform: translateY(1px) scale(.985); }
+  54% { transform: scale(1.012); }
+  100% { transform: scale(1); }
+}
+
+@keyframes expedition-party-hit-flash {
+  0% { opacity: .72; transform: scale(.96); }
+  36% { opacity: .48; }
+  100% { opacity: 0; transform: scale(1.04); }
+}
+
+@keyframes expedition-party-hit-impact {
+  0% { opacity: .88; transform: translate(-50%, -50%) scale(.48); }
+  34% { opacity: 1; transform: translate(-50%, -50%) scale(1.03); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(1.24); }
+}
+
+@keyframes expedition-party-hit-damage {
+  0% { opacity: 0; transform: translateX(-50%) translateY(8px) scale(.88); }
+  18% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1.06); }
+  62% { opacity: .96; transform: translateX(-50%) translateY(-5px) scale(1); }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-17px) scale(.94); }
+}
+
+@keyframes expedition-party-enemy-shield {
+  0% { transform: scale(.86); }
+  34% { transform: scale(1.18); }
+  100% { transform: scale(1); }
+}
+
+@keyframes expedition-party-heart-loss {
+  0% {
+    background: #df6955;
+    filter: drop-shadow(0 1px 0 #511a15) drop-shadow(0 0 4px rgb(225 80 61 / 52%));
+    opacity: 1;
+    transform: scale(1);
+  }
+  34% {
+    background: #ef8b70;
+    filter: drop-shadow(0 0 6px rgb(236 96 74 / 66%));
+    opacity: 1;
+    transform: scale(1.18);
+  }
+  72% {
+    background: #68342c;
+    filter: drop-shadow(0 1px 0 #24100d);
+    opacity: .7;
+    transform: scale(.64);
+  }
+  100% {
+    background: #4a2d26;
+    filter: drop-shadow(0 1px 0 #050302);
+    opacity: .58;
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .abyssa-expedition-enemy {
+    animation-duration: 120ms;
+  }
+
+  .abyssa-expedition-enemy[data-attack-phase] > img,
+  .abyssa-expedition-enemy[data-attack-phase] > header,
+  .abyssa-expedition-enemy[data-attack-phase] .abyssa-expedition-attack-fx > *,
+  .abyssa-expedition-enemy[data-attack-phase] .abyssa-expedition-attack-damage,
+  .abyssa-expedition-party-card[data-attacking],
+  .abyssa-expedition-support-fx > *,
+  .abyssa-expedition-party-card[data-support-phase],
+  .abyssa-expedition[data-support-phase] .abyssa-expedition-party-card[data-supporting],
+  .abyssa-expedition-enemies::after {
+    animation-duration: 60ms !important;
+    animation-delay: 0ms !important;
+  }
+
+  .abyssa-expedition-enemy[data-enemy-action-phase] > img,
+  .abyssa-expedition-enemy[data-enemy-action-phase]::after,
+  .abyssa-expedition-party-card[data-enemy-hit-phase],
+  .abyssa-expedition-party-card[data-enemy-hit-phase] .abyssa-expedition-enemy-hit-fx > *,
+  .abyssa-expedition-party-card__hearts i[data-lost-heart] {
+    animation-duration: 80ms !important;
+    animation-delay: 0ms !important;
+  }
+
+  .abyssa-expedition-party-card[data-enemy-hit-result="miss"][data-enemy-hit-phase],
+  .abyssa-expedition-party-card[data-enemy-hit-result="hit"][data-enemy-hit-phase="hitstop"] {
+    transform: none;
+  }
+
+  .abyssa-expedition-party-card[data-enemy-hit-result="hit"][data-enemy-hit-phase="impact"] .abyssa-expedition-enemy-hit-fx__flash {
+    opacity: .28;
+  }
+}

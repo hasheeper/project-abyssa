@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { AbyssaProvider } from "../components/AbyssaProvider";
 import { RpgHeader } from "../components/RpgHeader";
+import { Stage } from "../stage";
 import { createMapScene } from "./createMapScene";
 import { MapWoodFrame } from "./MapWoodFrame";
 import { cloneMapLocations } from "./types";
@@ -29,16 +30,17 @@ export function MapPage() {
   }, []);
 
   return (
-    <AbyssaProvider className="abyssa-map-page" density="compact">
-      <main className="abyssa-map-shell">
-        <div className="abyssa-map-heading">
+    <Stage background="var(--abyssa-map-backdrop)">
+      <AbyssaProvider className="abyssa-map-page" density="compact">
+        {/* 招牌与 shop 同构:absolute 挂墙,不参与流,允许压住画框上沿。 */}
+        <header className="abyssa-map-heading">
           <RpgHeader
             className="abyssa-map-heading__bar"
             label="守望者之崖"
             description="守望者之崖"
             variant="dark"
           />
-        </div>
+        </header>
 
         <MapWoodFrame>
           <section className="abyssa-map-viewport" aria-label="守望者之崖副本地图">
@@ -60,7 +62,7 @@ export function MapPage() {
             <span className="abyssa-map-archive-label" aria-hidden="true">区域档案 · 03</span>
           </section>
         </MapWoodFrame>
-      </main>
-    </AbyssaProvider>
+      </AbyssaProvider>
+    </Stage>
   );
 }

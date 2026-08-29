@@ -1,0 +1,1308 @@
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: var(--abyssa-font-body, "Noto Serif SC", "Songti SC", serif);
+}
+
+button { font: inherit; }
+
+.mansion-stage-canvas {
+  isolation: isolate;
+  background: #070c0f;
+}
+
+/* ============ 相位光照令牌 ============
+ * 上一版四个相位共用同一个光源位置(radial-gradient at 40% 32%,写死无变体)
+ * —— 时间在变、太阳不动,这是「糊弄」的根源。而且滤镜只有
+ * saturate + brightness 两轴,那是**照片调色**而不是光照:
+ * 真实时间变化的主体是**色温**,其次是对比度,亮度只是结果。
+ *
+ * 现在每个相位给全套:
+ *   sun-x / sun-y   光源位置。世界东=右(正门 x96%)、西=左(码头 x5%),
+ *                   所以晨光必须从**东**、暮光从**西**。
+ *   sun-size        光晕半径。低空的太阳被大气散射 -> 大而软;
+ *                   天顶的小而硬;月亮最小最锐。
+ *   sky-high/mid/low 天空三段。关键是晨昏的暖色**只出现在地平线附近**,
+ *                   高空仍是冷的 —— 上一版是整片天一起变暖,所以假。
+ *   haze            大气透视。让远景后退,比加对比度自然。
+ *   grade-*         世界滤镜三轴:色温 / 对比 / 亮度。
+ */
+.mansion-app {
+  /* 昼:天顶偏南,中性偏暖,对比最硬,雾最轻。 */
+  --mansion-sun-x: 52%;
+  --mansion-sun-y: 12%;
+  --mansion-sun-size: 38%;
+  --mansion-sun-core: rgb(255 252 236 / 46%);
+  --mansion-sun-halo: rgb(255 244 206 / 20%);
+  --mansion-sky-high: #7f9fb4;
+  --mansion-sky-mid: #b9cbcd;
+  --mansion-sky-low: #e6dcc3;
+  --mansion-ground-haze: rgb(228 226 205 / 26%);
+  --mansion-haze-strength: .16;
+  --mansion-world-tint: transparent;
+  --mansion-world-shadow: rgb(20 38 48 / 4%);
+  /* 三轴滤镜。sepia+hue-rotate 做**色相偏移**,不是单纯明暗 ——
+     这才是四个相位读起来是「不同时刻」而非「同一张图调曝光」的原因。 */
+  --mansion-grade: saturate(1.02) contrast(1.04) brightness(1);
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  color: #e8e7df;
+  /* 天空盒**不在这里** —— 见 .mansion-sky。
+     这一层只是兜底色:世界满幅铺底,正常情况下看不到它。 */
+  background: #0a1014;
+  isolation: isolate;
+}
+
+/* 晨:太阳在**东侧低空**。青蓝高空 + 地平线暖橙,晨雾最重,对比最软。 */
+.mansion-app[data-phase="dawn"] {
+  --mansion-sun-x: 84%;
+  --mansion-sun-y: 74%;
+  --mansion-sun-size: 62%;
+  --mansion-sun-core: rgb(255 216 158 / 52%);
+  --mansion-sun-halo: rgb(233 152 106 / 26%);
+  --mansion-sky-high: #4a6480;
+  --mansion-sky-mid: #8f8fa0;
+  --mansion-sky-low: #e2b18d;
+  --mansion-ground-haze: rgb(226 186 158 / 34%);
+  --mansion-haze-strength: .3;
+  --mansion-world-tint: rgb(178 118 84 / 13%);
+  --mansion-world-shadow: rgb(48 30 46 / 13%);
+  --mansion-grade: sepia(.14) hue-rotate(-8deg) saturate(1) contrast(.97) brightness(.97);
+}
+
+/* 昏:太阳在**西侧低空**(与晨相反)。橙红压紫,光晕最大最软。 */
+.mansion-app[data-phase="dusk"] {
+  --mansion-sun-x: 14%;
+  --mansion-sun-y: 70%;
+  --mansion-sun-size: 66%;
+  --mansion-sun-core: rgb(255 198 137 / 54%);
+  --mansion-sun-halo: rgb(206 105 82 / 30%);
+  --mansion-sky-high: #4c4560;
+  --mansion-sky-mid: #8a6f81;
+  --mansion-sky-low: #d99a72;
+  --mansion-ground-haze: rgb(196 124 96 / 32%);
+  --mansion-haze-strength: .26;
+  --mansion-world-tint: rgb(152 74 55 / 19%);
+  --mansion-world-shadow: rgb(54 26 44 / 18%);
+  --mansion-grade: sepia(.2) hue-rotate(-14deg) saturate(1.04) contrast(.96) brightness(.9);
+}
+
+/* 夜:月亮 —— 天空保留深蓝，但建筑与地面仍要读得出材质和房间结构。 */
+.mansion-app[data-phase="night"] {
+  --mansion-sun-x: 66%;
+  --mansion-sun-y: 18%;
+  --mansion-sun-size: 34%;
+  --mansion-sun-core: rgb(232 242 255 / 54%);
+  --mansion-sun-halo: rgb(158 188 236 / 28%);
+  --mansion-sky-high: #132238;
+  --mansion-sky-mid: #293d5b;
+  --mansion-sky-low: #52617c;
+  --mansion-ground-haze: rgb(78 101 145 / 28%);
+  --mansion-haze-strength: .22;
+  --mansion-world-tint: rgb(35 58 101 / 19%);
+  --mansion-world-shadow: rgb(4 10 28 / 22%);
+  --mansion-grade: hue-rotate(5deg) saturate(.82) contrast(1.02) brightness(.7);
+  /* 夜里地上已经暗了,不必再压地下,否则地下黑成一片看不出结构。 */
+  --mansion-underground-mask: .22;
+  --mansion-star-opacity: .9;
+}
+
+/* 大气透视 —— 地平线附近的一层薄雾,让远景后退。
+   这是让景深自然的标准手法,比加对比度好:加对比度只会让画面变硬。
+   上一版这里是一个写死在 40% 32% 的光斑 + 左右压暗,光斑与天空盒里的
+   太阳位置**不一致**(那个在 47% 32%),两个假太阳互相打架。
+   现在光晕只在天空盒里画一次,这层只负责雾。 */
+.mansion-app::before {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  background:
+    /* 地平线雾:从下往上淡出。 */
+    linear-gradient(
+      0deg,
+      var(--mansion-ground-haze) 0%,
+      transparent 46%
+    ),
+    /* 左右边缘极轻压暗,把视线收回中央。 */
+    linear-gradient(90deg, rgb(5 12 15 / 22%), transparent 9% 91%, rgb(5 12 15 / 24%));
+  content: "";
+  opacity: calc(.4 + var(--mansion-haze-strength));
+  pointer-events: none;
+  transition: opacity 420ms var(--abyssa-ease, ease);
+}
+
+/* ============ 层级 ============
+   曾是 2 / 90 / 120 / 135 / 260 / 370 / 380 / 390 / 400 / 405 / 520 / 610 / 700
+   这组任意数,看不出谁该压谁。现在按语义分段,每段留足间隔:
+     世界 0 · 热区 90 · 世界图钉 120-140 · scrim 200 · 四角挂件 300
+     抽屉 500 · 对话 600 · toast 700
+   规则:世界里的东西 <200,浮在世界上的 chrome >=200。 */
+
+/* 上下边缘 scrim —— 不占布局高度,不吃点击,只保证浮层文字可读。
+   原先靠一条 1552x70 的深色 HUD 板来「保证可读」,代价是吞掉 21% 画布高
+   与其覆盖范围内的全部热区点击。 */
+.mansion-scrim {
+  position: absolute;
+  z-index: 200;
+  right: 0;
+  left: 0;
+  height: 156px;
+  pointer-events: none;
+}
+
+/* 上缘 scrim 只留一层轻薄的可读性保护，让天空盒与月光真正透出来。
+   四角挂件本身都有实体牌面托底,不需要靠 scrim 硬保可读性。 */
+.mansion-scrim[data-edge="top"] {
+  top: 0;
+  background: linear-gradient(180deg, rgb(5 11 14 / 38%), rgb(5 11 14 / 12%) 48%, transparent);
+}
+
+.mansion-scrim[data-edge="bottom"] {
+  bottom: 0;
+  height: 190px;
+  background: linear-gradient(0deg, rgb(5 11 14 / 60%), rgb(5 11 14 / 20%) 44%, transparent);
+}
+
+/* ============ 四角挂件 ============
+   每簇紧贴角落且尽量小 —— 这是功能要求不只是审美:热区是 SVG
+   pointer-events:all,任何高 z-index 的浮层都会吞掉其覆盖范围内的点击,
+   而世界会随拖拽滑动,所以任何房间都可能滑到任何角落底下。 */
+.mansion-corner {
+  position: absolute;
+  z-index: 300;
+  display: grid;
+}
+
+/* ============ 铭牌调色板 ============
+   顶部相位栏与右上资源牌共用同一套。三层描边的中间那层(edge)是「亮边」,
+   它决定整块牌子读起来是金属还是塑料 —— 与 --abyssa-frame-light 同族。 */
+.mansion-app {
+  --mansion-plate-fill: #1b2224;
+  --mansion-plate-edge: #8d9c9c;
+  --mansion-plate-ornament: #a8b6b2;
+  --mansion-plate-elapsed: #c2ab74;
+  --mansion-advance-ink: #f0e2b6;
+  --mansion-slot-fill: #12191a;
+  --mansion-slot-edge: #5d6a6b;
+  --mansion-well-fill: #0a1011;
+  --mansion-well-lip: #93a3a2;
+  --mansion-gem-safe: #4e7f63;
+  --mansion-gem-ward: #3f6f80;
+}
+
+/* 夜相位牌面压暗一档,与世界的整体降调一致。 */
+.mansion-app[data-phase="night"] { --mansion-plate-fill: #161c1f; --mansion-plate-edge: #7d8b8c; }
+
+.mansion-corner--identity { top: 26px; left: 30px; }
+.mansion-identity__plate.abyssa-nameplate { width: 268px; }
+
+/* ============ 顶部中央:相位栏 ============ */
+.mansion-corner--phase { top: 18px; left: 50%; transform: translateX(-50%); }
+
+.mansion-phasebar { position: relative; width: var(--phasebar-w); height: var(--phasebar-h); }
+
+/* 导轨。唯一保留的容器类元素,只有 6px 高,不构成第二层轮廓 ——
+   v1..v3 的外框牌与内部菱形是同一种轮廓语言,套两层必然浊。 */
+.mansion-phasebar__rail {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  shape-rendering: geometricPrecision;
+}
+
+.mansion-phasebar__slots { position: absolute; inset: 0; }
+
+/* 一格刻度。质感全在菱形自身的斜面高光上(见 Facet),不靠外框。 */
+.mansion-phasebar__slot {
+  position: absolute;
+  top: var(--phasebar-center-y);
+  display: grid;
+  width: var(--phasebar-slot);
+  height: var(--phasebar-slot);
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  place-items: center;
+  transform: translate(-50%, -50%);
+  transition: filter 160ms var(--abyssa-ease, ease), transform 160ms var(--abyssa-ease, ease);
+}
+.mansion-phasebar__slot svg {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  shape-rendering: geometricPrecision;
+}
+.mansion-phasebar__slot b {
+  position: relative;
+  color: var(--mansion-slot-ink);
+  font: 600 20px/1 var(--abyssa-font-body, "Noto Serif SC", serif);
+  letter-spacing: 0;
+}
+
+/* ============ 三态 ============
+   金属色由 fill / lit / shade / edge / rim 五个量共同决定,
+   改一个态只改这几个变量,不碰任何几何。 */
+
+/* 未到:压暗、去饱和,退到背景里。 */
+.mansion-phasebar__slot[data-state="coming"] {
+  --mansion-slot-fill: #141b1c;
+  --mansion-slot-lit: #38474a;
+  --mansion-slot-shade: #060a0b;
+  --mansion-slot-edge: #4e5b5c;
+  --mansion-slot-rim: #7c8b8c;
+  --mansion-slot-ink: #7b8a8a;
+}
+
+/* 已过去:亮边转暖,与导轨的 elapsed 同色系 —— 时间的方向。 */
+.mansion-phasebar__slot[data-state="elapsed"] {
+  --mansion-slot-fill: #1d1c15;
+  --mansion-slot-lit: #4d442c;
+  --mansion-slot-shade: #0a0906;
+  --mansion-slot-edge: #7d6f49;
+  --mansion-slot-rim: #b8a373;
+  --mansion-slot-ink: #b0a077;
+}
+
+/* 当前:整组唯一的高对比点。它就是「现在几时」的唯一表达,
+   所以刻度上方不再需要一个重复的大字。 */
+.mansion-phasebar__slot[data-state="current"] {
+  --mansion-slot-fill: #d8cba8;
+  --mansion-slot-lit: #fbf5e2;
+  --mansion-slot-shade: #9c8c62;
+  --mansion-slot-edge: #f4ecd6;
+  --mansion-slot-rim: #fffdf4;
+  --mansion-slot-inner: #6b5c38;
+  --mansion-slot-ink: #1b2122;
+  filter: drop-shadow(0 0 10px rgb(236 224 186 / 44%));
+  transform: translate(-50%, -50%) scale(1.06);
+}
+
+.mansion-phasebar__slot:hover:not([data-state="current"]) {
+  --mansion-slot-edge: #9caaab;
+  --mansion-slot-rim: #ccd8d8;
+  --mansion-slot-ink: #d5dedd;
+  transform: translate(-50%, -50%) scale(1.04);
+}
+.mansion-phasebar__slot:focus-visible { outline: 2px solid #f2eee2; outline-offset: 5px; border-radius: 3px; }
+
+/* 说明文字挂在刻度下方,不占刻度自身的空间。
+   没有牌面托底,所以这里需要 text-shadow。 */
+.mansion-phasebar__caption {
+  position: absolute;
+  top: calc(var(--phasebar-h) + 2px);
+  left: 50%;
+  color: #c3d1cf;
+  font-size: 10.5px;
+  letter-spacing: .14em;
+  text-shadow: 0 1px 5px rgb(3 8 10 / 96%), 0 0 12px rgb(3 8 10 / 72%);
+  white-space: nowrap;
+  transform: translateX(-50%);
+}
+
+/* 推进键。圆形是整组唯一的非菱形轮廓,于是它天然读作「动作」。 */
+.mansion-phasebar__advance {
+  position: absolute;
+  top: var(--phasebar-center-y);
+  left: calc(100% + 16px);
+  width: 50px;
+  height: 50px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  --mansion-slot-fill: #1b2426;
+  --mansion-slot-lit: #43555a;
+  --mansion-slot-shade: #070c0d;
+  --mansion-slot-edge: #8d9c9c;
+  --mansion-slot-rim: #c3d0d0;
+  transform: translateY(-50%);
+  transition: filter 160ms var(--abyssa-ease, ease), transform 160ms var(--abyssa-ease, ease);
+}
+.mansion-phasebar__advance svg { display: block; width: 100%; height: 100%; overflow: visible; shape-rendering: geometricPrecision; }
+.mansion-phasebar__advance:hover {
+  --mansion-slot-edge: #cbd8d5;
+  --mansion-advance-ink: #fff6d8;
+  transform: translateY(-50%) scale(1.05);
+}
+.mansion-phasebar__advance:active { transform: translateY(-50%) scale(.97); }
+.mansion-phasebar__advance:focus-visible { outline: 2px solid #f2eee2; outline-offset: 5px; border-radius: 50%; }
+
+/* ============ 右上:资源铭牌 ============ */
+.mansion-corner--status { top: 24px; right: 30px; gap: 7px; justify-items: end; }
+
+.mansion-ledger { position: relative; width: var(--ledger-w); }
+.mansion-ledger__plate { display: block; width: 100%; height: auto; overflow: visible; filter: drop-shadow(0 10px 20px rgb(2 6 8 / 44%)); shape-rendering: geometricPrecision; }
+
+/* 状态两行,与 SVG 里两颗静态宝石逐行对齐(同一组 --ledger-state-* 常量)。
+   没有 text-shadow —— 底下有实体牌面,不需要靠字阴影硬保可读性。 */
+.mansion-ledger__states {
+  position: absolute;
+  top: var(--ledger-state-top);
+  left: 44px;
+  display: grid;
+  grid-auto-rows: var(--ledger-state-row);
+}
+.mansion-ledger__states span { display: flex; align-items: center; color: #c5d2d0; font-size: 10.5px; letter-spacing: .06em; }
+
+/* 资金:两个槽。位置与尺寸**全部**来自 --ledger-well-*,与 SVG 画槽用的
+   是同一组数字 —— 上一版两边各写一套,结果数字撑破槽底。 */
+.mansion-ledger__funds {
+  position: absolute;
+  top: var(--ledger-well-top);
+  left: var(--ledger-side-pad);
+  display: grid;
+  grid-template-columns: repeat(2, var(--ledger-well-w));
+  gap: var(--ledger-well-gap);
+  height: var(--ledger-well-h);
+}
+.mansion-ledger__funds > span {
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 4px;
+  min-width: 0;
+  overflow: hidden;
+}
+.mansion-ledger__funds small { color: #8a9998; font-size: 8.5px; letter-spacing: .16em; }
+/* 金币图标由 CurrencyAmount 提供(components.css 的 conic-gradient 硬币)。
+   上一版换成裸 <b> 就是图标消失的原因。 */
+.mansion-ledger__funds .abyssa-currency-amount {
+  color: #e9d69a;
+  font: 600 15px/1 var(--abyssa-font-display, Georgia, serif);
+  font-variant-numeric: tabular-nums;
+  gap: 5px;
+  letter-spacing: .03em;
+}
+
+/* 库存:坐在牌内的库存槽里。位置尺寸全部来自 --ledger-stock-*,
+   与 SVG 画槽用同一组数字 —— 上一版它用 margin:-2px 挂在牌外,
+   实测整块掉出牌底 32.5px。 */
+.mansion-ledger__stock {
+  position: absolute;
+  top: var(--ledger-stock-top);
+  left: var(--ledger-side-pad);
+  display: flex;
+  width: var(--ledger-stock-w);
+  height: var(--ledger-stock-h);
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 11px;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+.mansion-ledger__stock small { color: #8a9998; font-size: 8.5px; letter-spacing: .16em; }
+.mansion-ledger__stock b {
+  color: #e6d9ae;
+  font: 600 13px/1 var(--abyssa-font-display, Georgia, serif);
+  font-variant-numeric: tabular-nums;
+}
+.mansion-ledger__stock:hover small { color: #c3d0ce; }
+.mansion-ledger__stock:hover b { color: #fbf0c8; }
+.mansion-ledger__stock:focus-visible { outline: 2px solid #f2eee2; outline-offset: 2px; }
+
+/* 库存展开层。临时浮层,可以吃点击。 */
+.mansion-stock__list {
+  display: grid;
+  gap: 5px;
+  justify-items: end;
+  padding: 9px 11px;
+  border: 1px solid rgb(128 149 149 / 34%);
+  background: rgb(11 17 19 / 94%);
+  box-shadow: 0 9px 20px rgb(0 0 0 / 34%);
+}
+.mansion-stock__list small { color: #9daaaa; font-size: 9px; white-space: nowrap; }
+.mansion-stock__list b { margin-left: 6px; color: #d6ddd7; font-weight: 600; }
+
+.mansion-viewport {
+  position: absolute;
+  z-index: 0;
+  /* 满幅铺底 —— 世界就是整块共享画布,不再是画布中间一条 1600x710 的带子。
+     宽高一律不写死:由 Stage 的画布尺寸决定,TSX 那边同源推导。 */
+  inset: 0;
+  overflow: hidden;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.mansion-viewport.is-dragging { cursor: grabbing; }
+/* 原先这里有一圈 1px 内描边 + 内阴影。满幅之后那圈内框等于把「画框」又
+   请回来,而洋馆的整个方向是去画框。只留极轻的左右压暗,让世界读起来是
+   「延伸到画布外」而不是「被裁在一个框里」。 */
+.mansion-viewport::after { position: absolute; z-index: 180; inset: 0; background: linear-gradient(90deg, rgb(3 10 14 / 20%), transparent 7% 93%, rgb(3 10 14 / 22%)); content: ""; pointer-events: none; }
+
+.mansion-world-pan {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  transform-origin: top left;
+  transition: transform 460ms cubic-bezier(.2, .78, .24, 1);
+  will-change: transform;
+  /* width 由 TSX 内联给出(= 世界宽 x 缩放)。这里曾写死 1918.86px 与
+     下面的 scale(0.3717277487),而 TSX 又用内联 style 写同样的值 ——
+     内联优先,故那两行是**无效死代码**,只在改高度时误导人。已删。 */
+}
+.mansion-viewport.is-dragging .mansion-world-pan { transition: none; }
+.mansion-viewport.is-room-focused { cursor: default; }
+
+.mansion-world-plane {
+  position: relative;
+  width: 5162px;
+  height: 1910px;
+  transform-origin: top left;
+  /* transform: scale() 由 TSX 内联给出,单一来源见 MansionPage 顶部。 */
+}
+
+/* ============ 天空盒 ============
+   画在世界平面内部(5162x1910 世界坐标),z-index 低于所有美术图层。
+   美术的天空区是透明的,所以这层从下面透出来。
+
+   为什么不挂在 .mansion-app:那是世界的**祖先**,而 layer-21 是满幅
+   不透明底图,世界在任何 pan 位置都覆盖整个画布 —— 挂在祖先上的天空
+   永远被盖住,一次都没露出来。这就是「天空盒还是黑的」的原因。
+
+   三层结构,各管一件事:
+     1. 天空梯度  高空 / 地平线 / 地面反射三段。晨昏的暖色只在地平线
+                  附近,高空仍冷 —— 整片天一起变暖会很假。
+     2. 光晕      位置由 --mansion-sun-x/y 驱动,随相位真正移动。
+     3. 星空      只在夜间出现。 */
+.mansion-sky {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  background:
+    /* 光晕。必须用 `ellipse <w> <h> at`,**不能**写 `circle <百分比> at` ——
+       circle 只接受单个长度值,给百分比会让整条 background 声明被浏览器
+       丢弃(连下面的天空梯度一起没了)。实测就是这个语法错误导致
+       「天空盒还是黑的」:令牌全对、DOM 也在,但 backgroundImage 计算值是 none。 */
+    radial-gradient(
+      ellipse var(--mansion-sun-size) var(--mansion-sun-size) at
+        var(--mansion-sun-x) var(--mansion-sun-y),
+      var(--mansion-sun-core),
+      var(--mansion-sun-halo) 40%,
+      transparent 70%
+    ),
+    linear-gradient(
+      180deg,
+      var(--mansion-sky-high) 0%,
+      var(--mansion-sky-mid) 42%,
+      var(--mansion-sky-low) 72%,
+      color-mix(in srgb, var(--mansion-sky-low) 58%, #4a5449) 100%
+    );
+  pointer-events: none;
+  transition: background 480ms var(--abyssa-ease, ease);
+}
+
+/* 星空。用两组重复渐变点阵模拟,不引入贴图。
+   只在夜间显形 —— 白天 opacity 0。 */
+.mansion-sky::before {
+  position: absolute;
+  z-index: 1;
+  right: 0;
+  bottom: 42%;
+  left: 0;
+  top: 0;
+  background-image:
+    radial-gradient(1.6px 1.6px at 18% 22%, rgb(255 255 255 / 82%), transparent 100%),
+    radial-gradient(1.2px 1.2px at 42% 12%, rgb(226 238 255 / 74%), transparent 100%),
+    radial-gradient(1.8px 1.8px at 63% 30%, rgb(255 252 240 / 70%), transparent 100%),
+    radial-gradient(1.1px 1.1px at 81% 16%, rgb(214 230 255 / 66%), transparent 100%),
+    radial-gradient(1.4px 1.4px at 8% 44%, rgb(255 255 255 / 58%), transparent 100%),
+    radial-gradient(1.2px 1.2px at 92% 38%, rgb(238 246 255 / 62%), transparent 100%),
+    radial-gradient(1px 1px at 30% 52%, rgb(255 255 255 / 46%), transparent 100%),
+    radial-gradient(1.3px 1.3px at 55% 46%, rgb(230 240 255 / 52%), transparent 100%);
+  background-repeat: repeat;
+  background-size: 620px 460px, 780px 520px, 540px 420px, 700px 480px,
+                   660px 500px, 820px 540px, 580px 440px, 740px 460px;
+  content: "";
+  opacity: var(--mansion-star-opacity, 0);
+  pointer-events: none;
+  transition: opacity 620ms var(--abyssa-ease, ease);
+}
+
+.mansion-world-layer,
+.mansion-world-composite {
+  position: absolute;
+  display: block;
+  pointer-events: none;
+  user-select: none;
+}
+
+.mansion-world-composite { z-index: 20; inset: 0; width: 5162px; height: 1910px; }
+
+.mansion-phase-light {
+  position: absolute;
+  z-index: 70;
+  inset: 0;
+  background: var(--mansion-world-tint);
+  box-shadow: inset 0 0 420px var(--mansion-world-shadow);
+  mix-blend-mode: multiply;
+  pointer-events: none;
+  transition: background 280ms ease, box-shadow 280ms ease;
+}
+
+/* ============ 地下近似隔离 ============
+   地下 8 个房间没有窗,昼夜对它们不该有区别。但滤镜挂在整块 world-plane
+   上、房间又是美术图层而非独立 DOM,做不到真隔离 —— 这里用遮罩近似:
+   给地下补一层均匀暗色,把天光带来的明暗差抵消掉。
+
+   ============ 上一版的硬分割线 ============
+   遮罩曾写成 left:0 right:0 **全宽**,但真地下只占 x 27%..59%。
+   结果左边的码头与海、右边的海崖与村舍外景全被压暗,在 y=1340 处
+   拉出一条横贯全图的硬边。现在按实测范围定位 + 四边羽化。
+   夜间反而**减弱**这层:因为夜里地上也暗了,不需要再压地下,
+   否则地下会黑成一片看不见结构。 */
+.mansion-underground {
+  position: absolute;
+  z-index: 65;
+  /* left / top / width / height 由 TSX 内联给出(见 UNDERGROUND_* 常量)。
+     只覆盖洋馆地基内的 x 27%..59%,不再是全宽。 */
+  background: linear-gradient(
+    180deg,
+    transparent 0,
+    rgb(6 10 14 / 30%) 7%,
+    rgb(5 9 12 / 44%) 22%,
+    rgb(5 9 12 / 46%) 100%
+  );
+  /* 四边羽化 —— 这是消除硬边的关键。
+     竖直方向:顶部渐入(地面层过渡);
+     水平方向:左右各 130px 淡出,免得在地基边缘切出两条竖直硬边。
+     两个 mask 相乘,得到一块四周都软的矩形。 */
+  mask-image:
+    linear-gradient(180deg, transparent 0, #000 9%, #000 100%),
+    linear-gradient(90deg, transparent 0, #000 130px, #000 calc(100% - 130px), transparent 100%);
+  mask-composite: intersect;
+  mix-blend-mode: multiply;
+  opacity: var(--mansion-underground-mask, .82);
+  pointer-events: none;
+  transition: opacity 420ms var(--abyssa-ease, ease);
+}
+
+/* ============ 房间灯光 ============
+   只在夜相位渲染(见 lighting.ts 的 resolveRoomLight)。
+   做法:房间矩形内一个径向光斑,screen 混合 —— screen 只会提亮不会压暗,
+   所以灯光落在暗夜美术上是「透出来」而不是「糊上去」。
+   光斑刻意做成**上部偏亮**:光源在房间上方(吊灯/壁炉在墙边),
+   均匀铺满会像贴了一块色纸。 */
+.mansion-lights {
+  position: absolute;
+  z-index: 72;
+  inset: 0;
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+
+/* 月光铺底。天空盒位于美术下方，只能照亮透明天空；这一层位于美术上方，
+   用 screen 把冷光轻轻落到屋顶、外墙、露台和地面，同时不抬黑位。 */
+.mansion-lights::before {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      ellipse 58% 62% at var(--mansion-sun-x) var(--mansion-sun-y),
+      rgb(166 197 242 / 34%),
+      rgb(112 151 211 / 16%) 42%,
+      transparent 74%
+    ),
+    linear-gradient(
+      180deg,
+      rgb(118 154 210 / 8%) 0%,
+      rgb(93 130 190 / 17%) 70%,
+      rgb(66 94 146 / 10%) 100%
+    );
+  content: "";
+  pointer-events: none;
+}
+
+.mansion-light {
+  position: absolute;
+  display: block;
+  background:
+    radial-gradient(
+      ellipse 62% 52% at 50% 34%,
+      var(--light-core),
+      var(--light-edge) 54%,
+      transparent 84%
+    );
+  transition: opacity 420ms var(--abyssa-ease, ease);
+}
+
+/* 壁炉、篝火、油灯 —— 暖橙。全场最暖。 */
+.mansion-light[data-tone="hearth"] {
+  --light-core: rgb(255 186 104 / 82%);
+  --light-edge: rgb(206 116 52 / 40%);
+}
+/* 室内常规照明 —— 暖黄,比 hearth 淡也更均匀。 */
+.mansion-light[data-tone="lamp"] {
+  --light-core: rgb(255 218 152 / 62%);
+  --light-edge: rgb(198 152 92 / 26%);
+}
+/* 信号灯、法术光 —— 冷白偏青。 */
+.mansion-light[data-tone="cold"] {
+  --light-core: rgb(202 230 245 / 58%);
+  --light-edge: rgb(122 168 200 / 24%);
+}
+/* 结界红线 —— 赤红。 */
+.mansion-light[data-tone="arcane"] {
+  --light-core: rgb(226 96 92 / 56%);
+  --light-edge: rgb(150 44 60 / 28%);
+}
+/* 符纸、幽光 —— 惨白偏绿,弱到几乎看不见才对。 */
+.mansion-light[data-tone="spectral"] {
+  --light-core: rgb(196 226 202 / 34%);
+  --light-edge: rgb(96 138 122 / 16%);
+}
+/* 熟睡中的微光 —— 极弱暖色。 */
+.mansion-light[data-tone="dim"] {
+  --light-core: rgb(240 206 160 / 30%);
+  --light-edge: rgb(150 112 76 / 12%);
+}
+
+/* 呼吸。只给文案里明确是活火/脉搏的三处(hall 壁炉、plaza 篝火、
+   array 红线)。幅度刻意压到 4~6%、周期 5~7 秒 —— 慢到你不会注意它在动,
+   但画面不会死。这与「删掉状态呼吸灯」不矛盾:那是 UI 指示灯,
+   这是场景光源,后者在游戏里本就该活着。 */
+.mansion-light[data-flicker="flame"] { animation: mansion-flame 6.5s ease-in-out infinite; }
+.mansion-light[data-flicker="pulse"] { animation: mansion-arcane 5.2s ease-in-out infinite; }
+
+/* 世界滤镜:单一来源。四个相位各自的 --mansion-grade 已含色温/对比/亮度
+   三轴,所以这里只需要引用一次,不再每个相位写一条规则。 */
+.mansion-world-plane { filter: var(--mansion-grade); transition: filter 420ms var(--abyssa-ease, ease); }
+
+.mansion-region-layer {
+  position: absolute;
+  z-index: 90;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.mansion-region { cursor: pointer; pointer-events: all; outline: none; }
+.mansion-region rect,
+.mansion-region polygon { fill: transparent; stroke: transparent; stroke-width: 8px; transition: stroke 120ms ease; }
+.mansion-region text { fill: #f0e8d4; font: 600 40px/1 var(--abyssa-font-body, Georgia, serif); letter-spacing: 4px; opacity: 0; paint-order: stroke; pointer-events: none; stroke: rgb(5 11 13 / 92%); stroke-width: 12px; text-anchor: middle; transition: opacity 120ms ease; }
+.mansion-region:hover rect,
+.mansion-region:hover polygon,
+.mansion-region:focus-visible rect,
+.mansion-region:focus-visible polygon { fill: transparent; stroke: #b4d5d4; }
+.mansion-region:hover text,
+.mansion-region:focus-visible text,
+.mansion-region.is-hovered text,
+.mansion-region.is-selected text { opacity: 1; }
+.mansion-region.is-selected rect,
+.mansion-region.is-selected polygon { fill: transparent; stroke: #e7d6a9; }
+.mansion-region.is-sealed rect,
+.mansion-region.is-sealed polygon { fill: transparent; }
+.mansion-region.is-sealed:hover rect,
+.mansion-region.is-sealed:hover polygon,
+.mansion-region.is-sealed.is-selected rect,
+.mansion-region.is-sealed.is-selected polygon { stroke: #bd6873; }
+
+/* ============ 世界图钉 ============
+   上一版三个标记都是「带字的色块」(border:5px solid + border-radius:50%
+   + box-shadow),是网页 badge 做法;而仓库所有真图标都是 SVG 三层描边。
+   现在统一成盾形铭牌 + 素材库 SVG 图标,尺寸走同一条阶梯(44 / 30)。 */
+.mansion-marker-slot {
+  position: absolute;
+  z-index: 120;
+  display: block;
+  transform: translate(-50%, -50%);
+}
+
+.mansion-marker {
+  --marker-glow: rgb(173 218 202 / 58%);
+  position: relative;
+  display: block;
+  /* 世界坐标。屏上 ≈ 29px。它是提示，不该压过房间和角色。 */
+  width: 62px;
+  height: 62px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  filter:
+    drop-shadow(0 5px 10px rgb(2 6 8 / 52%))
+    drop-shadow(0 0 2px var(--marker-glow))
+    drop-shadow(0 0 6px var(--marker-glow));
+  transition: transform 150ms var(--abyssa-ease, ease), filter 150ms var(--abyssa-ease, ease);
+}
+.mansion-marker svg { display: block; width: 100%; height: 100%; overflow: visible; shape-rendering: geometricPrecision; }
+.mansion-marker__edge-glow {
+  opacity: .82;
+  filter: drop-shadow(0 0 1.8px var(--marker-glow));
+}
+.mansion-marker__library-glyph {
+  opacity: .96;
+  filter: drop-shadow(0 1px 1.2px rgb(2 6 8 / 88%));
+}
+.mansion-marker:hover { transform: scale(1.09); }
+.mansion-marker:focus-visible { outline: 2px solid #f4eee0; outline-offset: 4px; border-radius: 4px; }
+
+/* 产出:可收取。整组里唯一允许动的东西 —— 因为它是唯一需要玩家处理的。
+   亮度比上一版(#dce0ba 全场最亮)压下来一档:它是提示,不该比世界更亮。 */
+.mansion-marker--production {
+  --marker-fill: #2f4a3f;
+  --marker-lit: #5c8770;
+  --marker-shade: #16261f;
+  --marker-edge: #8fbfa4;
+  --marker-rim: #c3e2ce;
+  --marker-ink: #e6f2e6;
+  --marker-glow: rgb(139 224 180 / 68%);
+  animation: mansion-ready 2s ease-in-out infinite;
+}
+
+/* 修缮:只在受损或施工中出现,不再 14 个常态挂着。 */
+.mansion-marker--repair[data-state="damaged"] {
+  --marker-fill: #4a2f2c;
+  --marker-lit: #855049;
+  --marker-shade: #241413;
+  --marker-edge: #c08e7f;
+  --marker-rim: #e0b6a6;
+  --marker-ink: #f6e2d8;
+  --marker-glow: rgb(236 134 113 / 66%);
+}
+.mansion-marker--repair[data-state="working"] {
+  --marker-fill: #3c3a2a;
+  --marker-lit: #6e6748;
+  --marker-shade: #1d1c14;
+  --marker-edge: #b3a377;
+  --marker-rim: #d9c9a1;
+  --marker-ink: #f2e8cd;
+  --marker-glow: rgb(226 204 139 / 64%);
+}
+
+/* 角标:产出数量 / 施工剩余相位。统一一套,压在盾牌右下。 */
+.mansion-marker__badge {
+  position: absolute;
+  right: -4px;
+  bottom: 5px;
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border-radius: 50%;
+  color: #1d1c14;
+  background: #d9c9a1;
+  box-shadow: 0 0 0 2px #1a1f1f, 0 3px 6px rgb(0 0 0 / 45%);
+  font: 700 17px/1 var(--abyssa-font-display, Georgia, serif);
+}
+
+/* ============ 角色:圆形头像标识 ============
+   上一版是 166x194 的三段几何体(head 57 圆 + body 102x80 梯形 +
+   feet 110x21 椭圆 + 31px 名字),比多数房间的一半还大 —— 房间才
+   200~400 宽,11 个角色同屏把世界糊住。
+   现在 52x52 圆形头像,面积约为原来的 1/16。 */
+.mansion-character {
+  --character-color: #d1bd83;
+  --character-dark: #57472f;
+  position: absolute;
+  z-index: 135;
+  display: block;
+  /* 世界坐标。屏上 ≈ 47px。整组(头像+间隙+名字+留白)=162,
+     仍塞得进最矮的宿舍房间(165 高)。 */
+  width: 100px;
+  height: 100px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  /* 锚点在脚下中心:头像坐在房间地面上。 */
+  transform: translate(-50%, -100%);
+  transition: opacity 150ms ease, transform 150ms var(--abyssa-ease, ease);
+}
+
+.mansion-character > * { pointer-events: none; }
+
+/* 阵营色只用在描边环上 —— 这套 data-faction 配色本身是对的,保留。 */
+.mansion-character[data-faction="lord"] { --character-color: #c4677f; }
+.mansion-character[data-faction="king"] { --character-color: #c8786a; }
+.mansion-character[data-faction="party"] { --character-color: #dcc06a; }
+.mansion-character[data-faction="neutral"] { --character-color: #ddb556; }
+.mansion-character[data-faction="guard"] { --character-color: #8fa4a6; }
+
+/* 头像盘。三层环由 box-shadow 叠出,与铭牌/图钉的 dark/edge/deep 同族:
+     内 --abyssa-frame-deep -> 中 阵营色 -> 外 --abyssa-frame-dark */
+.mansion-character__disc {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  overflow: hidden;
+  place-items: center;
+  border-radius: 50%;
+  background: #161d1e;
+  box-shadow:
+    inset 0 0 0 2px var(--abyssa-frame-deep, #101616),
+    0 0 0 5px var(--character-color),
+    0 0 0 10px var(--abyssa-frame-dark, #192020),
+    0 8px 18px rgb(2 6 8 / 55%);
+}
+.mansion-character__disc img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* 素材是方图且人物居中偏上,略上移让脸落在圆心。 */
+  object-position: 50% 12%;
+}
+/* kael / tibby 无素材时降级为姓氏首字 —— 不用几何小人,那正是上一版的病。 */
+.mansion-character__disc b {
+  color: #f2e8d4;
+  font: 600 43px/1 var(--abyssa-font-body, "Noto Serif SC", serif);
+}
+
+/* 对话气泡:常驻但低调。上一版只在 hover 出现,「可对话」变得不可发现。 */
+.mansion-character__bubble {
+  /* 白色气泡:在深色美术上比深色气泡醒目得多,
+     且与「当前相位」那格反白的刻度是同一套语言(白 = 现在可以互动)。 */
+  --bubble-fill: #f2f5f1;
+  --bubble-edge: #ffffff;
+  --bubble-ink: #263334;
+  position: absolute;
+  top: -24px;
+  right: -26px;
+  z-index: 2;
+  display: block;
+  width: 58px;
+  height: 50px;
+  opacity: .82;
+  transition: opacity 150ms ease, transform 150ms ease;
+}
+.mansion-character__bubble svg { display: block; width: 100%; height: 100%; overflow: visible; shape-rendering: geometricPrecision; }
+
+.mansion-character__name {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 50%;
+  color: #f4ecd8;
+  font: 600 30px/1 var(--abyssa-font-body, "Noto Serif SC", serif);
+  letter-spacing: .04em;
+  text-shadow: 0 2px 6px #0d1313, 0 0 15px rgb(6 12 13 / 92%);
+  white-space: nowrap;
+  transform: translateX(-50%);
+  transition: opacity 120ms ease;
+}
+
+.mansion-character.is-room-muted { opacity: .55; }
+.mansion-character.is-room-muted .mansion-character__name { opacity: 0; }
+.mansion-character.is-room-muted:hover .mansion-character__name,
+.mansion-character.is-room-muted:focus-visible .mansion-character__name { opacity: 1; }
+.mansion-character:hover,
+.mansion-character:focus-visible {
+  z-index: 190;
+  opacity: 1;
+  transform: translate(-50%, -100%) scale(1.1);
+}
+.mansion-character:hover .mansion-character__bubble { opacity: 1; transform: translateY(-2px); }
+.mansion-character:focus-visible { outline: 3px solid #f8f1dd; outline-offset: 5px; border-radius: 50%; }
+
+/* 点击聚焦与房间悬浮是两套状态：
+   - 悬浮仍由 is-room-muted 让驻在角色给房间名让位；
+   - 点击后不再沿用那套淡化，而是保留清晰度、整体缩小，避免放大镜头后
+     头像反而占满房间。房间名也只服务于悬浮识别，聚焦时由详情卡承担标题。 */
+.mansion-viewport.is-room-focused .mansion-region.is-selected text { opacity: 0; }
+.mansion-viewport.is-room-focused .mansion-region.is-selected rect,
+.mansion-viewport.is-room-focused .mansion-region.is-selected polygon { stroke-width: 3px; }
+.mansion-viewport.is-room-focused .mansion-character {
+  opacity: 1;
+  transform: translate(-50%, -100%) scale(.62);
+}
+.mansion-viewport.is-room-focused .mansion-character .mansion-character__name { opacity: 1; }
+.mansion-viewport.is-room-focused .mansion-marker { transform: scale(.72); }
+.mansion-viewport.is-room-focused .mansion-character:hover,
+.mansion-viewport.is-room-focused .mansion-character:focus-visible {
+  transform: translate(-50%, -100%) scale(.7);
+}
+.mansion-viewport.is-room-focused .mansion-marker:hover { transform: scale(.79); }
+
+.mansion-loading {
+  position: absolute;
+  z-index: 260;
+  top: 50%;
+  left: 50%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 17px;
+  border: 1px solid #738385;
+  color: #d9dfda;
+  background: rgb(14 21 23 / 92%);
+  font-size: 12px;
+  letter-spacing: .12em;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+}
+.mansion-loading span { width: 8px; height: 8px; border-radius: 50%; background: #8ebdc0; box-shadow: 0 0 10px #8ebdc0; animation: mansion-loading 1s ease-in-out infinite; }
+
+/* 平移键:换成组件库 ArrowButton,自制的 clip-path 假切角与 Georgia 书名号
+   字形一并去掉。只保留位置与「压在世界上」需要的投影。
+
+   必须写成复合选择器:.abyssa-icon-button 自带 position:relative;display:block
+   (components.css),与单类 .mansion-pan-button 特异性相等,谁赢取决于打包
+   顺序 —— 实测输了,两个键退化成文档流里上下堆叠(实测 right 键落在
+   x=-22,y=483)。仓库既有写法同此(.mansion-room-card__close.abyssa-icon-button)。 */
+.mansion-pan-button.abyssa-icon-button {
+  position: absolute;
+  z-index: 300;
+  top: 50%;
+  transform: translateY(-50%);
+  filter: drop-shadow(0 6px 14px rgb(0 0 0 / 46%));
+}
+.mansion-pan-button--left.abyssa-icon-button { left: 22px; }
+.mansion-pan-button--right.abyssa-icon-button { right: 22px; }
+
+/* ============ 房间抽屉 ============
+   自然画幅的固定卡片,**不拉伸**:高度由内容决定。
+   原先是 top:102 + bottom:22 双边钉死,等于把卡片抻成满高 —— 内容少的房间
+   (如封印之门只有两段字)会拉出大片空白,内容多的又和现在一样滚动。
+   现在纵向居中、只给上限,卡片按内容自然收缩。
+
+   上限与位置不是拍的,是算出来的可用竖带。相位栏移到顶部中央后,右下腾空,
+   抽屉的竖带只被右上资源铭牌挡住:
+     铭牌底 = top24 + 牌面173 + 下沉4 = 201(库存已收进牌内,不再外挂)
+     留 14 间隙 -> 安全带 215..876(下缘留 24 边距)
+     带中心 = 545,带高 = 661
+   故抽屉居中于 539(不是画布中心 450)并以 674 为上限 —— 这样既不碰铭牌,
+   也把腾出来的空间真正用上(上一版因右下有相位簇,上限只有 580)。
+   若日后改动铭牌高度,必须重算这两个值。 */
+.mansion-room-drawer {
+  --mansion-drawer-max-h: 620px;
+  --mansion-drawer-enter-x: 16px;
+  position: absolute;
+  z-index: 500;
+  top: 522px;
+  width: 410px;
+  max-height: var(--mansion-drawer-max-h);
+  transform: translateY(-50%);
+  filter: drop-shadow(0 20px 34px rgb(0 0 0 / 46%));
+  animation: mansion-room-card-in 300ms cubic-bezier(.16, .84, .3, 1) both;
+}
+.mansion-room-drawer[data-side="right"] { right: 24px; left: auto; }
+.mansion-room-drawer[data-side="left"] {
+  --mansion-drawer-enter-x: -16px;
+  right: auto;
+  left: 24px;
+}
+.mansion-room-card {
+  --abyssa-frame-surface: rgb(19 26 27 / 97%);
+  max-height: var(--mansion-drawer-max-h);
+  background: rgb(10 15 16 / 98%);
+}
+.mansion-room-card[data-padding="md"] > .abyssa-frame__content {
+  display: flex;
+  max-height: var(--mansion-drawer-max-h);
+  flex-direction: column;
+  /* 固定画布还会整体缩放；这里必须给足设计尺寸，不能被 Frame 的
+     data-padding 规则覆盖成 0，否则视觉上内容会直接贴到装饰边框。 */
+  padding: 28px;
+  overflow: auto;
+}
+.mansion-room-card__close.abyssa-icon-button {
+  position: absolute;
+  z-index: 5;
+  top: 8px;
+  right: 8px;
+  width: 27px;
+  min-width: 27px;
+  height: 27px;
+}
+.mansion-room-card__hero {
+  display: grid;
+  grid-template-columns: 148px minmax(0, 1fr);
+  align-items: stretch;
+  gap: 14px;
+  padding: 0 27px 14px 0;
+  border-bottom: 1px solid rgb(113 137 136 / 42%);
+}
+.mansion-room-card__preview {
+  position: relative;
+  width: 148px;
+  height: 94px;
+  overflow: hidden;
+  border: 1px solid #687878;
+  background: #080d0e;
+  box-shadow: 0 0 0 2px #11191a, 0 0 0 3px rgb(116 145 143 / 38%), inset 0 0 18px #020505;
+}
+.mansion-room-card__preview::before {
+  position: absolute;
+  z-index: 2;
+  inset: 4px;
+  border: 1px solid rgb(196 213 206 / 26%);
+  content: "";
+  pointer-events: none;
+}
+.mansion-room-card__preview::after {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  background: linear-gradient(180deg, rgb(5 10 11 / 5%) 42%, rgb(5 10 11 / 68%));
+  box-shadow: inset 0 0 20px rgb(1 4 5 / 48%);
+  content: "";
+  pointer-events: none;
+}
+.mansion-room-card__preview > img {
+  position: absolute;
+  max-width: none;
+  filter: var(--mansion-grade);
+  pointer-events: none;
+}
+.mansion-room-card__preview > span {
+  position: absolute;
+  z-index: 3;
+  right: 8px;
+  bottom: 6px;
+  color: rgb(221 228 218 / 62%);
+  font: 600 7px/1 var(--abyssa-font-display, Georgia, serif);
+  letter-spacing: .2em;
+}
+.mansion-room-card__identity { min-width: 0; padding-top: 4px; }
+.mansion-room-card__identity > small {
+  display: block;
+  overflow: hidden;
+  color: #829a9b;
+  font: 600 9px/1.2 var(--abyssa-font-display, Georgia, serif);
+  letter-spacing: .17em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.mansion-room-card__identity h2 {
+  margin: 7px 0 0;
+  overflow: hidden;
+  color: #eee3c7;
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.mansion-room-card__residents { display: flex; align-items: center; gap: 10px; margin-top: 12px; }
+.mansion-room-card__residents > span { color: #7e8f8f; font-size: 8px; letter-spacing: .13em; white-space: nowrap; }
+.mansion-room-card__resident-list { display: flex; align-items: center; min-height: 34px; padding-left: 3px; }
+.mansion-room-card__resident-avatar {
+  position: relative;
+  display: block;
+  width: 34px;
+  height: 34px;
+  flex: none;
+  overflow: hidden;
+  border-radius: 50%;
+  background: #151c1d;
+  box-shadow: 0 0 0 2px #263132, 0 0 0 3px #a39467, 0 3px 8px rgb(0 0 0 / 48%);
+}
+.mansion-room-card__resident-avatar + .mansion-room-card__resident-avatar { margin-left: -7px; }
+.mansion-room-card__resident-avatar img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 12%; }
+.mansion-room-card__resident-placeholder { display: grid; width: 100%; height: 100%; place-items: center; }
+.mansion-room-card__resident-placeholder svg { width: 24px; height: 24px; fill: rgb(139 156 154 / 18%); stroke: #879796; stroke-width: 1.5; }
+.mansion-room-card__resident-empty { color: #667676; font-size: 9px; letter-spacing: .08em; }
+.mansion-room-card__brief { margin-top: 13px; }
+.mansion-room-card__brief > small,
+.mansion-room-card__trace > small { color: #a99360; font-size: 8px; letter-spacing: .18em; }
+.mansion-room-card__description { margin: 6px 0 0; color: #c3cbc6; font-size: 11px; line-height: 1.68; }
+.mansion-room-card__warning,
+.mansion-room-card__provisional { margin-top: 11px; padding: 7px 9px; border: 1px solid #86515a; color: #e1a8ae; background: rgb(104 35 46 / 16%); font-size: 9px; letter-spacing: .08em; }
+.mansion-room-card__provisional { border-color: #837358; color: #d2c19c; background: rgb(104 86 48 / 14%); }
+.mansion-room-card__trace { margin-top: 11px; padding: 10px 11px; border: 1px solid #354345; background: rgb(6 11 12 / 52%); box-shadow: inset 3px 0 #7b6d47; }
+.mansion-room-card__trace > small { display: flex; align-items: center; gap: 7px; }
+.mansion-room-card__trace > small i { width: 6px; height: 6px; border: 1px solid #baa46d; background: #4d452f; transform: rotate(45deg); }
+.mansion-room-card__trace p { margin: 6px 0 0; color: #aeb8b5; font-size: 10px; line-height: 1.62; }
+.mansion-room-card__progress { margin-top: 12px; }
+.mansion-room-card__progress .abyssa-progress-group__meta { font-size: 9px; }
+.mansion-room-card__collect { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; padding: 7px 9px; border: 1px solid #4b6561; color: #bdcfc6; background: linear-gradient(90deg, #142321, #1b302d); cursor: pointer; }
+.mansion-room-card__collect:hover:not(:disabled) { border-color: #9fc7b8; filter: brightness(1.12); }
+.mansion-room-card__collect:disabled { opacity: .45; cursor: default; }
+.mansion-room-card__collect span { font-size: 8px; letter-spacing: .13em; }
+.mansion-room-card__collect strong { font-size: 10px; }
+.mansion-room-card__footer { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; margin-top: 12px; padding-top: 11px; border-top: 1px solid rgb(93 111 110 / 38%); }
+.mansion-room-card__fund-note { color: #6f7f7f; font-size: 8px; line-height: 1.55; white-space: nowrap; }
+.mansion-room-card__actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 7px; }
+.mansion-room-card__action.abyssa-notched-pill { width: 145px; height: 38px; }
+.mansion-room-card__repair {
+  position: relative;
+  display: grid;
+  grid-template-columns: 29px auto auto;
+  align-items: center;
+  min-width: 164px;
+  height: 40px;
+  padding: 3px 10px 3px 5px;
+  border: 1px solid #88784f;
+  clip-path: polygon(7px 0, calc(100% - 7px) 0, 100% 7px, 100% calc(100% - 7px), calc(100% - 7px) 100%, 7px 100%, 0 calc(100% - 7px), 0 7px);
+  color: #e7dec8;
+  background: linear-gradient(180deg, #31322a, #171b1a 58%, #101515);
+  box-shadow: inset 0 0 0 2px #111716, inset 0 0 0 3px rgb(166 146 91 / 42%);
+  cursor: pointer;
+  gap: 6px;
+}
+.mansion-room-card__repair::after { position: absolute; inset: 4px; border: 1px solid rgb(206 191 146 / 20%); clip-path: inherit; content: ""; pointer-events: none; }
+.mansion-room-card__repair:hover:not(:disabled) { border-color: #c6ad6a; filter: brightness(1.13) drop-shadow(0 0 5px rgb(190 160 91 / 20%)); }
+.mansion-room-card__repair:focus-visible { outline: 2px solid #f0eadb; outline-offset: 3px; }
+.mansion-room-card__repair:disabled { opacity: .52; cursor: default; }
+.mansion-room-card__repair-icon { width: 29px; height: 29px; }
+.mansion-room-card__repair-icon svg { display: block; width: 100%; height: 100%; }
+.mansion-room-card__repair strong { font-size: 11px; font-weight: 600; letter-spacing: .12em; white-space: nowrap; }
+.mansion-room-card__repair > small { color: #a6b2ad; font-size: 9px; white-space: nowrap; }
+.mansion-room-card__repair .abyssa-currency-amount { color: #e0c67f; font-family: var(--abyssa-font-display, Georgia, serif); font-size: 11px; font-weight: 600; gap: 5px; }
+.mansion-room-card__repair .abyssa-currency-amount i { width: 14px; height: 14px; }
+
+.mansion-adv-dialogue {
+  position: absolute;
+  inset: 0;
+  z-index: 610;
+  overflow: hidden;
+  background: rgb(4 8 9 / 58%);
+  backdrop-filter: blur(1.5px) saturate(.78);
+  pointer-events: auto;
+  animation: mansion-adv-backdrop-in 220ms ease-out both;
+}
+.mansion-adv-dialogue:focus { outline: none; }
+.mansion-adv-dialogue .rp-adv {
+  inset: 0;
+  background: transparent;
+  cursor: pointer;
+  animation: mansion-adv-stage-in 360ms cubic-bezier(.16, .84, .3, 1) both;
+}
+.mansion-adv-dialogue .rp-adv__bg { display: none; }
+.mansion-adv-dialogue .rp-adv::after,
+.mansion-adv-dialogue .rp-adv__frame-ornaments { display: none; }
+.mansion-adv-dialogue .rp-adv__cast::after {
+  height: 260px;
+  background: linear-gradient(180deg, transparent, rgb(4 7 7 / 44%) 58%, rgb(4 7 7 / 82%));
+}
+.mansion-adv-dialogue .rp-adv__dialogue { bottom: 48px; }
+.mansion-adv-dialogue__close {
+  position: absolute;
+  z-index: 12;
+  top: 20px;
+  right: 24px;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  border: 0;
+  color: rgb(220 229 225 / 78%);
+  background: rgb(6 10 11 / 34%);
+  border-radius: 50%;
+  cursor: pointer;
+  font: 300 32px/38px Arial, sans-serif;
+  transition: color 160ms ease, background-color 160ms ease, transform 160ms ease;
+}
+.mansion-adv-dialogue__close:hover {
+  color: #fff;
+  background: rgb(6 10 11 / 64%);
+  transform: scale(1.04);
+}
+.mansion-adv-dialogue__close:focus-visible {
+  outline: 2px solid rgb(205 226 221 / 76%);
+  outline-offset: 3px;
+}
+.mansion-adv-dialogue__cue {
+  position: absolute;
+  right: 28px;
+  bottom: 20px;
+  z-index: 12;
+  display: grid;
+  place-content: end;
+  color: #b9c7c5;
+  text-align: right;
+  pointer-events: none;
+}
+.mansion-adv-dialogue__cue span {
+  font-family: "Kaiti SC", "STKaiti", "KaiTi", var(--abyssa-font-body), serif;
+  font-size: 12px;
+  letter-spacing: .18em;
+}
+.mansion-adv-dialogue__cue small {
+  margin-top: 3px;
+  color: #677879;
+  font: 600 8px/1 var(--abyssa-font-display);
+  letter-spacing: .18em;
+}
+
+/* toast 是唯一正确的瞬时反馈(收取/修缮都靠它),保留。
+   top 128 = 相位栏底(18 + 92 + 下沉 4 = 114)再留 14 间隙。两者都居中,
+   若沿用原来的 92 会正好压在牌面上。 */
+.mansion-toast { position: absolute; z-index: 700; top: 128px; left: 50%; padding: 9px 17px; border: 1px solid #9d9069; color: #eee2bd; background: rgb(21 25 24 / 94%); box-shadow: 0 10px 22px rgb(0 0 0 / 36%); font-size: 11px; letter-spacing: .1em; transform: translateX(-50%); animation: mansion-toast-in 180ms ease-out; }
+
+/* .mansion-help 已删 —— 「按住拖拽 · 滚轮平移 · 点击房间 · 点击角色」
+   是常驻说明书,游戏不把图例钉在屏幕上。真要引导应当首次进入淡入一次
+   然后消失,而不是永久占角。 */
+
+/* 产出图钉的「可收取」呼吸。
+   ============ 这里曾经错得很隐蔽 ============
+   这组 keyframes 是给**旧版**产出标记写的 —— 那时标记自己带
+   `transform: translate(-50%,-50%)` 做居中。后来定位职责移到了
+   .mansion-marker-slot 上,但这里仍在往 .mansion-marker 强灌同一个
+   translate,于是产出图钉被整体挪走 (-46.5,-46.5) 世界坐标
+   = 屏上 21.9px,正好是图钉间距的 46%。
+   后果就是:修缮不动、产出偏上偏左 -> 看着「一上一下」且互相遮挡。
+   现在只做**发光**,绝不碰 transform(定位归 slot,缩放归 :hover)。 */
+@keyframes mansion-ready {
+  0%, 100% {
+    filter:
+      drop-shadow(0 3px 7px rgb(2 6 8 / 52%))
+      drop-shadow(0 0 2px var(--marker-glow))
+      drop-shadow(0 0 5px var(--marker-glow));
+  }
+  50% {
+    filter:
+      drop-shadow(0 3px 7px rgb(2 6 8 / 52%))
+      drop-shadow(0 0 2.4px var(--marker-glow))
+      drop-shadow(0 0 8px var(--marker-glow));
+  }
+}
+
+@keyframes mansion-adv-backdrop-in {
+  from { opacity: 0; }
+}
+
+@keyframes mansion-adv-stage-in {
+  from { opacity: 0; transform: scale(.992); }
+}
+
+/* 火焰:亮度+光斑尺寸同时微动,只动 4%。 */
+@keyframes mansion-flame {
+  0%, 100% { filter: brightness(1); transform: scale(1); }
+  38% { filter: brightness(1.06); transform: scale(1.012); }
+  71% { filter: brightness(.96); transform: scale(.995); }
+}
+
+/* 结界红线:「如脉搏明暗起伏」—— 文案原话,所以只动亮度不动尺寸。 */
+@keyframes mansion-arcane {
+  0%, 100% { filter: brightness(.94); }
+  50% { filter: brightness(1.1); }
+}
+
+@keyframes mansion-loading {
+  50% { opacity: .35; transform: scale(.7); }
+}
+
+@keyframes mansion-toast-in {
+  from { opacity: 0; transform: translate(-50%, -8px); }
+}
+
+@keyframes mansion-room-card-in {
+  from { opacity: 0; transform: translate(var(--mansion-drawer-enter-x), -50%); }
+  to { opacity: 1; transform: translate(0, -50%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mansion-marker--production,
+  .mansion-light,
+  .mansion-loading span,
+  .mansion-toast,
+  .mansion-room-drawer { animation: none; }
+  .mansion-world-pan,
+  .mansion-world-plane,
+  .mansion-phase-light { transition: none; }
+}

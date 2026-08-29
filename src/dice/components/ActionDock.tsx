@@ -1,14 +1,32 @@
 import type { ReactNode } from "react";
 import { CurrencyAmount } from "../../components/CurrencyAmount";
+import "./action-dock.css";
 
 interface ActionDockProps {
   active: boolean;
   busy?: boolean;
-  balance: number;
+  balance?: number;
   children?: ReactNode;
 }
 
+interface ActionDockSlotProps {
+  caption: string;
+  label: string;
+  value: string;
+}
+
+export function ActionDockSlot({ caption, label, value }: ActionDockSlotProps) {
+  return (
+    <output className="action-dock__slot" aria-label={label}>
+      <span>{caption}</span>
+      <strong>{value}</strong>
+    </output>
+  );
+}
+
 export function ActionDock({ active, busy = false, balance, children }: ActionDockProps) {
+  const hasFunds = balance !== undefined;
+
   return (
     <section className="action-dock" data-state={busy ? "busy" : active ? "active" : "idle"} aria-label="行动面板" aria-busy={busy || undefined}>
       <span className="action-dock__surface" aria-hidden="true" />
@@ -20,13 +38,17 @@ export function ActionDock({ active, busy = false, balance, children }: ActionDo
         <path d="M24 9 H976 L991 24 M9 24 L24 9" fill="none" stroke="#d7bb7c" strokeWidth="1.1" strokeLinejoin="miter" opacity=".78" />
         <path d="M991 24 V64 M9 64 V24" fill="none" stroke="#a17c42" strokeWidth=".8" opacity=".46" />
       </svg>
-      <div className="action-dock__content">
+      <div className="action-dock__content" data-has-accessory={hasFunds || undefined}>
         <div className="action-dock__actions">{children}</div>
-        <span className="action-dock__divider" aria-hidden="true" />
-        <output className="action-dock__funds" aria-label={`资金 ${balance} G`}>
-          <span>资金</span>
-          <CurrencyAmount value={balance} label={`资金 ${balance}`} />
-        </output>
+        {hasFunds && (
+          <>
+            <span className="action-dock__divider" aria-hidden="true" />
+            <output className="action-dock__funds" aria-label={`资金 ${balance} G`}>
+              <span>资金</span>
+              <CurrencyAmount value={balance} label={`资金 ${balance}`} />
+            </output>
+          </>
+        )}
       </div>
     </section>
   );

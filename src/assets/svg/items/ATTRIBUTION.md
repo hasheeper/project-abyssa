@@ -243,6 +243,7 @@ official repository commit `82d948812bfe3f269ef8f731dcdb07b08160edc4`. Each icon
 - [gem-pendant](https://game-icons.net/1x1/lorc/gem-pendant.html) — CC BY 3.0
 - [gems](https://game-icons.net/1x1/lorc/gems.html) — CC BY 3.0
 - [grapes](https://game-icons.net/1x1/lorc/grapes.html) — CC BY 3.0
+- [hammer-nails](https://game-icons.net/1x1/lorc/hammer-nails.html) — CC BY 3.0
 - [heart-bottle](https://game-icons.net/1x1/lorc/heart-bottle.html) — CC BY 3.0
 - [hood](https://game-icons.net/1x1/lorc/hood.html) — CC BY 3.0
 - [ice-bomb](https://game-icons.net/1x1/lorc/ice-bomb.html) — CC BY 3.0

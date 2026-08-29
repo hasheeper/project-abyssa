@@ -1,4 +1,5 @@
 import { RpgShapeButton } from "../../components/RpgShapeButton";
+import "./action-dock.css";
 
 interface DiceActionButtonProps {
   label: string;

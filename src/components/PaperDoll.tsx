@@ -15,8 +15,8 @@ import type { SpriteCalibration } from "./spriteCalibration";
  * 所有组件 PNG 坐标已对齐,直接层叠即可,无需任何偏移计算。
  */
 
-// 立绘不打进产物,运行时按路径引用本地文件。
-// dev 下文档在服务根,构建产物在 <outDir>/ 下,故相对回退一级指向源素材目录。
+// 默认路径兼容组件库现有用法；独立产品构建可通过 spriteBaseUrl
+// 指向随产物复制的素材目录，避免把全部 PNG eager import 进每个入口。
 const DEFAULT_SPRITE_BASE = import.meta.env.DEV ? "/src/assets/png/" : "../src/assets/png/";
 
 function partUrl(base: string, characterId: string, part: string): string {

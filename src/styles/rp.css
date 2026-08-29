@@ -1415,6 +1415,24 @@
   border-block-color: color-mix(in srgb, var(--abyssa-teal) 34%, var(--abyssa-ornament-dark));
 }
 
+/* ==================== 查阅模式(data-mode="log")====================
+   演绎态的亮暗编码的是「与焦点的距离」(focus + context);查阅态没有
+   焦点 —— 读者自己就是焦点,视线落在哪哪就是重点。所以:
+     形态上  人人都是历史形(TSX 摘掉 data-current / data-recent,
+             最后一条对白自动收窄靠边、露头像框、无聚焦装置、无逐字);
+     明暗上  人人全亮 —— 压暗跟着焦点走,焦点没了,压暗也没了。
+   这两条合起来就是「开始查阅」:像翻一本摊平的记录,而不是看舞台。
+
+   只覆盖明暗,不碰形态 —— 形态由 data-current 的缺席自然回落,
+   这里若再写形态规则就是第二份真相。 */
+.abyssa-rp[data-mode="log"] .abyssa-rp__row { opacity: 1; }
+
+.abyssa-rp[data-mode="log"] .abyssa-rp__message[data-kind="narration"],
+.abyssa-rp[data-mode="log"] .abyssa-rp__message[data-kind="roll"],
+.abyssa-rp[data-mode="log"] .abyssa-rp__message[data-kind="system"] {
+  --abyssa-rp-aux-dim: 1;
+}
+
 /* ---------- 旁白 ---------- */
 .abyssa-rp__message[data-kind="narration"] {
   align-self: center;
@@ -1641,3 +1659,32 @@
 .abyssa-rp__actor[data-character="norma"]    { --abyssa-rp-doll-h: 100%; --abyssa-rp-doll-x: 0%; --abyssa-rp-doll-y: 0%; }
 .abyssa-rp__actor[data-character="tibby"]    { --abyssa-rp-doll-h: 100%; --abyssa-rp-doll-x: 0%; --abyssa-rp-doll-y: 0%; }
 .abyssa-rp__actor[data-character="vivienne"] { --abyssa-rp-doll-h: 100%; --abyssa-rp-doll-x: 0%; --abyssa-rp-doll-y: 0%; }
+
+/* ==================== 挂载即终态(data-settled) ====================
+   版式切换回分屏时,已读过的消息重新挂载。若照常播入场演出,
+   逐字打字机会与过场的淡入叠在一起 —— 读起来是「内容又自己演了一遍」。
+   这里把那批消息的所有入场动画一次性掐掉,直接呈现终态。
+   只作用于挂载时已在场的那批(见 RpScene 的 hydratedIds),
+   之后新推进的消息不带这个标记,照常演出。 */
+.abyssa-rp__message[data-settled] {
+  animation: none;
+}
+
+.abyssa-rp__message[data-settled] .abyssa-rp__type-char {
+  animation: none;
+  opacity: 1;
+}
+
+.abyssa-rp__message[data-settled] .abyssa-rp__bubble-text,
+.abyssa-rp__message[data-settled] .abyssa-rp__bubble,
+.abyssa-rp__message[data-settled] .abyssa-rp__bubble::before,
+.abyssa-rp__message[data-settled] .abyssa-rp__bubble-fx,
+.abyssa-rp__message[data-settled] .abyssa-rp__row,
+.abyssa-rp__message[data-settled] .abyssa-rp__row::before,
+.abyssa-rp__message[data-settled] .abyssa-rp__row::after,
+.abyssa-rp__message[data-settled] .abyssa-rp__avatar,
+.abyssa-rp__message[data-settled] .abyssa-rp__avatar-inner,
+.abyssa-rp__message[data-settled] .abyssa-rp__arrow,
+.abyssa-rp__message[data-settled] .abyssa-rp__arrow-core {
+  animation: none;
+}
