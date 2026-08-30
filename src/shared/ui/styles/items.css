@@ -1,0 +1,727 @@
+/* ============ 物品格位 / 背包 / 模态 ============
+ *
+ * 配色档位原先在 shop.css 里声明两遍(列表图标 + 详情槽),这里收成**一处**:
+ * 只要挂上 [data-rarity],--item-rarity / --item-rarity-soft 就位。任何需要
+ * 稀有度着色的元素继承这两个变量即可,不必再抄一遍五档。
+ *
+ * ---- 几何推导(勿手写中间值) ----
+ * 格位 92,间隙 10 -> 步距 102。
+ *   6 列 = 102*6 - 10 = 602
+ *   4 行 = 102*4 - 10 = 398   -> 24 格/页
+ * 面板 = 26 + 52(分类轨) + 20 + 602 + 20 + 330(详情) + 26 = 1076 宽
+ *        26 + 30(头) + 16 + 398 + 16 + 40(脚) + 26 = 552 高
+ * 1076x552 在 1600x900 画布上四周各留 262/174。它是**居中模态**,基准是
+ * 画布而非画框契约的 1250x787 内容区(那是给有画框的板式界面用的)。
+ *
+ * 格数曾一路加到 9x5=45,那是**过度修正**:洋馆只有 5 种产出,45 格意味着
+ * 40 个空槽,读起来像坏了。面板要够大是为了字号可读、信息展得开,
+ * 不是为了多塞格子 —— 两件事不该绑在一起。
+ *
+ * 格内图标层**按比例跟随 --slot-size**,不写死 px。
+ *   glyph  .60   halo-a .60   halo-b .425   (比例源自 shop 的 80px 详情槽)
+ * 曾经写死成 52.8/37.4 并配 top:13px —— 那是照 88 格算的,详情栏把格位放大到
+ * 110 时图标不跟着长,于是"图标又小又不居中"。而且 top 用固定 px、宝石又占
+ * 底部 11px,视觉重心必然偏下。
+ *
+ * 现在图标区是一个**显式的居中盒**:上边距 = 宝石带高度,让可用高度上下对称,
+ * 图标在其中 place-items:center。这样任何 --slot-size 都自动居中。
+ */
+
+/* ---------- 稀有度调色板:全库唯一声明处 ---------- */
+.abyssa-rarity,
+.abyssa-item-slot {
+  --item-rarity: #875126;
+  --item-rarity-soft: #d19a5b;
+}
+.abyssa-rarity[data-rarity="silver"],
+.abyssa-item-slot[data-rarity="silver"] {
+  --item-rarity: #7f858b;
+  --item-rarity-soft: #d6dadd;
+}
+.abyssa-rarity[data-rarity="gold"],
+.abyssa-item-slot[data-rarity="gold"] {
+  --item-rarity: #a87825;
+  --item-rarity-soft: #f0ca67;
+}
+.abyssa-rarity[data-rarity="amethyst"],
+.abyssa-item-slot[data-rarity="amethyst"] {
+  --item-rarity: #713596;
+  --item-rarity-soft: #d09cf0;
+}
+.abyssa-rarity[data-rarity="mythic"],
+.abyssa-item-slot[data-rarity="mythic"] {
+  --item-rarity: #a52d39;
+  --item-rarity-soft: #ff7782;
+}
+
+/* ---------- 格位外壳 ---------- */
+.abyssa-item-slot {
+  --slot-size: 92px;
+  /* 宝石带高度。图标盒上方留出同等空白,使图标在剩余空间里真正居中。 */
+  --slot-gem-band: 13px;
+  --slot-glyph: calc(var(--slot-size) * .6);
+  --slot-halo-a: calc(var(--slot-size) * .6);
+  --slot-halo-b: calc(var(--slot-size) * .425);
+  position: relative;
+  display: block;
+  width: var(--slot-size);
+  height: var(--slot-size);
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--item-rarity) 56%, var(--abyssa-frame-dark, #192020));
+  background: var(--abyssa-frame-deep, #0a0704);
+  box-shadow:
+    0 0 0 2px var(--abyssa-frame-dark, #171007),
+    0 0 0 3px color-mix(in srgb, var(--item-rarity) 32%, var(--abyssa-frame-dark, #211307)),
+    inset 0 0 18px rgb(0 0 0 / 82%);
+  color: inherit;
+  font: inherit;
+  transition: filter 120ms var(--abyssa-ease, ease);
+}
+.abyssa-item-slot[data-interactive] {
+  cursor: pointer;
+}
+.abyssa-item-slot > span,
+.abyssa-item-slot > i {
+  position: absolute;
+  display: block;
+}
+
+/* 空槽:抹掉稀有度着色,只留一个凹陷插座。这一条是 RPG 背包与网页列表
+   最大的观感差别 —— 网页列表没有"空位"的概念。 */
+.abyssa-item-slot[data-empty] {
+  border-color: rgb(128 149 149 / 20%);
+  box-shadow:
+    0 0 0 2px var(--abyssa-frame-dark, #171007),
+    0 0 0 3px rgb(60 70 70 / 22%),
+    inset 0 2px 7px rgb(0 0 0 / 78%),
+    inset 0 0 16px rgb(0 0 0 / 62%);
+  background: #0b0f10;
+}
+.abyssa-item-slot[data-empty] [data-layer="socket"] {
+  inset: calc(var(--slot-size) * .34);
+  border: 1px solid rgb(140 160 158 / 13%);
+  background: rgb(255 255 255 / 2%);
+  transform: rotate(45deg);
+}
+
+/* ---------- 格内分层(比例源自 shop 80px 槽) ---------- */
+.abyssa-item-slot [data-layer="surface"] {
+  inset: 3px;
+  background:
+    radial-gradient(circle at 50% 42%, color-mix(in srgb, var(--item-rarity) 14%, transparent), transparent 58%),
+    linear-gradient(145deg, rgb(255 255 255 / 3%), transparent 45%),
+    #0d0905;
+  box-shadow: inset 0 0 0 1px rgb(180 145 82 / 13%), inset 0 0 24px rgb(0 0 0 / 76%);
+}
+/* 光环与图标共用同一个居中盒的中心:top 也扣掉宝石带的一半,
+   使"图标+光环"这一组整体在格内视觉居中,而不是贴着几何中心。 */
+.abyssa-item-slot [data-layer="halo-a"],
+.abyssa-item-slot [data-layer="halo-b"] {
+  top: calc(50% - var(--slot-gem-band) / 2);
+  left: 50%;
+  border: 1px solid color-mix(in srgb, var(--item-rarity) 48%, transparent);
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+.abyssa-item-slot [data-layer="halo-a"] {
+  width: var(--slot-halo-a);
+  height: var(--slot-halo-a);
+  opacity: .5;
+}
+.abyssa-item-slot [data-layer="halo-b"] {
+  width: var(--slot-halo-b);
+  height: var(--slot-halo-b);
+  opacity: .3;
+  transform: translate(-50%, -50%) rotate(22.5deg);
+}
+.abyssa-item-slot [data-layer^="glyph"] {
+  top: calc(50% - var(--slot-gem-band) / 2);
+  left: 50%;
+  width: var(--slot-glyph);
+  height: var(--slot-glyph);
+  mask-position: center;
+  mask-repeat: no-repeat;
+  mask-size: contain;
+  transform: translate(-50%, -50%);
+}
+.abyssa-item-slot [data-layer="glyph-depth"] {
+  z-index: 1;
+  background: #050302;
+  filter: drop-shadow(2px 3px 2px rgb(0 0 0 / 84%));
+  /* 垫影:在居中基准上偏 2px 并略放大,做出厚度。 */
+  transform: translate(calc(-50% + 2px), calc(-50% + 2px)) scale(1.04);
+}
+.abyssa-item-slot [data-layer="glyph"] {
+  z-index: 2;
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--item-rarity-soft) 74%, #fff) 0%,
+    var(--item-rarity-soft) 26%,
+    var(--item-rarity) 63%,
+    color-mix(in srgb, var(--item-rarity) 55%, #100703) 100%
+  );
+  filter: drop-shadow(-1px -1px 0 rgb(255 244 214 / 20%)) drop-shadow(1px 2px 1px rgb(0 0 0 / 72%));
+}
+.abyssa-item-slot [data-layer="glyph-highlight"] {
+  z-index: 3;
+  opacity: .48;
+  background: radial-gradient(
+    circle at 27% 20%,
+    rgb(255 255 255 / 90%) 0 5%,
+    rgb(255 244 214 / 30%) 18%,
+    transparent 48%
+  );
+}
+/* 顶两档换成多停彩虹渐变,不走两色斜坡。 */
+.abyssa-item-slot[data-rarity="amethyst"] [data-layer="glyph"] {
+  background: linear-gradient(135deg, #d7b9e6 0%, #aa68c7 24%, #713596 50%, #9543b3 70%, #32133f 100%);
+}
+.abyssa-item-slot[data-rarity="mythic"] [data-layer="glyph"] {
+  background: linear-gradient(135deg, #e8bfba 0%, #dc5a62 21%, #a52d39 45%, #ad438f 66%, #5e55ad 83%, #c98a42 100%);
+}
+.abyssa-item-slot[data-rarity="amethyst"] [data-layer="glyph-highlight"],
+.abyssa-item-slot[data-rarity="mythic"] [data-layer="glyph-highlight"] {
+  opacity: .36;
+}
+
+/* ---------- 稀有度宝石 ---------- */
+.abyssa-item-slot [data-layer="rarity"] {
+  right: 6px;
+  bottom: 5px;
+  left: 6px;
+  z-index: 4;
+  display: flex;
+  height: 6px;
+  /* 高度 6 + bottom 5 ≈ --slot-gem-band 13,改这里要同步那个令牌。 */
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+}
+.abyssa-item-slot [data-layer="rarity"] i {
+  display: block;
+  width: 4px;
+  height: 4px;
+  background: linear-gradient(135deg, var(--item-rarity-soft), var(--item-rarity));
+  box-shadow: 0 0 4px color-mix(in srgb, var(--item-rarity) 54%, transparent);
+  transform: rotate(45deg);
+}
+.abyssa-item-slot[data-rarity="mythic"] [data-layer="rarity"] i {
+  background: linear-gradient(135deg, #ff7d81, #cf43a9 52%, #6564da);
+}
+
+/* ---------- 数量徽标 ---------- */
+/* 数量是**徽标**而非行内文字。原洋馆写成 `备餐<b>×2份</b>`,那是网页排版;
+   RPG 背包的数量固定钉在格位右下角,单位收进 title/aria 不占视觉。 */
+.abyssa-item-slot__badge {
+  right: -1px;
+  bottom: -1px;
+  z-index: 5;
+  min-width: 20px;
+  padding: 1px 4px 2px;
+  border: 1px solid var(--abyssa-frame-deep, #070503);
+  background: linear-gradient(180deg, rgb(38 46 46 / 96%), rgb(12 17 18 / 96%));
+  box-shadow: inset 0 1px rgb(255 255 255 / 10%), 0 1px 3px rgb(0 0 0 / 64%);
+  clip-path: polygon(5px 0, 100% 0, 100% 100%, 0 100%, 0 5px);
+  color: #e6d9ae;
+  font: 600 11px/1.1 var(--abyssa-font-display, Georgia, serif);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: .02em;
+  text-align: center;
+}
+
+/* ---------- 交互态 ---------- */
+.abyssa-item-slot[data-interactive]:hover:not([data-empty]) {
+  filter: brightness(1.08);
+}
+/* 按下只压暗,不位移。原先 translateY(1px) 在 28 格网格里连点会像
+   整片格子在抖,而且与图标的居中基准叠加。 */
+.abyssa-item-slot[data-interactive]:active:not([data-empty]) {
+  filter: brightness(.92);
+}
+.abyssa-item-slot[data-selected] {
+  border-color: color-mix(in srgb, var(--item-rarity-soft) 70%, transparent);
+  box-shadow:
+    0 0 0 2px var(--abyssa-frame-dark, #171007),
+    0 0 0 3px color-mix(in srgb, var(--item-rarity-soft) 62%, transparent),
+    0 0 11px color-mix(in srgb, var(--item-rarity) 52%, transparent),
+    inset 0 0 18px rgb(0 0 0 / 74%);
+}
+.abyssa-item-slot[data-selected] [data-layer="glyph"] {
+  filter: brightness(1.12) drop-shadow(-1px -1px 0 rgb(255 244 214 / 28%))
+    drop-shadow(0 0 3px color-mix(in srgb, var(--item-rarity) 70%, transparent));
+}
+.abyssa-item-slot:focus-visible {
+  outline: 2px solid var(--abyssa-focus, #e9eeee);
+  outline-offset: 3px;
+}
+.abyssa-item-slot:disabled {
+  cursor: not-allowed;
+  filter: grayscale(1);
+  opacity: .45;
+}
+
+/* ============ 模态 ============
+ *
+ * scrim 必须是 position: fixed —— 在 transform 祖先(Stage 的 scale)内部,
+ * fixed 的包含块**是那个被变换的元素**,不是视口。因此遮罩正好裁在
+ * 1600x900 画布上,不会糊到画布外的黑边上。这个结论 dice.css 已经踩过并
+ * 写下注释,这里是把它提成共享行为。改成 absolute 会让遮罩只盖住某个
+ * 定位祖先;改成把组件 portal 到 body 则会逃出 scale(),两者都是错的。
+ */
+.abyssa-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 700;
+  display: grid;
+  padding: 24px;
+  place-items: center;
+  background: rgb(5 9 10 / 76%);
+  backdrop-filter: blur(3px) saturate(.86);
+  opacity: 0;
+  transition: opacity 200ms var(--abyssa-ease, ease);
+}
+/* 用 data-open 驱动而非"挂载即 keyframe",这样**退出**也有过渡。
+   .turn-banner 用的就是这个套路;keyframe-on-mount 的几个遮罩做不到。 */
+.abyssa-modal[data-open="true"] {
+  opacity: 1;
+}
+.abyssa-modal[data-open="false"] {
+  pointer-events: none;
+}
+.abyssa-modal__panel {
+  position: relative;
+  /* 只做极小的上浮淡入,不做 scale。scale 会让三层描边和名牌文字在过渡
+     期间发虚,观感就是"弹飞"。 */
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 180ms var(--abyssa-ease, ease), transform 220ms var(--abyssa-ease, ease);
+}
+.abyssa-modal[data-open="true"] .abyssa-modal__panel {
+  opacity: 1;
+  transform: translateY(0);
+}
+.abyssa-modal__panel:focus {
+  outline: none;
+}
+/* 主界面级面板的内边距。RpgFrame 的 md=24 偏紧,这里统一到 26。 */
+.abyssa-modal__panel > .abyssa-frame > .abyssa-frame__content {
+  padding: 26px;
+}
+
+/* ---------- 头 / 体 / 脚 ---------- */
+/* 关闭键绝对定位而非占据 grid 轨道,这样标题能真正居左、长标题不会被挤。 */
+/* 头部只承载标题(或自定义 header)。关闭键**不在这条流里** —— 它钉在
+   面板右上角,见 .abyssa-modal__close。 */
+.abyssa-modal__head {
+  position: relative;
+  display: flex;
+  min-height: 24px;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 11px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid rgb(128 149 149 / 18%);
+  gap: 12px;
+}
+/* 有名牌时头部整条让位:名牌骑在上边缘,下沉部分会压到这一行。 */
+.abyssa-modal__panel:has(.abyssa-modal__signboard) .abyssa-modal__head {
+  padding-top: 26px;
+}
+/* 名牌已经写着标题时,不再重复渲染一行文字标题。 */
+.abyssa-modal__panel:has(.abyssa-modal__signboard) .abyssa-modal__title {
+  display: none;
+}
+.abyssa-modal__panel:has(.abyssa-modal__signboard) .abyssa-modal__head:not(:has(> :not(.abyssa-modal__title))) {
+  min-height: 0;
+  padding-top: 34px;
+  padding-bottom: 0;
+  margin-bottom: 12px;
+  border-bottom: 0;
+}
+.abyssa-modal__title {
+  margin: 0;
+  color: var(--abyssa-text, #edf0f0);
+  font-family: var(--abyssa-font-display, Georgia, serif);
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: .16em;
+}
+/* ---------- 关闭键 ---------- */
+/* 用素材库的 IconButton icon="close",不自绘。
+   size="sm" 是 66px,对面板角标太大,这里按 --abyssa-icon-size 降一号到 44
+   —— 改令牌而不是加 width/height,SVG 会整体等比重绘,描边不会糊。
+   骑在面板右上角**外沿**,一半探出板外:放板内会挤占标题行、和标题抢基线。 */
+/* 必须带上 [data-size] —— 否则与 components.css 的
+   `.abyssa-icon-button[data-size="sm"]{--abyssa-icon-size:66px}` 特异性打平
+   (都是 0,2,0),而那条在 @import 顺序里更靠后,会赢。踩过一次。 */
+.abyssa-modal__close.abyssa-icon-button[data-size] {
+  position: absolute;
+  top: -22px;
+  right: -22px;
+  z-index: 6;
+  --abyssa-icon-size: 56px;
+}
+
+.abyssa-modal__body {
+  min-width: 0;
+}
+.abyssa-modal__foot {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-top: 16px;
+  margin-top: 18px;
+  border-top: 1px solid rgb(128 149 149 / 20%);
+  gap: 12px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .abyssa-modal,
+  .abyssa-modal__panel {
+    transition: none;
+  }
+}
+
+/* ============ 背包 ============ */
+.abyssa-inventory {
+  --inv-cols: 6;
+  --inv-rows: 4;
+  --inv-slot: 92px;
+  --inv-gap: 10px;
+  --inv-detail-w: 330px;
+  --inv-grid-w: calc((var(--inv-slot) + var(--inv-gap)) * var(--inv-cols) - var(--inv-gap));
+  --inv-grid-h: calc((var(--inv-slot) + var(--inv-gap)) * var(--inv-rows) - var(--inv-gap));
+  display: grid;
+  /* 列数由 data-rail / data-detail 决定,宽度随之推导 —— 不写死总宽,
+     否则加/去分类导轨时面板会错位。 */
+  grid-template-columns: var(--inv-grid-w) var(--inv-detail-w);
+  gap: 20px;
+}
+.abyssa-inventory[data-detail="false"] {
+  grid-template-columns: var(--inv-grid-w);
+}
+.abyssa-inventory[data-rail="true"] {
+  grid-template-columns: 52px var(--inv-grid-w) var(--inv-detail-w);
+}
+.abyssa-inventory[data-rail="true"][data-detail="false"] {
+  grid-template-columns: 52px var(--inv-grid-w);
+}
+
+/* ---------- 分类导轨 ---------- */
+/* 与 shop 的 .abyssa-shop-categories 同构:VerticalIndicator 作底板,
+   汉字竖排叠在上面,底部挂计数。宽 52 是导轨基座宽,不是文字宽。 */
+.abyssa-inventory__rail {
+  display: flex;
+  width: 52px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+.abyssa-inventory__rail-item {
+  position: relative;
+  display: block;
+  width: 52px;
+  height: 84px;
+  flex: 0 0 84px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--abyssa-text-muted, #8f9b9b);
+  cursor: pointer;
+}
+.abyssa-inventory__rail-item .abyssa-vertical-indicator {
+  --abyssa-indicator-fill: #131a1a;
+  --abyssa-indicator-middle: #5f7476;
+  --abyssa-indicator-ornament: #47585a;
+  --abyssa-indicator-axis: #35474a;
+  width: 52px;
+  height: 84px;
+  filter: drop-shadow(0 2px 0 #060a0a) drop-shadow(0 4px 3px rgb(0 0 0 / 62%));
+}
+.abyssa-inventory__rail-item[aria-pressed="true"] .abyssa-vertical-indicator {
+  --abyssa-indicator-fill: #7fb0b3;
+  --abyssa-indicator-middle: #5d8c8f;
+  --abyssa-indicator-ornament: #3d5f61;
+  --abyssa-indicator-axis: #6d9fa2;
+  filter: drop-shadow(0 2px 0 #0a1112) drop-shadow(0 4px 3px rgb(0 0 0 / 56%))
+    drop-shadow(0 0 6px rgb(114 179 183 / 36%));
+}
+/* 竖排汉字:每字独占一格,不靠 writing-mode(那会把数字也转向)。 */
+.abyssa-inventory__rail-label {
+  position: absolute;
+  z-index: 2;
+  top: 12px;
+  left: 50%;
+  display: grid;
+  color: inherit;
+  font-family: var(--abyssa-font-body, serif);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+  pointer-events: none;
+  place-items: center;
+  row-gap: 3px;
+  transform: translateX(-50%);
+}
+.abyssa-inventory__rail-label > i {
+  display: block;
+  width: 1em;
+  height: 1em;
+  font-style: normal;
+  text-align: center;
+}
+.abyssa-inventory__rail-count {
+  position: absolute;
+  z-index: 2;
+  bottom: 11px;
+  left: 50%;
+  color: var(--abyssa-teal-soft, #91c3c6);
+  font-family: var(--abyssa-font-display, Georgia, serif);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+  pointer-events: none;
+  text-shadow: 0 1px 2px rgb(0 0 0 / 78%);
+  transform: translateX(-50%);
+}
+.abyssa-inventory__rail-item:hover:not(:disabled) {
+  color: var(--abyssa-text-soft, #c2cbcb);
+  filter: brightness(1.08);
+}
+.abyssa-inventory__rail-item[aria-pressed="true"] {
+  color: #10201f;
+}
+.abyssa-inventory__rail-item[aria-pressed="true"] .abyssa-inventory__rail-count {
+  color: #1c3536;
+}
+.abyssa-inventory__rail-item:disabled {
+  color: var(--abyssa-text-muted, #8f9b9b);
+  cursor: default;
+  filter: none;
+  opacity: .5;
+}
+.abyssa-inventory__rail-item:focus-visible {
+  outline: 1px solid var(--abyssa-focus, #e9eeee);
+  outline-offset: 2px;
+}
+
+.abyssa-inventory__main {
+  display: grid;
+  align-content: start;
+}
+.abyssa-inventory__grid {
+  display: grid;
+  width: var(--inv-grid-w);
+  height: var(--inv-grid-h);
+  align-content: start;
+  grid-template-columns: repeat(var(--inv-cols), var(--inv-slot));
+  gap: var(--inv-gap);
+}
+.abyssa-inventory__row {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: repeat(var(--inv-cols), var(--inv-slot));
+  gap: var(--inv-gap);
+}
+
+/* ---------- 页脚 / 分页 ---------- */
+/* 页脚**恒占一行**,分页只有一页时按钮仍在位(禁用态)。若按需显隐,
+   翻到最后一页时整块网格会上跳 40px。 */
+.abyssa-inventory__footer {
+  display: flex;
+  height: 40px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2px;
+  margin-top: 16px;
+  border-top: 1px solid rgb(128 149 149 / 20%);
+  gap: 12px;
+}
+.abyssa-inventory__capacity {
+  display: flex;
+  align-items: baseline;
+  color: var(--abyssa-text-muted, #8f9b9b);
+  font-family: var(--abyssa-font-display, Georgia, serif);
+  font-size: 11px;
+  letter-spacing: .14em;
+  gap: 7px;
+}
+.abyssa-inventory__capacity b {
+  color: var(--abyssa-text-soft, #c2cbcb);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+.abyssa-inventory__capacity s {
+  color: var(--abyssa-ornament, #647171);
+  text-decoration: none;
+}
+.abyssa-inventory__count {
+  color: var(--abyssa-text-muted, #8f9b9b);
+  font-family: var(--abyssa-font-display, Georgia, serif);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: .14em;
+}
+.abyssa-inventory__pagination {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.abyssa-inventory__pagination span {
+  color: var(--abyssa-text-soft, #c2cbcb);
+  font-family: var(--abyssa-font-display, Georgia, serif);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: .1em;
+}
+.abyssa-inventory__pagination button {
+  display: grid;
+  width: 34px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid var(--abyssa-ornament-dark, #364142);
+  background: rgb(15 20 20 / 58%);
+  color: var(--abyssa-teal-soft, #91c3c6);
+  cursor: pointer;
+  font: inherit;
+  font-size: 26px;
+  line-height: 1;
+  place-items: center;
+  transition: border-color 120ms var(--abyssa-ease, ease), background 120ms var(--abyssa-ease, ease);
+}
+.abyssa-inventory__pagination button:hover:not(:disabled) {
+  border-color: var(--abyssa-ornament, #647171);
+  background: rgb(114 179 183 / 12%);
+}
+.abyssa-inventory__pagination button:disabled {
+  cursor: default;
+  opacity: .35;
+}
+.abyssa-inventory__pagination button:focus-visible {
+  outline: 2px solid var(--abyssa-focus, #e9eeee);
+  outline-offset: 2px;
+}
+
+/* ---------- 详情侧栏 ---------- */
+.abyssa-inventory__detail {
+  display: grid;
+  align-content: start;
+  padding-left: 20px;
+  border-left: 1px solid rgb(128 149 149 / 20%);
+  gap: 12px;
+}
+.abyssa-inventory__detail-top {
+  display: grid;
+  align-items: start;
+  gap: 14px;
+  grid-template-columns: auto minmax(0, 1fr);
+}
+.abyssa-inventory__detail-preview {
+  --slot-size: 128px;
+  /* 详情栏是展示位,图标占比比格位里更大(.72 vs .60),宝石带也加宽。
+     格位里图标要留白给数量徽标,这里没有徽标,不必那么克制。 */
+  --slot-glyph: calc(var(--slot-size) * .72);
+  --slot-halo-a: calc(var(--slot-size) * .72);
+  --slot-halo-b: calc(var(--slot-size) * .51);
+  --slot-gem-band: 15px;
+}
+.abyssa-inventory__detail-head {
+  display: grid;
+  align-content: start;
+  gap: 5px;
+}
+.abyssa-inventory__detail h3 {
+  margin: 0;
+  color: var(--abyssa-text, #edf0f0);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  line-height: 1.35;
+}
+.abyssa-inventory__detail-rarity {
+  color: var(--item-rarity-soft, #d19a5b);
+  font-family: var(--abyssa-font-display, Georgia, serif);
+  font-size: 10.5px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+}
+.abyssa-inventory__detail-count {
+  color: var(--abyssa-text-muted, #8f9b9b);
+  font-size: 11.5px;
+  letter-spacing: .1em;
+}
+.abyssa-inventory__detail-count b {
+  margin-right: 2px;
+  color: var(--abyssa-teal-soft, #91c3c6);
+  font-family: var(--abyssa-font-display, Georgia, serif);
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+}
+.abyssa-inventory__detail-body {
+  margin: 0;
+  padding-top: 11px;
+  border-top: 1px solid rgb(128 149 149 / 16%);
+  color: var(--abyssa-text-soft, #c2cbcb);
+  font-size: 12.5px;
+  line-height: 1.78;
+}
+/* 元信息用点线引导对齐,与 shop 的 __leader 同一语汇。 */
+.abyssa-inventory__detail-meta {
+  display: grid;
+  margin: 0;
+  gap: 7px 10px;
+  grid-template-columns: auto minmax(0, 1fr);
+}
+.abyssa-inventory__detail-meta dt {
+  color: var(--abyssa-text-muted, #8f9b9b);
+  font-size: 10.5px;
+  letter-spacing: .16em;
+}
+.abyssa-inventory__detail-meta dd {
+  margin: 0;
+  color: var(--abyssa-text-soft, #c2cbcb);
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+.abyssa-inventory__detail-empty {
+  margin: 0;
+  color: var(--abyssa-text-muted, #8f9b9b);
+  font-size: 12px;
+  letter-spacing: .06em;
+  line-height: 1.8;
+}
+
+/* ---------- 顶部名牌 ---------- */
+/* 骑在面板上边缘:约一半露在板外。**不做 scale** —— 缩放会让牌面的
+   clip-path 斜边与文字一起发虚。要改大小就改 --nameplate-* 与字号。 */
+/* 名牌骑在面板上边缘:牌高 44,取 -30 使约 2/3 露在板外、1/3 压在板上。
+   不做 scale —— 缩放会让 clip-path 斜边与文字一起发虚,尺寸靠改字号/内距。 */
+.abyssa-modal__signboard {
+  position: absolute;
+  top: -34px;
+  left: 50%;
+  z-index: 3;
+  pointer-events: none;
+  transform: translateX(-50%);
+}
+.abyssa-modal__signboard .abyssa-nameplate {
+  filter: drop-shadow(0 5px 12px rgb(0 0 0 / 56%));
+}
+/* 比 Nameplate 默认(51 高 / 17px 主名)小一号:面板标题不该比洋馆左上的
+   身份牌还抢眼。 */
+/* 主界面级面板的标题牌,比 Nameplate 默认(51 高 / 17px)大一档。 */
+.abyssa-modal__signboard .abyssa-nameplate__content {
+  min-height: 62px;
+  padding: 11px 58px;
+}
+.abyssa-modal__signboard .abyssa-nameplate__content strong {
+  font-size: 22px;
+  letter-spacing: 5px;
+}
+.abyssa-modal__signboard .abyssa-nameplate__content span {
+  margin-top: 5px;
+  font-size: 11.5px;
+  letter-spacing: 3px;
+}

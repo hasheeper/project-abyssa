@@ -111,16 +111,21 @@ domain ← content ← rules ← selectors/controller ← React UI
 
 | 位置 | 内容 |
 | --- | --- |
+| `App.tsx` | 受控 `uiSkin` 所有者；同步 Stage 背景主题、区域抵达标题与内部战斗框。 |
+| `battleUiSkins.ts` | `timber` / `hero-party` / `demon-cadre` / `demon-lord` 的文案与装饰资产登记。 |
 | `ExpeditionBattleScreen.tsx` | 交互路由、演出阶段、命中帧提交、敌人逐只 runner、主布局。 |
 | `ExpeditionDie3D.tsx` | 3D 骰子、骰面与旋转。 |
 | `ExpeditionGlyph.tsx` | Battle 图标映射。 |
 | `ExpeditionReels.tsx` | 数值转轮与包裹金币。 |
-| `expedition.css` | Battle 主视觉、动画和区域裁剪。 |
+| `expedition.css` | Battle 主视觉、四套主题 token、背景滤镜、框体层级、布局合同、动画和区域裁剪。 |
 | `app.css` | Battle 页面壳样式。 |
+| `../../shared/transition/` | 跨 HTML 黑幕、区域标题与 `panel-drop`；不持有 Battle 状态。 |
 | `controller/presentation-events.ts` | 领域事件到攻击/支援/敌方演出 cue。 |
 | `controller/usePresentationQueue.ts` | 唯一 busy/runId/timer 队列。 |
 
 攻击特效必须保留在敌方 formation 的裁剪区域内；跨区意图线使用独立层，不能因为裁剪攻击特效而截断。相关契约已有 UI 测试。
+
+主题切换属于纯表现状态，不允许写入 `BattleState`、checkpoint、save DTO 或 event。修改皮肤 token、装饰层或 Battle 专属 content bleed 前，先阅读 [`UI_PRESENTATION_BASELINE.md`](UI_PRESENTATION_BASELINE.md)，并同时检查四套主题；外层 Stage 和内部 frame 必须消费同一个受控 `uiSkin`。
 
 ## 3. 核心接口
 
@@ -734,6 +739,7 @@ UPDATE_BATTLE_BASELINE=1 npx vitest run src/apps/battle/engine.baseline.test.ts
 - [ ] 敌方行动仍逐只演出。
 - [ ] 动画支持取消、reduced-motion 和交互锁定。
 - [ ] 攻击特效没有越出敌方容器，意图线未被错误裁剪。
+- [ ] 表现层改动已按 `UI_PRESENTATION_BASELINE.md` 检查四套主题、装饰压接、语义色和场景入场。
 - [ ] 类型检查、全部 Battle 测试、Battle 构建通过。
 - [ ] 有性能敏感改动时运行同机 10 样本基准并记录真实数据。
 

@@ -50,11 +50,14 @@ const BAR_W = TRACK_W + SLOT + RAIL_OVERHANG * 2;
 const BAR_H = SLOT + 14;
 const CENTER_Y = BAR_H / 2;
 const FIRST_X = (BAR_W - TRACK_W) / 2;
+/** 天数牌:切角矩形,与推进键同族的金属构造。 */
+const DAY_PLATE = "M8 3 H54 L59 8 V58 L54 63 H8 L3 58 V8 Z";
 
 export interface MansionPhaseBarProps {
   phases: MansionPhase[];
   value: MansionPhaseId;
-  caption: string;
+  /** 第几天。四相位走完一轮才 +1。 */
+  day: number;
   onSelect: (id: MansionPhaseId) => void;
   onAdvance: () => void;
 }
@@ -124,7 +127,7 @@ function Facet({ state }: { state: "current" | "elapsed" | "coming" }) {
 export function MansionPhaseBar({
   phases,
   value,
-  caption,
+  day,
   onSelect,
   onAdvance
 }: MansionPhaseBarProps) {
@@ -222,9 +225,33 @@ export function MansionPhaseBar({
         })}
       </div>
 
-      {/* 说明文字挂在刻度下方。当前时刻本身由高亮那一格表达,不重复写大字
-          —— v2 正是为了塞那个冗余大字才被迫加高牌子的。 */}
-      <small className="mansion-phasebar__caption">{caption}</small>
+      {/* 天数挂在导轨**左端**,与右端的推进键形成对称:
+          左「现在是第几天」 / 右「推进到下一相位」,一读一写。
+          原先这个位置下方是一行相位说明文字(「主宅集合,驻在与事务最密集」)
+          —— 当前时刻已由高亮那一格表达,那行字是冗余,已去掉。
+          竖排「DAY」+ 大号数字:数字是主体,标签压成小字不抢读。 */}
+      <div className="mansion-phasebar__day" aria-label={`第 ${day} 天`}>
+        {/* 金属底板。原先天数是整条相位栏里**唯一没有牌面**的元素,只靠
+            text-shadow 托底 —— 实测白天相位下它只有 2.2% 的暗像素(推进键
+            有 16%),字面直接浮在明亮的美术上,自然看不清。
+            这里补上与推进键同族的构造:垫底 + 牌面 + 方向性光照 + 三层描边。 */}
+        <svg className="mansion-phasebar__day-plate" viewBox="0 0 62 66" aria-hidden="true">
+          <path d={DAY_PLATE} fill="#070c0d" opacity=".62" transform="translate(0 2.5)" />
+          <path d={DAY_PLATE} fill="var(--mansion-slot-fill)" />
+          {/* 上半受光、下半背光,与刻度菱形同一手法。 */}
+          <path d="M8 3 H54 L59 8 V33 H3 V8 Z" fill="var(--mansion-slot-lit)" opacity=".62" />
+          <path d="M3 33 H59 V58 L54 63 H8 L3 58 Z" fill="var(--mansion-slot-shade)" opacity=".55" />
+          <path d={DAY_PLATE} fill="none" stroke="var(--abyssa-frame-dark)" strokeWidth="6" strokeLinejoin="miter" />
+          <path d={DAY_PLATE} fill="none" stroke="var(--mansion-slot-edge)" strokeWidth="3" strokeLinejoin="miter" />
+          <path d={DAY_PLATE} fill="none" stroke="var(--abyssa-frame-deep)" strokeWidth="1.1" strokeLinejoin="miter" />
+          {/* 上棱提亮。 */}
+          <path d="M9 4 H53" fill="none" stroke="var(--mansion-slot-rim)" strokeWidth="1.4" strokeLinecap="round" opacity=".8" />
+          {/* 标签与数字之间的分隔线,把两级信息在牌面上分开。 */}
+          <path d="M14 24 H48" fill="none" stroke="var(--mansion-slot-edge)" strokeWidth="1" opacity=".42" />
+        </svg>
+        <small aria-hidden="true">DAY</small>
+        <b aria-hidden="true">{day}</b>
+      </div>
 
       {/* 推进键。圆形是这一组里唯一的非菱形轮廓,所以它天然读作「动作」
           而不是「又一格时刻」。 */}

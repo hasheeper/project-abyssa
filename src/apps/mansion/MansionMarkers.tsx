@@ -53,7 +53,7 @@ const PLATE = "M14 3 H30 L41 14 V30 L30 41 H14 L3 30 V14 Z";
 
 interface ShellProps {
   children: React.ReactNode;
-  tone: "repair" | "production";
+  tone: "repair" | "production" | "promote";
 }
 
 /** 共用外壳:垫底 + 牌面 + 光照 + 三层描边。 */
@@ -110,7 +110,24 @@ export function RepairIcon() {
   );
 }
 
-const PRODUCTION_GLYPHS: Record<MansionProductionIcon, string> = {
+/** 可升级:向上的箭头。与修缮键上的图示同一形,让"这两件事相连"看得出来。 */
+export function PromoteIcon() {
+  return (
+    <Shell tone="promote">
+      <path
+        d="M22 31 V14 M14.5 21.5 L22 14 L29.5 21.5"
+        fill="none"
+        stroke="var(--marker-promote-ink, #2a2109)"
+        strokeWidth="3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Shell>
+  );
+}
+
+/** 产出图标表。物品栏与世界图钉共用同一份,避免两处各配一套图标而漂移。 */
+export const PRODUCTION_GLYPHS: Record<MansionProductionIcon, string> = {
   meal: hotMealGlyph,
   maintenance: toolboxGlyph,
   supplies: cargoCrateGlyph,

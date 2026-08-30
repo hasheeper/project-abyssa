@@ -5,6 +5,7 @@ import {
   CharacterSelector,
   DiamondWatermark,
   IconButton,
+  ItemSlot,
   Nameplate,
   Progress,
   RibbonButton,
@@ -29,6 +30,7 @@ import {
   VerticalIndicator
 } from "../../index";
 import { characterProfiles } from "../../content/characters/profiles";
+import demoItemIcon from "../../assets/svg/items/game-icons/hot-meal.svg";
 import { DialogueFlowExample, SystemConfigExample } from "./CompositionExamples";
 
 type CategoryId = "structure" | "actions" | "display" | "compositions";
@@ -143,6 +145,22 @@ export function App() {
           <RpgFrame padding="sm">Dark frame</RpgFrame>
           <RpgFrame variant="teal" padding="sm">Teal frame</RpgFrame>
           <RpgFrame variant="light" padding="sm">Light frame</RpgFrame>
+        </div>
+      )
+    },
+    {
+      id: "item-slot",
+      name: "ItemSlot / InventoryDialog",
+      category: "structure",
+      description:
+        "物品格位:六层堆叠 + 稀有度宝石 + 数量徽标;无 icon 时渲染凹陷空槽。稀有度同时决定配色与图标精度(rank 作为 quality 传给图标解析器)。上层的 InventoryDialog 由 RpgModal + InventoryGrid 组成:7x4 固定格位、role=grid + roving tabindex 方向键导航、VerticalIndicator 分类导轨带实时计数、页脚容量与分页恒占一行。",
+      tags: ["item", "inventory", "5 rarities"],
+      code: `<InventoryDialog\n  open={open}\n  onClose={close}\n  title="领地库存"\n  signboard="ESTATE STORAGE"\n  entries={entries}\n  columns={7}\n  rows={4}\n  capacity={56}\n/>`,
+      preview: (
+        <div className="demo-reference-rows" style={{ display: "flex", gap: 9 }}>
+          <ItemSlot icon={demoItemIcon} name="净光草" rarity="gold" quantity={12} unit="束" />
+          <ItemSlot icon={demoItemIcon} name="龙鳞" rarity="mythic" selected />
+          <ItemSlot name="" />
         </div>
       )
     },

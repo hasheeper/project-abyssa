@@ -1,3 +1,4 @@
+import type { ItemRarity } from "../../shared/ui/items/rarity";
 import type { MansionRegionKind } from "../../shared/domain/mansion/regions";
 
 export const MANSION_WORLD_WIDTH = 5162;
@@ -7,9 +8,21 @@ export type MansionPhaseId = "dawn" | "day" | "dusk" | "night";
 export type MansionFund = "public" | "party";
 export type MansionProductionIcon = "meal" | "maintenance" | "supplies" | "records" | "herbs";
 
+/** 物品分类。三档足以覆盖当前 5 种产出,不为对称而虚设空档。 */
+export type MansionItemCategory = "provisions" | "materials" | "records";
+
+export const MANSION_ITEM_CATEGORIES: { id: MansionItemCategory; label: string }[] = [
+  { id: "provisions", label: "补给" },
+  { id: "materials", label: "材料" },
+  { id: "records", label: "文书" }
+];
+
 export interface MansionPhase {
   id: MansionPhaseId;
   label: string;
+  /** 相位说明。**当前无 UI 引用** —— 相位栏原先在刻度下方显示这行小字,
+   *  但当前时刻已由高亮那一格表达,那行字是冗余,已移除。文案保留在此
+   *  备用(例如日后做相位切换的过场提示),不要因为"没人用"就删掉。 */
   caption: string;
 }
 
@@ -24,11 +37,29 @@ export const MANSION_PHASES: MansionPhase[] = [
   { id: "night", label: "夜", caption: "小队回到村舍，行宫转入静夜" }
 ];
 
+/* ============ 产出物 ============
+ *
+ * `id` 是**物品身份**,与生产它的房间解耦。原先库存以房间 id 作 key
+ * (Record<roomId, number>),后果是"备餐"和"净光草"无法各自成为物品:
+ * 同一物品若日后由两个房间产出就会各记一笔、永远无法归并,而格位网格
+ * 恰恰要求一格一物。所以 id 必须来自物品自己。
+ *
+ * `rarity` 有两个用途,不只是配色:它的档位序号会作为 quality 传给
+ * resolveItemIcon,让图标解析器在同义图标里挑更精致的那个。
+ */
 export interface MansionProduction {
+  /** 物品 id。库存以此为键,不再用房间 id。 */
+  id: string;
   label: string;
   amount: number;
   unit: string;
   icon: MansionProductionIcon;
+  /** 档位。省略按 bronze。 */
+  rarity?: ItemRarity;
+  /** 分类,用于物品栏左侧导轨归档。 */
+  category?: MansionItemCategory;
+  /** 物品栏详情文案。 */
+  description?: string;
 }
 
 export interface MansionRoomDetail {
@@ -116,7 +147,16 @@ export const MANSION_ROOM_DETAILS: Record<string, MansionRoomDetail> = {
       level: 2,
       fund: "public",
       upgradeCost: 900,
-      production: { label: "备餐", amount: 2, unit: "份", icon: "meal" }
+      production: {
+        id: "hot-meal",
+        label: "热食",
+        amount: 2,
+        unit: "份",
+        icon: "meal",
+        category: "provisions",
+        rarity: "silver",
+        description: "凯尔生火做的炖菜与烤饼。趁热吃，凉了他会念叨一整个相位。"
+      }
     }
   ),
   dining: room(
@@ -173,7 +213,16 @@ export const MANSION_ROOM_DETAILS: Record<string, MansionRoomDetail> = {
     {
       fund: "party",
       upgradeCost: 760,
-      production: { label: "装备保养", amount: 1, unit: "件", icon: "maintenance" }
+      production: {
+        id: "maintenance-kit",
+        label: "保养工具",
+        amount: 1,
+        unit: "件",
+        icon: "maintenance",
+        category: "materials",
+        rarity: "gold",
+        description: "用于修缮受瘴气与战斗侵蚀的普通装备。设施自行运转，不需要人守着。"
+      }
     }
   ),
   maid: room(
@@ -191,7 +240,15 @@ export const MANSION_ROOM_DETAILS: Record<string, MansionRoomDetail> = {
     {
       fund: "public",
       upgradeCost: 680,
-      production: { label: "外围补给", amount: 1, unit: "批", icon: "supplies" }
+      production: {
+        id: "outpost-supplies",
+        label: "外围补给",
+        amount: 1,
+        unit: "批",
+        icon: "supplies",
+        category: "provisions",
+        description: "艾洛拉贴好标签的成箱物资。最里层那箱棒棒糖不在清单上。"
+      }
     }
   ),
   cellar: room(
@@ -223,7 +280,16 @@ export const MANSION_ROOM_DETAILS: Record<string, MansionRoomDetail> = {
       level: 2,
       fund: "public",
       upgradeCost: 1400,
-      production: { label: "结界记录", amount: 1, unit: "份", icon: "records" }
+      production: {
+        id: "ward-records",
+        label: "结界记录",
+        amount: 1,
+        unit: "份",
+        icon: "records",
+        category: "records",
+        rarity: "amethyst",
+        description: "阵列自行誊写的观测记录。字迹不属于任何在册的人。"
+      }
     }
   ),
   seal: room(
@@ -241,7 +307,16 @@ export const MANSION_ROOM_DETAILS: Record<string, MansionRoomDetail> = {
     {
       fund: "public",
       upgradeCost: 740,
-      production: { label: "净光草", amount: 3, unit: "束", icon: "herbs" }
+      production: {
+        id: "clearlight-herb",
+        label: "净光草",
+        amount: 3,
+        unit: "束",
+        icon: "herbs",
+        category: "materials",
+        rarity: "silver",
+        description: "温室里长得最好的一味。晒干后气味很淡，煮开却压得住瘴气。"
+      }
     }
   ),
   kaelHut: room(

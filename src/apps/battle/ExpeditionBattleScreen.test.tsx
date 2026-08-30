@@ -99,6 +99,42 @@ describe("开局不得卡死", () => {
 });
 
 describe("ExpeditionBattleScreen", () => {
+  it("cycles the original timber, hero, four-regent and demon-lord frame skins", () => {
+    mount();
+
+    const switcher = screen.getByRole("button", { name: /切换战斗界面风格/ });
+    expect(board()).toHaveAttribute("data-ui-skin", "timber");
+    expect(board()).not.toHaveAttribute("data-ui-ornamented");
+    expect(board().querySelectorAll(".abyssa-expedition-frame__top-ornament")).toHaveLength(0);
+    expect(board().querySelectorAll(".abyssa-expedition-frame__corner-ornaments")).toHaveLength(0);
+    expect(board().querySelectorAll(".abyssa-expedition-frame__edge-weave")).toHaveLength(0);
+    expect(switcher).toHaveTextContent("原生木框");
+
+    fireEvent.click(switcher);
+    expect(board()).toHaveAttribute("data-ui-skin", "hero-party");
+    expect(board()).toHaveAttribute("data-ui-ornamented");
+    expect(board().querySelectorAll(".abyssa-expedition-frame__top-ornament")).toHaveLength(2);
+    expect(board().querySelectorAll(".abyssa-expedition-frame__corner-ornaments img")).toHaveLength(4);
+    expect(board().querySelectorAll(".abyssa-expedition-frame__edge-weave")).toHaveLength(1);
+    expect(board().querySelectorAll(".abyssa-expedition-frame__edge-weave [data-frame-edge]")).toHaveLength(4);
+    expect(switcher).toHaveTextContent("勇者小队");
+
+    fireEvent.click(switcher);
+    expect(board()).toHaveAttribute("data-ui-skin", "demon-cadre");
+    expect(board()).toHaveAttribute("data-ui-ornamented");
+    expect(board().querySelectorAll(".abyssa-expedition-frame__top-ornament")).toHaveLength(2);
+    expect(board().querySelectorAll(".abyssa-expedition-frame__corner-ornaments img")).toHaveLength(4);
+    expect(board().querySelectorAll(".abyssa-expedition-frame__edge-weave")).toHaveLength(1);
+    expect(switcher).toHaveTextContent("四席摄政");
+
+    fireEvent.click(switcher);
+    expect(board()).toHaveAttribute("data-ui-skin", "demon-lord");
+    expect(switcher).toHaveTextContent("魔王亲征");
+
+    fireEvent.click(switcher);
+    expect(board()).toHaveAttribute("data-ui-skin", "timber");
+  });
+
   it("开局自动掷骰，没有 ROLL 按钮", () => {
     mount();
 
@@ -658,7 +694,9 @@ describe("ExpeditionBattleScreen", () => {
     )?.[1];
 
     expect(defaultDieRule).toContain("opacity: 1");
-    expect(battlefieldRule).toContain("grid-template-rows: 280px 497px");
+    expect(battlefieldRule).toContain(
+      "grid-template-rows: var(--expedition-enemy-panel-h) 497px"
+    );
     expect(partyRule).toContain("grid-row: 2");
     expect(dicePanelRule).toContain("grid-row: 2");
     expect(scoringNumberRule).not.toMatch(/0\s+0\s+[1-9]\d*px/);

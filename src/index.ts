@@ -55,6 +55,30 @@ export type {
   IconButtonProps,
   IconButtonShape
 } from "./shared/ui/primitives/IconButton";
+export { InventoryDialog } from "./shared/ui/patterns/InventoryDialog";
+export type {
+  InventoryCategory,
+  InventoryDialogProps
+} from "./shared/ui/patterns/InventoryDialog";
+export { InventoryGrid } from "./shared/ui/patterns/InventoryGrid";
+export type { InventoryEntry, InventoryGridProps } from "./shared/ui/patterns/InventoryGrid";
+export { ItemSlot, ItemSlotStatic } from "./shared/ui/primitives/ItemSlot";
+export type {
+  ItemSlotButtonProps,
+  ItemSlotProps,
+  ItemSlotStaticProps
+} from "./shared/ui/primitives/ItemSlot";
+export {
+  DEFAULT_ITEM_RARITY,
+  ITEM_RARITY_LABELS,
+  ITEM_RARITY_ORDER,
+  ITEM_RARITY_RANKS,
+  itemRarityRank,
+  normalizeItemRarity
+} from "./shared/ui/items/rarity";
+export type { ItemRarity } from "./shared/ui/items/rarity";
+export { RpgModal } from "./shared/ui/primitives/RpgModal";
+export type { RpgModalProps } from "./shared/ui/primitives/RpgModal";
 export { Nameplate } from "./shared/ui/primitives/Nameplate";
 export type { NameplateProps } from "./shared/ui/primitives/Nameplate";
 export { Progress } from "./shared/ui/primitives/Progress";
@@ -166,6 +190,11 @@ export type {
   RpgDiamondNodeTrackProps,
   RpgDiamondNodeVariant
 } from "./shared/ui/primitives/RpgDiamondNodeTrack";
+export { RpgFacetDiamond } from "./shared/ui/primitives/RpgFacetDiamond";
+export type {
+  RpgFacetDiamondProps,
+  RpgFacetDiamondState
+} from "./shared/ui/primitives/RpgFacetDiamond";
 export { RetroRpgNotchButton, RpgNotchButton } from "./shared/ui/primitives/RpgNotchButton";
 export type { RpgNotchButtonProps } from "./shared/ui/primitives/RpgNotchButton";
 export {

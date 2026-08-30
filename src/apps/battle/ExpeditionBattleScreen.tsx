@@ -62,6 +62,13 @@ import {
 import { useExpeditionBattleController } from "./controller/useExpeditionBattleController";
 import { usePresentationQueue } from "./controller/usePresentationQueue";
 import { ExpeditionGlyph, type GlyphName } from "./ExpeditionGlyph";
+import { FrameEdgeWeave } from "../../shared/ui/patterns/internal/FrameEdgeWeave";
+import {
+  BATTLE_UI_SKINS,
+  getNextBattleUiSkin,
+  resolveBattleUiSkin,
+  type BattleUiSkin
+} from "./battleUiSkins";
 import kaelPortrait from "../../assets/png/kael.png";
 import eusticePortrait from "../../assets/png/eustice.png";
 import eloraPortrait from "../../assets/png/elora.png";
@@ -306,6 +313,22 @@ function FrameRails() {
   );
 }
 
+function BattleFrameCorners({ imageUrl, skin }: { imageUrl: string; skin: BattleUiSkin }) {
+  return (
+    <span className="abyssa-expedition-frame__corner-ornaments" aria-hidden="true">
+      {(["tl", "tr", "br", "bl"] as const).map((corner) => (
+        <img
+          key={`${skin}-${corner}`}
+          src={imageUrl}
+          alt=""
+          data-corner={corner}
+          draggable={false}
+        />
+      ))}
+    </span>
+  );
+}
+
 /* ============================================================
    骰子动画外观状态
 ============================================================ */
@@ -503,7 +526,7 @@ function LayerSettlementBreakdown({ settlement }: { settlement: LayerSettlement 
       }
     >
       <div className="abyssa-expedition-modal__settlement-formula">
-        <span>
+        <span data-currency="gold">
           <small>本层散金</small>
           <strong>{settlement.baseGold.toLocaleString()}G</strong>
         </span>
@@ -518,7 +541,7 @@ function LayerSettlementBreakdown({ settlement }: { settlement: LayerSettlement 
           <strong>{settlement.layerFactor}</strong>
         </span>
         <i aria-hidden="true">＝</i>
-        <span data-result>
+        <span data-currency="gold" data-result>
           <small>本层入袋</small>
           <strong>＋{settlement.payout.toLocaleString()}G</strong>
         </span>
@@ -543,9 +566,17 @@ function LayerSettlementBreakdown({ settlement }: { settlement: LayerSettlement 
 
 export type ExpeditionBattleScreenProps = {
   rng?: Rng;
+  uiSkin?: BattleUiSkin;
+  defaultUiSkin?: BattleUiSkin;
+  onUiSkinChange?: (skin: BattleUiSkin) => void;
 };
 
-export function ExpeditionBattleScreen({ rng }: ExpeditionBattleScreenProps = {}) {
+export function ExpeditionBattleScreen({
+  rng,
+  uiSkin,
+  defaultUiSkin = "timber",
+  onUiSkinChange
+}: ExpeditionBattleScreenProps = {}) {
   const controller = useExpeditionBattleController(rng);
   const presentation = usePresentationQueue();
   const engine = controller.state;
@@ -561,10 +592,22 @@ export function ExpeditionBattleScreen({ rng }: ExpeditionBattleScreenProps = {}
   const [attackFx, setAttackFx] = useState<PlayerAttackFx | null>(null);
   const [supportFx, setSupportFx] = useState<PlayerSupportFx | null>(null);
   const [enemyTurnFx, setEnemyTurnFx] = useState<EnemyTurnFx | null>(null);
+  const [internalUiSkin, setInternalUiSkin] = useState<BattleUiSkin>(defaultUiSkin);
   const rollTimerRef = useRef<number | null>(null);
   const layerClearTimerRef = useRef<number | null>(null);
   const enemyNodesRef = useRef(new Map<string, HTMLElement>());
   const previousEnemyRectsRef = useRef(new Map<string, DOMRect>());
+
+  const activeUiSkin = uiSkin ?? internalUiSkin;
+  const activeUiSkinDefinition = resolveBattleUiSkin(activeUiSkin);
+  const activeUiSkinIndex = BATTLE_UI_SKINS.findIndex((skin) => skin.id === activeUiSkin);
+  const nextUiSkin = getNextBattleUiSkin(activeUiSkin);
+  const nextUiSkinDefinition = resolveBattleUiSkin(nextUiSkin);
+
+  const cycleUiSkin = () => {
+    if (uiSkin === undefined) setInternalUiSkin(nextUiSkin);
+    onUiSkinChange?.(nextUiSkin);
+  };
 
   const isRolling = PARTY_ORDER.some((id) => visuals[id].rolling);
   const phase = getBattlePhase(engine);
@@ -1113,6 +1156,8 @@ export function ExpeditionBattleScreen({ rng }: ExpeditionBattleScreenProps = {}
   return (
     <main
       className="abyssa-expedition"
+      data-ui-skin={activeUiSkin}
+      data-ui-ornamented={activeUiSkin !== "timber" || undefined}
       data-attack-phase={attackFx?.phase}
       data-attack-lethal={attackFx?.lethal || undefined}
       data-support-kind={supportFx?.kind}
@@ -1129,14 +1174,63 @@ export function ExpeditionBattleScreen({ rng }: ExpeditionBattleScreenProps = {}
       }
       aria-label="裂隙远征战斗界面"
     >
-      <div className="abyssa-expedition-frame">
+      <div className="abyssa-expedition-frame abyssa-scene-panel">
+        <button
+          type="button"
+          className="abyssa-expedition-skin-switch"
+          onClick={cycleUiSkin}
+          aria-label={`切换战斗界面风格，当前${activeUiSkinDefinition.label}，下一项${nextUiSkinDefinition.label}`}
+        >
+          <span className="abyssa-expedition-skin-switch__sigil" aria-hidden="true">
+            {BATTLE_UI_SKINS.map((skin) => <i key={skin.id} data-skin={skin.id} />)}
+          </span>
+          <span className="abyssa-expedition-skin-switch__copy">
+            <small>UI FRAME</small>
+            <strong>{activeUiSkinDefinition.label}</strong>
+          </span>
+          <span className="abyssa-expedition-skin-switch__index" aria-hidden="true">
+            {activeUiSkinIndex + 1}/{BATTLE_UI_SKINS.length}
+          </span>
+        </button>
+
         <header className="abyssa-expedition-frame__header">
+          {activeUiSkinDefinition.topOrnamentUrl && (
+            <img
+              key={`${activeUiSkin}-top-left`}
+              className="abyssa-expedition-frame__top-ornament abyssa-expedition-frame__top-ornament--left"
+              src={activeUiSkinDefinition.topOrnamentUrl}
+              alt=""
+              aria-hidden="true"
+              draggable={false}
+            />
+          )}
           <RpgHeader label="裂隙远征" variant="dark" />
           <span>ABYSSAL EXPEDITION</span>
+          {activeUiSkinDefinition.topOrnamentUrl && (
+            <img
+              key={`${activeUiSkin}-top-right`}
+              className="abyssa-expedition-frame__top-ornament abyssa-expedition-frame__top-ornament--right"
+              src={activeUiSkinDefinition.topOrnamentUrl}
+              alt=""
+              aria-hidden="true"
+              draggable={false}
+            />
+          )}
         </header>
 
         <div className="abyssa-expedition-frame__shell">
           <FrameRails />
+          {activeUiSkinDefinition.cornerOrnamentUrl && (
+            <>
+              {activeUiSkinDefinition.edgeWeave && (
+                <FrameEdgeWeave namespace="abyssa-expedition-frame" />
+              )}
+              <BattleFrameCorners
+                imageUrl={activeUiSkinDefinition.cornerOrnamentUrl}
+                skin={activeUiSkin}
+              />
+            </>
+          )}
           <div className="abyssa-expedition-frame__brass">
             <div className="abyssa-expedition-frame__board">
               <div className="abyssa-expedition-frame__interior">
@@ -1694,9 +1788,9 @@ export function ExpeditionBattleScreen({ rng }: ExpeditionBattleScreenProps = {}
                       <span>第 {engine.layer} 层 ×{layerFactor}</span>
                     </div>
                     <div className="abyssa-expedition-multiplier__amounts">
-                      <div data-value="base"><strong>{engine.gold.toLocaleString()}</strong></div>
+                      <div data-currency="gold" data-value="base"><strong>{engine.gold.toLocaleString()}</strong></div>
                       <i aria-hidden="true">→</i>
-                      <div data-value="result"><strong>{projected.toLocaleString()}</strong></div>
+                      <div data-currency="gold" data-value="result"><strong>{projected.toLocaleString()}</strong></div>
                     </div>
                   </section>
 
@@ -1775,7 +1869,7 @@ export function ExpeditionBattleScreen({ rng }: ExpeditionBattleScreenProps = {}
                 <LayerSettlementBreakdown settlement={engine.lastLayerSettlement} />
               )}
               <p className="abyssa-expedition-modal__highlight">
-                现在离场可带回 <strong>{greed.bagTotal}G</strong>
+                现在离场可带回 <strong data-currency="gold">{greed.bagTotal}G</strong>
               </p>
               <p>
                 下一层（第 {greed.nextLayer} 层）收益倍率 <strong>×{greed.nextLayerMultiplier}</strong>
@@ -1826,7 +1920,7 @@ export function ExpeditionBattleScreen({ rng }: ExpeditionBattleScreenProps = {}
               {!engine.result.wiped && engine.lastLayerSettlement && (
                 <LayerSettlementBreakdown settlement={engine.lastLayerSettlement} />
               )}
-              <p className="abyssa-expedition-modal__total">＋{engine.result.totalGold} G</p>
+              <p className="abyssa-expedition-modal__total" data-currency="gold">＋{engine.result.totalGold} G</p>
               <p>
                 最深抵达第 {engine.result.deepestLayer} 层
                 {engine.result.crystal ? " · 远古晶石 ×1" : ""}

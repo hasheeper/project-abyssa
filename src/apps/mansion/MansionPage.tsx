@@ -7,11 +7,9 @@ import {
 } from "react";
 import type { PointerEvent as ReactPointerEvent, WheelEvent as ReactWheelEvent } from "react";
 import { AbyssaProvider } from "../../shared/ui/primitives/AbyssaProvider";
-import { ArrowButton } from "../../shared/ui/primitives/ArrowButton";
 import { CurrencyAmount } from "../../shared/ui/primitives/CurrencyAmount";
 import { IconButton } from "../../shared/ui/primitives/IconButton";
 import { Nameplate } from "../../shared/ui/primitives/Nameplate";
-import { Progress } from "../../shared/ui/primitives/Progress";
 import { RpgFrame } from "../../shared/ui/primitives/RpgFrame";
 import { RpgNotchedPillButton } from "../../shared/ui/primitives/RpgNotchedPillButton";
 import type { RpActor, RpMessage } from "../../shared/ui/patterns/RpScene";
@@ -41,15 +39,20 @@ import type { RoomLight } from "./lighting";
 import {
   DialogueBubble,
   MARKER_SIZE,
+  PRODUCTION_GLYPHS,
   ProductionIcon,
+  PromoteIcon,
   RepairIcon
 } from "./MansionMarkers";
+import { InventoryDialog } from "../../shared/ui/patterns/InventoryDialog";
+import type { InventoryEntry } from "../../shared/ui/patterns/InventoryGrid";
 import { MansionPhaseBar } from "./MansionPhaseBar";
 import { AdvStage } from "../../shared/presentation/adv/AdvStage";
 import {
   fallbackRoomDetail,
   MANSION_CHARACTERS,
   MANSION_PHASES,
+  MANSION_ITEM_CATEGORIES,
   MANSION_ROOM_DETAILS,
   MANSION_WORLD_HEIGHT,
   MANSION_WORLD_WIDTH
@@ -57,7 +60,8 @@ import {
 import type {
   MansionCharacter,
   MansionFund,
-  MansionPhaseId
+  MansionPhaseId,
+  MansionProduction
 } from "./data";
 
 /* ============ 几何:全部从共享画布推导,不写死任何一个数 ============
@@ -143,8 +147,47 @@ function ResidentAvatar({ character }: { character: MansionCharacter }) {
 
 const DRAG_THRESHOLD = 7;
 const MAX_FACILITY_LEVEL = 4;
+/* ============ 升级机制 ============
+ * 原先是「付钱 -> 2 相位 -> 自动 +1 级」,一次修缮就跳一档。
+ * 现在拆成两段:
+ *   1. 修缮 REPAIR_STEPS 次,每次推进 1 格进度(付钱、等 1 相位施工)
+ *   2. 进度满 -> 出现**独立的升级按钮**,点它才真正 +1 级并清零进度
+ * 这样「档位」是离散的成果,「修缮进度」是通向下一档的过程,两条量分开表达。 */
+const REPAIR_STEPS = 3;
+/** 单次修缮的施工相位数。 */
+const REPAIR_PHASES = 1;
+/** 升级费用 = 单次修缮费 x 此系数。升级不是免费的,它是最后一笔大额投入。 */
+const PROMOTE_COST_FACTOR = 2;
+const promoteCost = (upgradeCost: number) => upgradeCost * PROMOTE_COST_FACTOR;
 /** 同时受损的房间上限。低频的量化定义 —— 见 advancePhase 里的说明。 */
 const MAX_DAMAGED = 3;
+
+/* ============ 产出物索引 ============
+ * 两张表都**从 MANSION_ROOM_DETAILS 推导**,不手写 —— 房间文案是唯一来源,
+ * 手抄一份 id 列表迟早与 data.ts 漂移。
+ *   MANSION_PRODUCTS        物品 id -> 产出定义
+ *   MANSION_PRODUCT_ORIGINS 物品 id -> 产地房间名(填详情栏的「产地」)
+ */
+const MANSION_PRODUCTS: Record<string, MansionProduction> = Object.fromEntries(
+  Object.values(MANSION_ROOM_DETAILS)
+    .filter((detail) => detail.production)
+    .map((detail) => [detail.production!.id, detail.production!])
+);
+
+const MANSION_PRODUCT_ORIGINS: Record<string, string> = Object.fromEntries(
+  Object.entries(MANSION_ROOM_DETAILS)
+    .filter(([, detail]) => detail.production)
+    .map(([roomId, detail]) => [
+      detail.production!.id,
+      DEFAULT_MANSION_RECTANGLES.find((rect) => rect.id === roomId)?.label ?? roomId
+    ])
+);
+
+/** 仓储容量。6x4=24 格一页,上限 48 格(两页)。
+    当前只有 5 种产出,24 格已留足生长空间;再多就是满屏空槽。 */
+const STOCK_COLUMNS = 6;
+const STOCK_ROWS = 4;
+const STOCK_CAPACITY = STOCK_COLUMNS * STOCK_ROWS * 2;
 
 /* ============ 地下区域(世界坐标) ============
  * 真正的地下只有洋馆地基**内**的 8 间:
@@ -372,6 +415,10 @@ export function MansionPage() {
     )
   );
   const [upgrading, setUpgrading] = useState<Record<string, number>>({});
+  /** 天数。四个相位走完一轮(夜->晨)才 +1。 */
+  const [day, setDay] = useState(1);
+  /** 每间房通向下一档的修缮进度 0..REPAIR_STEPS。满了才能升级。 */
+  const [repairProgress, setRepairProgress] = useState<Record<string, number>>({});
   /**
    * 受损的房间。**只有受损的才显示修缮图钉。**
    *
@@ -390,8 +437,10 @@ export function MansionPage() {
         .map(([id]) => id)
     )
   );
+  /** 库存以**物品 id** 为键(不是房间 id),见 MansionProduction.id 的说明。 */
   const [inventory, setInventory] = useState<Record<string, number>>({});
   const [stockOpen, setStockOpen] = useState(false);
+  const stockButtonRef = useRef<HTMLButtonElement>(null);
   const [toast, setToast] = useState("");
 
   const sceneRegions = useMemo<SceneRegion[]>(
@@ -514,9 +563,34 @@ export function MansionPage() {
     text: activeCharacter.lines[phase]
   }] : [], [activeCharacter, phase]);
   const currentPhase = MANSION_PHASES.find((item) => item.id === phase) ?? MANSION_PHASES[1];
-  const abyssState = phase === "dawn" || phase === "night" ? "安眠稳定" : "情绪平稳";
-  const inventoryItems = Object.entries(inventory).filter(([, amount]) => amount > 0);
-  const stockTotal = inventoryItems.reduce((sum, [, amount]) => sum + amount, 0);
+  /* 库存 view-model。shared 层不认识 MansionProduction(模块边界禁止
+     shared 反向 import apps),所以映射在这里做,喂给 InventoryDialog 的
+     是朴素的 InventoryEntry。 */
+  const inventoryEntries = useMemo<InventoryEntry[]>(
+    () =>
+      Object.entries(inventory)
+        .filter(([itemId, amount]) => amount > 0 && MANSION_PRODUCTS[itemId] != null)
+        .map(([itemId, amount]): InventoryEntry => {
+          const production = MANSION_PRODUCTS[itemId];
+          return {
+            id: itemId,
+            name: production.label,
+            icon: PRODUCTION_GLYPHS[production.icon],
+            rarity: production.rarity ?? "bronze",
+            quantity: amount,
+            unit: production.unit,
+            description: production.description,
+            category: production.category,
+            meta: {
+              产地: MANSION_PRODUCT_ORIGINS[itemId] ?? "—",
+              单位: production.unit,
+              每相位: `${production.amount}${production.unit}`
+            }
+          };
+        }),
+    [inventory]
+  );
+  const stockTotal = inventoryEntries.reduce((sum, entry) => sum + (entry.quantity ?? 0), 0);
 
   /** 对话开启时,世界与四角挂件一律退出可交互与无障碍树。
    *  原先这个三元在 7 处重复写成 `activeCharacter ? true : undefined`。 */
@@ -709,15 +783,19 @@ export function MansionPage() {
 
   const advancePhase = () => {
     const currentIndex = MANSION_PHASES.findIndex((item) => item.id === phase);
-    const nextPhase = MANSION_PHASES[(currentIndex + 1) % MANSION_PHASES.length];
+    const nextIndex = (currentIndex + 1) % MANSION_PHASES.length;
+    const nextPhase = MANSION_PHASES[nextIndex];
+    // 回绕到第一个相位 = 过了一天。
+    if (nextIndex === 0) setDay((current) => current + 1);
     const completed = Object.entries(upgrading)
       .filter(([, remaining]) => remaining <= 1)
       .map(([id]) => id);
+    // 施工结束只推进**修缮进度**,不再自动升级 —— 升级要玩家点按钮。
     if (completed.length) {
-      setLevels((current) => {
+      setRepairProgress((current) => {
         const next = { ...current };
         completed.forEach((id) => {
-          next[id] = (next[id] ?? 0) + 1;
+          next[id] = Math.min((next[id] ?? 0) + 1, REPAIR_STEPS);
         });
         return next;
       });
@@ -773,18 +851,25 @@ export function MansionPage() {
       next.delete(roomId);
       return next;
     });
+    // 按**物品 id** 累加,不再按房间 id —— 这样同一物品若日后由多个房间产出
+    // 会正确归并到同一格,而不是各记一笔。
     setInventory((current) => ({
       ...current,
-      [roomId]: (current[roomId] ?? 0) + detail.production!.amount
+      [detail.production!.id]: (current[detail.production!.id] ?? 0) + detail.production!.amount
     }));
     showToast(`已收取 ${detail.production.label} ×${detail.production.amount}${detail.production.unit}`);
   };
 
+  /** 修缮一次:推进 1 格进度。满格后不再接受修缮,改由 promoteFacility 升级。 */
   const startUpgrade = (roomId: string) => {
     const detail = MANSION_ROOM_DETAILS[roomId];
     if (!detail?.upgradeCost || !detail.fund || upgrading[roomId]) return;
     if ((levels[roomId] ?? detail.level) >= MAX_FACILITY_LEVEL) {
       showToast("该设施已达到当前最高档位");
+      return;
+    }
+    if ((repairProgress[roomId] ?? 0) >= REPAIR_STEPS) {
+      showToast("修缮已完成，可以升级了");
       return;
     }
     if (funds[detail.fund] < detail.upgradeCost) {
@@ -795,7 +880,7 @@ export function MansionPage() {
       ...current,
       [detail.fund!]: current[detail.fund!] - detail.upgradeCost!
     }));
-    setUpgrading((current) => ({ ...current, [roomId]: 2 }));
+    setUpgrading((current) => ({ ...current, [roomId]: REPAIR_PHASES }));
     // 一旦开工就不再显示「受损」图钉,改由施工中状态表达。
     setDamaged((current) => {
       if (!current.has(roomId)) return current;
@@ -803,7 +888,33 @@ export function MansionPage() {
       next.delete(roomId);
       return next;
     });
-    showToast(`${cleanRegionLabel(regionById.get(roomId)?.label ?? roomId)}已列入修缮 · 还需 2 相位`);
+    const step = Math.min((repairProgress[roomId] ?? 0) + 1, REPAIR_STEPS);
+    showToast(
+      `${cleanRegionLabel(regionById.get(roomId)?.label ?? roomId)}修缮中 · 第 ${step}/${REPAIR_STEPS} 步`
+    );
+  };
+
+  /** 进度满格后的升级:**付费** +1 档并清零进度。玩家的独立决策,不自动发生。 */
+  const promoteFacility = (roomId: string) => {
+    const detail = MANSION_ROOM_DETAILS[roomId];
+    if (!detail?.upgradeCost || !detail.fund) return;
+    const level = levels[roomId] ?? detail.level;
+    if (level >= MAX_FACILITY_LEVEL) return;
+    if ((repairProgress[roomId] ?? 0) < REPAIR_STEPS) return;
+    const cost = promoteCost(detail.upgradeCost);
+    if (funds[detail.fund] < cost) {
+      showToast(`${fundName(detail.fund)}不足，升级需 ${cost} 金币`);
+      return;
+    }
+    setFunds((current) => ({
+      ...current,
+      [detail.fund!]: current[detail.fund!] - cost
+    }));
+    setLevels((current) => ({ ...current, [roomId]: level + 1 }));
+    setRepairProgress((current) => ({ ...current, [roomId]: 0 }));
+    showToast(
+      `${cleanRegionLabel(regionById.get(roomId)?.label ?? roomId)}已升级至 Lv.${level + 1}`
+    );
   };
 
   const activateCharacter = (character: MansionCharacter) => {
@@ -826,7 +937,11 @@ export function MansionPage() {
     ? levels[selectedRegion.id] ?? selectedDetail.level
     : 0;
   const selectedUpgradeRemaining = selectedRegion ? upgrading[selectedRegion.id] : undefined;
+  /** 已达最高档:修缮与升级都到顶。 */
   const selectedRepairComplete = selectedLevel >= MAX_FACILITY_LEVEL;
+  const selectedRepairSteps = selectedRegion ? repairProgress[selectedRegion.id] ?? 0 : 0;
+  /** 进度满格且未到顶 -> 该出现升级键。 */
+  const selectedCanPromote = selectedRepairSteps >= REPAIR_STEPS && !selectedRepairComplete;
 
   const navigateTo = (href: string) => {
     window.location.assign(href);
@@ -972,7 +1087,7 @@ export function MansionPage() {
                 const detail = MANSION_ROOM_DETAILS[region.id];
                 if (!detail) return null;
 
-                const pins: Array<{ kind: "production" | "repair"; node: React.ReactNode }> = [];
+                const pins: Array<{ kind: "production" | "repair" | "promote"; node: React.ReactNode }> = [];
 
                 if (detail.production && readyProduction.has(region.id)) {
                   pins.push({
@@ -995,13 +1110,42 @@ export function MansionPage() {
                   });
                 }
 
+                /* 可升级图钉:修缮进度满格且未到顶。它先于修缮图钉判断 ——
+                   两者互斥,满格后就不该再显示「去修缮」。 */
+                const roomLevel = levels[region.id] ?? detail.level;
+                if (
+                  detail.upgradeCost &&
+                  detail.fund &&
+                  (repairProgress[region.id] ?? 0) >= REPAIR_STEPS &&
+                  roomLevel < MAX_FACILITY_LEVEL
+                ) {
+                  pins.push({
+                    kind: "promote",
+                    node: (
+                      <button
+                        type="button"
+                        className="mansion-marker mansion-marker--promote"
+                        data-no-pan
+                        aria-label={`${cleanRegionLabel(region.label)}可升级至 Lv.${roomLevel + 1}`}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          openRegion(region.id);
+                        }}
+                      >
+                        <PromoteIcon />
+                      </button>
+                    )
+                  });
+                }
+
                 /* 修缮图钉只在**受损**或**施工中**时出现。
                    14 个可修缮房间不再全部常态挂标记。 */
                 const isDamaged = damaged.has(region.id);
                 const isUpgrading = Boolean(upgrading[region.id]);
                 if (
                   (isDamaged || isUpgrading) &&
-                  (levels[region.id] ?? detail.level) < MAX_FACILITY_LEVEL
+                  (repairProgress[region.id] ?? 0) < REPAIR_STEPS &&
+                  roomLevel < MAX_FACILITY_LEVEL
                 ) {
                   pins.push({
                     kind: "repair",
@@ -1174,7 +1318,7 @@ export function MansionPage() {
           <MansionPhaseBar
             phases={MANSION_PHASES}
             value={phase}
-            caption={currentPhase.caption}
+            day={day}
             onSelect={previewPhase}
             onAdvance={advancePhase}
           />
@@ -1188,53 +1332,48 @@ export function MansionPage() {
           aria-hidden={chromeInert}
         >
           <MansionLedger
-            abyssState={abyssState}
-            wardState="正常"
             publicFund={funds.public}
             partyFund={funds.party}
             stockTotal={stockTotal}
             stockOpen={stockOpen}
             onToggleStock={() => setStockOpen((open) => !open)}
+            stockButtonRef={stockButtonRef}
           />
-          {stockOpen && (
-            <div className="mansion-stock__list" role="group" aria-label="领地库存">
-              {inventoryItems.length ? inventoryItems.map(([roomId, amount]) => {
-                const production = MANSION_ROOM_DETAILS[roomId]?.production;
-                if (!production) return null;
-                return (
-                  <small key={roomId}>
-                    {production.label}<b>×{amount}{production.unit}</b>
-                  </small>
-                );
-              }) : <small>尚未收取本轮产出</small>}
-            </div>
-          )}
         </div>
 
-        {/* ============ 左右中缝:平移 ============ */}
-        <ArrowButton
-          className="mansion-pan-button mansion-pan-button--left"
-          direction="left"
-          size="sm"
-          label="向左浏览"
+        {/* ============ 左右边缘:平移 ============
+            不再用实心 ArrowButton。改成「边缘黑色滤罩 + 无边框键」:
+            整条边缘是一块渐隐暗罩,箭头直接画在上面,没有底板也没有描边。
+            实心键压在满幅世界上会像贴了两枚贴纸;暗罩本身就是「画面到此为止」
+            的视觉提示,顺带压暗边缘让中央更亮。 */}
+        <button
+          type="button"
+          className="mansion-pan-edge mansion-pan-edge--left"
+          aria-label="向左浏览"
           data-no-pan
           inert={chromeInert}
           aria-hidden={chromeInert}
           onClick={() => shiftPan(PAN_STEP)}
           disabled={Boolean(selectedRegion) || panX >= 0}
-        />
-        <ArrowButton
-          className="mansion-pan-button mansion-pan-button--right"
-          direction="right"
-          size="sm"
-          label="向右浏览"
+        >
+          <svg viewBox="0 0 24 40" aria-hidden="true">
+            <path d="M16 5 L7 20 L16 35" />
+          </svg>
+        </button>
+        <button
+          type="button"
+          className="mansion-pan-edge mansion-pan-edge--right"
+          aria-label="向右浏览"
           data-no-pan
           inert={chromeInert}
           aria-hidden={chromeInert}
           onClick={() => shiftPan(-PAN_STEP)}
           disabled={Boolean(selectedRegion) || panX <= MIN_PAN}
-        />
-
+        >
+          <svg viewBox="0 0 24 40" aria-hidden="true">
+            <path d="M8 5 L17 20 L8 35" />
+          </svg>
+        </button>
 
         {selectedRegion && selectedDetail && (
           <aside
@@ -1247,16 +1386,18 @@ export function MansionPage() {
             inert={chromeInert}
             aria-hidden={chromeInert}
           >
+            {/* 关闭键必须在 RpgFrame **之外**:Frame 的 __content 是
+                overflow:auto 的滚动容器,负偏移的角标放里面会被裁掉。
+                实测过 —— 这就是"ROOM 被裁剪"的成因。 */}
+            <IconButton
+              ref={drawerCloseRef}
+              className="mansion-room-card__close"
+              label="关闭房间详情"
+              icon="close"
+              size="sm"
+              onClick={closeRegion}
+            />
             <RpgFrame className="mansion-room-card" padding="md" variant="dark">
-              <IconButton
-                ref={drawerCloseRef}
-                className="mansion-room-card__close"
-                label="关闭房间详情"
-                icon="close"
-                size="sm"
-                onClick={closeRegion}
-              />
-
               <div className="mansion-room-card__hero">
                 <MansionRoomPreview
                   region={selectedRegion}
@@ -1297,37 +1438,139 @@ export function MansionPage() {
                 <p>{selectedDetail.trace}</p>
               </div>
 
-              {selectedDetail.state !== "sealed" && selectedDetail.state !== "provisional" && (
-                <Progress
-                  className="mansion-room-card__progress"
-                  label={`设施档位 · Lv.${selectedLevel}`}
-                  value={Math.min(selectedLevel * 25, 100)}
-                  showValue
-                  size="sm"
-                />
-              )}
-
               {selectedDetail.production && (
+                <div className="mansion-room-card__harvest">
+                  <small>本相位产出</small>
                 <button
                   type="button"
                   className="mansion-room-card__collect"
+                  data-ready={readyProduction.has(selectedRegion.id) || undefined}
+                  aria-label={readyProduction.has(selectedRegion.id)
+                    ? `收取${selectedDetail.production.label} ${selectedDetail.production.amount}${selectedDetail.production.unit}`
+                    : `${selectedDetail.production.label}本相位已收取`}
                   disabled={!readyProduction.has(selectedRegion.id)}
                   onClick={() => collectProduction(selectedRegion.id)}
                 >
-                  <span>{readyProduction.has(selectedRegion.id) ? "可收取" : "本相位已收取"}</span>
-                  <strong>{selectedDetail.production.label} ×{selectedDetail.production.amount}{selectedDetail.production.unit}</strong>
+                  {/* 图标就是那张 game-icons SVG,用 mask 上色 —— 与全库
+                      其他图标同一手法。**不用 ItemSlotStatic**:那是背包格位,
+                      六层堆叠 + 光环 + 宝石,压到 48 又重又繁复,而且以后要排
+                      多条收取项时每条都套一个画框会糊成一片。 */}
+                  <i
+                    className="mansion-room-card__collect-glyph"
+                    style={{
+                      WebkitMaskImage: `url("${PRODUCTION_GLYPHS[selectedDetail.production.icon]}")`,
+                      maskImage: `url("${PRODUCTION_GLYPHS[selectedDetail.production.icon]}")`
+                    }}
+                    aria-hidden="true"
+                  />
+                  <span className="mansion-room-card__collect-name">
+                    {selectedDetail.production.label}
+                  </span>
+                  <span className="mansion-room-card__collect-amount">
+                    ×{selectedDetail.production.amount}
+                    <i>{selectedDetail.production.unit}</i>
+                  </span>
+                  <span className="mansion-room-card__collect-state">
+                    {readyProduction.has(selectedRegion.id) ? "收取" : "已收"}
+                  </span>
                 </button>
+                </div>
+              )}
+
+              {/* 设施档位:**离散刻度**,不是百分比进度条。
+                  MAX_FACILITY_LEVEL 是 4,原先用 `level*25` 折成 25%/50%/…
+                  再配一条通用 Progress —— 那是把"第几档"硬掰成"完成度",
+                  语义错了,观感也是网页 meter。现在四格刻面,点亮到当前档,
+                  与顶部相位刻度同一语汇(那里也是离散的四相位)。
+                  位置固定在卡片最底部,压在修缮键上方。
+                  外层是 group 而非 progressbar —— 里面有**两条**独立的
+                  progressbar(档位、修缮进度),progressbar 不能嵌套。 */}
+              {selectedDetail.state !== "sealed" && selectedDetail.state !== "provisional" && (
+                <div className="mansion-room-card__tier" role="group" aria-label="设施状态">
+                  <span className="mansion-room-card__tier-label">设施档位</span>
+                  <span
+                    className="mansion-room-card__tier-track"
+                    role="progressbar"
+                    aria-label={`设施档位 · Lv.${selectedLevel}`}
+                    aria-valuemin={1}
+                    aria-valuemax={MAX_FACILITY_LEVEL}
+                    aria-valuenow={selectedLevel}
+                  >
+                    {Array.from({ length: MAX_FACILITY_LEVEL }, (_, index) => (
+                      <i key={index} data-on={index < selectedLevel || undefined} />
+                    ))}
+                  </span>
+                  <span className="mansion-room-card__tier-value" aria-hidden="true">
+                    <em>Lv</em>
+                    <b>{selectedLevel}</b>
+                    <s>/ {MAX_FACILITY_LEVEL}</s>
+                  </span>
+
+                  {/* 第二条:通向下一档的修缮进度。与上面的档位刻度是**两个量** ——
+                      档位是已达成的离散成果,这条是过程。到顶后整条隐去。 */}
+                  {!selectedRepairComplete && (
+                    <>
+                      <span className="mansion-room-card__tier-label" data-sub="">
+                        修缮进度
+                      </span>
+                      <span
+                        className="mansion-room-card__tier-track"
+                        data-sub=""
+                        role="progressbar"
+                        aria-label={`修缮进度 ${selectedRepairSteps}/${REPAIR_STEPS}`}
+                        aria-valuemin={0}
+                        aria-valuemax={REPAIR_STEPS}
+                        aria-valuenow={selectedRepairSteps}
+                      >
+                        {Array.from({ length: REPAIR_STEPS }, (_, index) => (
+                          <i
+                            key={index}
+                            data-on={index < selectedRepairSteps || undefined}
+                            data-busy={
+                              index === selectedRepairSteps && selectedUpgradeRemaining
+                                ? ""
+                                : undefined
+                            }
+                          />
+                        ))}
+                      </span>
+                      <span className="mansion-room-card__tier-value" data-sub="" aria-hidden="true">
+                        <b>{selectedRepairSteps}</b>
+                        <s>/ {REPAIR_STEPS}</s>
+                      </span>
+                    </>
+                  )}
+                </div>
               )}
 
               {(selectedDetail.upgradeCost || (selectedDetail.href && selectedDetail.actionLabel)) && (
                 <div className="mansion-room-card__footer">
-                  {selectedDetail.upgradeCost && selectedDetail.fund && (
-                    <small className="mansion-room-card__fund-note">
-                      {fundName(selectedDetail.fund)}支付<br />设施自动施工
-                    </small>
-                  )}
                   <div className="mansion-room-card__actions">
-                    {selectedDetail.upgradeCost && selectedDetail.fund && (
+                    {/* 进度满格 -> 换成**独立的升级键**(金色、不花钱、点了才升档)。
+                        否则显示修缮键(花钱推进 1 格)。两者互斥,不同时出现 ——
+                        同时摆两个动作会让「该点哪个」变成猜谜。 */}
+                    {selectedDetail.upgradeCost && selectedDetail.fund && selectedCanPromote && (
+                      <button
+                        type="button"
+                        className="mansion-room-card__promote"
+                        aria-label={`升级至 Lv.${selectedLevel + 1}，花费 ${promoteCost(selectedDetail.upgradeCost)} 金币`}
+                        disabled={funds[selectedDetail.fund] < promoteCost(selectedDetail.upgradeCost)}
+                        onClick={() => promoteFacility(selectedRegion.id)}
+                      >
+                        <span className="mansion-room-card__promote-icon" aria-hidden="true">
+                          <svg viewBox="0 0 24 24">
+                            <path d="M12 4 L12 20" />
+                            <path d="M5 11 L12 4 L19 11" />
+                          </svg>
+                        </span>
+                        <strong>升级建筑</strong>
+                        <CurrencyAmount
+                          value={promoteCost(selectedDetail.upgradeCost)}
+                          label={`金币 ${promoteCost(selectedDetail.upgradeCost)}`}
+                        />
+                      </button>
+                    )}
+                    {selectedDetail.upgradeCost && selectedDetail.fund && !selectedCanPromote && (
                       <button
                         type="button"
                         className="mansion-room-card__repair"
@@ -1340,7 +1583,7 @@ export function MansionPage() {
                         onClick={() => startUpgrade(selectedRegion.id)}
                       >
                         <span className="mansion-room-card__repair-icon"><RepairIcon /></span>
-                        <strong>{selectedUpgradeRemaining ? "施工中" : selectedRepairComplete ? "已完成" : "修缮"}</strong>
+                        <strong>{selectedUpgradeRemaining ? "施工中" : selectedRepairComplete ? "已满档" : "修缮"}</strong>
                         {selectedUpgradeRemaining ? (
                           <small>{selectedUpgradeRemaining} 相位</small>
                         ) : selectedRepairComplete ? (
@@ -1393,24 +1636,40 @@ export function MansionPage() {
               typing={dialogueTyping}
               onTypingEnd={() => setDialogueSettled(true)}
             />
-            <button
+            <IconButton
               ref={dialogueCloseRef}
-              type="button"
               className="mansion-adv-dialogue__close"
-              aria-label="关闭对话"
+              label="关闭对话"
+              icon="close"
+              size="sm"
               onClick={(event) => {
                 event.stopPropagation();
                 closeCharacter();
               }}
-            >
-              <span aria-hidden="true">×</span>
-            </button>
+            />
             <div className="mansion-adv-dialogue__cue" aria-hidden="true">
               <span>{dialogueSettled ? "点击返回洋馆" : "点击显示全文"}</span>
               <small>SPACE / ENTER</small>
             </div>
           </div>
         )}
+
+        {/* 物品栏挂在四角挂件**之外** —— 挂件在对话开启时会被 inert,
+            而库存弹窗自己就是模态,不该继承那份 inert。 */}
+        <InventoryDialog
+          open={stockOpen}
+          onClose={() => setStockOpen(false)}
+          title="领地库存"
+          signboard="领地库存"
+          signboardSecondary="ESTATE STORAGE"
+          entries={inventoryEntries}
+          columns={STOCK_COLUMNS}
+          rows={STOCK_ROWS}
+          capacity={STOCK_CAPACITY}
+          categories={MANSION_ITEM_CATEGORIES}
+          emptyHint="尚未收取本轮产出。到各房间的产出图钉上收取。"
+          returnFocusRef={stockButtonRef}
+        />
 
         {toast && <div className="mansion-toast" role="status" data-no-pan>{toast}</div>}
       </AbyssaProvider>

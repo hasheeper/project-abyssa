@@ -8,6 +8,8 @@ Battle 是一个确定性、可保存、事件驱动的小规模回合制效果�
 
 产品理念、长期方向与讨论语境集中保存在 [`DESIGN_REFERENCE_LOG.md`](DESIGN_REFERENCE_LOG.md)。该文档是参考日志，不自动覆盖当前实现规格。
 
+四套战斗皮肤、背景滤镜、框体层级、上下留白与 `panel-drop` 入场属于表现层，统一记录在 [`UI_PRESENTATION_BASELINE.md`](UI_PRESENTATION_BASELINE.md)。`uiSkin` 只存在于 React UI，不进入 canonical state、存档、undo 或规则版本；右上切换按钮是概念原型期的巡检工具。
+
 ## 核心保证
 
 - 所有正式规则变化从 `dispatchBattleCommand` 进入。
@@ -52,6 +54,7 @@ UI → controller → command dispatcher → rule planner → atomic effect reso
 | `controller/` | React 状态提交、targeting、事件到演出 cue 和统一 presentation queue。 |
 | `testing/` | scenario builder、golden trace、effect fixture 和 invariant 测试工具。 |
 | `engine.ts` | 稳定兼容门面，只导出实现，不承载核心规则。 |
+| `battleUiSkins.ts` / `expedition.css` | 四套表现层皮肤、场景背景、外框装饰和固定布局合同，不得写入领域状态。 |
 
 Battle 外部调用方优先从 `engine.ts` 使用稳定 API；Battle 内部模块使用具体边界的直接 import，避免经门面形成循环依赖。
 
@@ -109,6 +112,7 @@ npx vitest bench src/apps/battle/engine.bench.ts --run
 - modifier 排序、status 生命周期、reaction exactly-once 与预算保护。
 - 力竭、复苏、狂暴、召唤、逃跑、奖励和层结算。
 - 攻击/支援/逐只受击/斩杀退场/自动清层的 UI 时序。
+- 四套 UI 皮肤循环、Stage 与框体同步、装饰存在性和关键布局令牌。
 
 只有有意修改规则语义并人工审查首个差异后，才允许更新 golden trace。性能历史与复现条件见 [`ENGINE_PHASE_0_BASELINE.md`](ENGINE_PHASE_0_BASELINE.md)。
 

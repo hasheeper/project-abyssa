@@ -14,6 +14,7 @@ import {
 import { resolveItemIcon as resolveCatalogItemIcon } from "../../assets/svg/items/catalog";
 import { MetalCorner } from "../../shared/ui/decorations/MetalCorner";
 import { Stage } from "../../shared/stage";
+import { SceneArrivalTitle } from "../../shared/transition";
 
 type Mode = "buy" | "sell" | "appraise";
 type Currency = "lira" | "crystal";
@@ -221,8 +222,13 @@ export function ShopPage() {
 
   const action = unavailable ? appraised.has(item.id) ? "已鉴定" : item.unavailable ? "非卖品" : "售罄" : actionLabels[mode];
 
-  return <Stage background="var(--abyssa-shop-backdrop)">
-    <AbyssaProvider className="abyssa-shop-screen" data-skin="black-gold">
+  return <Stage background="var(--abyssa-shop-backdrop)" canvasClassName="abyssa-shop-stage">
+    <SceneArrivalTitle
+      eyebrow="WATCHER'S CLIFF · MARKET"
+      title="守望者杂货铺"
+      tone="gold"
+    />
+    <AbyssaProvider className="abyssa-shop-screen abyssa-scene-panel" data-skin="black-gold">
     <header className="abyssa-shop-screen__header"><RpgHeader label="WARDEN SHOP" /></header>
     <div className="abyssa-shop-screen__shell">
       <span className="abyssa-shop-screen__shell-rails" aria-hidden="true">

@@ -2,7 +2,7 @@
 
 Abyssa 的复古 RPG React 组件库与交互场景仓库。项目从静态视觉原型中提取可复用组件，并用角色状态、战斗、骰局、地图、视觉小说、跑团、商店、洋馆和制作工具等独立入口验证组合效果。
 
-组件使用原生语义元素、TypeScript 类型和命名空间化 CSS 变量；组件包本身不依赖业务后端。仓库内共有 **11 个 Vite 入口**：1 个组件目录、8 个场景原型和 2 个制作工具。
+组件使用原生语义元素、TypeScript 类型和命名空间化 CSS 变量；组件包本身不依赖业务后端。仓库内共有 **13 个 Vite 入口**：1 个组件目录、10 个场景／实验入口和 2 个制作工具。
 
 ## 当前组件
 
@@ -24,6 +24,7 @@ Abyssa 的复古 RPG React 组件库与交互场景仓库。项目从静态视�
 - `RpgRadio`、`RpgCheckbox`：保留参考稿外观的原生表单控件
 - `RpgNotchButton`、`RpgNotchedPillButton`：带内部 V 形翻折的方形与胶囊按钮
 - `RpgDiamondNode`、`RpgDiamondNodeTrack`：可独立或数据驱动组合的菱形节点
+- `RpgFacetDiamond`、`RpgModal`：分面菱形状态节点与通用 RPG 弹窗容器
 - `RpgDirectionPad`：四向指令方向盘
 - `Toggle`：支持受控和非受控状态的开关
 
@@ -33,6 +34,7 @@ Abyssa 的复古 RPG React 组件库与交互场景仓库。项目从静态视�
 - `RpgPanel`、`RpgSquarePanel`：角色选择面板与简约小方块
 - `CurrencyAmount`：里拉和远古晶石的货币显示
 - `CharacterSelector`、`CharacterPortraitSelector`：列表式与头像轮播式角色选择器
+- `ItemSlot`、`InventoryGrid`、`InventoryDialog`：统一稀有度语言的物品槽、库存网格与领地库存弹窗
 - `StatusPanel`：数据驱动的身份、属性、特性和记录面板
 - `CharacterStatusScreen`：角色、服装、档案标签和阵营主题组成的完整状态页面
 
@@ -45,6 +47,7 @@ Abyssa 的复古 RPG React 组件库与交互场景仓库。项目从静态视�
 - `Emote`：15 个统一规格的 APNG 头顶漫符，支持全局基准与逐角色微调
 - `expressions`、`spriteCalibration`：表情部件映射与角色画布校准数据
 - `motions`：立绘动作关键帧生成器（`playMotion` + `nod`/`waver`/`jump`/`shakeLight`/`shakeHeavy`）
+- `shared/transition`：独立 HTML 场景间的闭幕、真实资源等待、抵达标题与淡入／面板落入交接
 
 公共组件和类型统一从 `src/index.ts` 导出。为兼容早期接入，部分组件同时保留 `RetroRpg*` 别名。
 
@@ -79,14 +82,16 @@ Storybook 默认运行在 `http://127.0.0.1:6006/`。
 
 ### 应用预览
 
-仓库共有 11 个 Vite 入口。除骰局与战斗包含局部规则外，其余场景主要用于验证 UI 状态、交互和动画；这些入口仍相互独立，不代表已经形成完整游戏流程。
+仓库共有 13 个 Vite 入口。除骰局与战斗包含局部规则外，其余场景主要用于验证 UI 状态、交互和动画；这些入口仍相互独立，不代表已经形成完整游戏流程。
 
 | 命令 | 入口 | 当前功能 |
 | --- | --- | --- |
 | `npm run dev` | 组件目录 | 按结构、操作、展示和组合范例分类；支持搜索、交互预览与复制最小调用代码，默认端口 5173 |
-| `npm run dev:battle` | 战斗界面 | 四人队伍、敌方目标选择、回合顺序、HP/MP、四姿态图集、物理单体攻击和神圣群体技能演出 |
+| `npm run dev:battle` | 裂隙远征 | 五人命数骰编队、敌方意图、攻击／防御／治疗、远征账本与木制／勇者／四席／魔王四套 UI 主题 |
 | `npm run dev:dice` | 明暗骰 | 五骰牌型、固定注额下注、公开/私有锁骰、重掷、庄家轮换、筹码结算、3D 骰子和本地对手逻辑 |
 | `npm run dev:map` | 副本地图 | Three.js + GSAP 纸芝居地图、三处可选地点、镜头视差、入场动画和木质画框 |
+| `npm run dev:menu` | 枢纽主界面 | 四角命令盘（府邸/出征/仓库/商店）、破窗立绘与吐槽、档案侧栏、资源与相位顶栏 |
+| `npm run dev:loading` | 场景交接实验室 | 骰子六面体黑幕、区域抵达标题、真实资源等待，以及淡入与实体面板落入的切换演示 |
 | `npm run dev:mansion` | 洋馆基地 | 剖面图房间交互、相位切换、角色 ADV、修缮与设施收获原型 |
 | `npm run dev:novel` | 视觉小说 | 双人/三人/四人剧本切换、两席位立绘轮换、表情延续、逐字对话，以及点击/空格/回车推进 |
 | `npm run dev:rp` | 跑团演出 | NVL 消息流与 ADV 对话框两种版式、幕解锁与历史回看、LOG、AUTO、SKIP、REPLAY、判定条和逐字演出 |
@@ -115,6 +120,10 @@ npm run dev:dice
 固定舞台型应用通过 `src/shared/stage/` 共享 1600 × 900 外画布、视口安全区和等比缩放逻辑。应用内部按设计尺寸布局，外层根据设备尺寸统一缩放，避免边框、内容和点击区域分别漂移。文档流型的组件目录与立绘工作台不使用这套适配。
 
 共享画框令牌定义了内容可用区、木质压条、黄铜层与描边几何。修改固定舞台应用时，应同时检查桌面、平板和手机横屏，不要在画布内部使用视口单位进行二次缩放。完整约束见 `src/shared/stage/README.md`。
+
+### 跨场景交接
+
+`src/shared/transition/` 负责独立 HTML App 之间的闭幕与接力：旧场景先闭合黑幕，再执行同源导航；目标页等待字体、图片与可选业务 `ready()` 后，先显示区域抵达标题，再以 `fade` 或 `panel-drop` 揭示内容。它只共享呈现协议，不持有具体路由、存档或全局游戏状态。`menu` 是当前发起方，`mansion` 使用全屏淡入，`battle` 与 `shop` 使用实体面板落入；`loading` 是该流程的独立视觉实验页。完整契约见 `src/shared/transition/README.md`。
 
 ### 外部资源
 
@@ -157,6 +166,8 @@ npm run build:battle
 npm run build:dice
 npm run build:map
 npm run build:mansion
+npm run build:menu
+npm run build:loading
 npm run build:mansion-editor
 npm run build:novel
 npm run build:rp
@@ -260,23 +271,16 @@ export function StatusPage() {
 
 ```text
 src/
-  components/     组件、Storybook 用例与交互测试
-  hooks/          受控/非受控状态工具
-  utils/          类名拼接等小工具
-  styles/         设计令牌和组件样式
-  assets/         svg / png / emote 素材
-  stage/          固定画布、等比缩放、安全区和共享画框契约
-  index.ts        公共导出入口
-  demo/           可搜索、可预览、可复制调用的组件目录
-  battle/         战斗组合场景与演示数据
-  dice/           明暗骰规则、界面组件和可选 Runtime 适配器
-  map/            Three.js 地图场景、地点数据与木质画框
-  novel/          AVG 场景入口与双人/三人/四人剧本
-  rp/             NVL/ADV 跑团演出、幕数据与控制栏
-  shop/           购买、出售、鉴定和商店数据
-  studio/         立绘/漫符校准、快照和参数导出工作台
-  character-status/
-                  角色状态页入口
+  apps/           catalog + 10 个相互独立的场景／实验入口
+    battle/       裂隙远征规则、表现层与四套 UI 皮肤
+    loading/      场景交接视觉实验页
+    menu/         守望者之崖枢纽主界面
+    mansion/      洋馆房间、角色 ADV、修缮与设施收益
+  tools/          mansion-editor + studio 两个内容制作工具
+  content/        角色资料、洋馆默认区域等项目实例数据
+  shared/         domain / lib / presentation / stage / transition / ui
+  assets/         svg / png / emote / 场景背景素材
+  index.ts        @abyssa/ui 唯一公共导出入口
 scripts/          素材管线与构建工具(.mjs)
 references/
   html/           英文命名的视觉原型 HTML

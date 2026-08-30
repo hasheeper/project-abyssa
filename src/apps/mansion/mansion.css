@@ -189,8 +189,6 @@ button { font: inherit; }
   --mansion-slot-edge: #5d6a6b;
   --mansion-well-fill: #0a1011;
   --mansion-well-lip: #93a3a2;
-  --mansion-gem-safe: #4e7f63;
-  --mansion-gem-ward: #3f6f80;
 }
 
 /* 夜相位牌面压暗一档,与世界的整体降调一致。 */
@@ -295,18 +293,69 @@ button { font: inherit; }
 }
 .mansion-phasebar__slot:focus-visible { outline: 2px solid #f2eee2; outline-offset: 5px; border-radius: 3px; }
 
-/* 说明文字挂在刻度下方,不占刻度自身的空间。
-   没有牌面托底,所以这里需要 text-shadow。 */
-.mansion-phasebar__caption {
+/* ============ 天数 ============
+   挂在导轨**左端**,与右端的推进键左右对称(左读、右写)。
+   原先这个位置下方是 .mansion-phasebar__caption(相位说明文字),已删除 ——
+   当前时刻由高亮那一格表达,那行字是冗余。
+
+   ---- 为什么要加牌面 ----
+   上一版天数是整条相位栏里**唯一没有金属牌面**的元素,只靠 text-shadow
+   托底。实测白天相位:暗像素占比只有 2.2%(推进键 16%),字面浮在明亮的
+   美术上没有依托,所以「太浅、看不清」。现在补上与推进键同族的构造,
+   并把数字从 27 提到 34。
+   牌宽 62 与推进键 50 相近,左右两端于是有相当的视觉重量。 */
+.mansion-phasebar__day {
   position: absolute;
-  top: calc(var(--phasebar-h) + 2px);
-  left: 50%;
-  color: #c3d1cf;
-  font-size: 10.5px;
-  letter-spacing: .14em;
-  text-shadow: 0 1px 5px rgb(3 8 10 / 96%), 0 0 12px rgb(3 8 10 / 72%);
-  white-space: nowrap;
-  transform: translateX(-50%);
+  top: var(--phasebar-center-y);
+  /* 16 与右端推进键的 left:calc(100% + 16px) 相同,两侧间隙对称。 */
+  right: calc(100% + 16px);
+  display: grid;
+  width: 62px;
+  height: 66px;
+  align-content: center;
+  justify-items: center;
+  gap: 2px;
+  /* 与刻度同族的金属色。白天相位下牌面仍保持深色 —— 它是 UI 挂件,
+     不随世界光照变亮,否则又会失去依托。 */
+  --mansion-slot-fill: #141b1c;
+  --mansion-slot-lit: #3c4d50;
+  --mansion-slot-shade: #070c0d;
+  --mansion-slot-edge: #8d9c9c;
+  --mansion-slot-rim: #c3d0d0;
+  filter: drop-shadow(0 5px 12px rgb(2 6 8 / 54%));
+  transform: translateY(-50%);
+}
+.mansion-phasebar__day-plate {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  shape-rendering: geometricPrecision;
+}
+.mansion-phasebar__day small {
+  position: relative;
+  z-index: 1;
+  color: #a9b8b5;
+  font-family: var(--abyssa-font-display, Georgia, serif);
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: .28em;
+  line-height: 1;
+  /* 字距会让整体偏左,补回一半让它与数字视觉居中。 */
+  text-indent: .28em;
+}
+.mansion-phasebar__day b {
+  position: relative;
+  z-index: 1;
+  color: #f7edcf;
+  font-family: var(--abyssa-font-display, Georgia, serif);
+  font-size: 34px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  line-height: 1;
+  text-shadow: 0 1px 3px rgb(3 8 10 / 88%);
 }
 
 /* 推进键。圆形是整组唯一的非菱形轮廓,于是它天然读作「动作」。 */
@@ -338,24 +387,50 @@ button { font: inherit; }
 .mansion-phasebar__advance:focus-visible { outline: 2px solid #f2eee2; outline-offset: 5px; border-radius: 50%; }
 
 /* ============ 右上:资源铭牌 ============ */
-.mansion-corner--status { top: 24px; right: 30px; gap: 7px; justify-items: end; }
+.mansion-corner--status { top: 24px; right: 30px; justify-items: end; }
 
-.mansion-ledger { position: relative; width: var(--ledger-w); }
+.mansion-ledger { position: relative; width: var(--ledger-w); height: var(--ledger-h); }
 .mansion-ledger__plate { display: block; width: 100%; height: auto; overflow: visible; filter: drop-shadow(0 10px 20px rgb(2 6 8 / 44%)); shape-rendering: geometricPrecision; }
 
-/* 状态两行,与 SVG 里两颗静态宝石逐行对齐(同一组 --ledger-state-* 常量)。
-   没有 text-shadow —— 底下有实体牌面,不需要靠字阴影硬保可读性。 */
-.mansion-ledger__states {
+/* 标题不是额外状态信息，只负责把资源组读成 RPG 账簿而非网页数据卡。 */
+.mansion-ledger__header {
   position: absolute;
-  top: var(--ledger-state-top);
-  left: 44px;
-  display: grid;
-  grid-auto-rows: var(--ledger-state-row);
+  top: var(--ledger-header-top);
+  left: var(--ledger-side-pad);
+  display: flex;
+  width: var(--ledger-content-w);
+  height: var(--ledger-header-h);
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
 }
-.mansion-ledger__states span { display: flex; align-items: center; color: #c5d2d0; font-size: 10.5px; letter-spacing: .06em; }
+.mansion-ledger__header span {
+  position: relative;
+  width: 55px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgb(166 183 179 / 72%));
+}
+.mansion-ledger__header span:last-child { transform: scaleX(-1); }
+.mansion-ledger__header span::after {
+  position: absolute;
+  top: -2px;
+  right: -1px;
+  width: 5px;
+  height: 5px;
+  border: 1px solid rgb(166 183 179 / 72%);
+  content: "";
+  transform: rotate(45deg);
+}
+.mansion-ledger__header h2 {
+  margin: 0;
+  color: #d7dfdc;
+  font: 600 11px/1 var(--abyssa-font-display, Georgia, serif);
+  letter-spacing: .28em;
+  text-indent: .28em;
+  white-space: nowrap;
+}
 
-/* 资金:两个槽。位置与尺寸**全部**来自 --ledger-well-*,与 SVG 画槽用的
-   是同一组数字 —— 上一版两边各写一套,结果数字撑破槽底。 */
+/* 双资金是牌面的主信息，同级、同宽，不再被无用状态压到最下方。 */
 .mansion-ledger__funds {
   position: absolute;
   top: var(--ledger-well-top);
@@ -364,65 +439,109 @@ button { font: inherit; }
   grid-template-columns: repeat(2, var(--ledger-well-w));
   gap: var(--ledger-well-gap);
   height: var(--ledger-well-h);
+  margin: 0;
 }
-.mansion-ledger__funds > span {
+.mansion-ledger__funds > div {
   display: grid;
   align-content: center;
   justify-items: center;
-  gap: 4px;
+  gap: 5px;
   min-width: 0;
   overflow: hidden;
 }
-.mansion-ledger__funds small { color: #8a9998; font-size: 8.5px; letter-spacing: .16em; }
-/* 金币图标由 CurrencyAmount 提供(components.css 的 conic-gradient 硬币)。
-   上一版换成裸 <b> 就是图标消失的原因。 */
+.mansion-ledger__funds dt {
+  display: flex;
+  align-items: center;
+  color: #899795;
+  font-size: 8.5px;
+  letter-spacing: .16em;
+}
+.mansion-ledger__funds dt::before,
+.mansion-ledger__funds dt::after {
+  width: 3px;
+  height: 3px;
+  margin: 0 6px;
+  border: 1px solid rgb(154 171 168 / 55%);
+  content: "";
+  transform: rotate(45deg);
+}
+.mansion-ledger__funds dd { margin: 0; }
 .mansion-ledger__funds .abyssa-currency-amount {
-  color: #e9d69a;
-  font: 600 15px/1 var(--abyssa-font-display, Georgia, serif);
+  color: #ead99f;
+  font: 600 16px/1 var(--abyssa-font-display, Georgia, serif);
   font-variant-numeric: tabular-nums;
   gap: 5px;
   letter-spacing: .03em;
+  text-shadow: 0 1px 5px rgb(0 0 0 / 68%);
 }
 
-/* 库存:坐在牌内的库存槽里。位置尺寸全部来自 --ledger-stock-*,
-   与 SVG 画槽用同一组数字 —— 上一版它用 margin:-2px 挂在牌外,
-   实测整块掉出牌底 32.5px。 */
+/* ============ 库存入口 ============
+   传统 RPG 的圆形「道具袋」按钮:一枚 56 圆章,图标居中,数量做右上角标。
+   上一版是 174x32 的横条(「领地库存」+ 数字 + 折叠箭头),两个问题:
+     1. 那是网页折叠面板的语汇;而它现在打开的是**模态**,箭头是错的提示
+     2. 横条把右上角占满,与铭牌成了两块并排的板,没有主次
+   现在它挂在铭牌右侧,圆形在这一区里是唯一的非矩形轮廓,天然读作「按钮」。 */
 .mansion-ledger__stock {
   position: absolute;
-  top: var(--ledger-stock-top);
-  left: var(--ledger-side-pad);
-  display: flex;
-  width: var(--ledger-stock-w);
-  height: var(--ledger-stock-h);
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 11px;
+  /* 挂在铭牌**左侧**外沿:右侧只有 30px 到画布边,放不下 56 的圆章。
+     铭牌高 111,圆章 56 -> top = (111-56)/2 = 27.5 竖向居中。 */
+  top: 27.5px;
+  left: -68px;
+  display: grid;
+  width: 56px;
+  height: 56px;
+  padding: 0;
   border: 0;
   background: none;
   cursor: pointer;
+  place-items: center;
+  filter: drop-shadow(0 5px 12px rgb(2 6 8 / 52%));
+  transition: filter 160ms var(--abyssa-ease, ease), transform 160ms var(--abyssa-ease, ease);
 }
-.mansion-ledger__stock small { color: #8a9998; font-size: 8.5px; letter-spacing: .16em; }
+.mansion-ledger__stock-plate {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  shape-rendering: geometricPrecision;
+}
+.mansion-ledger__stock img {
+  position: relative;
+  z-index: 1;
+  width: 26px;
+  height: 26px;
+  opacity: .88;
+}
+/* 数量角标:压在圆章右上,与世界图钉的 __badge 同族(切角小牌 + 等宽数字)。 */
 .mansion-ledger__stock b {
-  color: #e6d9ae;
-  font: 600 13px/1 var(--abyssa-font-display, Georgia, serif);
+  position: absolute;
+  z-index: 2;
+  top: -2px;
+  right: -4px;
+  min-width: 20px;
+  padding: 1px 4px 2px;
+  border: 1px solid var(--abyssa-frame-deep);
+  background: linear-gradient(180deg, #3c4a44, #131b1a);
+  box-shadow: inset 0 1px rgb(255 255 255 / 12%), 0 2px 5px rgb(0 0 0 / 62%);
+  clip-path: polygon(5px 0, 100% 0, 100% 100%, 0 100%, 0 5px);
+  color: #ecd9a4;
+  font: 600 11px/1.1 var(--abyssa-font-display, Georgia, serif);
   font-variant-numeric: tabular-nums;
+  text-align: center;
 }
-.mansion-ledger__stock:hover small { color: #c3d0ce; }
-.mansion-ledger__stock:hover b { color: #fbf0c8; }
-.mansion-ledger__stock:focus-visible { outline: 2px solid #f2eee2; outline-offset: 2px; }
+.mansion-ledger__stock:hover { filter: brightness(1.12) drop-shadow(0 5px 12px rgb(2 6 8 / 52%)); }
+.mansion-ledger__stock:active { transform: translateY(1px); }
+.mansion-ledger__stock:focus-visible { outline: 2px solid #f2eee2; outline-offset: 3px; border-radius: 50%; }
+.mansion-ledger__stock[aria-expanded="true"] .mansion-ledger__stock-plate circle:nth-of-type(2) {
+  fill: #2a3a36;
+}
 
-/* 库存展开层。临时浮层,可以吃点击。 */
-.mansion-stock__list {
-  display: grid;
-  gap: 5px;
-  justify-items: end;
-  padding: 9px 11px;
-  border: 1px solid rgb(128 149 149 / 34%);
-  background: rgb(11 17 19 / 94%);
-  box-shadow: 0 9px 20px rgb(0 0 0 / 34%);
-}
-.mansion-stock__list small { color: #9daaaa; font-size: 9px; white-space: nowrap; }
-.mansion-stock__list b { margin-left: 6px; color: #d6ddd7; font-weight: 600; }
+/* 库存已改为共享的 InventoryDialog(居中模态 + 格位网格),原先那个
+   .mansion-stock__list 下拉层已删除 —— 它是 9 行通用网页样式(1px 边框 +
+   半透明底 + 一条阴影),与全库的三层描边质感不成体系。样式现由
+   shared/ui/styles/items.css 提供,勿在此重建。 */
 
 .mansion-viewport {
   position: absolute;
@@ -785,6 +904,21 @@ button { font: inherit; }
   --marker-glow: rgb(226 204 139 / 64%);
 }
 
+/* 可升级:修缮进度攒满、等玩家付钱升档。金色系 —— 与卡片里的升级键同一色,
+   让「世界上的角标」和「面板里的按钮」认得出是同一件事。会呼吸,因为它和
+   产出一样是「需要玩家处理」的。 */
+.mansion-marker--promote {
+  --marker-fill: #4d3d18;
+  --marker-lit: #8a7134;
+  --marker-shade: #271e0b;
+  --marker-edge: #d5b874;
+  --marker-rim: #f2ddab;
+  --marker-ink: #fdf3d6;
+  --marker-promote-ink: #f7e7b4;
+  --marker-glow: rgb(238 205 122 / 72%);
+  animation: mansion-ready 2s ease-in-out infinite;
+}
+
 /* 角标:产出数量 / 施工剩余相位。统一一套,压在盾牌右下。 */
 .mansion-marker__badge {
   position: absolute;
@@ -947,22 +1081,82 @@ button { font: inherit; }
 }
 .mansion-loading span { width: 8px; height: 8px; border-radius: 50%; background: #8ebdc0; box-shadow: 0 0 10px #8ebdc0; animation: mansion-loading 1s ease-in-out infinite; }
 
-/* 平移键:换成组件库 ArrowButton,自制的 clip-path 假切角与 Georgia 书名号
-   字形一并去掉。只保留位置与「压在世界上」需要的投影。
-
-   必须写成复合选择器:.abyssa-icon-button 自带 position:relative;display:block
-   (components.css),与单类 .mansion-pan-button 特异性相等,谁赢取决于打包
-   顺序 —— 实测输了,两个键退化成文档流里上下堆叠(实测 right 键落在
-   x=-22,y=483)。仓库既有写法同此(.mansion-room-card__close.abyssa-icon-button)。 */
-.mansion-pan-button.abyssa-icon-button {
+/* ============ 边缘平移 ============
+   「暗罩 + 无边框键」。两处刻意:
+     1. 宽度只有 56(上一版 118 太占地,几乎吃掉世界两侧各 7%)
+     2. 暗罩**纵向也渐隐** —— 中段浓、上下淡。上一版是整条 top:0/bottom:0
+        的均匀竖幅,压出两条生硬的黑边;现在用径向渐变把浓度收到视线高度,
+        与画面上下缘自然接上。
+   箭头贴边(靠 justify-items 推到外侧),不居中 —— 居中会让它看起来像个
+   悬浮按钮,贴边才读作「画面继续往那边去」。 */
+.mansion-pan-edge {
   position: absolute;
   z-index: 300;
-  top: 50%;
-  transform: translateY(-50%);
-  filter: drop-shadow(0 6px 14px rgb(0 0 0 / 46%));
+  top: 0;
+  bottom: 0;
+  display: grid;
+  width: 56px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: rgb(226 236 233 / 0%);
+  cursor: pointer;
+  align-items: center;
+  transition: color 200ms var(--abyssa-ease, ease);
 }
-.mansion-pan-button--left.abyssa-icon-button { left: 22px; }
-.mansion-pan-button--right.abyssa-icon-button { right: 22px; }
+/* 暗罩画在伪元素上,hover 只改箭头,不重绘渐变。
+   ellipse 而非 circle:circle 只接受单个长度,写百分比会让整条
+   background 声明被丢弃(这个坑踩过)。 */
+.mansion-pan-edge::before {
+  position: absolute;
+  inset: 0;
+  content: "";
+  pointer-events: none;
+  transition: opacity 200ms var(--abyssa-ease, ease);
+}
+.mansion-pan-edge--left {
+  left: 0;
+  justify-items: start;
+  padding-left: 5px;
+}
+.mansion-pan-edge--right {
+  right: 0;
+  justify-items: end;
+  padding-right: 5px;
+}
+.mansion-pan-edge--left::before {
+  background: radial-gradient(ellipse 100% 58% at 0% 50%, rgb(3 7 8 / 62%), rgb(3 7 8 / 22%) 58%, transparent 82%);
+}
+.mansion-pan-edge--right::before {
+  background: radial-gradient(ellipse 100% 58% at 100% 50%, rgb(3 7 8 / 62%), rgb(3 7 8 / 22%) 58%, transparent 82%);
+}
+.mansion-pan-edge svg {
+  position: relative;
+  z-index: 1;
+  width: 19px;
+  height: 34px;
+  fill: none;
+  filter: drop-shadow(0 2px 5px rgb(0 0 0 / 82%));
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.4;
+}
+/* 常态半隐,hover 才完全显形 —— 免得两枚箭头常驻抢戏。 */
+.mansion-pan-edge:not(:disabled) { color: rgb(226 236 233 / 46%); }
+.mansion-pan-edge:not(:disabled):hover { color: rgb(240 248 245 / 94%); }
+.mansion-pan-edge:not(:disabled):hover::before { opacity: 1.3; }
+.mansion-pan-edge:active:not(:disabled) svg { transform: scale(.9); }
+.mansion-pan-edge:focus-visible {
+  outline: 2px solid var(--abyssa-focus, #e9eeee);
+  outline-offset: -5px;
+}
+/* 到头了:箭头与暗罩一起隐去,热区保留(不跳布局)。 */
+.mansion-pan-edge:disabled {
+  color: rgb(226 236 233 / 0%);
+  cursor: default;
+}
+.mansion-pan-edge:disabled::before { opacity: .3; }
 
 /* ============ 房间抽屉 ============
    自然画幅的固定卡片,**不拉伸**:高度由内容决定。
@@ -972,19 +1166,26 @@ button { font: inherit; }
 
    上限与位置不是拍的,是算出来的可用竖带。相位栏移到顶部中央后,右下腾空,
    抽屉的竖带只被右上资源铭牌挡住:
-     铭牌底 = top24 + 牌面173 + 下沉4 = 201(库存已收进牌内,不再外挂)
-     留 14 间隙 -> 安全带 215..876(下缘留 24 边距)
-     带中心 = 545,带高 = 661
-   故抽屉居中于 539(不是画布中心 450)并以 674 为上限 —— 这样既不碰铭牌,
-   也把腾出来的空间真正用上(上一版因右下有相位簇,上限只有 580)。
-   若日后改动铭牌高度,必须重算这两个值。 */
+     铭牌底 = top24 + 牌面111 = 135(库存键改成圆章后挂在铭牌**左侧**,
+       竖向居中于牌面之内,不再往下堆高度;它仍是牌面之外的兄弟节点,
+       测试 MansionPage.test.tsx 断言了这一点)
+     留 14 间隙 -> 安全带 149..876(下缘留 24 边距)
+     带中心 = 512,带高 = 727
+   故抽屉居中于 522 并以 620 为上限 —— 既不碰铭牌,也把右下腾出的空间用上。
+   若日后改动铭牌或库存键高度,必须重算这两个值。
+
+   注:上一版此处写「牌面173 … 库存已收进牌内,不再外挂」,与代码不符 ——
+   MansionLedger 的 H 是 111,且库存键始终外挂。已按实测更正。 */
 .mansion-room-drawer {
-  --mansion-drawer-max-h: 620px;
+  /* 安全带 188..876(高 688)。留 24 余量 -> 上限 664。 */
+  --mansion-drawer-max-h: 664px;
   --mansion-drawer-enter-x: 16px;
   position: absolute;
   z-index: 500;
-  top: 522px;
-  width: 410px;
+  top: 532px;
+  /* 410 太窄:8px 的标签、11px 的正文都是被宽度逼出来的。加到 468 后
+     字号才能提到可读区间(标签 10.5 / 正文 12.5),且不会挤压驻在头像。 */
+  width: 468px;
   max-height: var(--mansion-drawer-max-h);
   transform: translateY(-50%);
   filter: drop-shadow(0 20px 34px rgb(0 0 0 / 46%));
@@ -1002,35 +1203,46 @@ button { font: inherit; }
   background: rgb(10 15 16 / 98%);
 }
 .mansion-room-card[data-padding="md"] > .abyssa-frame__content {
+  /* ---- 字号阶梯(唯一来源) ----
+     原先是 7/8/9/11/24 的散值,7px 在缩放后几乎不可读,那是"网页小字"惯性。
+     现在收成四档,最小 10.5 —— 画布会整体缩放,10.5 已是下限。 */
+  --room-label: 10.5px;   /* 分区标签:房间职能 / 生活痕迹 / 当前驻在 */
+  --room-body: 12.5px;    /* 正文 */
+  --room-meta: 11px;      /* 次要信息 */
+  --room-title: 26px;     /* 房间名 */
   display: flex;
   max-height: var(--mansion-drawer-max-h);
   flex-direction: column;
   /* 固定画布还会整体缩放；这里必须给足设计尺寸，不能被 Frame 的
      data-padding 规则覆盖成 0，否则视觉上内容会直接贴到装饰边框。 */
-  padding: 28px;
+  padding: 30px 30px 28px;
+  gap: 0;
   overflow: auto;
 }
-.mansion-room-card__close.abyssa-icon-button {
+/* 关闭键骑在卡片右上角**外沿**,不内嵌。
+   原先是 top/right: 8px 的板内内嵌,并把 IconButton 从 66px 硬压到 27px ——
+   两个问题:内嵌会顶占标题行、与标题抢基线;而 27px 让那套按 86/76/66 画的
+   三层描边(9/5/2)糊成一团。现在改令牌降一号,SVG 等比重绘,描边保持锐利。
+   卡片自身不能 overflow:hidden,否则负偏移会被裁掉(见 __close 的 z-index)。 */
+.mansion-room-card__close.abyssa-icon-button[data-size] {
   position: absolute;
-  z-index: 5;
-  top: 8px;
-  right: 8px;
-  width: 27px;
-  min-width: 27px;
-  height: 27px;
+  z-index: 6;
+  top: -22px;
+  right: -22px;
+  --abyssa-icon-size: 56px;
 }
 .mansion-room-card__hero {
   display: grid;
-  grid-template-columns: 148px minmax(0, 1fr);
+  grid-template-columns: 168px minmax(0, 1fr);
   align-items: stretch;
-  gap: 14px;
-  padding: 0 27px 14px 0;
+  gap: 16px;
+  padding: 0 22px 16px 0;
   border-bottom: 1px solid rgb(113 137 136 / 42%);
 }
 .mansion-room-card__preview {
   position: relative;
-  width: 148px;
-  height: 94px;
+  width: 168px;
+  height: 106px;
   overflow: hidden;
   border: 1px solid #687878;
   background: #080d0e;
@@ -1065,7 +1277,7 @@ button { font: inherit; }
   right: 8px;
   bottom: 6px;
   color: rgb(221 228 218 / 62%);
-  font: 600 7px/1 var(--abyssa-font-display, Georgia, serif);
+  font: 600 8.5px/1 var(--abyssa-font-display, Georgia, serif);
   letter-spacing: .2em;
 }
 .mansion-room-card__identity { min-width: 0; padding-top: 4px; }
@@ -1073,23 +1285,23 @@ button { font: inherit; }
   display: block;
   overflow: hidden;
   color: #829a9b;
-  font: 600 9px/1.2 var(--abyssa-font-display, Georgia, serif);
+  font: 600 var(--room-label, 10.5px)/1.25 var(--abyssa-font-display, Georgia, serif);
   letter-spacing: .17em;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 .mansion-room-card__identity h2 {
-  margin: 7px 0 0;
+  margin: 8px 0 0;
   overflow: hidden;
   color: #eee3c7;
-  font-size: 24px;
+  font-size: var(--room-title, 26px);
   font-weight: 600;
   letter-spacing: .1em;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 .mansion-room-card__residents { display: flex; align-items: center; gap: 10px; margin-top: 12px; }
-.mansion-room-card__residents > span { color: #7e8f8f; font-size: 8px; letter-spacing: .13em; white-space: nowrap; }
+.mansion-room-card__residents > span { color: #8b9c9c; font-size: var(--room-label, 10.5px); letter-spacing: .13em; white-space: nowrap; }
 .mansion-room-card__resident-list { display: flex; align-items: center; min-height: 34px; padding-left: 3px; }
 .mansion-room-card__resident-avatar {
   position: relative;
@@ -1107,35 +1319,292 @@ button { font: inherit; }
 .mansion-room-card__resident-placeholder { display: grid; width: 100%; height: 100%; place-items: center; }
 .mansion-room-card__resident-placeholder svg { width: 24px; height: 24px; fill: rgb(139 156 154 / 18%); stroke: #879796; stroke-width: 1.5; }
 .mansion-room-card__resident-empty { color: #667676; font-size: 9px; letter-spacing: .08em; }
-.mansion-room-card__brief { margin-top: 13px; }
+.mansion-room-card__brief { margin-top: 18px; }
+/* 分区标签:统一 10.5,并加一条短横当分节符,替代原先靠字号差硬撑的层级。 */
 .mansion-room-card__brief > small,
-.mansion-room-card__trace > small { color: #a99360; font-size: 8px; letter-spacing: .18em; }
-.mansion-room-card__description { margin: 6px 0 0; color: #c3cbc6; font-size: 11px; line-height: 1.68; }
+.mansion-room-card__trace > small {
+  color: #b9a271;
+  font-family: var(--abyssa-font-display, Georgia, serif);
+  font-size: var(--room-label, 10.5px);
+  font-weight: 600;
+  letter-spacing: .2em;
+}
+.mansion-room-card__description { margin: 8px 0 0; color: #cdd5cf; font-size: var(--room-body, 12.5px); line-height: 1.85; }
 .mansion-room-card__warning,
-.mansion-room-card__provisional { margin-top: 11px; padding: 7px 9px; border: 1px solid #86515a; color: #e1a8ae; background: rgb(104 35 46 / 16%); font-size: 9px; letter-spacing: .08em; }
+.mansion-room-card__provisional { margin-top: 16px; padding: 9px 12px; border: 1px solid #86515a; color: #e8b5ba; background: rgb(104 35 46 / 16%); font-size: var(--room-meta, 11px); letter-spacing: .08em; line-height: 1.5; }
 .mansion-room-card__provisional { border-color: #837358; color: #d2c19c; background: rgb(104 86 48 / 14%); }
-.mansion-room-card__trace { margin-top: 11px; padding: 10px 11px; border: 1px solid #354345; background: rgb(6 11 12 / 52%); box-shadow: inset 3px 0 #7b6d47; }
+.mansion-room-card__trace { margin-top: 16px; padding: 13px 15px; border: 1px solid #354345; background: rgb(6 11 12 / 52%); box-shadow: inset 3px 0 #7b6d47; }
 .mansion-room-card__trace > small { display: flex; align-items: center; gap: 7px; }
 .mansion-room-card__trace > small i { width: 6px; height: 6px; border: 1px solid #baa46d; background: #4d452f; transform: rotate(45deg); }
-.mansion-room-card__trace p { margin: 6px 0 0; color: #aeb8b5; font-size: 10px; line-height: 1.62; }
-.mansion-room-card__progress { margin-top: 12px; }
-.mansion-room-card__progress .abyssa-progress-group__meta { font-size: 9px; }
-.mansion-room-card__collect { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; padding: 7px 9px; border: 1px solid #4b6561; color: #bdcfc6; background: linear-gradient(90deg, #142321, #1b302d); cursor: pointer; }
-.mansion-room-card__collect:hover:not(:disabled) { border-color: #9fc7b8; filter: brightness(1.12); }
-.mansion-room-card__collect:disabled { opacity: .45; cursor: default; }
-.mansion-room-card__collect span { font-size: 8px; letter-spacing: .13em; }
-.mansion-room-card__collect strong { font-size: 10px; }
-.mansion-room-card__footer { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; margin-top: 12px; padding-top: 11px; border-top: 1px solid rgb(93 111 110 / 38%); }
-.mansion-room-card__fund-note { color: #6f7f7f; font-size: 8px; line-height: 1.55; white-space: nowrap; }
+.mansion-room-card__trace p { margin: 8px 0 0; color: #b8c2be; font-size: var(--room-meta, 11px); font-style: italic; line-height: 1.78; }
+/* ============ 设施档位 ============
+   四格离散刻度,固定在卡片最底部(收取项之上、修缮键之上)。
+   原先是通用 Progress + `level*25` 折算的百分比 —— 档位是 1..4 的序数,
+   不是完成度;而且 7px 高的圆角细条 + "25%" 文本是典型网页 meter 观感。
+   刻面做法与顶部相位刻度同源:斜面高光 + 内陷槽,点亮到当前档。 */
+.mansion-room-card__tier {
+  display: grid;
+  align-items: center;
+  margin-top: 18px;
+  padding: 11px 13px;
+  border: 1px solid rgb(126 150 145 / 22%);
+  background: linear-gradient(180deg, rgb(255 255 255 / 3%), rgb(0 0 0 / 16%));
+  box-shadow: inset 0 1px rgb(255 255 255 / 7%), inset 0 -1px rgb(0 0 0 / 34%);
+  gap: 9px 12px;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+}
+/* 第二行(修缮进度)与第一行(档位)共用同一套三栏,标签因此天然对齐。 */
+.mansion-room-card__tier-label {
+  color: #b9a271;
+  font-family: var(--abyssa-font-display, Georgia, serif);
+  font-size: var(--room-label, 10.5px);
+  font-weight: 600;
+  letter-spacing: .2em;
+  white-space: nowrap;
+}
+/* 刻面直接并排,**不套外层凹槽**。
+   上一版是 13px 高的槽 + 2px padding,里面塞 7px 高的刻面 —— 于是看起来像
+   "一条大进度条里又嵌了一条小的",实测外 13 内 7。档位只有一个量,不该出现
+   两层条。现在每格自带凹陷底,靠 gap 分段,只有一层。 */
+.mansion-room-card__tier-track {
+  display: grid;
+  height: 14px;
+  gap: 4px;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+}
+.mansion-room-card__tier-track i {
+  display: block;
+  border: 1px solid rgb(6 11 12 / 72%);
+  background: rgb(255 255 255 / 4%);
+  box-shadow: inset 0 1px 2px rgb(0 0 0 / 52%);
+}
+/* 点亮档:暖金渐变 + 上缘高光,与修缮键的金属色系一致。 */
+.mansion-room-card__tier-track i[data-on] {
+  border-color: #6d5c2e;
+  background: linear-gradient(180deg, #d8c78d 0%, #b39a5c 44%, #8a743c 100%);
+  box-shadow:
+    inset 0 1px rgb(255 245 210 / 62%),
+    inset 0 -1px rgb(74 58 24 / 72%),
+    0 0 5px rgb(190 163 96 / 30%);
+}
+.mansion-room-card__tier-value {
+  display: flex;
+  align-items: baseline;
+  color: #8d9b96;
+  font-family: var(--abyssa-font-display, Georgia, serif);
+  font-size: 9.5px;
+  letter-spacing: .14em;
+  gap: 3px;
+  white-space: nowrap;
+}
+.mansion-room-card__tier-value em {
+  color: #7e8c88;
+  font-size: 9.5px;
+  font-style: normal;
+  letter-spacing: .14em;
+}
+.mansion-room-card__tier-value b {
+  color: #ecd9a4;
+  font-size: 16px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+/* 「/4」压低压淡:它是上限参照,不该和当前档抢读。 */
+.mansion-room-card__tier-value s {
+  color: #6d7a76;
+  font-size: 10px;
+  letter-spacing: 0;
+  text-decoration: none;
+}
+
+/* ---- 第二行:修缮进度 ---- */
+/* 视觉上比档位行**轻一档**:标签变冷色、刻面更矮、点亮色改青灰。
+   两行必须能一眼分清是两个量,否则又变成「大条下面套小条」。 */
+.mansion-room-card__tier-label[data-sub] {
+  color: #7f9490;
+  font-size: 9.5px;
+  letter-spacing: .18em;
+}
+.mansion-room-card__tier-track[data-sub] { height: 9px; }
+.mansion-room-card__tier-track[data-sub] i[data-on] {
+  border-color: #3d5b58;
+  background: linear-gradient(180deg, #9fc8bd 0%, #6f9e95 46%, #4c7570 100%);
+  box-shadow:
+    inset 0 1px rgb(224 245 240 / 52%),
+    inset 0 -1px rgb(28 48 46 / 68%),
+    0 0 4px rgb(120 186 176 / 26%);
+}
+/* 正在施工的那一格:呼吸,表示「这格还没到手」。 */
+.mansion-room-card__tier-track[data-sub] i[data-busy] {
+  background: linear-gradient(180deg, rgb(159 200 189 / 34%), rgb(76 117 112 / 34%));
+  animation: mansion-repair-pulse 1.5s ease-in-out infinite;
+}
+@keyframes mansion-repair-pulse {
+  0%, 100% { opacity: .4; }
+  50% { opacity: .92; }
+}
+.mansion-room-card__tier-value[data-sub] { font-size: 9px; }
+.mansion-room-card__tier-value[data-sub] b { color: #b6cfc9; font-size: 12.5px; }
+.mansion-room-card__tier-value[data-sub] s { font-size: 9px; }
+
+/* ============ 升级建筑 ============
+   只在修缮进度满格时出现,取代修缮键的位置。金色系、比修缮键更亮 ——
+   它是阶段性成果的兑现,应当显眼。 */
+.mansion-room-card__promote {
+  position: relative;
+  display: grid;
+  min-width: 178px;
+  height: 44px;
+  align-items: center;
+  padding: 3px 12px 3px 6px;
+  border: 1px solid #c2a45c;
+  clip-path: polygon(7px 0, calc(100% - 7px) 0, 100% 7px, 100% calc(100% - 7px), calc(100% - 7px) 100%, 7px 100%, 0 calc(100% - 7px), 0 7px);
+  color: #fdf3d6;
+  background: linear-gradient(180deg, #6a5526 0%, #5a4720 26%, #4a3a17 58%, #33280f 100%);
+  box-shadow:
+    inset 0 0 0 2px #211a09,
+    inset 0 0 0 3px rgb(226 197 122 / 52%),
+    0 0 12px rgb(206 172 92 / 28%);
+  cursor: pointer;
+  gap: 8px;
+  grid-template-columns: 28px auto auto;
+  animation: mansion-promote-ready 2.4s ease-in-out infinite;
+}
+@keyframes mansion-promote-ready {
+  0%, 100% { box-shadow: inset 0 0 0 2px #211a09, inset 0 0 0 3px rgb(226 197 122 / 52%), 0 0 10px rgb(206 172 92 / 22%); }
+  50% { box-shadow: inset 0 0 0 2px #211a09, inset 0 0 0 3px rgb(240 214 148 / 68%), 0 0 17px rgb(224 190 110 / 44%); }
+}
+.mansion-room-card__promote-icon { display: grid; width: 28px; height: 28px; place-items: center; }
+.mansion-room-card__promote-icon svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: #f5e3b0;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.2;
+}
+.mansion-room-card__promote strong {
+  font-size: var(--room-body, 12.5px);
+  font-weight: 600;
+  letter-spacing: .12em;
+  white-space: nowrap;
+}
+.mansion-room-card__promote small {
+  color: #d8c48a;
+  font-family: var(--abyssa-font-display, Georgia, serif);
+  font-size: 10px;
+  white-space: nowrap;
+}
+.mansion-room-card__promote:hover { filter: brightness(1.12); }
+.mansion-room-card__promote:focus-visible { outline: 2px solid #f7f0dd; outline-offset: 3px; }
+.mansion-room-card__promote:active { filter: brightness(.95); }
+@media (prefers-reduced-motion: reduce) {
+  .mansion-room-card__promote,
+  .mansion-room-card__tier-track[data-sub] i[data-busy] { animation: none; }
+}
+
+.mansion-room-card__collect {
+  display: grid;
+  width: 100%;
+  height: 40px;
+  align-items: center;
+  padding: 0 10px 0 12px;
+  border: 0;
+  border-left: 2px solid #6f7f5a;
+  background: rgb(255 255 255 / 3%);
+  color: #c1cbc4;
+  cursor: pointer;
+  gap: 11px;
+  grid-template-columns: 20px minmax(0, 1fr) auto auto;
+  text-align: left;
+  transition: background 130ms var(--abyssa-ease, ease), color 130ms var(--abyssa-ease, ease);
+}
+/* 多条收取项时:相邻两行之间一条细线,不留间距,读成一张表。 */
+.mansion-room-card__collect + .mansion-room-card__collect {
+  border-top: 1px solid rgb(126 150 145 / 16%);
+}
+.mansion-room-card__collect-glyph {
+  width: 20px;
+  height: 20px;
+  background: currentColor;
+  mask-position: center;
+  mask-repeat: no-repeat;
+  mask-size: contain;
+  opacity: .82;
+}
+.mansion-room-card__collect-name {
+  overflow: hidden;
+  color: #dbe5dd;
+  font-size: var(--room-body, 12.5px);
+  letter-spacing: .05em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.mansion-room-card__collect-amount {
+  display: flex;
+  align-items: baseline;
+  color: #e2d3a6;
+  font-family: var(--abyssa-font-display, Georgia, serif);
+  font-size: 13.5px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  gap: 1px;
+}
+.mansion-room-card__collect-amount i {
+  color: #93a09a;
+  font-size: 9.5px;
+  font-style: normal;
+}
+/* 状态字:定宽,就绪/已收切换时不引起重排。 */
+.mansion-room-card__collect-state {
+  width: 30px;
+  color: #8b9993;
+  font-family: var(--abyssa-font-display, Georgia, serif);
+  font-size: 10px;
+  letter-spacing: .12em;
+  text-align: right;
+}
+.mansion-room-card__collect[data-ready] { border-left-color: #a8b878; }
+.mansion-room-card__collect[data-ready] .mansion-room-card__collect-state { color: #cfdc9e; }
+.mansion-room-card__collect:hover:not(:disabled) {
+  background: rgb(255 255 255 / 7%);
+  color: #dde6df;
+}
+.mansion-room-card__collect:focus-visible { outline: 2px solid #eef4f1; outline-offset: 2px; }
+.mansion-room-card__collect:disabled {
+  border-left-color: #414c4a;
+  color: #74817d;
+  cursor: default;
+}
+.mansion-room-card__collect:disabled .mansion-room-card__collect-glyph { opacity: .42; }
+.mansion-room-card__collect:disabled .mansion-room-card__collect-amount { color: #8b9490; }
+
+/* 收取区外层:给"本相位产出"一个标签,并容纳未来多条。 */
+.mansion-room-card__harvest { margin-top: 16px; }
+.mansion-room-card__harvest > small {
+  display: block;
+  margin-bottom: 7px;
+  color: #b9a271;
+  font-family: var(--abyssa-font-display, Georgia, serif);
+  font-size: var(--room-label, 10.5px);
+  font-weight: 600;
+  letter-spacing: .2em;
+}
+
+.mansion-room-card__footer { display: flex; align-items: flex-end; justify-content: space-between; gap: 14px; margin-top: auto; padding-top: 16px; border-top: 1px solid rgb(93 111 110 / 38%); }
+.mansion-room-card__fund-note { color: #7d8d8d; font-size: 10px; line-height: 1.65; white-space: nowrap; }
 .mansion-room-card__actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 7px; }
-.mansion-room-card__action.abyssa-notched-pill { width: 145px; height: 38px; }
+.mansion-room-card__action.abyssa-notched-pill { width: 158px; height: 42px; }
 .mansion-room-card__repair {
   position: relative;
   display: grid;
   grid-template-columns: 29px auto auto;
   align-items: center;
-  min-width: 164px;
-  height: 40px;
+  min-width: 178px;
+  height: 44px;
   padding: 3px 10px 3px 5px;
   border: 1px solid #88784f;
   clip-path: polygon(7px 0, calc(100% - 7px) 0, 100% 7px, 100% calc(100% - 7px), calc(100% - 7px) 100%, 7px 100%, 0 calc(100% - 7px), 0 7px);
@@ -1151,8 +1620,8 @@ button { font: inherit; }
 .mansion-room-card__repair:disabled { opacity: .52; cursor: default; }
 .mansion-room-card__repair-icon { width: 29px; height: 29px; }
 .mansion-room-card__repair-icon svg { display: block; width: 100%; height: 100%; }
-.mansion-room-card__repair strong { font-size: 11px; font-weight: 600; letter-spacing: .12em; white-space: nowrap; }
-.mansion-room-card__repair > small { color: #a6b2ad; font-size: 9px; white-space: nowrap; }
+.mansion-room-card__repair strong { font-size: var(--room-body, 12.5px); font-weight: 600; letter-spacing: .12em; white-space: nowrap; }
+.mansion-room-card__repair > small { color: #b0bcb7; font-size: var(--room-meta, 11px); white-space: nowrap; }
 .mansion-room-card__repair .abyssa-currency-amount { color: #e0c67f; font-family: var(--abyssa-font-display, Georgia, serif); font-size: 11px; font-weight: 600; gap: 5px; }
 .mansion-room-card__repair .abyssa-currency-amount i { width: 14px; height: 14px; }
 
@@ -1181,30 +1650,15 @@ button { font: inherit; }
   background: linear-gradient(180deg, transparent, rgb(4 7 7 / 44%) 58%, rgb(4 7 7 / 82%));
 }
 .mansion-adv-dialogue .rp-adv__dialogue { bottom: 48px; }
-.mansion-adv-dialogue__close {
+/* 统一到素材库的 IconButton icon="close",与房间面板、库存弹窗同款。
+   原先这里自绘了一个无边框半透明圆 + Arial 的 × 字符,在立绘上几乎看不清,
+   hover 还用 scale(1.04) 放大 —— 与其他面板完全不是一套。 */
+.mansion-adv-dialogue__close.abyssa-icon-button[data-size] {
   position: absolute;
   z-index: 12;
-  top: 20px;
-  right: 24px;
-  width: 42px;
-  height: 42px;
-  padding: 0;
-  border: 0;
-  color: rgb(220 229 225 / 78%);
-  background: rgb(6 10 11 / 34%);
-  border-radius: 50%;
-  cursor: pointer;
-  font: 300 32px/38px Arial, sans-serif;
-  transition: color 160ms ease, background-color 160ms ease, transform 160ms ease;
-}
-.mansion-adv-dialogue__close:hover {
-  color: #fff;
-  background: rgb(6 10 11 / 64%);
-  transform: scale(1.04);
-}
-.mansion-adv-dialogue__close:focus-visible {
-  outline: 2px solid rgb(205 226 221 / 76%);
-  outline-offset: 3px;
+  top: 18px;
+  right: 22px;
+  --abyssa-icon-size: 44px;
 }
 .mansion-adv-dialogue__cue {
   position: absolute;
@@ -1297,6 +1751,7 @@ button { font: inherit; }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .mansion-marker--promote,
   .mansion-marker--production,
   .mansion-light,
   .mansion-loading span,

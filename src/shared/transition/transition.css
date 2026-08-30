@@ -1,0 +1,465 @@
+/* ===== 场景交接黑幕 =====
+   视觉主体直接采用六个独立平面组成的旋转体。特别注意：任何 filter、
+   backdrop-filter 或 opacity 都不能挂在 spinner / spinner-wrap 上；这些分组
+   属性会把 preserve-3d 子面压成一张平面。 */
+
+.scene-transition {
+  --transition-line: 167 183 180;
+  --transition-teal: 114 179 183;
+  position: fixed;
+  inset: 0;
+  z-index: 2147483647;
+  overflow: hidden;
+  color: rgb(var(--transition-line));
+  font-family: var(--abyssa-font-body, "Noto Serif SC", "Songti SC", serif);
+  pointer-events: none;
+  visibility: hidden;
+  contain: strict;
+}
+
+.scene-transition[data-active] {
+  visibility: visible;
+  pointer-events: auto;
+  cursor: wait;
+}
+
+.scene-transition__veil {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 50% 48%, rgb(18 35 35 / 72%) 0%, rgb(5 12 13 / 94%) 31%, #030607 70%),
+    #030607;
+  opacity: 0;
+  transition: opacity 420ms var(--abyssa-ease, cubic-bezier(.2, .7, .2, 1));
+}
+
+.scene-transition[data-phase="closing"] .scene-transition__veil,
+.scene-transition[data-phase="closed"] .scene-transition__veil {
+  opacity: 1;
+}
+
+.scene-transition[data-phase="opening"] .scene-transition__veil {
+  opacity: 0;
+  transition-duration: 520ms;
+  transition-delay: 70ms;
+}
+
+.scene-transition__content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: min(282px, calc(100vw - 44px));
+  opacity: 0;
+  transform: translate(-50%, calc(-50% + 6px));
+  transition: opacity 150ms linear, transform 220ms ease-out;
+}
+
+.scene-transition[data-phase="closing"] .scene-transition__content {
+  opacity: 1;
+  transform: translate(-50%, -50%);
+  transition-delay: 270ms;
+}
+
+.scene-transition[data-phase="closed"] .scene-transition__content {
+  opacity: 1;
+  transform: translate(-50%, -50%);
+}
+
+.scene-transition[data-phase="opening"] .scene-transition__content {
+  opacity: 0;
+  transform: translate(-50%, calc(-50% - 4px));
+  transition-duration: 130ms;
+}
+
+.scene-transition__plaque.abyssa-frame {
+  --abyssa-frame-surface: #101718;
+  --abyssa-frame-ink: #bdcbc8;
+  --abyssa-frame-dark: #090f10;
+  --abyssa-frame-deep: #030708;
+  --abyssa-frame-light: rgb(135 155 153 / 46%);
+  --abyssa-ornament: rgb(107 137 135 / 54%);
+  --abyssa-ornament-light: rgb(157 183 180 / 58%);
+  --abyssa-watermark-outer: rgb(126 175 174 / 5.5%);
+  --abyssa-watermark-inner: rgb(190 207 203 / 2.8%);
+  width: 100%;
+  min-height: 180px;
+  border-color: rgb(2 7 8 / 96%);
+  background: rgb(6 11 12 / 96%);
+  box-shadow:
+    0 0 0 1px rgb(126 151 149 / 32%),
+    0 0 0 4px rgb(4 9 10 / 96%),
+    0 12px 28px rgb(0 0 0 / 42%);
+}
+
+.scene-transition__plaque.abyssa-frame::before {
+  inset: 5px;
+  border-color: rgb(128 157 154 / 30%);
+  background:
+    radial-gradient(circle at 50% 30%, rgb(84 133 133 / 8%), transparent 50%),
+    linear-gradient(180deg, rgb(255 255 255 / 1.5%), transparent 38%),
+    var(--abyssa-frame-surface);
+  box-shadow:
+    inset 0 0 0 1px rgb(0 0 0 / 54%),
+    inset 0 0 28px rgb(0 0 0 / 28%);
+}
+
+.scene-transition__plaque > .abyssa-frame__watermark {
+  inset: 6px;
+  width: calc(100% - 12px);
+  height: calc(100% - 12px);
+  opacity: .74;
+}
+
+.scene-transition__plaque > .abyssa-frame__ornaments {
+  inset: 8px;
+}
+
+.scene-transition__plaque > .abyssa-frame__ornaments i {
+  width: 14px;
+  height: 14px;
+  border-color: rgb(150 178 175 / 50%);
+  opacity: .72;
+}
+
+.scene-transition__plaque-body {
+  position: relative;
+  display: grid;
+  min-height: 180px;
+  padding: 17px 24px 17px;
+  grid-template-rows: 84px minmax(0, 1fr);
+  justify-items: center;
+  align-items: center;
+}
+
+.scene-transition__plaque-body::after {
+  position: absolute;
+  top: 101px;
+  right: 31px;
+  left: 31px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgb(117 154 152 / 32%) 21%, rgb(167 188 185 / 46%) 50%, rgb(117 154 152 / 32%) 79%, transparent);
+  content: "";
+}
+
+.scene-transition__plaque-index {
+  position: absolute;
+  top: 7px;
+  left: 50%;
+  z-index: 2;
+  width: 42px;
+  height: 7px;
+  transform: translateX(-50%);
+}
+
+.scene-transition__plaque-index::before,
+.scene-transition__plaque-index::after {
+  position: absolute;
+  top: 3px;
+  width: 16px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgb(147 175 172 / 54%));
+  content: "";
+}
+
+.scene-transition__plaque-index::before { left: 0; }
+.scene-transition__plaque-index::after { right: 0; transform: scaleX(-1); }
+
+.scene-transition__plaque-index i {
+  position: absolute;
+  top: 1px;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  border: 1px solid rgb(157 183 180 / 64%);
+  transform: translateX(-50%) rotate(45deg);
+}
+
+.scene-transition__spinner-wrap {
+  width: 76px;
+  height: 76px;
+  perspective: 440px;
+  perspective-origin: 50% 50%;
+}
+
+.scene-transition__spinner {
+  position: relative;
+  width: 68px;
+  height: 68px;
+  margin: 4px;
+  animation: scene-transition-spinner 1.55s infinite linear;
+  animation-play-state: paused;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.scene-transition[data-phase="closing"] .scene-transition__spinner,
+.scene-transition[data-phase="closed"] .scene-transition__spinner {
+  animation-play-state: running;
+}
+
+.scene-transition__spinner > div {
+  position: absolute;
+  inset: 0;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  border: 2px solid rgb(var(--transition-line) / 64%);
+  border-radius: 50%;
+  background-color: rgb(var(--transition-teal) / 4.5%);
+  box-shadow:
+    inset 0 0 0 1px rgb(3 8 9 / 58%),
+    inset 0 0 14px rgb(var(--transition-teal) / 3%);
+  backface-visibility: visible;
+}
+
+/* 六个平面严格对应立方体的前后、左右、上下；34px 是 68px 边长的一半。 */
+.scene-transition__spinner > div[data-plane="back"] {
+  transform: rotateY(180deg) translateZ(34px);
+}
+
+.scene-transition__spinner > div[data-plane="right"] {
+  transform: rotateY(90deg) translateZ(34px);
+  border-color: rgb(var(--transition-teal) / 58%);
+}
+
+.scene-transition__spinner > div[data-plane="left"] {
+  transform: rotateY(-90deg) translateZ(34px);
+  border-color: rgb(var(--transition-line) / 48%);
+}
+
+.scene-transition__spinner > div[data-plane="top"] {
+  transform: rotateX(90deg) translateZ(34px);
+  border-color: rgb(195 207 203 / 70%);
+}
+
+.scene-transition__spinner > div[data-plane="bottom"] {
+  transform: rotateX(-90deg) translateZ(34px);
+  border-color: rgb(91 119 116 / 52%);
+}
+
+.scene-transition__spinner > div[data-plane="front"] {
+  transform: translateZ(34px);
+}
+
+.scene-transition__copy {
+  display: grid;
+  justify-items: center;
+  align-self: end;
+  text-align: center;
+  text-shadow: 0 2px 4px rgb(0 0 0 / 72%);
+}
+
+.scene-transition__channel {
+  margin-bottom: 5px;
+  color: rgb(145 167 163 / 60%);
+  font-size: 9px;
+  font-weight: 400;
+  letter-spacing: .2em;
+}
+
+.scene-transition__destination {
+  color: #bdcbc8;
+  font-size: clamp(14px, 1.05vw, 16px);
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: .1em;
+}
+
+.scene-transition__activity {
+  display: flex;
+  gap: 6px;
+  margin-top: 13px;
+}
+
+.scene-transition__activity i {
+  display: block;
+  width: 3px;
+  height: 3px;
+  transform: rotate(45deg);
+  background: rgb(var(--transition-teal) / 32%);
+  animation: scene-transition-activity 1.35s steps(1, end) infinite;
+}
+
+.scene-transition__activity i:nth-child(2) { animation-delay: 225ms; }
+.scene-transition__activity i:nth-child(3) { animation-delay: 450ms; }
+
+.scene-transition__sr-status {
+  position: fixed;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ===== 场景抵达标题 =====
+   来自 loading lab 原 scene-caption 的视觉语法。它属于背景层而非业务面板，
+   所以只做横向短移与淡入淡出，绝不参与 panel-drop 的纵向位移。 */
+.scene-arrival {
+  --scene-arrival-rgb: 158 207 201;
+  position: absolute;
+  top: clamp(28px, 5vw, 72px);
+  left: clamp(28px, 5vw, 76px);
+  z-index: 3;
+  display: grid;
+  gap: 8px;
+  min-width: 280px;
+  padding: 11px 0 12px 18px;
+  border-left: 2px solid rgb(var(--scene-arrival-rgb) / 52%);
+  opacity: 0;
+  color: rgb(220 229 226 / 88%);
+  font-family: var(--abyssa-font-body, "Noto Serif SC", "Songti SC", serif);
+  pointer-events: none;
+  text-shadow: 0 2px 20px #000, 0 1px 3px rgb(0 0 0 / 78%);
+  transform: translateX(-16px);
+}
+
+.abyssa-stage__canvas > .scene-arrival {
+  top: 64px;
+  left: 76px;
+}
+
+.scene-arrival[data-tone="gold"] {
+  --scene-arrival-rgb: 208 174 106;
+  color: rgb(234 218 184 / 92%);
+}
+
+.scene-arrival[data-static] {
+  opacity: 1;
+  transform: none;
+}
+
+.scene-arrival__eyebrow {
+  color: rgb(var(--scene-arrival-rgb) / 68%);
+  font: 600 10px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+  letter-spacing: .28em;
+}
+
+.scene-arrival__title {
+  font-size: clamp(23px, 2vw, 34px);
+  font-weight: 500;
+  line-height: 1.18;
+  letter-spacing: .11em;
+}
+
+html[data-scene-incoming][data-scene-reveal="panel-drop"][data-scene-transition="opening"] .scene-arrival:not([data-static]) {
+  animation: scene-arrival-title 1.12s cubic-bezier(.2, .68, .22, 1) 170ms both;
+}
+
+@keyframes scene-transition-spinner {
+  0%, 8% {
+    transform: rotate(0deg) rotateX(0deg) rotateY(0deg);
+    animation-timing-function: cubic-bezier(.58, .02, .18, .98);
+  }
+  32% {
+    transform: rotate(94deg) rotateX(94deg) rotateY(94deg);
+    animation-timing-function: cubic-bezier(.2, .74, .24, 1);
+  }
+  38% {
+    transform: rotate(90deg) rotateX(90deg) rotateY(90deg);
+  }
+  50% {
+    transform: rotate(90deg) rotateX(90deg) rotateY(90deg);
+    animation-timing-function: cubic-bezier(.58, .02, .18, .98);
+  }
+  74% {
+    transform: rotate(184deg) rotateX(184deg) rotateY(184deg);
+    animation-timing-function: cubic-bezier(.2, .74, .24, 1);
+  }
+  80%, 100% {
+    transform: rotate(180deg) rotateX(180deg) rotateY(180deg);
+  }
+}
+
+@keyframes scene-transition-activity {
+  0%, 34%, 100% { opacity: .28; }
+  35%, 57% { opacity: 1; }
+}
+
+/* ===== 受限画布的实体面板入场 =====
+   只有目标页读到了跨文档 handoff 且显式选择 panel-drop 时才生效。
+   使用独立 translate 属性，不覆盖 shop / battle 自己用于画布适配的 transform。 */
+html[data-scene-incoming][data-scene-reveal="panel-drop"] .abyssa-scene-panel {
+  transform-origin: top center;
+  will-change: translate, opacity;
+}
+
+html[data-scene-incoming][data-scene-reveal="panel-drop"][data-scene-transition="closed"] .abyssa-scene-panel {
+  opacity: 0;
+  translate: 0 -66px;
+}
+
+html[data-scene-incoming][data-scene-reveal="panel-drop"][data-scene-transition="opening"] .abyssa-scene-panel {
+  /* 地点名先完成一次“抵达”提示，实体面板随后才从上方装入。 */
+  animation: abyssa-scene-panel-drop 500ms linear 1.22s both;
+}
+
+@keyframes scene-arrival-title {
+  0% {
+    opacity: 0;
+    transform: translateX(-16px);
+  }
+  18%, 72% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(8px);
+  }
+}
+
+@keyframes abyssa-scene-panel-drop {
+  0% {
+    opacity: 0;
+    translate: 0 -66px;
+  }
+  18% {
+    opacity: .45;
+    translate: 0 -52px;
+  }
+  72% {
+    opacity: 1;
+    translate: 0 3px;
+  }
+  84% {
+    opacity: 1;
+    translate: 0 -1px;
+  }
+  100% {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scene-transition__veil,
+  .scene-transition__content {
+    transition-duration: 100ms !important;
+    transition-delay: 0ms !important;
+  }
+
+  .scene-transition__spinner,
+  .scene-transition__activity i {
+    animation: none !important;
+  }
+
+  .scene-transition__spinner {
+    transform: rotateX(-24deg) rotateY(34deg);
+  }
+
+  html[data-scene-incoming][data-scene-reveal="panel-drop"][data-scene-transition="opening"] .abyssa-scene-panel {
+    opacity: 1;
+    translate: 0 0;
+    animation: none !important;
+  }
+
+  html[data-scene-incoming][data-scene-reveal="panel-drop"][data-scene-transition="opening"] .scene-arrival:not([data-static]) {
+    opacity: 1;
+    transform: none;
+    animation: none !important;
+  }
+}
