@@ -107,6 +107,15 @@
   outline-offset: 4px;
 }
 
+/* Shared lira coin and crystal currency mark. */
+.abyssa-currency-amount { display: inline-flex; align-items: center; color: inherit; gap: 6px; white-space: nowrap; }
+.abyssa-currency-amount i { position: relative; display: inline-block; width: 13px; height: 13px; flex: none; overflow: hidden; border: 1px solid #3a2308; border-radius: 50%; background: radial-gradient(circle at 32% 24%, #fff0b1 0 10%, transparent 22%), conic-gradient(from 18deg, #8a5d18, #e0b755 18%, #765018 38%, #d5a642 61%, #684313 79%, #b57e28); box-shadow: inset 0 0 0 1px #e2bd65, inset 0 -2px 2px rgb(53 31 5 / 72%), 0 1px 2px rgb(0 0 0 / 58%), 0 0 5px rgb(170 135 74 / 32%); }
+.abyssa-currency-amount i [data-part="ring"] { position: absolute; inset: 2px; border: 1px solid rgb(91 57 12 / 82%); border-radius: 50%; box-shadow: inset 0 0 0 1px rgb(246 211 119 / 38%); }
+.abyssa-currency-amount i [data-part="mark"] { position: absolute; top: 50%; left: 50%; width: 4px; height: 4px; border: 1px solid rgb(78 47 8 / 84%); background: linear-gradient(135deg, #efd078, #9b681c); box-shadow: inset 1px 1px rgb(255 234 164 / 42%); transform: translate(-50%, -50%) rotate(45deg); }
+.abyssa-currency-amount[data-currency="crystal"] { color: #c4a3eb; }
+.abyssa-currency-amount[data-currency="crystal"] i { width: 8px; height: 8px; border: 1px solid #3f2658; border-radius: 0; background: linear-gradient(135deg, #efe2ff, #a267d5 48%, #4b286c); box-shadow: 0 0 8px rgb(160 93 220 / 68%); transform: rotate(45deg); }
+.abyssa-currency-amount[data-currency="crystal"] i span { display: none; }
+
 .abyssa-frame,
 .abyssa-toggle,
 .abyssa-progress,
@@ -949,22 +958,118 @@
   --abyssa-dialogue-pattern-second: rgb(255 255 255 / 18%);
 }
 .abyssa-dialogue > svg { position: absolute; inset: 0; display: block; width: 100%; height: 100%; overflow: visible; shape-rendering: geometricPrecision; }
-.abyssa-dialogue__name {
+.abyssa-dialogue[data-nameplate="false"] { aspect-ratio: 1200 / 187; }
+.abyssa-dialogue[data-nameplate="false"] .abyssa-dialogue__content { top: 29%; }
+.abyssa-dialogue__name-measure { display: inline-flex; align-items: baseline; white-space: nowrap; }
+
+/* 主名:字距放开一档,不再密排。
+   末字后面会多出一格字距(.16em),不用负 margin 去抵 ——
+   负 margin 让盒宽小于绘制宽,父容器按 max-content 收缩后
+   内容反而溢出(实测 3px)。多出的一格由牌宽量测如实计入,
+   与副名之间的间隔在 __name-secondary 上按净值调。 */
+.abyssa-dialogue__name-main {
+  letter-spacing: .16em;
+}
+
+/* 英文副名:小一档、更暗、字距更开(西文全大写必须开字距才不糊)。
+   顶上压一条细分割线,线左端带一个小方点 —— 与消息流 roll 卡
+   的「线 + 点」同一套装饰语言,给副名一个明确的归属边界。 */
+.abyssa-dialogue__name-secondary {
+  position: relative;
+  /* 净间隔:主名末字已带 .16em 尾距,这里补到视觉 1.15em ——
+     分割线要在两者之间站得住,间隔太紧线就贴上主名了。 */
+  margin-left: .98em;
+  color: var(--abyssa-dialogue-name-secondary, #7f8c8d);
+  font-family: var(--abyssa-font-display, Georgia, serif);
+  font-size: .5em;
+  font-weight: 500;
+  /* 字距再开一档。 */
+  letter-spacing: .3em;
+  white-space: nowrap;
+}
+
+/* 分割线:与副名等宽。渐变方向朝**右端收实** —— 末端有菱点收尾,
+   线就该往那头聚起来;反着来会让点像是挂在虚线头上。 */
+.abyssa-dialogue__name-secondary::before {
+  content: "";
   position: absolute;
-  top: 4.5%;
-  left: 3%;
+  top: -.62em;
+  right: .3em;
+  left: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--abyssa-dialogue-name-secondary, #7f8c8d) 30%, transparent),
+    var(--abyssa-dialogue-name-secondary, #7f8c8d)
+  );
+  opacity: .58;
+}
+
+/* 线尾的小菱点:旋转 45° 的方形,与组件库的菱形语言同源(不用圆点)。
+   translate(50%,-50%) 把菱心精确压在线的右端点上 ——
+   靠 right/top 定位盒子边缘会偏半个身位。 */
+.abyssa-dialogue__name-secondary::after {
+  content: "";
+  position: absolute;
+  top: -.62em;
+  right: .3em;
+  width: 3.4px;
+  height: 3.4px;
+  background: var(--abyssa-dialogue-name-secondary, #7f8c8d);
+  transform: translate(50%, -50%) rotate(45deg);
+  opacity: .9;
+}
+
+.abyssa-dialogue[data-auto-height] { min-height: 112px; aspect-ratio: auto; overflow: hidden; }
+.abyssa-dialogue__auto-frame { position: absolute; z-index: 0; inset: 0; display: block; pointer-events: none; }
+.abyssa-dialogue__auto-frame > span { position: absolute; display: block; }
+.abyssa-dialogue__auto-frame [data-part="surface"] { inset: 0; background: var(--abyssa-dialogue-fill); }
+.abyssa-dialogue__auto-frame [data-part="outer"] { inset: 0; border: 5px solid var(--abyssa-frame-dark); }
+.abyssa-dialogue__auto-frame [data-part="middle"] { inset: 4px; border: 3px solid var(--abyssa-dialogue-middle); }
+.abyssa-dialogue__auto-frame [data-part="inner"] { inset: 10px; border: 1px solid var(--abyssa-dialogue-ornament); opacity: .92; }
+.abyssa-dialogue__auto-frame [data-part="rail"] { background: var(--abyssa-dialogue-ornament); opacity: .55; }
+.abyssa-dialogue__auto-frame [data-edge="top"], .abyssa-dialogue__auto-frame [data-edge="bottom"] { right: 22px; left: 22px; height: 1px; }
+.abyssa-dialogue__auto-frame [data-edge="top"] { top: 15px; }
+.abyssa-dialogue__auto-frame [data-edge="bottom"] { bottom: 15px; }
+.abyssa-dialogue__auto-frame [data-edge="right"], .abyssa-dialogue__auto-frame [data-edge="left"] { top: 22px; bottom: 22px; width: 1px; }
+.abyssa-dialogue__auto-frame [data-edge="left"] { left: 15px; }
+.abyssa-dialogue__auto-frame [data-edge="right"] { right: 15px; }
+.abyssa-dialogue__auto-frame [data-part="corner"] { width: 18px; height: 18px; border-color: var(--abyssa-dialogue-ornament); border-style: solid; opacity: .95; }
+.abyssa-dialogue__auto-frame [data-corner="tl"] { top: 14px; left: 14px; border-width: 2px 0 0 2px; }
+.abyssa-dialogue__auto-frame [data-corner="tr"] { top: 14px; right: 14px; border-width: 2px 2px 0 0; }
+.abyssa-dialogue__auto-frame [data-corner="br"] { right: 14px; bottom: 14px; border-width: 0 2px 2px 0; }
+.abyssa-dialogue__auto-frame [data-corner="bl"] { bottom: 14px; left: 14px; border-width: 0 0 2px 2px; }
+.abyssa-dialogue__auto-frame [data-part="nameplate"] { top: 0; left: 0; width: 42%; height: 34px; border: 4px solid var(--abyssa-frame-dark); border-bottom-color: var(--abyssa-dialogue-middle); background: var(--abyssa-dialogue-fill); clip-path: polygon(0 0, 92% 0, 96% 68%, 100% 100%, 0 100%); }
+.abyssa-dialogue[data-auto-height] .abyssa-dialogue__content { position: relative; z-index: 1; top: auto; right: auto; bottom: auto; left: auto; min-height: 112px; padding: 28px 9.5% 26px; overflow: visible; overflow-wrap: anywhere; white-space: pre-wrap; }
+.abyssa-dialogue[data-auto-height][data-nameplate="true"] .abyssa-dialogue__content { padding-top: 56px; }
+.abyssa-dialogue__name {
+  /* 竖直定位锚在**牌体中线**上,不是"顶边 + 高度"两个量各算各的 ——
+     那样字号一变上下就偏。牌体 y 11~64,中线 37.5/260 = 14.42%,
+     translateY(-50%) 把文字块自身高度居中扣掉,字号再改也不歪。
+     水平左缘对齐牌内文字起点 48/1200。 */
+  position: absolute;
+  top: calc(37.5 / 260 * 100%);
+  left: calc(48 / 1200 * 100%);
   display: flex;
   align-items: center;
-  justify-content: center;
-  width: 38%;
-  height: 18%;
-  padding-inline: 3%;
+  justify-content: flex-start;
+  transform: translateY(-50%);
+  /* 宽度由内容驱动,不能反过来由牌宽算 —— 那会与组件的量测
+     形成循环依赖:文字不溢出时量到的是框宽而非文字宽,
+     所有短名都收敛到同一个值。max-content 让量测拿到纯文字宽度,
+     牌宽单向跟随它。 */
+  width: max-content;
+  max-width: calc((var(--abyssa-dialogue-name-max, 616) - 48) / 1200 * 100%);
+  /* 高度由内容驱动:牌内竖直居中已由中线锚定保证。 */
+  height: auto;
   overflow: hidden;
-  color: #e8eded;
+  /* 名字不该是纯白:牌面 #111515 上放 #e8eded 是接近最大对比,
+     刺眼且抢正文。退到 text-soft 一档 —— 仍清晰,但不发光。 */
+  color: var(--abyssa-dialogue-name-ink, #ccd4d4);
   font-family: var(--abyssa-font-display, Georgia, serif);
   font-size: clamp(15px, 2.25cqi, 27px);
   font-weight: 600;
-  letter-spacing: .16em;
+  /* 字距挪到 __name-main 上(要抵消末字那一格),这里不设。 */
   white-space: nowrap;
   pointer-events: none;
 }
@@ -1055,6 +1160,9 @@
   .abyssa-dialogue { min-height: 170px; aspect-ratio: auto; }
   .abyssa-dialogue__name { top: 4%; font-size: 15px; }
   .abyssa-dialogue__content { top: 40%; right: 7%; left: 8%; font-size: 14px; line-height: 1.55; }
+  .abyssa-dialogue[data-nameplate="false"] .abyssa-dialogue__content { top: 24%; }
+  .abyssa-dialogue[data-auto-height] .abyssa-dialogue__content { top: auto; min-height: 112px; padding: 23px 8% 22px; }
+  .abyssa-dialogue[data-auto-height][data-nameplate="true"] .abyssa-dialogue__content { padding-top: 48px; }
 }
 
 @media (max-width: 420px) {
@@ -1277,6 +1385,7 @@
 .abyssa-character-selector .abyssa-panel-tile { container-type: inline-size; }
 
 /* Centered, horizontally scrollable character portrait selector. */
+/* Centered, horizontally scrollable character portrait selector. */
 .abyssa-character-portrait-selector {
   --abyssa-character-item-size: 66px;
   --abyssa-character-item-half: 33px;
@@ -1285,7 +1394,9 @@
   --abyssa-character-arrow-size: 38px;
   --abyssa-character-arrow-overlap: clamp(18px, 2.7cqi, 24px);
   --abyssa-character-arrow-optical-offset: 2px;
-  --abyssa-character-well-height: 82px;
+  /* 82 -> 72。选中项有 scale(1.08) -> 66*1.08 = 71.3,72 刚好容下,
+     再小会被 well 的 overflow:hidden 裁掉。 */
+  --abyssa-character-well-height: 72px;
   display: grid;
   width: 100%;
   min-width: 0;
@@ -1314,7 +1425,8 @@
   position: relative;
   display: grid;
   min-width: 0;
-  height: 116px;
+  /* 116 -> 96:把高度让给主界面。缎带上下各占 (96-72)/2 = 12。 */
+  height: 96px;
   padding: 0;
   isolation: isolate;
   place-items: center;
@@ -1546,7 +1658,7 @@
   box-shadow: 0 3px 9px rgb(0 0 0 / 36%);
   content: attr(data-tooltip);
   font-family: var(--abyssa-font-display);
-  font-size: 7.2px;
+  font-size: 8.3px;
   font-weight: 600;
   letter-spacing: 1.1px;
   line-height: 1;
@@ -1561,7 +1673,7 @@
 .abyssa-status-panel__affiliation[data-tone="demon-cadre"] .abyssa-status-panel__affiliation-icon { background-position: 0 50%; }
 .abyssa-status-panel__affiliation[data-tone="demon-lord"] { --abyssa-affiliation-glow: rgb(203 75 82 / 44%); --abyssa-affiliation-ink: #ce6f78; }
 .abyssa-status-panel__affiliation[data-tone="demon-lord"] .abyssa-status-panel__affiliation-icon { background-position: 50% 50%; }
-.abyssa-status-panel__heading h3 { margin: 0; color: var(--abyssa-text); font-size: 23.4px; font-weight: 600; letter-spacing: 4.5px; line-height: 33.75px; }
+.abyssa-status-panel__heading h3 { margin: 0; color: var(--abyssa-text); font-size: 26.9px; font-weight: 600; letter-spacing: 4.5px; line-height: 33.75px; }
 .abyssa-status-panel__title-accent,
 .abyssa-status-panel__title-root {
   display: inline-block;
@@ -1574,7 +1686,7 @@
   text-shadow: 0 0 10px color-mix(in srgb, var(--abyssa-teal) 30%, transparent);
 }
 .abyssa-status-panel__title-root { color: #fff; }
-.abyssa-status-panel__heading p { margin: 3.6px 0 0; color: var(--abyssa-teal-soft); font-family: var(--abyssa-font-display); font-size: 9.9px; letter-spacing: 1.98px; line-height: 13.05px; }
+.abyssa-status-panel__heading p { margin: 3.6px 0 0; color: var(--abyssa-teal-soft); font-family: var(--abyssa-font-display); font-size: 11.4px; letter-spacing: 1.98px; line-height: 13.05px; }
 .abyssa-status-panel__state {
   display: inline-flex;
   flex: none;
@@ -1582,7 +1694,7 @@
   gap: 8.1px;
   padding-bottom: 2.7px;
   color: var(--abyssa-teal-soft);
-  font-size: 11.7px;
+  font-size: 13.5px;
   letter-spacing: 1.8px;
 }
 .abyssa-status-panel__state::before { width: 7.2px; height: 7.2px; border: 1px solid var(--abyssa-teal-soft); background: var(--abyssa-teal-dark); content: ""; transform: rotate(45deg); }
@@ -1593,16 +1705,16 @@
 .abyssa-status-panel__stats > div { display: grid; grid-template-columns: auto minmax(14.4px, 1fr) auto; align-items: baseline; gap: 8.1px; }
 .abyssa-status-panel__stats > div { height: 18px; }
 .abyssa-status-panel__fields dt,
-.abyssa-status-panel__stats dt { color: var(--abyssa-text-muted); font-size: 10.8px; letter-spacing: .9px; line-height: 15.75px; white-space: nowrap; }
+.abyssa-status-panel__stats dt { color: var(--abyssa-text-muted); font-size: 12.4px; letter-spacing: .9px; line-height: 15.75px; white-space: nowrap; }
 .abyssa-status-panel__stats dt { color: var(--abyssa-text-soft); line-height: 18px; }
 .abyssa-status-panel__fields dt small,
-.abyssa-status-panel__stats dt small { margin-left: 3.6px; color: var(--abyssa-text-muted); font-family: var(--abyssa-font-display); font-size: 7.2px; letter-spacing: .9px; }
+.abyssa-status-panel__stats dt small { margin-left: 3.6px; color: var(--abyssa-text-muted); font-family: var(--abyssa-font-display); font-size: 8.3px; letter-spacing: .9px; }
 .abyssa-status-panel__fields i,
 .abyssa-status-panel__stats i { height: 1px; border-bottom: 1px dotted rgb(148 162 163 / 39%); }
 .abyssa-status-panel__fields dd,
 .abyssa-status-panel__stats dd { margin: 0; color: var(--abyssa-text); white-space: nowrap; }
-.abyssa-status-panel__fields dd { font-size: 10.8px; line-height: 15.75px; }
-.abyssa-status-panel__stats dd { min-width: 27.9px; font-family: var(--abyssa-font-display); font-size: 13.5px; font-weight: 500; line-height: 18px; text-align: right; }
+.abyssa-status-panel__fields dd { font-size: 12.4px; line-height: 15.75px; }
+.abyssa-status-panel__stats dd { min-width: 27.9px; font-family: var(--abyssa-font-display); font-size: 15.5px; font-weight: 500; line-height: 18px; text-align: right; }
 .abyssa-status-panel__stats dd[data-accent] { color: var(--abyssa-teal-soft); }
 
 .abyssa-status-panel__parameters { padding-bottom: 13.5px; }
@@ -1615,7 +1727,7 @@
 }
 .abyssa-status-panel__divider::before,
 .abyssa-status-panel__divider::after { flex: 1; height: 1px; background: rgb(124 139 140 / 52%); content: ""; }
-.abyssa-status-panel__divider span { position: relative; min-width: 140.4px; padding: 0 19.8px; color: var(--abyssa-text-soft); font-family: var(--abyssa-font-display); font-size: 9.9px; letter-spacing: 1.98px; text-align: center; }
+.abyssa-status-panel__divider span { position: relative; min-width: 140.4px; padding: 0 19.8px; color: var(--abyssa-text-soft); font-family: var(--abyssa-font-display); font-size: 11.4px; letter-spacing: 1.98px; text-align: center; }
 .abyssa-status-panel__divider span::before,
 .abyssa-status-panel__divider span::after { position: absolute; top: 50%; width: 5.4px; height: 5.4px; border: 1px solid var(--abyssa-ornament); content: ""; transform: translateY(-50%) rotate(45deg); }
 .abyssa-status-panel__divider span::before { left: 5.4px; }
@@ -1642,7 +1754,7 @@
   content: "";
   pointer-events: none;
 }
-.abyssa-status-panel__subsection-title { display: flex; align-items: center; gap: 8.1px; margin: 0 0 9.9px; color: var(--abyssa-teal-soft); font-family: var(--abyssa-font-display); font-size: 9px; font-weight: 400; letter-spacing: 1.8px; line-height: 12.15px; }
+.abyssa-status-panel__subsection-title { display: flex; align-items: center; gap: 8.1px; margin: 0 0 9.9px; color: var(--abyssa-teal-soft); font-family: var(--abyssa-font-display); font-size: 10.4px; font-weight: 400; letter-spacing: 1.8px; line-height: 14px; }
 .abyssa-status-panel__subsection-title::before { width: 6.3px; height: 6.3px; border: 1px solid var(--abyssa-teal-dark); content: ""; transform: rotate(45deg); }
 .abyssa-status-panel__traits { display: grid; gap: 7px; }
 .abyssa-status-panel__traits article {
@@ -1703,8 +1815,8 @@
 }
 .abyssa-status-panel__trait-icon[data-empty]::after { width: 3px; height: 3px; background: var(--abyssa-teal-dark); }
 .abyssa-status-panel__trait-copy { min-width: 0; }
-.abyssa-status-panel__traits h5 { margin: 0; color: var(--abyssa-text); font-size: 10.8px; font-weight: 600; letter-spacing: .9px; line-height: 15.75px; }
-.abyssa-status-panel__traits p { overflow: hidden; margin: 1px 0 0; color: var(--abyssa-text-muted); font-size: 7.8px; letter-spacing: .45px; line-height: 1.35; text-overflow: ellipsis; white-space: nowrap; }
+.abyssa-status-panel__traits h5 { margin: 0; color: var(--abyssa-text); font-size: 12.4px; font-weight: 600; letter-spacing: .9px; line-height: 17px; }
+.abyssa-status-panel__traits p { overflow: hidden; margin: 1px 0 0; color: var(--abyssa-text-muted); font-size: 9px; letter-spacing: .45px; line-height: 1.35; text-overflow: ellipsis; white-space: nowrap; }
 .abyssa-status-panel__trait-tooltip {
   position: absolute;
   right: 7px;
@@ -1732,7 +1844,7 @@
   transform: translateY(0);
   visibility: visible;
 }
-.abyssa-status-panel__record { position: relative; z-index: 1; margin: 0; color: var(--abyssa-text-soft); font-size: 9.9px; line-height: 1.85; text-align: justify; }
+.abyssa-status-panel__record { position: relative; z-index: 1; margin: 0; color: var(--abyssa-text-soft); font-size: 11.4px; line-height: 1.8; text-align: justify; }
 .abyssa-status-panel__record-initial {
   float: left;
   margin: .08em .22em 0 0;
@@ -1743,22 +1855,49 @@
   line-height: .78;
   text-shadow: 0 0 8px color-mix(in srgb, var(--abyssa-teal) 26%, transparent);
 }
-.abyssa-status-panel blockquote { position: relative; align-self: end; width: 100%; margin: 0; padding: 9px 11.7px 8.1px; border-block: 1px solid var(--abyssa-quote-line, color-mix(in srgb, var(--abyssa-teal-soft) 42%, transparent)); color: var(--abyssa-teal-soft); font-family: "Kaiti SC", "STKaiti", "KaiTi", "FZKai-Z03", cursive; font-size: 13.2px; font-style: normal; letter-spacing: .08em; line-height: 1.7; }
-.abyssa-status-panel blockquote::before { position: absolute; top: -3.6px; left: 3.6px; color: var(--abyssa-ornament); font-family: Georgia, serif; font-size: 18.9px; content: "“"; }
+.abyssa-status-panel blockquote { position: relative; align-self: end; width: 100%; margin: 0; padding: 9px 11.7px 8.1px; border-block: 1px solid var(--abyssa-quote-line, color-mix(in srgb, var(--abyssa-teal-soft) 42%, transparent)); color: var(--abyssa-teal-soft); font-family: "Kaiti SC", "STKaiti", "KaiTi", "FZKai-Z03", cursive; font-size: 15.2px; font-style: normal; letter-spacing: .08em; line-height: 1.65; }
+.abyssa-status-panel blockquote::before { position: absolute; top: -3.6px; left: 3.6px; color: var(--abyssa-ornament); font-family: Georgia, serif; font-size: 21.7px; content: "“"; }
 
 /* Full composed screen */
+/* 自然宽由「内部可用区锁 5:3」反推,不是自由旋钮:
+     layout 高 646(不动) -> layout 宽 = 646 * 5/3 = 1076.67
+     shell  = 1076.67 + RpgFrame padding 37*2 = 1150.67
+   用 calc 保持精确,不写成整数 1151(那样比例会差 0.0005)。
+
+   锁的是 __layout(内部可用区)而非 shell 外沿 —— 与 shop 不同,shop 锁的是
+   board 外沿 1334x889,其内可用区 1250x787 并不是 3:2。
+
+   ============ 为什么是 5:3 而不是 3:2 ============
+   先按 3:2 做过,layout 969x646,画布宽只有 951.8 —— 占画布可用宽的 60.1%,
+   过窄。5:3 -> 1094.1,占用率 69.1%,且 details 从 611 回到 719(+17.7%),
+   缓解右侧面板拥挤(它的内容余量本来就是 0)。
+
+   占用率上不去的根因不在比例:画布是 16:9 而界面比它方,高度一吃满宽度就
+   填不满。参照 shop,它的 shell 也只占 76.5%,同样是高度受限。
+
+   高度链条完全不受影响:screen 自然高仍 900,故 k2、字号、translateY 不动。 */
 .abyssa-character-screen {
   container: abyssa-character-screen / inline-size;
-  width: min(100%, 1440px);
-  padding-top: 70px;
+  width: min(100%, calc(646px * 5 / 3 + 74px));
   margin-inline: auto;
   color: var(--abyssa-text, #edf0f0);
 }
+/* 招牌行。原先靠 .abyssa-character-screen 的 padding-top:70 在流内占位,
+   改成与 shop/dice 同一手法:只让「露出高」占流,其余压进下方边框
+   (招牌本就允许遮挡门面)。露出高取共享令牌,shell 顶边才与其他应用一致。
+     流内贡献 = 布局高 95 + margin-bottom = 露出高
+   注:37cqi 那个令牌保留 —— 容器宽在固定画布下恒定,它算出的是定值。 */
 .abyssa-character-screen__header-row {
   --abyssa-character-header-half-width: min(37cqi, 270px);
   position: relative;
   z-index: 3;
-  margin-bottom: -26px;
+  /* 招牌流内只占「露出高」,其余压进下方边框。
+     用本应用自己的 68.4 而**不是**共享的 --abyssa-frame-header-expose ——
+     后者是 shop/dice 的值(87.03),两者 k 不同,自然值本就该不同:
+       shop/dice 87.03 * 0.72422 = 63.03 画布px
+       本应用    68.40 * 0.95054 = 65.02 画布px
+     曾错误共用,导致本应用招牌与主体之间多出 17.71 画布px 空隙。 */
+  margin-bottom: calc(var(--abyssa-character-header-expose, 68.4px) - 95px);
 }
 .abyssa-character-screen__header-row > .abyssa-rpg-header {
   position: relative;
@@ -2156,7 +2295,7 @@
     0 14px 34px rgb(5 10 12 / 36%);
 }
 .abyssa-character-screen .abyssa-status-panel__title-line { gap: 6px; }
-.abyssa-character-screen .abyssa-status-panel__heading h3 { font-size: 25.2px; letter-spacing: 4.8px; line-height: 36px; }
+.abyssa-character-screen .abyssa-status-panel__heading h3 { font-size: 29px; letter-spacing: 4.8px; line-height: 36px; }
 .abyssa-character-screen .abyssa-status-panel__affiliation { width: 40px; height: 50px; }
 .abyssa-character-screen__shell::before {
   inset: var(--abyssa-character-shell-inner-inset-theme, 6px);
@@ -2361,7 +2500,8 @@
 .abyssa-character-screen__portrait {
   z-index: 1;
   width: 100%;
-  height: 570px;
+  /* 570 -> 604:主界面(shell)整体长高 34,立绘与右侧面板同步。 */
+  height: 604px;
   min-height: 0;
   flex: none;
   overflow: hidden;
@@ -2429,7 +2569,7 @@
 }
 
 .abyssa-character-screen__portrait-column > .abyssa-nameplate { position: absolute; right: -12px; bottom: 4px; left: -12px; z-index: 3; width: auto; margin: 0; }
-.abyssa-character-screen__details { display: grid; min-width: 0; min-height: 612px; grid-template-rows: auto minmax(0, 1fr); align-self: start; transform: translateY(-8px); }
+.abyssa-character-screen__details { display: grid; min-width: 0; min-height: 646px; grid-template-rows: auto minmax(0, 1fr); align-self: start; transform: translateY(-8px); }
 .abyssa-character-screen__tabs {
   position: relative;
   z-index: 5;
@@ -2558,77 +2698,30 @@
   --abyssa-icon-ink: var(--abyssa-character-dock-ink, #d7e9e8);
 }
 
-@container abyssa-character-screen (max-width: 1100px) {
-  .abyssa-character-screen__layout { grid-template-columns: minmax(310px, 330px) minmax(390px, 1fr); }
-  .abyssa-character-screen__portrait { height: 550px; }
-  .abyssa-character-screen__details { min-height: 592px; }
-}
 
-@container abyssa-character-screen (max-width: 920px) {
-  .abyssa-character-portrait-selector { --abyssa-character-viewport-width: 552px; }
-}
 
-@container abyssa-character-screen (max-width: 850px) {
-  .abyssa-character-screen__layout { grid-template-columns: minmax(0, 1fr); }
-  .abyssa-character-screen__visual { grid-column: 1; grid-row: 1; width: min(100%, 330px); justify-self: center; }
-  .abyssa-character-screen__portrait { height: 480px; }
-  .abyssa-character-screen__visual,
-  .abyssa-character-screen__details { transform: none; }
-  .abyssa-character-screen__details { grid-column: 1 / -1; grid-row: 2; min-width: 0; min-height: 0; }
-}
 
-@container abyssa-character-screen (max-width: 760px) {
-  .abyssa-character-portrait-selector { --abyssa-character-viewport-width: 392px; }
-}
 
-@container abyssa-character-screen (max-width: 580px) {
-  .abyssa-character-portrait-selector { --abyssa-character-viewport-width: 232px; }
-}
 
-@container abyssa-character-screen (max-width: 520px) {
-  .abyssa-character-screen { padding-top: 58px; }
-  .abyssa-character-screen__header-row { margin-bottom: -20px; }
-  .abyssa-character-screen__layout { grid-template-columns: minmax(0, 1fr); }
-  .abyssa-character-screen__visual { width: min(100%, 310px); }
-  .abyssa-character-screen__details { grid-column: 1; grid-row: auto; }
-  .abyssa-character-screen__portrait { height: min(102cqi, 400px); }
-  .abyssa-character-screen__tabs { width: min(calc(100% - 12px), 330px); }
-  .abyssa-character-screen__tabs .abyssa-rpg-tab { flex-basis: 80px; min-width: 80px; max-width: 86px; }
-  .abyssa-character-screen__character-selector { width: calc(100% - 12px); margin-top: 14px; padding: 0; }
-  .abyssa-character-portrait-selector {
-    --abyssa-character-item-size: 62px;
-    --abyssa-character-item-half: 31px;
-    --abyssa-character-item-gap: 6px;
-    --abyssa-character-viewport-width: 198px;
-    --abyssa-character-arrow-size: 36px;
-    --abyssa-character-arrow-overlap: 18px;
-    --abyssa-character-arrow-optical-offset: 1.5px;
-    --abyssa-character-well-height: 78px;
-  }
-  .abyssa-character-portrait-selector__ribbon { height: 112px; }
-  .abyssa-character-screen .abyssa-status-panel__content { padding: 20px 18px 16px; }
-  .abyssa-character-screen .abyssa-status-panel__lower { grid-template-columns: 1fr; gap: 0; }
-  .abyssa-character-screen .abyssa-frame[data-padding="lg"] > .abyssa-frame__content { padding: 24px; }
-}
 
-@container abyssa-character-screen (max-width: 320px) {
-  .abyssa-character-portrait-selector {
-    --abyssa-character-item-size: 50px;
-    --abyssa-character-item-half: 25px;
-    --abyssa-character-item-gap: 4px;
-    --abyssa-character-viewport-width: 158px;
-    --abyssa-character-arrow-size: 30px;
-    --abyssa-character-arrow-overlap: 15px;
-    --abyssa-character-arrow-optical-offset: 1px;
-    --abyssa-character-well-height: 64px;
-  }
-  .abyssa-character-portrait-selector__ribbon { height: 96px; }
-}
 
 @media (max-width: 760px) {
   .abyssa-character-screen__portrait { height: min(102vw, 400px); }
   .abyssa-status-panel__lower { grid-template-columns: 1fr; gap: 0; }
 }
+
+/* ============ 容器响应式已删除 ============
+   这里原有 7 条 @container abyssa-character-screen 查询、28 条规则,
+   断点 1100/920/850/760/580/520/320。
+
+   固定画布下容器宽恒为设计值,这些查询**只有一档会命中,其余全是死代码**。
+   其中 850px 那条会把布局从「左立绘 + 右面板」改成「立绘在上、面板在下」
+   的单列并清掉两列的 transform —— 固定画布下永远不触发,已按设计确认删除。
+   切换栏那 5 档宽度(660/552/392/232/198)同样作废:9 个角色在 650px 内
+   一排排完,不需要按宽度跳档,见 CharacterPortraitSelector。
+
+   删除前后逐元素几何对比(713 个元素的位置与尺寸)必须零差异 —— 这些规则
+   本就不该在固定画布下生效,若有差异说明某条其实命中了。 */
 
 @media (max-width: 560px) {
   .abyssa-frame[data-padding="lg"] > .abyssa-frame__content { padding: 24px; }

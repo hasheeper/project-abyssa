@@ -1,8 +1,8 @@
 # @abyssa/ui
 
-Abyssa 的复古 RPG React 组件库与交互场景仓库。项目从静态视觉原型中提取可复用组件，并用角色状态、战斗、骰局、地图、视觉小说、跑团、商店和立绘工作台等独立应用验证组合效果。
+Abyssa 的复古 RPG React 组件库与交互场景仓库。项目从静态视觉原型中提取可复用组件，并用角色状态、战斗、骰局、地图、视觉小说、跑团、商店、洋馆和制作工具等独立入口验证组合效果。
 
-组件使用原生语义元素、TypeScript 类型和命名空间化 CSS 变量；组件包本身不依赖业务后端。仓库内共有 **9 个 Vite 入口**：1 个组件目录和 8 个场景应用。
+组件使用原生语义元素、TypeScript 类型和命名空间化 CSS 变量；组件包本身不依赖业务后端。仓库内共有 **11 个 Vite 入口**：1 个组件目录、8 个场景原型和 2 个制作工具。
 
 ## 当前组件
 
@@ -48,6 +48,20 @@ Abyssa 的复古 RPG React 组件库与交互场景仓库。项目从静态视�
 
 公共组件和类型统一从 `src/index.ts` 导出。为兼容早期接入，部分组件同时保留 `RetroRpg*` 别名。
 
+## 源码结构
+
+```text
+src/
+  apps/       # 独立运行的概念原型；app 之间禁止直接引用
+  tools/      # 洋馆标注器、立绘工作台等内容制作工具
+  content/    # 角色、房间等项目实例数据
+  shared/     # 公共领域契约、UI、演出、固定舞台与纯工具
+  assets/     # 当前共享美术资源
+  index.ts    # @abyssa/ui 公共导出
+```
+
+依赖方向为 `apps/tools → content/shared/assets`、`content → shared/domain`；`shared` 不反向依赖应用、工具或内容。可运行 `npm run boundaries:check` 检查边界，细则见 [`src/shared/README.md`](src/shared/README.md)。
+
 ## 本地运行
 
 ```bash
@@ -65,7 +79,7 @@ Storybook 默认运行在 `http://127.0.0.1:6006/`。
 
 ### 应用预览
 
-仓库共有 9 个 Vite 入口。除骰局包含本地规则外，其余场景主要用于验证 UI 状态、交互和动画，不提供完整游戏流程、持久化存档或业务后端。
+仓库共有 11 个 Vite 入口。除骰局与战斗包含局部规则外，其余场景主要用于验证 UI 状态、交互和动画；这些入口仍相互独立，不代表已经形成完整游戏流程。
 
 | 命令 | 入口 | 当前功能 |
 | --- | --- | --- |
@@ -73,11 +87,13 @@ Storybook 默认运行在 `http://127.0.0.1:6006/`。
 | `npm run dev:battle` | 战斗界面 | 四人队伍、敌方目标选择、回合顺序、HP/MP、四姿态图集、物理单体攻击和神圣群体技能演出 |
 | `npm run dev:dice` | 明暗骰 | 五骰牌型、固定注额下注、公开/私有锁骰、重掷、庄家轮换、筹码结算、3D 骰子和本地对手逻辑 |
 | `npm run dev:map` | 副本地图 | Three.js + GSAP 纸芝居地图、三处可选地点、镜头视差、入场动画和木质画框 |
+| `npm run dev:mansion` | 洋馆基地 | 剖面图房间交互、相位切换、角色 ADV、修缮与设施收获原型 |
 | `npm run dev:novel` | 视觉小说 | 双人/三人/四人剧本切换、两席位立绘轮换、表情延续、逐字对话，以及点击/空格/回车推进 |
 | `npm run dev:rp` | 跑团演出 | NVL 消息流与 ADV 对话框两种版式、幕解锁与历史回看、LOG、AUTO、SKIP、REPLAY、判定条和逐字演出 |
 | `npm run dev:shop` | 商店界面 | 购买、出售、鉴定、砍价、分类、分页、库存、里拉/远古晶石双货币和店主反馈 |
 | `npm run dev:studio` | 立绘工作台 | 调整逐角色画布、舞台站位、表情、漫符和动作；自动保存到本地并导出 TS、CSS、漫符参数或 JSON 快照，固定端口 5176 |
 | `npm run dev:character-status` | 角色状态页 | 角色与服装切换、档案标签、属性/特性/记录展示，以及随阵营变化的界面主题 |
+| `npm run dev:mansion-editor` | 洋馆热区标注器 | 在固定原图坐标系中标注矩形与多边形房间，并导出正式页面使用的参数 |
 
 场景应用分别提供 `build:<name>` 与 `preview:<name>`，产物落在 `<name>-dist/`。组件库使用 `npm run build`，静态组件目录使用 `npm run build:preview` / `npm run preview:components`，命名与场景应用略有不同。
 
@@ -96,9 +112,9 @@ npm run dev:dice
 
 ### 共享固定画布
 
-固定舞台型应用通过 `src/stage/` 共享 1600 × 900 外画布、视口安全区和等比缩放逻辑。应用内部按设计尺寸布局，外层根据设备尺寸统一缩放，避免边框、内容和点击区域分别漂移。文档流型的组件目录与立绘工作台不使用这套适配。
+固定舞台型应用通过 `src/shared/stage/` 共享 1600 × 900 外画布、视口安全区和等比缩放逻辑。应用内部按设计尺寸布局，外层根据设备尺寸统一缩放，避免边框、内容和点击区域分别漂移。文档流型的组件目录与立绘工作台不使用这套适配。
 
-共享画框令牌定义了内容可用区、木质压条、黄铜层与描边几何。修改固定舞台应用时，应同时检查桌面、平板和手机横屏，不要在画布内部使用视口单位进行二次缩放。完整约束见 `src/stage/README.md`。
+共享画框令牌定义了内容可用区、木质压条、黄铜层与描边几何。修改固定舞台应用时，应同时检查桌面、平板和手机横屏，不要在画布内部使用视口单位进行二次缩放。完整约束见 `src/shared/stage/README.md`。
 
 ### 外部资源
 
@@ -126,6 +142,7 @@ npm run pack:setting    # 打包 st/setting/ 世界观设定
 
 ```bash
 npm run typecheck
+npm run boundaries:check
 npm test
 npm run build
 npm run build-storybook
@@ -139,6 +156,8 @@ npm run build-storybook
 npm run build:battle
 npm run build:dice
 npm run build:map
+npm run build:mansion
+npm run build:mansion-editor
 npm run build:novel
 npm run build:rp
 npm run build:shop

@@ -1,0 +1,432 @@
+/* ============ ADV 版式(立绘 + 底部对话框)============
+   与分屏是同一场演出的两种呈现(共享游标与站位),这里只换呈现:
+   背景 / 左右立绘 / 底部一个对话框。所有信息 —— 台词、旁白、系统、
+   骰子 —— 全从这一个框里出,不另起浮层。
+
+   几何(舞台区 1350 x 848,全部定值,画布内禁 vw/vh):
+     对话框  宽 1120,1200:260 -> 高 242.67,下边距 18
+     立绘    高 92%(≈780),knee 取景 704:1178 -> 宽 ≈466
+             左右锚点 26% / 74%,下缘沉出画外 4% 让裁切线藏住
+   立绘与对话框故意重叠:框压住立绘膝部,这是 AVG 的标准纵深。 */
+.rp-adv {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--abyssa-panel-black);
+}
+
+/* 背景与分屏同参(brightness .5 / saturate .85 + 径向压角),
+   两个版式的底色是连续的,切换时背景不跳。 */
+.rp-adv__bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-size: cover;
+  background-position: center;
+  filter: brightness(0.5) saturate(0.85);
+}
+
+.rp-adv__bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(88% 88% at 50% 42%, transparent 48%, rgb(4 7 7 / 72%) 100%);
+}
+
+/* 舞台底部的落地阴影:立绘不是浮在半空的贴纸。 */
+.rp-adv__cast {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.rp-adv__cast::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 220px;
+  background: linear-gradient(180deg, transparent, rgb(4 7 7 / 55%) 62%, rgb(4 7 7 / 82%));
+}
+
+.rp-adv__actor {
+  position: absolute;
+  /* 上移:原 -4% 沉 34px,人物坐得太低,胸线被对话框吃掉,像蹲在框后。
+     -1.2% 只沉 10px —— 刚够藏住 knee 取景的平切线,不多沉一分。 */
+  bottom: -1.2%;
+  left: var(--rp-adv-x, 50%);
+  /* 放大:92% -> 96%。为什么不是 100%:knee 顶边就是人物头顶,
+     100% 时头顶零留白(实测溢出 0.9px),画面顶死、很憋。
+     96% 留出 3.2% ≈ 27px 头顶空间,同时宽度到 486.5,
+     两侧合计占舞台宽 72% —— 与对话框 72.6% 同一个量级,
+     画面重心落在人物与文字之间,不偏向任何一方。 */
+  height: 96%;
+  display: flex;
+  align-items: flex-end;
+  /* transform 归站位与纵深,translate 归说话者上浮 —— 两个独立属性,
+     与 RpScene 的分层同则,不互相覆盖。 */
+  transform: translateX(-50%) scale(var(--rp-adv-depth, 1));
+  /* 缩放锚在**底边中点**:景深缩小时底边不动,两人的"地面"始终是
+     同一条线。锚在中心的话缩小会把脚抬起来,人物像浮在空中 ——
+     实测那会让两侧立绘底边差 15px,是这版最明显的破绽。 */
+  transform-origin: 50% 100%;
+  translate: 0 0;
+  transition:
+    translate 0.5s cubic-bezier(0.3, 1.2, 0.45, 1),
+    transform 0.5s cubic-bezier(0.3, 1.2, 0.45, 1),
+    filter 0.42s var(--abyssa-ease),
+    opacity 0.42s var(--abyssa-ease);
+}
+
+.rp-adv__actor[data-seat="left"]  { --rp-adv-x: 26%; --rp-adv-from: -1; }
+.rp-adv__actor[data-seat="right"] { --rp-adv-x: 74%; --rp-adv-from: 1; }
+
+/* ---- 立绘进退场 ----
+   这是之前被阉割掉的部分:原先 key 绑槽位,换人只是原地换图,
+   没有任何过渡 —— 人物凭空替换,这在 AVG 里是不能接受的。
+   现在与分屏同则:从画外侧滑入(略过冲再回落,快→慢),
+   退场朝来的方向滑出并淡掉。位移量 18% 相对自身宽度,
+   幅度比分屏小一档 —— ADV 的立绘大得多,同比例位移会显得夸张。 */
+/* 动画挂在 body 层,不能挂在 .rp-adv__actor 上:
+   actor 的 transform 已经归"站位 + 景深 scale"所有,
+   animation 带 fill 会把它整条钉死,于是说话权易手时的
+   scale 过渡直接失效(变成硬跳)。分层后两者各占一个属性,
+   边滑入边变景深同时成立 —— 与 RpScene 的分层同则。 */
+.rp-adv__actor[data-phase="enter"] .rp-adv__actor-body {
+  animation: rp-adv-enter 680ms cubic-bezier(0.16, 0.84, 0.3, 1) both;
+}
+
+/* 切版式带过来的立绘:永不播「角色轮换」那套横向滑入。
+   它在切过来之前就已经在场上,进场只由过场的镜头 + cast-in 负责
+   (见文件末尾的版式过场)。
+
+   这条**不能**加 :not([data-morph]) 之类的限定 ——
+   一旦限定,过场结束的瞬间这条规则失效、animation-name 从 none
+   变回 rp-adv-enter,浏览器就把它当新动画从头播一遍:
+   人已经站在台上了,却又演了一次入场。
+   标记的生命周期由 JS 控制(席位换人才作废),CSS 只需无条件服从。 */
+.rp-adv__actor[data-settled] .rp-adv__actor-body {
+  animation: none;
+  opacity: 1;
+}
+
+.rp-adv__actor[data-phase="leave"] { z-index: 0; }
+
+.rp-adv__actor[data-phase="leave"] .rp-adv__actor-body {
+  animation: rp-adv-leave 420ms cubic-bezier(0.4, 0, 0.75, 0.5) both;
+}
+
+@keyframes rp-adv-enter {
+  0% {
+    opacity: 0;
+    transform: translateX(calc(var(--rp-adv-from, -1) * 18%));
+  }
+  58% {
+    opacity: 1;
+    transform: translateX(calc(var(--rp-adv-from, -1) * -1.1%));
+    animation-timing-function: cubic-bezier(0.5, 0, 0.2, 1);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes rp-adv-leave {
+  0% { opacity: 1; transform: translateX(0); }
+  100% { opacity: 0; transform: translateX(calc(var(--rp-adv-from, -1) * 14%)); }
+}
+
+.rp-adv__actor-body {
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+}
+
+.rp-adv__actor .abyssa-paper-doll {
+  height: 100%;
+  width: auto;
+}
+
+.rp-adv__portrait {
+  display: block;
+  width: auto;
+  height: 100%;
+  object-fit: contain;
+  object-position: 50% 100%;
+  user-select: none;
+}
+
+/* 纵深:非说话者退后一档(缩小 + 压暗 + 去饱和 + 轻微下沉),
+   说话者站前排(原尺寸 + 上浮)。不是简单调透明度 —— 那是廉价做法,
+   读起来像半透明幽灵;这里是「退到景深后面」。 */
+.rp-adv__actor[data-active="false"] {
+  --rp-adv-depth: 0.955;
+  filter: brightness(0.52) saturate(0.72) blur(0.4px);
+  opacity: 0.92;
+}
+
+.rp-adv__actor[data-active="true"] {
+  --rp-adv-depth: 1;
+  z-index: 2;
+  filter: brightness(1.04) saturate(1.02)
+          drop-shadow(0 0 26px rgb(var(--rp-adv-rim, 143 208 212) / 12%));
+  translate: 0 -1.6%;
+}
+
+/* ---- 对话框 ---- */
+/* 换条时正文淡入(框体本身不动 —— 它是常驻部件,不该跟着闪)。
+   打字机负责逐字,这一层只给整段一个极短的托底淡入,
+   让"上一条的残影 → 新一条"之间有个交接,而不是硬切。 */
+.rp-adv__dialogue .abyssa-dialogue__content,
+.rp-adv__dialogue .abyssa-dialogue__name {
+  animation: rp-adv-line-in 260ms ease both;
+}
+
+@keyframes rp-adv-line-in {
+  from { opacity: 0; }
+}
+
+/* 对话框比例锁 1200:260(4.615:1),宽高联动 —— 只有一个自由度。
+   1120 宽时高 242.7,占舞台高 28.6%,已经越过 AVG 常规上限(22~28%),
+   且宽占 83% 与立绘争画面。980 宽 -> 高 212.3(25.0%)、宽占 72.6%,
+   落在 Ren'Py 系的标准区间中段,与立绘 75% 的横向占用相互匹配。 */
+.rp-adv__dialogue {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 980px;
+  z-index: 3;
+}
+
+.rp-adv__dialogue .abyssa-dialogue {
+  width: 100%;
+  height: auto;
+  /* 框下压一层柔影,与立绘拉开层次(它在最前排)。 */
+  filter: drop-shadow(0 12px 28px rgb(0 0 0 / 45%));
+}
+
+/* 画布内一律钉死 —— components.css 的 720px 媒体查询按物理视口触发,
+   而逻辑画布恒为 1600x900,那套响应式改写在这里全是错的(stage 铁律 3)。 */
+.rp-adv__dialogue .abyssa-dialogue { min-height: 0; }
+.rp-adv__dialogue .abyssa-dialogue[data-nameplate="true"]  { aspect-ratio: 1200 / 260; }
+.rp-adv__dialogue .abyssa-dialogue[data-nameplate="false"] { aspect-ratio: 1200 / 187; }
+/* 名牌:组件库原始梯形牌,主名 + 英文副名一行。
+   字号 21px —— 牌体高度是固定的 53 viewBox 单位,字号越小牌内越松,
+   整块名牌读起来也就越小巧。牌内竖直居中由中线锚定(见 dialogue.css)。 */
+.rp-adv__dialogue .abyssa-dialogue .abyssa-dialogue__name {
+  font-size: 21px;
+}
+
+/* 正文:上移并左移。
+   原先 top 45% 是给「名牌压在面板上沿」的老版式留的余量,
+   实际面板内区是 y 72~239(72/260 = 27.7% ~ 91.9%),
+   45% 起排会让首行离内框上边 45 单位,底部反而空出一大截 ——
+   读起来整段是沉的。改 33.5%:首行距内框上沿 15 单位,
+   与左右内距(19 单位)接近,四边留白终于是一个量级。
+   左缘 9.5% -> 7.6%(= 91.2/1200,内框 x=19 再进 73 单位),
+   与右缘 7.6% 对称 —— 原来 9.5/8 的左右不等宽是没道理的。 */
+/* 正文的定位基准是**面板内框**(装饰内线 x 19~1181 / y 72~239),
+   四边统一内缩:纵 12 单位、横 34 单位。
+   横向比纵向大是对的(行首行尾需要更多呼吸,否则字贴着描边),
+   但不能像原先那样差到 72 : 15 —— 那读起来就是整段被压在顶上。
+   两种形态(有/无名牌)的 viewBox 起点不同,分别换算,
+   保证旁白与台词的首行落在**同一条**基线上。 */
+.rp-adv__dialogue .abyssa-dialogue .abyssa-dialogue__content {
+  /* 上边距 22 单位、下边距 12 —— 刻意不等:
+     文字块在框内略微偏下,视觉重心才落在中线上。
+     几何居中(上下都 12)读起来是偏高的,这是排版上的老规矩。
+     (72 + 22) / 260 */
+  top: 36.15%;
+  /* (1200 - 1181 + 34) / 1200 */
+  right: 4.417%;
+  /* (260 - 227) / 260 */
+  bottom: 12.69%;
+  left: 4.417%;
+  font-size: 19px;
+  line-height: 1.72;
+  letter-spacing: 0.05em;
+}
+
+/* 无名牌(旁白):viewBox 从 y=63 起,高 187。
+   同一条基线 y=84 换算成 (84-63)/187 = 11.23%,下缘 (250-227)/187 = 12.30%。 */
+/* 无名牌(旁白):同一条基线 y=94 换算 (94-63)/187 = 16.58%。 */
+.rp-adv__dialogue .abyssa-dialogue[data-nameplate="false"] .abyssa-dialogue__content {
+  top: 16.58%;
+  bottom: 12.30%;
+}
+
+/* 面板底对齐:有名牌的 viewBox(0~260)在面板下沿(y=250)后还留 10 单位,
+   无名牌的(63~250)没有。同宽下两者面板底会差 10 * (980/1200) ≈ 8.17px。
+   给无名牌形态补同量下边距 —— 旁白与台词切换时,框只是头顶名牌消失,
+   面板本体像素级不动。 */
+.rp-adv__dialogue .abyssa-dialogue[data-nameplate="false"] {
+  margin-bottom: calc(10px * 980 / 1200);
+}
+
+/* 旁白 / 章节:同一个框,只把正文调成叙述语气(字距略开、颜色退半档)。
+   形态不变 —— 换的是语气,不是部件。
+   (system / roll 已提到中央浮窗,不再进框) */
+.rp-adv__dialogue[data-kind="narration"] .abyssa-dialogue__content,
+.rp-adv__dialogue[data-kind="chapter"] .abyssa-dialogue__content {
+  color: var(--abyssa-text-soft);
+  letter-spacing: 0.09em;
+}
+
+.rp-adv__dialogue[data-kind="chapter"] .abyssa-dialogue__content {
+  text-align: center;
+  font-family: var(--abyssa-font-display);
+}
+
+/* ============ 中央浮窗(系统 / 骰子)============
+   系统反馈不属于叙述,不能挤进台词框 —— 那会让"这个框里有人说话"的
+   预期断裂。提到画面中央做浮窗,压一层背板把注意力收拢,
+   底下的对话框保留上一条不动(不清空、不塌)。 */
+.rp-adv__overlay {
+  position: absolute;
+  /* 垂直落在立绘视线高度附近、对话框上方的空档里,不压住任何一方。
+     38% 是"上三分之一略下",正是画面的次级焦点位置。 */
+  top: 38%;
+  left: 50%;
+  z-index: 6;
+  transform: translate(-50%, -50%);
+  animation: rp-adv-overlay-in 320ms cubic-bezier(0.16, 0.84, 0.3, 1) both;
+  pointer-events: none;
+}
+
+@keyframes rp-adv-overlay-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% + 12px)) scale(0.96);
+  }
+}
+
+/* ---- 骰子浮窗 ----
+   与系统浮窗同一形态:横贯的一条,上下细线收边、两端渐隐。
+   之前那版做成了带四角括号、内发光、54px 巨字的仪式感面板 ——
+   一次属性检定不值这个排场,它比结束提示还重,主次就反了。
+   现在只保留一处强调:总值染判定色。其余全部退到同一层次。 */
+.rp-adv__roll {
+  --rp-adv-roll-ink: var(--abyssa-teal);
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  column-gap: 18px;
+  padding: 14px 40px;
+  border-block: 1px solid color-mix(in srgb, var(--rp-adv-roll-ink) 38%, transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgb(10 14 14 / 92%) 12%,
+    rgb(10 14 14 / 92%) 88%,
+    transparent
+  );
+  box-shadow: 0 14px 38px rgb(0 0 0 / 52%);
+  white-space: nowrap;
+}
+
+.rp-adv__roll[data-outcome="fail"] { --rp-adv-roll-ink: var(--abyssa-danger); }
+
+.rp-adv__roll-label {
+  color: var(--abyssa-text-soft);
+  font-family: var(--abyssa-font-display);
+  font-size: 15px;
+  letter-spacing: 0.2em;
+}
+
+.rp-adv__roll-total {
+  color: var(--rp-adv-roll-ink);
+  font-family: var(--abyssa-font-display);
+  font-size: 26px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  text-shadow: 0 0 16px color-mix(in srgb, var(--rp-adv-roll-ink) 38%, transparent);
+}
+
+.rp-adv__roll-formula {
+  color: var(--abyssa-text-muted);
+  font-family: var(--abyssa-font-display);
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.08em;
+  opacity: 0.8;
+}
+
+.rp-adv__roll-tag {
+  color: var(--rp-adv-roll-ink);
+  font-family: var(--abyssa-font-display);
+  font-size: 12.5px;
+  letter-spacing: 0.28em;
+  text-indent: 0.28em;
+}
+
+/* ---- 系统浮窗 ----
+   比骰子轻一档:它只是一行告知,不该有骰子那样的仪式感。 */
+.rp-adv__system {
+  padding: 14px 40px;
+  border-block: 1px solid rgb(100 113 113 / 42%);
+  background: linear-gradient(90deg, transparent, rgb(10 14 14 / 92%) 12%, rgb(10 14 14 / 92%) 88%, transparent);
+  box-shadow: 0 14px 38px rgb(0 0 0 / 52%);
+}
+
+.rp-adv__system-text {
+  color: var(--abyssa-text-soft);
+  font-family: var(--abyssa-font-display);
+  font-size: 16px;
+  letter-spacing: 0.24em;
+  text-indent: 0.24em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rp-adv__overlay { animation-name: rp-adv-reduced-fade; }
+}
+
+/* ---- ADV 画框 ----
+   NVL 版式里立绘各自有框(.abyssa-rp__seat 的三层描边),切到 ADV
+   后画面直接顶到画布边缘,四周空荡 —— 这就是"太丑"的来源:
+   没有边界,立绘像是浮在虚空里。
+   这里给整个 ADV 舞台补一圈画框,与席位框同一套语言(深-亮-深三道带子
+   + 四角括号),但收得更细:它是**舞台的边界**,不是部件的外壳,
+   不能比对话框还抢眼。 */
+.rp-adv::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  /* 三层描边全部用 inset shadow 画在内侧,不占布局、不影响立绘定位。
+     内 1px 极深收边 → 中 2px 亮带 → 外 6px 深色打底,与 .abyssa-frame 同序。 */
+  box-shadow:
+    inset 0 0 0 1px var(--abyssa-frame-deep),
+    inset 0 0 0 3px var(--abyssa-frame-light),
+    inset 0 0 0 9px var(--abyssa-frame-dark),
+    inset 0 0 60px rgb(0 0 0 / 42%);
+  pointer-events: none;
+}
+
+/* 四角括号:与席位框同款,尺寸放大一档(舞台比席位大得多,
+   同尺寸的括号在这个幅面上会细得看不见)。 */
+.rp-adv__frame-ornaments {
+  position: absolute;
+  inset: 15px;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.rp-adv__frame-ornaments i {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border: 2px solid var(--abyssa-frame-light);
+  opacity: 0.62;
+}
+
+.rp-adv__frame-ornaments i[data-corner="tl"] { top: 0; left: 0; border-right: 0; border-bottom: 0; }
+.rp-adv__frame-ornaments i[data-corner="tr"] { top: 0; right: 0; border-bottom: 0; border-left: 0; }
+.rp-adv__frame-ornaments i[data-corner="bl"] { bottom: 0; left: 0; border-top: 0; border-right: 0; }
+.rp-adv__frame-ornaments i[data-corner="br"] { right: 0; bottom: 0; border-top: 0; border-left: 0; }
+
+@keyframes rp-adv-reduced-fade { from { opacity: 0; } }

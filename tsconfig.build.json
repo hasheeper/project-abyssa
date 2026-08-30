@@ -8,6 +8,6 @@
     "outDir": "dist",
     "rootDir": "src"
   },
-  "include": ["src/index.ts", "src/components/**/*.tsx", "src/hooks/**/*.ts", "src/types.ts"],
-  "exclude": ["src/**/*.test.*", "src/**/*.stories.*", "src/demo"]
+  "include": ["src/index.ts", "src/shared/lib/**/*.ts", "src/shared/ui/**/*.ts", "src/shared/ui/**/*.tsx"],
+  "exclude": ["src/**/*.test.*", "src/**/*.stories.*", "src/apps/catalog"]
 }

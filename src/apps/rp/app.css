@@ -1,0 +1,576 @@
+/* ===== 跑团 / AI RP 主界面 =====
+   与 shop / dice / character-status 的关键区别:那三个是**弹入弹出的独立
+   功能面板**,所以套画框(rails + brass + board);rp 是**主要交互场所**,
+   常驻在场,不做边框化 —— 内容直接铺在画布上。
+
+   几何:
+     外层  仍是共享的 16:9 画布 1600x900(Stage 基底不变)
+     中间  内容区锁 3:2 且**高度全占满** —— 900 高 -> 1350 宽,
+           画布左右各余 125,那部分留给画布底纹。
+
+   ============ 设计语言的裁决 ============
+   rp 的主体是**阅读**,消息流自己的语言是轻的:细边、半透明墨底、
+   小字距、1px accent 渐变线(见 rp.css 的气泡/jump/roll)。
+   重 RPG 部件(招牌/名牌/多层描边钮)只出现在**内容**上(立绘框、
+   席位名牌、气泡头像框)—— 它们是「舞台上的东西」。
+   chrome(操作壳)必须服从阅读:一条底部单栏,元素全部用消息流的
+   chip 语言,与「▼ 回到最新」同宗。顶部不设 chrome —— 章节名以
+   chapter 条目的身份在消息流里,不在壳上重复。
+
+   交互模型(AVG 三段式,P2/P3 逐步接全):
+     演出中 点击/空格 -> 快进到终态(P2)
+     演完   点击/空格 -> 推进下一条(已接:整个舞台是热区)
+     幕终   底坞升起选项/输入(P3;翻页器已占位)
+ */
+
+/* 其他应用第一行都有,rp 从第一版就漏了。后果:Nameplate 等
+   「width:100% + padding」层层外溢,名牌右缘的亮色中层被内层盖住,
+   看起来就是「右半边边框消失」。组件库本来就是在 border-box 下开发的。 */
+* { box-sizing: border-box; }
+
+/* 画布外一律纯黑(stage.css 的 .abyssa-stage-root 负责),
+   底纹挂进画布内,随界面缩放并止于画布边界。 */
+:root {
+  --abyssa-rp-backdrop:
+    radial-gradient(circle at 50% 30%, rgb(74 102 100 / 12%), transparent 60%),
+    #101616;
+}
+
+/* 中间内容区:3:2、高度铺满画布,水平居中。
+   高度用 100% 而非 100vh —— 画布已给定高度,vh 会与画布缩放叠加
+   (见 stage/README.md 铁律 1)。 */
+.rp-app {
+  width: calc(900px * 3 / 2);
+  height: 100%;
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  background: #101616;
+  color: var(--abyssa-text);
+  font-family: var(--abyssa-font-body);
+  overflow: hidden;
+}
+
+/* ============ 立绘框 → 竖幅海报 ============
+   立绘宽度由高度驱动(knee 取景 704:1178),框变窄不缩小人物,
+   而是**裁掉两侧空气** —— 这正是海报构图。
+     seat-w 330.75 -> 276:框比例从 ~1:2 收到 ~1:2.6
+     seat-my 67.5 -> 44:框拉高,立绘随框高整体放大 ~8%
+   释放的宽度给中栏消息流(气泡行宽 580px 不变,可读性变好)。 */
+.rp-app .abyssa-rp {
+  --abyssa-rp-seat-w: 276px;
+  --abyssa-rp-seat-my: 44px;
+}
+
+/* 海报底部渐隐:立绘下缘沉进阴影,名牌浮在其上更清晰(署名区)。
+   放在席位框内、立绘之上、名牌之下(名牌 z-index 3,立绘上台 2)。 */
+.rp-app .abyssa-rp__seat::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 2;
+  height: 120px;
+  background: linear-gradient(180deg, transparent, rgb(7 11 11 / 62%) 78%);
+  pointer-events: none;
+}
+
+/* ============ 舞台 ============ */
+.rp-app__stage {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  /* 整个舞台是推进热区(AVG 标准)。 */
+  cursor: pointer;
+}
+
+.rp-app[data-state="ended"] .rp-app__stage,
+.rp-app[data-state="reading"] .rp-app__stage { cursor: default; }
+
+.rp-app__stage .abyssa-rp {
+  position: absolute;
+  inset: 0;
+  height: auto;
+  min-height: 0;
+}
+
+/* ============ 底部单栏 ============
+   三段:左翻页器 / 中推进指引 / 右工具钮。52px,一条 1px 渐变线与
+   舞台分界(与消息流当前条的分隔线同语),无面板无切角。
+   右侧是视觉小说底栏的标准形态:无框图标 + 图标下小字标签(LOG/AUTO/
+   SKIP),质感靠图形与状态光,不靠边框 —— 文字 chip 是廉价感的来源。 */
+.rp-app__bar {
+  position: relative;
+  flex: none;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  height: 52px;
+  padding-inline: 16px;
+}
+
+.rp-app__bar::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 10px;
+  left: 10px;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgb(100 113 113 / 30%) 25%,
+    rgb(100 113 113 / 42%) 50%,
+    rgb(100 113 113 / 30%) 75%,
+    transparent
+  );
+}
+
+.rp-app__pager {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  justify-self: start;
+}
+
+/* 五个钮同一层级,间隔统一 —— 不做分组。
+   分组间距会读成"这是两套不同的东西",而它们都是演出控制。 */
+.rp-app__tools {
+  display: flex;
+  align-items: stretch;
+  gap: 2px;
+  justify-self: end;
+}
+
+/* ---- 底栏工具钮:图标 + 小字标签,无框 ----
+   静默态图标压暗;悬停亮起;开关态(aria-pressed)teal 染色 + 底部
+   1px 光条 + 图标微光 —— 亮度层级代替边框层级。 */
+/* ============ 底栏的共享网格基元 ============
+   三段(幕号 / 推进指引 / 工具钮)共用同一套两层网格:
+     上层 --cell-main   主视觉(图标 / 幕号 / caret),22px 见方
+     下层 --cell-label  小字标签(Cinzel 8.5px 大字距)
+   两层的行高与间距由这里统一给,所以三段基线天然对齐。 */
+.rp-app__cell {
+  position: relative;
+  display: grid;
+  padding: 6px 0 5px;
+  border: 0;
+  background: transparent;
+  color: var(--abyssa-text-muted);
+  justify-items: center;
+  align-content: center;
+  row-gap: 3px;
+  transition: color 0.22s;
+}
+
+/* 主视觉层:固定 22px 行高。内容为空时格子也不塌,标签基线不跳。 */
+.rp-app__cell-main {
+  display: grid;
+  place-items: center;
+  height: 22px;
+  line-height: 1;
+}
+
+/* 标签层:盒高与字号解耦 —— 中文行盒比同字号拉丁字高,
+   不锁死会让中央那格的基线比两侧低半像素。 */
+.rp-app__cell-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 10px;
+  font-family: var(--abyssa-font-display);
+  font-size: 8.5px;
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  text-indent: 0.28em;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.rp-app__tool {
+  width: 58px;
+  cursor: pointer;
+}
+
+.rp-app__tool:hover:not(:disabled) { color: var(--abyssa-text-soft); }
+.rp-app__tool:focus-visible { outline: 1px solid var(--abyssa-focus); outline-offset: -2px; }
+.rp-app__tool:disabled { opacity: 0.32; cursor: default; }
+
+/* 隐藏但占位:visibility 保留盒子,同排其他钮不会横向跳位。
+   不用 display:none —— 那会让工具区从 5 格塌成 2 格。 */
+.rp-app__tool[data-hidden] { visibility: hidden; }
+
+.rp-app__tool[aria-pressed="true"] {
+  color: var(--abyssa-teal);
+}
+
+/* 开关态的底部光条:中浓两端隐,与分隔线同语。 */
+.rp-app__tool[aria-pressed="true"]::after {
+  content: "";
+  position: absolute;
+  right: 8px;
+  bottom: 0;
+  left: 8px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--abyssa-teal) 50%, transparent);
+}
+
+.rp-app__tool-icon {
+  width: 22px;
+  background: currentcolor;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  transition: filter 0.22s;
+}
+
+.rp-app__tool[aria-pressed="true"] .rp-app__tool-icon {
+  filter: drop-shadow(0 0 5px rgb(143 208 212 / 55%));
+}
+
+/* 逐图标的视觉尺寸补偿。
+   game-icons 的画布留白各不相同:圆形构图(anticlockwise-rotation)
+   会顶满 512 画布,而三角形(play)、双箭头(fast-forward)四周自带留白。
+   同样给 22px,圆形那个看起来就大一圈 —— 补偿的是**视觉面积**,
+   不是盒子尺寸,所以只收 mask-size,盒子仍是 22px 保持对齐网格。 */
+.rp-app__tool-icon[data-shrink] {
+  -webkit-mask-size: 82%;
+  mask-size: 82%;
+}
+
+/* 自绘图标(版式钮):不走 mask,直接内联 SVG。
+   它需要按状态切换两种图形,mask 做不到,只能内联。 */
+.rp-app__tool-icon[data-glyph] {
+  background: none;
+  display: grid;
+  place-items: center;
+}
+
+.rp-app__tool-icon[data-glyph] svg {
+  display: block;
+  /* 与 mask 图标同尺寸(22px):之前 21px 是想补偿线稿偏轻,
+     但正确的补偿是加粗线宽,不是缩小画幅 —— 缩小反而让
+     矩形轮廓比同排图标小一圈,更不齐。 */
+  width: 22px;
+  height: 22px;
+}
+
+/* ---- 中央推进指引 ----
+   单层结构(无图标层):文案本身就是主视觉。
+   它不是控件而是状态回声 —— 整个舞台都是热区,这里只作提示。 */
+.rp-app__cue {
+  /* 宽度给足最长文案("查阅中 · 点击返回"),切状态时整段不横向跳动。 */
+  min-width: 210px;
+  /* padding 归零并对称:.rp-app__cell 的 6px/5px 是给「图标 + 标签」
+     两层网格调的,单层结构下不对称会让文字偏下半像素。 */
+  padding-block: 0;
+  cursor: pointer;
+}
+
+.rp-app__cue:hover:not(:disabled) { color: var(--abyssa-text-soft); }
+.rp-app__cue:focus-visible { outline: 1px solid var(--abyssa-focus); outline-offset: -2px; }
+.rp-app__cue:disabled { cursor: default; opacity: 0.6; }
+
+.rp-app__cue-line {
+  display: inline-flex;
+  align-items: center;
+  color: inherit;
+  /* 楷体:这一句是「旁白式提示语」,与 StatusPanel 引文同类。
+     默认宋体在这个字号上笔画硬,读起来像系统 UI 文本。 */
+  font-family: "Kaiti SC", "STKaiti", "KaiTi", "FZKai-Z03", var(--abyssa-font-body), cursive;
+  font-size: 14px;
+  font-weight: 500;
+  /* 盒高与字号解耦:中文行盒比同字号拉丁字高,不锁死会比两侧低半像素。 */
+  height: 16px;
+  line-height: 16px;
+  white-space: nowrap;
+}
+
+/* 逐字盒 + gap 排字。
+   不用 letter-spacing:那个属性把间距加在**每个字的右侧**,
+   末字尾部永远多一格空白,盒宽与字形团块不等宽,居中怎么调都偏
+   (为此打过四轮补丁都没解决)。gap 只存在于字与字之间,
+   首尾天然无尾距 —— 盒宽即字形宽,居中就是居中。 */
+.rp-app__cue-word {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* 两侧的等待指示,朝内相对。
+   SVG 而非 CSS border 三角:后者墨迹重心不在盒中心
+   (三角质心在底边到顶点的 1/3 处),两侧朝向相反会一高一低。 */
+.rp-app__cue-caret {
+  flex: none;
+  display: block;
+  width: 11px;
+  height: 11px;
+  color: var(--abyssa-teal);
+  /* 两枚同一份动画、同一个延迟:一起亮一起暗。
+     错开相位会读成两个灯各亮各的,像坏了。 */
+  animation: rp-caret-bob 1.6s ease-in-out infinite;
+}
+
+.rp-app__cue-caret[data-side="start"] { margin-right: 13px; }
+.rp-app__cue-caret[data-side="end"] { margin-left: 13px; }
+
+/* 只动透明度,不做位移 —— 位移会让三角与文字的间距周期性变化。 */
+@keyframes rp-caret-bob {
+  50% { opacity: 0.38; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rp-app__cue-caret { animation: none; }
+}
+
+/* ---- 翻页器:与工具钮同语言(无框、亮度层级)。 ---- */
+.rp-app__chip--nav {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--abyssa-text-muted);
+  cursor: pointer;
+  transition: color 0.22s;
+}
+
+.rp-app__chip--nav:hover:not(:disabled) { color: var(--abyssa-text-soft); }
+.rp-app__chip--nav:focus-visible { outline: 1px solid var(--abyssa-focus); outline-offset: -2px; }
+.rp-app__chip--nav:disabled { opacity: 0.32; cursor: default; }
+
+.rp-app__chip--nav svg {
+  display: block;
+  width: 13px;
+  height: 13px;
+}
+
+/* 页码:衬线数字,与消息流 roll 卡的字体语言一致。 */
+.rp-app__scene { padding-inline: 6px; }
+
+/* 幕号:罗马数字(拉丁字母拼),Cinzel 主视觉。
+   16px 对标工具钮图标的视觉重量,与下层 SCENE 标签(8.5)
+   形成 1.9 倍落差。 */
+.rp-app__scene-no {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 3px;
+  font-family: var(--abyssa-font-display);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  line-height: 1;
+}
+
+/* 分隔斜杠:压暗、缩小 —— 它是标点不是数字。 */
+.rp-app__scene-no em {
+  font-style: normal;
+  font-size: 0.7em;
+  opacity: 0.4;
+}
+
+/* ---- 幕内进度:独立一格 ----
+   大页码回答"第几幕",这一格回答"这一幕读到哪"。
+   与其余格同构(主视觉 + 标签两层),所以基线自动对齐,
+   也不必再跟幕号抢那 60px 的宽度。 */
+/* ---- 中央推进指引 ----
+   无边框纯文字 + ▼ caret:它不是控件,是状态回声(舞台整个是热区,
+   这里只是提示语落点)。可点只是顺手。 */
+
+/* ============ 版式过场 ============
+   两程,中点换挂载(App 的 MORPH_MS/2)。
+
+   ============ 这一版改了什么 ============
+   上一版是「各元素分头做位移」:席位往两侧收、日志淡出、立绘从下方
+   升起、对话框延迟切入 —— 四个动作各有各的方向和时长,读起来是
+   一串拼接,而不是一次转场。而且两个版式的立绘**本来就在同一个位置
+   附近**,却硬做成「一边退场、一边进场」,等于把连续的东西切断了。
+
+   现在改为共享镜头:整个舞台作为一个整体做一次极轻的推拉
+   (scale 0.985 ↔ 1 + 亮度压暗),内容在镜头最暗处换掉。
+   立绘不再各自飞进飞出 —— 它在两个版式里是同一个人,镜头切换时
+   人不该动。只有**版式专属**的部件(NVL 的席位框与日志、ADV 的
+   对话框)才做各自的进退,且方向统一为纵向,不再左右乱窜。
+
+   曲线:退场用 ease-in(加速离开),入场用 ease-out(减速到位),
+   合起来是一次完整的呼吸,不是两段独立动画。 */
+/* 过场的**唯一**时间基准与曲线:所有参与元素共用这三个变量。
+   之前每条动画各写各的时长(280/240/250/280+60延迟)与曲线,
+   四条曲线各走各的,合起来就是"抽搐、没有同步感"。 */
+.rp-app[data-morph] {
+  --rp-morph-half: calc(var(--rp-morph-ms, 560ms) / 2);
+  --rp-morph-out: cubic-bezier(0.4, 0, 1, 0.5);
+  --rp-morph-in: cubic-bezier(0.12, 0.72, 0.3, 1);
+}
+
+.rp-app[data-morph] .rp-app__stage { cursor: default; }
+
+/* ---- 共享镜头:舞台整体 ----
+   两个方向用同一组关键帧,只是前后半程分别取 out / in。
+   scale 幅度刻意很小(1.5%):这是「镜头呼吸」不是「弹窗缩放」,
+   超过 2% 就会读成页面在跳。 */
+.rp-app[data-morph][data-phase="out"] .rp-app__stage {
+  animation: rp-morph-lens-out var(--rp-morph-half) var(--rp-morph-out) both;
+}
+
+/* 后半程(内容已换):同一个元素反向播一遍。
+   靠 data-phase 切换 —— App 在中点把它从 out 翻成 in。 */
+/* 退场只做一件事:整体退干净,给内容替换留一个不被看见的窗口。
+   不用 filter:brightness —— 父层 filter 会强制整棵子树(含两张
+   486px 立绘)每帧重新光栅化,人多就掉帧。opacity + scale 都是
+   合成器属性,不触发重绘。 */
+@keyframes rp-morph-lens-out {
+  to {
+    opacity: 0;
+    transform: scale(0.988);
+  }
+}
+
+/* ---- 版式专属部件的进退 ----
+   只有「这个版式才有」的东西才动,方向统一纵向。
+   立绘不在此列:它两边都有,镜头切换时它不动。 */
+
+/* NVL 的席位框:退场沉下去一点,入场落回来。
+   不再左右分收 —— 那让两个框往相反方向跑,画面被撕开。 */
+.rp-app[data-morph="to-adv"] .abyssa-rp__seat,
+.rp-app[data-morph="to-adv"] .abyssa-rp__log {
+  animation: rp-morph-part-out var(--rp-morph-half) var(--rp-morph-out) both;
+}
+
+.rp-app[data-morph="to-nvl"][data-phase="in"] .abyssa-rp__seat,
+.rp-app[data-morph="to-nvl"][data-phase="in"] .abyssa-rp__log {
+  animation: rp-morph-part-in var(--rp-morph-half) var(--rp-morph-in) both;
+}
+
+/* ADV 的对话框:同样只做纵向。它是这个版式的标志物,
+   给它比舞台稍长一点的行程(14px vs 8px),入场时最后到位。 */
+.rp-app[data-morph="to-nvl"] .rp-adv__dialogue {
+  animation: rp-morph-dialogue-out var(--rp-morph-half) var(--rp-morph-out) both;
+}
+
+.rp-app[data-morph="to-adv"][data-phase="in"] .rp-adv__dialogue {
+  animation: rp-morph-dialogue-in var(--rp-morph-half) var(--rp-morph-in) both;
+}
+
+/* 对话框最后到位:延迟 70ms。
+   这是**唯一**保留的错拍 —— 立绘先站定、框再升起来,
+   是 galgame 开场的固定次序;去掉它整块画面会像一张贴图弹出。 */
+.rp-app[data-morph="to-adv"][data-phase="in"] .rp-adv__dialogue {
+  animation-delay: 70ms;
+}
+
+/* ---- 进入 ADV:各部件自己的入场 ----
+   这里是 galgame 的开场语汇,每个部件都有明确的"进入"动作,
+   不是整块画面淡一下就完事:
+
+     背景  淡入 + 极轻的推近(镜头落定)
+     立绘  从两侧画外滑入(左从左、右从右)+ 淡入,略微上浮
+     对话框 从下方升起 + 淡入,最后到位(它是这个版式的标志物)
+
+   透明度归各部件自己 —— 父层不再统管:统管的话所有东西
+   一起亮起来,立绘的"入画"就被抹平成了一次整体淡入。 */
+
+/* 舞台在入场阶段不做任何动画,只当容器 —— 内容各自进入。 */
+.rp-app[data-morph="to-adv"][data-phase="in"] .rp-adv__bg {
+  animation: rp-adv-in-bg var(--rp-morph-half) var(--rp-morph-in) both;
+}
+
+/* 立绘:从各自那一侧的画外滑入。--rp-adv-from 是席位方向
+   (左 -1 / 右 1,与轮换动画共用同一个变量),所以左右天然分向。
+   幅度 12% 比轮换那套(18%)小一档:这是"镜头切过来时人已在位",
+   不是"新角色登场",不该走那么大的行程,也不带过冲。 */
+.rp-app[data-morph="to-adv"][data-phase="in"] .rp-adv__actor[data-settled] .rp-adv__actor-body,
+.rp-app[data-morph="to-adv"][data-phase="in"] .rp-adv__actor .rp-adv__actor-body {
+  animation: rp-adv-in-cast var(--rp-morph-half) var(--rp-morph-in) both;
+}
+
+/* 画框与浮窗:跟着一起淡入,不做位移(它们是边界与提示,不该有动势)。 */
+.rp-app[data-morph="to-adv"][data-phase="in"] .rp-adv__frame-ornaments,
+.rp-app[data-morph="to-adv"][data-phase="in"] .rp-adv__overlay {
+  animation: rp-adv-in-fade var(--rp-morph-half) var(--rp-morph-in) both;
+}
+
+@keyframes rp-adv-in-bg {
+  from {
+    opacity: 0;
+    transform: scale(1.015);
+  }
+}
+
+@keyframes rp-adv-in-cast {
+  from {
+    opacity: 0;
+    /* 横向入画 + 轻微下沉(落地感),不过冲。 */
+    transform: translateX(calc(var(--rp-adv-from, -1) * 12%)) translateY(8px);
+  }
+}
+
+@keyframes rp-adv-in-fade {
+  from { opacity: 0; }
+}
+
+@keyframes rp-morph-part-out {
+  to { transform: translateY(8px); }
+}
+
+/* NVL 的席位框错拍:左右差 60ms,两栏依次立起来,
+   和 ADV 侧「立绘先、框后」是同一种次序感。 */
+.rp-app[data-morph="to-nvl"][data-phase="in"] .abyssa-rp__seat[data-seat="right"] {
+  animation-delay: 60ms;
+}
+.rp-app[data-morph="to-nvl"][data-phase="in"] .abyssa-rp__log {
+  animation-delay: 100ms;
+}
+
+/* 回 NVL:席位框与消息流各自淡入 + 轻升,与 ADV 侧对称。 */
+@keyframes rp-morph-part-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+
+@keyframes rp-morph-dialogue-out {
+  to { transform: translateX(-50%) translateY(14px); }
+}
+
+@keyframes rp-morph-dialogue-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(26px);
+  }
+}
+
+/* 动效减弱:只留亮度与不透明度的交叉淡入淡出,不做任何缩放与位移。
+   诉求是别晃,不是别过渡 —— 所以时长保持,曲线保持。 */
+@media (prefers-reduced-motion: reduce) {
+  .rp-adv__actor[data-phase="enter"] .rp-adv__actor-body,
+  .rp-adv__actor[data-phase="leave"] .rp-adv__actor-body {
+    animation-name: rp-morph-reduced-fade;
+  }
+
+  .rp-app[data-morph] .rp-app__stage,
+  .rp-app[data-morph] .abyssa-rp__seat,
+  .rp-app[data-morph] .abyssa-rp__log,
+  .rp-app[data-morph] .rp-adv__dialogue {
+    animation-name: rp-morph-reduced-out;
+  }
+
+  .rp-app[data-morph][data-phase="in"] .rp-app__stage,
+  .rp-app[data-morph][data-phase="in"] .abyssa-rp__seat,
+  .rp-app[data-morph][data-phase="in"] .abyssa-rp__log,
+  .rp-app[data-morph][data-phase="in"] .rp-adv__dialogue {
+    animation-name: rp-morph-reduced-in;
+  }
+}
+
+@keyframes rp-morph-reduced-fade { from { opacity: 0; } }
+@keyframes rp-morph-reduced-out { to { opacity: 0.14; } }
+@keyframes rp-morph-reduced-in { from { opacity: 0.14; } }

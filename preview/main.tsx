@@ -29,8 +29,8 @@ import {
   Toggle,
   VerticalIndicator
 } from "../src/index";
-import { demoCharacters } from "../src/demo/data";
-import "../src/styles/index.css";
+import { characterProfiles } from "../src/content/characters/profiles";
+import "../src/shared/ui/styles/index.css";
 import "./preview.css";
 
 interface PreviewCardProps {
@@ -311,7 +311,7 @@ export function App() {
           </PreviewCard>
 
           <PreviewCard name="StatusPanel" wide tall>
-            <StatusPanel data={demoCharacters.find((character) => character.id === "abyssa")!.status} />
+            <StatusPanel data={characterProfiles.find((character) => character.id === "abyssa")!.status} />
           </PreviewCard>
         </CatalogSection>
 
@@ -319,7 +319,7 @@ export function App() {
           <PreviewCard name="CharacterSelector" wide>
             <CharacterSelector
               className="character-selector"
-              items={demoCharacters.map(({ id, number, name, selectorVariant }) => ({
+              items={characterProfiles.map(({ id, number, name, selectorVariant }) => ({
                 id,
                 number,
                 label: name,

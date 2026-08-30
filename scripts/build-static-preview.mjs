@@ -10,25 +10,25 @@ const frameCornerSource = resolve(
   "src/assets/png2/frame-corner-symmetric.png"
 );
 const frameCornerOutput = resolve(outputDir, "assets/frame-corner.png");
-const frameCornerCssSource = "../assets/png2/frame-corner-symmetric.png";
+const frameCornerCssSource = "../../../assets/png2/frame-corner-symmetric.png";
 const frameCornerCssOutput = "./assets/frame-corner.png";
 const redFrameCornerSource = resolve(
   projectRoot,
   "src/assets/png2/frame-corner-symmetric-red.png"
 );
 const redFrameCornerOutput = resolve(outputDir, "assets/frame-corner-red.png");
-const redFrameCornerCssSource = "../assets/png2/frame-corner-symmetric-red.png";
+const redFrameCornerCssSource = "../../../assets/png2/frame-corner-symmetric-red.png";
 const redFrameCornerCssOutput = "./assets/frame-corner-red.png";
 const goldFrameCornerSource = resolve(
   projectRoot,
   "src/assets/png2/frame-corner-symmetric-gold.png"
 );
 const goldFrameCornerOutput = resolve(outputDir, "assets/frame-corner-gold.png");
-const goldFrameCornerCssSource = "../assets/png2/frame-corner-symmetric-gold.png";
+const goldFrameCornerCssSource = "../../../assets/png2/frame-corner-symmetric-gold.png";
 const goldFrameCornerCssOutput = "./assets/frame-corner-gold.png";
 const affiliationIconSource = resolve(projectRoot, "src/assets/png2/icon.png");
 const affiliationIconOutput = resolve(outputDir, "assets/affiliation-icons.png");
-const affiliationIconCssSource = "../assets/png2/icon.png";
+const affiliationIconCssSource = "../../../assets/png2/icon.png";
 const affiliationIconCssOutput = "./assets/affiliation-icons.png";
 const server = await createServer({
   root: projectRoot,
@@ -41,8 +41,8 @@ try {
   const { renderCatalog } = await server.ssrLoadModule("/preview/render.tsx");
   const [template, tokens, components, previewStyles, interactions] = await Promise.all([
     readFile(resolve(previewDir, "index.html"), "utf8"),
-    readFile(resolve(projectRoot, "src/styles/tokens.css"), "utf8"),
-    readFile(resolve(projectRoot, "src/styles/components.css"), "utf8"),
+    readFile(resolve(projectRoot, "src/shared/ui/styles/tokens.css"), "utf8"),
+    readFile(resolve(projectRoot, "src/shared/ui/styles/components.css"), "utf8"),
     readFile(resolve(previewDir, "preview.css"), "utf8"),
     readFile(resolve(previewDir, "app.js"), "utf8")
   ]);

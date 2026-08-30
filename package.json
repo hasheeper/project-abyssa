@@ -60,6 +60,7 @@
     "emotes:build": "node scripts/build-emotes.mjs",
     "emotes:check": "node scripts/build-emotes.mjs --check",
     "pack:setting": "node scripts/pack-settings.mjs",
+    "boundaries:check": "node scripts/check-module-boundaries.mjs",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
