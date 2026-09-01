@@ -1,0 +1,164 @@
+.abyssa-frame,
+.abyssa-ribbon-button,
+.abyssa-hex-button,
+.abyssa-panel-tile,
+.abyssa-square-panel,
+.abyssa-icon-button,
+.abyssa-toggle,
+.abyssa-progress-group,
+.abyssa-rpg-header,
+.abyssa-section-header,
+.abyssa-nameplate,
+.abyssa-character-selector,
+.abyssa-status-panel,
+.abyssa-character-screen,
+.abyssa-dialogue,
+.abyssa-diamond-track,
+.abyssa-notch-button,
+.abyssa-notched-pill,
+.abyssa-status-node {
+  box-sizing: border-box;
+  font-family: var(--abyssa-font-body, "Songti SC", serif);
+}
+
+.abyssa-ribbon-button,
+.abyssa-hex-button,
+.abyssa-panel-tile,
+.abyssa-square-panel,
+.abyssa-icon-button,
+.abyssa-toggle,
+.abyssa-diamond-node,
+.abyssa-notch-button,
+.abyssa-notched-pill,
+.abyssa-status-node {
+  -webkit-tap-highlight-color: transparent;
+  font: inherit;
+}
+
+.abyssa-ribbon-button:focus-visible,
+.abyssa-hex-button:focus-visible,
+.abyssa-panel-tile:focus-visible,
+.abyssa-square-panel:focus-visible,
+.abyssa-icon-button:focus-visible,
+.abyssa-toggle:focus-visible,
+.abyssa-diamond-node:focus-visible,
+.abyssa-notch-button:focus-visible,
+.abyssa-notched-pill:focus-visible,
+.abyssa-status-node:focus-visible {
+  outline: 2px solid var(--abyssa-focus, #e9eeee);
+  outline-offset: 4px;
+}
+
+/* Shared lira coin and crystal currency mark. */
+.abyssa-currency-amount { display: inline-flex; align-items: center; color: inherit; gap: 6px; white-space: nowrap; }
+.abyssa-currency-amount i { position: relative; display: inline-block; width: 13px; height: 13px; flex: none; overflow: hidden; border: 1px solid #3a2308; border-radius: 50%; background: radial-gradient(circle at 32% 24%, #fff0b1 0 10%, transparent 22%), conic-gradient(from 18deg, #8a5d18, #e0b755 18%, #765018 38%, #d5a642 61%, #684313 79%, #b57e28); box-shadow: inset 0 0 0 1px #e2bd65, inset 0 -2px 2px rgb(53 31 5 / 72%), 0 1px 2px rgb(0 0 0 / 58%), 0 0 5px rgb(170 135 74 / 32%); }
+.abyssa-currency-amount i [data-part="ring"] { position: absolute; inset: 2px; border: 1px solid rgb(91 57 12 / 82%); border-radius: 50%; box-shadow: inset 0 0 0 1px rgb(246 211 119 / 38%); }
+.abyssa-currency-amount i [data-part="mark"] { position: absolute; top: 50%; left: 50%; width: 4px; height: 4px; border: 1px solid rgb(78 47 8 / 84%); background: linear-gradient(135deg, #efd078, #9b681c); box-shadow: inset 1px 1px rgb(255 234 164 / 42%); transform: translate(-50%, -50%) rotate(45deg); }
+.abyssa-currency-amount[data-currency="crystal"] { color: #c4a3eb; }
+.abyssa-currency-amount[data-currency="crystal"] i { width: 8px; height: 8px; border: 1px solid #3f2658; border-radius: 0; background: linear-gradient(135deg, #efe2ff, #a267d5 48%, #4b286c); box-shadow: 0 0 8px rgb(160 93 220 / 68%); transform: rotate(45deg); }
+.abyssa-currency-amount[data-currency="crystal"] i span { display: none; }
+
+.abyssa-frame,
+.abyssa-toggle,
+.abyssa-progress,
+.abyssa-nameplate {
+  --abyssa-watermark-outer: rgb(255 255 255 / 3.5%);
+  --abyssa-watermark-inner: rgb(255 255 255 / 1.8%);
+}
+
+.abyssa-diamond-watermark {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* Layered content frame */
+.abyssa-frame {
+  --abyssa-frame-surface: var(--abyssa-panel-dark, #242929);
+  --abyssa-frame-ink: var(--abyssa-text, #edf0f0);
+  position: relative;
+  min-width: 0;
+  color: var(--abyssa-frame-ink);
+  background: var(--abyssa-frame-dark, #192020);
+  border: 1px solid var(--abyssa-frame-deep, #101616);
+  box-shadow:
+    0 0 0 2px var(--abyssa-frame-light, #a7b3b4),
+    0 0 0 5px var(--abyssa-frame-dark, #192020),
+    var(--abyssa-shadow, 0 12px 28px rgb(9 14 14 / 24%));
+  isolation: isolate;
+}
+
+.abyssa-frame::before {
+  position: absolute;
+  inset: 6px;
+  z-index: -1;
+  border: 1px solid color-mix(in srgb, var(--abyssa-ornament, #647171) 76%, transparent);
+  background-color: var(--abyssa-frame-surface);
+  content: "";
+  pointer-events: none;
+}
+
+.abyssa-frame__watermark {
+  inset: 7px;
+  z-index: 0;
+  width: calc(100% - 14px);
+  height: calc(100% - 14px);
+}
+
+.abyssa-frame[data-variant="light"] {
+  --abyssa-frame-surface: var(--abyssa-panel-light, #e2e7e7);
+  --abyssa-frame-ink: var(--abyssa-text-dark, #192020);
+  --abyssa-watermark-outer: rgb(21 34 35 / 8%);
+  --abyssa-watermark-inner: rgb(21 34 35 / 4.5%);
+}
+
+.abyssa-frame[data-variant="teal"] {
+  --abyssa-frame-surface: var(--abyssa-teal, #72b3b7);
+  --abyssa-frame-ink: var(--abyssa-text-dark, #192020);
+  --abyssa-watermark-outer: rgb(21 34 35 / 8%);
+  --abyssa-watermark-inner: rgb(21 34 35 / 4.5%);
+}
+
+.abyssa-frame[data-variant="transparent"] {
+  --abyssa-frame-surface: transparent;
+  background: transparent;
+  box-shadow: none;
+}
+
+.abyssa-frame[data-variant="transparent"] > .abyssa-frame__watermark { display: none; }
+
+.abyssa-frame__content {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+}
+
+.abyssa-frame[data-padding="none"] > .abyssa-frame__content { padding: 0; }
+.abyssa-frame[data-padding="sm"] > .abyssa-frame__content { padding: 14px; }
+.abyssa-frame[data-padding="md"] > .abyssa-frame__content { padding: 24px; }
+.abyssa-frame[data-padding="lg"] > .abyssa-frame__content { padding: 36px; }
+
+.abyssa-frame__ornaments {
+  position: absolute;
+  inset: 10px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.abyssa-frame__ornaments i {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border-color: var(--abyssa-ornament-light, #839091);
+  border-style: solid;
+  opacity: 0.8;
+}
+
+.abyssa-frame__ornaments [data-corner="tl"] { top: 0; left: 0; border-width: 2px 0 0 2px; }
+.abyssa-frame__ornaments [data-corner="tr"] { top: 0; right: 0; border-width: 2px 2px 0 0; }
+.abyssa-frame__ornaments [data-corner="bl"] { bottom: 0; left: 0; border-width: 0 0 2px 2px; }
+.abyssa-frame__ornaments [data-corner="br"] { right: 0; bottom: 0; border-width: 0 2px 2px 0; }

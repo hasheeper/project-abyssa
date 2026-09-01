@@ -156,4 +156,18 @@ describe("DiceApp rolling motion", () => {
     expect(secondDie.querySelector('.die__selection[data-kind="private"]')).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /重掷.*REROLL 3\/3/ })).toBeEnabled();
   });
+
+  it("clears presentation and round timers when the table unmounts", async () => {
+    vi.useFakeTimers();
+    vi.spyOn(Math, "random").mockReturnValue(0.25);
+    const { unmount } = render(<DiceApp />);
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(300);
+    });
+    expect(vi.getTimerCount()).toBeGreaterThan(0);
+
+    unmount();
+    expect(vi.getTimerCount()).toBe(0);
+  });
 });

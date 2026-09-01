@@ -3,12 +3,19 @@ import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
 export default defineConfig({
+  base: "./",
   plugins: [react()],
   build: {
+    copyPublicDir: false,
     lib: {
-      entry: resolve(import.meta.dirname, "src/index.ts"),
+      entry: {
+        index: resolve(import.meta.dirname, "src/index.ts"),
+        branding: resolve(import.meta.dirname, "src/branding.ts"),
+        patterns: resolve(import.meta.dirname, "src/patterns.ts"),
+        primitives: resolve(import.meta.dirname, "src/primitives.ts")
+      },
       formats: ["es"],
-      fileName: "index",
+      fileName: (_format, entryName) => `${entryName}.js`,
       cssFileName: "abyssa-ui"
     },
     rollupOptions: {

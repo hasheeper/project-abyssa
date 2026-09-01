@@ -1,0 +1,167 @@
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: var(--abyssa-font-body, "Noto Serif SC", "Songti SC", serif);
+}
+
+button { font: inherit; }
+
+.mansion-stage-canvas {
+  isolation: isolate;
+  background: #070c0f;
+}
+
+/* ============ 相位光照令牌 ============
+ * 上一版四个相位共用同一个光源位置(radial-gradient at 40% 32%,写死无变体)
+ * —— 时间在变、太阳不动,这是「糊弄」的根源。而且滤镜只有
+ * saturate + brightness 两轴,那是**照片调色**而不是光照:
+ * 真实时间变化的主体是**色温**,其次是对比度,亮度只是结果。
+ *
+ * 现在每个相位给全套:
+ *   sun-x / sun-y   光源位置。世界东=右(正门 x96%)、西=左(码头 x5%),
+ *                   所以晨光必须从**东**、暮光从**西**。
+ *   sun-size        光晕半径。低空的太阳被大气散射 -> 大而软;
+ *                   天顶的小而硬;月亮最小最锐。
+ *   sky-high/mid/low 天空三段。关键是晨昏的暖色**只出现在地平线附近**,
+ *                   高空仍是冷的 —— 上一版是整片天一起变暖,所以假。
+ *   haze            大气透视。让远景后退,比加对比度自然。
+ *   grade-*         世界滤镜三轴:色温 / 对比 / 亮度。
+ */
+.mansion-app {
+  /* 昼:天顶偏南,中性偏暖,对比最硬,雾最轻。 */
+  --mansion-sun-x: 52%;
+  --mansion-sun-y: 12%;
+  --mansion-sun-size: 38%;
+  --mansion-sun-core: rgb(255 252 236 / 46%);
+  --mansion-sun-halo: rgb(255 244 206 / 20%);
+  --mansion-sky-high: #7f9fb4;
+  --mansion-sky-mid: #b9cbcd;
+  --mansion-sky-low: #e6dcc3;
+  --mansion-ground-haze: rgb(228 226 205 / 26%);
+  --mansion-haze-strength: .16;
+  --mansion-world-tint: transparent;
+  --mansion-world-shadow: rgb(20 38 48 / 4%);
+  /* 三轴滤镜。sepia+hue-rotate 做**色相偏移**,不是单纯明暗 ——
+     这才是四个相位读起来是「不同时刻」而非「同一张图调曝光」的原因。 */
+  --mansion-grade: saturate(1.02) contrast(1.04) brightness(1);
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  color: #e8e7df;
+  /* 天空盒**不在这里** —— 见 .mansion-sky。
+     这一层只是兜底色:世界满幅铺底,正常情况下看不到它。 */
+  background: #0a1014;
+  isolation: isolate;
+}
+
+/* 晨:太阳在**东侧低空**。青蓝高空 + 地平线暖橙,晨雾最重,对比最软。 */
+.mansion-app[data-phase="dawn"] {
+  --mansion-sun-x: 84%;
+  --mansion-sun-y: 74%;
+  --mansion-sun-size: 62%;
+  --mansion-sun-core: rgb(255 216 158 / 52%);
+  --mansion-sun-halo: rgb(233 152 106 / 26%);
+  --mansion-sky-high: #4a6480;
+  --mansion-sky-mid: #8f8fa0;
+  --mansion-sky-low: #e2b18d;
+  --mansion-ground-haze: rgb(226 186 158 / 34%);
+  --mansion-haze-strength: .3;
+  --mansion-world-tint: rgb(178 118 84 / 13%);
+  --mansion-world-shadow: rgb(48 30 46 / 13%);
+  --mansion-grade: sepia(.14) hue-rotate(-8deg) saturate(1) contrast(.97) brightness(.97);
+}
+
+/* 昏:太阳在**西侧低空**(与晨相反)。橙红压紫,光晕最大最软。 */
+.mansion-app[data-phase="dusk"] {
+  --mansion-sun-x: 14%;
+  --mansion-sun-y: 70%;
+  --mansion-sun-size: 66%;
+  --mansion-sun-core: rgb(255 198 137 / 54%);
+  --mansion-sun-halo: rgb(206 105 82 / 30%);
+  --mansion-sky-high: #4c4560;
+  --mansion-sky-mid: #8a6f81;
+  --mansion-sky-low: #d99a72;
+  --mansion-ground-haze: rgb(196 124 96 / 32%);
+  --mansion-haze-strength: .26;
+  --mansion-world-tint: rgb(152 74 55 / 19%);
+  --mansion-world-shadow: rgb(54 26 44 / 18%);
+  --mansion-grade: sepia(.2) hue-rotate(-14deg) saturate(1.04) contrast(.96) brightness(.9);
+}
+
+/* 夜:月亮 —— 天空保留深蓝，但建筑与地面仍要读得出材质和房间结构。 */
+.mansion-app[data-phase="night"] {
+  --mansion-sun-x: 66%;
+  --mansion-sun-y: 18%;
+  --mansion-sun-size: 34%;
+  --mansion-sun-core: rgb(232 242 255 / 54%);
+  --mansion-sun-halo: rgb(158 188 236 / 28%);
+  --mansion-sky-high: #132238;
+  --mansion-sky-mid: #293d5b;
+  --mansion-sky-low: #52617c;
+  --mansion-ground-haze: rgb(78 101 145 / 28%);
+  --mansion-haze-strength: .22;
+  --mansion-world-tint: rgb(35 58 101 / 19%);
+  --mansion-world-shadow: rgb(4 10 28 / 22%);
+  --mansion-grade: hue-rotate(5deg) saturate(.82) contrast(1.02) brightness(.7);
+  /* 夜里地上已经暗了,不必再压地下,否则地下黑成一片看不出结构。 */
+  --mansion-underground-mask: .22;
+  --mansion-star-opacity: .9;
+}
+
+/* 大气透视 —— 地平线附近的一层薄雾,让远景后退。
+   这是让景深自然的标准手法,比加对比度好:加对比度只会让画面变硬。
+   上一版这里是一个写死在 40% 32% 的光斑 + 左右压暗,光斑与天空盒里的
+   太阳位置**不一致**(那个在 47% 32%),两个假太阳互相打架。
+   现在光晕只在天空盒里画一次,这层只负责雾。 */
+.mansion-app::before {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  background:
+    /* 地平线雾:从下往上淡出。 */
+    linear-gradient(
+      0deg,
+      var(--mansion-ground-haze) 0%,
+      transparent 46%
+    ),
+    /* 左右边缘极轻压暗,把视线收回中央。 */
+    linear-gradient(90deg, rgb(5 12 15 / 22%), transparent 9% 91%, rgb(5 12 15 / 24%));
+  content: "";
+  opacity: calc(.4 + var(--mansion-haze-strength));
+  pointer-events: none;
+  transition: opacity 420ms var(--abyssa-ease, ease);
+}
+
+/* ============ 层级 ============
+   曾是 2 / 90 / 120 / 135 / 260 / 370 / 380 / 390 / 400 / 405 / 520 / 610 / 700
+   这组任意数,看不出谁该压谁。现在按语义分段,每段留足间隔:
+     世界 0 · 热区 90 · 世界图钉 120-140 · scrim 200 · 四角挂件 300
+     抽屉 500 · 对话 600 · toast 700
+   规则:世界里的东西 <200,浮在世界上的 chrome >=200。 */
+
+/* 上下边缘 scrim —— 不占布局高度,不吃点击,只保证浮层文字可读。
+   原先靠一条 1552x70 的深色 HUD 板来「保证可读」,代价是吞掉 21% 画布高
+   与其覆盖范围内的全部热区点击。 */
+.mansion-scrim {
+  position: absolute;
+  z-index: 200;
+  right: 0;
+  left: 0;
+  height: 156px;
+  pointer-events: none;
+}
+
+/* 上缘 scrim 只留一层轻薄的可读性保护，让天空盒与月光真正透出来。
+   四角挂件本身都有实体牌面托底,不需要靠 scrim 硬保可读性。 */
+.mansion-scrim[data-edge="top"] {
+  top: 0;
+  background: linear-gradient(180deg, rgb(5 11 14 / 38%), rgb(5 11 14 / 12%) 48%, transparent);
+}
+
+.mansion-scrim[data-edge="bottom"] {
+  bottom: 0;
+  height: 190px;
+  background: linear-gradient(0deg, rgb(5 11 14 / 60%), rgb(5 11 14 / 20%) 44%, transparent);
+}

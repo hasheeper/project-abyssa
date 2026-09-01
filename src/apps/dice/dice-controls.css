@@ -1,0 +1,200 @@
+.betting-controls {
+  display: grid;
+  margin-top: 14px;
+  gap: 18px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.action-dock .betting-controls,
+.action-dock .lock-controls,
+.action-dock .player-phase-hint {
+  margin-top: 0;
+}
+
+.action-dock .betting-controls,
+.action-dock .lock-controls {
+  transform: translateY(5px);
+  gap: 12px;
+}
+
+.betting-controls .dice-action-button,
+.lock-controls .dice-action-button {
+  width: min(100%, 180px);
+  min-width: 0;
+  justify-self: center;
+}
+
+.lock-controls {
+  display: grid;
+  margin-top: 14px;
+  align-items: center;
+  gap: 11px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.lock-controls > span,
+.player-phase-hint {
+  color: var(--abyssa-text-muted);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+}
+
+.player-phase-hint {
+  margin-top: 14px;
+  padding: 9px;
+  border-top: 1px solid var(--abyssa-ornament-dark);
+  text-align: center;
+}
+
+.action-dock .player-phase-hint {
+  padding: 7px 9px;
+  border: 0;
+}
+
+.result-panel .dice-action-button {
+  width: min(240px, 100%);
+  margin-inline: auto;
+}
+
+.result-panel__pot {
+  display: grid;
+  margin: 18px auto;
+  gap: 3px;
+}
+
+.result-panel__pot small {
+  color: var(--abyssa-text-muted);
+  font-family: var(--font-display);
+  font-size: 8px;
+  letter-spacing: 0.2em;
+}
+
+.result-panel__pot strong {
+  color: var(--abyssa-accent-soft);
+  font-family: var(--font-display);
+  font-size: 31px;
+  font-weight: 500;
+}
+
+.result-panel__hands {
+  display: grid;
+  margin: 19px 0 22px;
+  align-items: center;
+  gap: 15px;
+  grid-template-columns: 1fr auto 1fr;
+}
+
+.result-panel__hands > div {
+  display: grid;
+  gap: 3px;
+}
+
+.result-panel__hands small,
+.result-panel__hands span {
+  color: var(--abyssa-text-muted);
+  font-family: var(--font-display);
+  font-size: 8px;
+  letter-spacing: 0.15em;
+}
+
+.result-panel__hands strong {
+  color: var(--abyssa-text);
+  font-size: 18px;
+  letter-spacing: 0.12em;
+}
+
+.result-panel__hands > i {
+  color: var(--abyssa-ornament);
+  font-family: var(--font-display);
+  font-size: 10px;
+  font-style: normal;
+}
+
+.result-panel__balances {
+  display: flex;
+  margin: 0 0 24px;
+  justify-content: center;
+  gap: 22px;
+  color: var(--abyssa-text-muted);
+  font-family: var(--font-display);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+}
+
+.result-panel__balances b {
+  color: var(--abyssa-text-soft);
+  font-weight: 500;
+}
+
+.result-panel__report-actions {
+  display: grid;
+  margin: 0 0 18px;
+  align-items: end;
+  gap: 12px;
+  grid-template-columns: minmax(120px, 0.8fr) minmax(190px, 1.2fr);
+}
+
+.result-panel__report-actions label {
+  display: grid;
+  gap: 7px;
+  color: var(--abyssa-text-muted);
+  font-family: var(--font-display);
+  font-size: 8px;
+  letter-spacing: 0.14em;
+  text-align: left;
+}
+
+.result-panel__report-actions select {
+  min-height: 38px;
+  padding: 0 10px;
+  border: 1px solid var(--abyssa-ornament-dark);
+  color: var(--abyssa-text-soft);
+  background: #16100a;
+  font: 13px var(--font-body);
+}
+
+.result-panel__report-actions .dice-action-button {
+  width: 100%;
+}
+
+.result-panel p.result-panel__report-note,
+.result-panel p.result-panel__report-error {
+  margin: -4px 0 16px;
+  font: 12px/1.6 var(--font-body);
+}
+
+.result-panel p.result-panel__report-error {
+  color: #d99178;
+}
+
+.result-panel__report {
+  display: grid;
+  max-height: 280px;
+  margin: 0 0 20px;
+  padding: 16px;
+  overflow: auto;
+  gap: 10px;
+  border: 1px solid var(--abyssa-ornament-dark);
+  background: rgb(0 0 0 / 20%);
+  text-align: left;
+}
+
+.result-panel__report small {
+  color: var(--abyssa-accent-soft);
+  font-family: var(--font-display);
+  font-size: 8px;
+  letter-spacing: 0.16em;
+}
+
+.result-panel__report p {
+  margin: 0;
+  color: var(--abyssa-text-soft);
+  font-size: 14px;
+  line-height: 1.85;
+}
+
+.result-panel__report em {
+  color: var(--abyssa-text-muted);
+  font-size: 11px;
+  font-style: normal;
+}

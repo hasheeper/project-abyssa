@@ -1,0 +1,64 @@
+/* =========================================================
+       响应式
+       ========================================================= */
+
+
+
+
+
+
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  /* 投骰是游戏结果演出，不能被系统的“减少动态效果”压成瞬间切换。 */
+  .die[data-rolling="true"] {
+    animation-duration: var(--roll-bounce-duration, 0.65s) !important;
+  }
+
+  .die__cube {
+    transition-duration: var(--roll-duration, 0.9s) !important;
+  }
+
+  /* 定相发光是点数结果的一部分：保留停顿与渐亮过程，避免被全局
+         reduced-motion 规则压成等待后瞬间闪亮。 */
+  .die[data-covered="false"][data-rolling="false"]
+    .die__face[data-result="true"]
+    .die__pip-light {
+    animation-duration: 760ms !important;
+    animation-delay: 220ms !important;
+  }
+
+  .die[data-covered="false"][data-rolling="false"]
+    .die__face[data-result="true"]
+    .die__pip {
+    animation-duration: 760ms !important;
+    animation-delay: 220ms !important;
+  }
+
+  /* 金币入池也是规则反馈，不能被压成不可见的瞬间变化。 */
+  .table-coin--incoming {
+    animation-duration: 0.9s !important;
+  }
+}
+
+/* ============================================================
+   已移除三条视口重排媒体查询(max-width 1100 / 860 / 620),共 ~150 行。
+
+   理由:画布改成固定尺寸 + 整体等比缩放后,视口变化时是**整个画布连同
+   内部一起缩放**,内部布局在任何视口下都是同一套设计尺寸,不再重排。
+   此时按视口宽切换 grid-template-columns / --dice-size 会与外层 scale
+   叠加成「缩放 + 重排」混合态:骰子被换成 51px 却仍被整体缩放,
+   构图与透视基准同时错位。
+
+   手机横屏由 16:9 贴合 + 等比缩放覆盖,这也是目标场景。
+   若日后要支持手机竖屏,用 @container 查询舞台自身尺寸重排,而非查视口。
+   见 src/shared/stage/README.md 铁律 2。
+   ============================================================ */

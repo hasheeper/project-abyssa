@@ -82,6 +82,40 @@ describe("MenuPage", () => {
     expect(container.querySelector<HTMLImageElement>(".menu-host__figure")?.alt).toContain("玛丽埃塔");
   });
 
+  /* 「角色」是左栏唯一接了目标页的条目:第一次点只选中说话,
+     再点一次才拉黑幕跳 character-status.html。 */
+  it("opens the character archive when the roster entry is confirmed", async () => {
+    const user = userEvent.setup();
+    const { container } = render(<MenuPage />);
+
+    const roster = screen.getByRole("button", { name: "角色" });
+    await user.click(roster);
+
+    // 第一次:只选中并说话,黑幕不动。台词走打字机,得等它敲完。
+    expect(roster).toHaveAttribute("aria-pressed", "true");
+    expect(await screen.findByText("想看谁的档案？")).toBeInTheDocument();
+    expect(container.querySelector(".scene-transition")).toHaveAttribute("data-phase", "idle");
+
+    await user.click(roster);
+
+    // 第二次:黑幕闭合并报出目的地。
+    expect(container.querySelector(".scene-transition")).toHaveAttribute("data-phase", "closing");
+    expect(screen.getByText("角色档案")).toBeInTheDocument();
+    expect(screen.getByText("正在翻阅")).toBeInTheDocument();
+  });
+
+  /* 没有目标页的条目仍是纯占位:点两次也不许拉黑幕。 */
+  it("keeps unwired archive entries inert on repeated clicks", async () => {
+    const user = userEvent.setup();
+    const { container } = render(<MenuPage />);
+
+    const codex = screen.getByRole("button", { name: "图鉴" });
+    await user.click(codex);
+    await user.click(codex);
+
+    expect(container.querySelector(".scene-transition")).toHaveAttribute("data-phase", "idle");
+  });
+
   it("places the host dialogue below the command dial instead of over the portrait", () => {
     const { container } = render(<MenuPage />);
 

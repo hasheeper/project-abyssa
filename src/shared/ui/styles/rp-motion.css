@@ -1,0 +1,158 @@
+/* 动效减弱:降级为纯淡入淡出,而不是把时长清零。
+   清零等于硬切,而减弱的诉求是「不要大幅位移」,不是「不要过渡」。
+   进退场那部分由 WAAPI 读取同一媒体查询,同样降级为淡入淡出。 */
+@media (prefers-reduced-motion: reduce) {
+  /* 弹入去掉位移与缩放,只留淡入 */
+  .abyssa-rp__message {
+    animation-duration: 0.18s;
+    animation-timing-function: ease;
+  }
+  @keyframes abyssa-rp-message-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  .abyssa-rp__actor[data-active="true"] { translate: 0 0; }
+
+  /* 持续态整个不播 —— 这是本文件里最该砍的一类:
+     它们**无限循环、永不自行停止**,对动效敏感者比任何一次性动作都难回避。
+     一次性动作(点头/抖动/跳跃)由 motions.ts 在 JS 侧判定后直接不触发,
+     那边走同一条判据,这里只需处理 CSS 驱动的这三个。 */
+  .abyssa-rp__actor-idle { animation: none; }
+
+  .abyssa-rp__jump { transition-duration: 0.12s; }
+  /* 当前条退为历史时的过渡缩到几乎无感,但保留淡变 */
+  .abyssa-rp__bubble { transition-duration: 0.1s; }
+  /* 文字淡入去掉模糊,只留不透明度 */
+  .abyssa-rp__bubble-text { animation-duration: 0.2s; animation-delay: 0s; }
+
+  /* 交接整体压到 160ms。仍是一次连续插值,只是快得多——
+     不清零:清零等于位置和大小硬跳,那比慢一点更难受。 */
+  .abyssa-rp__message[data-kind="say"] { --abyssa-rp-shift: 160ms; }
+
+  /* 头像与菱形的弹入去掉缩放与旋转,只留淡入,并取消级联延迟。
+     过冲回弹正是动效敏感者最难受的那一类动作。 */
+  @keyframes abyssa-rp-avatar-pop {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes abyssa-rp-node-pop {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes abyssa-rp-rule-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  /* 弹入动画挂在 -inner 上,不是外层 —— 外层只负责激活前推 */
+  .abyssa-rp__avatar-inner,
+  .abyssa-rp__arrow svg,
+  .abyssa-rp__message[data-kind="say"][data-current] .abyssa-rp__row::before,
+  .abyssa-rp__message[data-kind="say"][data-current] .abyssa-rp__row::after {
+    animation-duration: 0.2s;
+    animation-delay: 0s;
+    animation-timing-function: ease;
+  }
+  /* 头像收起时的缩退取消,只留淡出。
+     负 margin 与 opacity: 0 依然生效——「当前态没有头像框」是版式决定,
+     不是动效,不该被 reduced-motion 关掉;这里去掉的只是那下缩小的动作。 */
+  .abyssa-rp__message[data-kind="say"][data-current] .abyssa-rp__avatar { transform: none; }
+
+  /* 箭头:取消「前探」这个纯粹的运动,但**保留大小分级**——
+     0.78 / 1 的尺寸差是状态标识(哪条是当前),和头像收起一样属于版式决定,
+     不该被 reduced-motion 关掉。这里只把前探量归零。
+
+     注意只清 out、不能清 align:后者是尖端对齐补偿,是几何校正而非动效,
+     清掉会让历史态的矛尖重新缩回去、与当前态错位 2.63px。
+
+     也不再需要按席位写两条 transform 覆盖:翻转独占 transform,
+     位移走 translate,两者互不干涉。 */
+  .abyssa-rp__message[data-current] .abyssa-rp__arrow { --abyssa-rp-arrow-out: 0px; }
+
+  /* 芯的呼吸停掉。持续循环的明暗脉动正是动效敏感者最难回避的一类,
+     而且它无限循环、永远不会自行停下。
+     填充色仍保留(当前态亮、历史态近黑)—— 那是状态标识,不是动效。 */
+  .abyssa-rp__arrow-core { animation: none; }
+
+  /* FX 图层:留下静态的竖边光条与四角括号(它们是**状态标识**,
+     去掉就看不出哪条是当前),但撤掉一切运动——
+     光条不再纵向展开、角标不再过冲弹入、横扫整个不播。
+     横扫是纯粹的「刚刚发生」修饰,没有信息量,是这层里最该先砍的。 */
+  .abyssa-rp__bubble-sweep { display: none; }
+
+  .abyssa-rp__bubble-edge,
+  .abyssa-rp__bubble-fx i {
+    animation: none;
+  }
+
+  /* 打字机整个不播:逐字揭示是一段**跟着阅读视线走**的持续运动,
+     对动效敏感者比单纯的位移更难回避。字直接全显。
+
+     写 animation: none 而不是压时长 —— 逐字动画的延迟是
+     lead + i × step,长消息末尾的字延迟能累到两秒以上;
+     只压 duration 的话那些字仍要等满延迟才出现,反而更难受。
+     必须连 delay 一起清掉,animation: none 是最干净的写法。 */
+  .abyssa-rp__type-char { animation: none; }
+
+  /* 当前态气泡正文在常态下被置为 animation: none(逐字接管),
+     这里补回一次极短的整段淡入,免得文字硬切出现。 */
+  .abyssa-rp__message[data-kind="say"][data-current] .abyssa-rp__bubble-text {
+    animation: abyssa-rp-text-in 0.2s ease both;
+  }
+}
+
+/* ===================================================================
+   逐角色立绘调整表 —— 十人各自的身高/站位差异在这里补齐
+   ===================================================================
+   上面 .abyssa-rp 里的三个 doll-* 是**统一基准**,先用它把整体调对;
+   下面这张表是**单人偏差**,只写与基准不同的那几个人。
+
+   三个参数(都作用于立绘自身,与框无关):
+     --abyssa-rp-doll-h  高度占框内高度的比例。矮的角色调大,高的调小。
+     --abyssa-rp-doll-x  水平偏移,正 = 右移。单位是立绘自身宽度的百分比。
+     --abyssa-rp-doll-y  垂直偏移,正 = 下移。单位是立绘自身高度的百分比。
+
+   注意:这三个值只管**舞台上的观感**。PSD 画布本身的裁切差异已由
+   spriteCalibration.ts 的 scale/x/y 校平,两者叠加生效,不要在这里
+   重复补偿画布问题——那个该去改校准表。
+
+   下面十行的值当前全是基准值(即不做任何偏移),等你逐个看过再改。
+   改的时候建议开自动播放,让角色轮换上台对照着调。 */
+.abyssa-rp__actor[data-character="abyssa"]   { --abyssa-rp-doll-h: 100%; --abyssa-rp-doll-x: 0%; --abyssa-rp-doll-y: 0%; }
+.abyssa-rp__actor[data-character="alvitr"]   { --abyssa-rp-doll-h: 100%; --abyssa-rp-doll-x: 0%; --abyssa-rp-doll-y: 0%; }
+.abyssa-rp__actor[data-character="elora"]    { --abyssa-rp-doll-h: 100%; --abyssa-rp-doll-x: 0%; --abyssa-rp-doll-y: 0%; }
+.abyssa-rp__actor[data-character="eustice"]  { --abyssa-rp-doll-h: 100%; --abyssa-rp-doll-x: 0%; --abyssa-rp-doll-y: 0%; }
+.abyssa-rp__actor[data-character="kororo"]   { --abyssa-rp-doll-h: 100%; --abyssa-rp-doll-x: 0%; --abyssa-rp-doll-y: 0%; }
+.abyssa-rp__actor[data-character="lenore"]   { --abyssa-rp-doll-h: 100%; --abyssa-rp-doll-x: 0%; --abyssa-rp-doll-y: 0%; }
+.abyssa-rp__actor[data-character="marietta"] { --abyssa-rp-doll-h: 100%; --abyssa-rp-doll-x: 0%; --abyssa-rp-doll-y: 0%; }
+.abyssa-rp__actor[data-character="norma"]    { --abyssa-rp-doll-h: 100%; --abyssa-rp-doll-x: 0%; --abyssa-rp-doll-y: 0%; }
+.abyssa-rp__actor[data-character="tibby"]    { --abyssa-rp-doll-h: 100%; --abyssa-rp-doll-x: 0%; --abyssa-rp-doll-y: 0%; }
+.abyssa-rp__actor[data-character="vivienne"] { --abyssa-rp-doll-h: 100%; --abyssa-rp-doll-x: 0%; --abyssa-rp-doll-y: 0%; }
+
+/* ==================== 挂载即终态(data-settled) ====================
+   版式切换回分屏时,已读过的消息重新挂载。若照常播入场演出,
+   逐字打字机会与过场的淡入叠在一起 —— 读起来是「内容又自己演了一遍」。
+   这里把那批消息的所有入场动画一次性掐掉,直接呈现终态。
+   只作用于挂载时已在场的那批(见 RpScene 的 hydratedIds),
+   之后新推进的消息不带这个标记,照常演出。 */
+.abyssa-rp__message[data-settled] {
+  animation: none;
+}
+
+.abyssa-rp__message[data-settled] .abyssa-rp__type-char {
+  animation: none;
+  opacity: 1;
+}
+
+.abyssa-rp__message[data-settled] .abyssa-rp__bubble-text,
+.abyssa-rp__message[data-settled] .abyssa-rp__bubble,
+.abyssa-rp__message[data-settled] .abyssa-rp__bubble::before,
+.abyssa-rp__message[data-settled] .abyssa-rp__bubble-fx,
+.abyssa-rp__message[data-settled] .abyssa-rp__row,
+.abyssa-rp__message[data-settled] .abyssa-rp__row::before,
+.abyssa-rp__message[data-settled] .abyssa-rp__row::after,
+.abyssa-rp__message[data-settled] .abyssa-rp__avatar,
+.abyssa-rp__message[data-settled] .abyssa-rp__avatar-inner,
+.abyssa-rp__message[data-settled] .abyssa-rp__arrow,
+.abyssa-rp__message[data-settled] .abyssa-rp__arrow-core {
+  animation: none;
+}

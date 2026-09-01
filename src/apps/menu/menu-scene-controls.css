@@ -1,0 +1,140 @@
+/* ============ 左下角场景切换 ============
+   两枚独立的紧凑 HUD 按钮：不包成控制台，但表面沿用顶栏/侧栏的
+   深色外沿 → 青灰金属脊 → 暗色内嵌面三层材质。 */
+.menu-scene-controls {
+  position: absolute;
+  top: 808px;
+  left: 16px;
+  z-index: 8;
+  display: flex;
+  gap: 10px;
+}
+.menu-scene-controls__item {
+  position: relative;
+  display: grid;
+  width: 122px;
+  height: 58px;
+  grid-template-columns: 29px minmax(0, 1fr) 23px;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  border: 0;
+  background: #030607;
+  box-shadow:
+    0 7px 13px rgb(0 0 0 / 44%),
+    0 1px rgb(161 184 180 / 20%);
+  clip-path: polygon(0 0, calc(100% - 7px) 0, 100% 7px, 100% 100%, 7px 100%, 0 calc(100% - 7px));
+  color: #bdcbc8;
+  cursor: pointer;
+  isolation: isolate;
+  text-align: left;
+  transition: color 140ms ease, filter 140ms ease, transform 80ms ease;
+}
+.menu-scene-controls__item::before,
+.menu-scene-controls__item::after {
+  position: absolute;
+  content: "";
+  pointer-events: none;
+}
+.menu-scene-controls__item::before {
+  inset: 3px;
+  z-index: -2;
+  background: #718783;
+  clip-path: polygon(0 0, calc(100% - 5px) 0, 100% 5px, 100% 100%, 5px 100%, 0 calc(100% - 5px));
+  transition: background 140ms ease;
+}
+.menu-scene-controls__item::after {
+  inset: 5px;
+  z-index: -1;
+  background:
+    linear-gradient(180deg, rgb(151 177 172 / 10%), transparent 31%),
+    linear-gradient(90deg, rgb(75 111 107 / 10%), transparent 68%),
+    #0c1415;
+  box-shadow:
+    inset 0 0 0 1px #1d2c2b,
+    inset 0 4px 8px rgb(0 0 0 / 42%),
+    inset 0 -1px rgb(155 181 176 / 7%);
+  clip-path: polygon(0 0, calc(100% - 4px) 0, 100% 4px, 100% 100%, 4px 100%, 0 calc(100% - 4px));
+  transition: background 140ms ease, box-shadow 140ms ease;
+}
+.menu-scene-controls__item:hover {
+  color: #edf3f1;
+  filter: brightness(1.08);
+}
+.menu-scene-controls__item:hover::before {
+  background: #8ba19d;
+}
+.menu-scene-controls__item:hover::after {
+  background:
+    linear-gradient(180deg, rgb(164 196 190 / 13%), transparent 34%),
+    linear-gradient(90deg, rgb(76 128 121 / 15%), transparent 72%),
+    #101b1b;
+}
+.menu-scene-controls__item:active {
+  filter: brightness(.88);
+  transform: translateY(1px);
+}
+.menu-scene-controls__item:active::after {
+  box-shadow:
+    inset 0 5px 10px rgb(0 0 0 / 64%),
+    inset 0 0 0 1px #263a38;
+}
+.menu-scene-controls__item:focus-visible {
+  outline: 2px solid var(--abyssa-focus);
+  outline-offset: 3px;
+}
+.menu-scene-controls__icon {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 27px;
+  height: 27px;
+  background: currentColor;
+  mask-position: center;
+  mask-repeat: no-repeat;
+  mask-size: contain;
+  opacity: .92;
+  filter: drop-shadow(0 2px 2px rgb(0 0 0 / 72%));
+}
+.menu-scene-controls__item[data-kind="character"] .menu-scene-controls__icon {
+  mask-image: url("../../assets/svg/items/game-icons/hood.svg");
+}
+.menu-scene-controls__item[data-kind="background"] .menu-scene-controls__icon {
+  width: 25px;
+  height: 25px;
+  mask-image: url("../../assets/svg/items/game-icons/mirror-mirror.svg");
+}
+.menu-scene-controls__counter {
+  position: relative;
+  z-index: 1;
+  color: #d3dedb;
+  font: 700 14px/1 var(--abyssa-font-display);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: .06em;
+  text-align: center;
+  text-shadow: 0 2px 3px rgb(0 0 0 / 84%);
+  white-space: nowrap;
+}
+.menu-scene-controls__switch-mark {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 23px;
+  height: 30px;
+  border-left: 1px solid rgb(119 145 140 / 32%);
+  color: #8ca4a0;
+}
+.menu-scene-controls__switch-mark::before {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  width: 18px;
+  height: 18px;
+  background: currentColor;
+  content: "";
+  filter: drop-shadow(0 1px 2px rgb(0 0 0 / 72%));
+  mask: url("../../assets/svg/anticlockwise-rotation.svg") center / contain no-repeat;
+}
+.menu-scene-controls__item:hover .menu-scene-controls__switch-mark {
+  color: #b5d0cc;
+}

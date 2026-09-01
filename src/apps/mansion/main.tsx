@@ -11,7 +11,6 @@ import "../../shared/ui/styles/items.css";
 import "../../shared/ui/styles/dialogue.css";
 import "../../shared/ui/styles/paper-doll.css";
 import "../../shared/stage/stage.css";
-import "../../shared/transition/transition.css";
 import "./mansion.css";
 
 createRoot(document.getElementById("root")!).render(

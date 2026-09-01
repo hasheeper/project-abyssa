@@ -1,0 +1,291 @@
+/* =========================================================
+       页面顶部
+       ========================================================= */
+
+/* ============ 整组等比缩放 ============
+   实测内容自然尺寸是 1440x1043,而画布是 1600x900 —— 高度差 143px。
+   若不处理,底部(action-dock / 终局面板)会被画布的 overflow:hidden 裁掉。
+
+   与 shop 同一手法:内容一个 px 都不改,整组按比例缩到画布内。
+   k 现由共享画框契约提供(stage/stage.css),不再是本应用手算的魔数 ——
+   所有应用共享同一个 k,同一个设计 px 在各应用里物理尺寸才一致。
+
+   为什么不改内容尺寸:那要动 2894 行里几百个 px,且会破坏 --dice-size
+   与 perspective:620px 的比例关系(骰子透视强度依赖两者的比值)。
+   已实测:整组 scale 下 face/die 比恒为 0.946565,透视零失真。 */
+.game-shell {
+  --dice-shell-k: var(--abyssa-frame-k);
+
+  /* 整组自然高 = 招牌露出 87.03 + shell 945 = 1032.03,与 shop 完全相同。
+     不再吃满画布:整组上移到与 character-status 对齐(主体外沿
+     y 101.44 -> 785.83),下方留空。
+     曾有 padding: 24px 0 70px,实测那 94px 内**零元素占用**(纯死空间,
+     白吃缩放预算),已删除。 */
+  position: relative;
+  /* 宽度 = shell 自然宽 = board 1395.67 + (brass3+描边1 + rail22+描边2)*2
+     = 1451.67,与 shop 相同(画框几何全共享)。board 因可用区锁 5:3 而加宽,
+     这里必须同步,否则 shell 比 board 窄、整块会偏移。
+     画布已等比缩放,这里不能再用 % / vw —— 会与外层 scale 叠加成
+     二次缩放。见 stage/README.md 铁律 1。 */
+  width: calc(
+    var(--abyssa-frame-interior-h) * 5 / 3 + var(--abyssa-frame-pad-inline) * 2 +
+      var(--abyssa-frame-border) * 2 +
+      (
+          var(--abyssa-frame-brass) + var(--abyssa-frame-border-hair) +
+            var(--abyssa-frame-rail) + var(--abyssa-frame-border)
+        ) * 2
+  );
+  /* transform 只改绘制不改布局:布局仍是自然尺寸,会把画布撑破。
+     负 margin 把布局盒子抵消成**视觉尺寸**,
+     居中则完全交给画布的 grid place-items:center。
+
+     曾经在这里手算过左右偏移((1600-1440)/2 + 缩放差额/2),结果把
+     「画布余量」和「缩放差额」重复计入,左右各多推 80px,界面明显偏右
+     (实测左 299.5 / 右 80.0)。教训:居中永远交给布局系统,
+     不要手算偏移量。 */
+  margin-block: calc((1032.03px * var(--dice-shell-k) - 1032.03px) / 2);
+  margin-inline: calc(
+    (
+        (
+            var(--abyssa-frame-interior-h) * 5 / 3 +
+              var(--abyssa-frame-pad-inline) * 2 + var(--abyssa-frame-border) * 2 +
+              (
+                  var(--abyssa-frame-brass) + var(--abyssa-frame-border-hair) +
+                    var(--abyssa-frame-rail) + var(--abyssa-frame-border)
+                ) * 2
+          ) * var(--dice-shell-k) -
+          (
+            var(--abyssa-frame-interior-h) * 5 / 3 +
+              var(--abyssa-frame-pad-inline) * 2 + var(--abyssa-frame-border) * 2 +
+              (
+                  var(--abyssa-frame-brass) + var(--abyssa-frame-border-hair) +
+                    var(--abyssa-frame-rail) + var(--abyssa-frame-border)
+                ) * 2
+          )
+      ) / 2
+  );
+  /* 上移 11.41px(实测标定)。画布 grid 居中的起点受招牌负 margin 影响,
+     按自然高推算会偏,故以实测标定为准:目标是主体外沿顶落在 y=101.44,
+     与 character-status / shop 对齐。
+     注意这里的位移量**不受 k 缩放**(实测斜率 1.000):transform 从右往左
+     作用,scale 先执行,translate 后执行,故它是画布px 而非设计px。
+     用 translateY 而非不对称 margin —— 后者会与 place-items:center
+     打架(character-status 上踩过,下推量只生效一半)。
+     translate 必须写在 scale 之前:transform 从右往左作用,先缩放再平移,
+     平移量才不被 k 放大。 */
+  transform: translateY(-11.41px) scale(var(--dice-shell-k));
+  transform-origin: center center;
+}
+
+/* 运行时状态角标。原来 top:44/right:4 是相对 game-shell,而 shell 上方
+   是招牌的留空区 —— 实测它整个浮在画框**外**的黑底上(y 46.4-63.8,
+   而画框顶在 67.68)。改为挂进画框内,贴 board 右上角内侧。 */
+.dice-runtime-state {
+  position: absolute;
+  top: calc(
+    var(--abyssa-frame-header-expose) + var(--abyssa-frame-rail) +
+      var(--abyssa-frame-brass) + var(--abyssa-frame-border) * 3 + 8px
+  );
+  right: calc(
+    var(--abyssa-frame-rail) + var(--abyssa-frame-brass) +
+      var(--abyssa-frame-border) * 3 + 8px
+  );
+  z-index: 5;
+  padding: 5px 9px;
+  border: 1px solid rgb(170 135 74 / 32%);
+  background: rgb(17 12 7 / 76%);
+  color: #907c5c;
+  font-family: var(--font-display);
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.dice-runtime-state[data-state="ready"] {
+  border-color: rgb(90 145 129 / 38%);
+  color: #91b9aa;
+}
+
+.dice-runtime-state[data-state="unavailable"] {
+  border-color: rgb(155 91 67 / 42%);
+  color: #bd8b74;
+}
+
+/* 招牌。整体缩到与 shop 同一块牌子:shop 自然 560x98、dice 原 660x116,
+   两者宽高比相同(5.6899),所以单一系数即可让宽和高同时对齐。
+     k = 560 / 660 = 0.848485   ->  660x116 缩成 560x98.4
+   露出高则由共享令牌统一(它决定 shell 顶边 y,不统一 shell 就跟着错位)。 */
+.game-header {
+  --dice-header-k: calc(560 / 660 * var(--abyssa-frame-header-scale));
+
+  position: relative;
+  z-index: 4;
+  width: 660px;
+  /* transform-origin 是 top,故视觉顶边 == 布局顶边,**不需要** margin-top
+     去抵消(曾错加过 -18px,它与 game-shell 的上边距发生 margin 折叠,
+     把招牌顶到画布之上,实测 y=-7.69)。
+     只需让流内高度等于露出高:布局高恒为 116(transform 不改布局),
+     故 margin-bottom = 68.4 - 116 = -47.6。
+     水平:布局盒子居中即视觉居中(origin 含 center),用 auto 交给布局系统。 */
+  margin-inline: auto;
+  /* 布局高恒 116(transform 不改布局),让流内只占露出高。
+     放大倍数只影响绘制,故这里与放大无关。 */
+  margin-bottom: calc(var(--abyssa-frame-header-expose) - 116px);
+  pointer-events: none;
+  transform: scale(var(--dice-header-k));
+  transform-origin: center top;
+}
+
+.dice-header__title {
+  --abyssa-header-fill: #171007;
+  --abyssa-header-text: #e9dcc5;
+  --abyssa-header-ornament: #aa874a;
+  --abyssa-header-middle-frame: #72572f;
+  --abyssa-header-pattern: rgb(215 187 124 / 6%);
+}
+
+.dice-outer-frame {
+  position: relative;
+  z-index: 1;
+  padding: var(--abyssa-frame-rail);
+  border: var(--abyssa-frame-border) solid #080503;
+  background: #160e07;
+  box-shadow:
+    0 0 0 2px #4a321a,
+    0 0 0 4px #090603,
+    inset 0 0 20px rgb(0 0 0 / 88%),
+    0 20px 42px rgb(4 2 1 / 52%);
+}
+
+/* 木质压条。z 必须高于 __metal(z:1) —— 操作面板出血到画框上时,
+   要被压条**盖住**(面板在边框之下),而不是骑在边框上面。
+   压条只占 padding 区的四条边,抬高 z 不会遮住 board 内的内容。 */
+.dice-outer-frame__rails {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: block;
+  pointer-events: none;
+}
+
+.dice-outer-frame__rails i {
+  position: absolute;
+  display: block;
+  border: 1px solid #090603;
+  background-color: #28190c;
+  box-shadow:
+    inset 0 1px rgb(223 177 98 / 17%),
+    inset 0 -2px rgb(0 0 0 / 62%);
+}
+
+.dice-outer-frame__rails [data-edge="top"] {
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: var(--abyssa-frame-rail);
+  background-image: linear-gradient(
+    180deg,
+    rgb(255 224 165 / 9%),
+    transparent 32%,
+    rgb(0 0 0 / 68%)
+  );
+  clip-path: polygon(0 0, 100% 0, calc(100% - var(--abyssa-frame-rail)) 100%, var(--abyssa-frame-rail) 100%);
+}
+
+.dice-outer-frame__rails [data-edge="right"] {
+  top: 0;
+  right: 0;
+  width: var(--abyssa-frame-rail);
+  height: 100%;
+  background-image: linear-gradient(
+    90deg,
+    rgb(255 224 165 / 6%),
+    transparent 36%,
+    rgb(0 0 0 / 72%)
+  );
+  clip-path: polygon(0 0, 100% var(--abyssa-frame-rail), 100% calc(100% - var(--abyssa-frame-rail)), 0 100%);
+}
+
+.dice-outer-frame__rails [data-edge="bottom"] {
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: var(--abyssa-frame-rail);
+  background-image: linear-gradient(
+    180deg,
+    rgb(0 0 0 / 65%),
+    transparent 45%,
+    rgb(255 224 165 / 6%)
+  );
+  clip-path: polygon(var(--abyssa-frame-rail) 0, calc(100% - var(--abyssa-frame-rail)) 0, 100% 100%, 0 100%);
+}
+
+.dice-outer-frame__rails [data-edge="left"] {
+  top: 0;
+  left: 0;
+  width: var(--abyssa-frame-rail);
+  height: 100%;
+  background-image: linear-gradient(
+    90deg,
+    rgb(0 0 0 / 74%),
+    transparent 68%,
+    rgb(255 224 165 / 5%)
+  );
+  clip-path: polygon(0 var(--abyssa-frame-rail), 100% 0, 100% 100%, 0 calc(100% - var(--abyssa-frame-rail)));
+}
+
+.dice-outer-frame__metal {
+  position: relative;
+  z-index: 1;
+  padding: var(--abyssa-frame-brass);
+  border: var(--abyssa-frame-border-hair) solid #1b1007;
+  background: linear-gradient(
+    135deg,
+    #3d2915,
+    #9b7740 20%,
+    #513719 48%,
+    #ad884a 74%,
+    #362311
+  );
+  box-shadow:
+    inset 0 0 0 1px rgb(255 231 177 / 19%),
+    0 0 0 1px #070402;
+}
+
+.dice-outer-frame__surface {
+  /* action-dock 靠这个值做出血,故保留变量名,值取共享 padding。 */
+  --dice-surface-bottom: var(--abyssa-frame-pad-bottom);
+  /* grid + place-items 让内容在 interior 内居中(内容比 interior 更扁,
+     竖向会余 87.2px)。居中交给布局系统,不手算偏移。 */
+  display: grid;
+  /* 画框几何全部来自共享令牌 —— padding 决定画框宽度,属于几何不是皮肤,
+     各应用自定会让 board/shell 的可见边缘错位(上一版就是这么错的)。 */
+  /* 宽由「内容可用区锁 5:3」反推,与 shop / character-status 同一规则:
+       可用区高 787(不动) -> 宽 = 787 * 5/3 = 1311.67
+       board = 1311.67 + padding 40*2 + 描边 2*2 = 1395.67
+     内容在其中居中,两侧留空。不反过来压高度 —— 那会裁掉内容。 */
+  width: calc(
+    var(--abyssa-frame-interior-h) * 5 / 3 + var(--abyssa-frame-pad-inline) * 2 +
+      var(--abyssa-frame-border) * 2
+  );
+  height: var(--abyssa-frame-board-h);
+  min-width: 0;
+  padding: var(--abyssa-frame-pad-top) var(--abyssa-frame-pad-inline)
+    var(--dice-surface-bottom);
+  border: var(--abyssa-frame-border) solid #150c05;
+  place-items: center;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgb(170 135 74 / 10%), transparent 44%),
+    repeating-linear-gradient(
+      2deg,
+      transparent 0 11px,
+      rgb(255 225 175 / 1.5%) 12px,
+      transparent 14px
+    ),
+    #201309;
+  box-shadow:
+    inset 0 0 0 1px rgb(209 163 83 / 25%),
+    inset 0 0 32px rgb(5 3 1 / 74%);
+}

@@ -15,6 +15,18 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
+    "./branding": {
+      "types": "./dist/branding.d.ts",
+      "import": "./dist/branding.js"
+    },
+    "./patterns": {
+      "types": "./dist/patterns.d.ts",
+      "import": "./dist/patterns.js"
+    },
+    "./primitives": {
+      "types": "./dist/primitives.d.ts",
+      "import": "./dist/primitives.js"
+    },
     "./styles.css": "./dist/abyssa-ui.css"
   },
   "files": [
@@ -35,6 +47,9 @@
     "dev:novel": "vite --config vite.novel.config.ts",
     "dev:rp": "vite --config vite.rp.config.ts",
     "dev:studio": "vite --config vite.studio.config.ts",
+    "dev:logo-studio": "vite --config vite.logo-studio.config.ts",
+    "dev:dice-studio": "vite --config vite.dice-studio.config.ts",
+    "dev:title": "vite --config vite.title.config.ts",
     "preview:components": "npm run build:preview && vite static-preview",
     "preview:character-status": "vite preview --config vite.character-status.config.ts",
     "preview:battle": "vite preview --config vite.battle.config.ts",
@@ -47,6 +62,7 @@
     "preview:novel": "vite preview --config vite.novel.config.ts",
     "preview:rp": "vite preview --config vite.rp.config.ts",
     "preview:studio": "vite preview --config vite.studio.config.ts",
+    "preview:logo-studio": "vite preview --config vite.logo-studio.config.ts",
     "build": "vite build && tsc -p tsconfig.build.json",
     "build:battle": "vite build --config vite.battle.config.ts",
     "build:dice": "vite build --config vite.dice.config.ts",
@@ -60,7 +76,12 @@
     "build:novel": "vite build --config vite.novel.config.ts",
     "build:rp": "vite build --config vite.rp.config.ts",
     "build:studio": "vite build --config vite.studio.config.ts",
+    "build:logo-studio": "vite build --config vite.logo-studio.config.ts",
+    "build:dice-studio": "vite build --config vite.dice-studio.config.ts",
+    "build:title": "vite build --config vite.title.config.ts",
     "build:preview": "node scripts/build-static-preview.mjs",
+    "release:check": "npm run build && node scripts/check-package-release.mjs",
+    "prepack": "npm run release:check",
     "icons:sync": "node scripts/sync-game-icons.mjs",
     "icons:check": "node scripts/sync-game-icons.mjs --check",
     "emotes:build": "node scripts/build-emotes.mjs",

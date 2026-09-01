@@ -1,0 +1,357 @@
+
+/* ============================================================
+   玩家攻击演出
+   旧 BattleScreen 的双斩线 / 顿帧 / 白闪语言，适配远征的卡牌布局。
+============================================================ */
+
+/* 新层与召唤物都从瘴气中显形；稳定 key 确保普通重渲染不会重播。 */
+.abyssa-expedition-enemy {
+  transform-origin: 50% 82%;
+  animation: expedition-enemy-enter 460ms cubic-bezier(.14, .78, .2, 1) backwards;
+}
+
+.abyssa-expedition-enemies::after {
+  position: absolute;
+  inset: 0;
+  z-index: 12;
+  background:
+    radial-gradient(circle at 50% 48%, rgb(255 250 230 / 62%), transparent 22%),
+    rgb(255 255 255 / 12%);
+  content: "";
+  opacity: 0;
+  pointer-events: none;
+}
+
+.abyssa-expedition[data-attack-phase="hitstop"] .abyssa-expedition-enemies::after {
+  opacity: .14;
+}
+
+.abyssa-expedition[data-attack-phase="impact"] .abyssa-expedition-enemies::after {
+  animation: expedition-attack-field-flash 150ms ease-out both;
+}
+
+.abyssa-expedition-enemy[data-attack-phase] {
+  z-index: 8;
+}
+
+.abyssa-expedition-enemy[data-attack-phase] > img {
+  will-change: transform, opacity;
+}
+
+.abyssa-expedition-attack-fx {
+  position: absolute;
+  inset: 38px 3% 28px;
+  z-index: 7;
+  display: block;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.abyssa-expedition-attack-flash,
+.abyssa-expedition-attack-burst,
+.abyssa-expedition-attack-slash {
+  position: absolute;
+  top: 52%;
+  left: 50%;
+  display: block;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.abyssa-expedition-attack-flash {
+  width: 78%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgb(255 255 255 / 96%) 0 4%, rgb(255 229 190 / 74%) 13%, transparent 61%);
+  filter: drop-shadow(0 0 10px rgb(255 199 128 / 70%));
+  transform: translate(-50%, -50%) scale(.25);
+}
+
+.abyssa-expedition-attack-burst {
+  width: 70%;
+  aspect-ratio: 1;
+  border: 2px solid rgb(255 220 163 / 78%);
+  border-radius: 50%;
+  box-shadow: inset 0 0 18px rgb(255 238 204 / 72%), 0 0 22px rgb(210 92 58 / 62%);
+  transform: translate(-50%, -50%) scale(.25);
+}
+
+.abyssa-expedition-attack-slash {
+  --expedition-slash-angle: -19deg;
+  width: 92%;
+  height: 9px;
+  background:
+    linear-gradient(180deg, transparent 0 20%, #fff 38% 58%, #ffdca1 64% 72%, transparent 88%),
+    linear-gradient(90deg, transparent, #fff 18% 78%, transparent);
+  clip-path: polygon(0 48%, 11% 8%, 100% 34%, 91% 100%);
+  filter:
+    drop-shadow(0 0 3px #fff)
+    drop-shadow(0 0 9px rgb(255 161 88 / 84%));
+  transform: translate(-50%, -50%) rotate(var(--expedition-slash-angle)) scaleX(0);
+  transform-origin: 16% 50%;
+}
+
+.abyssa-expedition-attack-slash[data-slash="two"] {
+  --expedition-slash-angle: 24deg;
+  width: 80%;
+  height: 7px;
+  transform-origin: 82% 50%;
+}
+
+.abyssa-expedition-enemy[data-attack-phase="anticipate"]::before {
+  position: absolute;
+  top: 47%;
+  left: 50%;
+  z-index: 6;
+  width: 58%;
+  aspect-ratio: 1;
+  border: 1px solid rgb(238 196 118 / 62%);
+  border-radius: 50%;
+  box-shadow: inset 0 0 20px rgb(216 92 54 / 20%), 0 0 12px rgb(239 190 105 / 28%);
+  content: "";
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(1.22);
+  animation: expedition-attack-lock 100ms ease-out both;
+  pointer-events: none;
+}
+
+.abyssa-expedition-enemy[data-attack-phase="hitstop"] > img {
+  filter: brightness(3.8) saturate(0) drop-shadow(0 0 11px #fff);
+}
+
+.abyssa-expedition-enemy[data-attack-phase="hitstop"] .abyssa-expedition-attack-slash[data-slash="one"] {
+  animation: expedition-slash-draw 90ms cubic-bezier(.1, .82, .18, 1) both;
+}
+
+.abyssa-expedition-enemy[data-attack-phase="impact"] > img {
+  animation: expedition-enemy-impact 260ms cubic-bezier(.18, .8, .2, 1) both;
+}
+
+.abyssa-expedition-enemy[data-attack-phase="impact"] .abyssa-expedition-attack-flash {
+  animation: expedition-attack-flash 180ms ease-out both;
+}
+
+.abyssa-expedition-enemy[data-attack-phase="impact"] .abyssa-expedition-attack-burst {
+  animation: expedition-attack-burst 300ms ease-out both;
+}
+
+.abyssa-expedition-enemy[data-attack-phase="impact"] .abyssa-expedition-attack-slash[data-slash="one"] {
+  animation: expedition-slash-burst 220ms ease-out both;
+}
+
+.abyssa-expedition-enemy[data-attack-phase="impact"] .abyssa-expedition-attack-slash[data-slash="two"] {
+  animation: expedition-slash-cross 240ms 22ms ease-out both;
+}
+
+.abyssa-expedition-enemy[data-attack-phase="defeat"] > header {
+  animation: expedition-enemy-ui-exit 260ms ease-in both;
+}
+
+.abyssa-expedition-enemy[data-attack-phase="defeat"] > img {
+  filter: grayscale(1) brightness(1.3) contrast(1.15) drop-shadow(0 0 12px rgb(255 218 160 / 72%));
+  animation: expedition-enemy-defeat 460ms cubic-bezier(.22, .68, .3, 1) both;
+}
+
+.abyssa-expedition-enemy[data-attack-phase="defeat"] .abyssa-expedition-attack-burst {
+  border-color: rgb(255 235 183 / 88%);
+  animation: expedition-defeat-ring 430ms ease-out both;
+}
+
+.abyssa-expedition-attack-damage {
+  position: absolute;
+  top: 29%;
+  left: 50%;
+  z-index: 10;
+  display: grid;
+  gap: 2px;
+  justify-items: center;
+  opacity: 0;
+  color: #fff3cb;
+  font-family: var(--font-display);
+  line-height: 1;
+  text-shadow:
+    0 2px 0 #3d0c08,
+    0 0 7px #fff,
+    0 0 15px rgb(231 82 53 / 92%);
+  transform: translate(-50%, 16px) scale(.78) rotate(-5deg);
+  pointer-events: none;
+}
+
+.abyssa-expedition-attack-damage b {
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: -.02em;
+}
+
+.abyssa-expedition-attack-damage small {
+  color: #e9c27e;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .24em;
+  opacity: 0;
+}
+
+.abyssa-expedition-enemy:is(
+  [data-attack-phase="impact"],
+  [data-attack-phase="recover"],
+  [data-attack-phase="defeat"]
+) .abyssa-expedition-attack-damage {
+  animation: expedition-attack-damage 560ms linear both;
+}
+
+.abyssa-expedition-enemy[data-attack-lethal] .abyssa-expedition-attack-damage {
+  animation-duration: 720ms;
+}
+
+.abyssa-expedition-enemy[data-attack-phase="defeat"] .abyssa-expedition-attack-damage small {
+  animation: expedition-defeat-label 300ms ease-out both;
+}
+
+/* 攻击者仍是卡面，但用上冲和持续通电明确动作来源。 */
+.abyssa-expedition-party-card[data-attacking] {
+  z-index: 8;
+  border-color: #f0d18d;
+  box-shadow:
+    0 0 0 2px rgb(240 209 141 / 78%),
+    0 0 25px rgb(238 175 78 / 46%);
+}
+
+.abyssa-expedition[data-attack-phase="anticipate"] .abyssa-expedition-party-card[data-attacking] {
+  animation: expedition-attacker-anticipate 100ms cubic-bezier(.12, .84, .18, 1) both;
+}
+
+.abyssa-expedition[data-attack-phase="hitstop"] .abyssa-expedition-party-card[data-attacking] {
+  transform: translateY(-7px) scale(1.025);
+}
+
+.abyssa-expedition[data-attack-phase="impact"] .abyssa-expedition-party-card[data-attacking] {
+  animation: expedition-attacker-impact 260ms ease-out both;
+}
+
+.abyssa-expedition-party-column[data-attacking] .abyssa-expedition-party-link {
+  filter: drop-shadow(0 0 6px rgb(255 218 130 / 86%));
+}
+
+.abyssa-expedition-party-column[data-attacking] .abyssa-expedition-party-link__main {
+  stroke: #fff7d9;
+  stroke-width: 3px;
+}
+
+@keyframes expedition-enemy-enter {
+  0% {
+    opacity: 0;
+    transform: translateY(24px) scale(.78);
+  }
+  58% {
+    opacity: .88;
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes expedition-attack-lock {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(1.22); }
+  100% { opacity: .76; transform: translate(-50%, -50%) scale(.92); }
+}
+
+@keyframes expedition-enemy-impact {
+  0% {
+    transform: translateY(-18px) translateX(0) rotate(0) scale(1);
+  }
+  22% {
+    transform: translateY(-20px) translateX(13px) rotate(3deg) scale(1.045);
+  }
+  46% { transform: translateY(-17px) translateX(-7px) rotate(-1.5deg) scale(.99); }
+  68% { transform: translateY(-19px) translateX(4px) rotate(.7deg) scale(1.01); }
+  100% {
+    transform: translateY(-18px) translateX(0) rotate(0) scale(1);
+  }
+}
+
+@keyframes expedition-enemy-defeat {
+  0% {
+    opacity: 1;
+    transform: translateY(-18px) translateX(0) rotate(0) scale(1);
+  }
+  24% {
+    opacity: 1;
+    transform: translateY(-22px) translateX(8px) rotate(2deg) scale(1.045);
+  }
+  62% {
+    opacity: .7;
+    transform: translateY(-8px) translateX(18px) rotate(4deg) scale(.92, 1.02);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(30px) translateX(28px) rotate(7deg) scale(.66, .34);
+  }
+}
+
+@keyframes expedition-enemy-ui-exit {
+  to { opacity: 0; transform: translateY(-7px); }
+}
+
+@keyframes expedition-slash-draw {
+  0% { opacity: 0; transform: translate(-50%, -50%) rotate(var(--expedition-slash-angle)) scaleX(0); }
+  22% { opacity: 1; }
+  100% { opacity: 1; transform: translate(-50%, -50%) rotate(var(--expedition-slash-angle)) scaleX(1); }
+}
+
+@keyframes expedition-slash-burst {
+  0% { opacity: 1; transform: translate(-50%, -50%) rotate(var(--expedition-slash-angle)) scaleX(1); }
+  100% { opacity: 0; transform: translate(-50%, -50%) rotate(var(--expedition-slash-angle)) scaleX(1.22); }
+}
+
+@keyframes expedition-slash-cross {
+  0% { opacity: 0; transform: translate(-50%, -50%) rotate(var(--expedition-slash-angle)) scaleX(0); }
+  24% { opacity: 1; transform: translate(-50%, -50%) rotate(var(--expedition-slash-angle)) scaleX(1); }
+  100% { opacity: 0; transform: translate(-50%, -50%) rotate(var(--expedition-slash-angle)) scaleX(1.18); }
+}
+
+@keyframes expedition-attack-flash {
+  0% { opacity: 1; transform: translate(-50%, -50%) scale(.22); }
+  42% { opacity: .92; }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(1.25); }
+}
+
+@keyframes expedition-attack-burst {
+  0% { opacity: .9; transform: translate(-50%, -50%) scale(.2); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(1.1); }
+}
+
+@keyframes expedition-defeat-ring {
+  0% { opacity: .72; transform: translate(-50%, -50%) scale(.52); }
+  55% { opacity: .88; }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(1.42); }
+}
+
+@keyframes expedition-attack-field-flash {
+  0% { opacity: .48; }
+  100% { opacity: 0; }
+}
+
+@keyframes expedition-attack-damage {
+  0% { opacity: 0; transform: translate(-50%, 16px) scale(.78) rotate(-5deg); }
+  10% { opacity: 1; transform: translate(-50%, 0) scale(1.16) rotate(-3deg); }
+  24% { opacity: 1; transform: translate(-50%, -7px) scale(1) rotate(-4deg); }
+  74% { opacity: .92; transform: translate(-50%, -21px) scale(1) rotate(-4deg); }
+  100% { opacity: 0; transform: translate(-50%, -38px) scale(.94) rotate(-4deg); }
+}
+
+@keyframes expedition-defeat-label {
+  0% { opacity: 0; letter-spacing: .45em; transform: translateY(4px); }
+  100% { opacity: 1; letter-spacing: .24em; transform: translateY(0); }
+}
+
+@keyframes expedition-attacker-anticipate {
+  0% { transform: translateY(0) scale(1); }
+  100% { transform: translateY(-7px) scale(1.025); }
+}
+
+@keyframes expedition-attacker-impact {
+  0% { transform: translateY(-7px) scale(1.025); }
+  24% { transform: translateY(-4px) scale(.985); }
+  100% { transform: translateY(0) scale(1); }
+}

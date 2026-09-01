@@ -5,6 +5,7 @@
 @import "./paper-doll.css";
 @import "./novel.css";
 @import "./rp.css";
+@import "./logo.css";
 /* 必须在 rp.css 之后:漫符层给 .abyssa-rp__actor-beat 补 position: relative,
    两处选择器特异性相同,靠顺序取胜。 */
 @import "./emote.css";

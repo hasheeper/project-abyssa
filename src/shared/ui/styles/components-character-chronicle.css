@@ -1,0 +1,680 @@
+/* 记事页布局。
+   几何镜像 src/shared/ui/patterns/characterTabPanelGeometry.ts（页签页共用槽位）。
+
+   ============ 三条既有约束 ============
+
+   1) 高度必须写死，不能 height:100%。
+      .__details 是 min-height:646（下限不是上限）、.__tabpanel 是 min-height:0，
+      两者都没有确定高度。height:100% 于是对着"由我自己撑出来"的父级求值，
+      循环依赖退化成 auto，内容一长就把整张卡片顶开。
+      固定画布下写死 px 是合法且唯一可靠的解。
+
+   2) 颜色只用 --abyssa-* 令牌，不写死 hex。
+      阵营皮肤（魔王红 / 干部青 / 勇者金）靠覆盖令牌切换，
+      写死颜色会让本页在换角色时不跟着变。
+
+   3) 覆盖在内容上方的纯装饰层必须 pointer-events:none。
+      滚动区上方压着装饰层时，不关掉命中测试会吞掉滚轮与焦点。
+
+   注：本页没有 preserve-3d 立体件，**不需要** perspective。
+      骰装页那条约束不适用，不为对称乱加。
+
+   ============ 视觉驱动，不焊业务 ============
+   条目的 stamp / badge / struck 都是任意字符串。样式**不假设**
+   badge 是等级、stamp 是天数 —— 机制未对齐，见 chronicle.ts 文件头。
+
+   顶部余隙 16：页签 translateY(6) 后压进 tabpanel 11px，再加 RpgFrame 5px 外环。
+   固定画布内禁用 vw/vh 与媒体查询重排。 */
+
+.abyssa-chronicle {
+  /* 阵营色：全部引令牌，随 data-skin 自动换。 */
+  --chr-accent: var(--abyssa-teal, #72b3b7);
+  --chr-accent-soft: var(--abyssa-teal-soft, #91c3c6);
+  --chr-edge: var(--abyssa-ornament, #647171);
+  --chr-hair: color-mix(in srgb, var(--chr-edge) 40%, transparent);
+  /* ============ 中性文字去饱和：为什么不直接用 --abyssa-text* ============
+     整套 --abyssa-text* 本身是 180° 青灰（饱和 6–9%）：
+       ink #edf0f0 / ink-soft #c2cbcb / dim #8f9b9b
+     而干部青的阵营色是 182° —— 色相距离只有 2.1°。
+
+     红（距 175°）与金（距 135°）都能靠**色相**把阵营色和正文分开；
+     青色不能，只剩亮度可用，而亮度已经拿去分层级了。
+     两个维度抢同一个通道 —— 这才是「青色主题最乱」的根因。
+     （反证：金色与标题的亮度比只有 1.29，三套最差，却不显乱，
+       因为它饱和 69% vs 中性 8%，靠彩度就分开了。）
+
+     下面三个值 = 原色灰度化后按亮度回贴，只抽彩度、不动明度，
+     所以字号/字重/亮度那三层排布完全不受影响。
+     对红/金皮肤几乎无感（它们本来靠色相区分），对青色则是关键的一半。 */
+  --chr-ink: #eeeeee;
+  --chr-ink-soft: #c6c6c6;
+  --chr-dim: #959595;
+  --chr-alert: var(--abyssa-danger, #ce7772);
+  --chr-pit: var(--abyssa-frame-deep, #101616);
+  --chr-well: var(--abyssa-panel-black, #1d2121);
+  --chr-surface: color-mix(in srgb, var(--abyssa-panel-dark, #242929) 76%, var(--chr-pit));
+  /* ============ 两栏时间线几何 ============
+     业内标准骨架(GitHub releases / Linear changelog / Material timeline):
+       [meta 元信息] │轴│ [content 内容]
+     轴压在两栏边界上,节点居中于轴,日期在 meta 栏右对齐贴着轴。
+
+     为什么不是 flex 单行:
+       原先 rail(38) / 条目内边距(52) / 标题起点(112) 是三条互相竞争的
+       左边界,而戳记与标题同处一个 flex 行 —— 标题起点随日期长度漂移
+       (「第 3 天」vs「第 12 天」差 8px)。眼睛找不到稳定的对齐轴,
+       就是「乱」的根源。
+     两栏 grid 下内容栏只有**一条**左边界,且与日期长度无关。 */
+  /* 原先 64 + 60 共吃掉 124px，正文起点落在整栏约 20% 处。
+     时间列保持紧凑；轨道恢复到 56px，让放大后的菱形与正文之间仍有
+     约 9px 的净空，不会出现图标清楚了、文字却又贴上来的反复。 */
+  --chr-meta-w: 54px;
+  --chr-rail-gap: 56px;
+  --chr-axis-x: calc(var(--chr-meta-w) + var(--chr-rail-gap) / 2);
+  --chr-node-minor: 8px;
+  --chr-node-standard: 20px;
+  --chr-node-major: 24px;
+  /* CJK 字距补偿：letter-spacing 会在末字后多留一份。 */
+  display: block;
+  /* 605.93 = 3 个页签时的槽位高（characterTabPanelHeight(3)）。
+     **随页签数量变**：4 个页签时是 609.18。
+     曾在骰装页写死 609.18，切页时把卡片顶开 3.25px。 */
+  height: 605.93px;
+  padding: 16px 6px 6px;
+  min-width: 0;
+  background: var(--chr-surface);
+  /* 兜底：任何一处算错都在内部裁掉，绝不外溢撑开卡片。 */
+  overflow: hidden;
+}
+/* ===== 干部青专属：把阵营色的彩度提上来 =====
+   #80d8db 是从令牌 --abyssa-teal-soft(#91c8ca) 提饱和 1.6 倍算出来的：
+     色相 182° 不变、HSL 明度 68% 不变、饱和 35% → 56%
+   于是与去饱和后的中性文字（0%）形成 56 个点的彩度差，
+   与金色皮肤的 61 点属同一量级 —— 那套本来就不显乱。
+
+   为什么必须写显式值：color-mix 只做插值，无法**放大**彩度；
+   而 filter:saturate() 会连带作用于子元素与 mask 图标，
+   节点和徽标的颜色会被一起改，不可控。
+
+   为什么只到 1.6：1.9 倍能追平金色的 69%，但那个青偏荧光，
+   脱离现有美术调性。区间是 [1.4, 1.9]，取 1.6 落在中段。 */
+.abyssa-character-screen[data-skin="demon-cadre"] .abyssa-chronicle {
+  --chr-accent-soft: #80d8db;
+}
+
+.abyssa-chronicle *,
+.abyssa-chronicle *::before,
+.abyssa-chronicle *::after { box-sizing: border-box; }
+
+.abyssa-chronicle__frame {
+  --abyssa-frame-surface: var(--chr-surface);
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+}
+.abyssa-chronicle__frame > .abyssa-frame__content {
+  display: grid;
+  min-height: 0;
+  height: 100%;
+}
+/* 顶栏稍微放松，但仍从固定画布里取空间，绝不向外撑高。 */
+.abyssa-chronicle__inner {
+  display: grid;
+  min-width: 0;
+  min-height: 0;
+  grid-template-rows: 26px 30px minmax(0, 1fr);
+  row-gap: 4px;
+}
+
+/* ===== 标题行 ===== */
+.abyssa-chronicle__band-title {
+  display: flex;
+  min-width: 0;
+  align-items: baseline;
+  gap: 10px;
+  padding: 3px 10px 6px;
+  border-bottom: 1px solid var(--chr-hair);
+}
+.abyssa-chronicle__kicker {
+  flex: 0 0 auto;
+  color: var(--chr-accent-soft);
+  font-family: var(--abyssa-font-display);
+  font-size: 9px;
+  letter-spacing: 3.2px;
+  /* 字距在末字后也加一份，补掉。 */
+  margin-right: -3.2px;
+}
+.abyssa-chronicle__band-title b {
+  flex: 0 0 auto;
+  color: var(--chr-ink);
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 1.6px;
+  margin-right: -1.6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* 摘要读数推到右端。值由调用方给字符串，这里不算。 */
+.abyssa-chronicle__summary {
+  display: flex;
+  margin-left: auto;
+  flex: 0 0 auto;
+  align-items: baseline;
+  gap: 12px;
+}
+.abyssa-chronicle__summary em {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  color: var(--chr-dim);
+  font-size: 9px;
+  font-style: normal;
+  letter-spacing: 1.4px;
+  margin-right: -1.4px;
+}
+.abyssa-chronicle__summary i {
+  color: var(--chr-accent-soft);
+  font-family: var(--abyssa-font-display);
+  font-size: 12px;
+  font-style: normal;
+  letter-spacing: .6px;
+}
+
+/* ===== 轻量筛选 =====
+   组件库里的页签、药丸和状态节点都带多层边框；这里仅使用文本、分隔点与
+   一条选中刻线，避免在编年史正文上方再堆一套金属控件。 */
+.abyssa-chronicle__filters {
+  display: flex;
+  min-width: 0;
+  padding: 2px 10px 5px;
+  border-bottom: 1px solid color-mix(in srgb, var(--chr-hair) 72%, transparent);
+  align-items: center;
+  gap: 6px;
+}
+.abyssa-chronicle__filters button {
+  position: relative;
+  height: 22px;
+  padding: 0 9px;
+  border: 0;
+  background: none;
+  color: color-mix(in srgb, var(--chr-dim) 84%, transparent);
+  cursor: pointer;
+  font: inherit;
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 1.2px;
+  line-height: 22px;
+}
+.abyssa-chronicle__filters button + button::before {
+  position: absolute;
+  top: 50%;
+  left: -4px;
+  width: 3px;
+  height: 3px;
+  border: 1px solid color-mix(in srgb, var(--chr-edge) 52%, transparent);
+  content: "";
+  transform: translateY(-50%) rotate(45deg);
+}
+.abyssa-chronicle__filters button:hover {
+  color: var(--chr-ink-soft);
+}
+.abyssa-chronicle__filters button[data-selected] {
+  color: var(--chr-accent-soft);
+}
+.abyssa-chronicle__filters button[data-selected]::after {
+  position: absolute;
+  right: 8px;
+  bottom: -5px;
+  left: 8px;
+  height: 1px;
+  background: var(--chr-accent-soft);
+  content: "";
+}
+.abyssa-chronicle__filters button:focus-visible {
+  outline: 0;
+  background: color-mix(in srgb, var(--chr-accent) 10%, transparent);
+}
+
+/* ===== 滚动区 =====
+   每一层都要 min-height:0 —— grid 子项默认 min-height:auto 以内容为下限，
+   少一层 overflow 就永远不触发。 */
+.abyssa-chronicle__scroll {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  padding-right: 8px;
+  /* 与骰装页检视栏同材质：压深底 + 织物斜纹。
+     斜纹是布面与纸面的语汇；方格网是 HUD/科幻的语汇，与铜绿画框不搭。 */
+  background:
+    repeating-linear-gradient(
+      135deg,
+      rgb(255 255 255 / 1.6%) 0 1px,
+      transparent 1px 5px
+    ),
+    repeating-linear-gradient(
+      45deg,
+      rgb(0 0 0 / 10%) 0 1px,
+      transparent 1px 7px
+    ),
+    /* 原为 pit 82% ⇒ 亮度 22.7,比面板 34.9 暗 12.2 —— 整块陷成黑洞。
+       改 well 主导 ⇒ 30.1,落差 4.8:仍看得出是内凹的滚动区,但不再是洞。 */
+    color-mix(in srgb, var(--chr-well) 82%, var(--chr-pit));
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--chr-edge) 52%, transparent) transparent;
+}
+.abyssa-chronicle__scroll:focus-visible {
+  outline: 1px solid var(--chr-accent-soft);
+  outline-offset: -2px;
+}
+.abyssa-chronicle__scroll::-webkit-scrollbar { width: 5px; }
+.abyssa-chronicle__scroll::-webkit-scrollbar-track { background: rgb(0 0 0 / 38%); }
+.abyssa-chronicle__scroll::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--chr-edge) 56%, transparent);
+}
+
+.abyssa-chronicle__list {
+  position: relative;
+  display: grid;
+  margin: 0;
+  padding: 10px 16px 16px 6px;
+  min-width: 0;
+  list-style: none;
+  /* row-gap 归零：间距由三级条目自己的上下内边距承担。
+     纵轴改由列表一次画完，章节与条目都不再各自拼接线段。 */
+  row-gap: 0;
+}
+.abyssa-chronicle__list::before {
+  position: absolute;
+  z-index: 0;
+  top: 28px;
+  bottom: 30px;
+  left: calc(6px + var(--chr-axis-x));
+  width: 1px;
+  background: var(--chr-hair);
+  content: "";
+  pointer-events: none;
+}
+
+/* ===== 章节水准线 =====
+   保留 RP chapter 的 Cinzel 与大字距，但只在正文栏向右收尾；
+   章节自身成为纵轴上的小刻点，不再截断时间线。 */
+.abyssa-chronicle__chapter {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  min-width: 0;
+  /* 与条目同一栏结构 ⇒ 分段不会把对齐轴切歪。 */
+  grid-template-columns: var(--chr-meta-w) var(--chr-rail-gap) minmax(0, 1fr);
+  align-items: center;
+  /* 章节与前后条目拉开，不让分隔线夹在正文之间。 */
+  margin-block: 14px 10px;
+  color: var(--chr-accent-soft);
+  font-family: var(--abyssa-font-display);
+  /* ============ 层次靠三维叠加,不是只挪字号 ============
+     曾把六级字号全排成 0.5–1px 的台阶(8.5/10/10.5/11/11.5/13),
+     且字重全是 400 —— 那种台阶在 11–14px 区间内肉眼不可分辨,
+     结果六级文字糊成一片。
+     现在:字号 + 字重 + 颜色三条一起拉开(见各规则的注释)。
+
+     章节 11.5px 但 w600 + .3em 字距 + 右侧水准线,结构感来自后三者,
+     不靠字号压过标题 —— 那样会和标题互相争。 */
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: .3em;
+  text-indent: .3em;
+}
+.abyssa-chronicle__chapter::before {
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  left: var(--chr-axis-x);
+  width: 6px;
+  height: 6px;
+  border: 1px solid color-mix(in srgb, var(--chr-accent-soft) 72%, var(--chr-edge));
+  background: var(--chr-well);
+  box-shadow: 0 0 0 2px var(--chr-well);
+  content: "";
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+/* 章节标题所在的内容栏:文字 + 右侧一道渐变横线收尾。
+   横线只在内容栏内,不越过轴 —— 越过去会把 meta 栏一起划断。 */
+.abyssa-chronicle__chapter-title {
+  display: flex;
+  grid-column: 3;
+  min-width: 0;
+  /* 仅轻微向轴侧回收；正文栏已经整体左移，不再用大负边距补偿。 */
+  margin-left: -4px;
+  align-items: center;
+  gap: 13px;
+}
+.abyssa-chronicle__chapter-title::after {
+  flex: 1;
+  height: 1px;
+  /* 只在文字右侧收尾,所以从实到虚。
+     原先两侧各一条时是「虚-实-虚」,现在单条还沿用那个渐变的话,
+     紧贴文字的一端会淡到看不见,像断了。 */
+  background: linear-gradient(
+    90deg,
+    var(--chr-edge),
+    color-mix(in srgb, var(--chr-edge) 30%, transparent) 72%,
+    transparent
+  );
+  content: "";
+}
+
+/* 章节的戳记走 meta 栏的 __stamp,与条目同一列 —— 这里不再单列样式。 */
+
+/* ===== 条目 =====
+   meta 与正文之间留出独立轨道，节点只占轨道，不侵入两侧文字。 */
+.abyssa-chronicle__entry {
+  position: relative;
+  z-index: 1;
+  --chr-entry-pad: 8px;
+  --chr-entry-node: var(--chr-node-standard);
+  display: grid;
+  min-width: 0;
+  /* meta │ 轴间隙 │ content。轴落在第一条边界上。 */
+  grid-template-columns: var(--chr-meta-w) var(--chr-rail-gap) minmax(0, 1fr);
+  padding-block: var(--chr-entry-pad);
+}
+.abyssa-chronicle__entry[data-marker="node"] {
+  --chr-entry-pad: 7px;
+  --chr-entry-node: var(--chr-node-minor);
+}
+.abyssa-chronicle__entry[data-marker="milestone"],
+.abyssa-chronicle__entry[data-marker="alert"] {
+  --chr-entry-pad: 10px;
+  --chr-entry-node: var(--chr-node-standard);
+}
+.abyssa-chronicle__entry[data-marker="hollow"] {
+  --chr-entry-pad: 13px;
+  --chr-entry-node: var(--chr-node-major);
+}
+/* 重量级事件只铺一层极淡横向色带，不再套第二个边框。 */
+.abyssa-chronicle__entry[data-marker="hollow"]::after {
+  position: absolute;
+  z-index: 0;
+  top: 7px;
+  right: 0;
+  bottom: 7px;
+  left: calc(var(--chr-meta-w) + var(--chr-rail-gap) - 5px);
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--chr-accent) 13%, transparent),
+    color-mix(in srgb, var(--chr-accent) 4%, transparent) 58%,
+    transparent 88%
+  );
+  content: "";
+  pointer-events: none;
+}
+
+/* ===== 节点四形 =====
+   纯 CSS 几何 + mask 图标，**无文字符号、无 emoji**。 */
+.abyssa-chronicle__node {
+  position: absolute;
+  /* 节点尺寸随事件级别变化，但始终与 21px 标题行盒垂直居中。 */
+  top: calc(var(--chr-entry-pad) + (21px - var(--chr-entry-node)) / 2);
+  left: var(--chr-axis-x);
+  z-index: 2;
+  display: grid;
+  width: var(--chr-entry-node);
+  height: var(--chr-entry-node);
+  place-items: center;
+  background: var(--chr-well);
+  translate: -50% 0;
+  pointer-events: none;
+}
+.abyssa-chronicle__node i {
+  display: block;
+  width: calc(var(--chr-entry-node) - 5px);
+  height: calc(var(--chr-entry-node) - 5px);
+  background: currentcolor;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  mask-size: contain;
+}
+/* node：小实心圆。一般记事。 */
+.abyssa-chronicle__entry[data-marker="node"] .abyssa-chronicle__node {
+  /* 一般记事没有图标,保持小圆点 —— 它的职责是标位置,不是承载信息。 */
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--chr-edge) 82%, transparent);
+  box-shadow: 0 0 0 2px var(--chr-well);
+}
+/* milestone：实心菱形，承 BondCrystal 的语汇。 */
+.abyssa-chronicle__entry[data-marker="milestone"] .abyssa-chronicle__node {
+  border: 1px solid var(--chr-accent);
+  background: color-mix(in srgb, var(--chr-accent) 28%, var(--chr-well));
+  box-shadow:
+    0 0 0 2px var(--chr-well),
+    0 0 3px color-mix(in srgb, var(--chr-accent) 18%, transparent);
+  color: var(--chr-accent-soft);
+  rotate: 45deg;
+}
+.abyssa-chronicle__entry[data-marker="milestone"] .abyssa-chronicle__node i {
+  rotate: -45deg;
+}
+/* hollow：空心菱形。阶段变更。 */
+.abyssa-chronicle__entry[data-marker="hollow"] .abyssa-chronicle__node {
+  border: 1px solid var(--chr-accent-soft);
+  background: color-mix(in srgb, var(--chr-accent) 14%, var(--chr-well));
+  box-shadow:
+    0 0 0 2px var(--chr-well),
+    0 0 5px color-mix(in srgb, var(--chr-accent) 22%, transparent);
+  color: var(--chr-accent-soft);
+  rotate: 45deg;
+}
+.abyssa-chronicle__entry[data-marker="hollow"] .abyssa-chronicle__node i {
+  rotate: -45deg;
+}
+/* alert：虚线圆。伤情类。 */
+.abyssa-chronicle__entry[data-marker="alert"] .abyssa-chronicle__node {
+  border: 1px dashed var(--chr-alert);
+  border-radius: 50%;
+  background: var(--chr-well);
+  box-shadow: 0 0 0 2px var(--chr-well);
+  color: var(--chr-alert);
+}
+
+/* ===== 条目正文 ===== */
+/* ===== meta 栏 =====
+   日期右对齐贴着轴。各条日期于是竖成一列,扫一眼就能比对,
+   而且长短不一也不会推动内容栏的起点。 */
+.abyssa-chronicle__meta {
+  grid-column: 1;
+  min-width: 0;
+  text-align: right;
+}
+
+/* 标题行:标题 + 徽标,一律左起。
+   ============ 别再给戳记加 margin-left:auto ============
+   戳记在 DOM 里是**第一个**子元素。auto 边距会吃掉左侧全部剩余空间,
+   于是它连同后面的标题、徽标一起被推到右端 —— 大标题跑到右边就是这条造成的。
+   要让某项右对齐,它必须排在最后;戳记排第一,就只能左起。
+
+   戳记固定在 54px meta 栏内:各条目的日期竖着对齐,扫一眼就能比对,
+   同时标题起点也随之对齐 —— 比推到右端更好读。 */
+.abyssa-chronicle__head {
+  display: flex;
+  min-width: 0;
+  align-items: baseline;
+  gap: 9px;
+}
+.abyssa-chronicle__body {
+  position: relative;
+  z-index: 1;
+  grid-column: 3;
+  min-width: 0;
+}
+/* 戳记：任意字符串，不假设是天数。
+   line-height 与标题行盒(15*1.4=21)同高 ⇒ 两栏基线自然齐平,
+   不需要 align-items:baseline 那种跨栏对齐技巧。 */
+.abyssa-chronicle__stamp {
+  display: block;
+  line-height: 21px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  /* 最暗一档 + Cinzel:辅助信息,不该抢注意力。 */
+  color: color-mix(in srgb, var(--chr-dim) 78%, transparent);
+  font-family: var(--abyssa-font-display);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 1.2px;
+  margin-right: -1.2px;
+  white-space: nowrap;
+}
+/* 卷标不是普通日期：它负责宣告叙事分段，因此在同一 meta 栏内单独
+   提升字号、字重与亮度。无外框、无光晕，避免重新长成一枚控件。 */
+.abyssa-chronicle__chapter .abyssa-chronicle__stamp {
+  color: color-mix(in srgb, var(--chr-ink-soft) 70%, var(--chr-dim));
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 1.4px;
+  line-height: 24px;
+  margin-right: -1.4px;
+}
+/* 标题 = 视觉落点:最大 + 最重 + 最亮。
+   与正文的区分度 = 字号 1.25 倍 × 字重差 200 × 亮度差,三者叠加。
+   15px 是上限推导的结果:条目行高 56,正文 12*1.62=19.4 + 间距 5,
+   余量按 line-height 1.4 反推标题上限约 17.6,取 15 留给两行标题的条目。 */
+.abyssa-chronicle__head h4 {
+  min-width: 0;
+  /* 不设 flex:1 —— 标题按内容宽,徽标才能紧贴在它右侧。 */
+  margin: 0;
+  color: var(--chr-ink);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 1.1px;
+  margin-right: -1.1px;
+  line-height: 1.4;
+}
+/* 徽标：原样渲染的短字（"Lv.4" / "II"）。
+   样式**不假设**它是等级 —— 只是一枚小牌子。 */
+.abyssa-chronicle__badge {
+  flex: 0 0 auto;
+  /* 原为 margin-left:auto —— 被推到 603px 外的右端,与它修饰的标题彻底脱节,
+     读者要横扫半屏才能把「Lv.2」和标题对上。
+     改为紧跟标题(靠 __head 的 gap 9),右端让给戳记。 */
+  padding: 1px 6px;
+  border: 1px solid var(--chr-hair);
+  background: transparent;
+  color: var(--chr-ink-soft);
+  font-family: var(--abyssa-font-display);
+  font-size: 9.5px;
+  font-weight: 500;
+  letter-spacing: 1px;
+  margin-right: -1px;
+  white-space: nowrap;
+}
+/* 伤情时长是补充读数，不是等级徽章。保留主题色文字，撤掉小牌子的
+   边框与内底，减少标题行里彼此争抢的框体。 */
+.abyssa-chronicle__entry[data-marker="alert"] .abyssa-chronicle__badge {
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: .8px;
+  margin-right: -.8px;
+}
+/* 不再需要 max-width:内容栏宽 560.67 @12px CJK ≈ 46.7 字/行,
+   本身就在 40–60 舒适区。原先限宽 512 而栏宽 602.67,
+   每条右侧留下 91px 恒定死白 —— 那正是「左边挤、右边空」的来源。 */
+.abyssa-chronicle__text {
+  margin: 5px 0 0;
+  /* 比标题暗一档:让标题独占最亮。 */
+  color: color-mix(in srgb, var(--chr-ink-soft) 92%, transparent);
+  font-size: 12.5px;
+  font-weight: 400;
+  letter-spacing: .5px;
+  line-height: 1.62;
+}
+/* 被取代的旧值。<del> 的默认线太重，改成低对比中划。 */
+.abyssa-chronicle__struck {
+  margin: 5px 0 0;
+  color: color-mix(in srgb, var(--chr-dim) 70%, transparent);
+  font-size: 10px;
+  letter-spacing: .5px;
+  line-height: 1.5;
+}
+.abyssa-chronicle__struck del {
+  text-decoration-color: color-mix(in srgb, var(--chr-dim) 55%, transparent);
+  text-decoration-thickness: 1px;
+}
+/* 引语：左侧一道细竖线 + 斜体缩进。 */
+.abyssa-chronicle__voice {
+  margin: 7px 0 0;
+  padding-left: 10px;
+  border-left: 1px solid color-mix(in srgb, var(--chr-accent) 46%, transparent);
+  /* 引语靠斜体 + 左竖线 + 更暗区分,不靠字号 —— 它和正文是同级信息。 */
+  color: color-mix(in srgb, var(--chr-ink-soft) 74%, transparent);
+  font-size: 11.8px;
+  font-style: italic;
+  letter-spacing: .4px;
+  line-height: 1.6;
+}
+
+/* ===== 色调三档 ===== */
+.abyssa-chronicle__entry[data-marker="hollow"][data-tone="accent"] .abyssa-chronicle__head h4 {
+  color: var(--chr-accent-soft);
+}
+.abyssa-chronicle__entry[data-tone="accent"] .abyssa-chronicle__badge {
+  border-color: color-mix(in srgb, var(--chr-accent) 52%, transparent);
+  color: var(--chr-accent-soft);
+}
+.abyssa-chronicle__entry[data-tone="alert"] .abyssa-chronicle__head h4 {
+  color: color-mix(in srgb, var(--chr-alert) 88%, var(--chr-ink));
+}
+.abyssa-chronicle__entry[data-tone="alert"] .abyssa-chronicle__badge {
+  border-color: color-mix(in srgb, var(--chr-alert) 52%, transparent);
+  color: color-mix(in srgb, var(--chr-alert) 90%, transparent);
+}
+
+.abyssa-chronicle__filter-empty {
+  margin: 0;
+  padding: 74px 24px 0;
+  color: color-mix(in srgb, var(--chr-dim) 72%, transparent);
+  font-family: var(--abyssa-font-display);
+  font-size: 10px;
+  letter-spacing: 2.4px;
+  text-align: center;
+}
+
+/* ===== 占位态 ===== */
+.abyssa-chronicle[data-placeholder] { display: grid; }
+.abyssa-chronicle__placeholder-frame {
+  display: grid;
+  min-height: 0;
+  overflow: hidden;
+}
+.abyssa-chronicle__placeholder-frame > .abyssa-frame__content {
+  display: grid;
+  min-height: 0;
+  place-items: center;
+}
+.abyssa-chronicle__placeholder { text-align: center; }
+.abyssa-chronicle__placeholder-glyph {
+  display: block;
+  width: 42px;
+  height: 42px;
+  margin: 0 auto 13px;
+  background: color-mix(in srgb, var(--chr-edge) 55%, transparent);
+  mask-repeat: no-repeat;
+  mask-position: center;
+  mask-size: contain;
+}
+.abyssa-chronicle__placeholder strong {
+  display: block;
+  color: var(--chr-dim);
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 4.6px;
+  margin-right: -4.6px;
+}
+.abyssa-chronicle__placeholder p {
+  margin: 8px 0 0;
+  color: color-mix(in srgb, var(--chr-dim) 70%, transparent);
+  font-size: 9.5px;
+  letter-spacing: 1.2px;
+  margin-right: -1.2px;
+}

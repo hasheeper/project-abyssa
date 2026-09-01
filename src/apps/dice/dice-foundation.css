@@ -1,0 +1,256 @@
+/* =========================================================
+       Abyssa · Watcher's Shop
+       Dark wood + antique brass + warm ivory
+       ========================================================= */
+
+:root {
+  /* 基底与面板 */
+  --abyssa-frame-dark: #120d08;
+  --abyssa-frame-deep: #070503;
+  --abyssa-frame-light: #72572f;
+
+  --abyssa-panel-black: #100b07;
+  --abyssa-panel-dark: #181108;
+  --abyssa-panel-soft: #24180d;
+  --abyssa-panel-gray: #48391f;
+
+  /* 黄铜强调色 */
+  --abyssa-accent: #aa874a;
+  --abyssa-accent-dark: #5d431d;
+  --abyssa-accent-soft: #d7bb7c;
+
+  /* 装饰与边框 */
+  --abyssa-ornament: #735a32;
+  --abyssa-ornament-dark: #382a17;
+  --abyssa-ornament-light: #9a7d46;
+
+  /* 文字 */
+  --abyssa-text: #e9dcc5;
+  --abyssa-text-soft: #cdbda1;
+  --abyssa-text-muted: #88785d;
+  --abyssa-text-dark: #211408;
+  --abyssa-focus: #eee0bc;
+
+  /* 货币 */
+  --currency-gold: #e0b755;
+  --currency-gold-dark: #684313;
+  --currency-gold-highlight: #fff0b1;
+
+  --currency-crystal: #a267d5;
+  --currency-crystal-dark: #4b286c;
+  --currency-crystal-light: #efe2ff;
+
+  /* 额外状态色 */
+  --status-danger: #9b4237;
+  --status-danger-soft: #d38975;
+  --status-success: #c6a45c;
+
+  --abyssa-shadow: 0 14px 30px rgb(5 3 1 / 52%);
+  --ease-rpg: cubic-bezier(0.2, 0.75, 0.2, 1);
+
+  --font-display: "Cinzel", "Times New Roman", serif;
+
+  --font-body: "Noto Serif SC", "Source Han Serif SC", "Songti SC", serif;
+
+  --font-kai: "Kaiti SC", "STKaiti", "KaiTi", serif;
+
+  /* 立绘裁切微调 */
+  --tibby-image-scale: 1.3;
+  --tibby-image-x: 50%;
+  --tibby-image-y: 8%;
+  --tibby-image-lift: -15px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  color-scheme: dark;
+}
+
+/* 底纹挂进画布(由 Stage 的 background 消费),随界面缩放并止于画布边界。
+   原来铺在 body 上会漫满整个视口,让人误以为超出画布的部分也属于界面。
+   画布外一律纯黑,见 stage.css 的 .abyssa-stage-root。 */
+:root {
+  --abyssa-dice-backdrop:
+    radial-gradient(
+      ellipse at 50% -10%,
+      rgb(170 135 74 / 13%),
+      transparent 48%
+    )
+    0 0 / auto,
+    linear-gradient(90deg, transparent 0 119px, rgb(0 0 0 / 23%) 119px 121px)
+    0 0 / 121px 100%,
+    repeating-linear-gradient(
+      3deg,
+      transparent 0 9px,
+      rgb(255 225 170 / 1.5%) 10px,
+      transparent 12px
+    )
+    0 0 / auto,
+    #120c07;
+}
+
+body {
+  min-width: 320px;
+  margin: 0;
+  color: var(--abyssa-text);
+  font-family: var(--font-body);
+}
+
+button {
+  color: inherit;
+  font: inherit;
+}
+
+button:not(:disabled) {
+  cursor: pointer;
+}
+
+button:focus-visible {
+  outline: 2px solid var(--abyssa-focus);
+  outline-offset: 4px;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+/* =========================================================
+       通用木框
+       ========================================================= */
+
+.wood-panel {
+  position: relative;
+  min-width: 0;
+  border: 2px solid #090603;
+  background:
+    linear-gradient(
+      90deg,
+      rgb(255 225 175 / 2%),
+      transparent 18% 82%,
+      rgb(0 0 0 / 14%)
+    ),
+    repeating-linear-gradient(
+      2deg,
+      transparent 0 8px,
+      rgb(255 225 175 / 1.8%) 9px,
+      transparent 11px
+    ),
+    #1a1008;
+  box-shadow:
+    0 0 0 2px #3a2817,
+    0 0 0 4px #0b0704,
+    inset 0 0 18px rgb(0 0 0 / 86%),
+    var(--abyssa-shadow);
+  isolation: isolate;
+}
+
+.wood-panel::before {
+  position: absolute;
+  inset: 7px;
+  z-index: 0;
+  border: 1px solid rgb(170 135 74 / 42%);
+  content: "";
+  pointer-events: none;
+}
+
+.wood-panel > * {
+  position: relative;
+  z-index: 1;
+}
+
+.wood-corners {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.wood-corners i {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-color: var(--abyssa-ornament-light);
+  border-style: solid;
+  opacity: 0.85;
+}
+
+.wood-corners [data-corner="tl"] {
+  top: 10px;
+  left: 10px;
+  border-width: 2px 0 0 2px;
+}
+
+.wood-corners [data-corner="tr"] {
+  top: 10px;
+  right: 10px;
+  border-width: 2px 2px 0 0;
+}
+
+.wood-corners [data-corner="bl"] {
+  bottom: 10px;
+  left: 10px;
+  border-width: 0 0 2px 2px;
+}
+
+.wood-corners [data-corner="br"] {
+  right: 10px;
+  bottom: 10px;
+  border-width: 0 2px 2px 0;
+}
+
+.diamond-pattern {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.diamond-pattern::before {
+  position: absolute;
+  inset: -30px;
+  background:
+    linear-gradient(
+      45deg,
+      transparent 47%,
+      rgb(215 187 124 / 5%) 48% 52%,
+      transparent 53%
+    ),
+    linear-gradient(
+      -45deg,
+      transparent 47%,
+      rgb(215 187 124 / 5%) 48% 52%,
+      transparent 53%
+    );
+  background-size: 38px 38px;
+  content: "";
+  transform: rotate(0.001deg);
+}
+
+.section-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--abyssa-accent-soft);
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  line-height: 1;
+}
+
+.section-label::before,
+.section-label::after {
+  height: 1px;
+  flex: 1;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--abyssa-ornament),
+    transparent
+  );
+  content: "";
+}

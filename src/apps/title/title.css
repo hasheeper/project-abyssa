@@ -1,0 +1,578 @@
+/* ============ 标题画面 ============
+ *
+ * 几何来自 titleGeometry.ts(那里有连锁加法链与断言)。这里的数值是它的
+ * 镜像,改动必须两边一起改 —— titleGeometry.test.ts 会验证竖向装得下。
+ *
+ * 竖向:徽记 459.2 | 间隔 76 | 命令列 232.49,在「900 - 底带 68」内居中
+ *
+ * 画布内**没有任何视口单位**。Stage 会整体 scale(k),vw/cqh 会与它叠成
+ * 二次缩放,构图必然漂移 —— 见 shared/stage/README.md 铁律 1。
+ *
+ * ---- 三套主题 ----
+ * 黑金 / 猩红 / 青幽,由 `.title-app[data-theme]` 切换,**只改颜色令牌**。
+ * 主题绝不许碰尺寸:构图是 titleGeometry 的职责,混在一起会让皮肤切换
+ * 变成布局重排。
+ */
+
+.abyssa-title-screen {
+  position: relative;
+  overflow: hidden;
+}
+
+/* 主题令牌挂在 .title-app(即 AbyssaProvider)上,而不是 .abyssa-title-screen ——
+   Stage 的画布节点在 provider 之外,拿不到 data-theme。 */
+.title-app {
+  position: absolute;
+  inset: 0;
+}
+
+/* ---- 猩红(默认)----
+   取值自 cg-b-1 / cg-b-2 的实测像素:
+   最高饱和 #e31620 / #d51112,最亮 #fbf0ed,暗部 #010102。
+   22.3% / 24.7% 的饱和像素落在 345°..360°,所以 CG 在场时只有这套不打架。 */
+.title-app[data-theme="crimson"] {
+  --title-canvas: #070304;
+  --title-field-ink: #7d3a3f;
+  --title-field-ink-strong: #a8474b;
+  --title-field-node: #c25a56;
+  --title-glow-core: #8a2b32;
+  --title-glow-mid: #5c1c22;
+  --title-glow-far: #2a1013;
+  --title-cg-tint: #2a0a0e;
+  --title-emblem-sepia: 0.1;
+  --title-emblem-halo: rgb(226 120 108 / 18%);
+
+  --abyssa-page: #070304;
+  --abyssa-frame-dark: #1a0d0e;
+  --abyssa-frame-deep: #080304;
+  --abyssa-frame-light: #7d3f3c;
+  --abyssa-panel-black: #170a0b;
+  --abyssa-panel-dark: #21100f;
+  --abyssa-panel-soft: #33191a;
+  --abyssa-panel-gray: #5e3330;
+  --abyssa-teal: #d1706a;
+  --abyssa-teal-dark: #82302f;
+  --abyssa-teal-soft: #f0b0a6;
+  --abyssa-ornament: #7a4340;
+  --abyssa-ornament-dark: #3d1f1e;
+  --abyssa-ornament-light: #9c5b55;
+  --abyssa-text: #f7e6df;
+  --abyssa-text-soft: #dcbdb6;
+  --abyssa-text-muted: #a07f79;
+  --abyssa-text-dark: #17090a;
+  --abyssa-focus: #f6d8cf;
+}
+
+/* ---- 黑金:logo 自身的金/象牙渐变,原始基线 ---- */
+.title-app[data-theme="black-gold"] {
+  --title-canvas: #050707;
+  --title-field-ink: #7d6440;
+  --title-field-ink-strong: #a8875a;
+  --title-field-node: #b8935f;
+  --title-glow-core: #8a6a34;
+  --title-glow-mid: #5c4520;
+  --title-glow-far: #2a2012;
+  --title-cg-tint: #1c1206;
+  --title-emblem-sepia: 0.18;
+  --title-emblem-halo: rgb(200 165 112 / 16%);
+
+  --abyssa-page: #050707;
+  --abyssa-frame-dark: #16110a;
+  --abyssa-frame-deep: #070503;
+  --abyssa-frame-light: #6d5330;
+  --abyssa-panel-black: #14100a;
+  --abyssa-panel-dark: #1d1710;
+  --abyssa-panel-soft: #2b2216;
+  --abyssa-panel-gray: #574632;
+  --abyssa-teal: #c8a570;
+  --abyssa-teal-dark: #79512d;
+  --abyssa-teal-soft: #efd19a;
+  --abyssa-ornament: #6b563a;
+  --abyssa-ornament-dark: #3a2d1c;
+  --abyssa-ornament-light: #8e7550;
+  --abyssa-text: #f2e6cd;
+  --abyssa-text-soft: #cdbda1;
+  --abyssa-text-muted: #8b7a5d;
+  --abyssa-text-dark: #17110a;
+  --abyssa-focus: #f4e3bd;
+}
+
+/* ---- 青幽:全局 tokens.css 的青灰血统,压暗加深 ---- */
+.title-app[data-theme="verdigris"] {
+  --title-canvas: #04080a;
+  --title-field-ink: #3f6b6a;
+  --title-field-ink-strong: #58908d;
+  --title-field-node: #6da9a3;
+  --title-glow-core: #2f6866;
+  --title-glow-mid: #1e4544;
+  --title-glow-far: #0f2426;
+  --title-cg-tint: #071c1e;
+  --title-emblem-sepia: 0;
+  --title-emblem-halo: rgb(126 196 190 / 16%);
+
+  --abyssa-page: #04080a;
+  --abyssa-frame-dark: #0d1618;
+  --abyssa-frame-deep: #040809;
+  --abyssa-frame-light: #4a7472;
+  --abyssa-panel-black: #0b1416;
+  --abyssa-panel-dark: #111d1f;
+  --abyssa-panel-soft: #1b2c2d;
+  --abyssa-panel-gray: #37514f;
+  --abyssa-teal: #74b3ad;
+  --abyssa-teal-dark: #33625f;
+  --abyssa-teal-soft: #a8dad3;
+  --abyssa-ornament: #47706d;
+  --abyssa-ornament-dark: #1f3634;
+  --abyssa-ornament-light: #669691;
+  --abyssa-text: #e3f0ee;
+  --abyssa-text-soft: #b6cdca;
+  --abyssa-text-muted: #7d9793;
+  --abyssa-text-dark: #0a1213;
+  --abyssa-focus: #d6efeb;
+}
+
+/* ---- 两侧 CG ----
+   原图 832×1216(0.6842)。满幅高 900 → 宽 615.8,主体中线落在 x≈308,
+   距徽记左边缘(x=492)还有 184px 余量。
+
+   实测两张 CG 的主体都在**画面正中**(饱和像素 mean x = 中线),
+   所以内侧只能用**软遮罩渐隐**,不能硬裁 —— 硬边会把人物切两半。 */
+/* ---- 两侧 CG ----
+ * = TITLE_CG_TOP / TITLE_CG_W / TITLE_CG_H。
+ *
+ * ---- 「不许露馅」是硬约束 ----
+ * 四条边**都必须渐隐到真正的 0**,任何一条留下非零 alpha 就是一道可见的
+ * 直边。露馅过一次:主题染色层是个未加遮罩的硬矩形,猩红下 opacity 0.12
+ * 看不出来,金/青下 0.42 就露出整块 492.6×720 的方块边界。
+ *
+ * 所以遮罩必须加在**容器**上,让底图与染色层一起被裁 ——
+ * 只给 <img> 加遮罩是不够的。
+ */
+.title-cg {
+  position: absolute;
+  top: 60px;
+  width: 547.4px;
+  height: 800px;
+  /* 容器级遮罩:底图 + 染色层 + 任何将来加的叠加层,全部一起渐隐。
+     内侧(朝画面中央)收得最狠,外侧与上下留一圈软边贴住画布。 */
+  mask-image:
+    linear-gradient(to right, #000 0%, #000 40%, rgb(0 0 0 / 58%) 70%, transparent 96%),
+    linear-gradient(to bottom, transparent 0%, #000 13%, #000 80%, transparent 99%),
+    linear-gradient(to left, transparent 0%, #000 6%);
+  mask-composite: intersect;
+  pointer-events: none;
+}
+
+.title-cg[data-side="left"] {
+  left: 0;
+}
+
+.title-cg[data-side="right"] {
+  right: 0;
+  /* 右侧镜像,两边的受光方向才朝内对称。 */
+  scale: -1 1;
+}
+
+.title-cg__frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  /* CG 是气氛层,但**必须看得见**。0.3 太黑了,回到 0.62:
+     它已经靠边缩小,不再和字标抢位置,所以不需要靠压黑来退让。 */
+  filter: saturate(0.85) brightness(0.62) contrast(1.02);
+  object-fit: cover;
+  object-position: center;
+  opacity: 0;
+  transition: opacity var(--title-cg-fade-duration, 900ms) var(--abyssa-ease, ease);
+  /* 遮罩已上移到 .title-cg 容器,这里不再重复 ——
+     否则染色层不受同一条遮罩约束,就会露出硬边。 */
+}
+
+.title-cg__frame[data-active] {
+  opacity: 1;
+}
+
+/* 主题染色层。CG 本身偏猩红,青幽/黑金主题下需要压一层色才不突兀。
+   它在 .title-cg 内部,因此**继承容器的遮罩** —— 这是它不再露出
+   硬矩形边界的原因。opacity 也从 0.42 降到 0.3:染色越重,
+   一旦遮罩有任何缝隙就越明显。 */
+.title-cg::after {
+  position: absolute;
+  background: var(--title-cg-tint);
+  mix-blend-mode: color;
+  content: "";
+  inset: 0;
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+/* 猩红主题下 CG 本来就是同色系,染色几乎不需要。 */
+.title-app[data-theme="crimson"] .title-cg::after {
+  opacity: 0.1;
+}
+
+/* ---- 黑幕层 ----
+   压在 CG 之上、背景场之下。
+
+   它的作用是**压暗四周,让中央的背景图案更醒目** —— 不是把整屏糊黑。
+   上一版把中心也压到 34%,等于给醒目层蒙了一层灰,方向是反的:
+   中心必须**完全透光**(0%),黑只加在外围。
+
+   四角压得比上下边更重,因为 CG 在左右两侧,角落是最容易显脏的地方。 */
+.title-shade {
+  position: absolute;
+  background:
+    /* 透光区与法阵、Logo 印章共用同一个原点。变量由 titleGeometry 注入,
+       不能单独写成 50% 50%,否则只有光晕会掉回画布中心。 */
+    radial-gradient(
+      ellipse 62% 58% at var(--title-field-origin, 800px 262px),
+      rgb(0 0 0 / 0%) 0%,
+      rgb(0 0 0 / 0%) 44%,
+      rgb(0 0 0 / 28%) 68%,
+      rgb(0 0 0 / 70%) 88%,
+      rgb(0 0 0 / 92%) 100%
+    ),
+    /* 四条边各一道硬压边。CG 的软遮罩负责化掉图片自己的边,
+       这几道负责保证**万一**还有残留 alpha,也会被画布边缘的黑吃掉。
+       这是「防止露馅」的第二道保险,不是装饰。 */
+    linear-gradient(to bottom, rgb(0 0 0 / 52%) 0%, rgb(0 0 0 / 0%) 15%),
+    linear-gradient(to top, rgb(0 0 0 / 64%) 0%, rgb(0 0 0 / 0%) 18%),
+    linear-gradient(to right, rgb(0 0 0 / 58%) 0%, rgb(0 0 0 / 0%) 9%),
+    linear-gradient(to left, rgb(0 0 0 / 58%) 0%, rgb(0 0 0 / 0%) 9%);
+  content: "";
+  inset: 0;
+  pointer-events: none;
+}
+
+.title-backdrop {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* ---- 背景场 ---- */
+.title-backdrop__field {
+  fill: none;
+  stroke: var(--abyssa-ornament, #6b563a);
+}
+
+.title-backdrop__spoke {
+  stroke: var(--title-field-ink);
+  stroke-width: 1;
+  opacity: 0.3;
+}
+
+.title-backdrop__spoke--major {
+  stroke-width: 1.6;
+  opacity: 0.5;
+}
+
+.title-backdrop__orbits circle {
+  stroke: var(--title-field-ink-strong);
+  stroke-width: 1.05;
+  opacity: 0.38;
+}
+
+.title-backdrop__orbit-dashed {
+  stroke-dasharray: 30 16 8 16;
+  opacity: 0.28;
+}
+
+.title-backdrop__orbit-faint {
+  stroke-width: 0.8;
+  opacity: 0.16;
+}
+
+.title-backdrop__diamond {
+  stroke: var(--title-field-ink-strong);
+  stroke-width: 1.15;
+  opacity: 0.36;
+}
+
+.title-backdrop__diamond--outer {
+  stroke-width: 0.85;
+  stroke-dasharray: 62 12 26 12;
+  opacity: 0.22;
+}
+
+.title-backdrop__ticks line {
+  stroke: var(--title-field-node);
+  stroke-width: 1.1;
+  opacity: 0.42;
+}
+
+.title-backdrop__nodes rect {
+  fill: var(--title-field-node);
+  stroke: none;
+  opacity: 0.5;
+}
+
+/* ---- 背景场自转 ----
+   三层不同速、且相邻两层反向(226s 正 / 148s 逆 / 96s 正)。同向同速会读成
+   「整张图在转」,反向才有星盘咬合的机械感;周期都取得很长,避免抢字标的注意。
+
+   旋转施加在**专门的空壳 <g> 上**,那些壳没有 transform 属性 ——
+   SVG 的 transform 属性就是 CSS transform 属性,直接给已有 translate 的组
+   加动画会把 translate 整个覆盖掉,图案会飞到左上角。
+
+   转轴由 TitlePage 用 titleGeometry 的常量注入 --title-field-origin,
+   法阵、透光区与徽记因此只保留一个轴心来源。
+
+   只转描边图案,不转 wash 与 mask:径向衰减一转就会露出边界。 */
+.title-backdrop__spin {
+  transform-box: view-box;
+  transform-origin: var(--title-field-origin);
+}
+
+.title-backdrop__spin--spokes {
+  animation: title-field-spin 226s linear infinite;
+}
+
+/* 菱形不自转,改呼吸 ——
+   菱形有明确的上下左右四个尖端,一旋转就会读成「歪了」而不是「转着」;
+   正圆和细密刻度没有这个问题,所以只有它换成缩放。
+   幅度刻意很小(±1.8%),要的是心跳般的存在感,不是脉冲。 */
+.title-backdrop__spin--diamonds {
+  animation: title-field-breathe 13s ease-in-out infinite;
+}
+
+@keyframes title-field-breathe {
+  0%,
+  100% { transform: scale(1); }
+  50% { transform: scale(1.018); }
+}
+
+.title-backdrop__spin--ticks {
+  animation: title-field-spin 96s linear infinite;
+}
+
+@keyframes title-field-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* tokens.css 的降低动效规则把 animation-duration 压到 0.01ms 并令
+   iteration-count: 1,那对**过渡**是对的,但对无限自转会让图案瞬间停在
+   360° —— 视觉上等于没转,却仍然创建了合成层。这里直接取消动画。
+
+   注意该规则依赖 `.abyssa-theme`(即 AbyssaProvider),所以本屏必须
+   被 AbyssaProvider 包住,否则整个降低动效契约都不生效。 */
+@media (prefers-reduced-motion: reduce) {
+  .title-backdrop__spin {
+    animation: none !important;
+  }
+}
+
+/* ---- 中轴 ---- */
+/* 中轴只占「画布高 - 底部信息带」,不是整块画布。
+   inset-block-end = TITLE_FOOTER_H,居中因此发生在剩余区域内。
+   曾经让它 inset:0 居中、同时让提示行 bottom:62px 绝对定位,
+   两套定位混用,提示行压在第四个键上重叠 36.93px。 */
+.title-stack {
+  position: absolute;
+  inset: 0 0 68px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  /* 徽记与命令列之间的呼吸 = TITLE_STACK_GAP。
+     刻意留得比徽记到画布顶的留白更大:中央的空场是构图的一部分,
+     它把「字标」与「可操作项」分成两块,而不是糊成一柱。 */
+  gap: 76px;
+}
+
+/* ---- 徽记与做旧 ----
+   墨迹在 tight 裁切里水平正中,所以居中即视觉居中,无需偏移修正。 */
+.title-emblem {
+  position: relative;
+  /* = TITLE_EMBLEM_W / TITLE_EMBLEM_H */
+  width: 560px;
+  height: 459.2px;
+  isolation: isolate;
+}
+
+.title-emblem__art {
+  /* 底板已由 background="none" 关掉,这里不能再补任何背景色。
+     sepia+saturate 把纯金压成旧金,contrast 略降模拟褪色,
+     再补一层暖色投影让它从背景场里浮起来。 */
+  filter:
+    sepia(var(--title-emblem-sepia, 0.18)) saturate(0.92) contrast(0.96) brightness(1.02)
+    drop-shadow(0 14px 38px rgb(0 0 0 / 58%))
+    drop-shadow(0 0 26px var(--title-emblem-halo, rgb(200 165 112 / 16%)));
+}
+
+/* 做旧层一:颗粒。用重复的极小径向渐变造纸面噪点,
+   soft-light 只改明暗不染色,免得金色发脏。 */
+.title-emblem::before {
+  position: absolute;
+  z-index: 1;
+  background-image:
+    radial-gradient(circle at 17% 29%, rgb(255 244 214 / 22%) 0 0.6px, transparent 1.2px),
+    radial-gradient(circle at 63% 71%, rgb(120 92 52 / 20%) 0 0.5px, transparent 1.1px),
+    radial-gradient(circle at 84% 13%, rgb(255 238 200 / 16%) 0 0.5px, transparent 1px);
+  background-size: 37px 37px, 53px 53px, 71px 71px;
+  mix-blend-mode: soft-light;
+  content: "";
+  inset: 0;
+  /* 0.42:做旧感要有,但颗粒过重会显脏。 */
+  opacity: 0.42;
+  pointer-events: none;
+}
+
+/* 做旧层二:晕影。四角压暗,模拟旧印刷品边缘的氧化。 */
+.title-emblem::after {
+  position: absolute;
+  z-index: 2;
+  background:
+    radial-gradient(ellipse 74% 66% at 50% 48%, transparent 54%, rgb(8 5 3 / 38%) 100%);
+  mix-blend-mode: multiply;
+  content: "";
+  inset: 0;
+  pointer-events: none;
+}
+
+/* ---- 命令列 ---- */
+.title-commands {
+  display: flex;
+  width: 520px;
+  flex-direction: column;
+  /* = TITLE_COMMAND_GAP */
+  gap: 20px;
+}
+
+.title-commands__item {
+  /* 交给 RibbonButton 自己的 aspect-ratio 820/68 定高,不写死 height,
+     否则与 titleGeometry 的推导脱钩。 */
+  width: 100%;
+  max-width: none;
+  animation: title-command-enter 620ms cubic-bezier(0.2, 0.82, 0.24, 1) both;
+}
+
+@keyframes title-command-enter {
+  from {
+    opacity: 0;
+    translate: 0 10px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .title-commands__item {
+    animation: none !important;
+    opacity: 1;
+    translate: none;
+  }
+}
+
+/* ---- 命令文字的三处对齐修正 ----
+   共享的 .abyssa-ribbon-button__label 是为**拉丁文**定的:
+   Cinzel 没有汉字,`继续游戏` 会掉到 Times New Roman 再到通用 serif,
+   四个键各自落在不同的兜底字体上,字面大小与基线因此参差。
+
+   1. font-family 换成正文的宋体族(有完整汉字),字形才统一;
+   2. text-transform: uppercase 对汉字无效,但会影响混排的拉丁字,去掉;
+   3. letter-spacing 会在**最后一个字后面**也加一份间距,
+      flex 居中时把整块字压向左侧(520px 容器下约 1.14px)。
+      用等量负 margin-right 把尾隙补回来,汉字才真正居中。 */
+.title-commands__item .abyssa-ribbon-button__label {
+  /* 尾隙补偿直接做进 padding 的右侧,而不是加伪元素。
+     上一版用 ::after 是错的:label 是 flex 容器且带 gap:10px,
+     伪元素会变成**第二个 flex 项**并吃到那 10px 间距,
+     实测把字反而推到偏右 5px —— 比原本的 1.14px 更糟。
+
+     写成 calc(42px - 0.16em) 而不是 calc(42px - 3.04px):
+     em 会跟随 font-size,改字号时不必重算。 */
+  padding-inline: 42px calc(42px - 0.16em);
+  font-family: var(--abyssa-font-body, serif);
+  font-size: 19px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: none;
+}
+
+/* ---- 底部信息带 ----
+   高 = TITLE_FOOTER_H。它与中轴是**相邻**关系,不是叠在中轴上,
+   所以两行用 flex 在带内排布,而不是各自 bottom 定位。 */
+.title-footer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  width: 100%;
+  height: 68px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+}
+
+.title-hint,
+.title-imprint {
+  margin: 0;
+  font-family: var(--abyssa-font-body, serif);
+  line-height: 1.2;
+  text-align: center;
+}
+
+.title-hint {
+  color: var(--abyssa-text-muted, #8b7a5d);
+  font-size: 15px;
+  letter-spacing: 0.08em;
+}
+
+.title-imprint {
+  color: var(--abyssa-ornament, #6b563a);
+  font-family: var(--abyssa-font-display, Georgia, serif);
+  font-size: 12px;
+  letter-spacing: 0.34em;
+  /* 尾隙补偿,与命令键同理。 */
+  text-indent: 0.34em;
+  text-transform: uppercase;
+}
+
+/* ---- 主题切换(原型期控件)----
+   贴右上角,刻意低调:它是开发期开关,不是标题构图的一部分。
+   将来并入设定界面后应整块删掉。 */
+.title-skins {
+  position: absolute;
+  top: 22px;
+  right: 26px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.title-skins__item,
+.title-skins__cycle {
+  padding: 5px 12px;
+  border: 1px solid var(--abyssa-ornament-dark, #3a2d1c);
+  border-radius: 2px;
+  background: rgb(8 6 4 / 62%);
+  color: var(--abyssa-text-muted, #8b7a5d);
+  font-family: var(--abyssa-font-body, serif);
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition:
+    color 140ms var(--abyssa-ease, ease),
+    border-color 140ms var(--abyssa-ease, ease),
+    background-color 140ms var(--abyssa-ease, ease);
+}
+
+.title-skins__item:hover,
+.title-skins__cycle:hover {
+  border-color: var(--abyssa-teal-dark, #79512d);
+  color: var(--abyssa-text-soft, #cdbda1);
+}
+
+.title-skins__item[data-selected] {
+  border-color: var(--abyssa-teal, #c8a570);
+  background: rgb(20 14 8 / 82%);
+  color: var(--abyssa-teal-soft, #efd19a);
+}

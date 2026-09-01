@@ -391,4 +391,27 @@ describe("BattleScreen", () => {
       "idle"
     );
   });
+
+  it("cancels pending action playback when the screen unmounts", async () => {
+    vi.useFakeTimers();
+    const onAttack = vi.fn();
+    const { unmount } = render(
+      <BattleScreen
+        scene={scene}
+        allies={allies}
+        enemies={enemies}
+        turnOrder={turnOrder}
+        activeActorId="hero"
+        onAttack={onAttack}
+      />
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "ATTACK" }));
+    expect(vi.getTimerCount()).toBe(1);
+
+    unmount();
+    expect(vi.getTimerCount()).toBe(0);
+    await act(async () => vi.runAllTimersAsync());
+    expect(onAttack).not.toHaveBeenCalled();
+  });
 });

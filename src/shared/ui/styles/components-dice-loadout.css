@@ -1,0 +1,1203 @@
+/* 骰装页布局。
+   几何镜像两个模块:
+     槽位与外框 → src/shared/ui/patterns/characterTabPanelGeometry.ts(页签页共用)
+     骰网与挂坠 → src/shared/ui/patterns/diceLoadoutGeometry.ts(骰装私有)
+
+   参考稿的空间关系:
+     挂坠列 | 上方命骰区
+            | 下方检视栏
+
+   三条既有约束:
+
+   1) 高度必须写死,不能 height:100%。
+      .__details 是 min-height:646(下限不是上限)、.__tabpanel 是 min-height:0,
+      两者都没有确定高度。height:100% 于是对着"由我自己撑出来"的父级求值,
+      循环依赖退化成 auto,内容一长就把整张卡片顶开。
+      固定画布下写死 px 是合法且唯一可靠的解。
+
+   2) 骰面必须放在 perspective 场景里。
+      ExpeditionFlatDieFrame 是 preserve-3d 立体件,木面层挂在
+      translateZ(-recessDepth) scale(1.025);没有 perspective 时那层
+      木面不产生透视收缩,以 1.025 倍平铺在外框后面 —— 就是一圈黑边。
+
+   3) 颜色只用 --abyssa-* 令牌,不写死 hex。
+      阵营皮肤(魔王红 / 干部青 / 勇者金)靠覆盖令牌切换,
+      写死颜色会让骰装页在换角色时不跟着变。
+
+   顶部余隙 16:页签 translateY(6) 后压进 tabpanel 11px,再加 RpgFrame 5px 外环。
+   固定画布内禁用 vw/vh 与媒体查询重排。 */
+
+.abyssa-dice {
+  --dice-cell: 88px;
+  --dice-gap: 8px;
+  --dice-preview-panel: 146px;
+  --dice-preview-gap: 12px;
+  --dice-preview-cube: 96px;
+  /* 阵营色:全部引令牌,随 data-skin 自动换。 */
+  --dice-accent: var(--abyssa-teal, #72b3b7);
+  --dice-accent-soft: var(--abyssa-teal-soft, #91c3c6);
+  --dice-accent-dark: var(--abyssa-teal-dark, #3d7477);
+  --dice-edge: var(--abyssa-ornament, #647171);
+  --dice-hair: color-mix(in srgb, var(--dice-edge) 40%, transparent);
+  --dice-ink: var(--abyssa-text, #edf0f0);
+  --dice-ink-soft: var(--abyssa-text-soft, #c2cbcb);
+  --dice-dim: var(--abyssa-text-muted, #8f9b9b);
+  /* 只有骰盘内衬压深,其余沿用皮肤面色。 */
+  --dice-pit: var(--abyssa-frame-deep, #101616);
+  --dice-well: var(--abyssa-panel-black, #1d2121);
+  --dice-surface: color-mix(in srgb, var(--abyssa-panel-dark, #242929) 76%, var(--dice-pit));
+  /* CJK 字距补偿:letter-spacing 会在末字后多留一份,
+     不补掉的话所有"标签 + 值"的间距都偏右。 */
+  --dice-track: 1.4px;
+  display: block;
+  /* 605.93 = 646 - (页签行 45.07 - 5)。**随页签数量变**:
+     4 个页签时是 609.18,3 个时是 605.93 —— 单个页签受 max-width:104 限制,
+     数量少了反而更宽、行更高、tabpanel 更矮。
+     曾写死 609.18,切到骰装页时把卡片顶开 3.25px。
+     推导见 characterTabPanelGeometry.ts 的 characterTabPanelHeight()。 */
+  height: 605.93px;
+  padding: 16px 6px 6px;
+  min-width: 0;
+  background: var(--dice-surface);
+  /* 兜底:任何一处算错都在内部裁掉,绝不外溢撑开卡片。 */
+  overflow: hidden;
+}
+.abyssa-dice *,
+.abyssa-dice *::before,
+.abyssa-dice *::after { box-sizing: border-box; }
+
+.abyssa-dice__stage {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  grid-template-columns: 112px minmax(0, 1fr);
+  grid-template-rows: 340px minmax(0, 1fr);
+  gap: 14px;
+}
+
+/* ===== 右上:命骰 ===== */
+.abyssa-dice__net-frame {
+  --abyssa-frame-surface: var(--dice-surface);
+  min-height: 0;
+  grid-column: 2;
+  grid-row: 1;
+  overflow: hidden;
+}
+.abyssa-dice__net-frame > .abyssa-frame__content {
+  display: grid;
+  min-height: 0;
+  height: 100%;
+}
+.abyssa-dice__net-inner {
+  display: grid;
+  min-height: 0;
+  grid-template-rows: 20px minmax(0, 1fr);
+  row-gap: 4px;
+}
+
+.abyssa-dice__net-body {
+  display: grid;
+  min-width: 0;
+  min-height: 0;
+  grid-template-columns: minmax(0, 1fr) var(--dice-preview-panel);
+  column-gap: var(--dice-preview-gap);
+}
+
+/* 左上角标题栏 */
+.abyssa-dice__band-title {
+  display: flex;
+  min-width: 0;
+  align-items: baseline;
+  gap: 10px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid var(--dice-hair);
+}
+.abyssa-dice__band-kicker {
+  flex: 0 0 auto;
+  color: var(--dice-accent-soft);
+  font-family: var(--abyssa-font-display);
+  font-size: 9px;
+  letter-spacing: 3.2px;
+  /* 末字后的多余字距补掉,否则和右侧中文标题的间距看起来是 13 不是 10。 */
+  margin-right: -3.2px;
+}
+.abyssa-dice__band-title b {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--dice-ink);
+  font-size: 12.5px;
+  font-weight: 400;
+  letter-spacing: 2.4px;
+  margin-right: -2.4px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 上一面、中间四面、下一面。骰阵本身不再套内框。 */
+.abyssa-dice__net {
+  display: grid;
+  width: calc(var(--dice-cell) * 4 + var(--dice-gap) * 3);
+  height: calc(var(--dice-cell) * 3 + var(--dice-gap) * 2);
+  grid-template-columns: repeat(4, var(--dice-cell));
+  grid-template-rows: repeat(3, var(--dice-cell));
+  gap: var(--dice-gap);
+  place-self: center;
+}
+
+/* 六面合骰:与展开图共用同一组六面数据。外层只负责自动绕 Y 轴旋转,
+   拖动时暂停动画并把旋转量交给内层立方体。任何 filter 都不能挂在
+   3D 父层上,否则浏览器会把六个面压扁成一张图。 */
+.abyssa-dice__cube-preview {
+  position: relative;
+  display: grid;
+  min-width: 0;
+  min-height: 0;
+  padding: 8px 7px 7px;
+  border: 1px solid color-mix(in srgb, var(--dice-edge) 58%, var(--dice-pit));
+  background:
+    /* 织物斜纹 + 稀疏纤维。原先是 14px 方格网 —— 那是 HUD/科幻的语汇,
+       与象牙骰面和铜绿画框不搭。斜纹是布面与纸面的语汇。 */
+    repeating-linear-gradient(
+      135deg,
+      rgb(255 255 255 / 1.6%) 0 1px,
+      transparent 1px 5px
+    ),
+    repeating-linear-gradient(
+      45deg,
+      rgb(0 0 0 / 10%) 0 1px,
+      transparent 1px 7px
+    ),
+    color-mix(in srgb, var(--dice-pit) 82%, var(--dice-well));
+  grid-template-rows: 28px minmax(0, 1fr) 17px;
+  overflow: hidden;
+}
+.abyssa-dice__cube-preview::before {
+  position: absolute;
+  inset: 4px;
+  border: 1px solid color-mix(in srgb, var(--dice-edge) 24%, transparent);
+  content: "";
+  pointer-events: none;
+}
+.abyssa-dice__cube-title {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  min-width: 0;
+  align-content: start;
+}
+.abyssa-dice__cube-title span {
+  color: color-mix(in srgb, var(--dice-accent-soft) 72%, transparent);
+  font-family: var(--abyssa-font-display);
+  font-size: 7px;
+  letter-spacing: 1.8px;
+}
+.abyssa-dice__cube-title b {
+  color: var(--dice-ink-soft);
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 1.8px;
+}
+.abyssa-dice__cube-scene {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  min-width: 0;
+  min-height: 0;
+  cursor: grab;
+  outline: none;
+  perspective: 560px;
+  place-items: center;
+  touch-action: none;
+  user-select: none;
+}
+.abyssa-dice__cube-scene[data-dragging] { cursor: grabbing; }
+.abyssa-dice__cube-scene:focus-visible {
+  outline: 1px solid var(--dice-accent-soft);
+  outline-offset: -2px;
+}
+.abyssa-dice__cube-scene::after {
+  position: absolute;
+  z-index: 0;
+  bottom: 18%;
+  left: 50%;
+  width: 82px;
+  height: 16px;
+  border-radius: 50%;
+  background: rgb(0 0 0 / 54%);
+  content: "";
+  filter: blur(7px);
+  pointer-events: none;
+  transform: translateX(-50%);
+}
+.abyssa-dice__cube-spin {
+  position: relative;
+  z-index: 1;
+  width: var(--dice-preview-cube);
+  height: var(--dice-preview-cube);
+  animation: abyssa-dice-cube-spin 16s linear infinite;
+  transform-style: preserve-3d;
+}
+.abyssa-dice__cube-spin[data-paused] { animation-play-state: paused; }
+.abyssa-dice__preview-cube { transform-style: preserve-3d; }
+.abyssa-dice__cube-hint {
+  position: relative;
+  z-index: 2;
+  align-self: end;
+  color: color-mix(in srgb, var(--dice-dim) 72%, transparent);
+  font-size: 8px;
+  letter-spacing: 1.2px;
+  text-align: center;
+}
+@keyframes abyssa-dice-cube-spin {
+  from { transform: rotateY(0deg); }
+  to { transform: rotateY(360deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .abyssa-dice__cube-spin { animation: none; }
+}
+
+/* 单个骰面可点，位置由 diceLoadoutGeometry.ts 给出。 */
+.abyssa-dice__column {
+  display: grid;
+  width: var(--dice-cell);
+  height: var(--dice-cell);
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  font: inherit;
+  grid-template-rows: var(--dice-cell);
+  text-align: left;
+}
+.abyssa-dice__column:focus-visible { outline: 0; }
+
+/* 骰面自身已经承载命数、花色与铭；参考布局不另占一整行。 */
+.abyssa-dice__marks { display: none; }
+
+/* ===== 标记行:三枚小图标(白骰点数 / 花色 / 铭) =====
+   战面数值由骰面自己的右下角角标承载,这里不重复。 */
+.abyssa-dice__marks {
+  display: none;
+  height: 40px;
+  align-items: center;
+  justify-items: center;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  min-width: 0;
+}
+.abyssa-dice__mark {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  place-items: center;
+  border: 1px solid var(--dice-hair);
+  background: rgb(0 0 0 / 20%);
+}
+
+/* 白骰:经典骰子 —— 白底 + 黑点,点数用 radial-gradient 摆位。
+   比抽象图标直觉得多,一眼就知道是"点数"。 */
+.abyssa-dice__mark[data-kind="pip"] i {
+  display: block;
+  width: 22px;
+  height: 22px;
+  border-radius: 3px;
+  background: linear-gradient(160deg, #f4f1e8, #d8d3c4);
+  box-shadow:
+    inset 0 0 0 1px rgb(0 0 0 / 22%),
+    0 1px 2px rgb(0 0 0 / 45%);
+}
+/* 点位:三行三列的九宫格,单位为格边长的百分比。 */
+.abyssa-dice__mark[data-kind="pip"] i[data-pip] {
+  --p: #1a1a1a;
+  --r: 2.1px;
+  background-repeat: no-repeat;
+  background-image: none;
+}
+.abyssa-dice__mark[data-kind="pip"] i[data-pip="1"] {
+  background-image: radial-gradient(circle var(--r) at 50% 50%, var(--p) 99%, transparent);
+}
+.abyssa-dice__mark[data-kind="pip"] i[data-pip="2"] {
+  background-image:
+    radial-gradient(circle var(--r) at 28% 28%, var(--p) 99%, transparent),
+    radial-gradient(circle var(--r) at 72% 72%, var(--p) 99%, transparent);
+}
+.abyssa-dice__mark[data-kind="pip"] i[data-pip="3"] {
+  background-image:
+    radial-gradient(circle var(--r) at 26% 26%, var(--p) 99%, transparent),
+    radial-gradient(circle var(--r) at 50% 50%, var(--p) 99%, transparent),
+    radial-gradient(circle var(--r) at 74% 74%, var(--p) 99%, transparent);
+}
+.abyssa-dice__mark[data-kind="pip"] i[data-pip="4"] {
+  background-image:
+    radial-gradient(circle var(--r) at 28% 28%, var(--p) 99%, transparent),
+    radial-gradient(circle var(--r) at 72% 28%, var(--p) 99%, transparent),
+    radial-gradient(circle var(--r) at 28% 72%, var(--p) 99%, transparent),
+    radial-gradient(circle var(--r) at 72% 72%, var(--p) 99%, transparent);
+}
+.abyssa-dice__mark[data-kind="pip"] i[data-pip="5"] {
+  background-image:
+    radial-gradient(circle var(--r) at 27% 27%, var(--p) 99%, transparent),
+    radial-gradient(circle var(--r) at 73% 27%, var(--p) 99%, transparent),
+    radial-gradient(circle var(--r) at 50% 50%, var(--p) 99%, transparent),
+    radial-gradient(circle var(--r) at 27% 73%, var(--p) 99%, transparent),
+    radial-gradient(circle var(--r) at 73% 73%, var(--p) 99%, transparent);
+}
+.abyssa-dice__mark[data-kind="pip"] i[data-pip="6"] {
+  background-image:
+    radial-gradient(circle var(--r) at 28% 24%, var(--p) 99%, transparent),
+    radial-gradient(circle var(--r) at 72% 24%, var(--p) 99%, transparent),
+    radial-gradient(circle var(--r) at 28% 50%, var(--p) 99%, transparent),
+    radial-gradient(circle var(--r) at 72% 50%, var(--p) 99%, transparent),
+    radial-gradient(circle var(--r) at 28% 76%, var(--p) 99%, transparent),
+    radial-gradient(circle var(--r) at 72% 76%, var(--p) 99%, transparent);
+}
+/* 沉眠面:骰子留白,一个点都不刻 —— 点数不进牌型。 */
+.abyssa-dice__mark[data-kind="pip"] i:not([data-pip]) {
+  background-image: repeating-linear-gradient(135deg, transparent 0 3px, rgb(0 0 0 / 14%) 3px 4px);
+}
+
+/* 花色底板:纯 CSS 几何,与骰面左上角的 suit plate 同形。 */
+.abyssa-dice__mark[data-kind="suit"] i {
+  display: block;
+  width: 13px;
+  height: 13px;
+  background: currentcolor;
+}
+.abyssa-dice__mark[data-kind="suit"] i[data-plate="diamond"] { rotate: 45deg; }
+.abyssa-dice__mark[data-kind="suit"] i[data-plate="circle"] { border-radius: 50%; }
+.abyssa-dice__mark[data-kind="suit"] i[data-plate="triangle"] {
+  width: 0;
+  height: 0;
+  background: none;
+  border-right: 6.5px solid transparent;
+  border-bottom: 13px solid currentcolor;
+  border-left: 6.5px solid transparent;
+}
+
+/* 铭:与 SealMark(ExpeditionFlatDieFrame.tsx:144-183)同形。
+   素铭实点 / 无铭虚线空圆。 */
+.abyssa-dice__mark[data-kind="seal"] i {
+  display: block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+.abyssa-dice__mark[data-kind="seal"] i[data-seal="plain"] { background: #c9ab68; }
+.abyssa-dice__mark[data-kind="seal"] i[data-seal="none"] {
+  border: 1px dashed #6d6a63;
+}
+
+/* 沉眠列:标记整体压暗。 */
+.abyssa-dice__column[data-fate="asleep"] .abyssa-dice__mark { opacity: .42; }
+
+/* 悬停 / 选中:整列一起亮。 */
+.abyssa-dice__column:hover .abyssa-dice__mark,
+.abyssa-dice__column:focus-visible .abyssa-dice__mark {
+  border-color: color-mix(in srgb, var(--dice-accent) 45%, transparent);
+}
+.abyssa-dice__column[data-selected] .abyssa-dice__mark {
+  border-color: color-mix(in srgb, var(--dice-accent) 70%, transparent);
+  background: color-mix(in srgb, var(--dice-accent) 9%, rgb(0 0 0 / 20%));
+}
+
+/* 骰面格。perspective 见文件头第 2 条。 */
+.abyssa-dice__cell {
+  position: relative;
+  display: block;
+  width: var(--dice-cell);
+  height: var(--dice-cell);
+  /* 620 是按 300px 骰子调的,等比缩到本格边长。 */
+  perspective: calc(var(--dice-cell) * 620 / 300);
+}
+.abyssa-dice__cell > .expedition-flat-die-frame { width: 100%; height: 100%; }
+
+/* 角色档案中的骰面使用低饱和深青灰木质，而非战斗页默认的暖棕木色。
+   这些变量只在 DiceLoadoutPanel 内覆盖，不改变通用骰面组件。 */
+.abyssa-dice__cell .expedition-flat-die-frame,
+.abyssa-dice__cube-preview .expedition-flat-die-frame {
+  --battle-die-wood-base: var(--abyssa-panel-dark);
+  --battle-die-wood-mid: var(--abyssa-panel-black);
+  --battle-die-wood-dark: var(--abyssa-frame-deep);
+  --battle-die-wood-fiber-light: color-mix(in srgb, var(--dice-edge) 42%, var(--abyssa-panel-dark));
+  --battle-die-wood-fiber-dark: var(--abyssa-frame-deep);
+  --battle-die-icon: color-mix(in srgb, var(--dice-edge) 72%, var(--abyssa-panel-dark));
+  --battle-die-icon-edge: var(--abyssa-frame-deep);
+  --suit-plate: var(--abyssa-ornament-dark);
+  --suit-plate-edge: color-mix(in srgb, var(--abyssa-ornament) 72%, var(--abyssa-frame-dark));
+}
+
+/* 命数维持浅灰，靠深青灰花色底形成明度对比；不再使用金色高光。 */
+.abyssa-dice__cell .expedition-flat-die-frame__fate,
+.abyssa-dice__cell .expedition-flat-die-frame[data-scoring] .expedition-flat-die-frame__fate,
+.abyssa-dice__cube-preview .expedition-flat-die-frame__fate,
+.abyssa-dice__cube-preview .expedition-flat-die-frame[data-scoring] .expedition-flat-die-frame__fate {
+  fill: var(--dice-ink-soft);
+  stroke: var(--dice-pit);
+  filter: drop-shadow(0 1px 0 rgb(0 0 0 / 55%));
+}
+
+/* 通用组件会给已醒面补一圈浅金，在骰装页把它收回花色自身的青灰边。 */
+.abyssa-dice__cell .expedition-flat-die-frame[data-scoring] .expedition-flat-die-frame__suit-fate > path,
+.abyssa-dice__cell .expedition-flat-die-frame[data-scoring] .expedition-flat-die-frame__suit-fate > circle,
+.abyssa-dice__cube-preview .expedition-flat-die-frame[data-scoring] .expedition-flat-die-frame__suit-fate > path,
+.abyssa-dice__cube-preview .expedition-flat-die-frame[data-scoring] .expedition-flat-die-frame__suit-fate > circle {
+  stroke: var(--suit-plate-edge);
+}
+
+.abyssa-dice__cell::after {
+  position: absolute;
+  z-index: 3;
+  inset: -3px;
+  border: 1px solid transparent;
+  content: "";
+  pointer-events: none;
+  transition:
+    border-color 140ms var(--abyssa-ease, ease),
+    box-shadow 140ms var(--abyssa-ease, ease);
+}
+.abyssa-dice__column:hover .abyssa-dice__cell::after {
+  border-color: color-mix(in srgb, var(--dice-accent) 55%, transparent);
+}
+.abyssa-dice__column[data-selected] .abyssa-dice__cell::after {
+  border-color: var(--dice-accent-soft);
+  box-shadow:
+    0 0 9px color-mix(in srgb, var(--dice-accent) 28%, transparent),
+    inset 0 0 8px color-mix(in srgb, var(--dice-accent) 14%, transparent);
+}
+.abyssa-dice__column:focus-visible .abyssa-dice__cell::after {
+  border-color: var(--dice-accent-soft);
+  box-shadow: 0 0 0 1px var(--dice-accent-soft);
+}
+
+/* 沉眠面:刻痕被磨平。 */
+.abyssa-dice__column[data-fate="asleep"] .abyssa-dice__cell { opacity: .44; filter: saturate(.2); }
+.abyssa-dice__column[data-fate="asleep"] .abyssa-dice__cell::before {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  background: repeating-linear-gradient(135deg, transparent 0 5px, rgb(0 0 0 / 24%) 5px 6px);
+  content: "";
+  pointer-events: none;
+}
+
+/* 被挂坠改写的面:右下挂一枚菱形小坠。 */
+.abyssa-dice__pin {
+  position: absolute;
+  z-index: 4;
+  right: -5px;
+  bottom: -5px;
+  display: grid;
+  width: 16px;
+  height: 16px;
+  place-items: center;
+  border: 1px solid var(--dice-accent-soft);
+  background: var(--dice-pit);
+  box-shadow: 0 0 5px color-mix(in srgb, var(--dice-accent) 32%, transparent);
+  rotate: 45deg;
+}
+.abyssa-dice__pin i {
+  display: block;
+  width: 9px;
+  height: 9px;
+  background: var(--dice-accent-soft);
+  mask-repeat: no-repeat;
+  mask-position: center;
+  mask-size: contain;
+  rotate: -45deg;
+}
+
+/* 花色配色。四色只在这里定义一次。 */
+.abyssa-dice [data-suit="holy"] { color: #d8bd7d; }
+.abyssa-dice [data-suit="earth"] { color: #7fb193; }
+.abyssa-dice [data-suit="abyss"] { color: #bf6070; }
+.abyssa-dice [data-suit="beyond"] { color: #9d87cd; }
+
+/* ===== 左侧挂坠 + 右下检视 ===== */
+/* 语义容器不建立额外盒子，让两个子项直接进入 stage 网格。 */
+.abyssa-dice__lower {
+  display: contents;
+  min-height: 0;
+}
+
+/* ===== 挂坠壁龛 ===== */
+/* 三个挂坠位在左侧纵向铺满，跨越骰阵和详情两行。 */
+.abyssa-dice__charms {
+  position: relative;
+  display: grid;
+  grid-column: 1;
+  grid-row: 1 / -1;
+  grid-template-rows: repeat(3, minmax(0, 1fr));
+  padding: 8px 6px;
+  row-gap: 0;
+  min-width: 0;
+  min-height: 0;
+  border: 1px solid var(--dice-hair);
+  background: color-mix(in srgb, var(--dice-pit) 72%, transparent);
+  overflow: hidden;
+}
+/* 外框内侧的四个 L 形角标，仅表达几何，不引入装饰图片。 */
+.abyssa-dice__charms::before {
+  position: absolute;
+  z-index: 3;
+  inset: 6px;
+  background:
+    linear-gradient(var(--dice-edge) 0 0) left top / 14px 1px no-repeat,
+    linear-gradient(var(--dice-edge) 0 0) left top / 1px 14px no-repeat,
+    linear-gradient(var(--dice-edge) 0 0) right top / 14px 1px no-repeat,
+    linear-gradient(var(--dice-edge) 0 0) right top / 1px 14px no-repeat,
+    linear-gradient(var(--dice-edge) 0 0) left bottom / 14px 1px no-repeat,
+    linear-gradient(var(--dice-edge) 0 0) left bottom / 1px 14px no-repeat,
+    linear-gradient(var(--dice-edge) 0 0) right bottom / 14px 1px no-repeat,
+    linear-gradient(var(--dice-edge) 0 0) right bottom / 1px 14px no-repeat;
+  content: "";
+  opacity: .72;
+  pointer-events: none;
+}
+/* 每一格只负责垂直占位；道具本身由挂钩、菱形座和竖牌组成。 */
+.abyssa-dice__charm {
+  --charm-tone: var(--item-rarity, var(--dice-edge));
+  --charm-tone-soft: var(--item-rarity-soft, var(--dice-edge));
+  --charm-line: color-mix(in srgb, var(--charm-tone-soft) 42%, var(--dice-edge));
+  --charm-line-muted: color-mix(in srgb, var(--charm-tone-soft) 22%, var(--dice-edge));
+  position: relative;
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  padding: 2px 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 3px;
+  overflow: visible;
+}
+.abyssa-dice__charm:not(:last-child)::after {
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  width: 1px;
+  height: 12px;
+  background: color-mix(in srgb, var(--charm-line) 42%, var(--dice-hair));
+  content: "";
+  pointer-events: none;
+}
+.abyssa-dice__hook {
+  position: relative;
+  flex: 0 0 auto;
+  width: 10px;
+  height: 10px;
+  border: 1px solid var(--charm-line);
+  border-radius: 50%;
+}
+.abyssa-dice__hook::after {
+  position: absolute;
+  top: 9px;
+  left: 50%;
+  width: 1px;
+  height: 7px;
+  background: var(--charm-line);
+  content: "";
+}
+.abyssa-dice__charm-token {
+  position: relative;
+  display: flex;
+  min-height: 0;
+  flex-direction: column;
+  align-items: center;
+}
+.abyssa-dice__charm-backdrop {
+  position: absolute;
+  z-index: 0;
+  top: -9px;
+  left: 50%;
+  width: 86px;
+  height: 86px;
+  border: 1px solid var(--charm-line-muted);
+  border-radius: 50%;
+  background: none;
+  box-shadow: inset 0 0 0 3px color-mix(in srgb, var(--charm-line-muted) 24%, transparent);
+  opacity: .46;
+  pointer-events: none;
+  transform: translateX(-50%);
+}
+.abyssa-dice__charm-medallion {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  width: 68px;
+  height: 68px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid var(--charm-line);
+  background: var(--dice-well);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--charm-line-muted) 48%, transparent),
+    0 0 6px color-mix(in srgb, var(--charm-tone) 10%, transparent);
+  transform: rotate(45deg);
+}
+.abyssa-dice__charm-medallion::before {
+  position: absolute;
+  inset: 5px;
+  z-index: 3;
+  border: 1px solid var(--charm-line-muted);
+  content: "";
+  /* 这层压在 ItemSlot(z-index:2)上方,不关掉命中测试会吞掉整个点击 ——
+     道具点不动就是这一条造成的。所有纯装饰层都必须 pointer-events:none。 */
+  pointer-events: none;
+}
+.abyssa-dice__charm-medallion .abyssa-item-slot {
+  --slot-gem-band: 0px;
+  --slot-glyph: calc(var(--slot-size) * .78);
+  --slot-halo-a: calc(var(--slot-size) * .76);
+  --slot-halo-b: calc(var(--slot-size) * .54);
+  z-index: 2;
+  margin: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  overflow: visible;
+  transform: rotate(-45deg);
+}
+.abyssa-dice__charm-medallion .abyssa-item-slot [data-layer="surface"] {
+  inset: 0;
+  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+}
+/* 图标三层只负责绘制。它们是 <i>,本不接收事件,
+   但这里显式声明,避免以后有人给它们加 background 时又踩同一个坑。 */
+.abyssa-dice__charm-medallion .abyssa-item-slot [data-layer="glyph-depth"] {
+  z-index: 5;
+  pointer-events: none;
+}
+.abyssa-dice__charm-medallion .abyssa-item-slot [data-layer="glyph"] {
+  z-index: 6;
+  pointer-events: none;
+}
+.abyssa-dice__charm-medallion .abyssa-item-slot [data-layer="glyph-highlight"] {
+  z-index: 7;
+  pointer-events: none;
+}
+.abyssa-dice__charm .abyssa-item-slot[data-selected] {
+  filter: brightness(1.16)
+    drop-shadow(0 0 6px color-mix(in srgb, var(--dice-accent) 38%, transparent));
+}
+/* 菱形座下接窄长六边形铭牌。 */
+.abyssa-dice__charm-name {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  width: 48px;
+  height: 112px;
+  margin-top: -10px;
+  padding: 0;
+  flex: 0 0 auto;
+  background: var(--charm-line);
+  clip-path: polygon(0 0, 100% 0, 100% 82%, 50% 100%, 0 82%);
+}
+.abyssa-dice__charm-name::before {
+  position: absolute;
+  z-index: 0;
+  inset: 2px;
+  background: var(--dice-well);
+  clip-path: inherit;
+  content: "";
+  pointer-events: none;
+}
+.abyssa-dice__charm-name-inner {
+  position: absolute;
+  z-index: 1;
+  inset: 5px;
+  display: grid;
+  padding: 25px 5px 8px;
+  align-items: start;
+  justify-items: center;
+  background: var(--charm-line-muted);
+  clip-path: polygon(0 0, 100% 0, 100% 82%, 50% 100%, 0 82%);
+}
+.abyssa-dice__charm-name-inner::before {
+  position: absolute;
+  z-index: 0;
+  inset: 1px;
+  background: var(--dice-well);
+  clip-path: inherit;
+  content: "";
+  pointer-events: none;
+}
+.abyssa-dice__charm-name-text {
+  position: relative;
+  z-index: 1;
+  color: var(--dice-ink-soft);
+  font-size: 11px;
+  letter-spacing: 1.4px;
+  line-height: 1;
+  white-space: nowrap;
+  writing-mode: vertical-rl;
+}
+
+/* 空位沿用同一几何，只把轮廓改成虚线。 */
+.abyssa-dice__charm[data-empty] {
+  opacity: .62;
+}
+.abyssa-dice__charm[data-empty] .abyssa-dice__hook {
+  border-style: dashed;
+}
+.abyssa-dice__charm[data-empty] .abyssa-dice__charm-medallion {
+  border-style: dashed;
+  background: none;
+}
+.abyssa-dice__charm[data-empty] .abyssa-dice__charm-medallion::before {
+  border-style: dashed;
+}
+.abyssa-dice__charm[data-empty] .abyssa-dice__charm-backdrop {
+  border-style: dashed;
+  box-shadow: none;
+}
+.abyssa-dice__charm[data-empty] .abyssa-item-slot {
+  border: 1px dashed color-mix(in srgb, var(--dice-edge) 34%, transparent);
+  background: none;
+  box-shadow: inset 0 2px 7px rgb(0 0 0 / 55%);
+}
+.abyssa-dice__charm[data-empty] .abyssa-item-slot [data-layer="socket"] {
+  inset: 30%;
+  border: 1px dashed color-mix(in srgb, var(--dice-edge) 46%, transparent);
+  background: none;
+}
+.abyssa-dice__charm[data-empty] .abyssa-dice__charm-name {
+  background: color-mix(in srgb, var(--dice-edge) 62%, transparent);
+}
+.abyssa-dice__charm[data-empty] .abyssa-dice__charm-name::before {
+  background: var(--dice-pit);
+}
+.abyssa-dice__charm[data-empty] .abyssa-dice__charm-name-inner {
+  background: color-mix(in srgb, var(--dice-edge) 52%, transparent);
+}
+.abyssa-dice__charm[data-empty] .abyssa-dice__charm-name-inner::before {
+  background: var(--dice-pit);
+}
+.abyssa-dice__charm[data-empty] .abyssa-dice__charm-name-text {
+  color: var(--dice-dim);
+}
+
+/* ===== 检视栏 =====
+   每一层都要 min-height:0 —— grid 子项默认 min-height:auto 以内容为下限,
+   少一层 overflow 就永远不触发。 */
+.abyssa-dice__inspector {
+  --abyssa-frame-surface: var(--dice-surface);
+  min-width: 0;
+  min-height: 0;
+  grid-column: 2;
+  grid-row: 2;
+  overflow: hidden;
+}
+.abyssa-dice__inspector > .abyssa-frame__content {
+  display: grid;
+  min-height: 0;
+  overflow: hidden;
+}
+.abyssa-dice__plate {
+  position: relative;
+  display: grid;
+  min-height: 0;
+  padding: 12px 14px 12px 16px;
+  /* 与挂坠列同一材质:压深底 + 14px 细网格,顶边一道阵营色高光。 */
+  background:
+    /* 织物斜纹 + 稀疏纤维。原先是 14px 方格网 —— 那是 HUD/科幻的语汇,
+       与象牙骰面和铜绿画框不搭。斜纹是布面与纸面的语汇。 */
+    repeating-linear-gradient(
+      135deg,
+      rgb(255 255 255 / 1.6%) 0 1px,
+      transparent 1px 5px
+    ),
+    repeating-linear-gradient(
+      45deg,
+      rgb(0 0 0 / 10%) 0 1px,
+      transparent 1px 7px
+    ),
+    color-mix(in srgb, var(--dice-pit) 82%, var(--dice-well));
+  border-top: 2px solid color-mix(in srgb, var(--dice-accent) 58%, transparent);
+  overflow: hidden;
+}
+/* 内描边,与 cube-preview 同手法。 */
+.abyssa-dice__plate::before {
+  position: absolute;
+  z-index: 3;
+  inset: 4px;
+  border: 1px solid color-mix(in srgb, var(--dice-edge) 22%, transparent);
+  content: "";
+  pointer-events: none;
+}
+.abyssa-dice__plate-scroll {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  min-height: 0;
+  /* 左铭牌 | 右数据网格。检视栏是 580x233 的宽扁框,
+     竖排窄行会把 530px 的宽度全浪费掉。 */
+  grid-template-columns: 182px minmax(0, 1fr);
+  column-gap: 14px;
+  padding-right: 8px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--dice-edge) 52%, transparent) transparent;
+}
+.abyssa-dice__plate-scroll:focus-visible {
+  outline: 1px solid var(--dice-accent-soft);
+  outline-offset: 2px;
+}
+.abyssa-dice__plate-scroll::-webkit-scrollbar { width: 5px; }
+.abyssa-dice__plate-scroll::-webkit-scrollbar-track { background: rgb(0 0 0 / 38%); }
+.abyssa-dice__plate-scroll::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--dice-edge) 56%, transparent);
+}
+
+/* ===== 左:身份铭牌 ===== */
+.abyssa-dice__ident {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  padding-right: 14px;
+  flex-direction: column;
+  gap: 8px;
+  /* 与右侧数据区之间一道竖分隔,而不是靠留白硬分。 */
+  border-right: 1px solid var(--dice-hair);
+}
+/* 骰子在上、文字在下 —— **不并排**。
+   铭牌只有 168px 可用宽,骰子横放会挤掉 53px,
+   剩 115px 装不下 19px 的标题与 "FACE · 第 5 面",必然折行。 */
+.abyssa-dice__ident-head {
+  display: grid;
+  min-width: 0;
+  padding-bottom: 12px;
+  justify-items: center;
+  row-gap: 10px;
+}
+.abyssa-dice__ident-text {
+  min-width: 0;
+  width: 100%;
+  text-align: center;
+}
+
+/* ===== 阵营主题骰 =====
+   骰身直接取当前角色的阵营色令牌，不再使用突兀的固定白瓷色。
+   点位仍用 radial-gradient 摆九宫格；明面用深点，沉眠面反转为浅点。 */
+.abyssa-dice__die {
+  --p: var(--dice-pit);
+  --r: 4.6px;
+  --dice-token-light: color-mix(in srgb, var(--dice-accent-soft) 84%, var(--dice-accent));
+  --dice-token-base: color-mix(in srgb, var(--dice-accent-soft) 46%, var(--dice-accent));
+  --dice-token-shadow: color-mix(in srgb, var(--dice-accent) 68%, var(--dice-accent-dark));
+  position: relative;
+  display: block;
+  width: 60px;
+  height: 60px;
+  flex: 0 0 auto;
+  border-radius: 8px;
+  background: linear-gradient(
+    158deg,
+    var(--dice-token-light) 0%,
+    var(--dice-token-base) 52%,
+    var(--dice-token-shadow) 100%
+  );
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--dice-pit) 62%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--dice-accent-soft) 52%, transparent),
+    inset 0 -2px 4px color-mix(in srgb, var(--dice-pit) 38%, transparent),
+    0 2px 4px rgb(0 0 0 / 48%);
+}
+/* 点位层。骰点画在 ::after 上,底面留给阵营色材质。 */
+.abyssa-dice__die::after {
+  position: absolute;
+  inset: 0;
+  background-repeat: no-repeat;
+  content: "";
+}
+.abyssa-dice__die[data-pip="1"]::after {
+  background-image: radial-gradient(circle var(--r) at 50% 50%, var(--p) 99%, transparent);
+}
+.abyssa-dice__die[data-pip="2"]::after {
+  background-image:
+    radial-gradient(circle var(--r) at 28% 28%, var(--p) 99%, transparent),
+    radial-gradient(circle var(--r) at 72% 72%, var(--p) 99%, transparent);
+}
+.abyssa-dice__die[data-pip="3"]::after {
+  background-image:
+    radial-gradient(circle var(--r) at 26% 26%, var(--p) 99%, transparent),
+    radial-gradient(circle var(--r) at 50% 50%, var(--p) 99%, transparent),
+    radial-gradient(circle var(--r) at 74% 74%, var(--p) 99%, transparent);
+}
+.abyssa-dice__die[data-pip="4"]::after {
+  background-image:
+    radial-gradient(circle var(--r) at 29% 29%, var(--p) 99%, transparent),
+    radial-gradient(circle var(--r) at 71% 29%, var(--p) 99%, transparent),
+    radial-gradient(circle var(--r) at 29% 71%, var(--p) 99%, transparent),
+    radial-gradient(circle var(--r) at 71% 71%, var(--p) 99%, transparent);
+}
+.abyssa-dice__die[data-pip="5"]::after {
+  background-image:
+    radial-gradient(circle var(--r) at 27% 27%, var(--p) 99%, transparent),
+    radial-gradient(circle var(--r) at 73% 27%, var(--p) 99%, transparent),
+    radial-gradient(circle var(--r) at 50% 50%, var(--p) 99%, transparent),
+    radial-gradient(circle var(--r) at 27% 73%, var(--p) 99%, transparent),
+    radial-gradient(circle var(--r) at 73% 73%, var(--p) 99%, transparent);
+}
+.abyssa-dice__die[data-pip="6"]::after {
+  background-image:
+    radial-gradient(circle var(--r) at 29% 23%, var(--p) 99%, transparent),
+    radial-gradient(circle var(--r) at 71% 23%, var(--p) 99%, transparent),
+    radial-gradient(circle var(--r) at 29% 50%, var(--p) 99%, transparent),
+    radial-gradient(circle var(--r) at 71% 50%, var(--p) 99%, transparent),
+    radial-gradient(circle var(--r) at 29% 77%, var(--p) 99%, transparent),
+    radial-gradient(circle var(--r) at 71% 77%, var(--p) 99%, transparent);
+}
+
+/* ===== 六面点数缩略图 =====
+   总览态没有单一点数,骰子的位置会空出来。这排小骰既填掉那 65px,
+   又把「六面各是几点、哪几面沉眠」一眼交代清楚。 */
+.abyssa-dice__strip {
+  display: grid;
+  grid-template-columns: repeat(6, 24px);
+  gap: 4px;
+  justify-content: center;
+}
+.abyssa-dice__strip .abyssa-dice__die {
+  --r: 2.15px;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--dice-pit) 60%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--dice-accent-soft) 46%, transparent),
+    0 1px 2px rgb(0 0 0 / 42%);
+}
+/* 沉眠面:压暗并降低饱和度，仍保留阵营底色而不是退成中性灰陶。 */
+.abyssa-dice__strip .abyssa-dice__die[data-asleep] {
+  --p: color-mix(in srgb, var(--dice-ink-soft) 58%, var(--dice-accent-dark));
+  background: linear-gradient(
+    158deg,
+    color-mix(in srgb, var(--dice-accent-dark) 46%, var(--dice-edge)) 0%,
+    color-mix(in srgb, var(--dice-accent-dark) 58%, var(--dice-well)) 52%,
+    color-mix(in srgb, var(--dice-pit) 80%, var(--dice-accent-dark)) 100%
+  );
+  opacity: .62;
+}
+
+.abyssa-dice__kicker {
+  display: block;
+  color: var(--dice-accent-soft);
+  font-family: var(--abyssa-font-display);
+  font-size: 8.5px;
+  letter-spacing: 3.2px;
+  margin-right: -3.2px;
+}
+/* 归属前缀。单独一行,小字。 */
+.abyssa-dice__owner {
+  display: block;
+  margin-top: 7px;
+  color: var(--dice-ink-soft);
+  font-size: 12px;
+  letter-spacing: 1.6px;
+  margin-right: -1.6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.abyssa-dice__ident h3 {
+  display: flex;
+  margin: 4px 0 0;
+  align-items: baseline;
+  justify-content: center;
+  /* 「治疗」与「2」原来靠一个空格分隔,字距吃掉后几乎贴在一起。
+     改用 flex + gap 显式给间隔,不依赖空格。 */
+  gap: 9px;
+  color: var(--dice-ink);
+  font-size: 21px;
+  font-weight: 400;
+  letter-spacing: 2px;
+  margin-right: -2px;
+  /* 允许在两个子项之间换行,但**不许**在字与字之间断开。
+     曾用 overflow-wrap:anywhere,「艾比希斯的命骰」需 184px 却只有 168px,
+     于是在词中断行,又被 align-items:baseline 拉错行 —— 标题直接崩。 */
+  flex-wrap: wrap;
+}
+.abyssa-dice__ident h3 > span,
+.abyssa-dice__ident h3 > em {
+  white-space: nowrap;
+}
+.abyssa-dice__ident h3:empty { display: none; }
+/* 主数值/词根用阵营色,并压一道细描边让它像刻上去的。 */
+.abyssa-dice__ident h3 em {
+  color: var(--dice-accent-soft);
+  font-family: var(--abyssa-font-display);
+  font-size: 29px;
+  font-style: normal;
+  letter-spacing: 1px;
+  line-height: 1;
+}
+.abyssa-dice__sub {
+  /* 与下方(落款/数据格)拉开距离,原来只有 3px 顶距、下方紧贴。 */
+  margin: 6px 0 0;
+  color: color-mix(in srgb, var(--dice-dim) 78%, transparent);
+  font-family: var(--abyssa-font-display);
+  font-size: 8.5px;
+  letter-spacing: 2px;
+  margin-right: -2px;
+}
+/* 铭牌底部的落款,推到最下,与右侧数据格底缘齐平。 */
+.abyssa-dice__foot {
+  margin: auto 0 0;
+  padding-top: 8px;
+  text-align: center;
+  color: color-mix(in srgb, var(--dice-dim) 70%, transparent);
+  font-size: 9px;
+  line-height: 1.6;
+  letter-spacing: 1.1px;
+  margin-right: -1.1px;
+}
+
+/* ===== 右:数据网格 ===== */
+.abyssa-dice__data {
+  display: grid;
+  align-content: start;
+  min-width: 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+/* 一格 = 标签(小、字距大)在上,值(大)在下。
+   四周只用一条 hairline + 左侧一道阵营色竖条,不做渐变。 */
+.abyssa-dice__cell-data {
+  position: relative;
+  display: grid;
+  min-width: 0;
+  padding: 6px 9px 7px 11px;
+  align-content: start;
+  row-gap: 2px;
+  border: 1px solid var(--dice-hair);
+  background: rgb(0 0 0 / 22%);
+}
+.abyssa-dice__cell-data::before {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 2px;
+  background: color-mix(in srgb, var(--dice-edge) 62%, transparent);
+  content: "";
+}
+.abyssa-dice__cell-data[data-wide] { grid-column: 1 / -1; }
+.abyssa-dice__cell-data[data-tone="accent"]::before { background: var(--dice-accent); }
+.abyssa-dice__cell-data[data-tone="gold"]::before { background: #d8bd7d; }
+
+/* 标签 = 图标 + 文字。纯文字排版读起来像表格,
+   配一枚小图标才有"档案卡"的分量。 */
+.abyssa-dice__cell-data b {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 5px;
+  color: var(--dice-dim);
+  font-size: 9.5px;
+  font-weight: 400;
+  letter-spacing: 1.8px;
+}
+.abyssa-dice__cell-icon {
+  display: block;
+  width: 14px;
+  height: 14px;
+  flex: 0 0 auto;
+  background: currentcolor;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  mask-size: contain;
+}
+/* 花色底板:与骰面左上角同形。 */
+.abyssa-dice__cell-suit {
+  display: block;
+  width: 11px;
+  height: 11px;
+  flex: 0 0 auto;
+  background: currentcolor;
+}
+.abyssa-dice__cell-suit[data-plate="diamond"] { rotate: 45deg; }
+.abyssa-dice__cell-suit[data-plate="circle"] { border-radius: 50%; }
+.abyssa-dice__cell-suit[data-plate="triangle"] {
+  width: 0;
+  height: 0;
+  background: none;
+  border-right: 5.5px solid transparent;
+  border-bottom: 11px solid currentcolor;
+  border-left: 5.5px solid transparent;
+}
+/* 铭记号:与 SealMark 同形 —— 素铭实点 / 无铭虚线空圆。 */
+.abyssa-dice__cell-seal {
+  display: block;
+  width: 11px;
+  height: 11px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+}
+.abyssa-dice__cell-seal[data-seal="plain"] { background: #c9ab68; }
+.abyssa-dice__cell-seal[data-seal="none"] { border: 1px dashed currentcolor; }
+.abyssa-dice__cell-data span {
+  display: flex;
+  min-width: 0;
+  align-items: baseline;
+  gap: 6px;
+  color: var(--dice-ink);
+  font-size: 14px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+.abyssa-dice__cell-data i {
+  font-style: normal;
+  font-weight: 500;
+}
+/* 副值(计数、原值、状态):小一号、暗一档,跟在主值后面。 */
+.abyssa-dice__cell-data s {
+  color: color-mix(in srgb, var(--dice-dim) 88%, transparent);
+  font-size: 9.5px;
+  letter-spacing: 1px;
+  text-decoration: none;
+}
+/* 长句格(私约、轶闻、效果):值降到正文号,不再是大数字。 */
+.abyssa-dice__cell-data[data-wide] span {
+  display: block;
+  color: var(--dice-ink-soft);
+  font-size: 11.5px;
+  letter-spacing: .6px;
+}
+.abyssa-dice__cell-data[data-tone="accent"][data-wide] span { color: var(--dice-accent-soft); }
+
+/* ===== 占位态 ===== */
+.abyssa-dice[data-placeholder] { display: grid; }
+.abyssa-dice__placeholder-frame { display: grid; min-height: 0; overflow: hidden; }
+.abyssa-dice__placeholder-frame > .abyssa-frame__content {
+  display: grid;
+  min-height: 0;
+  place-items: center;
+}
+.abyssa-dice__placeholder { text-align: center; }
+.abyssa-dice__placeholder-glyph {
+  display: block;
+  width: 42px;
+  height: 42px;
+  margin: 0 auto 13px;
+  background: color-mix(in srgb, var(--dice-edge) 55%, transparent);
+  mask-repeat: no-repeat;
+  mask-position: center;
+  mask-size: contain;
+}
+.abyssa-dice__placeholder strong {
+  display: block;
+  color: var(--dice-dim);
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 4.6px;
+  margin-right: -4.6px;
+}
+.abyssa-dice__placeholder p {
+  margin: 8px 0 0;
+  color: color-mix(in srgb, var(--dice-dim) 70%, transparent);
+  font-size: 9.5px;
+  letter-spacing: 1.2px;
+  margin-right: -1.2px;
+}

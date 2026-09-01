@@ -1,0 +1,58 @@
+/* ---------- 中栏 ---------- */
+.abyssa-rp__center {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: rgb(11 16 16 / 72%);
+  border-inline: 1px solid rgb(100 113 113 / 26%);
+  backdrop-filter: blur(6px);
+}
+
+.abyssa-rp__header {
+  flex: none;
+  padding: 10px 18px;
+  border-bottom: 1px solid rgb(100 113 113 / 26%);
+}
+
+.abyssa-rp__log {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+  min-height: 0;
+  padding: 18px 26px 22px; /* 原 clamp(12px,2.2vw,26px) 已达上限 */
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--abyssa-ornament-dark) transparent;
+}
+
+.abyssa-rp__log::-webkit-scrollbar { width: 6px; }
+.abyssa-rp__log::-webkit-scrollbar-thumb { background: var(--abyssa-ornament-dark); border-radius: 3px; }
+
+.abyssa-rp__jump {
+  position: absolute;
+  bottom: 14px;
+  left: 50%;
+  z-index: 4;
+  padding: 5px 16px;
+  border: 1px solid var(--abyssa-teal-dark);
+  background: rgb(18 26 26 / 94%);
+  color: var(--abyssa-teal);
+  font-family: inherit;
+  font-size: 11.5px;
+  letter-spacing: 0.16em;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-50%) translateY(6px);
+  transition: opacity 0.24s, transform 0.24s;
+}
+
+.abyssa-rp__jump[data-show] {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(-50%);
+}

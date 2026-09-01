@@ -191,7 +191,7 @@ export function ExpeditionBagOdometer({
       className={["abyssa-expedition-bag-odometer", className].filter(Boolean).join(" ")}
       data-banking={banking || undefined}
     >
-      <ExpeditionOdometer value={shown} digits={5} label={label} />
+      <ExpeditionOdometer value={shown} digits={6} label={label} />
     </span>
   );
 }

@@ -4,6 +4,8 @@ import swapBagIcon from "../../assets/svg/items/game-icons/swap-bag.svg";
 import crossShieldIcon from "../../assets/svg/ui/game-icon-cross-shield.svg";
 import hospitalCrossIcon from "../../assets/svg/ui/game-icon-hospital-cross.svg";
 import magicPalmIcon from "../../assets/svg/ui/game-icon-magic-palm.svg";
+import { ExpeditionFlatDieFrame } from "../../shared/ui/dice-face/ExpeditionFlatDieFrame";
+import type { ExpeditionDieSuitShape } from "../../shared/ui/dice-face/ExpeditionFlatDieFrame";
 
 export type ExpeditionDieSuit = "holy" | "earth" | "abyss" | "beyond";
 export type ExpeditionDieQuality = "plain" | "rust" | "gild" | "none";
@@ -75,6 +77,15 @@ const SUIT_COLORS: Record<ExpeditionDieSuit, string> = {
   abyss: "#a43c4b",
   beyond: "#8e7bb8"
 };
+
+const SUIT_SHAPES: Record<ExpeditionDieSuit, ExpeditionDieSuitShape> = {
+  holy: "diamond",
+  earth: "square",
+  abyss: "triangle",
+  beyond: "circle"
+};
+
+const FACE_TEXTURE_ROTATIONS = [0, 90, 180, 270, 90, 180] as const;
 
 const VERB_ICONS: Partial<Record<ExpeditionDieVerb, string>> = {
   attack: plainDaggerIcon,
@@ -272,7 +283,7 @@ export function ExpeditionDie3D({
   return (
     <button
       type="button"
-      className="expedition-die"
+      className="expedition-die expedition-die--paper"
       data-held={held || undefined}
       data-rolling={rolling || undefined}
       data-downed={downed || undefined}
@@ -300,24 +311,38 @@ export function ExpeditionDie3D({
               data-scoring={(scoring && pip === value) || undefined}
               key={pip}
             >
-              <span className="expedition-die__gloss" aria-hidden="true" />
-              <span className="expedition-die__corner" aria-hidden="true">
-                <b data-wild-pip={face.wildPip || undefined}>
-                  {face.wildPip ? (
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                      <path d="M12 1.6 22.4 12 12 22.4 1.6 12Z" data-fill="true" />
-                      <path d="m12 5.6 6.4 6.4-6.4 6.4L5.6 12Z" data-gem-shine="true" />
-                    </svg>
-                  ) : (
-                    pip
-                  )}
-                </b>
-                <i><SuitIcon suit={suit} sealed={face.quality === "none"} /></i>
+              <ExpeditionFlatDieFrame
+                action={face.verb}
+                fate={pip}
+                power={face.power}
+                seal={face.quality}
+                suitShape={SUIT_SHAPES[suit]}
+                themeColor={themeColor}
+                wildPip={face.wildPip}
+                scoring={scoring && pip === value}
+                textureRotation={FACE_TEXTURE_ROTATIONS[pip - 1]}
+                recessDepth={2}
+              />
+              <span className="expedition-die__legacy-face" aria-hidden="true">
+                <span className="expedition-die__gloss" />
+                <span className="expedition-die__corner">
+                  <b data-wild-pip={face.wildPip || undefined}>
+                    {face.wildPip ? (
+                      <svg viewBox="0 0 24 24">
+                        <path d="M12 1.6 22.4 12 12 22.4 1.6 12Z" data-fill="true" />
+                        <path d="m12 5.6 6.4 6.4-6.4 6.4L5.6 12Z" data-gem-shine="true" />
+                      </svg>
+                    ) : (
+                      pip
+                    )}
+                  </b>
+                  <i><SuitIcon suit={suit} sealed={face.quality === "none"} /></i>
+                </span>
+                <span className="expedition-die__verb">
+                  <VerbIcon verb={face.verb} />
+                </span>
+                <RankRail face={face} />
               </span>
-              <span className="expedition-die__verb" aria-hidden="true">
-                <VerbIcon verb={face.verb} />
-              </span>
-              <RankRail face={face} />
             </span>
           );
         })}

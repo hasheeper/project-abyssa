@@ -1,0 +1,43 @@
+.expedition-die-cube {
+  position: relative;
+  width: var(--expedition-die-cube-size);
+  height: var(--expedition-die-cube-size);
+  transition: transform var(--expedition-die-roll-duration, .9s) cubic-bezier(.2, .75, .3, 1);
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.expedition-die-cube--dragging {
+  transition: none;
+}
+
+.expedition-die-cube__face {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transform-style: preserve-3d;
+}
+
+.expedition-die-cube__face--1 {
+  transform: translateZ(var(--expedition-die-cube-half));
+}
+
+.expedition-die-cube__face--6 {
+  transform: rotateY(180deg) translateZ(var(--expedition-die-cube-half));
+}
+
+.expedition-die-cube__face--3 {
+  transform: rotateY(-90deg) translateZ(var(--expedition-die-cube-half));
+}
+
+.expedition-die-cube__face--4 {
+  transform: rotateY(90deg) translateZ(var(--expedition-die-cube-half));
+}
+
+.expedition-die-cube__face--2 {
+  transform: rotateX(90deg) translateZ(var(--expedition-die-cube-half));
+}
+
+.expedition-die-cube__face--5 {
+  transform: rotateX(-90deg) translateZ(var(--expedition-die-cube-half));
+}

@@ -1,0 +1,357 @@
+/* ---------- 消息 ---------- */
+/* flex 子项默认 flex-shrink:1 —— 消息一多就会被逐条压扁,
+   这是「越来越挤」的根因。锁死为不可压缩,高度只由内容决定。 */
+.abyssa-rp__message {
+  flex: none;
+  /* 出场只做「浮起 + 淡入」,不缩放、不回弹。
+     缩放和过冲(cubic-bezier 控制点 > 1)是立绘上下场的语汇——
+     那里需要强调「进入画面」;消息只是往列表里添一行,
+     多一次回弹就多一次视觉停顿,连着读就是顿挫。 */
+  animation: abyssa-rp-message-in 0.34s var(--abyssa-ease) both;
+}
+
+@keyframes abyssa-rp-message-in {
+  from {
+    opacity: 0;
+    /* 只有位移,没有 scale。位移走合成器不触发重排。 */
+    transform: translate3d(0, 10px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+/* ---------- 对白气泡 ----------
+   一条对白 = 头像 + 气泡,横向并排,头像在气泡外侧、与本方立绘同一边。
+
+   ============ 几何模型:允许变形,但折行量恒定 ============
+   当前态取消头像框、气泡吃掉那个槽位变宽;历史态头像回位、气泡收窄。
+   几何**会**变,但受一条硬约束:决定文字折行的那个量(内容盒宽度)
+   一像素都不许变。做法见变量区 `--abyssa-rp-pad-*` 的推导。
+
+   所以下面这两条禁令依然全程有效,一条没松:
+     · 不缩放承载文字的元素。
+     · 不让文字的可用宽度发生变化。
+   变的只是气泡外框与内距——它们同增同减,互相抵消。
+
+   为什么最终走到这一步(前面几版都是错的):
+     ①  max-width / width / grid-template-columns 插值
+         —— 布局属性,逐帧强制重排,文字持续重新折行。
+     ②  transform: scale()
+         —— 不重排,但 GPU 缩放的是**已栅格化的文字图层**:
+            动画全程文字是模糊的,结束瞬间才切回锐利。
+            那个「啪」地清晰化就是顿挫感的真正来源。
+
+   ② 正是立绘那套语言不能搬过来的原因:立绘是位图,缩放无损;
+   文字不是。所以这里不缩放文字,一次都不。
+
+   opacity 与 color 是纯粹的合成/绘制操作:没有重排,也没有
+   「模糊→锐利」的收尾跳变,插值天然平滑,与文本长度无关。
+   ========================================================= */
+.abyssa-rp__message[data-kind="say"] {
+  --abyssa-rp-bubble-surface: rgb(20 25 25 / 82%);
+  --abyssa-rp-bubble-edge: rgb(111 125 126 / 22%);
+  --abyssa-rp-bubble-ink: #a9b4b4;
+
+  /* 全场唯一的时长与曲线。所有过渡都引用它,不许各写各的。
+     ease-geo 用于一切几何交接:强 ease-out、**不过冲**(第二控制点 ≤ 1)。
+     布局量过冲 = 反复重排,是顿挫的来源;过冲只留给纯图层元素(见 ease-snap)。 */
+  --abyssa-rp-shift: 400ms;
+  --abyssa-rp-ease-geo: cubic-bezier(0.16, 0.84, 0.28, 1);
+  --abyssa-rp-ease-snap: cubic-bezier(0.3, 1.5, 0.5, 1);
+
+  /* 内容行宽度。恒定值,当前/历史都是它——变的是行内部的分配。 */
+  --abyssa-rp-row-w: 580px;
+  --abyssa-rp-avatar-size: 48px;
+  --abyssa-rp-avatar-gap: 16px;
+
+  /* ===== 「气泡变宽 + 行数不变」的全部机制 =====
+     当前态取消头像框,腾出的槽位(48 + 16 = 64px)整块并给气泡 —— 气泡外框
+     实打实宽了 64px。同一时刻把这 64px **原样补进气泡内距**,于是:
+
+         文字可用宽度 = 气泡宽 - 左右内距 - 边框
+
+     在当前态与历史态下是同一个数,一像素不差。文字的折行点因此完全不动,
+     行数恒定,气泡高度恒定,下方整栏消息不会被顶动。
+
+     这是本文件通篇「不许重排」原则的延伸而非例外:几何允许变,前提是
+     **决定折行的那一个量不变**。宽度插值期间文字只是整体平移,不重新折行,
+     没有「模糊→锐利」的收尾跳变,也没有逐帧回流。
+
+     64px 按 68 / 32 分配而非对半:气泡主要朝头像那一侧生长(把空槽吃掉),
+     文字随之向说话者方向轻移 20px。对半分会让文字往外飘,读起来像整块右移。 */
+  --abyssa-rp-bubble-pad-x: 16px;
+  --abyssa-rp-avatar-slot: calc(var(--abyssa-rp-avatar-size) + var(--abyssa-rp-avatar-gap));
+  --abyssa-rp-pad-l: var(--abyssa-rp-bubble-pad-x);
+  --abyssa-rp-pad-r: var(--abyssa-rp-bubble-pad-x);
+
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  /* 上下留白恒定,当前态也不加大:margin 一变,下方每一条消息
+     都要跟着位移,那是整栏级别的重排。 */
+  margin-block: 11px;
+}
+
+/* 靠边规则由席位决定,与 current 无关——所以永远不会有位移发生 */
+.abyssa-rp__message[data-kind="say"][data-seat="left"] { justify-items: start; }
+.abyssa-rp__message[data-kind="say"][data-seat="right"] { justify-items: end; }
+
+/* 当前发言:换三个颜色变量 + 把头像槽并给气泡内距(见上文机制说明)。 */
+.abyssa-rp__message[data-kind="say"][data-current] {
+  --abyssa-rp-bubble-surface: rgb(31 38 38 / 94%);
+  --abyssa-rp-bubble-edge: color-mix(in srgb, var(--abyssa-rp-accent) 42%, #4c5756);
+  --abyssa-rp-bubble-ink: #e9eeee;
+}
+
+/* 两条相加恒等于 --abyssa-rp-avatar-slot(0.68 + 0.32 = 1),
+   这个恒等式就是「行数不变」的保证,改数值时必须让两者仍然加满 1。
+   near 侧 = 头像原来所在的那一侧,气泡主要朝那边长。 */
+.abyssa-rp__message[data-kind="say"][data-seat="left"][data-current] {
+  --abyssa-rp-pad-l: calc(var(--abyssa-rp-bubble-pad-x) + var(--abyssa-rp-avatar-slot) * 0.68);
+  --abyssa-rp-pad-r: calc(var(--abyssa-rp-bubble-pad-x) + var(--abyssa-rp-avatar-slot) * 0.32);
+}
+
+.abyssa-rp__message[data-kind="say"][data-seat="right"][data-current] {
+  --abyssa-rp-pad-l: calc(var(--abyssa-rp-bubble-pad-x) + var(--abyssa-rp-avatar-slot) * 0.32);
+  --abyssa-rp-pad-r: calc(var(--abyssa-rp-bubble-pad-x) + var(--abyssa-rp-avatar-slot) * 0.68);
+}
+
+/* 内容行:头像 + 气泡。宽度与位置全程恒定。 */
+.abyssa-rp__row {
+  position: relative;
+  display: flex;
+  width: min(100%, var(--abyssa-rp-row-w));
+  min-width: 0;
+  align-items: flex-start;
+  /* 退为历史时整条压暗一档,这是「退到背景里」的全部表达。 */
+  opacity: 0.72;
+  transition: opacity var(--abyssa-rp-shift) var(--abyssa-ease);
+}
+
+.abyssa-rp__message[data-current] .abyssa-rp__row { opacity: 1; }
+
+.abyssa-rp__message[data-seat="right"] .abyssa-rp__row { flex-direction: row-reverse; }
+
+/* 上下两条 accent 渐变线,中间浓两端隐,像一段被单独框出来的舞台。
+   挂在 row 上而不是 message 上:message 现在横跨整栏,线会拉得过长;
+   挂 row 才与内容同宽。落在 message 的 margin 空当里,不挤压气泡。 */
+.abyssa-rp__message[data-kind="say"][data-current] .abyssa-rp__row::before,
+.abyssa-rp__message[data-kind="say"][data-current] .abyssa-rp__row::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  left: 0;
+  height: 1px;
+  /* 压到 accent 的两成上下:这两条线是分隔用的,不是装饰主角,
+     浓度一高就会跟名字、竖边、箭头一起抢注意力。 */
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--abyssa-rp-accent) 16%, transparent) 22%,
+    color-mix(in srgb, var(--abyssa-rp-accent) 26%, transparent) 50%,
+    color-mix(in srgb, var(--abyssa-rp-accent) 16%, transparent) 78%,
+    transparent
+  );
+  pointer-events: none;
+  /* 排在菱形(150ms)之后收尾,构成 气泡 → 头像 → 菱形 → 分隔线 的四拍级联。
+     backwards 而非 both:延迟期内填 from,结束后交还声明值。 */
+  animation: abyssa-rp-rule-in 0.46s cubic-bezier(0.22, 0.9, 0.24, 1) 210ms backwards;
+}
+
+.abyssa-rp__message[data-kind="say"][data-current] .abyssa-rp__row::before { top: -14px; }
+.abyssa-rp__message[data-kind="say"][data-current] .abyssa-rp__row::after { bottom: -14px; }
+
+/* 从中心向两端拉开。
+   这一处**可以**做缩放:它是 1px 的纯色渐变线,既不含字形也不影响折行,
+   GPU 拉伸一条线没有「模糊→锐利」的收尾跳变。
+   同样的动作绝不能给气泡或正文用——那才是顿挫的来源。 */
+@keyframes abyssa-rp-rule-in {
+  from { opacity: 0; transform: scaleX(0.2); }
+  to { opacity: 1; transform: scaleX(1); }
+}
+
+/* ---- 头像 ----
+   框art 与组件库 .abyssa-shape-button[data-shape="square"] 同规格:
+   SVG 三层描边(外 9 深 / 中 5 亮 / 内 2 极深)+ inner 装饰线 + 左上右下角括号 + 底部三点。
+
+   ========== 这里可以放心做弹跳,气泡本体不行 ==========
+   之前把所有缩放都禁掉是过度矫正。真正的约束是:
+     · 不能缩放**承载文字**的元素 —— GPU 缩放已栅格化的字形,
+       动画全程发虚、收尾「啪」地锐化,那才是顿挫。
+     · 不能改动**影响折行**的布局量 —— 宽度一变,整段重排。
+   头像框是纯 SVG,槽位尺寸恒定(48px 永不变),
+   缩放只作用于它自己的图层,既不含文字也不撑动气泡宽度。
+   所以它完全可以带过冲地弹进来 —— 这正是「微交互」该发生的地方。
+   ==================================================== */
+.abyssa-rp__avatar {
+  position: relative;
+  flex: none;
+  /* 槽位尺寸**全程恒定**:一收窄就是布局变更,气泡可用宽度跟着变、文字重排。
+     弹跳走 transform,不碰这两个值。 */
+  width: var(--abyssa-rp-avatar-size);
+  height: var(--abyssa-rp-avatar-size);
+  color: var(--abyssa-rp-accent);
+  font-family: var(--abyssa-font-display);
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1;
+  /* 外层管「收起 / 回位」,挂载弹入交给内层 -inner。
+     两个动作都写 transform 的话会互相抢:transform 是单一属性,
+     动画在播放期间优先级高于声明值,会把声明的 scale 整个压住,
+     等动画播完才补上 —— 那就是「弹一下、停、又涨一下」。
+
+     margin 也要过渡:它与气泡内距是互补的一对,时长曲线必须完全一致。 */
+  transition:
+    margin var(--abyssa-rp-shift) var(--abyssa-rp-ease-geo),
+    opacity calc(var(--abyssa-rp-shift) * 0.7) var(--abyssa-ease),
+    transform var(--abyssa-rp-shift) var(--abyssa-rp-ease-snap);
+}
+
+/* 内层:承接挂载弹入。
+   延迟 90ms 让气泡先浮起落位,头像随后就位,读起来是两拍呼应。
+   cubic-bezier 第二个控制点 1.58 > 1 → 收尾轻微过冲回弹。
+
+   填充用 backwards 而非 both:both 会让 to 关键帧的 transform 永久保留,
+   虽然这一层没有别的 transform 与它冲突,但保持与菱形节点同一写法,
+   也避免日后在这层再加状态样式时踩同一个坑。 */
+.abyssa-rp__avatar-inner {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* 只有非当前态才播这段弹入 —— 当前态的头像是收起的,给它播弹入等于空转,
+   而且等它退为历史时反倒没有动作。挂在 :not([data-current]) 上,
+   动画就精确地发生在「这条消息退为历史、头像归位」的那一刻:
+   槽位撑开的同时框弹进来,两个动作同一拍。 */
+.abyssa-rp__message[data-kind="say"]:not([data-current]) .abyssa-rp__avatar-inner {
+  animation: abyssa-rp-avatar-pop 0.44s cubic-bezier(0.34, 1.58, 0.5, 1) 90ms backwards;
+}
+
+/* 从缩小 + 微微逆时针起手,弹到正位。
+   旋转幅度只有 4°,是「落定」的手感,不是翻转特效。 */
+@keyframes abyssa-rp-avatar-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.62) rotate(-4deg);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+/* 与气泡的间距走头像自身的 margin,不用容器 gap:
+   row-reverse 下头像换到右边,两侧要分别给。 */
+.abyssa-rp__message[data-seat="left"] .abyssa-rp__avatar { margin-right: var(--abyssa-rp-avatar-gap); }
+.abyssa-rp__message[data-seat="right"] .abyssa-rp__avatar { margin-left: var(--abyssa-rp-avatar-gap); }
+
+/* 当前发言:头像框整体退场,把槽位让给气泡。
+   身份已经由气泡里的名牌 + 立绘高亮 + 菱形节点三重表达了,
+   头像框在当前态属于第四次重复,去掉之后这一条读起来是「台词」而不是「条目」。
+
+   ============ 为什么用负 margin 而不是 width: 0 ============
+   收起必须不留一丝布局痕迹,但**不能动 width**:
+   头像框那圈 SVG 外描边有 9px、其中一半探出 48px 盒子之外
+   (art 上就写着 overflow: visible)。width 收到 0 就得配 overflow: hidden,
+   那会把探出的描边裁掉 —— 常态下的框会当场变样。
+   改成保留 48px 盒子、用等量负 margin 抵掉它占的空间:
+   布局上净宽 0,盒子和描边都完好,一点没碰。
+
+   盒子此时被气泡压在下面(两者同为 position: relative,DOM 在后的气泡后绘制),
+   加上 opacity: 0,过渡中途不会有任何形状漏出来。 */
+.abyssa-rp__message[data-kind="say"][data-current] .abyssa-rp__avatar {
+  opacity: 0;
+  /* 朝外侧缩退半步,像退到画面之外,而不是原地凭空消失 */
+  transform: scale(0.72);
+  pointer-events: none;
+}
+
+/* 负 margin 的量 = 头像盒宽,与常态的 gap 相加正好抵成 0:
+   常态槽位 = 48 + 16 = 64;当前槽位 = 48 + (-48) = 0。
+   差值 64px 就是 --abyssa-rp-avatar-slot,一分不差地进了气泡内距。 */
+.abyssa-rp__message[data-kind="say"][data-seat="left"][data-current] .abyssa-rp__avatar {
+  margin-right: calc(-1 * var(--abyssa-rp-avatar-size));
+}
+
+.abyssa-rp__message[data-kind="say"][data-seat="right"][data-current] .abyssa-rp__avatar {
+  margin-left: calc(-1 * var(--abyssa-rp-avatar-size));
+}
+
+/* 两层框完全重叠,靠 opacity 交叉淡入。
+   为什么不共用一层、只切换 CSS 变量:变量喂给的是 SVG 的 fill / stroke,
+   而自定义属性本身不参与过渡,换色会是硬切。 */
+.abyssa-rp__avatar-art {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  shape-rendering: geometricPrecision;
+  transition: opacity 0.42s var(--abyssa-ease);
+}
+
+/* 第二层叠在第一层上,不占位 */
+.abyssa-rp__avatar-art[data-state="active"] {
+  position: absolute;
+  inset: 0;
+}
+
+/* 历史态:压暗的冷灰,与组件库 dark 变体同一套关系(fill 最深 / middle 亮 / ornament 中) */
+.abyssa-rp__avatar-art[data-state="idle"] {
+  --abyssa-rp-avatar-fill: #10191a;
+  --abyssa-rp-avatar-middle: #3c565880;
+  --abyssa-rp-avatar-ornament: #5a7b7d99;
+}
+
+/* 当前态:描边转为角色强调色,与组件库 [data-selected] 的处理一致 */
+.abyssa-rp__avatar-art[data-state="active"] {
+  --abyssa-rp-avatar-fill: #16201f;
+  --abyssa-rp-avatar-middle: color-mix(in srgb, var(--abyssa-rp-accent) 74%, #2b3a3a);
+  --abyssa-rp-avatar-ornament: color-mix(in srgb, var(--abyssa-rp-accent) 88%, transparent);
+
+  opacity: 0;
+}
+
+.abyssa-rp__message[data-current] .abyssa-rp__avatar-art[data-state="idle"] { opacity: 0; }
+.abyssa-rp__message[data-current] .abyssa-rp__avatar-art[data-state="active"] { opacity: 1; }
+
+/* 照片嵌在框内。inset 8.5% 让它落在「内 2px 极深描边」的里侧,
+   不压住那条 inner 装饰线;clip-path 复刻 square 形的左上/右下切角。 */
+.abyssa-rp__avatar-photo {
+  position: absolute;
+  inset: 8.5%;
+  display: grid;
+  overflow: hidden;
+  background: #0c1212;
+  place-items: center;
+  clip-path: polygon(11% 0, 100% 0, 100% 81%, 81% 100%, 0 100%, 0 11%);
+}
+
+/* 内阴影压边:让照片看起来是嵌进框里,而不是贴在框上。
+   放在 ::after 而非 box-shadow——照片是 <img> 子元素,
+   父级的 inset shadow 会被图片盖住。 */
+.abyssa-rp__avatar-photo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  box-shadow:
+    inset 0 0 5px 1px rgb(0 0 0 / 62%),
+    inset 0 3px 6px rgb(0 0 0 / 45%),
+    inset 0 -3px 7px rgb(0 0 0 / 38%);
+  pointer-events: none;
+}
+
+.abyssa-rp__avatar-photo img {
+  width: 100%;
+  height: 100%;
+  /* 头像原图是半身,锚定上部对齐脸 */
+  object-fit: cover;
+  object-position: 50% 10%;
+  filter: saturate(0.72) brightness(0.74);
+  transition: filter 0.42s var(--abyssa-ease);
+}
+
+.abyssa-rp__message[data-current] .abyssa-rp__avatar-photo img {
+  filter: saturate(1) brightness(1);
+}

@@ -1,0 +1,541 @@
+/* ---- 气泡本体 ----
+   只留一条朝向说话者的 accent 竖边。原先那套四层描边 + 四角标在 14px 正文旁
+   喧宾夺主,每条消息都像独立面板,连着读是断的。 */
+.abyssa-rp__bubble {
+  position: relative;
+  min-width: 0;
+  /* 左右内距走变量:当前态把让出来的头像槽整块吸进来。
+     气泡是收缩到内容宽度的(shrink-to-fit),所以「内距 +64」本身
+     就等于「外框 +64」,不需要再去动 width —— 而内容盒宽度纹丝不动。 */
+  padding: 11px var(--abyssa-rp-pad-r) 13px var(--abyssa-rp-pad-l);
+  background: var(--abyssa-rp-bubble-surface);
+  border: 1px solid var(--abyssa-rp-bubble-edge);
+  border-left: 2px solid color-mix(in srgb, var(--abyssa-rp-accent) 62%, transparent);
+  transition:
+    /* 内距与头像 margin 用同一时长同一曲线,两者必须逐帧严格互补:
+       任一帧对不上,那一帧的内容盒宽度就变了,文字会抖一下。 */
+    padding-left var(--abyssa-rp-shift) var(--abyssa-rp-ease-geo),
+    padding-right var(--abyssa-rp-shift) var(--abyssa-rp-ease-geo),
+    background 0.42s var(--abyssa-ease),
+    border-color 0.42s var(--abyssa-ease),
+    box-shadow 0.42s var(--abyssa-ease);
+}
+
+.abyssa-rp__message[data-seat="right"] .abyssa-rp__bubble {
+  border-right: 2px solid color-mix(in srgb, var(--abyssa-rp-accent) 62%, transparent);
+  border-left: 1px solid var(--abyssa-rp-bubble-edge);
+}
+
+/* 当前气泡的背后高光:accent 色从顶部斜切下来的一层薄雾 + 深投影。
+   放 ::before 而非 background,因为 background 已经被底色占着,
+   而这层需要能独立淡入淡出。 */
+.abyssa-rp__bubble::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(120% 80% at 50% -10%, color-mix(in srgb, var(--abyssa-rp-accent) 13%, transparent), transparent 62%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.42s var(--abyssa-ease);
+}
+
+.abyssa-rp__message[data-current] .abyssa-rp__bubble::before { opacity: 1; }
+
+.abyssa-rp__message[data-current] .abyssa-rp__bubble {
+  box-shadow:
+    0 0 22px -6px color-mix(in srgb, var(--abyssa-rp-accent) 26%, transparent),
+    0 12px 30px rgb(4 8 8 / 48%);
+}
+
+/* ---- 当前态的聚焦装置(FX 图层)----
+   头像框撤掉之后,「这条是当前」原本有一半是靠头像亮起来表达的。
+   这层把那份表达补回来,而且补在不影响布局的地方:
+   竖边光条(在场)+ 四角括号(被框住)+ 一道横扫高光(刚发生)。
+
+   为什么整层单独包一个 span,而不是继续堆 ::before / ::after:
+   气泡的两个伪元素已经被底雾和边框占用,而这里需要四个角 + 两条独立时序的
+   光效,伪元素不够用。全部 position: absolute + pointer-events: none,
+   一个都不参与布局 —— 文字折行完全不受影响,这是本次改动的硬约束。
+
+   overflow: hidden 是给横扫用的:让高光在气泡边界处被裁掉,
+   像光从面板上掠过,而不是一个方块飞进飞出。 */
+.abyssa-rp__bubble-fx {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  /* 退为历史时整层随之隐去,与颜色变化同一拍 */
+  transition: opacity var(--abyssa-rp-shift) var(--abyssa-ease);
+}
+
+.abyssa-rp__message[data-current] .abyssa-rp__bubble-fx { opacity: 1; }
+
+/* 名牌与正文抬到 FX 之上。
+   ——绝对定位元素(第 8 步)本来就绘制在非定位内联内容(第 4~7 步)之后,
+   不给这两层 z-index 的话,四角括号和横扫会压在字上。 */
+.abyssa-rp__bubble-name,
+.abyssa-rp__bubble-text {
+  position: relative;
+  z-index: 1;
+}
+
+/* 竖边光条:贴在 accent 边框内侧,中段浓两端隐,亮起后保持恒定。
+   刻意**不做**呼吸循环:持续的明暗脉动是「加载中 / 待处理」的语汇,
+   而这里要说的是「这句正在被读」——一个静止的状态,不是一个进行中的过程。
+   循环动效还会在长对话里同时出现在视野内,变成持续的余光干扰。 */
+.abyssa-rp__bubble-edge {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 2px;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    color-mix(in srgb, var(--abyssa-rp-accent) 72%, transparent) 18%,
+    color-mix(in srgb, var(--abyssa-rp-accent) 92%, #dfeceb) 50%,
+    color-mix(in srgb, var(--abyssa-rp-accent) 72%, transparent) 82%,
+    transparent
+  );
+  box-shadow: 0 0 10px color-mix(in srgb, var(--abyssa-rp-accent) 45%, transparent);
+  /* 与气泡自身的竖边重合,所以从中心纵向展开,读起来是那条边「亮起来」,
+     而不是多贴了一条线上去。scaleY 作用于 2px 纯色渐变条,不含字形、不影响折行。 */
+  animation: abyssa-rp-edge-in 0.5s var(--abyssa-rp-ease-geo) 60ms backwards;
+}
+
+.abyssa-rp__message[data-seat="right"] .abyssa-rp__bubble-edge {
+  right: 0;
+  left: auto;
+}
+
+@keyframes abyssa-rp-edge-in {
+  from { opacity: 0; transform: scaleY(0.15); }
+  to { opacity: 1; transform: scaleY(1); }
+}
+
+/* 四角括号:只画两条边,像取景框的角标,把这一条「框」出来。
+   14px 见方是相对 14.8px 正文定的 —— 再大就从标记变成装饰主角。 */
+.abyssa-rp__bubble-fx i {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-color: color-mix(in srgb, var(--abyssa-rp-accent) 78%, transparent);
+  border-style: solid;
+  border-width: 0;
+  /* 四角依次亮起(见下方 nth-child 的错峰延迟),不是齐刷刷一起冒出来。
+     错峰总跨度 90ms,短到不会被读成「四个动作」,只留一点「合拢」的手感。 */
+  animation: abyssa-rp-corner-in 0.4s var(--abyssa-rp-ease-snap) backwards;
+}
+
+.abyssa-rp__bubble-fx i[data-corner="tl"] { top: 0; left: 0; border-top-width: 1.5px; border-left-width: 1.5px; }
+.abyssa-rp__bubble-fx i[data-corner="tr"] { top: 0; right: 0; border-top-width: 1.5px; border-right-width: 1.5px; }
+.abyssa-rp__bubble-fx i[data-corner="bl"] { bottom: 0; left: 0; border-bottom-width: 1.5px; border-left-width: 1.5px; }
+.abyssa-rp__bubble-fx i[data-corner="br"] { bottom: 0; right: 0; border-bottom-width: 1.5px; border-right-width: 1.5px; }
+
+/* 从 accent 边那一侧起手,顺时针合拢 */
+.abyssa-rp__bubble-fx i[data-corner="tl"] { animation-delay: 150ms; }
+.abyssa-rp__bubble-fx i[data-corner="bl"] { animation-delay: 180ms; }
+.abyssa-rp__bubble-fx i[data-corner="tr"] { animation-delay: 210ms; }
+.abyssa-rp__bubble-fx i[data-corner="br"] { animation-delay: 240ms; }
+
+/* 角标朝自己所在的角外侧微移入位,幅度 3px。
+   ease-snap 带一点过冲 —— 这层是纯边框图元,过冲不会引起任何重排。 */
+@keyframes abyssa-rp-corner-in {
+  from { opacity: 0; transform: scale(0.4); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* 横扫高光:一道倾斜 18° 的窄光带,从 accent 边掠到另一头,只走一次。
+   这是「这条刚刚出现」的信号,所以不循环 —— 循环的横扫是加载态的语汇。
+
+   宽度给到 45% 并且两端全透明,保证任何时刻画面上都只有一段柔和的亮带,
+   看不到边界。用 translateX 走合成器,不碰任何布局属性。
+
+   ============ 静态亮带 bug 的成因,别把这两行改回去 ============
+   这里曾经只声明 transform 而**不声明 opacity**,配 fill-mode: backwards
+   (只填充延迟期,不保留结束帧)。动画播完后属性交还声明值,
+   opacity 于是回到默认的 1 —— 这条渐变带永久停在声明的 transform 位置上。
+
+   左席位停在框外、被 fx 层的 overflow 裁掉,看不出来;
+   右席位改成 right: 0 锚定后,同一个 translateX(-120%) 的含义翻转成
+   「往框内移」,那条不动的亮带就横穿在气泡中间,并且扫的方向也是反的。
+
+   两处修好:
+     · 静止态自己声明 opacity: 0,且 fill-mode 换成 both —— 结束帧本身
+       也是 0,延迟期与结束后两头都不漏。
+     · 方向交给 --abyssa-rp-sweep-dir 符号变量统一取反,而不是写两套
+       keyframes:锚定边一旦镜像,位移和倾角必须跟着一起镜像,
+       分两处写就是漏改一边的由来。 */
+.abyssa-rp__bubble-sweep {
+  /* 1 = 从左边起手向右扫;-1 = 镜像。始终从 accent 边那一侧起手。 */
+  --abyssa-rp-sweep-dir: 1;
+
+  position: absolute;
+  top: -20%;
+  bottom: -20%;
+  left: 0;
+  width: 45%;
+  background: linear-gradient(
+    100deg,
+    transparent,
+    color-mix(in srgb, var(--abyssa-rp-accent) 10%, transparent) 42%,
+    rgb(226 240 239 / 11%) 52%,
+    color-mix(in srgb, var(--abyssa-rp-accent) 10%, transparent) 62%,
+    transparent
+  );
+  opacity: 0;
+
+  /* ============ 等打字打完再起手 ============
+     横扫说的是「这条已经完整落定」,所以必须在最后一个字亮起之后才走。
+     压在打字过程中会有两道光同时在推进(字的波 + 横扫),互相抢注意力,
+     而且横扫比字快得多,会先冲到终点,读起来像是抢跑。
+
+     打字结束的时刻由三个量决定:
+        lead + (n - 1) × step + dur
+     其中 n = 参与打字的字数,CSS 数不出来,由 RpScene 以 --n 传进来
+     (countTypedChars,与 TypedText 共用同一套空白跳过规则)。
+     n 缺省时退化为 0,整条表达式变成 lead + dur - step,仍是合法的正数,
+     不会因为拿不到字数而出现负延迟、导致横扫在第 0 帧就冲出去。
+
+     再加 90ms 的余拍:最后一个字刚满不透明就扫,两个动作黏在一起像是
+     被撞出来的;隔一小拍才有「落定 → 确认」的先后感。 */
+  --abyssa-rp-sweep-wait: calc(
+    var(--abyssa-rp-type-lead) + (var(--n, 0) - 1) * var(--abyssa-rp-type-step)
+    + var(--abyssa-rp-type-dur) + 90ms
+  );
+
+  animation: abyssa-rp-sweep 0.92s cubic-bezier(0.3, 0.72, 0.3, 1) var(--abyssa-rp-sweep-wait) both;
+  transform:
+    translateX(calc(-120% * var(--abyssa-rp-sweep-dir)))
+    skewX(calc(-18deg * var(--abyssa-rp-sweep-dir)));
+}
+
+/* 锚定边换到右侧,方向符号同步取反 —— 两者必须成对出现。 */
+.abyssa-rp__message[data-seat="right"] .abyssa-rp__bubble-sweep {
+  --abyssa-rp-sweep-dir: -1;
+  right: 0;
+  left: auto;
+}
+
+/* 位移百分比是相对**光带自身**宽度(45% 的气泡宽),不是气宽:
+   -120% 约等于气泡宽的 54%,足够整条藏到框外。 */
+@keyframes abyssa-rp-sweep {
+  from {
+    opacity: 0;
+    transform:
+      translateX(calc(-120% * var(--abyssa-rp-sweep-dir)))
+      skewX(calc(-18deg * var(--abyssa-rp-sweep-dir)));
+  }
+  22% { opacity: 1; }
+  to {
+    opacity: 0;
+    transform:
+      translateX(calc(320% * var(--abyssa-rp-sweep-dir)))
+      skewX(calc(-18deg * var(--abyssa-rp-sweep-dir)));
+  }
+}
+
+/* ---- 指向立绘的指示器 ----
+   矛尖:三层描边(外 7 深 / 中 3.5 亮 / 内 1.2 极深)+ 一道提亮的前缘。
+   描边构造沿用组件库 RpgDiamondNode,但**轮廓换掉了**——
+
+   原先是正菱形。菱形有 4 重旋转对称,轮廓本身不指向任何方向,
+   方向全押在内部那支雪佛龙上;而 viewBox 50 → 盒子 22px 是 0.44 倍缩放,
+   那支 strokeWidth 2.4 的雪佛龙实际只有 1.06px,比包着它的 7px 外描边
+   (3.08px)还细三倍,根本没机会被看见。所以是「有方向标记但读不出方向」。
+
+   现在让轮廓自己不对称:前锥 27 / 后背 16,约 2:1。方向由外形承担,
+   不再依赖一个会被描边吞掉的内部小图元。
+
+   绝对定位在气泡上,不作为 flex 子项。作为子项时即便 opacity:0
+   也仍占着自身宽度 + 一份 gap,那就是没箭头时中间空一大块的原因。
+
+   viewBox 是 50×50 的正方,所以宽高必须相等,只用一个 size 变量。
+   矛尖顶点在 x=2/50,故 left = -size/2 时尖端探出边框约 11px。 */
+.abyssa-rp__arrow {
+  /* 盒子尺寸恒定:width/height 是布局量,一动就连带气泡重排。
+     大小分级走 scale 属性,不碰这个值。
+
+     上限由「尖端能探出多远」决定,不是随便定的:
+     尖端在 viewBox x=2,盒心压在气泡边框上,所以
+        外探 = box × scale × 0.53   (含半个 7px 外描边)
+     26px × 1 → 13.8px。而 .abyssa-rp__log 的横向 padding 是
+     26px(原 clamp 的上限),
+     故最窄生效视口 820px 处 padding = 18px > 13.8px,尖端不会顶到内容边缘。
+
+     这一点必须守住:.abyssa-rp__log 是 overflow-y: auto,按规范另一轴
+     会计算成 auto,外探一旦超过 padding 就会被裁掉或撑出横向滚动。 */
+  --abyssa-rp-arrow-box: 26px;
+  --abyssa-rp-node-fill: #151b1b;
+  --abyssa-rp-node-middle: color-mix(in srgb, var(--abyssa-rp-accent) 34%, #4a5455);
+  --abyssa-rp-node-arrow: color-mix(in srgb, var(--abyssa-rp-accent) 50%, #6b7676);
+  /* 矛身内小菱形的填充。历史态压到近黑 —— 比矛身底色(#151b1b)更深,
+     读起来是「一个熄掉的芯」,而不是又一处装饰亮点。 */
+  --abyssa-rp-node-core: #080c0c;
+
+  /* 历史态 0.78 → 视觉 20.3px。当前态在下面改写成 1(26px),差异 22%。
+
+     曾经是 0.6(14.4px),太小了:三层描边在那个尺寸下会糊成一团,
+     矛尖读起来像个小点,「这句出自哪一侧」这个版式信息就丢了。
+     历史箭头不是装饰,它承担的信息量和当前态是一样的,只是不该抢戏。
+
+     22% 的差异配合配色和辉光已经足够分出主次 —— 尺寸不必独自扛全部对比。 */
+  --abyssa-rp-arrow-scale: 0.78;
+
+  /* 激活时朝立绘方向前探的距离。只写**正的量**,方向交给下面的 dir。 */
+  --abyssa-rp-arrow-out: 0px;
+
+  /* 朝外为正的方向符号:左席位向左、右席位向右。
+     有了它,前探与对齐补偿都只需写一次量,不必按席位各写一条。 */
+  --abyssa-rp-arrow-dir: -1;
+
+  /* ============ 尖端对齐补偿 ============
+     scale 绕**盒子中心**缩放,而尖端在 viewBox x=2、距盒心 0.46 倍盒宽。
+     所以缩小时尖端会朝盒心退回来:
+        scale 1     → 尖端在 -11.96px
+        scale 0.78  → 尖端在  -9.33px      错位 2.63px
+     两态的尖端因此不在同一条竖线上,小的那个看着像往里缩了、没扎住边框。
+
+     补一个等量的外向位移,让**尖端**成为缩放的不动点(而不是盒心):
+        补偿 = 0.46 × box × (1 - scale)
+     scale=1 时补偿为 0,所以当前态的位置一点没动;历史态外移 2.63px 对齐。
+
+     跟着 scale 自动算,不写死数值 —— 日后调 scale 或 box 都不用回来改这里。 */
+  --abyssa-rp-arrow-align: calc(0.46 * var(--abyssa-rp-arrow-box) * (1 - var(--abyssa-rp-arrow-scale)));
+
+  position: absolute;
+  /* 与名牌那行文字齐平,不垂直居中——居中在长消息里会飘到中段。
+     数值恒定:top 也是布局属性。 */
+  top: 12px;
+  width: var(--abyssa-rp-arrow-box);
+  height: var(--abyssa-rp-arrow-box);
+  pointer-events: none;
+
+  /* ============ 为什么用 scale / translate 而不是 transform ============
+     这三个是**各自独立的属性**,同时生效、互不覆盖(与立绘那层
+     .abyssa-rp__actor 的 translate + transform 分工是同一个手法)。
+
+     之前尺寸与翻转都挤在 transform 里,右席位为了不丢掉 scaleX(-1),
+     只能把「翻转 + 前探 + 放大」重复写成两条按席位分开的规则。
+     拆开之后:transform 专管翻转,scale 专管分级,translate 专管前探,
+     那两条重复规则可以直接删掉,右侧再也不会因为漏带翻转而反向。
+
+     属性应用顺序是 translate → rotate → scale → transform,
+     所以 translate 作用在**未镜像**的坐标系里 —— 右席位「朝外」是正值。
+     这个符号统一收在 --abyssa-rp-arrow-dir 里,量与方向就此分离:
+     前探和对齐补偿都只写正的量,不必各自按席位写两条。 */
+  scale: var(--abyssa-rp-arrow-scale);
+  /* 前探 + 对齐补偿,统一乘方向符号。两者都是「朝外」,可以直接相加。 */
+  translate: calc(var(--abyssa-rp-arrow-dir) * (var(--abyssa-rp-arrow-out) + var(--abyssa-rp-arrow-align))) 0;
+  transition:
+    filter var(--abyssa-rp-shift) var(--abyssa-ease),
+    opacity var(--abyssa-rp-shift) var(--abyssa-ease),
+    /* 尺寸带一点过冲:箭头是绝对定位的纯图元,不参与布局,
+       过冲不会引起任何重排(这条禁令只针对布局量)。 */
+    scale var(--abyssa-rp-shift) var(--abyssa-rp-ease-snap),
+    translate var(--abyssa-rp-shift) var(--abyssa-rp-ease-geo);
+}
+
+/* 盒子中心正好压在气泡边框上(偏移 = -box/2)。
+   于是默认的 center 原点下,缩放读起来是矛尖**绕着边框探出 / 收回**,
+   而不是整个图标朝某处飘走 —— 不需要额外设 transform-origin。 */
+.abyssa-rp__message[data-seat="left"] .abyssa-rp__arrow {
+  left: calc(var(--abyssa-rp-arrow-box) / -2);
+}
+
+.abyssa-rp__message[data-seat="right"] .abyssa-rp__arrow {
+  right: calc(var(--abyssa-rp-arrow-box) / -2);
+  /* 水平翻转指向右立绘。transform 现在**只**管这一件事。 */
+  transform: scaleX(-1);
+}
+
+/* 「朝外」的方向符号。translate 在 transform 之前生效,作用于**未镜像**的
+   坐标系,所以右席位要取正。前探量与对齐补偿都只写正数,方向统一由它决定。 */
+.abyssa-rp__message[data-seat="left"] .abyssa-rp__arrow { --abyssa-rp-arrow-dir: -1; }
+.abyssa-rp__message[data-seat="right"] .abyssa-rp__arrow { --abyssa-rp-arrow-dir: 1; }
+
+/* 激活时朝立绘再探出一点。只写量,不写方向。 */
+.abyssa-rp__message[data-current] .abyssa-rp__arrow { --abyssa-rp-arrow-out: 3px; }
+
+/* 弹入挂在内层 svg 上,而不是外层 .abyssa-rp__arrow:
+   外层的 transform 归席位翻转所有,动画期间关键帧会整条接管它,
+   右侧箭头会当场丢掉 scaleX(-1) 而反向。分两层各管一个 transform。
+
+   反过来这也带来一个便利:父层的镜像会一并作用到子层的关键帧上,
+   所以下面那支「向前刺出」的位移只要按左席位写一次,
+   右席位自动得到镜像后的正确方向,不需要分席位写两套。 */
+.abyssa-rp__arrow svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  shape-rendering: geometricPrecision;
+  /* 延迟 150ms —— 排在头像(90ms)之后,形成 气泡 → 头像 → 矛尖 的三拍级联 */
+  animation: abyssa-rp-node-pop 0.4s cubic-bezier(0.34, 1.62, 0.5, 1) 150ms backwards;
+}
+
+/* 从尾侧向前刺出到位。
+   原先这里是 rotate(-45deg) 起手——那是为**菱形**写的:45° 恰好是菱形
+   转过半个自身角度,落定时四个顶点「咔」地对齐。矛尖没有那种对称性,
+   旋转只会让它像被拧了一下,方向感反而糊掉。
+
+   换成沿自身轴线的位移:20% 起手推到正位,配上曲线尾部的过冲,
+   读起来是「刺出并顿住」——这个动作本身就在强调朝向。
+   位移量用百分比,跟随 scale 分级自动缩放,不需要按状态另写。 */
+@keyframes abyssa-rp-node-pop {
+  from {
+    opacity: 0;
+    transform: translateX(20%) scale(0.72);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+/* ---- 矛身内的小菱形(芯)----
+   历史态填近黑、静止;当前态填强调色并缓慢呼吸,表达「这里在活跃」。
+
+   transform-box: fill-box 是必需的:SVG 子元素的 transform-origin 默认相对
+   最近的 viewBox(50×50 的中心 25,25),而这枚菱形的中心在 (27,25) ——
+   绕 (25,25) 缩放会让它一边缩一边横向漂 0.2px 左右。改成 fill-box 后
+   原点是它自己的包围盒中心,原地呼吸。
+
+   两处只在这里生效、别处刻意回避的做法,记一下以免看起来自相矛盾:
+   竖边光条(.abyssa-rp__bubble-edge)明确不做呼吸,因为那是一条贯穿整条
+   气泡高度的亮带,持续脉动会被读成「加载中 / 待处理」。而这枚芯实际只有
+   3px 见方,是个点 —— 点的明暗起伏读作「心跳、活着」,尺度不同,语汇也不同。 */
+.abyssa-rp__arrow-core {
+  transform-box: fill-box;
+  transform-origin: center;
+  /* 退为历史时芯要跟着变暗变实。与气泡配色同一时长,一起完成交接。 */
+  transition:
+    fill 0.42s var(--abyssa-ease),
+    fill-opacity 0.42s var(--abyssa-ease);
+}
+
+/* 只有当前态呼吸。延迟 620ms —— 让 node-pop(150ms 起、400ms 播完)先落定,
+   芯再开始起伏,不与入场那一拍抢注意力。 */
+.abyssa-rp__message[data-current] .abyssa-rp__arrow-core {
+  animation: abyssa-rp-core-breathe 2.4s ease-in-out 620ms infinite;
+}
+
+/* 0% 与 100% 就是静止值(全亮、原尺寸),起伏发生在中段。
+   这样万一在半个周期上被切掉(消息退为历史、选择器不再匹配),
+   落回声明值的跨度也最小;剩下那点差异由上面的 fill-opacity 过渡兜住。
+
+   幅度刻意压得很小:opacity 到 0.62、尺寸到 0.86。
+   再深就从「呼吸」变成「闪烁」——那是告警的语汇,不是「正在发言」。
+   2.4s 一个周期,约等于平静呼吸的节奏。 */
+@keyframes abyssa-rp-core-breathe {
+  0%, 100% {
+    fill-opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    fill-opacity: 0.62;
+    transform: scale(0.86);
+  }
+}
+
+/* 当前发言:头像框让位,矛尖撑到全尺寸并转为激活配色,直指台上的立绘。
+   配色关系照搬组件库 .abyssa-diamond-node[data-variant="active"]
+   (fill 压到近黑 / middle 提亮 / arrow 最亮),只是把亮部换成角色强调色。 */
+.abyssa-rp__message[data-current] .abyssa-rp__arrow {
+  --abyssa-rp-node-fill: #0a0e0e;
+  --abyssa-rp-node-middle: color-mix(in srgb, var(--abyssa-rp-accent) 88%, #ced5d5);
+  --abyssa-rp-node-arrow: color-mix(in srgb, var(--abyssa-rp-accent) 60%, #eaefef);
+
+  /* 0.78 → 1(20.3px → 26px),差异 22%。只改这一个变量,不碰 transform ——
+     翻转、前探、缩放各自独立,互不覆盖(见 .abyssa-rp__arrow 的说明)。
+     对齐补偿 --abyssa-rp-arrow-align 是 scale 的函数,这里改完它自动归零。 */
+  --abyssa-rp-arrow-scale: 1;
+
+  /* 芯点亮:比前缘(60% accent)更纯,是整支矛上最亮的一处 ——
+     视线会落在它上面,而呼吸就发生在这里。 */
+  --abyssa-rp-node-core: color-mix(in srgb, var(--abyssa-rp-accent) 88%, #f2f8f8);
+
+  /* 只加辉光,不动 top —— 位置恒定,大小交给 scale */
+  filter: drop-shadow(0 0 7px color-mix(in srgb, var(--abyssa-rp-accent) 34%, transparent));
+}
+
+/* 历史条目的小尾巴一直留着——它标的是「这句话出自哪一侧」,
+   属于版式信息,与人还在不在台上无关。
+   但当前那支大箭头是实指:人被顶下台后那一栏站的是别人,指过去就是错的。 */
+.abyssa-rp__message[data-current]:not([data-onstage]) .abyssa-rp__arrow { opacity: 0; }
+
+
+/* ---- 名牌:全名 + 英文副名,基线对齐排一行 ----
+   字号恒定,不随 current 变化——用大小强调只会让退场时整行重排。 */
+.abyssa-rp__bubble-name {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  padding-bottom: 7px;
+  margin-bottom: 9px;
+  /* 气泡内的浅分割线,把「谁在说」与「说了什么」分开。
+     两端渐隐,不做成硬邦邦的一道横杠。 */
+  border-bottom: 1px solid transparent;
+  border-image: linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--abyssa-rp-accent) 24%, transparent),
+      var(--abyssa-rp-bubble-edge) 45%,
+      transparent
+    ) 1;
+  white-space: nowrap;
+}
+
+.abyssa-rp__message[data-seat="right"] .abyssa-rp__bubble-name {
+  flex-direction: row-reverse;
+  border-image: linear-gradient(
+      270deg,
+      color-mix(in srgb, var(--abyssa-rp-accent) 24%, transparent),
+      var(--abyssa-rp-bubble-edge) 45%,
+      transparent
+    ) 1;
+}
+
+.abyssa-rp__bubble-name strong {
+  color: var(--abyssa-rp-accent);
+  font-family: var(--abyssa-font-display);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  line-height: 1.2;
+}
+
+.abyssa-rp__bubble-name span {
+  color: color-mix(in srgb, var(--abyssa-rp-accent) 48%, #788483);
+  font-family: var(--abyssa-font-display);
+  font-size: 8.5px;
+  letter-spacing: 0.18em;
+  line-height: 1;
+}
+
+/* ---- 正文 ----
+   字号恒定,当前/历史只差颜色。
+   非当前条目整段淡入;当前条目走逐行揭示(见下方「打字机」一节)。
+   两者都**不逐字 append DOM**——那样每加一个字都要重新折行,
+   正是本文件通篇在防的闪烁与挤压。 */
+.abyssa-rp__bubble-text {
+  margin: 0;
+  color: var(--abyssa-rp-bubble-ink);
+  font-size: 14.8px;
+  letter-spacing: 0.03em;
+  line-height: 1.85;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  transition: color 0.42s var(--abyssa-ease);
+  animation: abyssa-rp-text-in 0.6s var(--abyssa-ease) 0.12s both;
+}
+
+/* 纯淡入,不带 blur。
+   blur → 锐利 的收尾会在最后一帧「啪」地清晰化,那正是被读成顿挫的东西:
+   模糊期间文字是一张被 GPU 处理过的位图,恢复锐利是一次离散切换,
+   不是连续过渡。opacity 没有这个问题。 */
+@keyframes abyssa-rp-text-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

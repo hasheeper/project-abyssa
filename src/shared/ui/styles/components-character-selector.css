@@ -1,0 +1,161 @@
+
+/* Character selector */
+.abyssa-character-selector {
+  display: grid;
+  grid-template-columns: repeat(var(--abyssa-selector-columns, 1), minmax(64px, 1fr));
+  align-content: start;
+  gap: 10px;
+}
+
+.abyssa-character-selector .abyssa-panel-tile { container-type: inline-size; }
+
+/* Centered, horizontally scrollable character portrait selector. */
+/* Centered, horizontally scrollable character portrait selector. */
+.abyssa-character-portrait-selector {
+  --abyssa-character-item-size: 66px;
+  --abyssa-character-item-half: 33px;
+  --abyssa-character-item-gap: 7px;
+  --abyssa-character-viewport-width: 660px;
+  --abyssa-character-arrow-size: 38px;
+  --abyssa-character-arrow-overlap: clamp(18px, 2.7cqi, 24px);
+  --abyssa-character-arrow-optical-offset: 2px;
+  /* 82 -> 72。选中项有 scale(1.08) -> 66*1.08 = 71.3,72 刚好容下,
+     再小会被 well 的 overflow:hidden 裁掉。 */
+  --abyssa-character-well-height: 72px;
+  display: grid;
+  width: 100%;
+  min-width: 0;
+  grid-template-columns: var(--abyssa-character-arrow-size) minmax(0, 1fr) var(--abyssa-character-arrow-size);
+  align-items: center;
+  gap: 0;
+}
+.abyssa-character-portrait-selector > .abyssa-character-portrait-selector__arrow.abyssa-icon-button[data-size="sm"] {
+  --abyssa-icon-size: var(--abyssa-character-arrow-size);
+  position: relative;
+  z-index: 2;
+  justify-self: center;
+}
+.abyssa-character-portrait-selector__arrow--previous { left: var(--abyssa-character-arrow-overlap); }
+.abyssa-character-portrait-selector__arrow--next { right: var(--abyssa-character-arrow-overlap); }
+.abyssa-character-portrait-selector__arrow .abyssa-icon-button__custom { inset: 35%; }
+.abyssa-character-portrait-selector__arrow--previous .abyssa-icon-button__custom {
+  transform: translateX(calc(-1 * var(--abyssa-character-arrow-optical-offset)));
+}
+.abyssa-character-portrait-selector__arrow--next .abyssa-icon-button__custom {
+  transform: translateX(var(--abyssa-character-arrow-optical-offset));
+}
+.abyssa-character-portrait-selector__ribbon {
+  --abyssa-ribbon-fill: var(--abyssa-character-dock-surface, #111919);
+  --abyssa-ribbon-pattern: rgb(255 255 255 / 3%);
+  position: relative;
+  display: grid;
+  min-width: 0;
+  /* 116 -> 96:把高度让给主界面。缎带上下各占 (96-72)/2 = 12。 */
+  height: 96px;
+  padding: 0;
+  isolation: isolate;
+  place-items: center;
+}
+.abyssa-character-portrait-selector__ribbon-art { z-index: 0; pointer-events: none; }
+.abyssa-character-portrait-selector__well {
+  position: relative;
+  z-index: 1;
+  box-sizing: border-box;
+  display: grid;
+  width: min(100%, var(--abyssa-character-viewport-width));
+  height: var(--abyssa-character-well-height);
+  min-width: 0;
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 4%), transparent 24%, rgb(0 0 0 / 9%) 62%, rgb(0 0 0 / 22%)),
+    linear-gradient(90deg, rgb(0 0 0 / 18%), transparent 12%, transparent 88%, rgb(0 0 0 / 18%)),
+    var(--abyssa-character-dock-well, color-mix(in srgb, var(--abyssa-ribbon-fill) 58%, #080d0e));
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--abyssa-frame-light) 48%, #182021),
+    inset 0 0 0 3px rgb(0 0 0 / 48%),
+    inset 0 8px 13px rgb(0 0 0 / 34%),
+    inset 0 -7px 11px rgb(0 0 0 / 28%),
+    inset 7px 0 10px rgb(0 0 0 / 18%),
+    inset -7px 0 10px rgb(0 0 0 / 18%);
+  place-items: center;
+}
+.abyssa-character-portrait-selector__ribbon-outline {
+  z-index: 3;
+  pointer-events: none;
+}
+.abyssa-character-portrait-selector__viewport {
+  --abyssa-character-edge-fade: linear-gradient(
+    90deg,
+    rgb(0 0 0 / 22%) 0,
+    rgb(0 0 0 / 42%) 14px,
+    rgb(0 0 0 / 78%) calc(var(--abyssa-character-item-size) - 22px),
+    #000 calc(var(--abyssa-character-item-size) + var(--abyssa-character-item-gap)),
+    #000 calc(100% - var(--abyssa-character-item-size) - var(--abyssa-character-item-gap)),
+    rgb(0 0 0 / 78%) calc(100% - var(--abyssa-character-item-size) + 22px),
+    rgb(0 0 0 / 42%) calc(100% - 14px),
+    rgb(0 0 0 / 22%) 100%
+  );
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-inline: contain;
+  -webkit-mask-image: var(--abyssa-character-edge-fade);
+  mask-image: var(--abyssa-character-edge-fade);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  scrollbar-width: none;
+  scroll-snap-type: x mandatory;
+}
+.abyssa-character-portrait-selector__viewport::-webkit-scrollbar { display: none; }
+.abyssa-character-portrait-selector__track {
+  display: flex;
+  width: max-content;
+  min-width: 100%;
+  min-height: 100%;
+  padding-inline: calc(50% - var(--abyssa-character-item-half));
+  align-items: center;
+  gap: var(--abyssa-character-item-gap);
+}
+.abyssa-character-portrait-selector__item {
+  flex: 0 0 var(--abyssa-character-item-size);
+  width: var(--abyssa-character-item-size);
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+}
+.abyssa-character-portrait-selector__item.abyssa-shape-button[data-shape="square"] {
+  flex-basis: var(--abyssa-character-item-size);
+  width: var(--abyssa-character-item-size);
+}
+.abyssa-character-portrait-selector__item[data-selected] { transform: scale(1.08); }
+.abyssa-character-portrait-selector__item[data-selected]:active { transform: translateY(1px) scale(1.05); }
+.abyssa-character-portrait-selector__portrait {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  overflow: hidden;
+  background: var(--abyssa-panel-black, #1d2121);
+  clip-path: polygon(10% 0, 100% 0, 100% 82%, 82% 100%, 0 100%, 0 10%);
+}
+.abyssa-character-portrait-selector__image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+.abyssa-character-portrait-selector__number {
+  position: absolute;
+  right: 3px;
+  bottom: 2px;
+  color: var(--abyssa-text, #edf0f0);
+  font-family: var(--abyssa-font-display);
+  font-size: 8px;
+  letter-spacing: .08em;
+  line-height: 1;
+  text-shadow: 0 1px 3px #000;
+}

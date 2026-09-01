@@ -1,0 +1,432 @@
+
+/* Right rail: restrained casino ledger, with the multiplier as the sole hero
+   numeral and a mechanical purse odometer below it. */
+.abyssa-expedition-sidebar {
+  display: flex;
+  padding: 22px 18px 20px;
+  overflow: hidden;
+  flex-direction: column;
+  background:
+    radial-gradient(ellipse at 50% 2%, rgb(206 145 72 / 12%), transparent 30%),
+    repeating-linear-gradient(2deg, transparent 0 10px, rgb(236 180 105 / 2.8%) 11px, transparent 13px),
+    linear-gradient(90deg, rgb(10 5 3 / 34%), transparent 14%, transparent 86%, rgb(8 4 2 / 38%)),
+    linear-gradient(180deg, #2a180d, #1a0f08 50%, #120a06);
+  box-shadow:
+    inset 0 0 0 1px rgb(0 0 0 / 78%),
+    inset 0 0 48px rgb(0 0 0 / 45%),
+    inset 0 1px 0 rgb(237 205 141 / 8%);
+}
+
+.abyssa-expedition-sidebar::before {
+  inset: 7px;
+  border-color: rgb(193 151 78 / 18%);
+}
+
+.abyssa-expedition-sidebar__corners {
+  position: absolute;
+  inset: 9px;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.abyssa-expedition-sidebar__corners i {
+  position: absolute;
+  width: 17px;
+  height: 17px;
+  border-color: #836334;
+  border-style: solid;
+  opacity: .75;
+}
+
+.abyssa-expedition-sidebar__corners [data-corner="tl"] { top: 0; left: 0; border-width: 2px 0 0 2px; }
+.abyssa-expedition-sidebar__corners [data-corner="tr"] { top: 0; right: 0; border-width: 2px 2px 0 0; }
+.abyssa-expedition-sidebar__corners [data-corner="br"] { right: 0; bottom: 0; border-width: 0 2px 2px 0; }
+.abyssa-expedition-sidebar__corners [data-corner="bl"] { bottom: 0; left: 0; border-width: 0 0 2px 2px; }
+
+.abyssa-expedition-sidebar__header {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  height: 54px;
+  padding: 10px 12px 9px;
+  place-items: center;
+  border: 2px solid #160c06;
+  background:
+    repeating-linear-gradient(2deg, transparent 0 7px, rgb(241 189 116 / 3%) 8px, transparent 10px),
+    linear-gradient(180deg, #3a2212, #211208);
+  box-shadow:
+    0 0 0 1px #6f4b25,
+    inset 0 2px 0 rgb(255 222 158 / 9%),
+    inset 0 -3px 5px rgb(0 0 0 / 42%),
+    0 3px 7px rgb(0 0 0 / 38%);
+  clip-path: polygon(9px 0, calc(100% - 9px) 0, 100% 9px, 100% calc(100% - 9px), calc(100% - 9px) 100%, 9px 100%, 0 calc(100% - 9px), 0 9px);
+}
+
+.abyssa-expedition-sidebar__header span {
+  color: #d7bc80;
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: .22em;
+  line-height: 1;
+  text-indent: .22em;
+}
+
+.abyssa-expedition-sidebar__header small {
+  color: #78674f;
+  font-family: var(--font-display);
+  font-size: 7px;
+  letter-spacing: .18em;
+  line-height: 1;
+  text-indent: .18em;
+}
+
+.abyssa-expedition-multiplier {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  min-height: 188px;
+  margin-top: 14px;
+  padding: 15px 12px 13px;
+  place-items: center;
+  border: 3px solid #160b05;
+  background:
+    radial-gradient(ellipse at 50% 38%, rgb(210 148 73 / 8%), transparent 48%),
+    repeating-linear-gradient(1deg, transparent 0 8px, rgb(237 181 106 / 3%) 9px, transparent 11px),
+    linear-gradient(105deg, #2b170b, #1d1008 48%, #2a160b);
+  box-shadow:
+    0 0 0 1px #745029,
+    inset 0 0 0 2px rgb(224 174 95 / 13%),
+    inset 0 3px 5px rgb(255 220 155 / 5%),
+    inset 0 -7px 12px rgb(0 0 0 / 36%),
+    0 5px 10px rgb(0 0 0 / 38%);
+  grid-template-rows: auto 1fr auto auto;
+}
+
+.abyssa-expedition-multiplier::before,
+.abyssa-expedition-multiplier::after {
+  position: absolute;
+  top: 10px;
+  width: 6px;
+  height: 6px;
+  border: 1px solid #211207;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #e1bd70, #6d4519 72%);
+  box-shadow: 0 1px 2px #000;
+  content: "";
+}
+
+.abyssa-expedition-multiplier::before { left: 10px; }
+.abyssa-expedition-multiplier::after { right: 10px; }
+
+.abyssa-expedition-sidebar__section-title {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 9px;
+}
+
+.abyssa-expedition-sidebar__section-title i {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #725027);
+  flex: 1;
+}
+
+.abyssa-expedition-sidebar__section-title i:last-child { transform: scaleX(-1); }
+
+.abyssa-expedition-sidebar__section-title span {
+  color: #9d835b;
+  font-family: var(--font-display);
+  font-size: 8px;
+  letter-spacing: .16em;
+  text-indent: .16em;
+}
+
+.abyssa-expedition-multiplier__readout {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  filter: drop-shadow(0 5px 2px rgb(0 0 0 / 58%));
+}
+
+.abyssa-expedition-multiplier__readout span {
+  margin-right: 3px;
+  color: #a98249;
+  font-family: var(--font-display);
+  font-size: 28px;
+  text-shadow: 0 2px 1px #080402;
+}
+
+.abyssa-expedition-multiplier__readout strong {
+  color: #f2d488;
+  font-family: var(--font-display);
+  font-size: 53px;
+  font-weight: 600;
+  letter-spacing: -.05em;
+  line-height: .88;
+  text-shadow:
+    0 1px 0 #fff0b6,
+    0 3px 0 #6f431b,
+    0 5px 4px rgb(0 0 0 / 52%);
+}
+
+.abyssa-expedition-multiplier__ticks {
+  display: flex;
+  width: 86%;
+  height: 8px;
+  align-items: center;
+  justify-content: space-between;
+  border-block: 1px solid rgb(116 80 38 / 34%);
+}
+
+.abyssa-expedition-multiplier__ticks i {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: #72502b;
+  box-shadow: 0 1px 1px #000;
+}
+
+.abyssa-expedition-multiplier__ticks i[data-major] { width: 5px; height: 5px; background: #b08347; }
+
+.abyssa-expedition-multiplier > small {
+  color: #675946;
+  font-family: var(--font-display);
+  font-size: 7px;
+  letter-spacing: .18em;
+  text-indent: .18em;
+}
+
+.abyssa-expedition-sidebar__divider {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  height: 24px;
+  place-items: center;
+}
+
+.abyssa-expedition-sidebar__divider::before,
+.abyssa-expedition-sidebar__divider::after {
+  width: 43%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #624720);
+  content: "";
+  position: absolute;
+}
+
+.abyssa-expedition-sidebar__divider::before { left: 0; }
+.abyssa-expedition-sidebar__divider::after { right: 0; transform: scaleX(-1); }
+
+.abyssa-expedition-sidebar__divider i {
+  width: 8px;
+  height: 8px;
+  border: 1px solid #8f6b32;
+  background: #1a0e07;
+  transform: rotate(45deg);
+}
+
+.abyssa-expedition-purse {
+  position: relative;
+  z-index: 2;
+  padding: 16px 13px 15px;
+  border: 3px solid #150c06;
+  background:
+    repeating-linear-gradient(2deg, transparent 0 7px, rgb(236 178 101 / 3%) 8px, transparent 10px),
+    linear-gradient(105deg, #2b190d, #1c1008 52%, #28160b);
+  box-shadow:
+    0 0 0 1px #684822,
+    inset 0 0 0 2px rgb(226 174 91 / 10%),
+    inset 0 3px 5px rgb(255 225 168 / 4%),
+    inset 0 -6px 10px rgb(0 0 0 / 34%),
+    0 4px 9px rgb(0 0 0 / 34%);
+}
+
+.abyssa-expedition-purse__heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.abyssa-expedition-purse__coin {
+  width: 34px;
+  height: 34px;
+  color: #d7ae57;
+  background: currentColor;
+  filter: drop-shadow(0 2px 1px rgb(0 0 0 / 58%));
+  mask: url("../../assets/svg/items/game-icons/swap-bag.svg") center / contain no-repeat;
+}
+
+.abyssa-expedition-purse__heading div { display: grid; gap: 3px; }
+
+.abyssa-expedition-purse__heading strong {
+  color: #d3bd8a;
+  font-family: var(--font-display);
+  font-size: 13px;
+  letter-spacing: .2em;
+}
+
+.abyssa-expedition-purse__heading small {
+  color: #76664d;
+  font-family: var(--font-display);
+  font-size: 7px;
+  letter-spacing: .14em;
+}
+
+.abyssa-expedition-odometer {
+  --odometer-digit-h: 56px;
+  position: relative;
+  display: flex;
+  height: 82px;
+  margin-top: 15px;
+  padding: 12px 18px;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  border: 3px solid #120905;
+  background:
+    repeating-linear-gradient(2deg, transparent 0 6px, rgb(246 193 114 / 4%) 7px, transparent 9px),
+    linear-gradient(180deg, #59371a 0, #2d190c 11px, #1a0e07 calc(100% - 11px), #5b391b 100%);
+  box-shadow:
+    0 0 0 1px #79532a,
+    inset 0 2px 0 rgb(255 224 162 / 12%),
+    inset 0 -3px 6px rgb(0 0 0 / 45%),
+    0 4px 8px rgb(0 0 0 / 40%);
+  clip-path: polygon(7px 0, calc(100% - 7px) 0, 100% 7px, 100% calc(100% - 7px), calc(100% - 7px) 100%, 7px 100%, 0 calc(100% - 7px), 0 7px);
+}
+
+.abyssa-expedition-odometer::before {
+  position: absolute;
+  inset: 10px 15px;
+  border: 2px solid #0c0704;
+  background: #120c08;
+  box-shadow: inset 0 8px 12px #000, inset 0 -8px 12px #000, 0 0 0 1px #7a552d;
+  content: "";
+}
+
+.abyssa-expedition-odometer::after {
+  position: absolute;
+  top: 50%;
+  right: 15px;
+  left: 15px;
+  z-index: 4;
+  height: 18px;
+  border-block: 1px solid rgb(228 190 112 / 12%);
+  background: linear-gradient(180deg, rgb(255 240 192 / 2%), transparent 45%, rgb(0 0 0 / 7%));
+  content: "";
+  pointer-events: none;
+  transform: translateY(-50%);
+}
+
+.abyssa-expedition-odometer__reel {
+  position: relative;
+  z-index: 2;
+  display: block;
+  width: 35px;
+  height: 56px;
+  overflow: hidden;
+  border-inline: 1px solid #6a4b29;
+  background:
+    radial-gradient(ellipse at 50% 50%, #3b2d1b 0 30%, #17100a 72%),
+    #140e09;
+  box-shadow:
+    inset 0 13px 12px rgb(0 0 0 / 78%),
+    inset 0 -13px 12px rgb(0 0 0 / 76%),
+    inset 3px 0 4px rgb(255 222 147 / 2%),
+    inset -3px 0 4px rgb(0 0 0 / 46%);
+}
+
+.abyssa-expedition-odometer__reel::before {
+  position: absolute;
+  z-index: 3;
+  inset: 50% 0 auto;
+  height: 1px;
+  background: rgb(239 203 132 / 13%);
+  content: "";
+}
+
+/* 位移交由组件的内联 transform 驱动（累计位移、只向前滚），
+   此处不再用 keyframe，否则会覆盖内联 transform。 */
+.abyssa-expedition-odometer__strip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: grid;
+  width: 100%;
+  grid-template-rows: repeat(30, var(--odometer-digit-h));
+  will-change: transform;
+}
+
+.abyssa-expedition-odometer__reel[data-order="0"] { --odometer-delay: 0; }
+.abyssa-expedition-odometer__reel[data-order="1"] { --odometer-delay: 1; margin-right: 8px; }
+.abyssa-expedition-odometer__reel[data-order="2"] { --odometer-delay: 2; }
+.abyssa-expedition-odometer__reel[data-order="3"] { --odometer-delay: 3; }
+.abyssa-expedition-odometer__reel[data-order="4"] { --odometer-delay: 4; }
+
+.abyssa-expedition-odometer__strip i,
+.abyssa-expedition-odometer__strip b {
+  display: grid;
+  height: var(--odometer-digit-h);
+  place-items: center;
+  color: #655840;
+  font-family: var(--font-display);
+  font-size: 27px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.abyssa-expedition-odometer__strip b {
+  color: #f0d792;
+  text-shadow: 0 1px 1px #000, 0 0 7px rgb(213 168 74 / 20%);
+}
+
+.abyssa-expedition-odometer__screw {
+  position: absolute;
+  z-index: 6;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  border: 1px solid #211307;
+  border-radius: 50%;
+  background: radial-gradient(circle at 36% 30%, #d0a85b, #5d3b16 72%);
+  box-shadow: 0 1px 2px #000;
+  transform: translateY(-50%);
+}
+
+.abyssa-expedition-odometer__screw::after {
+  position: absolute;
+  top: 2px;
+  left: 1px;
+  width: 4px;
+  height: 1px;
+  background: #3a240f;
+  content: "";
+  transform: rotate(-18deg);
+}
+
+.abyssa-expedition-odometer__screw[data-side="left"] { left: 5px; }
+.abyssa-expedition-odometer__screw[data-side="right"] { right: 5px; }
+
+.abyssa-expedition-purse__footer {
+  display: flex;
+  margin-top: 12px;
+  padding-top: 10px;
+  align-items: baseline;
+  justify-content: space-between;
+  border-top: 1px solid #342717;
+}
+
+.abyssa-expedition-purse__footer span {
+  color: #75664f;
+  font-family: var(--font-display);
+  font-size: 7px;
+  letter-spacing: .16em;
+}
+
+.abyssa-expedition-purse__footer strong {
+  color: #cda957;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: .06em;
+}

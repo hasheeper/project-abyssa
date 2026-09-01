@@ -5,7 +5,6 @@ import { SceneTransitionProvider } from "../../shared/transition";
 import "../../shared/ui/styles/tokens.css";
 import "../../shared/ui/styles/components.css";
 import "../../shared/stage/stage.css";
-import "../../shared/transition/transition.css";
 import "./app.css";
 import "./expedition.css";
 

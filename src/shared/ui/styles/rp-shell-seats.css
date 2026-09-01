@@ -1,0 +1,278 @@
+/* ===== 跑团 / AI RP 分屏场景 RpScene =====
+   三栏 Grid:左席位 / 消息流 / 右席位。
+   席位是两侧的「立绘框」,宽度显式给足让立绘能大;立绘在框内绝对定位,
+   进出被框裁住,滑动才有入画感。 */
+.abyssa-rp {
+  /* —— 可调参数 —— */
+  /* 固定画布下钉成定值:24.5vw 在内容区 1350 宽时算得 330.75。
+     vw 会与画布缩放叠加成二次缩放(stage/README.md 铁律 1)。 */
+  --abyssa-rp-seat-w: 330.75px;                    /* 立绘框宽度 */
+  --abyssa-rp-seat-gap: 14px;                      /* 框与舞台左右边缘的距离,给外层描边留位 */
+  --abyssa-rp-seat-my: 67.5px;                     /* 框的上下边距(原 7.5vh @900) */
+  --abyssa-rp-seat-pad: 9px;                       /* 框内留白,立绘不贴边 */
+  --abyssa-rp-dim: 0.5;                            /* 非说话者的不透明度 */
+
+  /* —— 立绘统一调整(十人共用基准,单人差异见文件末尾的逐角色表)——
+     立绘走 knee 取景(**中距离**,切在膝下),这是默认。
+     取景由 RpScene 的 crop 属性给,三档:
+       knee   中距离 —— 默认,容器 704/1178
+       upper  近距离 —— 容器 704/1000,更贴脸
+       full   全身   —— 完整画布 704/1472,人物会显得很小
+     尺寸由**高度**驱动、宽度按取景比例自动算出。
+     要立绘更大就加 doll-h;到 100% 还嫌小,再调小 seat-my 把框拉高。 */
+  --abyssa-rp-doll-h: 100%;                        /* 立绘高度占框内高度的比例 */
+  --abyssa-rp-doll-x: 0%;                          /* 水平偏移,正 = 右移。相对立绘自身宽度 */
+  --abyssa-rp-doll-y: 0%;                          /* 垂直偏移,正 = 下移。相对立绘自身高度 */
+
+  /* 底部预留:立绘下缘沉到框底之外多少,由框的 overflow 裁掉。
+     knee 的切口就藏在这段里,说话者上浮时切口跟着上移也仍在框外。
+     必须大于最大垂直位移(静止 1.5% → 上浮 -2%,合计 3.5%),留足余量。 */
+  --abyssa-rp-doll-bleed: 9%;
+  --abyssa-rp-accent: var(--abyssa-teal);
+
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--abyssa-rp-seat-w) minmax(0, 1fr) var(--abyssa-rp-seat-w);
+  width: 100%;
+  height: 100%;
+  min-height: 480px;
+  overflow: hidden;
+  background: var(--abyssa-panel-black);
+  color: var(--abyssa-text);
+  font-family: var(--abyssa-font-body);
+}
+
+.abyssa-rp__bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-size: cover;
+  background-position: center;
+  filter: brightness(0.5) saturate(0.85);
+}
+
+.abyssa-rp__bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(88% 88% at 50% 42%, transparent 48%, rgb(4 7 7 / 72%) 100%);
+}
+
+/* ---------- 席位 ---------- */
+/* 框体复用组件库的 .abyssa-frame:1px 深描边 + 2px 亮描边 + 5px 暗描边的三层轮廓、
+   ::before 的 inset 6px 装饰内线、四角括号,全部由 components.css 提供。
+   这里只覆盖底色——舞台的背景图要透上来,不能用面板的实色。 */
+.abyssa-rp__seat {
+  /* 组件库默认 #242929 实色,会把 ::before 内线框住的区域整片糊死 */
+  --abyssa-frame-surface: transparent;
+  z-index: 1;
+  /* 上下边距吃掉栏高,框就矮下来了——不用给显式高度,栏高变化时自动跟随 */
+  margin: var(--abyssa-rp-seat-my) var(--abyssa-rp-seat-gap);
+  padding: var(--abyssa-rp-seat-pad);
+  overflow: hidden;
+}
+
+/* 保留三层描边,只把 .abyssa-frame 的实色面板换成半透明压暗:
+   立绘需要从背景里浮出来,同时背景图还得看得见。 */
+.abyssa-rp__seat.abyssa-frame {
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 3.5%), transparent 26%, rgb(0 0 0 / 12%) 64%, rgb(0 0 0 / 26%)),
+    rgb(10 15 15 / 34%);
+  box-shadow:
+    0 0 0 2px var(--abyssa-frame-light),
+    0 0 0 5px var(--abyssa-frame-dark),
+    inset 0 7px 12px rgb(0 0 0 / 30%),
+    inset 0 -6px 10px rgb(0 0 0 / 24%);
+}
+
+/* 角括号随框等比收一档:组件库默认 inset 10px / 18px 见方,
+   是按 md 内距的大面板定的,放到这个尺寸的窄框里会压到立绘肩线。
+   组件库给的 z-index 是 2,与上台立绘同级而 DOM 在其之前,会被盖住,故抬到 4。 */
+.abyssa-rp__seat > .abyssa-frame__ornaments { inset: 6px; z-index: 4; }
+.abyssa-rp__seat > .abyssa-frame__ornaments i { width: 12px; height: 12px; }
+
+/* 立绘分四层,每层**独占一个变换属性**,互不打架:
+     .abyssa-rp__actor       定位层 —— 撑满框内并 flex 居中。
+                             transform = WAAPI 进退场;translate = 说话者上浮。
+                             这两个是独立属性,可同时生效,不会互相覆盖。
+     .abyssa-rp__actor-body  表现层 —— opacity 明暗;translate = doll-x/y。
+     .abyssa-rp__actor-idle  持续态 —— transform,CSS infinite(呼吸/摇摆/颤抖)。
+     .abyssa-rp__actor-beat  一次性 —— transform,WAAPI(点头/摇头/跳跃/抖动)。
+
+   为什么持续态与一次性动作**必须分成两层**:若共用一个 transform,
+   infinite 动画在播放期间会整条接管该属性,一次性动作触发时被它压死。
+   本文件已记录过三次同类事故(头像弹入 / 菱形节点 / 右席位翻转)。
+   分开后两者乘性叠加 —— 边呼吸边点头同时成立,这在物理上也是对的。
+   关键帧定义见 src/shared/ui/patterns/motions.ts。 */
+.abyssa-rp__actor {
+  position: absolute;
+  /* 下缘沉到框底之外(负 bottom),knee 的切口落在框外,由 seat 的 overflow 裁掉。
+     这就是「预留」——不这么做的话,上浮 2% 会把那条切口拽进可视区,露出平切的小腿。 */
+  inset: var(--abyssa-rp-seat-pad) var(--abyssa-rp-seat-pad)
+         calc(-1 * var(--abyssa-rp-doll-bleed)) var(--abyssa-rp-seat-pad);
+  display: flex;
+  /* 居下站地 */
+  align-items: flex-end;
+  justify-content: center;
+  pointer-events: none;
+  will-change: transform;
+  translate: 0 1.5%;
+  transition: translate 0.5s cubic-bezier(0.3, 1.2, 0.45, 1);
+}
+
+/* 退场中的立绘沉到底层,不遮挡新上台的角色 */
+.abyssa-rp__actor[data-phase="leave"] { z-index: 0; }
+
+.abyssa-rp__actor[data-active="true"] {
+  z-index: 2;
+  translate: 0 -2%;
+}
+
+.abyssa-rp__actor-body {
+  /* 尺寸由**高度**驱动,宽度按取景比例(knee 是 704/1178)自己算。
+     反过来用宽度驱动的话,窄框会把人拉得比框还高,头就被框吃掉了。
+     flex 子项默认 flex-shrink:1 会压掉这个高度、破坏比例,必须锁死。 */
+  flex: none;
+  height: var(--abyssa-rp-doll-h);
+  line-height: 0;
+  /* 逐角色微调。放在 body 层而不是 actor 层:actor 的 transform 归 WAAPI 的
+     进退场动画、translate 归说话者上浮,再挂第三个属性上去就会互相覆盖。 */
+  translate: var(--abyssa-rp-doll-x) var(--abyssa-rp-doll-y);
+
+  /* 明暗用 opacity 而不是 filter。
+     每个立绘是 4 层 704×1472 的 PNG(base 单张 1.4MB),换人瞬间台上最多 5 人 = 20 张大图。
+     filter 要求每帧把这些图重新合成再过滤镜,无法烘成一张纹理来平移,实测掉帧 37%;
+     改用 opacity 后是纯合成器属性,整层当纹理混合,掉帧 17%。
+     舞台背景本就是深色 + 暗角,降低不透明度即是压暗。 */
+  will-change: opacity;
+  opacity: var(--abyssa-rp-dim);
+  transition: opacity 0.42s var(--abyssa-ease);
+}
+
+.abyssa-rp__actor[data-active="true"] .abyssa-rp__actor-body { opacity: 1; }
+
+/* ---- 两层专职动画层 ----
+   为什么必须新增、为什么必须是两层而不是一层,见 motions.ts 顶部。
+   要点:① 已有三层的变换槽全被占满(进退场/上浮、doll-x/y、画布校准);
+        ② 持续态是 infinite 动画,会整条接管 transform,把一次性动作压死。
+
+   ============ 盒子尺寸链必须原样穿过这两层 ============
+   .actor-body 的宽度是**从 PaperDoll 的 aspect-ratio 反推的内在宽度**
+   (height 给定 → 按取景比例算出宽,knee 是 704/1178)。中间插两个 div 后,这个内在宽度
+   必须能穿过它们向上传递,否则百分比幅度会全部错掉。
+
+   height: 100% + width: fit-content 就是为此:
+   高度直接继承,宽度收缩到内容(即 PaperDoll 的内在宽度)。
+   用 fit-content 而不是 100%:后者在这里会退化成父级宽度,
+   而父级宽度此刻正由子级决定 —— 循环依赖,结果是 0。
+
+   line-height: 0 消掉 inline 布局给块级子元素留的行盒余隙
+   (与 .actor-body 同一处理),不然每层都会多出几像素。 */
+.abyssa-rp__actor-idle,
+.abyssa-rp__actor-beat {
+  width: fit-content;
+  height: 100%;
+  line-height: 0;
+  /* 底部中心 —— 与 .__calibration 的 transform-origin 一致(「scale 以脚底
+     为中心,站得稳」)。所有动作的支点都在脚下:点头是身体前倾,
+     摇摆是钟摆,跳跃的落地压缩也从脚底压起。 */
+  transform-origin: 50% 100%;
+}
+
+/* 一次性动作层由 WAAPI 驱动(motions.ts),CSS 侧不声明 transform ——
+   声明了反而会与 fill: "none" 的动画在结束瞬间打架。
+   will-change 只提示合成器,不占属性。 */
+.abyssa-rp__actor-beat {
+  will-change: transform;
+}
+
+/* ---- 持续状态:呼吸 / 摇摆 / 颤抖 ----
+   三者互斥(共用这一个 transform),由 data-idle 选择。 */
+.abyssa-rp__actor-idle[data-idle="breathe"] {
+  /* 4.2s ≈ 安静呼吸 14 次/分。不要低于 3s —— 那是「喘」不是「呼吸」。 */
+  animation: abyssa-rp-breathe 4.2s ease-in-out infinite;
+}
+
+.abyssa-rp__actor-idle[data-idle="sway"] {
+  animation: abyssa-rp-sway 2.6s ease-in-out infinite;
+}
+
+.abyssa-rp__actor-idle[data-idle="tremble"] {
+  /* 极高频极小幅 —— 恐惧/寒冷/重伤。linear:颤抖没有加减速。 */
+  animation: abyssa-rp-tremble 90ms linear infinite;
+}
+
+/* 两个角色同频同相呼吸时观感诡异(像两台机器)。
+   用负延迟按席位错开:4.2s 周期下 -1.9s 接近反相。
+   负延迟等于「从周期中途开始」,不会有等待期。
+   换人时相位跳变不可见 —— 那一刻立绘正在滑入。 */
+.abyssa-rp__seat[data-seat="right"] .abyssa-rp__actor-idle { animation-delay: -1.9s; }
+
+/* 幅度刻意极小:scaleY 1.005 在 825px 立绘上让头顶起伏约 4px。
+   多数实现在这里失手 —— 大一点就从「呼吸」变成「喘」。
+
+   必须**不对称**:吸气快、呼气慢(真实约 40/60)。
+   单条 ease-in-out 是对称的,读起来是机械往复。 */
+@keyframes abyssa-rp-breathe {
+  0%   { transform: scaleY(1); }
+  42%  { transform: scaleY(1.005); }
+  100% { transform: scaleY(1); }
+}
+
+/* 钟摆式:旋转配底部原点,顶部横移约 14px。
+   这是「眩晕/微醺/失衡」,不是呼吸的横向版 —— 所以用 rotate 不用 translateX。 */
+@keyframes abyssa-rp-sway {
+  0%, 100% { transform: rotate(-0.5deg); }
+  50%      { transform: rotate(0.5deg); }
+}
+
+@keyframes abyssa-rp-tremble {
+  0%, 100% { transform: translateX(-1.2px); }
+  50%      { transform: translateX(1.2px); }
+}
+
+/* PaperDoll 默认「宽度 100% + aspect-ratio 算高度」,这里反过来:
+   高度由 actor-body 给定,宽度按取景比例(knee 是 704/1178)自动算。
+   width:auto 是必须的——组件自带的 width:100% 会覆盖比例计算。 */
+.abyssa-rp__actor .abyssa-paper-doll {
+  width: auto;
+  height: 100%;
+}
+
+/* 席位名牌:组件库的 .abyssa-nameplate(三层斜切边框 + 菱形水印)。
+   这里只做两件事——定位到框底、按席位尺寸缩一档。
+   留在框上不随立绘滑动,换人时淡出淡入。 */
+.abyssa-rp__seat-name {
+  position: absolute;
+  right: 6px;
+  bottom: 8px;
+  left: 6px;
+  z-index: 3;
+  /* 组件库默认 min(100%, 420px);这里让它跟着上面的左右定位撑开 */
+  width: auto;
+  opacity: 0;
+  transition: opacity 0.3s var(--abyssa-ease);
+}
+
+.abyssa-rp__seat-name[data-show="true"] { opacity: 1; }
+
+/* 主名 + 英文副名两行,与 CharacterStatusScreen 的立绘名牌同一形态。
+   配色一律走组件库(--abyssa-nameplate-ink / -secondary),不接 accent:
+   角色强调色留给气泡标签,名牌染色会让两侧席位各成一套配色、压不住画面。 */
+.abyssa-rp__seat-name .abyssa-nameplate__content {
+  /* 组件库的 51px 是按大面板定的,这里由两行内容自己撑高 */
+  min-height: 0;
+  padding: 7px 30px;
+}
+
+/* 全名有到九个汉字的(艾比希斯·贝尔泽兰),窄席位放不下 17px。
+   跟着席位宽收缩,上限即组件库原值。 */
+.abyssa-rp__seat-name .abyssa-nameplate__content strong {
+  font-size: 15.53px; /* 原 clamp(12.5px,1.15vw,17px) @1350 */
+  letter-spacing: 0.14em;
+}
+
+.abyssa-rp__seat-name .abyssa-nameplate__content span {
+  font-size: 8.91px; /* 原 clamp(8px,0.66vw,10px) @1350 */
+  letter-spacing: 0.16em;
+}

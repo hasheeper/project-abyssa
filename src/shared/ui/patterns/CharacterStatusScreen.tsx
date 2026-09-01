@@ -1,11 +1,11 @@
 import { useId, useState } from "react";
-import type { CSSProperties, HTMLAttributes, KeyboardEvent } from "react";
-import demonCadreCornerOrnament from "../../../assets/png2/frame-corner-symmetric.png";
-import demonLordCornerOrnament from "../../../assets/png2/frame-corner-symmetric-red.png";
-import heroPartyCornerOrnament from "../../../assets/png2/frame-corner-symmetric-gold.png";
-import demonCadreTopOrnament from "../../../assets/png2/top.png";
-import demonLordTopOrnament from "../../../assets/png2/top-red.png";
-import heroPartyTopOrnament from "../../../assets/png2/top-gold.png";
+import type { CSSProperties, HTMLAttributes, KeyboardEvent, ReactNode } from "react";
+import demonCadreCornerOrnament from "../../../assets/png2/frame-corner-symmetric.png?no-inline";
+import demonLordCornerOrnament from "../../../assets/png2/frame-corner-symmetric-red.png?no-inline";
+import heroPartyCornerOrnament from "../../../assets/png2/frame-corner-symmetric-gold.png?no-inline";
+import demonCadreTopOrnament from "../../../assets/png2/top.png?no-inline";
+import demonLordTopOrnament from "../../../assets/png2/top-red.png?no-inline";
+import heroPartyTopOrnament from "../../../assets/png2/top-gold.png?no-inline";
 import { useControllableState } from "../../lib/useControllableState";
 import type { PanelVariant } from "../types";
 import { cx } from "../../lib/cx";
@@ -52,6 +52,11 @@ export interface CharacterMenuItem {
   label: string;
 }
 
+export interface CharacterTabRenderArgs {
+  character: CharacterProfile;
+  menuId: string;
+}
+
 export interface CharacterStatusScreenProps
   extends Omit<HTMLAttributes<HTMLElement>, "onChange"> {
   characters: CharacterProfile[];
@@ -62,6 +67,8 @@ export interface CharacterStatusScreenProps
   activeMenuId?: string;
   defaultActiveMenuId?: string;
   onActiveMenuIdChange?: (id: string) => void;
+  /** 按页签渲染面板内容。不传则各页都退回 StatusPanel(旧行为)。 */
+  renderTabPanel?: (args: CharacterTabRenderArgs) => ReactNode;
   title?: string;
   subtitle?: string;
   interfaceTone?: CharacterInterfaceTone;
@@ -101,6 +108,7 @@ export function CharacterStatusScreen({
   activeMenuId,
   defaultActiveMenuId,
   onActiveMenuIdChange,
+  renderTabPanel,
   title = "STATUS",
   subtitle = "CHARACTER ARCHIVE",
   interfaceTone,
@@ -312,7 +320,9 @@ export function CharacterStatusScreen({
               aria-labelledby={menuItems.length > 0 ? `${tabUid}-tab-${currentMenuIndex}` : undefined}
               tabIndex={0}
             >
-              <StatusPanel data={currentCharacter.status} />
+              {renderTabPanel
+                ? renderTabPanel({ character: currentCharacter, menuId: currentMenuId })
+                : <StatusPanel data={currentCharacter.status} />}
             </div>
           </div>
         </div>

@@ -1,0 +1,163 @@
+/* ============ 版式过场 ============
+   两程,中点换挂载(App 的 MORPH_MS/2)。
+
+   ============ 这一版改了什么 ============
+   上一版是「各元素分头做位移」:席位往两侧收、日志淡出、立绘从下方
+   升起、对话框延迟切入 —— 四个动作各有各的方向和时长,读起来是
+   一串拼接,而不是一次转场。而且两个版式的立绘**本来就在同一个位置
+   附近**,却硬做成「一边退场、一边进场」,等于把连续的东西切断了。
+
+   现在改为共享镜头:整个舞台作为一个整体做一次极轻的推拉
+   (scale 0.985 ↔ 1 + 亮度压暗),内容在镜头最暗处换掉。
+   立绘不再各自飞进飞出 —— 它在两个版式里是同一个人,镜头切换时
+   人不该动。只有**版式专属**的部件(NVL 的席位框与日志、ADV 的
+   对话框)才做各自的进退,且方向统一为纵向,不再左右乱窜。
+
+   曲线:退场用 ease-in(加速离开),入场用 ease-out(减速到位),
+   合起来是一次完整的呼吸,不是两段独立动画。 */
+/* 过场的**唯一**时间基准与曲线:所有参与元素共用这三个变量。
+   之前每条动画各写各的时长(280/240/250/280+60延迟)与曲线,
+   四条曲线各走各的,合起来就是"抽搐、没有同步感"。 */
+.rp-app[data-morph] {
+  --rp-morph-half: calc(var(--rp-morph-ms, 560ms) / 2);
+  --rp-morph-out: cubic-bezier(0.4, 0, 1, 0.5);
+  --rp-morph-in: cubic-bezier(0.12, 0.72, 0.3, 1);
+}
+
+.rp-app[data-morph] .rp-app__stage { cursor: default; }
+
+/* ---- 共享镜头:舞台整体 ----
+   两个方向用同一组关键帧,只是前后半程分别取 out / in。
+   scale 幅度刻意很小(1.5%):这是「镜头呼吸」不是「弹窗缩放」,
+   超过 2% 就会读成页面在跳。 */
+.rp-app[data-morph][data-phase="out"] .rp-app__stage {
+  animation: rp-morph-lens-out var(--rp-morph-half) var(--rp-morph-out) both;
+}
+
+/* 后半程(内容已换):同一个元素反向播一遍。
+   靠 data-phase 切换 —— App 在中点把它从 out 翻成 in。 */
+/* 退场只做一件事:整体退干净,给内容替换留一个不被看见的窗口。
+   不用 filter:brightness —— 父层 filter 会强制整棵子树(含两张
+   486px 立绘)每帧重新光栅化,人多就掉帧。opacity + scale 都是
+   合成器属性,不触发重绘。 */
+@keyframes rp-morph-lens-out {
+  to {
+    opacity: 0;
+    transform: scale(0.988);
+  }
+}
+
+/* ---- 版式专属部件的进退 ----
+   只有「这个版式才有」的东西才动,方向统一纵向。
+   立绘不在此列:它两边都有,镜头切换时它不动。 */
+
+/* NVL 的席位框:退场沉下去一点,入场落回来。
+   不再左右分收 —— 那让两个框往相反方向跑,画面被撕开。 */
+.rp-app[data-morph="to-adv"] .abyssa-rp__seat,
+.rp-app[data-morph="to-adv"] .abyssa-rp__log {
+  animation: rp-morph-part-out var(--rp-morph-half) var(--rp-morph-out) both;
+}
+
+.rp-app[data-morph="to-nvl"][data-phase="in"] .abyssa-rp__seat,
+.rp-app[data-morph="to-nvl"][data-phase="in"] .abyssa-rp__log {
+  animation: rp-morph-part-in var(--rp-morph-half) var(--rp-morph-in) both;
+}
+
+/* ADV 的对话框:同样只做纵向。它是这个版式的标志物,
+   给它比舞台稍长一点的行程(14px vs 8px),入场时最后到位。 */
+.rp-app[data-morph="to-nvl"] .rp-adv__dialogue {
+  animation: rp-morph-dialogue-out var(--rp-morph-half) var(--rp-morph-out) both;
+}
+
+.rp-app[data-morph="to-adv"][data-phase="in"] .rp-adv__dialogue {
+  animation: rp-morph-dialogue-in var(--rp-morph-half) var(--rp-morph-in) both;
+}
+
+/* 对话框最后到位:延迟 70ms。
+   这是**唯一**保留的错拍 —— 立绘先站定、框再升起来,
+   是 galgame 开场的固定次序;去掉它整块画面会像一张贴图弹出。 */
+.rp-app[data-morph="to-adv"][data-phase="in"] .rp-adv__dialogue {
+  animation-delay: 70ms;
+}
+
+/* ---- 进入 ADV:各部件自己的入场 ----
+   这里是 galgame 的开场语汇,每个部件都有明确的"进入"动作,
+   不是整块画面淡一下就完事:
+
+     背景  淡入 + 极轻的推近(镜头落定)
+     立绘  从两侧画外滑入(左从左、右从右)+ 淡入,略微上浮
+     对话框 从下方升起 + 淡入,最后到位(它是这个版式的标志物)
+
+   透明度归各部件自己 —— 父层不再统管:统管的话所有东西
+   一起亮起来,立绘的"入画"就被抹平成了一次整体淡入。 */
+
+/* 舞台在入场阶段不做任何动画,只当容器 —— 内容各自进入。 */
+.rp-app[data-morph="to-adv"][data-phase="in"] .rp-adv__bg {
+  animation: rp-adv-in-bg var(--rp-morph-half) var(--rp-morph-in) both;
+}
+
+/* 立绘:从各自那一侧的画外滑入。--rp-adv-from 是席位方向
+   (左 -1 / 右 1,与轮换动画共用同一个变量),所以左右天然分向。
+   幅度 12% 比轮换那套(18%)小一档:这是"镜头切过来时人已在位",
+   不是"新角色登场",不该走那么大的行程,也不带过冲。 */
+.rp-app[data-morph="to-adv"][data-phase="in"] .rp-adv__actor[data-settled] .rp-adv__actor-body,
+.rp-app[data-morph="to-adv"][data-phase="in"] .rp-adv__actor .rp-adv__actor-body {
+  animation: rp-adv-in-cast var(--rp-morph-half) var(--rp-morph-in) both;
+}
+
+/* 画框与浮窗:跟着一起淡入,不做位移(它们是边界与提示,不该有动势)。 */
+.rp-app[data-morph="to-adv"][data-phase="in"] .rp-adv__frame-ornaments,
+.rp-app[data-morph="to-adv"][data-phase="in"] .rp-adv__overlay {
+  animation: rp-adv-in-fade var(--rp-morph-half) var(--rp-morph-in) both;
+}
+
+@keyframes rp-adv-in-bg {
+  from {
+    opacity: 0;
+    transform: scale(1.015);
+  }
+}
+
+@keyframes rp-adv-in-cast {
+  from {
+    opacity: 0;
+    /* 横向入画 + 轻微下沉(落地感),不过冲。 */
+    transform: translateX(calc(var(--rp-adv-from, -1) * 12%)) translateY(8px);
+  }
+}
+
+@keyframes rp-adv-in-fade {
+  from { opacity: 0; }
+}
+
+@keyframes rp-morph-part-out {
+  to { transform: translateY(8px); }
+}
+
+/* NVL 的席位框错拍:左右差 60ms,两栏依次立起来,
+   和 ADV 侧「立绘先、框后」是同一种次序感。 */
+.rp-app[data-morph="to-nvl"][data-phase="in"] .abyssa-rp__seat[data-seat="right"] {
+  animation-delay: 60ms;
+}
+.rp-app[data-morph="to-nvl"][data-phase="in"] .abyssa-rp__log {
+  animation-delay: 100ms;
+}
+
+/* 回 NVL:席位框与消息流各自淡入 + 轻升,与 ADV 侧对称。 */
+@keyframes rp-morph-part-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+
+@keyframes rp-morph-dialogue-out {
+  to { transform: translateX(-50%) translateY(14px); }
+}
+
+@keyframes rp-morph-dialogue-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(26px);
+  }
+}

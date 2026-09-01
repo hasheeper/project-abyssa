@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { HandRank, Side } from "../game";
+import type { DiceReportState } from "../runtime/useDiceRuntime";
 import { DiceActionButton } from "../../../shared/ui/patterns/action-dock/DiceActionButton";
 import { WoodCorners } from "./WoodCorners";
 
@@ -15,13 +16,7 @@ interface ResultOverlayProps {
   playerBankroll: number;
   opponentBankroll: number;
   reportAvailable: boolean;
-  reportState: {
-    status: "idle" | "running" | "completed" | "failed";
-    stage: "outline" | "polish" | "review" | "proposal" | null;
-    report: string;
-    proposal: string;
-    error: string;
-  };
+  reportState: DiceReportState;
   onGenerateReport: (targetLength: number) => void;
   onNextHand: () => void;
 }

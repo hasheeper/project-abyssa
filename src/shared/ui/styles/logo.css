@@ -1,0 +1,423 @@
+.abyssa-logo {
+  display: block;
+  width: 100%;
+  height: auto;
+  user-select: none;
+}
+
+/* The plate lives on the element, not the component, so `background="none"`
+   composites onto a scene. Kept attribute-scoped rather than unconditional:
+   the standalone lockup still needs the dark plate to bleed past the artwork
+   when the SVG is letterboxed by its container. */
+.abyssa-logo[data-background="radial"] {
+  background: #000;
+}
+
+.abyssa-logo__chinese {
+  font-family: "STSongti-SC-Regular", "STSong", "华文宋体", "Songti SC", serif;
+  font-style: normal;
+  font-weight: 400;
+  font-synthesis: none;
+  font-kerning: normal;
+  text-rendering: geometricPrecision;
+}
+
+.abyssa-logo__question {
+  font-family: "Kaisei Tokumin", "Yu Mincho", "Hiragino Mincho ProN", serif;
+  font-style: normal;
+  font-weight: 700;
+  font-synthesis: none;
+  text-rendering: geometricPrecision;
+}
+
+.abyssa-logo [data-logo-part] {
+  transform-box: view-box;
+  transition: opacity 140ms ease;
+}
+
+/* ============ 入场动画 ============
+ *
+ * 轻小说式「逐部件入场」,顺序按阅读习惯(见 abyssaLogoIntro.ts)。
+ * 只在 `.abyssa-logo[data-intro]` 下生效,静态字标完全不受影响。
+ *
+ * ================= 这里踩过一次布局崩塌,务必读完 =================
+ *
+ * AbyssaLogo 用 transform **属性**承载 partTransform 的布局
+ * (translate(cx cy) rotate scale translate(-cx -cy),自带绕轴计算)。
+ * CSS 的 translate / rotate / scale 与 transform 属性**共用同一个
+ * transform-origin**,合成顺序为:
+ *     translate(O) · translate · rotate · scale · transform · translate(-O)
+ *
+ * 【1】transform-origin 必须落在**SVG 用户坐标原点**,即 `0 0`。
+ *      长度值已经位于 SVG 用户坐标系,不能再减 viewBox 的 min-x/min-y；
+ *      那会把 scale≠1 的图章、分隔线与字标向相反方向二次拉开。
+ *      partTransform 假定 origin 为 (0,0)。O ≠ (0,0) 时外层
+ *      translate(O)…translate(-O) 会把布局矩阵再共轭一次。实测位移:
+ *          divider (layoutScale .75)  177.5 用户单位
+ *          stamp   (layoutScale 1.16) 113.6
+ *          wordmark(layoutScale 1.03)  21.3
+ *      而 layoutScale 恰为 1 的五个部件(三行标题/问号/两侧短线)位移为 0
+ *      —— 这解释了为什么「放大效果之前看着没问题」:出问题的从来只有那三个。
+ *
+ *      `transform-origin: center` 与**默认值 50% 50%** 一样糟:配合既有的
+ *      `transform-box: view-box`,两者都解析成视图盒中心 (512, 492)。
+ *
+ * 【2】要缩放就必须在 keyframe 内自己做轴心补偿,不能靠 transform-origin。
+ *      绕轴心 p 缩放 k 等价于:
+ *          translate(p·(1-k)) · scale(k)
+ *      在 origin 0 0 下,它与布局矩阵可交换,k=1 时严格等于静态版本。
+ *      已对全部八个部件验算:k=1 恒等、k<1 轴心不动。
+ *      p 由组件注入 --abyssa-logo-pivot-x/y。
+ *
+ * 【3】终值 opacity 必须回到部件设计值。stamp 是 0.37,收在 1 会永久变亮。
+ */
+
+.abyssa-logo[data-intro] [data-logo-part] {
+  /* 见约束【1】。full / tight 共用同一个 SVG 用户坐标原点。 */
+  transform-origin: 0 0;
+  animation-fill-mode: both;
+}
+
+/* 环境层:淡入 + 极轻微放大。 */
+.abyssa-logo[data-intro] [data-intro="ambient"] {
+  --abyssa-logo-intro-scale: 0.96;
+  animation-name: abyssa-logo-scale-in;
+  animation-timing-function: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+/* 标题字:放大落定,带轻回弹。字号变化是这段动画的主角。 */
+.abyssa-logo[data-intro] [data-intro="pop"] {
+  --abyssa-logo-intro-scale: 0.88;
+  animation-name: abyssa-logo-scale-in;
+  animation-timing-function: cubic-bezier(0.24, 1.28, 0.4, 1);
+}
+
+/* 问号:收尾一拍,幅度更大、曲线更沉。 */
+.abyssa-logo[data-intro] [data-intro="accent"] {
+  --abyssa-logo-intro-scale: 0.82;
+  animation-name: abyssa-logo-scale-in;
+  animation-timing-function: cubic-bezier(0.22, 1.18, 0.36, 1);
+}
+
+/* 复合部件本身只承载编辑器布局,不做整组动画。若整组先 opacity:0,
+   里面的“魔王 / 吗 / 三颗菱形”就算各自有时序也仍会一起消失。 */
+.abyssa-logo[data-intro] [data-intro="composite"] {
+  animation-name: none;
+  opacity: var(--abyssa-logo-part-opacity, 1);
+}
+
+/* 中文内部片段:伺候、魔王、拯救世界、吗分别落定。
+   fill-box 让每个 tspan 围绕自己的字面中心弹出,不触碰大部件的布局矩阵。 */
+.abyssa-logo[data-intro] [data-title-piece] {
+  transform-box: fill-box;
+  transform-origin: 50% 58%;
+  animation-name: abyssa-logo-title-piece-pop;
+  animation-fill-mode: both;
+  /* 节奏写进关键帧:开头迅速落字,剩余时间只做收尾。 */
+  animation-timing-function: linear;
+}
+
+/* 红色重音和句尾“吗”多一拍回弹,但不改变静态字号。 */
+.abyssa-logo[data-intro] [data-title-piece="top-accent"],
+.abyssa-logo[data-intro] [data-title-piece="bottom-tail"] {
+  animation-name: abyssa-logo-title-accent-pop;
+}
+
+/* “也算”是轻连接词,独立一拍,不能复用整组缓慢放大的部件动画。 */
+.abyssa-logo[data-intro] [data-title-piece="middle-bridge"] {
+  animation-name: abyssa-logo-title-bridge-pop;
+}
+
+/* 分隔线:整组不自己动,交给内部四个零件各演各的。 */
+.abyssa-logo[data-intro] [data-intro="sweep"] {
+  animation-name: abyssa-logo-fade-only;
+  animation-timing-function: linear;
+}
+
+/* 横线:从中心向两侧拉开。线的语汇是「展开」,不是「弹出」。
+   轴心是 divider 局部坐标的中点 389(= (29+749)/2),
+   放在 translate(123 466.5) 之内,所以补偿量也用局部值。 */
+/* 内部零件用**默认的 fill-box**,绝不能设 view-box:
+   它们位于 <g transform="translate(123 466.5)"> 之内,坐标是局部的。
+   一旦改成 view-box,origin 会落到外层用户空间,而 keyframe 里的数值
+   仍是局部值 —— 局部数被当成用户空间偏移,构图立刻崩。
+   fill-box 让 origin relative 到零件自身的包围盒,再配百分比即可,
+   完全不需要知道任何坐标数字。 */
+.abyssa-logo[data-intro] [data-intro="sweep"] [data-divider-piece="rule"] {
+  transform-origin: 50% 50%;
+  /* divider 自身的 delay 是 2180ms;横线与它同时开始。 */
+  animation: abyssa-logo-rule-open 720ms cubic-bezier(0.16, 0.84, 0.24, 1) 2180ms both;
+}
+
+/* 三颗菱形:逐个弹出,再归位对齐。
+   延迟是在 divider 自身 delay 之上叠加的,所以用独立的 animation-delay。 */
+.abyssa-logo[data-intro] [data-divider-piece^="gem"] {
+  transform-origin: 50% 50%;
+  animation: abyssa-logo-gem-pop 620ms cubic-bezier(0.26, 1.42, 0.4, 1) both;
+}
+
+/* 左 → 右 → 中:两端先立住,中央那颗压轴落定。 */
+.abyssa-logo[data-intro] [data-divider-piece="gem-left"] { animation-delay: 2300ms; }
+.abyssa-logo[data-intro] [data-divider-piece="gem-right"] { animation-delay: 2420ms; }
+.abyssa-logo[data-intro] [data-divider-piece="gem-centre"] { animation-delay: 2540ms; }
+
+/* 英文字标右上三颗菱形:由近到远逐颗弹入。时长与延迟由组件内联注入,
+   这里只决定运动性质。 */
+.abyssa-logo[data-intro] [data-wordmark-gem] {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  animation-name: abyssa-logo-wordmark-gem-pop;
+  animation-fill-mode: both;
+  /* 总时长不变;关键帧直接定义“首帧发力、后段回弹”。 */
+  animation-timing-function: linear;
+}
+
+/* 完整保留原先英文字标由中心向两侧渐变揭开的动画。
+   三颗菱形已拆到兄弟节点,不会再被这层遮罩一起带出来。 */
+.abyssa-logo[data-intro] [data-wordmark-piece="art"] {
+  animation-name: abyssa-logo-wordmark-wipe;
+  animation-fill-mode: both;
+  animation-timing-function: cubic-bezier(0.3, 0.76, 0.18, 1);
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 60px,
+    #000 calc(100% - 60px),
+    transparent 100%
+  );
+  mask-position: 50% 50%;
+  mask-repeat: no-repeat;
+}
+
+/* 英文字标:遮罩从中心向两侧长出,呈渐变揭开。
+   关键在于软边用**固定 60px**、而 mask-size 只放大宽度 ——
+   若软边用百分比,不透明核心会永远按比例缩在中间,两端永远不可见
+   (上一版就是这么写的:mask-position 从 50% 推到 -100%,终态遮罩
+   整块移出元素外,alpha 归零,英文因此彻底看不见)。 */
+.abyssa-logo[data-intro] [data-intro="reveal"] {
+  animation-name: abyssa-logo-wordmark-wipe;
+  animation-timing-function: cubic-bezier(0.3, 0.76, 0.18, 1);
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 60px,
+    #000 calc(100% - 60px),
+    transparent 100%
+  );
+  mask-position: 50% 50%;
+  mask-repeat: no-repeat;
+}
+
+/* 统一的「绕轴心放大落定」。轴心补偿见约束【2】。 */
+@keyframes abyssa-logo-scale-in {
+  from {
+    opacity: 0;
+    translate:
+      calc(var(--abyssa-logo-pivot-x) * 1px * (1 - var(--abyssa-logo-intro-scale)))
+      calc(var(--abyssa-logo-pivot-y) * 1px * (1 - var(--abyssa-logo-intro-scale)));
+    scale: var(--abyssa-logo-intro-scale);
+  }
+  to {
+    opacity: var(--abyssa-logo-part-opacity, 1);
+    translate: 0 0;
+    scale: 1;
+  }
+}
+
+@keyframes abyssa-logo-title-piece-pop {
+  from {
+    opacity: 0;
+    translate: 0 7px;
+    scale: 0.84;
+  }
+  8% {
+    opacity: 0.62;
+    translate: 0 2.4px;
+    scale: 0.93;
+  }
+  24% {
+    opacity: 1;
+    translate: 0 -1.2px;
+    scale: 1.055;
+  }
+  55% {
+    translate: 0 0.4px;
+    scale: 0.992;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+    scale: 1;
+  }
+}
+
+@keyframes abyssa-logo-title-accent-pop {
+  from {
+    opacity: 0;
+    translate: 0 9px;
+    scale: 0.76;
+  }
+  5% {
+    opacity: 0.68;
+    translate: 0 3px;
+    scale: 0.89;
+  }
+  16% {
+    opacity: 1;
+    translate: 0 -2px;
+    scale: 1.1;
+  }
+  48% {
+    translate: 0 0.7px;
+    scale: 0.98;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+    scale: 1;
+  }
+}
+
+@keyframes abyssa-logo-title-bridge-pop {
+  from {
+    opacity: 0;
+    translate: 0 4px;
+    scale: 0.92;
+  }
+  10% {
+    opacity: 0.7;
+    translate: 0 1.4px;
+    scale: 0.97;
+  }
+  24% {
+    opacity: 1;
+    translate: 0 -0.6px;
+    scale: 1.025;
+  }
+  60% {
+    translate: 0 0.2px;
+    scale: 0.995;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+    scale: 1;
+  }
+}
+
+/* 从中心展开:横向 scaleX 由 0 拉到 1,纵向不动。 */
+@keyframes abyssa-logo-sweep-in {
+  from {
+    opacity: 0;
+    translate: calc(var(--abyssa-logo-pivot-x) * 1px) 0;
+    scale: 0 1;
+  }
+  40% {
+    opacity: var(--abyssa-logo-part-opacity, 1);
+  }
+  to {
+    opacity: var(--abyssa-logo-part-opacity, 1);
+    translate: 0 0;
+    scale: 1 1;
+  }
+}
+
+/* 字标揭开:mask-size 宽度 0 → 1400px。
+   元素宽约 746 用户单位,900px 起不透明核心即完全覆盖,
+   1400px 留足余量,收尾干净。几何完全不动,不可能破坏布局。 */
+@keyframes abyssa-logo-wordmark-wipe {
+  from {
+    opacity: 0;
+    mask-size: 0 100%;
+  }
+  22% {
+    opacity: var(--abyssa-logo-part-opacity, 1);
+  }
+  to {
+    opacity: var(--abyssa-logo-part-opacity, 1);
+    mask-size: 1400px 100%;
+  }
+}
+
+/* 横线拉开:transform-origin 50% 已经是自身中点,
+   所以只要 scaleX 0→1,不需要任何补偿位移。 */
+@keyframes abyssa-logo-rule-open {
+  from {
+    opacity: 0;
+    scale: 0 1;
+  }
+  35% {
+    opacity: 1;
+  }
+  to {
+    opacity: 1;
+    scale: 1 1;
+  }
+}
+
+/* 菱形弹出:origin 50% 就是自身中心,直接缩放即可,
+   不需要(也不能)用局部坐标做补偿位移。 */
+@keyframes abyssa-logo-gem-pop {
+  from {
+    opacity: 0;
+    scale: 0.4;
+  }
+  70% {
+    scale: 1.12;
+  }
+  to {
+    opacity: 1;
+    scale: 1;
+  }
+}
+
+/* 英文字标的三颗菱形:总时长仍是 320ms,但第一帧就开始发力。
+   4% 约 13ms,正常 60Hz 下首个可见帧已有 78% 不透明度;
+   15% 约 48ms 已完成主弹入,后面 272ms 只负责回弹落定。 */
+@keyframes abyssa-logo-wordmark-gem-pop {
+  from {
+    opacity: 0;
+    scale: 0.68;
+  }
+  4% {
+    opacity: 0.78;
+    scale: 0.9;
+  }
+  15% {
+    opacity: 1;
+    scale: 1.1;
+  }
+  58% { scale: 0.982; }
+  to {
+    opacity: 1;
+    scale: 1;
+  }
+}
+
+/* 只做淡入的空动画,给「本身不动、只驱动子元素」的组用。 */
+@keyframes abyssa-logo-fade-only {
+  from { opacity: 0; }
+  to { opacity: var(--abyssa-logo-part-opacity, 1); }
+}
+
+/* tokens.css 的降低动效规则把 animation-duration 压到 0.01ms,
+   但**不会**清掉 animation-delay —— 部件会静止等上 2.18s 才出现,
+   期间 fill-mode: both 让它们停在 opacity:0,看起来就是「字标没了」。
+   所以必须显式取消动画。 */
+@media (prefers-reduced-motion: reduce) {
+  .abyssa-logo[data-intro] [data-logo-part],
+  .abyssa-logo[data-intro] [data-divider-piece],
+  .abyssa-logo[data-intro] [data-title-piece],
+  .abyssa-logo[data-intro] [data-wordmark-gem],
+  .abyssa-logo[data-intro] [data-wordmark-piece] {
+    animation: none !important;
+    opacity: var(--abyssa-logo-part-opacity, 1);
+    translate: none;
+    scale: none;
+  }
+
+  /* 擦出用的遮罩也要撤掉,否则字标会永久缺一半。 */
+  .abyssa-logo[data-intro] [data-intro="reveal"] {
+    mask-image: none;
+  }
+}

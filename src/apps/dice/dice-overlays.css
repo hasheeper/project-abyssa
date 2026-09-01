@@ -1,0 +1,199 @@
+/* =========================================================
+       回合切换横幅
+       ========================================================= */
+
+/* ============ position: fixed 在缩放画布内的行为 ============
+   Stage 的画布带 transform,它会成为 fixed 定位的**包含块**(规范:
+   有 transform 的祖先会为 fixed 后代建立包含块)。于是这里的 fixed
+   实际是相对画布而非视口 —— 这正是想要的:横幅跟着界面一起缩放、
+   一起居中,而不是浮在屏幕正中盖住画布外的空地。
+   保留 fixed 而不改 absolute,是因为效果已正确且改动更小。 */
+.turn-banner {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: 80;
+  display: grid;
+  width: 620px;
+  min-height: 94px;
+  padding: 16px 70px;
+  place-items: center;
+  border-block: 1px solid var(--abyssa-accent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgb(16 11 7 / 97%) 15% 85%,
+    transparent
+  );
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, -50%) scaleX(0.72);
+  transition:
+    opacity 180ms ease,
+    transform 260ms var(--ease-rpg);
+}
+
+.turn-banner[data-show="true"] {
+  opacity: 1;
+  transform: translate(-50%, -50%) scaleX(1);
+}
+
+.turn-banner strong {
+  color: var(--abyssa-text);
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: 0.34em;
+  text-indent: 0.34em;
+  text-shadow: 0 2px 5px #000;
+}
+
+.turn-banner small {
+  margin-top: 4px;
+  color: var(--abyssa-accent-soft);
+  font-family: var(--font-display);
+  font-size: 9px;
+  letter-spacing: 0.28em;
+}
+
+/* =========================================================
+       终局
+       ========================================================= */
+
+/* 同 .turn-banner:fixed 相对缩放画布,遮罩因此只覆盖画布范围,
+   画布外保持纯黑,不会出现「遮罩盖住空地」的割裂感。 */
+.result-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  padding: 20px;
+  place-items: center;
+  background: rgb(7 5 3 / 86%);
+  backdrop-filter: blur(5px);
+}
+
+.result-panel {
+  width: min(100%, 500px);
+  max-height: 860px;
+  padding: 35px 34px 31px;
+  overflow: auto;
+  text-align: center;
+}
+
+.result-panel h2 {
+  margin: 0;
+  color: var(--abyssa-text);
+  font-size: 23px;
+  letter-spacing: 0.3em;
+  text-indent: 0.3em;
+}
+
+.result-panel__scores {
+  display: flex;
+  margin: 20px 0;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+}
+
+.result-panel__score {
+  display: grid;
+  min-width: 105px;
+  gap: 5px;
+}
+
+.result-panel__score small {
+  color: var(--abyssa-text-muted);
+  font-family: var(--font-display);
+  font-size: 8px;
+  letter-spacing: 0.2em;
+}
+
+.result-panel__score strong {
+  color: var(--abyssa-accent-soft);
+  font-family: var(--font-display);
+  font-size: 38px;
+  font-weight: 500;
+}
+
+.result-panel__versus {
+  color: var(--abyssa-ornament);
+  font-family: var(--font-display);
+  font-size: 11px;
+}
+
+.result-panel p {
+  margin: 0 0 24px;
+  color: var(--abyssa-text-soft);
+  font-family: var(--font-kai);
+  font-size: 15px;
+  line-height: 1.8;
+  white-space: pre-line;
+}
+
+/* =========================================================
+       五骰暗局：暗骰、底池与阶段操作
+       ========================================================= */
+
+.die[data-covered="true"] .die__face {
+  border-color: #594421;
+  background:
+    linear-gradient(135deg, rgb(215 187 124 / 5%), transparent 45%),
+    linear-gradient(145deg, #21170e, #0d0906 58%, #050403);
+  box-shadow:
+    inset 0 0 0 2px rgb(209 163 83 / 6%),
+    inset 0 -8px 12px rgb(0 0 0 / 66%),
+    0 4px 9px rgb(0 0 0 / 48%);
+}
+
+.die[data-covered="true"] .die__pip {
+  opacity: 0;
+}
+
+.die__veil {
+  position: absolute;
+  inset: 8%;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgb(170 135 74 / 28%);
+  border-radius: 10px;
+  color: #b99a5b;
+  background:
+    linear-gradient(
+      45deg,
+      transparent 46%,
+      rgb(170 135 74 / 8%) 48% 52%,
+      transparent 54%
+    ),
+    linear-gradient(
+      -45deg,
+      transparent 46%,
+      rgb(170 135 74 / 8%) 48% 52%,
+      transparent 54%
+    );
+  background-size: 18px 18px;
+  box-shadow: inset 0 0 15px rgb(0 0 0 / 72%);
+  text-shadow: 0 2px 4px #000;
+  pointer-events: none;
+}
+
+.die__veil i {
+  display: grid;
+  width: 43%;
+  aspect-ratio: 1;
+  place-items: center;
+  border: 1px solid #7c6235;
+  color: #d1b576;
+  background: #130d08;
+  font-family: var(--font-display);
+  font-size: 0;
+  font-style: normal;
+  transform: rotate(45deg);
+}
+
+.die__veil i::before {
+  content: "?";
+  font-size: calc(var(--dice-size) * 0.22);
+  transform: rotate(-45deg);
+}

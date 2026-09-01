@@ -1,0 +1,102 @@
+* { box-sizing: border-box; }
+
+/* ============ 几何:全部从 1600x900 共享画布推导 ============
+ *
+ *   pad32 | 侧栏190 | gap32 | 立绘栏518 | gap32 | 命令盘764 | pad32 = 1600 ✓
+ *   顶栏 104 高;内容区 y152..868(高 716)
+ *
+ * 一个 px 都不写视口单位。Stage 会把整块画布等比 scale,vw/vh/cqh 会与它
+ * 叠成二次缩放,构图必然漂移(见 shared/stage/README.md 铁律 1)。
+ */
+:root {
+  --menu-pad: 32px;
+  --menu-sidebar-w: 190px;
+  --menu-gap: 32px;
+  --menu-host-w: 518px;
+  --menu-dial-w: 764px;
+  --menu-topbar-h: 104px;
+}
+
+/* 在画布自身解析场景图变量，避免从 :root 继承时提前回退为 none。 */
+.menu-stage {
+  /* 背景从下到上：洋馆长廊原图 → 透明黑幕 → 青色冷光 → 外围暗角。
+     左侧向下逐步退成透图；右侧命令 HUD 由青光托住后再被深黑吃入。 */
+  --abyssa-menu-backdrop:
+    radial-gradient(ellipse 52% 78% at 75% 49%, rgb(24 91 91 / 34%) 0%, rgb(12 45 46 / 16%) 43%, transparent 72%),
+    linear-gradient(180deg, rgb(1 5 6 / 48%) 0%, transparent 22% 78%, rgb(1 4 5 / 12%) 100%),
+    linear-gradient(90deg, rgb(11 43 44 / 16%) 0%, rgb(2 7 8 / 28%) 32%, rgb(2 7 8 / 70%) 62%, rgb(5 24 25 / 82%) 79%, rgb(1 5 6 / 94%) 100%),
+    var(--menu-scene-image, none) center / cover no-repeat,
+    #071011;
+}
+
+html { min-width: 320px; min-height: 100%; overflow-x: hidden; }
+body { min-width: 320px; margin: 0; overflow-x: hidden; }
+button { font: inherit; }
+
+#root { width: 100%; height: 100%; }
+
+.menu-app {
+  position: relative;
+  display: grid;
+  width: 100%;
+  height: 100%;
+  padding: var(--menu-pad);
+  align-content: start;
+  grid-template-rows: var(--menu-topbar-h) minmax(0, 1fr);
+  isolation: isolate;
+  row-gap: 16px;
+  color: var(--abyssa-text);
+}
+
+/* 命令盘不是浮在空底上的贴片：圆环、八向轴与菱形节点从它的中心继续
+   向外扩散，并在抵达人物/边缘之前衰减。纹理始终处于所有可读内容下方。 */
+.menu-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+  shape-rendering: geometricPrecision;
+}
+.menu-backdrop__wash { mix-blend-mode: screen; }
+.menu-backdrop__field { fill: none; }
+.menu-backdrop__spoke {
+  stroke: rgb(119 154 149 / 10%);
+  stroke-width: 1;
+}
+.menu-backdrop__spoke--major {
+  stroke: rgb(130 169 163 / 15%);
+  stroke-width: 1.2;
+}
+.menu-backdrop__orbits {
+  stroke: rgb(129 163 158 / 18%);
+  stroke-width: 1.2;
+}
+.menu-backdrop__orbits circle:nth-child(1) { stroke: rgb(152 186 181 / 22%); }
+.menu-backdrop__orbits circle:nth-child(2) { stroke-width: .8; }
+.menu-backdrop__orbit-dashed { stroke-dasharray: 2 13; }
+.menu-backdrop__orbit-faint { stroke: rgb(112 145 141 / 11%); }
+.menu-backdrop__octagon {
+  stroke: rgb(127 162 157 / 13%);
+  stroke-width: 1;
+}
+.menu-backdrop__octagon--outer {
+  stroke: rgb(113 146 141 / 8%);
+  stroke-dasharray: 74 10;
+}
+.menu-backdrop__ticks {
+  stroke: rgb(144 178 173 / 21%);
+  stroke-width: 1;
+}
+.menu-backdrop__nodes {
+  fill: #789b96;
+  opacity: .17;
+}
+.menu-topbar,
+.menu-app__body {
+  position: relative;
+  z-index: 1;
+}

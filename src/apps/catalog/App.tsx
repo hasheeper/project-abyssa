@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import {
+  AbyssaLogo,
   AbyssaProvider,
   CharacterSelector,
   DiamondWatermark,
@@ -118,6 +119,20 @@ export function App() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   const items: CatalogItem[] = useMemo(() => [
+    {
+      id: "abyssa-logo",
+      name: "AbyssaLogo",
+      category: "structure",
+      description: "项目标题 Logo。八个视觉部件均可通过 layout 独立调整位置、缩放、旋转与透明度；配套 Logo 工作台支持 JSON / TypeScript 导入导出。默认自带近黑底板，叠加到场景上时须设 background=\"none\"，并可用 crop=\"tight\" 收紧留白。",
+      tags: ["branding", "svg", "layout"],
+      code: `{/* 独立字标：保留底板 */}\n<AbyssaLogo layout={logoLayout} />\n\n{/* 叠加到场景：关掉底板并收紧留白 */}\n<AbyssaLogo background="none" crop="tight" />`,
+      preview: (
+        <div className="demo-logo-preview">
+          <AbyssaLogo />
+        </div>
+      ),
+      wide: true
+    },
     {
       id: "rpg-header",
       name: "RpgHeader",

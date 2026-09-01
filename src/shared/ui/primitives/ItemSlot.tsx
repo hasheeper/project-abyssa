@@ -130,7 +130,9 @@ export const ItemSlot = forwardRef<HTMLButtonElement, ItemSlotButtonProps>(funct
   ref
 ) {
   const tier = normalizeItemRarity(rarity);
-  const label = buildLabel(name, quantity, unit, tier);
+  /* 调用方给了 aria-label 就用它。原先 label 写在 {...rest} 之后,
+     会把调用方的无障碍名覆盖掉 —— 空插孔因此被读成「… 凡品」。 */
+  const label = rest["aria-label"] ?? buildLabel(name, quantity, unit, tier);
   return (
     <button
       {...rest}

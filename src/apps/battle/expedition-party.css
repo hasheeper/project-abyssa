@@ -1,0 +1,428 @@
+
+/* Party nameplates: portrait-first cards based on the supplied tabletop
+   reference. Full-height repository PNGs are cropped in the viewport. */
+.abyssa-expedition-party {
+  --party-card-gap: 8px;
+  grid-column: 1;
+  grid-row: 2;
+  padding: 8px 18px;
+  overflow: visible;
+  background:
+    linear-gradient(180deg, rgb(226 188 124 / 4%), transparent 26%, rgb(0 0 0 / 8%)),
+    repeating-linear-gradient(2deg, transparent 0 9px, rgb(255 224 165 / 1%) 10px, transparent 12px),
+    #1b120b;
+  box-shadow:
+    inset 0 0 0 1px rgb(217 184 119 / 8%),
+    inset 0 1px 0 rgb(255 231 177 / 4%),
+    inset 0 0 36px rgb(13 7 3 / 22%),
+    0 1px 0 rgb(217 184 119 / 4%);
+}
+
+.abyssa-expedition-party__cards {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  width: 100%;
+  height: 285px;
+  transform: translateY(14px);
+  padding-inline: 34px;
+  align-items: stretch;
+  gap: 0;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  justify-items: center;
+}
+
+.abyssa-expedition-party-column {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  width: 100%;
+  height: 100%;
+  align-content: center;
+  grid-template-rows: 216px 35px 34px;
+  justify-items: center;
+}
+
+.abyssa-expedition-party-card {
+  --party-tone: #745a35;
+  --party-tone-deep: #2c2115;
+  --party-tone-soft: #b7955c;
+  position: relative;
+  display: grid;
+  width: 160px;
+  height: 216px;
+  min-width: 0;
+  min-height: 0;
+  border: 2px solid #090603;
+  background: var(--party-tone-deep);
+  box-shadow:
+    0 0 0 1px #5b4528,
+    0 3px 8px rgb(0 0 0 / 52%),
+    inset 0 0 0 1px rgb(235 207 151 / 10%);
+  grid-template-rows: minmax(0, 1fr) 37px;
+  isolation: isolate;
+}
+
+.abyssa-expedition-party-nameplate {
+  position: relative;
+  z-index: 7;
+  display: grid;
+  width: 160px;
+  height: 31px;
+  margin-top: 3px;
+  place-items: center;
+  border: 1px solid #201307;
+  background:
+    linear-gradient(180deg, rgb(255 225 175 / 5%), transparent 42%),
+    #1b1109;
+  box-shadow:
+    0 0 0 1px #684b25,
+    inset 0 0 0 2px rgb(0 0 0 / 34%),
+    inset 0 0 0 3px rgb(211 171 92 / 8%),
+    0 2px 4px rgb(0 0 0 / 48%);
+  clip-path: polygon(7px 0, calc(100% - 7px) 0, 100% 7px, 100% 100%, 0 100%, 0 7px);
+}
+
+.abyssa-expedition-party-nameplate::before {
+  position: absolute;
+  top: 3px;
+  right: 4px;
+  bottom: 3px;
+  left: 4px;
+  border: 1px solid rgb(176 139 70 / 25%);
+  content: "";
+}
+
+.abyssa-expedition-party-nameplate strong {
+  position: relative;
+  z-index: 1;
+  color: #cdbd9f;
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .16em;
+  line-height: 1;
+  text-indent: .16em;
+  text-transform: uppercase;
+}
+
+.abyssa-expedition-party-link {
+  position: relative;
+  z-index: 10;
+  display: block;
+  width: 48px;
+  /* 卡牌与名牌放大后缩短空白段，终点仍精确落在锁定菱形中心。 */
+  height: 36px;
+  pointer-events: none;
+  opacity: .23;
+  transition: opacity 180ms ease, filter 180ms ease;
+}
+
+.abyssa-expedition-party-link svg {
+  position: absolute;
+  inset: 0 0 6.5px;
+  display: block;
+  width: 100%;
+  height: calc(100% - 6.5px);
+  /* 严格截断菱形一端的圆角描边与光晕，避免丝线穿进骰面。 */
+  overflow: hidden;
+}
+
+.abyssa-expedition-party-link::after {
+  position: absolute;
+  /* 菱形中心与选中框顶边及丝线终点共用锚点。 */
+  bottom: 2px;
+  left: 50%;
+  width: 7px;
+  height: 7px;
+  border: 1px solid #8d6b35;
+  background: #1c1209;
+  box-shadow: 0 0 0 2px rgb(13 8 4 / 72%);
+  content: "";
+  transform: translateX(-50%) rotate(45deg);
+}
+
+.abyssa-expedition-party-link path {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.abyssa-expedition-party-link__under {
+  stroke: rgb(7 4 2 / 76%);
+  stroke-width: 4px;
+}
+
+.abyssa-expedition-party-link__main {
+  stroke: #8c6c3d;
+  stroke-width: 1.4px;
+}
+
+.abyssa-expedition-party-link__aura,
+.abyssa-expedition-party-link__high {
+  opacity: 0;
+}
+
+.abyssa-expedition-party-column[data-active] .abyssa-expedition-party-nameplate {
+  box-shadow:
+    0 0 0 1px #a47b39,
+    inset 0 0 0 2px rgb(0 0 0 / 34%),
+    inset 0 0 0 3px rgb(231 199 127 / 16%),
+    0 0 10px rgb(219 179 91 / 18%);
+}
+
+.abyssa-expedition-party-column[data-active] .abyssa-expedition-party-nameplate strong {
+  color: #f0d89c;
+}
+
+.abyssa-expedition-party-column[data-active] .abyssa-expedition-party-link {
+  opacity: 1;
+}
+
+.abyssa-expedition-party-column[data-active] .abyssa-expedition-party-link__under {
+  stroke: rgb(28 16 5 / 84%);
+  stroke-width: 4px;
+}
+
+.abyssa-expedition-party-column[data-active] .abyssa-expedition-party-link__main {
+  stroke: #ffe7a5;
+  stroke-width: 2px;
+}
+
+.abyssa-expedition-party-column[data-active] .abyssa-expedition-party-link__aura {
+  stroke: #d7a94b;
+  stroke-width: 8px;
+  opacity: .13;
+}
+
+.abyssa-expedition-party-column[data-active] .abyssa-expedition-party-link__high {
+  stroke: #fff8dc;
+  stroke-width: 1px;
+  opacity: .7;
+}
+
+.abyssa-expedition-party-column[data-active] .abyssa-expedition-party-link::after {
+  border-color: #efd086;
+  background: #b88d43;
+  box-shadow: 0 0 0 2px #2a1909, 0 0 4px rgb(255 220 132 / 42%);
+}
+
+.abyssa-expedition-party-card[data-tone="crimson"] { --party-tone: #7b342f; --party-tone-deep: #351713; --party-tone-soft: #c27463; }
+.abyssa-expedition-party-card[data-tone="steel"] { --party-tone: #3d6079; --party-tone-deep: #182934; --party-tone-soft: #7ca1b5; }
+.abyssa-expedition-party-card[data-tone="verdant"] { --party-tone: #477051; --party-tone-deep: #1b3422; --party-tone-soft: #82a775; }
+.abyssa-expedition-party-card[data-tone="ochre"] { --party-tone: #7d643d; --party-tone-deep: #332919; --party-tone-soft: #b99a60; }
+.abyssa-expedition-party-card[data-tone="violet"] { --party-tone: #654b72; --party-tone-deep: #2c2034; --party-tone-soft: #9d7fad; }
+
+.abyssa-expedition-party-card::after {
+  position: absolute;
+  inset: 3px;
+  z-index: 5;
+  border: 1px solid color-mix(in srgb, var(--party-tone-soft) 64%, #21150c);
+  content: "";
+  pointer-events: none;
+}
+
+.abyssa-expedition-party-card__crest {
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  z-index: 8;
+  width: 16px;
+  height: 16px;
+  border: 2px solid #171006;
+  background: linear-gradient(135deg, #e0c27b, #846127 70%);
+  box-shadow: 0 0 0 1px #9c7a3e, 0 2px 4px rgb(0 0 0 / 62%);
+  transform: translateX(-50%) rotate(45deg);
+}
+
+.abyssa-expedition-party-card__crest::after {
+  position: absolute;
+  inset: 4px;
+  border: 1px solid #493319;
+  content: "";
+}
+
+.abyssa-expedition-party-card__portrait {
+  position: relative;
+  min-height: 0;
+  margin: 4px 4px 0;
+  overflow: hidden;
+  border: 1px solid #100b07;
+  background:
+    radial-gradient(circle at 50% 30%, color-mix(in srgb, var(--party-tone) 72%, #d9c49a), transparent 58%),
+    linear-gradient(180deg, var(--party-tone-deep), #0d0906);
+  box-shadow: inset 0 0 24px rgb(0 0 0 / 58%);
+}
+
+.abyssa-expedition-party-card__portrait-pattern {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(45deg, transparent 47%, rgb(236 213 168 / 5%) 48% 52%, transparent 53%),
+    linear-gradient(-45deg, transparent 47%, rgb(236 213 168 / 4%) 48% 52%, transparent 53%);
+  background-size: 26px 26px;
+  opacity: .75;
+}
+
+.abyssa-expedition-party-card__portrait img {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  z-index: 2;
+  display: block;
+  width: 120%;
+  max-width: none;
+  height: auto;
+  filter: drop-shadow(0 4px 3px rgb(0 0 0 / 42%));
+  transform: translateX(-50%);
+}
+
+.abyssa-expedition-party-card[data-character="abyssa"] .abyssa-expedition-party-card__portrait img { width: 119%; top: -7px; }
+.abyssa-expedition-party-card[data-character="eustice"] .abyssa-expedition-party-card__portrait img { width: 126%; top: -5px; }
+.abyssa-expedition-party-card[data-character="elora"] .abyssa-expedition-party-card__portrait img { width: 120%; top: -4px; }
+.abyssa-expedition-party-card[data-character="kororo"] .abyssa-expedition-party-card__portrait img { width: 121%; top: -5px; }
+.abyssa-expedition-party-card[data-character="norma"] .abyssa-expedition-party-card__portrait img { width: 123%; top: -4px; }
+
+.abyssa-expedition-party-card__health {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 4;
+  display: grid;
+  min-height: 36px;
+  padding: 4px 5px 3px;
+  border-top: 2px solid #0a0603;
+  border-bottom: 0;
+  background: linear-gradient(180deg, rgb(18 12 8 / 92%), #120c08);
+  box-shadow: 0 -5px 12px rgb(0 0 0 / 26%);
+  grid-template-columns: 31px minmax(0, 1fr);
+  align-items: center;
+  gap: 5px;
+}
+
+/* 左侧徽标：枪铁灰盾牌，内部就是盾牌层数。
+   构造法与原红色 HP 徽标一致——亮面在上、边框比主色更亮。
+   金属取灰而非取色：极低饱和的冷灰，靠明暗差做浮雕，不靠色相。 */
+.abyssa-expedition-party-card__shield {
+  display: grid;
+  width: 29px;
+  height: 27px;
+  place-items: center;
+  border: 1px solid #9ea4a7;
+  color: #eef0f1;
+  background: linear-gradient(180deg, #7e858a, #33383c);
+  box-shadow:
+    inset 0 0 0 2px rgb(255 255 255 / 12%),
+    inset 0 2px 2px rgb(255 255 255 / 15%),
+    0 1px 2px #000;
+  clip-path: polygon(50% 0, 94% 20%, 88% 76%, 50% 100%, 12% 76%, 6% 20%);
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-shadow: 0 1px 2px rgb(0 0 0 / 72%);
+}
+
+/* 有盾时透出一圈冷白反光，是金属高光而非彩色辉光 */
+.abyssa-expedition-party-card__shield:not([data-empty]) {
+  filter: drop-shadow(0 0 4px rgb(214 220 224 / 34%));
+}
+
+/* 无盾时收成空槽：脱色压暗，只留形状 */
+.abyssa-expedition-party-card__shield[data-empty] {
+  border-color: #464b4e;
+  color: #6b7276;
+  background: linear-gradient(180deg, #2f3336, #191c1e);
+  box-shadow: inset 0 0 0 2px rgb(255 255 255 / 4%), 0 1px 2px #000;
+}
+
+/* 一排按六格排布：上限三心只占左半，不渲染多余心 */
+.abyssa-expedition-party-card__hearts {
+  display: grid;
+  min-width: 0;
+  align-items: center;
+  gap: 1px;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.abyssa-expedition-party-card__hearts i {
+  display: block;
+  width: 16px;
+  height: 16px;
+  background: #4a2d26;
+  filter: drop-shadow(0 1px 0 #050302);
+  mask-image: url("../../assets/svg/8-1-heart-drop.svg");
+  mask-position: center;
+  mask-repeat: no-repeat;
+  mask-size: contain;
+  opacity: .58;
+}
+
+.abyssa-expedition-party-card__hearts i[data-filled] {
+  background: linear-gradient(180deg, #e36e58, #9f342a 72%);
+  filter: drop-shadow(0 1px 0 #511a15) drop-shadow(0 0 3px rgb(202 75 56 / 24%));
+  opacity: 1;
+}
+
+.abyssa-expedition-party-card__hearts i[data-pending-damage] {
+  background: repeating-linear-gradient(135deg, #edc762 0 3px, #b97d28 3px 5px);
+  filter: drop-shadow(0 1px 0 #51360f) drop-shadow(0 0 3px rgb(229 180 65 / 38%));
+  opacity: 1;
+}
+
+
+.abyssa-expedition-party-card__skills {
+  position: relative;
+  z-index: 3;
+  display: grid;
+  padding: 4px 5px 5px;
+  background: color-mix(in srgb, var(--party-tone-deep) 82%, #0c0805);
+  gap: 3px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.abyssa-expedition-party-card__skills span {
+  display: grid;
+  min-width: 0;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--party-tone-soft) 48%, #160e08);
+  color: #e1d4bb;
+  background:
+    linear-gradient(135deg, rgb(255 255 255 / 5%), transparent 48%),
+    color-mix(in srgb, var(--party-tone) 58%, #15100b);
+  box-shadow: inset 0 0 0 2px rgb(0 0 0 / 24%), 0 1px 0 rgb(236 213 168 / 7%);
+}
+
+.abyssa-expedition-party-card__skills span[data-empty] {
+  border-color: color-mix(in srgb, var(--party-tone-soft) 25%, #100a06);
+  background: rgb(8 5 3 / 36%);
+  box-shadow: inset 0 2px 5px rgb(0 0 0 / 48%);
+}
+
+.abyssa-expedition-party-card__skills span > i {
+  display: block;
+  width: 22px;
+  height: 22px;
+  color: #e4d9c1;
+  background: currentColor;
+  filter: drop-shadow(0 1px 1px rgb(0 0 0 / 72%));
+  mask-position: center;
+  mask-repeat: no-repeat;
+  mask-size: contain;
+}
+
+.abyssa-expedition-party-card__skills [data-icon="all-for-one"] { mask-image: url("../../assets/svg/0-0-all-for-one.svg"); }
+.abyssa-expedition-party-card__skills [data-icon="sword"] { mask-image: url("../../assets/svg/0-1-bouncing-sword.svg"); }
+.abyssa-expedition-party-card__skills [data-icon="miracle"] { mask-image: url("../../assets/svg/1-0-embrassed-energy.svg"); }
+.abyssa-expedition-party-card__skills [data-icon="wand"] { mask-image: url("../../assets/svg/1-1-fairy-wand.svg"); }
+.abyssa-expedition-party-card__skills [data-icon="gravity"] { mask-image: url("../../assets/svg/2-0-pentagram-rose.svg"); }
+.abyssa-expedition-party-card__skills [data-icon="star"] { mask-image: url("../../assets/svg/2-1-explosion-rays.svg"); }
+.abyssa-expedition-party-card__skills [data-icon="arsenal"] { mask-image: url("../../assets/svg/3-0-assassin-pocket.svg"); }
+.abyssa-expedition-party-card__skills [data-icon="mask"] { mask-image: url("../../assets/svg/3-1-duality-mask.svg"); }
+.abyssa-expedition-party-card__skills [data-icon="moon"] { mask-image: url("../../assets/svg/4-0-moon.svg"); }
+.abyssa-expedition-party-card__skills [data-icon="goo"] { mask-image: url("../../assets/svg/4-1-goo-explosion.svg"); }
+.abyssa-expedition-party-card__skills [data-icon="split-cross"] { mask-image: url("../../assets/svg/6-0-split-cross.svg"); }
+.abyssa-expedition-party-card__skills [data-icon="fast-arrow"] { mask-image: url("../../assets/svg/6-1-fast-arrow.svg"); }
+.abyssa-expedition-party-card__skills [data-icon="heart"] { mask-image: url("../../assets/svg/8-1-heart-drop.svg"); }

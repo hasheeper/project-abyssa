@@ -1,0 +1,327 @@
+/* =========================================================
+       主布局
+       ========================================================= */
+
+/* 内容层 fit 进共享 interior。
+   自然尺寸 1320x739,interior 1250x787:
+     k2 = min(1250/1320, 787/739) = 0.94697   （宽是紧约束）
+   缩放后 1250x699.8,竖向余 87.2 —— 内容在 interior 内居中,余量露出
+   board 背景。这个除法是**无单位数字相除**,calc 合法,与「长度÷长度」
+   那条禁忌无关。 */
+.game-layout {
+  /* k2 = interior高 787 / 内容自然高 831。
+     **高度**是紧约束(787/831 = 0.94705 < 宽度需求 1311.67/1385 = 0.94705),
+     可用区加宽到 1311.67 后,内容自然宽同步加到 1385 才刚好填满:
+       1385 * 0.94705 = 1311.67 ✓
+     原写 1250/1320 是旧 interior 宽的遗留,会让内容比可用区窄 48。 */
+  --dice-layout-k: calc(787 / 831);
+  /* 操作面板越过 board 内沿的下沉量(设计px)。见 .action-dock。 */
+  --dice-dock-sink: 18px;
+  /* 内容整组向上出血进 board 的上边距(设计px)。
+     上边距 60 而下边距 38,加上招牌只压到 y≈106,原先顶部空出一条
+     明显的带子(招牌底到内容顶 40.7px)。内容往上提一截,重心才不偏下。
+     20 上提过头,回调到 14 —— 两列都随之下移约 5 画布px。 */
+  --dice-content-rise: 14px;
+  /* 左列(立绘)在组上移之外再单独下移。立绘顶部本就比右列的 board
+     多一段留白,跟着整组上提会显得头重。合计下移约 10 画布px。 */
+  --dice-portrait-drop: 6px;
+  /* 内容自然高。**必须恰好等于 interior 高 / k2 = 787/0.94697 = 831**,
+     使视觉高与 interior 严丝合缝。若设小了,surface 的 place-items:center
+     会把内容按剩余空间的一半往下推,rise 的上移量就被抵掉一部分
+     (踩过:设成 801 时内容被反推 12.4px)。 */
+  --dice-layout-h: 831px;
+
+  display: grid;
+  /* 1385 = 可用区宽 1311.67 / k2,使内容刚好填满加宽后的可用区。
+     多出的 65(原 1320)由右列 minmax(560px,1fr) 吸收。 */
+  width: 1385px;
+  /* A dialogue panel needs a real reading width; a 300px portrait rail
+         makes the shared component look horizontally crushed. */
+  grid-template-columns: minmax(390px, 425px) minmax(560px, 1fr);
+  align-items: stretch;
+  /* transform-origin 改成 center top:视觉顶边 == 布局顶边,于是「内容上移」
+     可以直接用 margin-top 表达,不必再折算居中偏移。
+     竖向缩放差额全部由 margin-bottom 吸收(布局盒子抵成视觉高)。 */
+  margin-top: calc(var(--dice-content-rise) * -1);
+  margin-bottom: calc(
+    var(--dice-layout-h) * var(--dice-layout-k) - var(--dice-layout-h) +
+      var(--dice-content-rise)
+  );
+  margin-inline: calc((1385px * var(--dice-layout-k) - 1385px) / 2);
+  gap: 32px;
+  transform: scale(var(--dice-layout-k));
+  transform-origin: center top;
+}
+
+/* =========================================================
+       左侧：缇比角色演出
+       ========================================================= */
+
+/* 左列。--dice-portrait-drop 让立绘在整组上移之外再单独下移一点
+   (整组上提是为了压掉顶部空白,但立绘顶部本就留白更多,跟着提会头重)。 */
+.tibby-stage {
+  min-width: 0;
+  padding-top: var(--dice-portrait-drop);
+}
+
+.tibby-stage__recess {
+  position: relative;
+  display: grid;
+  min-width: 0;
+  /* Keep the portrait and dialogue at their existing reading width while
+         the physical backplate wraps around them. */
+  margin: -10px;
+  padding: 10px 0;
+  gap: 0;
+}
+
+.tibby-stage__backplate {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  display: block;
+  border: 1px solid #080503;
+  background:
+    linear-gradient(
+      90deg,
+      rgb(237 200 128 / 4%),
+      transparent 14% 86%,
+      rgb(0 0 0 / 22%)
+    ),
+    repeating-linear-gradient(
+      2deg,
+      transparent 0 9px,
+      rgb(255 224 165 / 1.4%) 10px,
+      transparent 12px
+    ),
+    #110b06;
+  box-shadow:
+    0 0 0 1px #49321b,
+    inset 0 0 0 3px rgb(159 117 57 / 20%),
+    inset 0 0 28px rgb(0 0 0 / 86%),
+    inset 0 8px 16px rgb(0 0 0 / 58%);
+  pointer-events: none;
+}
+
+.tibby-stage__recess > :not(.tibby-stage__backplate) {
+  position: relative;
+  z-index: 1;
+  transform: translateY(-4px);
+}
+
+.tibby-stage__divider {
+  display: grid;
+  height: 22px;
+  margin: 0 18px;
+  align-items: center;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: 9px;
+}
+
+.tibby-stage__divider [data-part="rail"] {
+  display: block;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgb(181 140 72 / 56%),
+    transparent
+  );
+  box-shadow: 0 1px rgb(0 0 0 / 82%);
+}
+
+.tibby-stage__divider [data-part="mark"] {
+  display: block;
+  width: 7px;
+  height: 7px;
+  border: 1px solid #120b05;
+  background: linear-gradient(135deg, #e0bd70, #765126 62%, #2c1b0c);
+  box-shadow:
+    0 0 0 1px rgb(194 151 76 / 38%),
+    0 2px 3px rgb(0 0 0 / 72%);
+  transform: rotate(45deg);
+}
+
+/* 立绘面板。左列容器高 831,原先 recess 只有 736 —— 底部空 95px,
+   与右列不齐。这里把高度长起来吃掉它(与 dialogue 分摊),
+   立绘画布变大,人物随之更大。 */
+.portrait-panel {
+  height: 622px;
+  overflow: hidden;
+}
+
+.portrait-panel__background {
+  position: absolute;
+  inset: 7px;
+  z-index: 0;
+  background:
+    radial-gradient(circle at 50% 22%, rgb(215 187 124 / 18%), transparent 28%),
+    radial-gradient(ellipse at 50% 115%, rgb(0 0 0 / 80%), transparent 62%),
+    linear-gradient(180deg, #26180c, #180f08 48%, #0d0805);
+}
+
+.portrait-panel__halo {
+  position: absolute;
+  top: 11%;
+  left: 50%;
+  z-index: 0;
+  width: 220px;
+  max-width: 68%;
+  aspect-ratio: 1;
+  border: 1px solid rgb(215 187 124 / 20%);
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 8px rgb(170 135 74 / 3%),
+    0 0 60px rgb(224 183 85 / 11%);
+  transform: translateX(-50%);
+}
+
+.portrait-panel__halo::before,
+.portrait-panel__halo::after {
+  position: absolute;
+  inset: 18%;
+  border: 1px solid rgb(215 187 124 / 12%);
+  content: "";
+  transform: rotate(45deg);
+}
+
+.portrait-panel__halo::after {
+  inset: 32%;
+}
+
+.portrait-panel__image {
+  position: absolute;
+  inset: 7px;
+  z-index: 1;
+  animation: tibby-idle 5.4s ease-in-out infinite;
+  transform-origin: 50% 100%;
+}
+
+.portrait-panel__image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: var(--tibby-image-x) var(--tibby-image-y);
+  filter: drop-shadow(0 10px 14px rgb(0 0 0 / 58%)) saturate(0.96)
+    contrast(1.02);
+  transform: translateY(var(--tibby-image-lift)) scale(var(--tibby-image-scale));
+  transform-origin: 50% 0;
+}
+
+.portrait-panel__nameplate {
+  position: absolute;
+  right: 12px;
+  bottom: 14px;
+  left: 12px;
+  z-index: 4;
+  width: auto;
+  margin: 0;
+  --abyssa-nameplate-fill: #171007;
+  --abyssa-nameplate-ink: #e9dcc5;
+  --abyssa-nameplate-secondary: #d7bb7c;
+  filter: drop-shadow(0 5px 7px rgb(0 0 0 / 62%));
+}
+
+.portrait-panel.wood-panel > .portrait-panel__background {
+  position: absolute;
+  z-index: 0;
+}
+
+.portrait-panel.wood-panel > .portrait-panel__image {
+  position: absolute;
+  z-index: 1;
+}
+
+.portrait-panel.wood-panel > .portrait-panel__nameplate {
+  position: absolute;
+  z-index: 4;
+}
+
+.portrait-panel.wood-panel > .wood-corners {
+  position: absolute;
+  z-index: 5;
+}
+
+@keyframes tibby-idle {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+
+  50% {
+    transform: translateY(-2px) scale(1.012);
+  }
+}
+
+.portrait-panel[data-expression="amused"] .portrait-panel__image {
+  animation: tibby-amused 0.72s var(--ease-rpg);
+}
+
+.portrait-panel[data-expression="surprised"] .portrait-panel__image {
+  animation: tibby-surprised 0.56s var(--ease-rpg);
+}
+
+.portrait-panel[data-expression="serious"] .portrait-panel__background {
+  filter: brightness(0.78) saturate(1.1);
+}
+
+/* Reuse the library dialogue geometry while applying the Dice wood-and-brass skin. */
+.tibby-dialogue {
+  /* The reusable frame grows through its segmented middle.  This is a
+         content-area minimum, not a scaled or stretched border. */
+  width: calc(100% - 36px);
+  justify-self: center;
+  --abyssa-dialogue-fill: #1d1610;
+  --abyssa-dialogue-text: #e3d7bd;
+  --abyssa-dialogue-middle: #7d684a;
+  --abyssa-dialogue-ornament: #6b5838;
+  --abyssa-dialogue-pattern-main: rgb(201 163 92 / 4%);
+  --abyssa-dialogue-pattern-second: rgb(255 244 214 / 1.5%);
+}
+
+/* 共享组件的 .abyssa-dialogue[data-auto-height] 定了 min-height:112px,
+   选择器权重高于单类,故这里用同等权重 + 本应用类名压过它。
+   长高是为了和右列对齐(左列原先底部空 95px)。 */
+.tibby-dialogue[data-auto-height],
+.tibby-dialogue[data-auto-height] .abyssa-dialogue__content {
+  min-height: 130px;
+}
+
+.tibby-dialogue [fill="#111515"] {
+  fill: #161009;
+}
+
+.tibby-dialogue [stroke="#667475"] {
+  stroke: #7d684a;
+}
+
+.tibby-dialogue [stroke="#596465"] {
+  stroke: #6b5838;
+}
+
+.tibby-dialogue [fill="#596465"] {
+  fill: #6b5838;
+}
+
+@keyframes tibby-amused {
+  0%,
+  100% {
+    transform: rotate(0) scale(1);
+  }
+
+  45% {
+    transform: rotate(-1deg) scale(1.018);
+  }
+}
+
+@keyframes tibby-surprised {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  38% {
+    transform: translateY(-9px) scale(1.02);
+  }
+}

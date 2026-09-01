@@ -1,0 +1,467 @@
+.table-status {
+  position: relative;
+  display: grid;
+  min-height: 118px;
+  padding: 5px;
+  overflow: hidden;
+  border: 1px solid #090603;
+  background:
+    linear-gradient(
+      180deg,
+      rgb(227 190 116 / 8%),
+      transparent 28%,
+      rgb(0 0 0 / 38%)
+    ),
+    repeating-linear-gradient(
+      2deg,
+      transparent 0 8px,
+      rgb(255 224 165 / 1.5%) 9px,
+      transparent 11px
+    ),
+    #24170b;
+  box-shadow:
+    0 0 0 2px #4a321a,
+    0 0 0 4px #080503,
+    inset 0 0 14px rgb(0 0 0 / 84%);
+}
+
+.table-status__wood {
+  position: absolute;
+  inset: 2px;
+  border: 1px solid rgb(187 144 73 / 22%);
+  pointer-events: none;
+}
+
+.table-status__surface {
+  position: relative;
+  display: grid;
+  min-width: 0;
+  min-height: 108px;
+  padding: 11px 48px;
+  overflow: hidden;
+  align-items: center;
+  gap: 11px;
+  border: 1px solid #56391d;
+  background:
+    radial-gradient(ellipse at 50% 48%, rgb(166 111 53 / 15%), transparent 49%),
+    linear-gradient(
+      90deg,
+      rgb(0 0 0 / 18%),
+      transparent 18% 82%,
+      rgb(0 0 0 / 24%)
+    ),
+    repeating-linear-gradient(
+      2deg,
+      transparent 0 7px,
+      rgb(236 190 119 / 2.8%) 8px,
+      transparent 10px
+    ),
+    repeating-linear-gradient(
+      89deg,
+      transparent 0 71px,
+      rgb(5 2 1 / 18%) 72px 73px,
+      transparent 74px
+    ),
+    #1b1108;
+  box-shadow:
+    inset 0 0 0 1px rgb(224 178 102 / 6%),
+    inset 0 0 34px rgb(0 0 0 / 82%),
+    inset 0 8px 14px rgb(0 0 0 / 42%),
+    inset 0 -5px 11px rgb(90 53 19 / 10%);
+  clip-path: polygon(
+    19px 0,
+    calc(100% - 19px) 0,
+    100% 19px,
+    100% calc(100% - 19px),
+    calc(100% - 19px) 100%,
+    19px 100%,
+    0 calc(100% - 19px),
+    0 19px
+  );
+  grid-template-columns: minmax(105px, 0.78fr) minmax(170px, 1.15fr) minmax(
+      105px,
+      0.78fr
+    );
+}
+
+.table-status__phase,
+.table-status__pot {
+  position: relative;
+  display: grid;
+  width: min(100%, 132px);
+  min-height: 58px;
+  padding: 8px 11px 9px;
+  align-content: center;
+  justify-items: center;
+  gap: 4px;
+  border: 1px solid #090603;
+  background:
+    linear-gradient(
+      180deg,
+      rgb(255 225 175 / 6%),
+      transparent 27%,
+      rgb(0 0 0 / 34%)
+    ),
+    repeating-linear-gradient(
+      2deg,
+      transparent 0 7px,
+      rgb(255 225 175 / 1.8%) 8px,
+      transparent 10px
+    ),
+    #24180d;
+  box-shadow:
+    0 0 0 1px #72572f,
+    0 0 0 2px #0b0704,
+    inset 0 0 0 1px rgb(209 163 83 / 16%),
+    inset 0 1px rgb(255 231 177 / 8%),
+    inset 0 -5px 8px rgb(0 0 0 / 44%),
+    0 4px 7px rgb(0 0 0 / 38%);
+  clip-path: polygon(
+    5px 0,
+    calc(100% - 5px) 0,
+    100% 5px,
+    100% calc(100% - 5px),
+    calc(100% - 5px) 100%,
+    5px 100%,
+    0 calc(100% - 5px),
+    0 5px
+  );
+}
+
+.table-status__phase-frame,
+.table-status__pot-frame {
+  position: absolute;
+  inset: 3px;
+  border: 1px solid rgb(154 119 64 / 42%);
+  box-shadow:
+    inset 0 1px 3px rgb(0 0 0 / 48%),
+    0 1px rgb(215 187 124 / 7%);
+  pointer-events: none;
+}
+
+.table-status__phase small {
+  position: relative;
+  color: var(--abyssa-text-muted);
+  font-family: var(--font-display);
+  font-size: 6px;
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  text-indent: 0.28em;
+  text-shadow: 0 1px 2px #000;
+}
+
+.table-status__phase-divider,
+.table-status__pot-divider {
+  position: relative;
+  width: min(70%, 65px);
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--abyssa-ornament) 18% 82%,
+    transparent
+  );
+  box-shadow: 0 1px rgb(0 0 0 / 48%);
+}
+
+.table-status__phase strong {
+  position: relative;
+  color: var(--abyssa-text);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+  text-indent: 0.13em;
+  text-shadow:
+    0 1px 2px #000,
+    0 0 6px rgb(215 187 124 / 8%);
+}
+
+.table-status__pot small {
+  color: #8c7b63;
+  font-family: var(--font-display);
+  font-size: 7px;
+  letter-spacing: 0.18em;
+}
+
+.table-status__coin-field {
+  position: relative;
+  width: 100%;
+  height: 68px;
+  min-width: 170px;
+  justify-self: center;
+}
+
+.table-status__coin-pile,
+.table-status__incoming-coins {
+  position: absolute;
+  inset: 0;
+}
+
+.table-status__coin-pile {
+  z-index: 1;
+}
+
+.table-status__incoming-coins {
+  z-index: 4;
+  --coin-final-opacity: 0;
+  isolation: isolate;
+  pointer-events: none;
+}
+
+.table-status__incoming-coins[data-persistent="true"] {
+  --coin-final-opacity: 1;
+}
+
+.table-coin {
+  --coin-light: #f1d47e;
+  --coin-mid: #bd872d;
+  --coin-dark: #65400e;
+  --coin-ink: #684313;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: block;
+  width: 25px;
+  height: 25px;
+  border: 1px solid #2d1906;
+  border-radius: 50%;
+  background:
+    radial-gradient(
+      circle at 32% 24%,
+      rgb(255 249 216 / 40%) 0 8%,
+      transparent 20%
+    ),
+    conic-gradient(
+      from 18deg,
+      var(--coin-dark),
+      var(--coin-light) 18%,
+      var(--coin-mid) 38%,
+      var(--coin-dark) 58%,
+      var(--coin-light) 77%,
+      var(--coin-mid)
+    );
+  box-shadow:
+    inset 0 0 0 1px rgb(255 236 169 / 36%),
+    inset 0 -3px 4px rgb(44 23 3 / 58%),
+    0 3px 5px rgb(0 0 0 / 62%);
+  transform: translate(calc(-50% + var(--coin-x)), calc(-50% + var(--coin-y)))
+    rotate(var(--coin-rotate)) scale(var(--coin-scale));
+}
+
+.table-coin[data-metal="silver"] {
+  --coin-light: #e3dfd2;
+  --coin-mid: #9e9a90;
+  --coin-dark: #54514c;
+  --coin-ink: #555149;
+  border-color: #34312d;
+}
+
+.table-coin[data-metal="copper"] {
+  --coin-light: #da9a64;
+  --coin-mid: #9e552c;
+  --coin-dark: #4f2818;
+  --coin-ink: #5f2f1a;
+  border-color: #35190e;
+}
+
+.table-coin [data-part] {
+  position: absolute;
+  display: block;
+  pointer-events: none;
+}
+
+.table-coin [data-part="rim"] {
+  inset: 3px;
+  border: 1px solid color-mix(in srgb, var(--coin-ink) 78%, #120904);
+  border-radius: 50%;
+  box-shadow:
+    inset 0 0 0 1px rgb(255 241 196 / 18%),
+    0 0 1px rgb(0 0 0 / 72%);
+}
+
+.table-coin [data-part="crest"] {
+  top: 50%;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  border: 1px solid var(--coin-ink);
+  background: linear-gradient(135deg, var(--coin-light), var(--coin-mid));
+  box-shadow: inset 1px 1px rgb(255 246 213 / 18%);
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.table-coin [data-part="shine"] {
+  top: 4px;
+  left: 6px;
+  width: 6px;
+  height: 3px;
+  border-radius: 50%;
+  background: rgb(255 250 224 / 34%);
+  filter: blur(0.3px);
+  transform: rotate(-24deg);
+}
+
+.table-coin--stacked {
+  z-index: calc(var(--coin-index) + 1);
+}
+
+.table-coin--incoming {
+  z-index: calc(var(--coin-index) + 30);
+  opacity: 0;
+  will-change: transform, opacity;
+  animation-duration: 0.9s;
+  animation-delay: calc(var(--coin-sequence) * 130ms);
+  animation-fill-mode: both;
+  animation-timing-function: cubic-bezier(0.16, 0.74, 0.2, 1);
+}
+
+.table-status__incoming-coins[data-side="opponent"] .table-coin--incoming {
+  animation-name: table-coin-from-opponent;
+}
+
+.table-status__incoming-coins[data-side="player"] .table-coin--incoming {
+  animation-name: table-coin-from-player;
+}
+
+@keyframes table-coin-from-opponent {
+  0% {
+    opacity: 0.15;
+    transform: translate(calc(-50% + var(--coin-x)), calc(-50% - 44px))
+      rotate(calc(var(--coin-rotate) - 42deg)) scale(0.88);
+  }
+
+  8%,
+  84% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: var(--coin-final-opacity);
+    transform: translate(calc(-50% + var(--coin-x)), calc(-50% + var(--coin-y)))
+      rotate(var(--coin-rotate)) scale(var(--coin-scale));
+  }
+}
+
+@keyframes table-coin-from-player {
+  0% {
+    opacity: 0.15;
+    transform: translate(calc(-50% + var(--coin-x)), calc(-50% + 44px))
+      rotate(calc(var(--coin-rotate) + 42deg)) scale(0.88);
+  }
+
+  8%,
+  84% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: var(--coin-final-opacity);
+    transform: translate(calc(-50% + var(--coin-x)), calc(-50% + var(--coin-y)))
+      rotate(var(--coin-rotate)) scale(var(--coin-scale));
+  }
+}
+
+.table-status__pot {
+  justify-self: end;
+  text-align: center;
+}
+
+.table-status__pot .abyssa-currency-amount {
+  position: relative;
+  gap: 8px;
+  color: #ead7aa;
+  font-family: var(--font-display);
+  font-size: 22px;
+  line-height: 1;
+  text-shadow: 0 2px 4px #000;
+}
+
+.table-status__pot small {
+  position: relative;
+  color: var(--abyssa-text-muted);
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  text-indent: 0.28em;
+  text-shadow: 0 1px 2px #000;
+}
+
+.table-status__pot .abyssa-currency-amount > i {
+  width: 19px;
+  height: 19px;
+}
+
+.table-status__action {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  color: #8b9a91;
+  font-size: 8px;
+  letter-spacing: 0.12em;
+  text-shadow: 0 1px 3px #000;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+.dice-board__dealer {
+  position: relative;
+  display: grid;
+  width: 24px;
+  height: 20px;
+  place-items: center;
+  padding: 2px;
+  border: 1px solid #090603;
+  color: var(--abyssa-accent-soft);
+  background:
+    linear-gradient(
+      180deg,
+      rgb(255 225 175 / 6%),
+      transparent 28%,
+      rgb(0 0 0 / 34%)
+    ),
+    repeating-linear-gradient(
+      2deg,
+      transparent 0 5px,
+      rgb(255 225 175 / 1.8%) 6px,
+      transparent 8px
+    ),
+    #24180d;
+  box-shadow:
+    0 0 0 1px #72572f,
+    0 0 0 2px #0b0704,
+    inset 0 0 0 1px rgb(209 163 83 / 16%),
+    inset 0 1px rgb(255 231 177 / 8%),
+    inset 0 -3px 5px rgb(0 0 0 / 48%),
+    0 3px 6px rgb(0 0 0 / 44%);
+  clip-path: polygon(
+    3px 0,
+    calc(100% - 3px) 0,
+    100% 3px,
+    100% calc(100% - 3px),
+    calc(100% - 3px) 100%,
+    3px 100%,
+    0 calc(100% - 3px),
+    0 3px
+  );
+  font-family: var(--font-body);
+  font-style: normal;
+}
+
+.dice-board__dealer span {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  place-items: center;
+  border: 1px solid rgb(154 119 64 / 42%);
+  color: var(--abyssa-accent-soft);
+  background: rgb(0 0 0 / 8%);
+  box-shadow:
+    inset 0 1px 2px rgb(0 0 0 / 48%),
+    0 1px rgb(215 187 124 / 7%);
+  font-size: 9px;
+  font-weight: 800;
+  line-height: 1;
+  text-shadow:
+    0 1px 2px #000,
+    0 0 5px rgb(215 187 124 / 10%);
+}

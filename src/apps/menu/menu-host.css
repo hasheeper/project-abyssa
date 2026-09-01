@@ -1,0 +1,53 @@
+/* ============ 立绘栏:破窗,无边框 ============
+   **没有画框与名牌**。人物直接成为中栏的视觉主体。
+
+   破窗做法:
+     立绘高 1080,按 704x1472 算宽 516,人物右缘贴近画布中线。
+   底缘不裁切,用渐变溶进背景 —— 硬边会暴露"这是一张图"。
+   对话已移到右侧命令盘下方，中栏只负责展示人物。 */
+.menu-app__host {
+  position: relative;
+  min-width: 0;
+}
+/* 人物背后的一团光,把立绘从背景里托出来。没有它,无框立绘会糊在底纹上。 */
+.menu-host__glow {
+  position: absolute;
+  top: -78px;
+  left: 58%;
+  z-index: 0;
+  width: 650px;
+  height: 650px;
+  background: radial-gradient(
+    ellipse 50% 50% at 50% 50%,
+    rgb(122 168 164 / 20%),
+    rgb(96 134 132 / 9%) 46%,
+    transparent 72%
+  );
+  pointer-events: none;
+  transform: translateX(-50%);
+}
+.menu-host__figure {
+  position: absolute;
+  top: -133px;
+  left: 22px;
+  z-index: 1;
+  display: block;
+  width: 542px;
+  height: 1134px;
+  object-fit: contain;
+  object-position: 50% 0;
+  filter: drop-shadow(0 18px 34px rgb(2 6 8 / 62%));
+  pointer-events: none;
+  user-select: none;
+}
+/* 底缘溶接:立绘下缘渐隐,不留硬边。 */
+.menu-host__fade {
+  position: absolute;
+  right: -34px;
+  bottom: -32px;
+  left: 0;
+  z-index: 2;
+  height: 200px;
+  background: linear-gradient(180deg, transparent, rgb(11 16 16 / 62%) 58%, rgb(11 16 16 / 92%));
+  pointer-events: none;
+}

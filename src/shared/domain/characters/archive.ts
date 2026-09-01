@@ -40,6 +40,32 @@ export interface CharacterArchiveTrait {
   iconUrl?: string;
 }
 
+export interface CharacterArchiveBond {
+  level: number;
+  progress?: number;
+  progressMax?: number;
+  slots?: number;
+}
+
+export interface CharacterArchiveStatusChip {
+  label: string;
+  detail?: string;
+  tone?: "neutral" | "danger";
+  icon?: "wound" | "book";
+  iconUrl?: string;
+}
+
+export interface CharacterArchivePact {
+  name: string;
+  iconUrl?: string;
+  currentStage?: 1 | 2 | 3;
+  trigger: string;
+  obsoleteTerm?: string;
+  currentTerm: string;
+  nextLevel?: number;
+  nextLabel?: string;
+}
+
 export interface CharacterArchiveStatus {
   title: string;
   titleRootIndex?: number;
@@ -50,6 +76,9 @@ export interface CharacterArchiveStatus {
     tone?: CharacterArchiveAffiliationTone;
   };
   state?: string;
+  bond?: CharacterArchiveBond;
+  statusChips?: CharacterArchiveStatusChip[];
+  pact?: CharacterArchivePact;
   fields?: CharacterArchiveField[];
   stats?: CharacterArchiveStat[];
   traits?: CharacterArchiveTrait[];
@@ -58,7 +87,6 @@ export interface CharacterArchiveStatus {
   traitsTitle?: string;
   recordTitle?: string;
   record?: string;
-  quote?: string;
 }
 
 /** Serializable content contract consumed by the character archive UI. */

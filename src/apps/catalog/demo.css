@@ -4,6 +4,13 @@ html { min-width: 320px; scroll-behavior: smooth; background: #0e1313; }
 body { min-width: 320px; min-height: 100vh; margin: 0; }
 button, input { font: inherit; }
 
+.demo-logo-preview {
+  width: min(100%, 640px);
+  margin: 0 auto;
+  border: 1px solid #404848;
+  box-shadow: 0 18px 42px rgb(0 0 0 / 28%);
+}
+
 .demo-app {
   min-height: 100vh;
   color: var(--abyssa-text);

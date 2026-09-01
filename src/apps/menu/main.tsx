@@ -8,7 +8,6 @@ import "../../shared/ui/styles/components.css";
    dialogue.css 提供 RpgDialogue 的 autoHeight 画框。 */
 import "../../shared/ui/styles/dialogue.css";
 import "../../shared/stage/stage.css";
-import "../../shared/transition/transition.css";
 import "./menu.css";
 
 createRoot(document.getElementById("root")!).render(

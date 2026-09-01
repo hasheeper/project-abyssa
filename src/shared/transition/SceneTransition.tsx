@@ -1,5 +1,7 @@
 import type { SceneTransitionCopy, SceneTransitionPhase } from "./types";
 import { RpgFrame } from "../ui/primitives/RpgFrame";
+/* 样式与实际渲染组件共置，确保任何消费路径都会自动带上同一套公共样式。 */
+import "./transition.css";
 
 export interface SceneTransitionProps extends SceneTransitionCopy {
   phase: SceneTransitionPhase;
@@ -38,10 +40,10 @@ export function SceneTransition({
             padding="none"
             ornamented
             watermark={{
-              size: 34,
+              size: 38,
               outerOpacity: 0.38,
               innerOpacity: 0.2,
-              innerInset: 8
+              innerInset: 9
             }}
           >
             <div className="scene-transition__plaque-body">

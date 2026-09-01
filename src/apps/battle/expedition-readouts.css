@@ -1,0 +1,671 @@
+
+/* Match Dice/TableStatus: the sidebar is the same dark-wood table surface,
+   and its two readouts inherit the exact phase/pot plaque construction. */
+.abyssa-expedition-sidebar {
+  padding: 12px 13px 20px;
+  border: 1px solid #090603;
+  background:
+    linear-gradient(180deg, rgb(227 190 116 / 8%), transparent 28%, rgb(0 0 0 / 38%)),
+    repeating-linear-gradient(2deg, transparent 0 8px, rgb(255 224 165 / 1.5%) 9px, transparent 11px),
+    #24170b;
+  box-shadow:
+    0 0 0 2px #4a321a,
+    0 0 0 4px #080503,
+    inset 0 0 14px rgb(0 0 0 / 84%);
+}
+
+.abyssa-expedition-sidebar::before {
+  inset: 5px;
+  border: 1px solid #56391d;
+  background:
+    radial-gradient(ellipse at 50% 48%, rgb(166 111 53 / 15%), transparent 49%),
+    linear-gradient(90deg, rgb(0 0 0 / 18%), transparent 18% 82%, rgb(0 0 0 / 24%)),
+    repeating-linear-gradient(2deg, transparent 0 7px, rgb(236 190 119 / 2.8%) 8px, transparent 10px),
+    repeating-linear-gradient(89deg, transparent 0 71px, rgb(5 2 1 / 18%) 72px 73px, transparent 74px),
+    #1b1108;
+  box-shadow:
+    inset 0 0 0 1px rgb(224 178 102 / 6%),
+    inset 0 0 34px rgb(0 0 0 / 82%),
+    inset 0 8px 14px rgb(0 0 0 / 42%),
+    inset 0 -5px 11px rgb(90 53 19 / 10%);
+  clip-path: polygon(12px 0, calc(100% - 12px) 0, 100% 12px, 100% calc(100% - 12px), calc(100% - 12px) 100%, 12px 100%, 0 calc(100% - 12px), 0 12px);
+}
+
+.abyssa-expedition-sidebar__header {
+  height: 36px;
+  padding: 6px 10px 4px;
+  border: 0;
+  background: none;
+  box-shadow: none;
+  clip-path: none;
+}
+
+.abyssa-expedition-sidebar__header span { color: #9d8b6b; font-size: 12px; }
+.abyssa-expedition-sidebar__header small { color: #6f624e; }
+
+.abyssa-expedition-multiplier,
+.abyssa-expedition-purse {
+  border: 1px solid #090603;
+  background:
+    linear-gradient(180deg, rgb(255 225 175 / 6%), transparent 27%, rgb(0 0 0 / 34%)),
+    repeating-linear-gradient(2deg, transparent 0 7px, rgb(255 225 175 / 1.8%) 8px, transparent 10px),
+    #24180d;
+  box-shadow:
+    0 0 0 1px #72572f,
+    0 0 0 2px #0b0704,
+    inset 0 0 0 1px rgb(209 163 83 / 16%),
+    inset 0 1px rgb(255 231 177 / 8%),
+    inset 0 -5px 8px rgb(0 0 0 / 44%),
+    0 4px 7px rgb(0 0 0 / 38%);
+  clip-path: polygon(5px 0, calc(100% - 5px) 0, 100% 5px, 100% calc(100% - 5px), calc(100% - 5px) 100%, 5px 100%, 0 calc(100% - 5px), 0 5px);
+}
+
+.abyssa-expedition-multiplier {
+  min-height: 148px;
+  margin: 10px 20px 0;
+  padding: 10px 12px 10px;
+  grid-template-rows: auto 1fr auto;
+}
+
+.abyssa-expedition-multiplier::before,
+.abyssa-expedition-multiplier::after { display: none; }
+
+.abyssa-expedition-sidebar__section-title span,
+.abyssa-expedition-purse__heading small,
+.abyssa-expedition-purse__footer span {
+  color: #8c7b63;
+  font-weight: 700;
+  text-shadow: 0 1px 2px #000;
+}
+
+.abyssa-expedition-sidebar__section-title {
+  justify-content: center;
+}
+
+.abyssa-expedition-sidebar__section-title span {
+  color: #a79570;
+  font-size: 9px;
+  letter-spacing: .13em;
+  text-indent: .13em;
+}
+
+.abyssa-expedition-sidebar__section-title i {
+  background: linear-gradient(90deg, transparent, #80663d 18% 82%, transparent);
+  box-shadow: 0 1px rgb(0 0 0 / 48%);
+}
+
+.abyssa-expedition-multiplier__readout strong {
+  color: #d1b77d;
+  font-size: 62px;
+  font-weight: 600;
+  text-shadow:
+    0 1px 0 rgb(255 237 191 / 18%),
+    0 3px 0 #553719,
+    0 4px 5px rgb(0 0 0 / 62%);
+}
+
+.abyssa-expedition-multiplier__readout span {
+  color: #927a50;
+  margin-right: 0;
+  margin-left: 4px;
+  font-size: 31px;
+  text-transform: lowercase;
+}
+
+.abyssa-expedition-multiplier__readout small {
+  align-self: flex-end;
+  margin-bottom: 9px;
+  margin-left: 7px;
+  color: #746e65;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-variant-numeric: lining-nums tabular-nums;
+  font-weight: 600;
+  letter-spacing: .02em;
+  line-height: 1;
+  text-shadow: 0 1px 2px #000;
+}
+
+.abyssa-expedition-multiplier__readout {
+  position: relative;
+  z-index: 1;
+  align-self: center;
+  padding-top: 2px;
+}
+
+.abyssa-expedition-multiplier__readout::before {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: -1;
+  width: 175px;
+  height: 72px;
+  background: radial-gradient(ellipse, rgb(217 151 55 / 16%), transparent 68%);
+  content: "";
+  transform: translate(-50%, -50%);
+}
+
+.abyssa-expedition-multiplier__equation {
+  display: grid;
+  width: 100%;
+  align-self: center;
+  align-items: end;
+  gap: 7px;
+  grid-template-columns: minmax(0, .88fr) auto minmax(0, 1.12fr);
+}
+
+.abyssa-expedition-multiplier__equation div {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+  justify-items: center;
+}
+
+.abyssa-expedition-multiplier__equation small {
+  color: #726653;
+  font-family: var(--font-display);
+  font-size: 6px;
+  font-weight: 700;
+  letter-spacing: .17em;
+  line-height: 1;
+  text-indent: .17em;
+  text-shadow: 0 1px 2px #000;
+}
+
+.abyssa-expedition-multiplier__equation strong {
+  color: #a99b7d;
+  font-family: var(--font-body);
+  font-size: 19px;
+  font-variant-numeric: lining-nums tabular-nums;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1;
+  text-shadow: 0 2px 3px rgb(0 0 0 / 62%);
+}
+
+.abyssa-expedition-multiplier__equation > span {
+  align-self: end;
+  padding-bottom: 1px;
+  color: #9e804c;
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+  text-shadow: 0 2px 3px #000;
+}
+
+.abyssa-expedition-multiplier__equation [data-value="result"] strong {
+  color: #d1b77d;
+  font-size: 24px;
+  text-shadow:
+    0 1px 0 rgb(255 237 191 / 14%),
+    0 2px 0 #4e3217,
+    0 3px 4px rgb(0 0 0 / 58%);
+}
+
+.abyssa-expedition-multiplier__factor {
+  display: flex;
+  align-self: center;
+  align-items: baseline;
+  justify-content: center;
+  filter: drop-shadow(0 3px 3px rgb(0 0 0 / 54%));
+}
+
+.abyssa-expedition-multiplier__factor span {
+  margin-right: 3px;
+  color: #91774d;
+  font-family: var(--font-display);
+  font-size: 23px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.abyssa-expedition-multiplier__factor strong {
+  color: #d1b77d;
+  font-family: var(--font-display);
+  font-size: 49px;
+  font-weight: 600;
+  letter-spacing: -.035em;
+  line-height: .9;
+  text-shadow:
+    0 1px 0 rgb(255 237 191 / 16%),
+    0 3px 0 #503318,
+    0 4px 4px rgb(0 0 0 / 52%);
+}
+
+/* 倍率拆解：牌型 × 层基础倍率，说明这个数字是怎么来的 */
+.abyssa-expedition-multiplier__breakdown {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 3px;
+  color: #8d7a56;
+  font-family: var(--font-display);
+  font-size: 9px;
+  letter-spacing: .06em;
+}
+
+.abyssa-expedition-multiplier__breakdown i {
+  color: #61503a;
+  font-style: normal;
+}
+
+.abyssa-expedition-multiplier__amounts {
+  display: grid;
+  width: 100%;
+  padding-top: 8px;
+  align-items: end;
+  gap: 7px;
+  border-top: 1px solid rgb(128 102 61 / 32%);
+  grid-template-columns: 1fr auto 1fr;
+}
+
+.abyssa-expedition-multiplier__amounts div {
+  display: flex;
+  min-width: 0;
+  align-items: baseline;
+  gap: 5px;
+}
+
+.abyssa-expedition-multiplier__amounts [data-value="result"] { justify-content: flex-end; }
+
+.abyssa-expedition-multiplier__amounts strong {
+  color: #a99b7d;
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-variant-numeric: lining-nums tabular-nums;
+  font-weight: 700;
+  line-height: 1;
+  text-shadow: 0 2px 3px rgb(0 0 0 / 60%);
+}
+
+.abyssa-expedition-multiplier__amounts [data-value="result"] strong {
+  color: #c7ad76;
+  font-size: 18px;
+}
+
+.abyssa-expedition-multiplier__amounts > i {
+  color: #705b39;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-style: normal;
+  line-height: 1;
+}
+
+/* 最后一只怪物倒下后的短暂结算预览：只提高刻边与文字对比，避免雾状泛光。 */
+.abyssa-expedition-multiplier[data-finalizing] {
+  box-shadow:
+    0 0 0 1px #95713a,
+    0 0 0 2px #0b0704,
+    inset 0 0 0 1px rgb(224 181 100 / 22%),
+    inset 0 1px rgb(255 235 190 / 11%),
+    inset 0 -5px 8px rgb(0 0 0 / 44%),
+    0 4px 7px rgb(0 0 0 / 38%);
+}
+
+.abyssa-expedition-multiplier[data-finalizing] .abyssa-expedition-sidebar__section-title span,
+.abyssa-expedition-multiplier[data-finalizing] .abyssa-expedition-multiplier__amounts [data-value="result"] strong {
+  color: #e0c17c;
+}
+
+.abyssa-expedition-multiplier__meter {
+  position: relative;
+  width: 100%;
+  height: 22px;
+  padding: 4px;
+  border: 1px solid #090603;
+  background:
+    linear-gradient(180deg, rgb(255 229 170 / 5%), transparent 45%),
+    #160e08;
+  box-shadow:
+    0 0 0 1px #5e4323,
+    inset 0 2px 4px rgb(0 0 0 / 64%),
+    0 2px 3px rgb(0 0 0 / 34%);
+  clip-path: polygon(3px 0, calc(100% - 3px) 0, 100% 3px, 100% calc(100% - 3px), calc(100% - 3px) 100%, 3px 100%, 0 calc(100% - 3px), 0 3px);
+  justify-self: stretch;
+}
+
+.abyssa-expedition-multiplier__meter > span {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  background: #21140a;
+  box-shadow: inset 0 2px 3px rgb(0 0 0 / 58%);
+}
+
+.abyssa-expedition-multiplier__meter i {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 72%;
+  border-right: 1px solid #fff2b4;
+  background:
+    linear-gradient(180deg, rgb(255 246 196 / 48%), transparent 36%),
+    linear-gradient(90deg, #a96d1f, #d8952f 58%, #f1c461);
+  box-shadow: inset 0 -3px 4px rgb(112 53 7 / 42%), 0 0 7px rgb(227 160 61 / 34%);
+}
+
+.abyssa-expedition-multiplier__meter b {
+  position: absolute;
+  top: -5px;
+  bottom: -5px;
+  left: 72%;
+  width: 2px;
+  background: #f4d58a;
+  box-shadow: 0 0 5px rgb(255 211 105 / 62%);
+  transform: translateX(-50%);
+}
+
+.abyssa-expedition-multiplier__ticks {
+  width: min(70%, 76px);
+  height: 1px;
+  border: 0;
+  background: linear-gradient(90deg, transparent, #80663d 18% 82%, transparent);
+  box-shadow: 0 1px rgb(0 0 0 / 48%);
+}
+
+.abyssa-expedition-multiplier__ticks i { display: none; }
+
+.abyssa-expedition-sidebar__divider { height: 16px; }
+
+.abyssa-expedition-purse {
+  margin: 0 12px;
+  padding: 10px 12px 11px;
+}
+
+.abyssa-expedition-purse__coin {
+  width: 28px;
+  height: 28px;
+  color: #a68a4c;
+}
+
+.abyssa-expedition-purse__heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.abyssa-expedition-purse__heading strong {
+  color: #ad9c7d;
+  font-family: var(--font-display);
+  font-size: 12px;
+  letter-spacing: .12em;
+}
+
+.abyssa-expedition-purse__heading small {
+  font-size: 7px;
+  letter-spacing: .14em;
+}
+
+.abyssa-expedition-purse__divider {
+  display: block;
+  width: 100%;
+  height: 1px;
+  margin: 6px 0 8px;
+  background: linear-gradient(90deg, transparent, #80663d 12% 88%, transparent);
+  box-shadow: 0 1px rgb(0 0 0 / 48%);
+}
+
+.abyssa-expedition-purse__amount {
+  display: flex;
+  min-height: 42px;
+  align-items: center;
+  justify-content: center;
+  gap: 11px;
+}
+
+.abyssa-expedition-purse__currency {
+  display: flex;
+  min-width: 0;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.abyssa-expedition-purse__currency .abyssa-currency-amount {
+  gap: 7px;
+  color: #c8b487;
+  font-family: var(--font-body);
+  font-size: 31px;
+  font-variant-numeric: lining-nums tabular-nums;
+  font-weight: 800;
+  letter-spacing: .015em;
+  line-height: 1;
+  text-shadow:
+    0 1px 0 rgb(255 239 202 / 14%),
+    0 2px 0 #4f351d,
+    0 3px 4px rgb(0 0 0 / 58%);
+}
+
+.abyssa-expedition-purse__currency[data-kind="gold"] .abyssa-currency-amount > i {
+  width: 16px;
+  height: 16px;
+}
+
+.abyssa-expedition-purse__currency[data-kind="gold"] .abyssa-currency-amount > i [data-part="ring"] { inset: 3px; }
+.abyssa-expedition-purse__currency[data-kind="gold"] .abyssa-currency-amount > i [data-part="mark"] { width: 5px; height: 5px; }
+
+.abyssa-expedition-purse__currency[data-kind="crystal"] .abyssa-currency-amount {
+  gap: 7px;
+  color: #ad91ca;
+  font-size: 24px;
+  font-weight: 700;
+  text-shadow: 0 2px 3px rgb(0 0 0 / 64%);
+}
+
+.abyssa-expedition-purse__currency[data-kind="crystal"] .abyssa-currency-amount > i {
+  width: 11px;
+  height: 11px;
+  box-shadow: 0 0 5px rgb(160 93 220 / 38%);
+}
+
+.abyssa-expedition-purse__currency-divider {
+  width: 1px;
+  height: 29px;
+  background: linear-gradient(transparent, #5d472c, transparent);
+  flex: none;
+}
+
+.abyssa-expedition-loot {
+  position: relative;
+  height: 160px;
+  margin-top: 10px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  border: 1px solid rgb(117 88 50 / 25%);
+  background:
+    linear-gradient(90deg, rgb(0 0 0 / 15%), transparent 18% 82%, rgb(0 0 0 / 18%)),
+    repeating-linear-gradient(2deg, transparent 0 7px, rgb(236 190 119 / 1.5%) 8px, transparent 10px),
+    rgb(23 16 8 / 62%);
+  box-shadow:
+    inset 0 5px 9px rgb(0 0 0 / 24%),
+    inset 0 -4px 8px rgb(0 0 0 / 18%);
+  scrollbar-color: #72572f #130c07;
+  scrollbar-width: thin;
+}
+
+.abyssa-expedition-loot::-webkit-scrollbar { width: 6px; }
+.abyssa-expedition-loot::-webkit-scrollbar-track { background: #130c07; }
+.abyssa-expedition-loot::-webkit-scrollbar-thumb {
+  border: 1px solid #2a1b0d;
+  background: #72572f;
+  box-shadow: inset 0 0 0 1px rgb(226 183 104 / 14%);
+}
+
+.abyssa-expedition-loot:focus-visible {
+  outline: 1px solid #9a7a45;
+  outline-offset: 2px;
+}
+
+.abyssa-expedition-loot__list {
+  display: grid;
+  padding: 5px;
+  gap: 4px;
+}
+
+.abyssa-expedition-loot__item {
+  display: grid;
+  min-height: 37px;
+  padding: 5px 9px 5px 7px;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid rgb(104 76 40 / 28%);
+  background:
+    linear-gradient(180deg, rgb(255 230 177 / 3%), transparent 42%),
+    rgb(46 29 14 / 26%);
+  grid-template-columns: 25px minmax(0, 1fr) auto;
+}
+
+.abyssa-expedition-loot__item > i {
+  display: block;
+  width: 22px;
+  height: 22px;
+  color: #9f8964;
+  background: currentColor;
+  filter: drop-shadow(0 1px 1px #000);
+  mask-position: center;
+  mask-repeat: no-repeat;
+  mask-size: contain;
+}
+
+.abyssa-expedition-loot__item > i[data-icon="ore"] { mask-image: url("../../assets/svg/items/game-icons/ore.svg"); }
+.abyssa-expedition-loot__item > i[data-icon="crystal"] { color: #9380a9; mask-image: url("../../assets/svg/items/game-icons/crystal-cluster.svg"); }
+.abyssa-expedition-loot__item > i[data-icon="herbs"] { color: #78856a; mask-image: url("../../assets/svg/items/game-icons/herbs-bundle.svg"); }
+.abyssa-expedition-loot__item > i[data-icon="scroll"] { mask-image: url("../../assets/svg/items/game-icons/tied-scroll.svg"); }
+.abyssa-expedition-loot__item > i[data-icon="fang"] { color: #a0957e; mask-image: url("../../assets/svg/items/game-icons/pretty-fangs.svg"); }
+.abyssa-expedition-loot__item > i[data-icon="dust"] { color: #aa8b4c; mask-image: url("../../assets/svg/items/game-icons/pollen-dust.svg"); }
+
+.abyssa-expedition-loot__item > span {
+  overflow: hidden;
+  color: #a99a80;
+  font-family: var(--font-display);
+  font-size: 9px;
+  letter-spacing: .08em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.abyssa-expedition-loot__item > strong {
+  color: #bba676;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.abyssa-expedition-battle-log {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  min-height: 0;
+  margin: 12px 20px 0;
+  overflow: hidden;
+  flex: 1 1 auto;
+  flex-direction: column;
+  border: 0;
+  border-top: 1px solid rgb(111 83 47 / 38%);
+  background: rgb(12 8 5 / 26%);
+}
+
+.abyssa-expedition-battle-log header {
+  height: 30px;
+  padding: 9px 3px 8px;
+  color: #8f8068;
+  font-family: var(--font-display);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .18em;
+  line-height: 1;
+  text-indent: .18em;
+}
+
+.abyssa-expedition-battle-log ol {
+  min-height: 0;
+  padding: 0 2px 8px;
+  margin: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  flex: 1 1 auto;
+  border-top: 1px solid rgb(111 83 47 / 24%);
+  list-style: none;
+  scrollbar-color: #594326 transparent;
+  scrollbar-width: thin;
+}
+
+.abyssa-expedition-battle-log li {
+  display: grid;
+  min-height: 38px;
+  padding: 8px 3px 7px;
+  align-items: center;
+  gap: 7px;
+  border-bottom: 1px solid rgb(111 83 47 / 18%);
+  grid-template-columns: 22px minmax(0, 1fr);
+}
+
+.abyssa-expedition-battle-log time {
+  color: #756750;
+  font-family: var(--font-display);
+  font-size: 9.5px;
+  letter-spacing: .06em;
+}
+
+.abyssa-expedition-battle-log li span {
+  overflow: hidden;
+  color: #aaa08f;
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.3;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.abyssa-expedition-battle-log li b {
+  color: #b8aa8f;
+  font-weight: 700;
+}
+
+.abyssa-expedition-battle-log li b[data-tone="steel"] { color: #8eaabd; }
+.abyssa-expedition-battle-log li b[data-tone="ochre"] { color: #c59a5e; }
+.abyssa-expedition-battle-log li b[data-tone="verdant"] { color: #91a984; }
+.abyssa-expedition-battle-log li b[data-tone="violet"] { color: #a697bc; }
+.abyssa-expedition-battle-log li b[data-tone="crimson"] { color: #bd7d75; }
+.abyssa-expedition-battle-log li b[data-tone="enemy"] { color: #b56e69; }
+.abyssa-expedition-battle-log li b[data-tone="loot"] { color: #9b8bb1; }
+.abyssa-expedition-battle-log li b[data-tone="value"] { color: #c2a969; }
+.abyssa-expedition-battle-log li b[data-tone="system"] { color: #9a8d77; }
+
+.abyssa-expedition-odometer {
+  --odometer-digit-h: 55px;
+  height: 74px;
+  margin-top: 13px;
+  padding: 9px 17px;
+  border: 1px solid #090603;
+  background:
+    linear-gradient(180deg, rgb(255 225 175 / 5%), transparent 24%, rgb(0 0 0 / 35%)),
+    repeating-linear-gradient(2deg, transparent 0 7px, rgb(255 225 175 / 1.6%) 8px, transparent 10px),
+    #21150b;
+  box-shadow:
+    0 0 0 1px #634924,
+    0 0 0 2px #0b0704,
+    inset 0 1px rgb(255 231 177 / 7%),
+    inset 0 -5px 8px rgb(0 0 0 / 46%),
+    0 3px 6px rgb(0 0 0 / 34%);
+}
+
+.abyssa-expedition-odometer::before {
+  inset: 8px 14px;
+  border: 1px solid #090603;
+  background: #130d08;
+  box-shadow: inset 0 8px 11px #000, inset 0 -8px 11px #000, 0 0 0 1px rgb(154 119 64 / 42%);
+}
+
+.abyssa-expedition-odometer__reel {
+  height: 54px;
+  border-inline-color: #4c3a23;
+  background: radial-gradient(ellipse at 50% 50%, #342719 0 30%, #17100a 72%);
+}
+
+/* 行高统一由 --odometer-digit-h 驱动，此处无需重复声明 */

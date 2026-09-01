@@ -1,0 +1,467 @@
+
+/* ============ 房间抽屉 ============
+   自然画幅的固定卡片,**不拉伸**:高度由内容决定。
+   原先是 top:102 + bottom:22 双边钉死,等于把卡片抻成满高 —— 内容少的房间
+   (如封印之门只有两段字)会拉出大片空白,内容多的又和现在一样滚动。
+   现在纵向居中、只给上限,卡片按内容自然收缩。
+
+   上限与位置不是拍的,是算出来的可用竖带。相位栏移到顶部中央后,右下腾空,
+   抽屉的竖带只被右上资源铭牌挡住:
+     铭牌底 = top24 + 牌面111 = 135(库存键改成圆章后挂在铭牌**左侧**,
+       竖向居中于牌面之内,不再往下堆高度;它仍是牌面之外的兄弟节点,
+       测试 MansionPage.test.tsx 断言了这一点)
+     留 14 间隙 -> 安全带 149..876(下缘留 24 边距)
+     带中心 = 512,带高 = 727
+   故抽屉居中于 522 并以 620 为上限 —— 既不碰铭牌,也把右下腾出的空间用上。
+   若日后改动铭牌或库存键高度,必须重算这两个值。
+
+   注:上一版此处写「牌面173 … 库存已收进牌内,不再外挂」,与代码不符 ——
+   MansionLedger 的 H 是 111,且库存键始终外挂。已按实测更正。 */
+.mansion-room-drawer {
+  /* 安全带 188..876(高 688)。留 24 余量 -> 上限 664。 */
+  --mansion-drawer-max-h: 664px;
+  --mansion-drawer-enter-x: 16px;
+  position: absolute;
+  z-index: 500;
+  top: 532px;
+  /* 410 太窄:8px 的标签、11px 的正文都是被宽度逼出来的。加到 468 后
+     字号才能提到可读区间(标签 10.5 / 正文 12.5),且不会挤压驻在头像。 */
+  width: 468px;
+  max-height: var(--mansion-drawer-max-h);
+  transform: translateY(-50%);
+  filter: drop-shadow(0 20px 34px rgb(0 0 0 / 46%));
+  animation: mansion-room-card-in 300ms cubic-bezier(.16, .84, .3, 1) both;
+}
+.mansion-room-drawer[data-side="right"] { right: 24px; left: auto; }
+.mansion-room-drawer[data-side="left"] {
+  --mansion-drawer-enter-x: -16px;
+  right: auto;
+  left: 24px;
+}
+.mansion-room-card {
+  --abyssa-frame-surface: rgb(19 26 27 / 97%);
+  max-height: var(--mansion-drawer-max-h);
+  background: rgb(10 15 16 / 98%);
+}
+.mansion-room-card[data-padding="md"] > .abyssa-frame__content {
+  /* ---- 字号阶梯(唯一来源) ----
+     原先是 7/8/9/11/24 的散值,7px 在缩放后几乎不可读,那是"网页小字"惯性。
+     现在收成四档,最小 10.5 —— 画布会整体缩放,10.5 已是下限。 */
+  --room-label: 10.5px;   /* 分区标签:房间职能 / 生活痕迹 / 当前驻在 */
+  --room-body: 12.5px;    /* 正文 */
+  --room-meta: 11px;      /* 次要信息 */
+  --room-title: 26px;     /* 房间名 */
+  display: flex;
+  max-height: var(--mansion-drawer-max-h);
+  flex-direction: column;
+  /* 固定画布还会整体缩放；这里必须给足设计尺寸，不能被 Frame 的
+     data-padding 规则覆盖成 0，否则视觉上内容会直接贴到装饰边框。 */
+  padding: 30px 30px 28px;
+  gap: 0;
+  overflow: auto;
+}
+/* 关闭键骑在卡片右上角**外沿**,不内嵌。
+   原先是 top/right: 8px 的板内内嵌,并把 IconButton 从 66px 硬压到 27px ——
+   两个问题:内嵌会顶占标题行、与标题抢基线;而 27px 让那套按 86/76/66 画的
+   三层描边(9/5/2)糊成一团。现在改令牌降一号,SVG 等比重绘,描边保持锐利。
+   卡片自身不能 overflow:hidden,否则负偏移会被裁掉(见 __close 的 z-index)。 */
+.mansion-room-card__close.abyssa-icon-button[data-size] {
+  position: absolute;
+  z-index: 6;
+  top: -22px;
+  right: -22px;
+  --abyssa-icon-size: 56px;
+}
+.mansion-room-card__hero {
+  display: grid;
+  grid-template-columns: 168px minmax(0, 1fr);
+  align-items: stretch;
+  gap: 16px;
+  padding: 0 22px 16px 0;
+  border-bottom: 1px solid rgb(113 137 136 / 42%);
+}
+.mansion-room-card__preview {
+  position: relative;
+  width: 168px;
+  height: 106px;
+  overflow: hidden;
+  border: 1px solid #687878;
+  background: #080d0e;
+  box-shadow: 0 0 0 2px #11191a, 0 0 0 3px rgb(116 145 143 / 38%), inset 0 0 18px #020505;
+}
+.mansion-room-card__preview::before {
+  position: absolute;
+  z-index: 2;
+  inset: 4px;
+  border: 1px solid rgb(196 213 206 / 26%);
+  content: "";
+  pointer-events: none;
+}
+.mansion-room-card__preview::after {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  background: linear-gradient(180deg, rgb(5 10 11 / 5%) 42%, rgb(5 10 11 / 68%));
+  box-shadow: inset 0 0 20px rgb(1 4 5 / 48%);
+  content: "";
+  pointer-events: none;
+}
+.mansion-room-card__preview > img {
+  position: absolute;
+  max-width: none;
+  filter: var(--mansion-grade);
+  pointer-events: none;
+}
+.mansion-room-card__preview > span {
+  position: absolute;
+  z-index: 3;
+  right: 8px;
+  bottom: 6px;
+  color: rgb(221 228 218 / 62%);
+  font: 600 8.5px/1 var(--abyssa-font-display, Georgia, serif);
+  letter-spacing: .2em;
+}
+.mansion-room-card__identity { min-width: 0; padding-top: 4px; }
+.mansion-room-card__identity > small {
+  display: block;
+  overflow: hidden;
+  color: #829a9b;
+  font: 600 var(--room-label, 10.5px)/1.25 var(--abyssa-font-display, Georgia, serif);
+  letter-spacing: .17em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.mansion-room-card__identity h2 {
+  margin: 8px 0 0;
+  overflow: hidden;
+  color: #eee3c7;
+  font-size: var(--room-title, 26px);
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.mansion-room-card__residents { display: flex; align-items: center; gap: 10px; margin-top: 12px; }
+.mansion-room-card__residents > span { color: #8b9c9c; font-size: var(--room-label, 10.5px); letter-spacing: .13em; white-space: nowrap; }
+.mansion-room-card__resident-list { display: flex; align-items: center; min-height: 34px; padding-left: 3px; }
+.mansion-room-card__resident-avatar {
+  position: relative;
+  display: block;
+  width: 34px;
+  height: 34px;
+  flex: none;
+  overflow: hidden;
+  border-radius: 50%;
+  background: #151c1d;
+  box-shadow: 0 0 0 2px #263132, 0 0 0 3px #a39467, 0 3px 8px rgb(0 0 0 / 48%);
+}
+.mansion-room-card__resident-avatar + .mansion-room-card__resident-avatar { margin-left: -7px; }
+.mansion-room-card__resident-avatar img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 12%; }
+.mansion-room-card__resident-placeholder { display: grid; width: 100%; height: 100%; place-items: center; }
+.mansion-room-card__resident-placeholder svg { width: 24px; height: 24px; fill: rgb(139 156 154 / 18%); stroke: #879796; stroke-width: 1.5; }
+.mansion-room-card__resident-empty { color: #667676; font-size: 9px; letter-spacing: .08em; }
+.mansion-room-card__brief { margin-top: 18px; }
+/* 分区标签:统一 10.5,并加一条短横当分节符,替代原先靠字号差硬撑的层级。 */
+.mansion-room-card__brief > small,
+.mansion-room-card__trace > small {
+  color: #b9a271;
+  font-family: var(--abyssa-font-display, Georgia, serif);
+  font-size: var(--room-label, 10.5px);
+  font-weight: 600;
+  letter-spacing: .2em;
+}
+.mansion-room-card__description { margin: 8px 0 0; color: #cdd5cf; font-size: var(--room-body, 12.5px); line-height: 1.85; }
+.mansion-room-card__warning,
+.mansion-room-card__provisional { margin-top: 16px; padding: 9px 12px; border: 1px solid #86515a; color: #e8b5ba; background: rgb(104 35 46 / 16%); font-size: var(--room-meta, 11px); letter-spacing: .08em; line-height: 1.5; }
+.mansion-room-card__provisional { border-color: #837358; color: #d2c19c; background: rgb(104 86 48 / 14%); }
+.mansion-room-card__trace { margin-top: 16px; padding: 13px 15px; border: 1px solid #354345; background: rgb(6 11 12 / 52%); box-shadow: inset 3px 0 #7b6d47; }
+.mansion-room-card__trace > small { display: flex; align-items: center; gap: 7px; }
+.mansion-room-card__trace > small i { width: 6px; height: 6px; border: 1px solid #baa46d; background: #4d452f; transform: rotate(45deg); }
+.mansion-room-card__trace p { margin: 8px 0 0; color: #b8c2be; font-size: var(--room-meta, 11px); font-style: italic; line-height: 1.78; }
+/* ============ 设施档位 ============
+   四格离散刻度,固定在卡片最底部(收取项之上、修缮键之上)。
+   原先是通用 Progress + `level*25` 折算的百分比 —— 档位是 1..4 的序数,
+   不是完成度;而且 7px 高的圆角细条 + "25%" 文本是典型网页 meter 观感。
+   刻面做法与顶部相位刻度同源:斜面高光 + 内陷槽,点亮到当前档。 */
+.mansion-room-card__tier {
+  display: grid;
+  align-items: center;
+  margin-top: 18px;
+  padding: 11px 13px;
+  border: 1px solid rgb(126 150 145 / 22%);
+  background: linear-gradient(180deg, rgb(255 255 255 / 3%), rgb(0 0 0 / 16%));
+  box-shadow: inset 0 1px rgb(255 255 255 / 7%), inset 0 -1px rgb(0 0 0 / 34%);
+  gap: 9px 12px;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+}
+/* 第二行(修缮进度)与第一行(档位)共用同一套三栏,标签因此天然对齐。 */
+.mansion-room-card__tier-label {
+  color: #b9a271;
+  font-family: var(--abyssa-font-display, Georgia, serif);
+  font-size: var(--room-label, 10.5px);
+  font-weight: 600;
+  letter-spacing: .2em;
+  white-space: nowrap;
+}
+/* 刻面直接并排,**不套外层凹槽**。
+   上一版是 13px 高的槽 + 2px padding,里面塞 7px 高的刻面 —— 于是看起来像
+   "一条大进度条里又嵌了一条小的",实测外 13 内 7。档位只有一个量,不该出现
+   两层条。现在每格自带凹陷底,靠 gap 分段,只有一层。 */
+.mansion-room-card__tier-track {
+  display: grid;
+  height: 14px;
+  gap: 4px;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+}
+.mansion-room-card__tier-track i {
+  display: block;
+  border: 1px solid rgb(6 11 12 / 72%);
+  background: rgb(255 255 255 / 4%);
+  box-shadow: inset 0 1px 2px rgb(0 0 0 / 52%);
+}
+/* 点亮档:暖金渐变 + 上缘高光,与修缮键的金属色系一致。 */
+.mansion-room-card__tier-track i[data-on] {
+  border-color: #6d5c2e;
+  background: linear-gradient(180deg, #d8c78d 0%, #b39a5c 44%, #8a743c 100%);
+  box-shadow:
+    inset 0 1px rgb(255 245 210 / 62%),
+    inset 0 -1px rgb(74 58 24 / 72%),
+    0 0 5px rgb(190 163 96 / 30%);
+}
+.mansion-room-card__tier-value {
+  display: flex;
+  align-items: baseline;
+  color: #8d9b96;
+  font-family: var(--abyssa-font-display, Georgia, serif);
+  font-size: 9.5px;
+  letter-spacing: .14em;
+  gap: 3px;
+  white-space: nowrap;
+}
+.mansion-room-card__tier-value em {
+  color: #7e8c88;
+  font-size: 9.5px;
+  font-style: normal;
+  letter-spacing: .14em;
+}
+.mansion-room-card__tier-value b {
+  color: #ecd9a4;
+  font-size: 16px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+/* 「/4」压低压淡:它是上限参照,不该和当前档抢读。 */
+.mansion-room-card__tier-value s {
+  color: #6d7a76;
+  font-size: 10px;
+  letter-spacing: 0;
+  text-decoration: none;
+}
+
+/* ---- 第二行:修缮进度 ---- */
+/* 视觉上比档位行**轻一档**:标签变冷色、刻面更矮、点亮色改青灰。
+   两行必须能一眼分清是两个量,否则又变成「大条下面套小条」。 */
+.mansion-room-card__tier-label[data-sub] {
+  color: #7f9490;
+  font-size: 9.5px;
+  letter-spacing: .18em;
+}
+.mansion-room-card__tier-track[data-sub] { height: 9px; }
+.mansion-room-card__tier-track[data-sub] i[data-on] {
+  border-color: #3d5b58;
+  background: linear-gradient(180deg, #9fc8bd 0%, #6f9e95 46%, #4c7570 100%);
+  box-shadow:
+    inset 0 1px rgb(224 245 240 / 52%),
+    inset 0 -1px rgb(28 48 46 / 68%),
+    0 0 4px rgb(120 186 176 / 26%);
+}
+/* 正在施工的那一格:呼吸,表示「这格还没到手」。 */
+.mansion-room-card__tier-track[data-sub] i[data-busy] {
+  background: linear-gradient(180deg, rgb(159 200 189 / 34%), rgb(76 117 112 / 34%));
+  animation: mansion-repair-pulse 1.5s ease-in-out infinite;
+}
+@keyframes mansion-repair-pulse {
+  0%, 100% { opacity: .4; }
+  50% { opacity: .92; }
+}
+.mansion-room-card__tier-value[data-sub] { font-size: 9px; }
+.mansion-room-card__tier-value[data-sub] b { color: #b6cfc9; font-size: 12.5px; }
+.mansion-room-card__tier-value[data-sub] s { font-size: 9px; }
+
+/* ============ 升级建筑 ============
+   只在修缮进度满格时出现,取代修缮键的位置。金色系、比修缮键更亮 ——
+   它是阶段性成果的兑现,应当显眼。 */
+.mansion-room-card__promote {
+  position: relative;
+  display: grid;
+  min-width: 178px;
+  height: 44px;
+  align-items: center;
+  padding: 3px 12px 3px 6px;
+  border: 1px solid #c2a45c;
+  clip-path: polygon(7px 0, calc(100% - 7px) 0, 100% 7px, 100% calc(100% - 7px), calc(100% - 7px) 100%, 7px 100%, 0 calc(100% - 7px), 0 7px);
+  color: #fdf3d6;
+  background: linear-gradient(180deg, #6a5526 0%, #5a4720 26%, #4a3a17 58%, #33280f 100%);
+  box-shadow:
+    inset 0 0 0 2px #211a09,
+    inset 0 0 0 3px rgb(226 197 122 / 52%),
+    0 0 12px rgb(206 172 92 / 28%);
+  cursor: pointer;
+  gap: 8px;
+  grid-template-columns: 28px auto auto;
+  animation: mansion-promote-ready 2.4s ease-in-out infinite;
+}
+@keyframes mansion-promote-ready {
+  0%, 100% { box-shadow: inset 0 0 0 2px #211a09, inset 0 0 0 3px rgb(226 197 122 / 52%), 0 0 10px rgb(206 172 92 / 22%); }
+  50% { box-shadow: inset 0 0 0 2px #211a09, inset 0 0 0 3px rgb(240 214 148 / 68%), 0 0 17px rgb(224 190 110 / 44%); }
+}
+.mansion-room-card__promote-icon { display: grid; width: 28px; height: 28px; place-items: center; }
+.mansion-room-card__promote-icon svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: #f5e3b0;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.2;
+}
+.mansion-room-card__promote strong {
+  font-size: var(--room-body, 12.5px);
+  font-weight: 600;
+  letter-spacing: .12em;
+  white-space: nowrap;
+}
+.mansion-room-card__promote small {
+  color: #d8c48a;
+  font-family: var(--abyssa-font-display, Georgia, serif);
+  font-size: 10px;
+  white-space: nowrap;
+}
+.mansion-room-card__promote:hover { filter: brightness(1.12); }
+.mansion-room-card__promote:focus-visible { outline: 2px solid #f7f0dd; outline-offset: 3px; }
+.mansion-room-card__promote:active { filter: brightness(.95); }
+@media (prefers-reduced-motion: reduce) {
+  .mansion-room-card__promote,
+  .mansion-room-card__tier-track[data-sub] i[data-busy] { animation: none; }
+}
+
+.mansion-room-card__collect {
+  display: grid;
+  width: 100%;
+  height: 40px;
+  align-items: center;
+  padding: 0 10px 0 12px;
+  border: 0;
+  border-left: 2px solid #6f7f5a;
+  background: rgb(255 255 255 / 3%);
+  color: #c1cbc4;
+  cursor: pointer;
+  gap: 11px;
+  grid-template-columns: 20px minmax(0, 1fr) auto auto;
+  text-align: left;
+  transition: background 130ms var(--abyssa-ease, ease), color 130ms var(--abyssa-ease, ease);
+}
+/* 多条收取项时:相邻两行之间一条细线,不留间距,读成一张表。 */
+.mansion-room-card__collect + .mansion-room-card__collect {
+  border-top: 1px solid rgb(126 150 145 / 16%);
+}
+.mansion-room-card__collect-glyph {
+  width: 20px;
+  height: 20px;
+  background: currentColor;
+  mask-position: center;
+  mask-repeat: no-repeat;
+  mask-size: contain;
+  opacity: .82;
+}
+.mansion-room-card__collect-name {
+  overflow: hidden;
+  color: #dbe5dd;
+  font-size: var(--room-body, 12.5px);
+  letter-spacing: .05em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.mansion-room-card__collect-amount {
+  display: flex;
+  align-items: baseline;
+  color: #e2d3a6;
+  font-family: var(--abyssa-font-display, Georgia, serif);
+  font-size: 13.5px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  gap: 1px;
+}
+.mansion-room-card__collect-amount i {
+  color: #93a09a;
+  font-size: 9.5px;
+  font-style: normal;
+}
+/* 状态字:定宽,就绪/已收切换时不引起重排。 */
+.mansion-room-card__collect-state {
+  width: 30px;
+  color: #8b9993;
+  font-family: var(--abyssa-font-display, Georgia, serif);
+  font-size: 10px;
+  letter-spacing: .12em;
+  text-align: right;
+}
+.mansion-room-card__collect[data-ready] { border-left-color: #a8b878; }
+.mansion-room-card__collect[data-ready] .mansion-room-card__collect-state { color: #cfdc9e; }
+.mansion-room-card__collect:hover:not(:disabled) {
+  background: rgb(255 255 255 / 7%);
+  color: #dde6df;
+}
+.mansion-room-card__collect:focus-visible { outline: 2px solid #eef4f1; outline-offset: 2px; }
+.mansion-room-card__collect:disabled {
+  border-left-color: #414c4a;
+  color: #74817d;
+  cursor: default;
+}
+.mansion-room-card__collect:disabled .mansion-room-card__collect-glyph { opacity: .42; }
+.mansion-room-card__collect:disabled .mansion-room-card__collect-amount { color: #8b9490; }
+
+/* 收取区外层:给"本相位产出"一个标签,并容纳未来多条。 */
+.mansion-room-card__harvest { margin-top: 16px; }
+.mansion-room-card__harvest > small {
+  display: block;
+  margin-bottom: 7px;
+  color: #b9a271;
+  font-family: var(--abyssa-font-display, Georgia, serif);
+  font-size: var(--room-label, 10.5px);
+  font-weight: 600;
+  letter-spacing: .2em;
+}
+
+.mansion-room-card__footer { display: flex; align-items: flex-end; justify-content: space-between; gap: 14px; margin-top: auto; padding-top: 16px; border-top: 1px solid rgb(93 111 110 / 38%); }
+.mansion-room-card__fund-note { color: #7d8d8d; font-size: 10px; line-height: 1.65; white-space: nowrap; }
+.mansion-room-card__actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 7px; }
+.mansion-room-card__action.abyssa-notched-pill { width: 158px; height: 42px; }
+.mansion-room-card__repair {
+  position: relative;
+  display: grid;
+  grid-template-columns: 29px auto auto;
+  align-items: center;
+  min-width: 178px;
+  height: 44px;
+  padding: 3px 10px 3px 5px;
+  border: 1px solid #88784f;
+  clip-path: polygon(7px 0, calc(100% - 7px) 0, 100% 7px, 100% calc(100% - 7px), calc(100% - 7px) 100%, 7px 100%, 0 calc(100% - 7px), 0 7px);
+  color: #e7dec8;
+  background: linear-gradient(180deg, #31322a, #171b1a 58%, #101515);
+  box-shadow: inset 0 0 0 2px #111716, inset 0 0 0 3px rgb(166 146 91 / 42%);
+  cursor: pointer;
+  gap: 6px;
+}
+.mansion-room-card__repair::after { position: absolute; inset: 4px; border: 1px solid rgb(206 191 146 / 20%); clip-path: inherit; content: ""; pointer-events: none; }
+.mansion-room-card__repair:hover:not(:disabled) { border-color: #c6ad6a; filter: brightness(1.13) drop-shadow(0 0 5px rgb(190 160 91 / 20%)); }
+.mansion-room-card__repair:focus-visible { outline: 2px solid #f0eadb; outline-offset: 3px; }
+.mansion-room-card__repair:disabled { opacity: .52; cursor: default; }
+.mansion-room-card__repair-icon { width: 29px; height: 29px; }
+.mansion-room-card__repair-icon svg { display: block; width: 100%; height: 100%; }
+.mansion-room-card__repair strong { font-size: var(--room-body, 12.5px); font-weight: 600; letter-spacing: .12em; white-space: nowrap; }
+.mansion-room-card__repair > small { color: #b0bcb7; font-size: var(--room-meta, 11px); white-space: nowrap; }
+.mansion-room-card__repair .abyssa-currency-amount { color: #e0c67f; font-family: var(--abyssa-font-display, Georgia, serif); font-size: 11px; font-weight: 600; gap: 5px; }
+.mansion-room-card__repair .abyssa-currency-amount i { width: 14px; height: 14px; }

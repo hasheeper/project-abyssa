@@ -1,0 +1,121 @@
+<svg width="1045" height="375" viewBox="0 -112 1045 375" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="goldBase" x1="0" y1="42" x2="0" y2="232" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#edc77f"/>
+      <stop offset=".22" stop-color="#dfb266"/>
+      <stop offset=".5" stop-color="#cf9b4d"/>
+      <stop offset=".76" stop-color="#bd8538"/>
+      <stop offset="1" stop-color="#ab702b"/>
+    </linearGradient>
+    <linearGradient id="lineGold" x1="0" y1="152" x2="0" y2="164" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#dfc28c"/>
+      <stop offset=".32" stop-color="#c39a5e"/>
+      <stop offset=".62" stop-color="#b17f45"/>
+      <stop offset="1" stop-color="#c5a069"/>
+    </linearGradient>
+    <linearGradient id="wordmarkLineLeft" x1="37" y1="158" x2="211" y2="158" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#c9a062" stop-opacity=".72"/>
+      <stop offset=".38" stop-color="#b5854a" stop-opacity=".62"/>
+      <stop offset=".72" stop-color="#c19453" stop-opacity=".68"/>
+      <stop offset="1" stop-color="#a06c39" stop-opacity=".58"/>
+    </linearGradient>
+    <linearGradient id="wordmarkLineRight" x1="784" y1="158" x2="958" y2="158" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#a06c39" stop-opacity=".58"/>
+      <stop offset=".28" stop-color="#c19453" stop-opacity=".68"/>
+      <stop offset=".62" stop-color="#b5854a" stop-opacity=".62"/>
+      <stop offset="1" stop-color="#c9a062" stop-opacity=".72"/>
+    </linearGradient>
+    <linearGradient id="wordmarkTipLeft" x1="5" y1="158" x2="19" y2="158" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#a97741" stop-opacity=".1"/>
+      <stop offset=".42" stop-color="#b98b4d" stop-opacity=".38"/>
+      <stop offset="1" stop-color="#c9a263" stop-opacity=".6"/>
+    </linearGradient>
+    <linearGradient id="wordmarkTipRight" x1="976" y1="158" x2="990" y2="158" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#c9a263" stop-opacity=".6"/>
+      <stop offset=".58" stop-color="#b98b4d" stop-opacity=".38"/>
+      <stop offset="1" stop-color="#a97741" stop-opacity=".1"/>
+    </linearGradient>
+    <linearGradient id="hornCore" x1="0" y1="2" x2="0" y2="90" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0c090b" stop-opacity=".96"/>
+      <stop offset=".38" stop-color="#241014" stop-opacity=".94"/>
+      <stop offset=".68" stop-color="#5b151d" stop-opacity=".88"/>
+      <stop offset=".84" stop-color="#7f2926" stop-opacity=".5"/>
+      <stop offset="1" stop-color="#b67b40" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="hornRim" x1="0" y1="2" x2="0" y2="90" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#5a3a24" stop-opacity=".78"/>
+      <stop offset=".46" stop-color="#7c2529" stop-opacity=".82"/>
+      <stop offset=".72" stop-color="#9b3430" stop-opacity=".78"/>
+      <stop offset="1" stop-color="#c08b4d" stop-opacity=".9"/>
+    </linearGradient>
+    <linearGradient id="hornSeam" x1="829" y1="0" x2="853" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#8f3030" stop-opacity=".48"/>
+      <stop offset=".5" stop-color="#d0a15d" stop-opacity=".72"/>
+      <stop offset="1" stop-color="#91312f" stop-opacity=".48"/>
+    </linearGradient>
+    <linearGradient id="hornDiamondGold" x1="0" y1="-108" x2="0" y2="32" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ead09a"/>
+      <stop offset=".42" stop-color="#d8ae6f"/>
+      <stop offset=".74" stop-color="#c48f4a"/>
+      <stop offset="1" stop-color="#dfba78"/>
+    </linearGradient>
+    <filter id="paperGold" x="-2%" y="-2%" width="104%" height="104%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency=".016 .038" numOctaves="2" seed="11" result="noise"/>
+      <feGaussianBlur in="noise" stdDeviation=".45" result="softNoise"/>
+      <feColorMatrix in="softNoise" type="saturate" values="0" result="mono"/>
+      <feComponentTransfer in="mono" result="lowContrast">
+        <feFuncR type="linear" slope=".24" intercept=".38"/>
+        <feFuncG type="linear" slope=".24" intercept=".38"/>
+        <feFuncB type="linear" slope=".24" intercept=".38"/>
+        <feFuncA type="linear" slope=".10"/>
+      </feComponentTransfer>
+      <feComposite in="lowContrast" in2="SourceAlpha" operator="in" result="paper"/>
+      <feBlend in="SourceGraphic" in2="paper" mode="soft-light"/>
+    </filter>
+    <clipPath id="hornClip">
+      <g transform="translate(70 16)"><path d="M725.432 1.84396C718.569 29.7881 719.351 44.069 736.432 64.844C738.834 71.1957 739.841 76.4513 740.932 89.344L759.432 48.844C741.2 42.4857 733.653 32.446 725.432 1.84396ZM783.432 47.344L801.932 89.344C801.932 71.844 804.932 62.844 804.932 62.844C818.918 41.0547 819.703 27.6457 809.932 1.84396C804.796 29.292 798.823 38.9361 783.432 47.344Z"/></g>
+    </clipPath>
+  </defs>
+
+  <g fill="none" stroke-linecap="round">
+    <path d="M37 158H211" stroke="url(#wordmarkLineLeft)" stroke-width="1.3"/>
+    <path d="M784 158H958" stroke="url(#wordmarkLineRight)" stroke-width="1.3"/>
+    <path d="M5 158H19" stroke="url(#wordmarkTipLeft)" stroke-width=".95"/>
+    <path d="M976 158H990" stroke="url(#wordmarkTipRight)" stroke-width=".95"/>
+  </g>
+  <g filter="url(#paperGold)">
+    <path
+      d="M28 152.5C30.7 155.1 34.4 157.4 37 158C34.4 158.6 30.7 160.9 28 163.5C25.3 160.9 21.6 158.6 19 158C21.6 157.4 25.3 155.1 28 152.5ZM967 152.5C969.7 155.1 973.4 157.4 976 158C973.4 158.6 969.7 160.9 967 163.5C964.3 160.9 960.6 158.6 958 158C960.6 157.4 964.3 155.1 967 152.5Z"
+      fill="url(#lineGold)"
+      stroke="#76502d"
+      stroke-opacity=".28"
+      stroke-width=".45"
+    />
+    <path
+      d="M28 155C29.8 156.5 32.1 157.6 33.8 158C32.1 158.4 29.8 159.5 28 161C26.2 159.5 23.9 158.4 22.2 158C23.9 157.6 26.2 156.5 28 155ZM967 155C968.8 156.5 971.1 157.6 972.8 158C971.1 158.4 968.8 159.5 967 161C965.2 159.5 962.9 158.4 961.2 158C962.9 157.6 965.2 156.5 967 155Z"
+      fill="#120d08"
+      fill-opacity=".42"
+      stroke="#ead2a0"
+      stroke-opacity=".25"
+      stroke-width=".45"
+    />
+  </g>
+
+  <g transform="translate(70 16)">
+    <path d="M725.432 1.84396C718.569 29.7881 719.351 44.069 736.432 64.844C738.834 71.1957 739.841 76.4513 740.932 89.344L759.432 48.844C741.2 42.4857 733.653 32.446 725.432 1.84396ZM783.432 47.344L801.932 89.344C801.932 71.844 804.932 62.844 804.932 62.844C818.918 41.0547 819.703 27.6457 809.932 1.84396C804.796 29.292 798.823 38.9361 783.432 47.344Z" fill="url(#goldBase)" stroke="#a8753e" stroke-width=".45" stroke-linejoin="round" filter="url(#paperGold)"/>
+    <path d="M725.432 1.84396C718.569 29.7881 719.351 44.069 736.432 64.844C738.834 71.1957 739.841 76.4513 740.932 89.344L759.432 48.844C741.2 42.4857 733.653 32.446 725.432 1.84396ZM783.432 47.344L801.932 89.344C801.932 71.844 804.932 62.844 804.932 62.844C818.918 41.0547 819.703 27.6457 809.932 1.84396C804.796 29.292 798.823 38.9361 783.432 47.344Z" fill="url(#hornCore)" stroke="url(#hornRim)" stroke-width=".85" stroke-linejoin="round"/>
+    <path d="M764.932 157.322C763.852 154.845 753.975 144.607 750.432 143.344C746.482 141.935 743.432 143.344 742.432 143.844C741.432 144.344 728.932 172.844 728.932 172.844C724.213 185.496 725.26 190.364 734.932 194.344H691.932C703.546 193.425 716.223 163.934 717.932 158.344C717.932 158.344 751.028 80.3364 770.932 31.844L835.432 180.844C839.529 186.898 842.99 189.828 850.932 194.344H802.932C809.795 190.853 811.518 187.899 810.932 180.844C799.259 152.132 795.27 143.34 792.932 141.344C786.394 142.173 781.897 146.434 772.932 158.344V141.344C778.466 135.566 782.032 133.182 789.432 130.844L767.932 79.844L747.932 130.844C755.665 134.162 759.462 136.793 764.932 143.344V157.322ZM764.932 157.322C765.057 157.608 765.064 157.79 764.932 157.844V157.322ZM619.932 40.8439C608.932 41.844 586.871 53.1964 582.932 74.8439C583.473 89.6955 587.268 96.3425 598.932 105.844C602.772 104.333 604.355 103.21 606.432 100.844C608.322 93.7635 610.121 90.4099 614.432 85.3439C609.45 78.1559 607.432 74.344 608.932 65.8439C610.432 57.3439 620.649 50.2405 634.932 50.3439C653.522 50.5197 662.62 57.4597 676.432 82.3439V39.8439C672.923 44.0139 669.432 46.844 666.432 47.8439C663.432 48.8439 647.932 41.5635 639.932 40.8439C631.932 40.1243 630.932 39.8439 619.932 40.8439ZM607.932 110.844C650.114 134.446 661.043 144.039 661.932 158.344C660.239 176.346 647.432 185.344 630.932 186.344C614.432 187.344 594.025 174.794 581.432 148.844V196.844C587.042 190.579 590.432 188.344 595.432 188.344C600.432 188.344 602.178 193.725 630.932 196.844C659.687 199.963 683.442 183.008 687.932 154.344C684.943 137.484 680.932 131.344 671.932 123.344C662.932 115.344 650.652 109.06 634.932 99.844C629.444 102.713 619.432 104.844 619.432 104.844C619.432 104.844 612.518 107.688 607.932 110.844ZM533.432 47.344L533.141 47.2354C519.458 42.1276 515.162 40.5238 496.432 40.344C477.571 40.1629 449.932 54.844 449.932 76.3439C449.932 97.8439 460.952 106.321 496.432 123.844C531.912 141.367 528.621 159.362 528.932 160.844C525.59 181.394 517.484 185.855 496.432 186.344C471.749 183.425 461.886 174.88 449.932 149.844V196.844C456.792 187.094 470.932 195.844 496.432 196.844C521.932 197.844 551.432 183.344 554.432 160.844C557.432 138.344 540.432 123.844 540.432 123.844C524.937 112.545 508.432 103.344 496.432 97.3439C484.432 91.344 479.432 83.8439 476.432 76.3439C473.432 68.844 480.689 52.4694 496.432 49.3439C511.16 48.4023 528.432 59.3439 533.432 64.3439C538.432 69.344 540.375 73.7254 544.432 83.3439V39.3439C539.955 44.3512 537.706 45.6281 533.432 47.344ZM477.932 184.844C476.432 185.344 472.932 188.844 472.932 188.844L479.432 191.844C482.291 189.884 483.497 188.68 484.932 186.344C482.199 185.758 479.432 184.344 477.932 184.844ZM290.432 43.344C299.593 47.0277 304.74 52.3974 313.932 67.344L352.432 128.344V170.844C361.446 200.411 362.553 210.964 353.932 215.844C361.287 215.365 364.17 213 368.432 205.844C370.837 192.424 373.078 185.584 376.932 172.844V128.344L409.432 74.844C420.571 54.1351 426.924 47.345 438.432 43.344H395.432C405.89 48.3186 405.988 53.9633 395.432 69.344L369.432 114.344L337.432 62.344C331.565 52.8337 332.039 48.6517 339.932 43.344H290.432ZM80.9323 32.344L24.9323 167.344C24.9323 167.344 20.979 177.23 16.9323 183.844C10.4857 191.129 7.4938 192.259 1.93225 195.344H44.4323C44.4323 195.344 42.9323 193.844 38.9323 191.844C34.9323 189.844 34.9323 183.844 34.9323 183.844C36.5343 176.69 37.8828 173.109 40.9323 167.344L50.4323 143.844C53.5518 143.219 55.3127 143.217 58.4323 143.844C61.8862 144.906 63.647 145.978 66.4323 148.844L72.9323 156.844V143.844C72.9323 143.844 67.9323 136.844 66.4323 135.844C64.9323 134.844 62.4323 132.844 59.4323 132.344C56.4323 131.844 54.9323 131.844 54.9323 131.844L76.9323 79.344L98.9323 129.344L89.4323 134.844C86.5318 137.648 84.6836 138.88 82.9323 142.344C81.1809 145.807 82.9323 156.844 82.9323 156.844C82.9323 156.844 88.9323 148.844 92.4323 145.844C95.9323 142.844 102.432 138.844 102.432 138.844L119.432 176.844C121.272 180.452 121.634 182.416 121.432 185.844C121.601 188.659 121.19 189.987 119.432 191.844L113.432 195.344H159.932C155.537 193.63 150.815 189.963 147.932 183.844L143.932 176.844L123.432 129.344L80.9323 32.344ZM165.932 43.844C169.194 44.832 170.95 45.6636 172.932 46.844C174.914 48.0243 177.728 50.5261 178.932 53.844V164.344C185.682 171.485 188.71 175.998 192.932 184.844C197.086 175.664 199.58 170.9 204.432 163.344V53.844H223.432C233.961 55.8939 242.097 59.4723 246.932 69.344C248.469 77.545 248.367 82.1429 246.932 90.344C242.457 101.369 238.233 105.047 227.432 106.844H211.932V117.344H227.432C246.933 119.373 254.123 125.558 260.432 145.344C261.489 150.616 261.519 153.572 260.432 158.844C254.292 178.887 246.24 183.635 227.432 185.844C221.518 186.179 218.13 186.191 211.932 185.844L215.932 190.844C206.364 191.71 201.001 191.72 191.432 190.844C185.625 187.083 182.957 184.386 178.932 178.844C177.096 187.573 174.303 191.143 166.432 195.344H242.932C256.799 192.721 265.31 190.033 274.432 182.844C282.94 174.645 285.751 169.292 288.432 158.844C289.416 153.572 288.432 145.344 288.432 145.344C286.031 136.148 283.814 131.795 278.432 125.344C268.208 116.215 261.038 113.114 245.932 110.844C260.714 106.092 266.895 101.02 273.432 86.844C274.517 81.2909 274.618 77.8295 273.432 70.844C271.736 62.7981 269.199 59.215 262.932 53.844C253.412 46.6436 247.646 44.8358 236.932 43.844H165.932Z" fill="url(#goldBase)" stroke="#7d4d1c" stroke-opacity=".1" stroke-width=".35" stroke-linejoin="miter" filter="url(#paperGold)"/>
+  </g>
+
+  <g clip-path="url(#hornClip)" fill="none" stroke-linecap="round">
+    <path d="M797 34 819 58 812 84 801 59Z" fill="#65131a" fill-opacity=".24" stroke="none"/>
+    <path d="M878 33 856 59 865 85 875 58Z" fill="#68151b" fill-opacity=".24" stroke="none"/>
+    <path d="M797 26C801 45 812 57 829 65L815 88" stroke="#9b2c34" stroke-width="1.05" stroke-opacity=".66"/>
+    <path d="M803 51 821 69M811 38 827 48" stroke="#681d24" stroke-width=".75" stroke-opacity=".7"/>
+    <path d="M878 25C875 44 866 57 853 65L868 88" stroke="#a03138" stroke-width="1.05" stroke-opacity=".66"/>
+    <path d="M870 50 856 70M875 39 859 50" stroke="#681d24" stroke-width=".75" stroke-opacity=".7"/>
+    <path d="M798 31C803 40 809 47 819 52M877 31C873 40 868 47 860 53" stroke="#b98b55" stroke-width=".55" stroke-opacity=".4"/>
+    <path d="M803 51 812 84M870 50 865 85" stroke="#9f7248" stroke-width=".45" stroke-opacity=".32"/>
+  </g>
+  <path d="M829.5 64.5C833.8 60.2 837.9 52.3 840.9 47.8C844.1 52.5 849.1 59.7 853.4 63.4" fill="none" stroke="url(#hornSeam)" stroke-width="1.15" stroke-linecap="round"/>
+</svg>

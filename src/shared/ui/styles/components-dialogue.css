@@ -1,0 +1,521 @@
+
+/* Dialogue panel with a layered dark name tag. */
+.abyssa-dialogue {
+  --abyssa-dialogue-fill: #1c2020;
+  --abyssa-dialogue-text: #dfe5e5;
+  --abyssa-dialogue-middle: #6f7d7e;
+  --abyssa-dialogue-ornament: #596465;
+  --abyssa-dialogue-pattern-main: rgb(255 255 255 / 2.6%);
+  --abyssa-dialogue-pattern-second: rgb(255 255 255 / 1.2%);
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 1200 / 260;
+  color: var(--abyssa-dialogue-text);
+  container-type: inline-size;
+}
+.abyssa-dialogue[data-variant="light"] {
+  --abyssa-dialogue-fill: #e8ecec;
+  --abyssa-dialogue-text: #252d2d;
+  --abyssa-dialogue-middle: #a1adae;
+  --abyssa-dialogue-ornament: #626d6e;
+  --abyssa-dialogue-pattern-main: rgb(38 57 58 / 4.5%);
+  --abyssa-dialogue-pattern-second: rgb(255 255 255 / 18%);
+}
+.abyssa-dialogue > svg { position: absolute; inset: 0; display: block; width: 100%; height: 100%; overflow: visible; shape-rendering: geometricPrecision; }
+.abyssa-dialogue[data-nameplate="false"] { aspect-ratio: 1200 / 187; }
+.abyssa-dialogue[data-nameplate="false"] .abyssa-dialogue__content { top: 29%; }
+.abyssa-dialogue__name-measure { display: inline-flex; align-items: baseline; white-space: nowrap; }
+
+/* 主名:字距放开一档,不再密排。
+   末字后面会多出一格字距(.16em),不用负 margin 去抵 ——
+   负 margin 让盒宽小于绘制宽,父容器按 max-content 收缩后
+   内容反而溢出(实测 3px)。多出的一格由牌宽量测如实计入,
+   与副名之间的间隔在 __name-secondary 上按净值调。 */
+.abyssa-dialogue__name-main {
+  letter-spacing: .16em;
+}
+
+/* 英文副名:小一档、更暗、字距更开(西文全大写必须开字距才不糊)。
+   顶上压一条细分割线,线左端带一个小方点 —— 与消息流 roll 卡
+   的「线 + 点」同一套装饰语言,给副名一个明确的归属边界。 */
+.abyssa-dialogue__name-secondary {
+  position: relative;
+  /* 净间隔:主名末字已带 .16em 尾距,这里补到视觉 1.15em ——
+     分割线要在两者之间站得住,间隔太紧线就贴上主名了。 */
+  margin-left: .98em;
+  color: var(--abyssa-dialogue-name-secondary, #7f8c8d);
+  font-family: var(--abyssa-font-display, Georgia, serif);
+  font-size: .5em;
+  font-weight: 500;
+  /* 字距再开一档。 */
+  letter-spacing: .3em;
+  white-space: nowrap;
+}
+
+/* 分割线:与副名等宽。渐变方向朝**右端收实** —— 末端有菱点收尾,
+   线就该往那头聚起来;反着来会让点像是挂在虚线头上。 */
+.abyssa-dialogue__name-secondary::before {
+  content: "";
+  position: absolute;
+  top: -.62em;
+  right: .3em;
+  left: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--abyssa-dialogue-name-secondary, #7f8c8d) 30%, transparent),
+    var(--abyssa-dialogue-name-secondary, #7f8c8d)
+  );
+  opacity: .58;
+}
+
+/* 线尾的小菱点:旋转 45° 的方形,与组件库的菱形语言同源(不用圆点)。
+   translate(50%,-50%) 把菱心精确压在线的右端点上 ——
+   靠 right/top 定位盒子边缘会偏半个身位。 */
+.abyssa-dialogue__name-secondary::after {
+  content: "";
+  position: absolute;
+  top: -.62em;
+  right: .3em;
+  width: 3.4px;
+  height: 3.4px;
+  background: var(--abyssa-dialogue-name-secondary, #7f8c8d);
+  transform: translate(50%, -50%) rotate(45deg);
+  opacity: .9;
+}
+
+.abyssa-dialogue[data-auto-height] { min-height: 112px; aspect-ratio: auto; overflow: hidden; }
+.abyssa-dialogue__auto-frame { position: absolute; z-index: 0; inset: 0; display: block; pointer-events: none; }
+.abyssa-dialogue__auto-frame > span { position: absolute; display: block; }
+.abyssa-dialogue__auto-frame [data-part="surface"] { inset: 0; background: var(--abyssa-dialogue-fill); }
+.abyssa-dialogue__auto-frame [data-part="outer"] { inset: 0; border: 5px solid var(--abyssa-frame-dark); }
+.abyssa-dialogue__auto-frame [data-part="middle"] { inset: 4px; border: 3px solid var(--abyssa-dialogue-middle); }
+.abyssa-dialogue__auto-frame [data-part="inner"] { inset: 10px; border: 1px solid var(--abyssa-dialogue-ornament); opacity: .92; }
+.abyssa-dialogue__auto-frame [data-part="rail"] { background: var(--abyssa-dialogue-ornament); opacity: .55; }
+.abyssa-dialogue__auto-frame [data-edge="top"], .abyssa-dialogue__auto-frame [data-edge="bottom"] { right: 22px; left: 22px; height: 1px; }
+.abyssa-dialogue__auto-frame [data-edge="top"] { top: 15px; }
+.abyssa-dialogue__auto-frame [data-edge="bottom"] { bottom: 15px; }
+.abyssa-dialogue__auto-frame [data-edge="right"], .abyssa-dialogue__auto-frame [data-edge="left"] { top: 22px; bottom: 22px; width: 1px; }
+.abyssa-dialogue__auto-frame [data-edge="left"] { left: 15px; }
+.abyssa-dialogue__auto-frame [data-edge="right"] { right: 15px; }
+.abyssa-dialogue__auto-frame [data-part="corner"] { width: 18px; height: 18px; border-color: var(--abyssa-dialogue-ornament); border-style: solid; opacity: .95; }
+.abyssa-dialogue__auto-frame [data-corner="tl"] { top: 14px; left: 14px; border-width: 2px 0 0 2px; }
+.abyssa-dialogue__auto-frame [data-corner="tr"] { top: 14px; right: 14px; border-width: 2px 2px 0 0; }
+.abyssa-dialogue__auto-frame [data-corner="br"] { right: 14px; bottom: 14px; border-width: 0 2px 2px 0; }
+.abyssa-dialogue__auto-frame [data-corner="bl"] { bottom: 14px; left: 14px; border-width: 0 0 2px 2px; }
+.abyssa-dialogue__auto-frame [data-part="nameplate"] { top: 0; left: 0; width: 42%; height: 34px; border: 4px solid var(--abyssa-frame-dark); border-bottom-color: var(--abyssa-dialogue-middle); background: var(--abyssa-dialogue-fill); clip-path: polygon(0 0, 92% 0, 96% 68%, 100% 100%, 0 100%); }
+.abyssa-dialogue[data-auto-height] .abyssa-dialogue__content { position: relative; z-index: 1; top: auto; right: auto; bottom: auto; left: auto; min-height: 112px; padding: 28px 9.5% 26px; overflow: visible; overflow-wrap: anywhere; white-space: pre-wrap; }
+.abyssa-dialogue[data-auto-height][data-nameplate="true"] .abyssa-dialogue__content { padding-top: 56px; }
+.abyssa-dialogue__name {
+  /* 竖直定位锚在**牌体中线**上,不是"顶边 + 高度"两个量各算各的 ——
+     那样字号一变上下就偏。牌体 y 11~64,中线 37.5/260 = 14.42%,
+     translateY(-50%) 把文字块自身高度居中扣掉,字号再改也不歪。
+     水平左缘对齐牌内文字起点 48/1200。 */
+  position: absolute;
+  top: calc(37.5 / 260 * 100%);
+  left: calc(48 / 1200 * 100%);
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  transform: translateY(-50%);
+  /* 宽度由内容驱动,不能反过来由牌宽算 —— 那会与组件的量测
+     形成循环依赖:文字不溢出时量到的是框宽而非文字宽,
+     所有短名都收敛到同一个值。max-content 让量测拿到纯文字宽度,
+     牌宽单向跟随它。 */
+  width: max-content;
+  max-width: calc((var(--abyssa-dialogue-name-max, 616) - 48) / 1200 * 100%);
+  /* 高度由内容驱动:牌内竖直居中已由中线锚定保证。 */
+  height: auto;
+  overflow: hidden;
+  /* 名字不该是纯白:牌面 #111515 上放 #e8eded 是接近最大对比,
+     刺眼且抢正文。退到 text-soft 一档 —— 仍清晰,但不发光。 */
+  color: var(--abyssa-dialogue-name-ink, #ccd4d4);
+  font-family: var(--abyssa-font-display, Georgia, serif);
+  font-size: clamp(15px, 2.25cqi, 27px);
+  font-weight: 600;
+  /* 字距挪到 __name-main 上(要抵消末字那一格),这里不设。 */
+  white-space: nowrap;
+  pointer-events: none;
+}
+.abyssa-dialogue__content {
+  position: absolute;
+  top: 45%;
+  right: 8%;
+  bottom: 13%;
+  left: 9.5%;
+  overflow: hidden;
+  color: var(--abyssa-dialogue-text);
+  font-family: var(--abyssa-font-body, Georgia, serif);
+  font-size: clamp(14px, 2.25cqi, 27px);
+  font-weight: 500;
+  letter-spacing: .055em;
+  line-height: 1.75;
+  white-space: pre-line;
+  pointer-events: none;
+}
+
+/* Internal-notch square and pill buttons. */
+.abyssa-notch-button,
+.abyssa-notched-pill,
+.abyssa-status-node,
+.abyssa-diamond-node {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  transition: filter 100ms ease, transform 80ms ease;
+}
+.abyssa-notch-button,
+.abyssa-notched-pill {
+  --abyssa-notch-fill: #1d2121;
+  --abyssa-notch-middle: #718081;
+  --abyssa-notch-ornament: #596465;
+  --abyssa-notch-icon: #96a2a3;
+  --abyssa-notch-pattern-dark: rgb(255 255 255 / 4%);
+  --abyssa-notch-pattern-light: rgb(255 255 255 / 1.2%);
+  --abyssa-notched-fill: #1c2020;
+  --abyssa-notched-text: #eef2f2;
+  --abyssa-notched-middle: #718081;
+  --abyssa-notched-ornament: #515c5d;
+  --abyssa-notched-pattern-dark: rgb(255 255 255 / 3.5%);
+  --abyssa-notched-pattern-light: rgb(255 255 255 / 1%);
+}
+.abyssa-notch-button[data-variant="light"], .abyssa-notched-pill[data-variant="light"] {
+  --abyssa-notch-fill: #e4e8e8; --abyssa-notch-middle: #9ba7a8; --abyssa-notch-ornament: #667273; --abyssa-notch-icon: #202727; --abyssa-notch-pattern-dark: rgb(38 58 59 / 7%); --abyssa-notch-pattern-light: rgb(255 255 255 / 22%);
+  --abyssa-notched-fill: #e4e8e8; --abyssa-notched-text: #323939; --abyssa-notched-middle: #9ba7a8; --abyssa-notched-ornament: #687374; --abyssa-notched-pattern-dark: rgb(38 58 59 / 7%); --abyssa-notched-pattern-light: rgb(255 255 255 / 20%);
+}
+.abyssa-notch-button[data-variant="teal"], .abyssa-notched-pill[data-variant="teal"] {
+  --abyssa-notch-fill: #73b8bc; --abyssa-notch-middle: #778f90; --abyssa-notch-ornament: #315253; --abyssa-notch-icon: #173536; --abyssa-notch-pattern-dark: rgb(26 70 73 / 9.5%); --abyssa-notch-pattern-light: rgb(255 255 255 / 8%);
+  --abyssa-notched-fill: #70b7bb; --abyssa-notched-text: #203334; --abyssa-notched-middle: #778f90; --abyssa-notched-ornament: #315253; --abyssa-notched-pattern-dark: rgb(26 70 73 / 9.5%); --abyssa-notched-pattern-light: rgb(255 255 255 / 8%);
+}
+.abyssa-notch-button { position: relative; display: block; width: 100px; height: 100px; }
+.abyssa-notch-button svg, .abyssa-notched-pill svg, .abyssa-status-node svg, .abyssa-diamond-node svg { display: block; width: 100%; height: 100%; overflow: visible; shape-rendering: geometricPrecision; }
+.abyssa-notch-button__custom { position: absolute; inset: 27%; display: grid; color: var(--abyssa-notch-icon); place-items: center; }
+.abyssa-notch-button__custom > svg { width: 100%; height: 100%; }
+.abyssa-notched-pill { display: block; width: 190px; height: 48px; }
+.abyssa-notched-pill__label { fill: var(--abyssa-notched-text); font-family: var(--abyssa-font-display, Georgia, serif); font-size: 22px; font-weight: 600; letter-spacing: .7px; text-anchor: middle; dominant-baseline: middle; }
+.abyssa-notch-button:hover:not(:disabled), .abyssa-notched-pill:hover:not(:disabled), .abyssa-status-node:hover:not(:disabled), .abyssa-diamond-node:hover:not(:disabled) { filter: brightness(1.08); }
+.abyssa-notch-button:active:not(:disabled), .abyssa-status-node:active:not(:disabled), .abyssa-diamond-node:active:not(:disabled) { transform: scale(.97); }
+.abyssa-notched-pill:active:not(:disabled) { transform: translateY(1px) scale(.99); }
+.abyssa-notch-button:disabled, .abyssa-notched-pill:disabled, .abyssa-status-node:disabled, .abyssa-diamond-node:disabled { cursor: not-allowed; filter: grayscale(1); opacity: .45; }
+.abyssa-notched-pill[data-selected], .abyssa-diamond-node[data-selected] { filter: drop-shadow(0 0 6px rgb(114 179 183 / 55%)); }
+
+/* Diamond node track. */
+.abyssa-diamond-track { position: relative; display: flex; align-items: center; justify-content: space-between; width: 280px; max-width: 100%; height: 80px; padding-inline: 25px; }
+.abyssa-diamond-track__line { position: absolute; right: 0; left: 0; top: 50%; height: 4px; border-top: 1px solid rgb(167 179 180 / 40%); background: #1f2626; transform: translateY(-50%); }
+.abyssa-diamond-node { --abyssa-node-fill: #222525; --abyssa-node-middle: #5a6465; --abyssa-node-arrow: #4d5758; --abyssa-node-label: #98a4a5; --abyssa-node-pattern-dark: rgb(255 255 255 / 2%); --abyssa-node-pattern-light: transparent; position: relative; z-index: 1; flex: 0 0 50px; width: 50px; height: 50px; }
+.abyssa-diamond-node[data-variant="active"] { --abyssa-node-fill: #0a0c0c; --abyssa-node-middle: #ced5d5; --abyssa-node-arrow: #e2e8e8; --abyssa-node-label: #eef2f2; --abyssa-node-pattern-dark: rgb(255 255 255 / 4%); --abyssa-node-pattern-light: rgb(255 255 255 / 1%); }
+.abyssa-diamond-node[data-variant="teal"] { --abyssa-node-fill: #6fb2b6; --abyssa-node-middle: #7ba2a4; --abyssa-node-arrow: #264a4c; --abyssa-node-label: #183f41; --abyssa-node-pattern-dark: rgb(26 70 73 / 10%); --abyssa-node-pattern-light: rgb(255 255 255 / 10%); }
+.abyssa-diamond-node__label { fill: var(--abyssa-node-label); font-family: var(--abyssa-font-display, Georgia, serif); font-size: 11px; font-weight: 700; letter-spacing: .35px; text-anchor: middle; dominant-baseline: middle; }
+.abyssa-diamond-track[data-orientation="vertical"] { width: 80px; max-width: none; height: auto; min-height: 0; padding: 12px 15px; flex-direction: column; justify-content: space-between; gap: 0; }
+.abyssa-diamond-track[data-orientation="vertical"] .abyssa-diamond-track__line { inset: 0 auto 0 50%; width: 4px; height: auto; border-top: 0; border-left: 1px solid rgb(167 179 180 / 40%); transform: translateX(-50%); }
+
+/* Directionally lit diamond for phase/status tracks. Visual only: callers own semantics. */
+.abyssa-facet-diamond {
+  --abyssa-facet-size: 58px;
+  --abyssa-facet-fill: #141b1c;
+  --abyssa-facet-lit: #38474a;
+  --abyssa-facet-shade: #060a0b;
+  --abyssa-facet-edge: #4e5b5c;
+  --abyssa-facet-rim: #7c8b8c;
+  --abyssa-facet-ink: #7b8a8a;
+  position: relative;
+  z-index: 1;
+  display: grid;
+  width: var(--abyssa-facet-size);
+  height: var(--abyssa-facet-size);
+  flex: 0 0 var(--abyssa-facet-size);
+  font-style: normal;
+  place-items: center;
+}
+.abyssa-facet-diamond svg {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  shape-rendering: geometricPrecision;
+}
+.abyssa-facet-diamond b {
+  position: relative;
+  color: var(--abyssa-facet-ink);
+  font: 600 20px/1 var(--abyssa-font-body, "Noto Serif SC", serif);
+  font-style: normal;
+  letter-spacing: 0;
+}
+.abyssa-facet-diamond[data-state="elapsed"] {
+  --abyssa-facet-fill: #21302d;
+  --abyssa-facet-lit: #506a64;
+  --abyssa-facet-shade: #08100e;
+  --abyssa-facet-edge: #657a74;
+  --abyssa-facet-rim: #9bafa8;
+  --abyssa-facet-ink: #b8c6c1;
+}
+.abyssa-facet-diamond[data-state="current"] {
+  --abyssa-facet-fill: #d8cba8;
+  --abyssa-facet-lit: #fbf5e2;
+  --abyssa-facet-shade: #9c8c62;
+  --abyssa-facet-edge: #f4ecd6;
+  --abyssa-facet-rim: #fffdf4;
+  --abyssa-facet-inner: #6b5c38;
+  --abyssa-facet-ink: #1b2122;
+  filter: drop-shadow(0 0 8px rgb(236 224 186 / 38%));
+  transform: scale(1.04);
+}
+.abyssa-facet-diamond[data-appearance="flat"] .abyssa-facet-diamond__border-dark {
+  stroke-width: 3px;
+}
+.abyssa-facet-diamond[data-appearance="flat"] .abyssa-facet-diamond__border-edge {
+  stroke-width: 1.5px;
+}
+.abyssa-facet-diamond[data-appearance="flat"] .abyssa-facet-diamond__border-inner {
+  stroke-width: .7px;
+  opacity: .72;
+}
+.abyssa-facet-diamond[data-appearance="flat"][data-state="coming"] {
+  --abyssa-facet-fill: #151c1c;
+  --abyssa-facet-edge: #465655;
+  --abyssa-facet-ink: #82918e;
+}
+.abyssa-facet-diamond[data-appearance="flat"][data-state="elapsed"] {
+  --abyssa-facet-fill: #26322f;
+  --abyssa-facet-edge: #657a75;
+  --abyssa-facet-ink: #b8c5c1;
+}
+.abyssa-facet-diamond[data-appearance="flat"][data-state="current"] {
+  --abyssa-facet-fill: #dfe4dc;
+  --abyssa-facet-edge: #aebcb7;
+  --abyssa-facet-ink: #1b2422;
+  filter: drop-shadow(0 1px 2px rgb(0 0 0 / 48%));
+  transform: none;
+}
+
+/* Compact status nodes. */
+.abyssa-status-node { --abyssa-status-node-fill: #747a7a; --abyssa-status-node-middle: #626d6e; --abyssa-status-node-inner: #535c5d; --abyssa-status-node-icon: #515a5b; --abyssa-status-node-pattern-outer: rgb(24 40 41 / 7%); --abyssa-status-node-pattern-inner: rgb(255 255 255 / 4%); display: block; width: 86px; height: 54px; }
+.abyssa-status-node[data-variant="dark"] { --abyssa-status-node-fill: #1a1f1f; --abyssa-status-node-middle: #a5b0b1; --abyssa-status-node-inner: #606c6d; --abyssa-status-node-icon: #edf1f1; --abyssa-status-node-pattern-outer: rgb(255 255 255 / 4%); --abyssa-status-node-pattern-inner: rgb(255 255 255 / 1.6%); }
+.abyssa-status-node[data-variant="teal"] { --abyssa-status-node-fill: #63b5ba; --abyssa-status-node-middle: #718d8f; --abyssa-status-node-inner: #356466; --abyssa-status-node-icon: #183f41; --abyssa-status-node-pattern-outer: rgb(19 61 63 / 10%); --abyssa-status-node-pattern-inner: rgb(255 255 255 / 8%); }
+
+@media (max-width: 720px) {
+  .abyssa-shape-button[data-shape="circle"],
+  .abyssa-shape-button[data-shape="square"] { width: 104px; }
+  .abyssa-shape-button[data-shape="chamfer"],
+  .abyssa-shape-button[data-shape="pill"] { width: 31%; min-width: 105px; }
+  .abyssa-back-button { width: min(31vw, 145px); height: min(31vw, 145px); }
+  .abyssa-dialogue { min-height: 170px; aspect-ratio: auto; }
+  .abyssa-dialogue__name { top: 4%; font-size: 15px; }
+  .abyssa-dialogue__content { top: 40%; right: 7%; left: 8%; font-size: 14px; line-height: 1.55; }
+  .abyssa-dialogue[data-nameplate="false"] .abyssa-dialogue__content { top: 24%; }
+  .abyssa-dialogue[data-auto-height] .abyssa-dialogue__content { top: auto; min-height: 112px; padding: 23px 8% 22px; }
+  .abyssa-dialogue[data-auto-height][data-nameplate="true"] .abyssa-dialogue__content { padding-top: 48px; }
+}
+
+@media (max-width: 420px) {
+  .abyssa-icon-button[data-size="lg"] { --abyssa-icon-size: 72px; }
+  .abyssa-icon-button[data-size="md"] { --abyssa-icon-size: 66px; }
+}
+
+/* Toggle */
+.abyssa-toggle {
+  --abyssa-toggle-fill: var(--abyssa-panel-light, #e2e7e7);
+  --abyssa-toggle-ink: var(--abyssa-text-dark, #192020);
+  --abyssa-watermark-outer: rgb(21 34 35 / 8%);
+  --abyssa-watermark-inner: rgb(21 34 35 / 4.5%);
+  position: relative;
+  display: inline-grid;
+  min-width: 92px;
+  height: 32px;
+  padding: 2px 30px 2px 14px;
+  border: 2px solid var(--abyssa-frame-dark, #192020);
+  border-radius: 999px;
+  color: var(--abyssa-toggle-ink);
+  background: var(--abyssa-frame-light, #a7b3b4);
+  box-shadow: inset 0 0 0 1px var(--abyssa-frame-deep, #101616);
+  cursor: pointer;
+  place-items: center;
+  transition: filter 120ms ease, transform 100ms ease;
+}
+
+.abyssa-toggle[data-size="sm"] { min-width: 72px; height: 25px; padding-inline: 10px 25px; }
+.abyssa-toggle[data-size="lg"] { min-width: 116px; height: 40px; font-size: 1.08rem; }
+.abyssa-toggle[data-variant="dark"] { --abyssa-toggle-fill: var(--abyssa-panel-black); --abyssa-toggle-ink: var(--abyssa-text); --abyssa-watermark-outer: rgb(255 255 255 / 3.5%); --abyssa-watermark-inner: rgb(255 255 255 / 1.8%); }
+.abyssa-toggle[data-variant="teal"] { --abyssa-toggle-fill: var(--abyssa-teal); --abyssa-toggle-ink: var(--abyssa-text-dark); }
+
+.abyssa-toggle::before {
+  position: absolute;
+  inset: 3px;
+  border: 1px solid var(--abyssa-frame-deep, #101616);
+  border-radius: inherit;
+  background-color: var(--abyssa-toggle-fill);
+  content: "";
+}
+
+.abyssa-toggle__watermark {
+  inset: 4px;
+  width: calc(100% - 8px);
+  height: calc(100% - 8px);
+  border-radius: inherit;
+}
+
+.abyssa-toggle__label { position: relative; z-index: 1; font-family: var(--abyssa-font-display); line-height: 1; }
+.abyssa-toggle__marker {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  z-index: 1;
+  width: 11px;
+  height: 11px;
+  background: var(--abyssa-panel-gray, #5b6262);
+  border: 2px solid var(--abyssa-frame-deep, #101616);
+  transform: translateY(-50%) rotate(45deg);
+  transition: background 140ms ease, box-shadow 140ms ease;
+}
+
+.abyssa-toggle[data-checked] .abyssa-toggle__marker {
+  background: var(--abyssa-teal, #72b3b7);
+  box-shadow: 0 0 5px var(--abyssa-teal-soft, #91c3c6);
+}
+
+.abyssa-toggle:hover:not(:disabled) { filter: brightness(1.07); }
+.abyssa-toggle:active:not(:disabled) { transform: translateY(1px); }
+.abyssa-toggle:disabled { cursor: not-allowed; filter: grayscale(1); opacity: 0.45; }
+
+/* Progress */
+.abyssa-progress-group { display: grid; gap: 6px; color: var(--abyssa-text-soft, #c2cbcb); }
+.abyssa-progress-group__meta { display: flex; justify-content: space-between; gap: 16px; font-size: 0.78rem; }
+.abyssa-progress {
+  --abyssa-progress-fill: var(--abyssa-teal, #72b3b7);
+  position: relative;
+  width: 100%;
+  height: 10px;
+  overflow: hidden;
+  border: 2px solid var(--abyssa-frame-dark, #192020);
+  background-color: var(--abyssa-panel-black, #1d2121);
+  box-shadow: inset 0 0 0 1px var(--abyssa-frame-light, #a7b3b4);
+}
+
+.abyssa-progress__watermark { z-index: 0; }
+
+.abyssa-progress[data-size="sm"] { height: 7px; }
+.abyssa-progress[data-size="lg"] { height: 15px; }
+.abyssa-progress[data-variant="dark"] { --abyssa-progress-fill: var(--abyssa-ornament, #647171); }
+.abyssa-progress[data-variant="light"] { --abyssa-progress-fill: var(--abyssa-panel-light, #e2e7e7); }
+.abyssa-progress > span {
+  position: relative;
+  z-index: 1;
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--abyssa-progress-fill) 70%, black), var(--abyssa-progress-fill));
+  box-shadow: inset -1px 0 0 rgb(255 255 255 / 30%);
+  transition: width 260ms var(--abyssa-ease, ease);
+}
+
+/* Retro RPG header */
+.abyssa-rpg-header {
+  --abyssa-header-fill: #202323;
+  --abyssa-header-text: #f0f2f2;
+  --abyssa-header-ornament: #596464;
+  --abyssa-header-middle-frame: #778485;
+  --abyssa-header-pattern: rgb(255 255 255 / 4.5%);
+  position: relative;
+  display: block;
+  width: min(100%, 820px);
+  margin-inline: auto;
+  cursor: default;
+}
+
+.abyssa-rpg-header[data-variant="light"] {
+  --abyssa-header-fill: #e5e9e9;
+  --abyssa-header-text: #303636;
+  --abyssa-header-ornament: #566060;
+  --abyssa-header-middle-frame: #a9b4b5;
+  --abyssa-header-pattern: rgb(31 45 46 / 7.5%);
+}
+
+.abyssa-rpg-header[data-variant="teal"] {
+  --abyssa-header-fill: #72b4b8;
+  --abyssa-header-text: #233031;
+  --abyssa-header-ornament: #264344;
+  --abyssa-header-middle-frame: #8ca3a4;
+  --abyssa-header-pattern: rgb(25 62 64 / 9%);
+}
+
+.abyssa-rpg-header svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  shape-rendering: geometricPrecision;
+}
+
+/* Nameplate */
+.abyssa-nameplate {
+  --abyssa-nameplate-fill: #202424;
+  --abyssa-nameplate-ink: var(--abyssa-text, #edf0f0);
+  --abyssa-nameplate-secondary: var(--abyssa-teal-soft, #91c3c6);
+  position: relative;
+  z-index: 1;
+  width: min(100%, 420px);
+  padding: 3px;
+  color: var(--abyssa-nameplate-ink);
+  background: var(--abyssa-frame-dark, #192020);
+  clip-path: polygon(18px 0, calc(100% - 18px) 0, 100% 50%, calc(100% - 18px) 100%, 18px 100%, 0 50%);
+}
+
+.abyssa-nameplate[data-variant="teal"] {
+  --abyssa-nameplate-fill: var(--abyssa-teal, #72b3b7);
+  --abyssa-nameplate-ink: var(--abyssa-text-dark, #192020);
+  --abyssa-nameplate-secondary: var(--abyssa-teal-dark, #3d7477);
+  --abyssa-watermark-outer: rgb(21 34 35 / 8%);
+  --abyssa-watermark-inner: rgb(21 34 35 / 4.5%);
+}
+
+.abyssa-nameplate[data-variant="light"] {
+  --abyssa-nameplate-fill: var(--abyssa-panel-light, #e2e7e7);
+  --abyssa-nameplate-ink: var(--abyssa-text-dark, #192020);
+  --abyssa-nameplate-secondary: var(--abyssa-teal-dark, #3d7477);
+  --abyssa-watermark-outer: rgb(21 34 35 / 8%);
+  --abyssa-watermark-inner: rgb(21 34 35 / 4.5%);
+}
+
+.abyssa-nameplate__middle,
+.abyssa-nameplate__inner {
+  width: 100%;
+  height: 100%;
+}
+
+.abyssa-nameplate__middle {
+  padding: 1px;
+  background: var(--abyssa-frame-light, #a7b3b4);
+  clip-path: polygon(15px 0, calc(100% - 15px) 0, 100% 50%, calc(100% - 15px) 100%, 15px 100%, 0 50%);
+}
+
+.abyssa-nameplate__inner {
+  padding: 2px;
+  background: var(--abyssa-frame-deep, #101616);
+  clip-path: polygon(14px 0, calc(100% - 14px) 0, 100% 50%, calc(100% - 14px) 100%, 14px 100%, 0 50%);
+}
+
+.abyssa-nameplate__content {
+  position: relative;
+  display: flex;
+  min-height: 51px;
+  padding: 8px 34px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background-color: var(--abyssa-nameplate-fill);
+  clip-path: polygon(12px 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 12px 100%, 0 50%);
+  text-align: center;
+}
+
+.abyssa-nameplate__watermark {
+  mask-image: linear-gradient(90deg, #000 0%, transparent 34% 66%, #000 100%);
+}
+
+.abyssa-nameplate__content strong,
+.abyssa-nameplate__content span { position: relative; z-index: 1; }
+.abyssa-nameplate__content strong { font-size: 17px; font-weight: 600; letter-spacing: 3px; line-height: 1; }
+.abyssa-nameplate__content span { margin-top: 3px; color: var(--abyssa-nameplate-secondary); font-family: var(--abyssa-font-display); font-size: 10px; letter-spacing: 2.2px; line-height: 1; }

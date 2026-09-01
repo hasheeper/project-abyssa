@@ -1,0 +1,169 @@
+/* ============ 左侧栏 ============
+   一块从 DAY 顶栏根部向下生长的连续金属底板；条目嵌在结构里，不各自套框。 */
+.menu-sidebar {
+  position: relative;
+  display: flex;
+  top: -58px;
+  z-index: 4;
+  width: 224px;
+  height: 528px;
+  margin-left: calc(var(--menu-pad) * -1);
+  align-self: start;
+  padding: 0;
+  isolation: isolate;
+  transform: scale(.94);
+  transform-origin: top left;
+}
+.menu-sidebar__frame {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+  shape-rendering: geometricPrecision;
+}
+.menu-sidebar__frame--backdrop {
+  z-index: -2;
+  filter: drop-shadow(8px 12px 14px rgb(0 0 0 / 46%));
+}
+.menu-sidebar__frame--outline { z-index: 3; }
+.menu-sidebar__frame-shadow { fill: #030607; opacity: .72; }
+.menu-sidebar__frame-surface { fill: #101819; }
+.menu-sidebar__frame-pattern { opacity: .64; }
+.menu-sidebar__frame-outer,
+.menu-sidebar__frame-middle,
+.menu-sidebar__frame-inner,
+.menu-sidebar__frame-inset,
+.menu-sidebar__frame-ridge {
+  fill: none;
+  stroke-linejoin: miter;
+}
+.menu-sidebar__frame-outer { stroke: #040809; stroke-width: 12px; }
+.menu-sidebar__frame-middle { stroke: #78908e; stroke-width: 5px; }
+.menu-sidebar__frame-inner { stroke: #0a1112; stroke-width: 2.5px; }
+.menu-sidebar__frame-inset { stroke: #536d6a; stroke-width: 1.5px; opacity: .88; }
+.menu-sidebar__frame-ridge { stroke: #aec0bc; stroke-width: 1.5px; opacity: .66; }
+.menu-sidebar__connector {
+  position: absolute;
+  top: 8px;
+  right: 18px;
+  left: 0;
+  z-index: -1;
+  height: 55px;
+  border-bottom: 1px solid rgb(132 157 153 / 30%);
+  background: linear-gradient(180deg, rgb(91 122 118 / 10%), transparent 82%);
+  box-shadow: 0 1px #050909;
+  clip-path: polygon(0 0, 72% 0, 100% 45%, 100% 100%, 0 100%);
+  pointer-events: none;
+}
+.menu-sidebar__actions {
+  position: absolute;
+  top: 72px;
+  right: 26px;
+  bottom: 34px;
+  left: 14px;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 10px 8px;
+  border: 1px solid #263735;
+  background:
+    linear-gradient(180deg, rgb(0 0 0 / 24%), transparent 18%),
+    #0b1111;
+  box-shadow:
+    inset 0 0 0 2px #050909,
+    inset 0 10px 20px rgb(0 0 0 / 24%),
+    0 1px rgb(135 158 154 / 18%);
+  clip-path: polygon(0 0, calc(100% - 11px) 0, 100% 11px, 100% calc(100% - 11px), calc(100% - 11px) 100%, 0 100%);
+}
+.menu-sidebar__item {
+  position: relative;
+  display: grid;
+  width: 100%;
+  height: 64px;
+  flex: 0 0 64px;
+  grid-template-columns: 44px minmax(0, 1fr) 12px;
+  align-items: center;
+  padding: 0 17px 0 10px;
+  border: 1px solid #172322;
+  background:
+    linear-gradient(90deg, rgb(92 123 119 / 7%), transparent 72%),
+    #101717;
+  box-shadow:
+    inset 0 2px 5px rgb(0 0 0 / 48%),
+    inset 0 -1px rgb(137 160 156 / 8%),
+    0 1px #050909;
+  clip-path: polygon(0 0, calc(100% - 7px) 0, 100% 7px, 100% calc(100% - 7px), calc(100% - 7px) 100%, 0 100%);
+  color: #91a19e;
+  cursor: pointer;
+  isolation: isolate;
+  text-align: left;
+  transition: color 140ms ease, background 140ms ease, filter 140ms ease;
+}
+.menu-sidebar__item::before {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  bottom: 4px;
+  left: 0;
+  z-index: -1;
+  background: linear-gradient(90deg, rgb(112 175 174 / 24%), rgb(62 104 104 / 34%) 76%, transparent 100%);
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 50%, calc(100% - 8px) 100%, 0 100%);
+  content: "";
+  opacity: 0;
+  transition: opacity 140ms ease;
+}
+.menu-sidebar__item[aria-pressed="true"] {
+  border-color: #385452;
+  background: #14201f;
+  box-shadow:
+    inset 0 3px 7px rgb(0 0 0 / 58%),
+    inset 0 0 0 1px rgb(124 171 166 / 13%),
+    0 1px #050909;
+  color: #f0f5f2;
+}
+.menu-sidebar__item[aria-pressed="true"]::before {
+  opacity: 1;
+}
+.menu-sidebar__icon {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 26px;
+  height: 26px;
+  justify-self: center;
+  background: currentColor;
+  mask-position: center;
+  mask-repeat: no-repeat;
+  mask-size: contain;
+  filter: drop-shadow(0 1px 2px rgb(0 0 0 / 68%));
+  opacity: .88;
+  pointer-events: none;
+}
+.menu-sidebar__label {
+  position: relative;
+  z-index: 1;
+  display: block;
+  font-family: var(--abyssa-font-body);
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: .28em;
+  line-height: 1;
+  pointer-events: none;
+  text-indent: .28em;
+}
+.menu-sidebar__chevron {
+  position: relative;
+  z-index: 1;
+  width: 7px;
+  height: 7px;
+  border-top: 1px solid currentColor;
+  border-right: 1px solid currentColor;
+  opacity: .65;
+  transform: rotate(45deg);
+}
+.menu-sidebar__item:hover { border-color: #304542; color: var(--abyssa-text-soft); filter: brightness(1.1); }
+.menu-sidebar__item:focus-visible { outline: 1px solid var(--abyssa-focus); outline-offset: 2px; }

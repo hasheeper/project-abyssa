@@ -1,0 +1,321 @@
+
+/* ============================================================
+   玩家防御 / 治疗演出
+   每张卡拥有自己的裁剪层：大盾与治疗十字可覆盖卡面，但不会越出目标卡。
+============================================================ */
+
+.abyssa-expedition-support-fx {
+  --support-accent: #c7d0d5;
+  --support-bright: #fff9dc;
+  position: absolute;
+  inset: 3px;
+  z-index: 7;
+  display: block;
+  overflow: hidden;
+  overflow: clip;
+  contain: paint;
+  pointer-events: none;
+}
+
+.abyssa-expedition-support-fx[data-kind="heal"] {
+  --support-accent: #74d36d;
+  --support-bright: #e5ffd2;
+}
+
+.abyssa-expedition-support-fx__halo,
+.abyssa-expedition-support-fx__emblem,
+.abyssa-expedition-support-fx__particle,
+.abyssa-expedition-support-fx > strong {
+  position: absolute;
+  top: 43%;
+  left: 50%;
+  display: block;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.abyssa-expedition-support-fx__halo {
+  width: 112px;
+  aspect-ratio: 1;
+  border: 1px solid rgb(218 229 234 / 55%);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, rgb(255 255 255 / 26%) 0 7%, transparent 9% 39%, rgb(180 194 201 / 16%) 40% 52%, transparent 54%),
+    conic-gradient(from 24deg, transparent 0 14%, rgb(235 241 244 / 22%) 15% 18%, transparent 19% 48%, rgb(235 241 244 / 18%) 49% 53%, transparent 54%);
+  box-shadow: inset 0 0 18px rgb(217 227 232 / 18%);
+  transform: translate(-50%, -50%) scale(.4);
+}
+
+.abyssa-expedition-support-fx[data-kind="heal"] .abyssa-expedition-support-fx__halo {
+  border-color: rgb(139 232 124 / 58%);
+  background:
+    radial-gradient(circle, rgb(233 255 218 / 38%) 0 8%, transparent 10% 38%, rgb(101 207 91 / 19%) 40% 54%, transparent 56%),
+    conic-gradient(from 24deg, transparent 0 14%, rgb(196 255 171 / 25%) 15% 19%, transparent 20% 48%, rgb(196 255 171 / 20%) 49% 54%, transparent 55%);
+  box-shadow: inset 0 0 18px rgb(111 220 96 / 18%);
+}
+
+.abyssa-expedition-support-fx__emblem {
+  width: 94px;
+  aspect-ratio: 1;
+  background: linear-gradient(135deg, #fffdf0 0 14%, #cbd3d6 37%, #707a80 72%, #f0e4bd 100%);
+  mask-image: url("../../assets/svg/ui/game-icon-cross-shield.svg");
+  mask-position: center;
+  mask-repeat: no-repeat;
+  mask-size: contain;
+  transform: translate(-50%, -50%) translateY(18px) scale(.42);
+}
+
+.abyssa-expedition-support-fx[data-kind="heal"] .abyssa-expedition-support-fx__emblem {
+  width: 72px;
+  background: linear-gradient(145deg, #ecffda 0 16%, #78dc68 46%, #267c3a 82%, #b8f69c 100%);
+  mask-image: url("../../assets/svg/ui/game-icon-hospital-cross.svg");
+}
+
+.abyssa-expedition-support-fx > strong {
+  top: 14px;
+  color: var(--support-bright);
+  font-family: var(--font-display);
+  font-size: 27px;
+  font-weight: 700;
+  letter-spacing: .02em;
+  line-height: 1;
+  text-shadow: 0 2px 0 rgb(18 26 28 / 88%), 0 0 7px color-mix(in srgb, var(--support-accent) 72%, transparent);
+  transform: translateX(-50%) translateY(10px) scale(.82);
+}
+
+.abyssa-expedition-support-fx__particle {
+  --support-x: 0px;
+  --support-y: -54px;
+  --support-rotate: 0deg;
+  --support-delay: 0ms;
+  width: 17px;
+  aspect-ratio: 1;
+  background: linear-gradient(145deg, #edffdc, #66cf61 68%, #2d7c3c);
+  mask-image: url("../../assets/svg/ui/game-icon-hospital-cross.svg");
+  mask-position: center;
+  mask-repeat: no-repeat;
+  mask-size: contain;
+  transform: translate(-50%, -50%) scale(.45);
+}
+
+.abyssa-expedition-support-fx__particle[data-particle="1"] { --support-x: -48px; --support-y: -64px; --support-rotate: -18deg; --support-delay: 0ms; }
+.abyssa-expedition-support-fx__particle[data-particle="2"] { --support-x: -27px; --support-y: -82px; --support-rotate: 12deg; --support-delay: 18ms; }
+.abyssa-expedition-support-fx__particle[data-particle="3"] { --support-x: 2px; --support-y: -73px; --support-rotate: -9deg; --support-delay: 34ms; }
+.abyssa-expedition-support-fx__particle[data-particle="4"] { --support-x: 31px; --support-y: -86px; --support-rotate: 16deg; --support-delay: 12ms; }
+.abyssa-expedition-support-fx__particle[data-particle="5"] { --support-x: 50px; --support-y: -61px; --support-rotate: -12deg; --support-delay: 42ms; }
+
+.abyssa-expedition-support-fx[data-phase] .abyssa-expedition-support-fx__halo,
+.abyssa-expedition-support-fx[data-phase] .abyssa-expedition-support-fx__emblem,
+.abyssa-expedition-support-fx[data-phase] .abyssa-expedition-support-fx__particle,
+.abyssa-expedition-support-fx[data-phase] > strong,
+.abyssa-expedition-party-card[data-support-phase] {
+  will-change: transform, opacity;
+}
+
+.abyssa-expedition-support-fx[data-phase="anticipate"] .abyssa-expedition-support-fx__halo {
+  animation: expedition-support-gather 90ms ease-out both;
+}
+
+.abyssa-expedition-support-fx[data-phase="release"] .abyssa-expedition-support-fx__halo {
+  animation: expedition-support-halo-release 120ms ease-out both;
+}
+
+.abyssa-expedition-support-fx[data-phase="release"] .abyssa-expedition-support-fx__emblem {
+  animation: expedition-support-emblem-release 120ms cubic-bezier(.12, .82, .2, 1) both;
+}
+
+.abyssa-expedition-support-fx[data-phase="impact"] .abyssa-expedition-support-fx__halo {
+  animation: expedition-support-halo-impact 240ms ease-out both;
+}
+
+.abyssa-expedition-support-fx[data-phase="impact"] .abyssa-expedition-support-fx__emblem {
+  animation: expedition-support-emblem-impact 240ms cubic-bezier(.18, .82, .2, 1) both;
+}
+
+.abyssa-expedition-support-fx[data-phase="impact"] > strong {
+  animation: expedition-support-value-impact 240ms ease-out both;
+}
+
+.abyssa-expedition-support-fx[data-kind="heal"][data-phase="impact"] .abyssa-expedition-support-fx__particle {
+  animation: expedition-heal-particle 190ms var(--support-delay) ease-out both;
+}
+
+.abyssa-expedition-support-fx[data-kind="guard"][data-phase="settle"] .abyssa-expedition-support-fx__emblem {
+  animation: expedition-guard-emblem-settle 300ms cubic-bezier(.34, .1, .32, 1) both;
+}
+
+.abyssa-expedition-support-fx[data-kind="heal"][data-phase="settle"] .abyssa-expedition-support-fx__emblem {
+  animation: expedition-heal-emblem-settle 300ms cubic-bezier(.34, .1, .32, 1) both;
+}
+
+.abyssa-expedition-support-fx[data-phase="settle"] > strong {
+  animation: expedition-support-value-settle 300ms ease-in both;
+}
+
+/* 施法者保留卡面来源感；目标卡的反馈写在后面，自疗时优先目标脉冲。 */
+.abyssa-expedition[data-support-phase] .abyssa-expedition-party-card[data-supporting] {
+  z-index: 8;
+  border-color: #c2cbd0;
+  box-shadow: 0 0 0 2px rgb(205 216 221 / 58%), 0 0 20px rgb(175 190 198 / 28%);
+}
+
+.abyssa-expedition[data-support-kind="heal"] .abyssa-expedition-party-card[data-supporting] {
+  border-color: #8ccf78;
+  box-shadow: 0 0 0 2px rgb(140 207 120 / 58%), 0 0 20px rgb(85 188 88 / 26%);
+}
+
+.abyssa-expedition[data-support-phase="anticipate"] .abyssa-expedition-party-card[data-supporting] {
+  animation: expedition-support-caster-anticipate 90ms ease-out both;
+}
+
+.abyssa-expedition[data-support-phase="release"] .abyssa-expedition-party-card[data-supporting] {
+  transform: translateY(-5px) scale(1.018);
+}
+
+.abyssa-expedition[data-support-phase="impact"] .abyssa-expedition-party-card[data-supporting] {
+  animation: expedition-support-caster-impact 240ms ease-out both;
+}
+
+.abyssa-expedition[data-support-phase="settle"] .abyssa-expedition-party-card[data-supporting] {
+  animation: expedition-support-caster-settle 300ms ease-out both;
+}
+
+.abyssa-expedition-party-card[data-support-phase] {
+  z-index: 9;
+}
+
+.abyssa-expedition-party-card[data-support-kind="guard"] {
+  border-color: #d3dadd;
+  box-shadow: 0 0 0 2px rgb(211 218 221 / 62%), 0 0 22px rgb(176 193 201 / 30%);
+}
+
+.abyssa-expedition-party-card[data-support-kind="heal"] {
+  border-color: #8bd176;
+  box-shadow: 0 0 0 2px rgb(139 209 118 / 62%), 0 0 22px rgb(79 191 82 / 28%);
+}
+
+.abyssa-expedition-party-card[data-support-phase="anticipate"] {
+  animation: expedition-support-target-anticipate 90ms ease-out both;
+}
+
+.abyssa-expedition-party-card[data-support-phase="release"] {
+  transform: scale(1.012);
+}
+
+.abyssa-expedition-party-card[data-support-phase="impact"] {
+  animation: expedition-support-target-impact 240ms ease-out both;
+}
+
+.abyssa-expedition-party-card[data-support-phase="settle"] {
+  animation: expedition-support-target-settle 300ms ease-out both;
+}
+
+.abyssa-expedition-party-card[data-support-kind="guard"][data-support-phase="impact"] .abyssa-expedition-party-card__shield {
+  animation: expedition-support-shield-badge 240ms ease-out both;
+}
+
+.abyssa-expedition-party-card[data-support-kind="heal"][data-support-phase="impact"] .abyssa-expedition-party-card__hearts i[data-filled] {
+  animation: expedition-support-heart 240ms ease-out both;
+}
+
+@keyframes expedition-support-gather {
+  from { opacity: 0; transform: translate(-50%, -50%) scale(.38); }
+  to { opacity: .42; transform: translate(-50%, -50%) scale(.72); }
+}
+
+@keyframes expedition-support-halo-release {
+  from { opacity: .42; transform: translate(-50%, -50%) scale(.72); }
+  to { opacity: .68; transform: translate(-50%, -50%) scale(1); }
+}
+
+@keyframes expedition-support-halo-impact {
+  0% { opacity: .74; transform: translate(-50%, -50%) scale(.96); }
+  34% { opacity: .92; }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(1.38); }
+}
+
+@keyframes expedition-support-emblem-release {
+  from { opacity: 0; transform: translate(-50%, -50%) translateY(18px) scale(.42); }
+  to { opacity: 1; transform: translate(-50%, -50%) translateY(0) scale(.94); }
+}
+
+@keyframes expedition-support-emblem-impact {
+  0% { opacity: 1; transform: translate(-50%, -50%) scale(.94); }
+  28% { opacity: 1; transform: translate(-50%, -50%) scale(1.13); }
+  58% { opacity: 1; transform: translate(-50%, -50%) scale(.98); }
+  100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+@keyframes expedition-support-value-impact {
+  0% { opacity: 0; transform: translateX(-50%) translateY(10px) scale(.82); }
+  28% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1.12); }
+  100% { opacity: 1; transform: translateX(-50%) translateY(-5px) scale(1); }
+}
+
+@keyframes expedition-support-value-settle {
+  from { opacity: 1; transform: translateX(-50%) translateY(-5px) scale(1); }
+  to { opacity: 0; transform: translateX(-50%) translateY(-26px) scale(.9); }
+}
+
+@keyframes expedition-guard-emblem-settle {
+  from { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  58% { opacity: .9; }
+  to { opacity: 0; transform: translate(-50%, -50%) translate(-50px, 76px) scale(.24); }
+}
+
+@keyframes expedition-heal-emblem-settle {
+  from { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  58% { opacity: .9; }
+  to { opacity: 0; transform: translate(-50%, -50%) translate(32px, 76px) scale(.24); }
+}
+
+@keyframes expedition-heal-particle {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(.42) rotate(0); }
+  24% { opacity: .96; }
+  100% { opacity: 0; transform: translate(-50%, -50%) translate(var(--support-x), var(--support-y)) scale(.82) rotate(var(--support-rotate)); }
+}
+
+@keyframes expedition-support-caster-anticipate {
+  from { transform: translateY(0) scale(1); }
+  to { transform: translateY(-5px) scale(1.018); }
+}
+
+@keyframes expedition-support-caster-impact {
+  0% { transform: translateY(-5px) scale(1.018); }
+  32% { transform: translateY(-2px) scale(.99); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+@keyframes expedition-support-caster-settle {
+  from { transform: translateY(0) scale(1); }
+  to { transform: translateY(0) scale(1); }
+}
+
+@keyframes expedition-support-target-anticipate {
+  from { transform: scale(1); }
+  to { transform: scale(1.012); }
+}
+
+@keyframes expedition-support-target-impact {
+  0% { transform: scale(1.012); }
+  26% { transform: scale(1.04); }
+  54% { transform: scale(.995); }
+  100% { transform: scale(1.012); }
+}
+
+@keyframes expedition-support-target-settle {
+  from { transform: scale(1.012); }
+  to { transform: scale(1); }
+}
+
+@keyframes expedition-support-shield-badge {
+  0% { transform: scale(.82); }
+  35% { transform: scale(1.22); }
+  100% { transform: scale(1); }
+}
+
+@keyframes expedition-support-heart {
+  0% { transform: translateY(1px) scale(.82); }
+  38% { transform: translateY(-1px) scale(1.22); }
+  100% { transform: translateY(0) scale(1); }
+}

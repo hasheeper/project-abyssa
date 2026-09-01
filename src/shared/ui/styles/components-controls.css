@@ -1,0 +1,719 @@
+
+/* Ribbon button */
+.abyssa-ribbon-button {
+  --abyssa-ribbon-fill: var(--abyssa-panel-black, #1d2121);
+  --abyssa-ribbon-text: var(--abyssa-text, #edf0f0);
+  --abyssa-ribbon-pattern: rgb(255 255 255 / 4.5%);
+  --abyssa-ribbon-max-width: 680px;
+  --abyssa-ribbon-font-min: 10px;
+  --abyssa-ribbon-font-max: 18px;
+  position: relative;
+  display: inline-grid;
+  width: min(100%, var(--abyssa-ribbon-max-width));
+  height: auto;
+  aspect-ratio: 820 / 68;
+  padding: 0;
+  border: 0;
+  color: var(--abyssa-ribbon-text);
+  background: none;
+  container-type: inline-size;
+  cursor: pointer;
+  place-items: center;
+  transition: filter 120ms ease, transform 100ms ease;
+}
+
+.abyssa-ribbon-button[data-size="sm"] {
+  --abyssa-ribbon-max-width: 500px;
+  --abyssa-ribbon-font-min: 9px;
+  --abyssa-ribbon-font-max: 13px;
+}
+
+.abyssa-ribbon-button[data-size="lg"] {
+  --abyssa-ribbon-max-width: 820px;
+  --abyssa-ribbon-font-min: 12px;
+  --abyssa-ribbon-font-max: 20px;
+}
+
+.abyssa-ribbon-button[data-full-width] {
+  display: grid;
+  width: 100%;
+  max-width: none;
+}
+
+.abyssa-ribbon-button[data-variant="light"] {
+  --abyssa-ribbon-fill: var(--abyssa-panel-light, #e2e7e7);
+  --abyssa-ribbon-text: var(--abyssa-text-dark, #192020);
+  --abyssa-ribbon-pattern: rgb(31 42 42 / 7.5%);
+}
+
+.abyssa-ribbon-button[data-variant="teal"] {
+  --abyssa-ribbon-fill: var(--abyssa-teal, #72b3b7);
+  --abyssa-ribbon-text: var(--abyssa-text-dark, #192020);
+  --abyssa-ribbon-pattern: rgb(24 56 58 / 8.5%);
+}
+
+.abyssa-ribbon-button__art,
+.abyssa-ribbon-button__label {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* label 带水平内边距。若沿用 content-box,100% 宽度还会再加两侧 padding,
+   标签盒会比按钮本身更宽并把文字整体推向右侧。 */
+.abyssa-ribbon-button__label {
+  box-sizing: border-box;
+}
+
+.abyssa-ribbon-button__art {
+  overflow: visible;
+  shape-rendering: geometricPrecision;
+}
+
+.abyssa-ribbon-button__frame-dark {
+  stroke: var(--abyssa-frame-dark, #192020);
+  stroke-linejoin: miter;
+}
+
+.abyssa-ribbon-button__label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding-inline: 58px;
+  font-family: var(--abyssa-font-display, Georgia, serif);
+  font-size: clamp(
+    var(--abyssa-ribbon-font-min),
+    2.44cqi,
+    var(--abyssa-ribbon-font-max)
+  );
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.abyssa-ribbon-button__icon { display: inline-grid; width: 1em; height: 1em; place-items: center; }
+.abyssa-ribbon-button__icon > svg { width: 100%; height: 100%; }
+
+.abyssa-ribbon-button:hover:not(:disabled) { filter: brightness(1.07); }
+.abyssa-ribbon-button:active:not(:disabled) { transform: translateY(1px); }
+.abyssa-ribbon-button[data-selected] { filter: drop-shadow(0 0 7px rgb(114 179 183 / 60%)); }
+.abyssa-ribbon-button:disabled { cursor: not-allowed; filter: grayscale(0.75); opacity: 0.46; }
+
+/* Wide symmetric hex button, based on the 920 × 120 visual prototype. */
+.abyssa-hex-button {
+  --abyssa-hex-fill: var(--abyssa-teal, #72b3b7);
+  --abyssa-hex-text: var(--abyssa-text-dark, #192020);
+  --abyssa-hex-frame-middle: #829294;
+  --abyssa-hex-pattern-dark: rgb(25 72 75 / 12%);
+  --abyssa-hex-pattern-light: rgb(255 255 255 / 8%);
+  --abyssa-hex-max-width: 760px;
+  --abyssa-hex-font-min: 12px;
+  --abyssa-hex-font-max: 30px;
+  position: relative;
+  display: inline-grid;
+  width: min(100%, var(--abyssa-hex-max-width));
+  height: auto;
+  aspect-ratio: 920 / 120;
+  padding: 0;
+  border: 0;
+  color: var(--abyssa-hex-text);
+  background: transparent;
+  container-type: inline-size;
+  cursor: pointer;
+  place-items: center;
+  transition: filter 120ms ease, transform 90ms ease;
+}
+
+.abyssa-hex-button[data-size="sm"] {
+  --abyssa-hex-max-width: 620px;
+  --abyssa-hex-font-min: 10px;
+  --abyssa-hex-font-max: 23px;
+}
+
+.abyssa-hex-button[data-size="lg"] {
+  --abyssa-hex-max-width: 920px;
+  --abyssa-hex-font-min: 14px;
+  --abyssa-hex-font-max: 36px;
+}
+
+.abyssa-hex-button[data-full-width] {
+  display: grid;
+  width: 100%;
+  max-width: none;
+}
+
+.abyssa-hex-button[data-variant="dark"] {
+  --abyssa-hex-fill: var(--abyssa-panel-black, #1d2121);
+  --abyssa-hex-text: var(--abyssa-text, #edf0f0);
+  --abyssa-hex-frame-middle: #718183;
+  --abyssa-hex-pattern-dark: rgb(255 255 255 / 5.5%);
+  --abyssa-hex-pattern-light: rgb(255 255 255 / 1.8%);
+}
+
+.abyssa-hex-button[data-variant="light"] {
+  --abyssa-hex-fill: var(--abyssa-panel-light, #e2e7e7);
+  --abyssa-hex-text: var(--abyssa-text-dark, #192020);
+  --abyssa-hex-frame-middle: #9ba8a9;
+  --abyssa-hex-pattern-dark: rgb(35 57 58 / 9%);
+  --abyssa-hex-pattern-light: rgb(255 255 255 / 16%);
+}
+
+.abyssa-hex-button__art,
+.abyssa-hex-button__label {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.abyssa-hex-button__art { overflow: visible; shape-rendering: geometricPrecision; }
+.abyssa-hex-button__dots { fill: var(--abyssa-hex-frame-middle); }
+.abyssa-hex-button__dots circle:nth-child(3) { fill: var(--abyssa-teal, #72b3b7); }
+.abyssa-hex-button__label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding-inline: 72px;
+  font-family: var(--abyssa-font-display, Georgia, serif);
+  font-size: clamp(var(--abyssa-hex-font-min), 4.7cqi, var(--abyssa-hex-font-max));
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  line-height: 1;
+}
+.abyssa-hex-button__icon { display: inline-grid; width: 1em; height: 1em; place-items: center; }
+.abyssa-hex-button__icon svg { width: 100%; height: 100%; }
+.abyssa-hex-button:hover:not(:disabled) { filter: brightness(1.05); }
+.abyssa-hex-button:active:not(:disabled) { transform: translateY(2px); }
+.abyssa-hex-button[data-selected] { filter: drop-shadow(0 0 8px rgb(114 179 183 / 55%)); }
+.abyssa-hex-button:disabled { cursor: not-allowed; filter: grayscale(0.75); opacity: 0.46; }
+
+/* Square selection panel */
+.abyssa-panel-tile {
+  --abyssa-tile-fill: #1d2020;
+  --abyssa-tile-ornament: #626c6c;
+  --abyssa-tile-number: #f0f2f2;
+  --abyssa-tile-middle: #7f8b8c;
+  --abyssa-tile-pattern-outer: rgb(255 255 255 / 3.8%);
+  --abyssa-tile-pattern-inner: rgb(255 255 255 / 1.6%);
+  position: relative;
+  display: grid;
+  width: 100%;
+  min-width: 72px;
+  padding: 0;
+  aspect-ratio: 1;
+  border: 0;
+  color: var(--abyssa-tile-number);
+  background: none;
+  cursor: pointer;
+  place-items: center;
+  transition: filter 120ms ease, transform 100ms ease;
+}
+
+.abyssa-panel-tile[data-variant="gray"] {
+  --abyssa-tile-fill: #575d5d;
+  --abyssa-tile-ornament: #282e2e;
+  --abyssa-tile-middle: #7f8989;
+}
+
+.abyssa-panel-tile[data-variant="deep"] {
+  --abyssa-tile-fill: #1e2020;
+  --abyssa-tile-ornament: #505959;
+  --abyssa-tile-middle: #687373;
+}
+
+.abyssa-panel-tile[data-variant="teal"] {
+  --abyssa-tile-fill: var(--abyssa-teal, #72b3b7);
+  --abyssa-tile-ornament: #263b3c;
+  --abyssa-tile-middle: #798f90;
+  --abyssa-tile-pattern-outer: rgb(20 58 60 / 9%);
+  --abyssa-tile-pattern-inner: rgb(255 255 255 / 6%);
+}
+
+.abyssa-panel-tile[data-variant="teal-outline"] {
+  --abyssa-tile-fill: #1d2020;
+  --abyssa-tile-ornament: #65aeb2;
+  --abyssa-tile-middle: #4f969a;
+}
+
+.abyssa-panel-tile[data-variant="light"] {
+  --abyssa-tile-fill: #d9dddd;
+  --abyssa-tile-ornament: #626b6b;
+  --abyssa-tile-number: #182020;
+  --abyssa-tile-middle: #8d9898;
+  --abyssa-tile-pattern-outer: rgb(28 49 50 / 7%);
+  --abyssa-tile-pattern-inner: rgb(255 255 255 / 20%);
+}
+
+.abyssa-panel-tile > svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  shape-rendering: geometricPrecision;
+}
+
+.abyssa-panel-tile__content {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  padding: 18%;
+  font-family: var(--abyssa-font-display, Georgia, serif);
+  font-size: clamp(1rem, 22cqi, 2rem);
+  letter-spacing: 0.1em;
+  line-height: 1;
+  place-items: center;
+}
+
+.abyssa-panel-tile__marker {
+  position: absolute;
+  right: 9%;
+  bottom: -7%;
+  z-index: 2;
+  width: 15%;
+  min-width: 11px;
+  aspect-ratio: 1;
+  background: var(--abyssa-teal, #72b3b7);
+  border: 2px solid var(--abyssa-frame-dark, #192020);
+  box-shadow: inset 0 0 0 2px var(--abyssa-frame-light, #a7b3b4);
+  transform: rotate(45deg);
+}
+
+.abyssa-panel-tile:hover:not(:disabled) { filter: brightness(1.07); }
+.abyssa-panel-tile:active:not(:disabled) { transform: translateY(1px); }
+.abyssa-panel-tile[data-selected] { filter: drop-shadow(0 0 8px rgb(114 179 183 / 45%)); }
+.abyssa-panel-tile:disabled { cursor: not-allowed; filter: grayscale(1); opacity: 0.48; }
+
+/* Compact 116 × 116 square panel with deliberately minimal ornaments. */
+.abyssa-square-panel {
+  --abyssa-square-fill: #1b1f1f;
+  --abyssa-square-text: #f0f3f3;
+  --abyssa-square-middle: #798687;
+  --abyssa-square-ornament: #667171;
+  position: relative;
+  display: inline-grid;
+  width: min(100%, 116px);
+  min-width: 0;
+  padding: 0;
+  aspect-ratio: 1;
+  border: 0;
+  color: var(--abyssa-square-text);
+  background: transparent;
+  container-type: inline-size;
+  cursor: pointer;
+  place-items: center;
+  transition: filter 100ms ease, transform 80ms ease;
+}
+
+.abyssa-square-panel[data-variant="gray"] {
+  --abyssa-square-fill: #606565;
+  --abyssa-square-middle: #879293;
+  --abyssa-square-ornament: #252c2c;
+}
+
+.abyssa-square-panel[data-variant="deep"] {
+  --abyssa-square-fill: #202323;
+  --abyssa-square-middle: #687475;
+  --abyssa-square-ornament: #3f4949;
+}
+
+.abyssa-square-panel[data-variant="teal"] {
+  --abyssa-square-fill: #79b9bd;
+  --abyssa-square-text: #f5f7f7;
+  --abyssa-square-middle: #879899;
+  --abyssa-square-ornament: #304344;
+}
+
+.abyssa-square-panel[data-variant="teal-outline"] {
+  --abyssa-square-fill: #1b2020;
+  --abyssa-square-middle: #64aeb2;
+  --abyssa-square-ornament: #65b3b7;
+}
+
+.abyssa-square-panel[data-variant="light"] {
+  --abyssa-square-fill: #e0e3e3;
+  --abyssa-square-text: #fff;
+  --abyssa-square-middle: #939e9f;
+  --abyssa-square-ornament: #535e5e;
+}
+
+.abyssa-square-panel > svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  shape-rendering: geometricPrecision;
+}
+
+.abyssa-square-panel__content {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  padding: 16%;
+  font-family: var(--abyssa-font-display, Georgia, serif);
+  font-size: clamp(1rem, 31.9cqi, 2.3125rem);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  transform: translateY(2%);
+  place-items: center;
+}
+
+.abyssa-square-panel:hover:not(:disabled) { filter: brightness(1.05); }
+.abyssa-square-panel:active:not(:disabled) { transform: translateY(1px); }
+.abyssa-square-panel[data-selected] { filter: drop-shadow(0 0 6px rgb(114 179 183 / 52%)); }
+.abyssa-square-panel:disabled { cursor: not-allowed; filter: grayscale(1); opacity: 0.48; }
+
+/* Reference shape buttons */
+.abyssa-shape-button,
+.abyssa-rpg-tab,
+.abyssa-back-button,
+.abyssa-icon-button {
+  padding: 0;
+  border: 0;
+  color: inherit;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+  transition: filter 100ms ease, transform 80ms ease;
+}
+
+.abyssa-shape-button {
+  --abyssa-shape-fill: #1d2121;
+  --abyssa-shape-text: #f0f3f3;
+  --abyssa-shape-middle: #718081;
+  --abyssa-shape-ornament: #566162;
+  --abyssa-shape-pattern-dark: rgb(255 255 255 / 4%);
+  --abyssa-shape-pattern-light: rgb(255 255 255 / 1.2%);
+  position: relative;
+  display: block;
+  flex: 0 1 auto;
+}
+.abyssa-shape-button[data-shape="circle"],
+.abyssa-shape-button[data-shape="square"] { width: 145px; }
+.abyssa-shape-button[data-shape="chamfer"],
+.abyssa-shape-button[data-shape="pill"] { width: 240px; }
+.abyssa-shape-button[data-variant="light"] {
+  --abyssa-shape-fill: #e4e8e8;
+  --abyssa-shape-text: #303737;
+  --abyssa-shape-middle: #9ba7a8;
+  --abyssa-shape-ornament: #667273;
+  --abyssa-shape-pattern-dark: rgb(38 58 59 / 7.5%);
+  --abyssa-shape-pattern-light: rgb(255 255 255 / 22%);
+}
+.abyssa-shape-button[data-variant="teal"] {
+  --abyssa-shape-fill: #73b8bc;
+  --abyssa-shape-text: #263031;
+  --abyssa-shape-middle: #778f90;
+  --abyssa-shape-ornament: #315253;
+  --abyssa-shape-pattern-dark: rgb(26 70 73 / 9.5%);
+  --abyssa-shape-pattern-light: rgb(255 255 255 / 8%);
+}
+.abyssa-shape-button svg,
+.abyssa-rpg-tab svg,
+.abyssa-back-button svg,
+.abyssa-icon-button__art { display: block; width: 100%; height: auto; overflow: visible; shape-rendering: geometricPrecision; }
+.abyssa-shape-button__label,
+.abyssa-rpg-tab__label,
+.abyssa-back-button__label {
+  fill: currentColor;
+  font-family: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+  font-weight: 600;
+  text-anchor: middle;
+  dominant-baseline: middle;
+}
+.abyssa-shape-button__label { fill: var(--abyssa-shape-text); font-size: 29px; letter-spacing: .8px; }
+.abyssa-shape-button__content {
+  position: absolute;
+  inset: 12%;
+  z-index: 1;
+  display: grid;
+  min-width: 0;
+  min-height: 0;
+  place-items: center;
+}
+.abyssa-shape-button[data-shape="square"] .abyssa-shape-button__label { font-size: 27px; }
+.abyssa-shape-button[data-shape="chamfer"] .abyssa-shape-button__label,
+.abyssa-shape-button[data-shape="pill"] .abyssa-shape-button__label { font-size: 25px; }
+
+/* Four-way RPG direction pad */
+.abyssa-direction-pad {
+  --abyssa-direction-frame-outer: var(--abyssa-frame-dark, #182020);
+  --abyssa-direction-frame-middle: var(--abyssa-frame-light, #819091);
+  --abyssa-direction-frame-inner: var(--abyssa-frame-deep, #101616);
+  --abyssa-direction-fill: #70b8bd;
+  --abyssa-direction-ornament: #254b4d;
+  --abyssa-direction-highlight: #9ed4d7;
+  --abyssa-direction-text: #313939;
+  --abyssa-direction-size: 330px;
+  position: relative;
+  display: block;
+  width: var(--abyssa-direction-size);
+  max-width: 100%;
+  aspect-ratio: 1;
+  isolation: isolate;
+}
+
+.abyssa-direction-pad[data-size="sm"] { --abyssa-direction-size: 200px; }
+.abyssa-direction-pad[data-size="lg"] { --abyssa-direction-size: 390px; }
+
+.abyssa-direction-pad[data-variant="dark"] {
+  --abyssa-direction-fill: #354344;
+  --abyssa-direction-ornament: #86a9aa;
+  --abyssa-direction-highlight: #b7d3d4;
+  --abyssa-direction-text: #d9e2e2;
+}
+
+.abyssa-direction-pad[data-variant="light"] {
+  --abyssa-direction-fill: #b9d3d4;
+  --abyssa-direction-ornament: #35595b;
+  --abyssa-direction-highlight: #ecffff;
+  --abyssa-direction-text: #263637;
+}
+
+.abyssa-direction-pad__art {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+  shape-rendering: geometricPrecision;
+}
+
+.abyssa-direction-pad__arrow {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: filter 100ms ease, transform 90ms ease;
+}
+
+.abyssa-direction-pad__arrow-fill { fill: var(--abyssa-direction-fill); }
+.abyssa-direction-pad__arrow[data-selected] .abyssa-direction-pad__arrow-fill { fill: color-mix(in srgb, var(--abyssa-direction-fill) 78%, white); }
+
+.abyssa-direction-pad__label {
+  fill: var(--abyssa-direction-text);
+  font-family: var(--abyssa-font-display, Georgia, "Times New Roman", serif);
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-anchor: middle;
+  dominant-baseline: middle;
+}
+
+.abyssa-direction-pad__button {
+  position: absolute;
+  z-index: 1;
+  width: 30%;
+  height: 30%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  transition: transform 90ms ease;
+}
+
+.abyssa-direction-pad__button[data-direction="up"] { top: 2%; left: 35%; }
+.abyssa-direction-pad__button[data-direction="right"] { top: 35%; right: 2%; }
+.abyssa-direction-pad__button[data-direction="down"] { bottom: 2%; left: 35%; }
+.abyssa-direction-pad__button[data-direction="left"] { top: 35%; left: 2%; }
+
+.abyssa-direction-pad__button:hover:not(:disabled) ~ .abyssa-direction-pad__art .abyssa-direction-pad__arrow[data-direction] { filter: none; }
+.abyssa-direction-pad:has(.abyssa-direction-pad__button[data-direction="up"]:hover) .abyssa-direction-pad__arrow[data-direction="up"],
+.abyssa-direction-pad:has(.abyssa-direction-pad__button[data-direction="right"]:hover) .abyssa-direction-pad__arrow[data-direction="right"],
+.abyssa-direction-pad:has(.abyssa-direction-pad__button[data-direction="down"]:hover) .abyssa-direction-pad__arrow[data-direction="down"],
+.abyssa-direction-pad:has(.abyssa-direction-pad__button[data-direction="left"]:hover) .abyssa-direction-pad__arrow[data-direction="left"] { filter: brightness(1.1); }
+
+.abyssa-direction-pad__button:active:not(:disabled) { transform: scale(.95); }
+.abyssa-direction-pad__button:focus-visible { outline: 2px solid var(--abyssa-focus, #e9eeee); outline-offset: 3px; }
+.abyssa-direction-pad__button:disabled { cursor: not-allowed; }
+.abyssa-direction-pad:has(.abyssa-direction-pad__button:disabled) { opacity: .56; filter: grayscale(.45); }
+
+/* Open-bottom RPG tabs */
+.abyssa-rpg-tab {
+  --abyssa-tab-fill: #1c2020;
+  --abyssa-tab-text: #f0f3f3;
+  --abyssa-tab-middle: #748283;
+  --abyssa-tab-ornament: #555f60;
+  --abyssa-tab-pattern-dark: rgb(255 255 255 / 2.5%);
+  --abyssa-tab-pattern-light: transparent;
+  display: block;
+  width: 100%;
+}
+.abyssa-rpg-tab[data-variant="light"] {
+  --abyssa-tab-fill: #e3e7e7;
+  --abyssa-tab-text: #343a3a;
+  --abyssa-tab-middle: #9ba7a8;
+  --abyssa-tab-ornament: #697474;
+  --abyssa-tab-pattern-dark: rgb(38 56 57 / 7.5%);
+  --abyssa-tab-pattern-light: rgb(255 255 255 / 22%);
+}
+.abyssa-rpg-tab[data-variant="decorated"] {
+  --abyssa-tab-fill: #1d2121;
+  --abyssa-tab-text: #f0f3f3;
+  --abyssa-tab-middle: #718081;
+  --abyssa-tab-ornament: #899798;
+  --abyssa-tab-pattern-dark: rgb(255 255 255 / 3.5%);
+  --abyssa-tab-pattern-light: rgb(255 255 255 / 1.2%);
+}
+.abyssa-rpg-tab[data-variant="teal"] {
+  --abyssa-tab-fill: #75b7bb;
+  --abyssa-tab-text: #f3f5f5;
+  --abyssa-tab-middle: #789293;
+  --abyssa-tab-ornament: #345456;
+  --abyssa-tab-pattern-dark: rgb(26 70 73 / 9%);
+  --abyssa-tab-pattern-light: rgb(255 255 255 / 9%);
+}
+.abyssa-rpg-tab__label { fill: var(--abyssa-tab-text); font-size: 30px; letter-spacing: 2px; }
+
+/* Triangular back button */
+.abyssa-back-button {
+  --abyssa-back-fill: #1d2121;
+  --abyssa-back-text: #f0f3f3;
+  --abyssa-back-middle: #718081;
+  --abyssa-back-ornament: #566162;
+  --abyssa-back-pattern-dark: rgb(255 255 255 / 3.5%);
+  --abyssa-back-pattern-light: rgb(255 255 255 / 1%);
+  display: block;
+  width: 190px;
+  height: 190px;
+}
+.abyssa-back-button[data-variant="light"] {
+  --abyssa-back-fill: #e4e8e8;
+  --abyssa-back-text: #303737;
+  --abyssa-back-middle: #9ba7a8;
+  --abyssa-back-ornament: #667273;
+  --abyssa-back-pattern-dark: rgb(38 58 59 / 7.5%);
+  --abyssa-back-pattern-light: rgb(255 255 255 / 22%);
+}
+.abyssa-back-button[data-variant="teal"] {
+  --abyssa-back-fill: #73b8bc;
+  --abyssa-back-text: #263031;
+  --abyssa-back-middle: #778f90;
+  --abyssa-back-ornament: #315253;
+  --abyssa-back-pattern-dark: rgb(26 70 73 / 9.5%);
+  --abyssa-back-pattern-light: rgb(255 255 255 / 8%);
+}
+.abyssa-back-button__label { fill: var(--abyssa-back-text); font-size: 29px; letter-spacing: .4px; }
+
+/* Standard and compact icon buttons */
+.abyssa-icon-button {
+  --abyssa-icon-size: 86px;
+  --abyssa-icon-fill: #1d2121;
+  --abyssa-icon-middle: #718081;
+  --abyssa-icon-ornament: #566162;
+  --abyssa-icon-ink: #8f9b9c;
+  --abyssa-icon-pattern-dark: rgb(255 255 255 / 4%);
+  --abyssa-icon-pattern-light: rgb(255 255 255 / 1.2%);
+  position: relative;
+  display: block;
+  width: var(--abyssa-icon-size);
+  height: var(--abyssa-icon-size);
+}
+.abyssa-icon-button[data-size="md"] { --abyssa-icon-size: 76px; }
+.abyssa-icon-button[data-size="sm"] { --abyssa-icon-size: 66px; }
+.abyssa-icon-button[data-variant="light"] {
+  --abyssa-icon-fill: #e4e8e8;
+  --abyssa-icon-middle: #9ba7a8;
+  --abyssa-icon-ornament: #667273;
+  --abyssa-icon-ink: #202727;
+  --abyssa-icon-pattern-dark: rgb(38 58 59 / 7%);
+  --abyssa-icon-pattern-light: rgb(255 255 255 / 22%);
+}
+.abyssa-icon-button[data-variant="teal"] {
+  --abyssa-icon-fill: #73b8bc;
+  --abyssa-icon-middle: #778f90;
+  --abyssa-icon-ornament: #315253;
+  --abyssa-icon-ink: #173536;
+  --abyssa-icon-pattern-dark: rgb(26 70 73 / 9.5%);
+  --abyssa-icon-pattern-light: rgb(255 255 255 / 8%);
+}
+.abyssa-icon-button__custom { position: absolute; inset: 29%; display: grid; color: var(--abyssa-icon-ink); place-items: center; }
+.abyssa-icon-button__custom > svg { display: block; width: 100%; height: 100%; }
+.abyssa-arrow-icon { width: 100%; height: 100%; overflow: visible; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2.5; }
+
+.abyssa-shape-button:hover:not(:disabled),
+.abyssa-rpg-tab:hover:not(:disabled),
+.abyssa-back-button:hover:not(:disabled),
+.abyssa-icon-button:hover:not(:disabled) { filter: brightness(1.07); }
+.abyssa-shape-button:active:not(:disabled),
+.abyssa-rpg-tab:active:not(:disabled),
+.abyssa-icon-button:active:not(:disabled) { transform: translateY(1px) scale(.99); }
+.abyssa-back-button:active:not(:disabled) { transform: translate(1px, 1px) scale(.99); }
+.abyssa-shape-button:focus-visible,
+.abyssa-rpg-tab:focus-visible,
+.abyssa-back-button:focus-visible,
+.abyssa-icon-button:focus-visible { outline: 2px solid #eef2f2; outline-offset: 5px; }
+.abyssa-icon-button[data-shape="circle"]:focus-visible { border-radius: 50%; }
+.abyssa-shape-button[data-selected],
+.abyssa-rpg-tab[data-selected],
+.abyssa-icon-button[data-selected] { filter: drop-shadow(0 0 6px rgb(114 179 183 / 55%)); }
+.abyssa-shape-button:disabled,
+.abyssa-rpg-tab:disabled,
+.abyssa-back-button:disabled,
+.abyssa-icon-button:disabled { cursor: not-allowed; filter: grayscale(1); opacity: .45; }
+
+/* Native radio and checkbox controls */
+.abyssa-choice {
+  --abyssa-choice-fill: #242929;
+  --abyssa-choice-middle: #8d9a9b;
+  --abyssa-choice-accent: #697677;
+  --abyssa-choice-core: #1b2020;
+  --abyssa-choice-check: #e7ecec;
+  --abyssa-choice-pattern-outer: rgb(255 255 255 / 4%);
+  --abyssa-choice-pattern-inner: rgb(255 255 255 / 1.8%);
+  position: relative;
+  display: block;
+  width: 42px;
+  height: 42px;
+  cursor: pointer;
+}
+.abyssa-choice input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.abyssa-choice svg { display: block; width: 100%; height: 100%; overflow: visible; shape-rendering: geometricPrecision; transition: filter 100ms ease, transform 80ms ease; }
+.abyssa-choice__mark { opacity: 0; transition: opacity 100ms ease; }
+.abyssa-choice input:checked + svg .abyssa-choice__mark { opacity: 1; }
+.abyssa-choice--radio[data-variant="gray"] { --abyssa-choice-fill: #737979; --abyssa-choice-accent: #596263; --abyssa-choice-core: #303737; }
+.abyssa-choice--radio[data-variant="teal"] { --abyssa-choice-fill: #70b6ba; --abyssa-choice-accent: #376264; --abyssa-choice-core: #173536; --abyssa-choice-pattern-outer: rgb(21 63 65 / 10%); --abyssa-choice-pattern-inner: rgb(255 255 255 / 8%); }
+.abyssa-choice--radio[data-variant="dark"] { --abyssa-choice-fill: #dfe4e4; --abyssa-choice-accent: #667374; --abyssa-choice-core: #1b2020; --abyssa-choice-pattern-outer: rgb(28 48 49 / 8%); --abyssa-choice-pattern-inner: rgb(255 255 255 / 20%); }
+.abyssa-choice--checkbox[data-variant="empty"] { --abyssa-choice-fill: #171b1b; --abyssa-choice-accent: #4f595a; --abyssa-choice-check: transparent; }
+.abyssa-choice--checkbox[data-variant="teal"] { --abyssa-choice-fill: #6eb5ba; --abyssa-choice-accent: #345d5f; --abyssa-choice-check: #173536; --abyssa-choice-pattern-outer: rgb(21 63 65 / 10%); --abyssa-choice-pattern-inner: rgb(255 255 255 / 8%); }
+.abyssa-choice:hover svg { filter: brightness(1.08); }
+.abyssa-choice:active svg { transform: scale(.95); }
+.abyssa-choice input:focus-visible + svg { outline: 2px solid #edf2f2; outline-offset: 3px; }
+.abyssa-choice--radio input:focus-visible + svg { border-radius: 50%; }
+.abyssa-choice[data-disabled] { cursor: not-allowed; filter: grayscale(1); opacity: .45; }
+
+/* Vertical ornamental indicators */
+.abyssa-vertical-indicator {
+  --abyssa-indicator-fill: #1d2121;
+  --abyssa-indicator-middle: #718081;
+  --abyssa-indicator-ornament: #596465;
+  --abyssa-indicator-axis: #252c2c;
+  --abyssa-indicator-pattern-dark: rgb(255 255 255 / 3.5%);
+  --abyssa-indicator-pattern-light: rgb(255 255 255 / 1%);
+  display: block;
+  width: 40px;
+  height: 170px;
+}
+.abyssa-vertical-indicator[data-variant="light"] {
+  --abyssa-indicator-fill: #e4e8e8;
+  --abyssa-indicator-middle: #9ba7a8;
+  --abyssa-indicator-ornament: #667273;
+  --abyssa-indicator-axis: #303737;
+  --abyssa-indicator-pattern-dark: rgb(38 58 59 / 7%);
+  --abyssa-indicator-pattern-light: rgb(255 255 255 / 22%);
+}
+.abyssa-vertical-indicator[data-variant="teal"] {
+  --abyssa-indicator-fill: #73b8bc;
+  --abyssa-indicator-middle: #778f90;
+  --abyssa-indicator-ornament: #315253;
+  --abyssa-indicator-axis: #244344;
+  --abyssa-indicator-pattern-dark: rgb(26 70 73 / 9%);
+  --abyssa-indicator-pattern-light: rgb(255 255 255 / 8%);
+}
+.abyssa-vertical-indicator svg { display: block; width: 100%; height: 100%; overflow: visible; shape-rendering: geometricPrecision; }

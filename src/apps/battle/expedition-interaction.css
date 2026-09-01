@@ -1,0 +1,980 @@
+
+/* ============================================================
+   引擎接入：交互态、意图徽章、弹窗、提示
+============================================================ */
+
+/* ---------- 敌人：仅在"拿着可施放的骰"时才可点 ---------- */
+
+.abyssa-expedition-enemy[data-targetable] {
+  cursor: pointer;
+}
+
+.abyssa-expedition-enemy[data-targetable]:hover > img {
+  filter:
+    grayscale(.42)
+    sepia(.1)
+    saturate(.78)
+    brightness(1.06)
+    contrast(1.2)
+    drop-shadow(0 7px 7px rgb(0 0 0 / 88%))
+    drop-shadow(0 0 14px rgb(212 106 94 / 40%));
+}
+
+.abyssa-expedition-enemy[data-targetable]:hover .abyssa-expedition-enemy__health i[data-filled] {
+  border-color: #b3653c;
+}
+
+/* ---------- 意图徽章：一个图形 + 一个数字，不写废话 ---------- */
+
+.abyssa-expedition-intent {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 9px 3px 7px;
+  border: 1px solid #70413b;
+  border-radius: 3px;
+  color: #e8b0a7;
+  background:
+    linear-gradient(135deg, rgb(212 106 94 / 14%), transparent 60%),
+    rgb(30 15 13 / 92%);
+  box-shadow: 0 2px 6px rgb(0 0 0 / 66%);
+  cursor: default;
+  font: inherit;
+  gap: 5px;
+}
+
+.abyssa-expedition-intent > .abyssa-expedition-glyph {
+  width: 14px;
+  height: 14px;
+}
+
+.abyssa-expedition-intent b {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: .04em;
+  line-height: 1;
+}
+
+/* 非攻击意图：标题是文字，字号收一档 */
+.abyssa-expedition-intent:not([data-kind="attack"]) b {
+  font-size: 11px;
+  letter-spacing: .08em;
+}
+
+.abyssa-expedition-intent[data-kind="seal"],
+.abyssa-expedition-intent[data-kind="charge"] {
+  border-color: #5c4a6e;
+  color: #c1a9d8;
+  background:
+    linear-gradient(135deg, rgb(189 148 219 / 12%), transparent 60%),
+    rgb(24 17 30 / 92%);
+}
+
+.abyssa-expedition-intent[data-kind="countdown"],
+.abyssa-expedition-intent[data-kind="summon"] {
+  border-color: #6e5a31;
+  color: #dcb96a;
+  background:
+    linear-gradient(135deg, rgb(200 163 92 / 12%), transparent 60%),
+    rgb(28 21 11 / 92%);
+}
+
+/* 可格挡：拿着盾骰时才亮 */
+.abyssa-expedition-intent[data-blockable] {
+  border-color: #7ba0c4;
+  cursor: pointer;
+  transition: box-shadow 120ms ease, transform 120ms ease;
+}
+
+.abyssa-expedition-intent[data-blockable]:hover {
+  box-shadow: 0 2px 6px rgb(0 0 0 / 66%), 0 0 12px rgb(121 175 208 / 44%);
+  transform: translateY(-1px);
+}
+
+/* 徽章与连线同一套威胁语言 */
+
+/* 黄：掉血不致死 */
+.abyssa-expedition-intent[data-threat="normal"] {
+  border-color: #8a6a30;
+  color: #e6c078;
+  background:
+    linear-gradient(135deg, rgb(226 176 74 / 14%), transparent 60%),
+    rgb(31 23 12 / 92%);
+}
+
+/* 红：致死，加辉光与脉冲 */
+.abyssa-expedition-intent[data-threat="lethal"] {
+  border-color: #c0483c;
+  color: #ffb9ae;
+  background:
+    linear-gradient(135deg, rgb(216 62 52 / 22%), transparent 60%),
+    rgb(40 13 11 / 94%);
+  box-shadow: 0 2px 6px rgb(0 0 0 / 66%), 0 0 12px rgb(216 62 52 / 52%);
+  animation: expedition-intent-lethal 900ms ease-in-out infinite;
+}
+
+@keyframes expedition-intent-lethal {
+  50% { box-shadow: 0 2px 6px rgb(0 0 0 / 66%), 0 0 18px rgb(216 62 52 / 78%); }
+}
+
+/* 灰：已挡尽，完全无效 */
+.abyssa-expedition-intent[data-threat="blocked"] {
+  border-color: #55595c;
+  color: #9aa0a4;
+  background:
+    linear-gradient(135deg, rgb(160 168 172 / 10%), transparent 60%),
+    rgb(22 25 27 / 92%);
+  opacity: .8;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .abyssa-expedition-intent[data-threat="lethal"] { animation: none; }
+}
+
+/* ---------- 意图连线：三档威胁 ---------- */
+
+.abyssa-expedition-enemies__intent-lines g[data-kind="seal"] .abyssa-expedition-intent-line__body {
+  stroke: rgb(163 130 199 / 88%);
+}
+
+/* 黄：会掉血但不致死 */
+.abyssa-expedition-enemies__intent-lines g[data-threat="normal"] .abyssa-expedition-intent-line__body {
+  stroke: rgb(226 176 74 / 92%);
+}
+
+/* 红：这一下会打空目标，令其力竭 */
+.abyssa-expedition-enemies__intent-lines g[data-threat="lethal"] .abyssa-expedition-intent-line__body {
+  stroke: rgb(216 62 52 / 96%);
+  stroke-width: 4.4px;
+  filter: drop-shadow(0 1px 1px rgb(0 0 0 / 62%)) drop-shadow(0 0 7px rgb(216 62 52 / 62%));
+  animation-duration: 620ms;
+}
+
+.abyssa-expedition-enemies__intent-lines g[data-threat="lethal"] .abyssa-expedition-intent-line__shadow {
+  stroke: rgb(58 8 6 / 92%);
+  stroke-width: 8.5px;
+}
+
+/* 灰：已挡尽，完全无效 */
+.abyssa-expedition-enemies__intent-lines g[data-threat="blocked"] {
+  opacity: .42;
+}
+
+.abyssa-expedition-enemies__intent-lines g[data-threat="blocked"] .abyssa-expedition-intent-line__body {
+  stroke: rgb(150 156 160 / 78%);
+  stroke-width: 2.6px;
+  filter: none;
+  animation: none;
+}
+
+/* ---------- 队员卡 ---------- */
+
+.abyssa-expedition-party-card[data-clickable] {
+  cursor: pointer;
+}
+
+/* 状态优先级（低 → 高），我方操作态一律压过敌方威胁态：
+     被瞄准 / 已挡下  <  可治疗目标  <  待指挥  <  已拿起
+   书写顺序即优先级，因此敌方威胁态必须写在最前。 */
+
+/* 敌方威胁：正被瞄准 */
+.abyssa-expedition-party-card[data-targeted] {
+  border-color: #8a4a42;
+  box-shadow:
+    0 0 0 1px rgb(212 106 94 / 40%),
+    0 0 14px rgb(212 106 94 / 22%);
+}
+
+/* 敌方威胁已挡下 */
+.abyssa-expedition-party-card[data-safe] {
+  border-color: #55704b;
+  box-shadow:
+    0 0 0 1px rgb(143 185 120 / 36%),
+    0 0 12px rgb(143 185 120 / 18%);
+}
+
+/* 我方操作态：拿着治疗骰时的可施放目标——压过威胁态 */
+.abyssa-expedition-party-card[data-healable],
+.abyssa-expedition-party-card[data-healable][data-targeted],
+.abyssa-expedition-party-card[data-healable][data-safe] {
+  border-color: #7ba06c;
+  box-shadow:
+    0 0 0 1px rgb(143 185 120 / 56%),
+    0 0 18px rgb(143 185 120 / 32%);
+}
+
+/* 我方操作态：骰子已装载、等待指挥 */
+.abyssa-expedition-party-card[data-ready],
+.abyssa-expedition-party-card[data-ready][data-targeted],
+.abyssa-expedition-party-card[data-ready][data-safe] {
+  border-color: #9c7a3c;
+  box-shadow:
+    0 0 0 1px rgb(214 174 96 / 42%),
+    0 0 14px rgb(214 174 96 / 20%);
+}
+
+/* 我方操作态：已拿起——最高优先级，任何威胁态都不得覆盖 */
+.abyssa-expedition-party-card[data-held],
+.abyssa-expedition-party-card[data-held][data-targeted],
+.abyssa-expedition-party-card[data-held][data-safe],
+.abyssa-expedition-party-card[data-held][data-ready] {
+  border-color: #e0bd72;
+  box-shadow:
+    0 0 0 2px rgb(224 189 114 / 72%),
+    0 0 22px rgb(224 189 114 / 32%);
+}
+
+.abyssa-expedition-party-card[data-downed] {
+  cursor: not-allowed;
+  filter: grayscale(1) brightness(.62);
+}
+
+.abyssa-expedition-party-card__downed-label {
+  position: absolute;
+  z-index: 5;
+  top: 42%;
+  left: 50%;
+  padding: 3px 12px;
+  border: 1px solid #5a4632;
+  color: #b9a789;
+  background: rgb(10 7 4 / 88%);
+  font-family: var(--font-display);
+  font-size: 13px;
+  letter-spacing: .3em;
+  transform: translate(-50%, -50%) rotate(-8deg);
+}
+
+/* ---------- 骰位状态：装载/消耗，不挂任何文字 ---------- */
+
+.abyssa-expedition-die-slot {
+  position: relative;
+  display: grid;
+  justify-items: center;
+}
+
+/* 未装载：略微下沉，等待玩家装载 */
+.abyssa-expedition-die-slot:not([data-loaded]) .expedition-die {
+  opacity: 1;
+  translate: 0 4px;
+}
+
+/* 已装载：抬起并锁定（不参与重掷） */
+.abyssa-expedition-die-slot[data-loaded] .expedition-die {
+  opacity: 1;
+  translate: 0 -3px;
+}
+
+/* 已消耗：本回合该角色行动完毕 */
+.abyssa-expedition-die-slot[data-spent] .expedition-die {
+  cursor: default;
+  filter: grayscale(.85) brightness(.6);
+  opacity: .42;
+  translate: 0 2px;
+}
+
+.abyssa-expedition-die-slot[data-sealed] .expedition-die {
+  filter: grayscale(.7) contrast(.9);
+  opacity: .34;
+}
+
+/* 力竭骰始终留在原角色槽位，仅置灰、禁用，不缩小也不隐藏。 */
+.abyssa-expedition-die-slot[data-downed] .expedition-die,
+.abyssa-expedition-die-slot[data-downed][data-sealed] .expedition-die,
+.abyssa-expedition-die-slot[data-downed][data-spent] .expedition-die {
+  cursor: not-allowed;
+  filter: grayscale(1) brightness(.48) contrast(.9);
+  opacity: .58;
+  translate: 0 4px;
+  animation: none;
+}
+
+/* ---------- 行动条布局（5 列） ---------- */
+
+/* REROLL / 重掷读数 / 牌型读数 / END TURN / 菱形撤回。
+   撤回按钮对齐面板右端，牌型占据中段留出的空间。 */
+.abyssa-expedition-action-controls {
+  /* 沿用原始基准：按钮 150px、读数槽 110px，均定宽不挤压 */
+  grid-template-columns: 150px 96px 150px 150px;
+  gap: 18px;
+  justify-content: center;
+}
+
+.abyssa-expedition-action-controls .dice-action-button {
+  width: 100%;
+  min-width: 0;
+}
+
+/* ---------- 菱形撤回：紧挨操作栏左侧，不占内部栅格 ---------- */
+
+.abyssa-expedition-undo.abyssa-icon-button {
+  --abyssa-icon-fill: #24180d;
+  --abyssa-icon-middle: #72572f;
+  --abyssa-icon-ornament: #8d7040;
+  --abyssa-icon-ink: #e9dcc5;
+  --abyssa-icon-pattern-dark: rgb(215 187 124 / 5%);
+  --abyssa-icon-pattern-light: rgb(255 244 214 / 2%);
+  position: absolute;
+  z-index: 4;
+  /* 纵向：以 dock 上边框线为中心，按钮上下各跨一半（64/2 = 32px）。
+     横向：右边缘贴齐 dock 左沿，不进入内容区、不压 REROLL。 */
+  bottom: 100%;
+  right: 100%;
+  width: 64px;
+  height: 64px;
+  margin-bottom: -32px;
+}
+
+.abyssa-expedition-undo .abyssa-icon-button__custom > svg {
+  fill: currentcolor;
+  /* 回旋箭头原朝右，镜像成"回退"方向 */
+  transform: scaleX(-1);
+}
+
+.abyssa-expedition-undo:not(:disabled):hover {
+  --abyssa-icon-ink: #fff3d2;
+  --abyssa-icon-middle: #a67f43;
+}
+
+.abyssa-expedition-undo:disabled {
+  cursor: not-allowed;
+  filter: grayscale(.7) brightness(.62);
+  opacity: .5;
+}
+
+/* ---------- 牌型读数凹槽 ---------- */
+
+.abyssa-expedition-hand {
+  position: relative;
+  display: grid;
+  min-width: 0;
+  height: 40px;
+  padding: 3px 13px 4px;
+  overflow: hidden;
+  align-content: center;
+  border: 1px solid rgb(126 90 44 / 82%);
+  background:
+    linear-gradient(135deg, rgb(215 187 124 / 4%) 25%, transparent 25%) 0 0 / 14px 14px,
+    linear-gradient(225deg, rgb(215 187 124 / 3%) 25%, transparent 25%) 0 0 / 14px 14px,
+    radial-gradient(ellipse at 50% 120%, rgb(150 112 52 / 22%), transparent 62%),
+    linear-gradient(180deg, rgb(0 0 0 / 40%), transparent 54%),
+    #130c06;
+  box-shadow:
+    inset 0 2px 8px rgb(0 0 0 / 84%),
+    inset 0 0 0 1px rgb(215 187 124 / 14%),
+    inset 0 -1px 0 rgb(255 231 177 / 6%),
+    0 1px 0 rgb(215 187 124 / 10%);
+  font-family: var(--font-display);
+  text-align: center;
+}
+
+/* 牌桌感：左右各一道竖向刻线，把读数框成一张牌 */
+.abyssa-expedition-hand::before,
+.abyssa-expedition-hand::after {
+  position: absolute;
+  top: 6px;
+  bottom: 6px;
+  width: 1px;
+  background: linear-gradient(180deg, transparent, rgb(215 187 124 / 26%) 22% 78%, transparent);
+  content: "";
+}
+
+.abyssa-expedition-hand::before { left: 7px; }
+.abyssa-expedition-hand::after { right: 7px; }
+
+/* 两块读数各占一半、中间一道竖分隔——沿用侧栏 amounts 的 1fr auto 1fr 构造 */
+.abyssa-expedition-hand__body {
+  display: grid;
+  width: 100%;
+  min-width: 0;
+  align-items: center;
+  gap: 11px;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  /* key 变化时整块换挡 */
+  animation: expedition-hand-shift 420ms cubic-bezier(.16, .84, .28, 1) both;
+}
+
+.abyssa-expedition-hand__rule {
+  width: 1px;
+  height: 20px;
+  background: linear-gradient(transparent, rgb(160 126 68 / 72%), transparent);
+}
+
+/* 牌型名：大字号 + 多层浮雕，与右栏倍率读数同一套构造法 */
+.abyssa-expedition-hand__name {
+  min-width: 0;
+  overflow: hidden;
+  color: #b0a288;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: .12em;
+  line-height: 1;
+  text-align: right;
+  text-indent: .12em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.abyssa-expedition-hand__bonus {
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: start;
+  gap: 3px;
+  line-height: 1;
+}
+
+.abyssa-expedition-hand__bonus i {
+  color: #a3854d;
+  font-size: 10px;
+  font-style: normal;
+  text-shadow: 0 1px 1px #080402;
+}
+
+/* 倍率数字：赌场牌面主角——亮边压顶、深边垫底、外加暖辉 */
+.abyssa-expedition-hand__bonus b {
+  color: #6d6151;
+  font-size: 21px;
+  font-weight: 700;
+  letter-spacing: -.02em;
+  line-height: 1;
+}
+
+.abyssa-expedition-hand[data-scoring] .abyssa-expedition-hand__bonus b {
+  color: #f6da92;
+  text-shadow:
+    0 1px 0 #fff2be,
+    0 2px 0 #7a4c1c,
+    0 3px 3px rgb(0 0 0 / 56%),
+    0 0 9px rgb(246 218 146 / 36%);
+}
+
+/* 成牌：整槽点亮 */
+.abyssa-expedition-hand[data-scoring] {
+  border-color: rgb(198 158 84 / 88%);
+  box-shadow:
+    inset 0 2px 7px rgb(0 0 0 / 74%),
+    inset 0 0 0 1px rgb(235 205 135 / 26%),
+    inset 0 0 20px rgb(214 172 88 / 16%),
+    0 1px 0 rgb(215 187 124 / 14%);
+}
+
+.abyssa-expedition-hand[data-scoring] .abyssa-expedition-hand__name {
+  color: #f7e4b4;
+  text-shadow:
+    0 1px 0 #fff4c8,
+    0 2px 0 #6d4415,
+    0 4px 4px rgb(0 0 0 / 52%);
+}
+
+.abyssa-expedition-hand[data-idle] .abyssa-expedition-hand__name {
+  color: #6d6151;
+}
+
+/* 成牌瞬间从槽内扫过一道光 */
+.abyssa-expedition-hand__glow {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    100deg,
+    transparent 20%,
+    rgb(255 233 168 / 22%) 48%,
+    transparent 76%
+  );
+  opacity: 0;
+  pointer-events: none;
+}
+
+.abyssa-expedition-hand[data-scoring] .abyssa-expedition-hand__glow {
+  animation: expedition-hand-sweep 720ms ease-out;
+}
+
+@keyframes expedition-hand-shift {
+  from {
+    opacity: 0;
+    filter: blur(2px);
+    transform: translateY(-9px);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0);
+  }
+}
+
+@keyframes expedition-hand-sweep {
+  from { opacity: 1; transform: translateX(-100%); }
+  to { opacity: 0; transform: translateX(100%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .abyssa-expedition-hand__body { animation: none; }
+  .abyssa-expedition-hand[data-scoring] .abyssa-expedition-hand__glow { animation: none; }
+}
+
+/* ---------- 层区倍率列表复用战利品样式 ---------- */
+
+.abyssa-expedition-loot__item[data-current] {
+  border-color: #7a5c2e;
+  color: #ead8aa;
+  box-shadow: 0 0 0 1px rgb(200 163 92 / 34%);
+}
+
+.abyssa-expedition-loot__item[data-passed] {
+  opacity: .55;
+}
+
+/* ---------- 弹窗 ---------- */
+
+.abyssa-expedition-overlay {
+  position: absolute;
+  z-index: 60;
+  inset: 0;
+  display: grid;
+  padding: 24px;
+  background: rgb(4 2 1 / 72%);
+  place-items: center;
+}
+
+.abyssa-expedition-modal {
+  width: min(430px, 100%);
+  padding: 24px 26px 22px;
+  border: 1px solid #7a5c2e;
+  background:
+    linear-gradient(180deg, rgb(227 190 116 / 7%), transparent 30%),
+    #221709;
+  box-shadow:
+    0 22px 70px rgb(0 0 0 / 88%),
+    inset 0 0 0 1px rgb(0 0 0 / 72%),
+    inset 0 0 0 3px rgb(122 92 46 / 26%);
+  text-align: center;
+}
+
+.abyssa-expedition-modal[data-wide] {
+  width: min(560px, 100%);
+}
+
+.abyssa-expedition-modal h3 {
+  margin: 0 0 12px;
+  color: #ead8aa;
+  font-family: var(--font-display);
+  font-size: 19px;
+  font-weight: 600;
+  letter-spacing: .22em;
+}
+
+.abyssa-expedition-modal__body {
+  margin-bottom: 16px;
+  color: #b3a084;
+  font-size: 13px;
+  line-height: 1.9;
+}
+
+.abyssa-expedition-modal__body strong {
+  color: #ead8aa;
+}
+
+.abyssa-expedition-modal__body p {
+  margin: 0;
+}
+
+.abyssa-expedition-modal__body p[data-tone="bad"] {
+  color: #cf8074;
+}
+
+.abyssa-expedition-modal__body p[data-tone="dim"] {
+  margin-top: 8px;
+  color: #857659;
+  font-size: 11px;
+}
+
+.abyssa-expedition-modal__settlement {
+  margin: 10px 0 9px;
+  padding: 12px 14px 10px;
+  border: 1px solid #5f4524;
+  background:
+    linear-gradient(180deg, rgb(229 190 111 / 6%), transparent 42%),
+    #160f08;
+  box-shadow:
+    0 0 0 1px rgb(10 6 3 / 78%),
+    inset 0 0 0 1px rgb(200 154 77 / 8%),
+    inset 0 5px 12px rgb(0 0 0 / 32%);
+}
+
+.abyssa-expedition-modal__settlement-formula {
+  display: grid;
+  align-items: end;
+  gap: 8px;
+  grid-template-columns:
+    minmax(0, 1.08fr) auto
+    minmax(0, 1fr) auto
+    minmax(0, .9fr) auto
+    minmax(0, 1.25fr);
+}
+
+.abyssa-expedition-modal__settlement-formula > span {
+  display: grid;
+  min-width: 0;
+  gap: 5px;
+  justify-items: center;
+}
+
+.abyssa-expedition-modal__settlement-formula small {
+  color: #78694f;
+  font-family: var(--font-display);
+  font-size: 7px;
+  font-weight: 600;
+  letter-spacing: .1em;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.abyssa-expedition-modal__settlement-formula strong {
+  color: #c5b18a;
+  font-family: var(--font-body);
+  font-size: 18px;
+  font-variant-numeric: lining-nums tabular-nums;
+  line-height: 1;
+  text-shadow: 0 2px 2px rgb(0 0 0 / 68%);
+}
+
+.abyssa-expedition-modal__settlement-formula > i {
+  padding-bottom: 1px;
+  color: #806a43;
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-style: normal;
+  line-height: 1;
+}
+
+.abyssa-expedition-modal__settlement-formula [data-result] strong {
+  color: #e2c47d;
+  font-size: 21px;
+}
+
+.abyssa-expedition-modal__settlement > p {
+  margin-top: 9px;
+  padding-top: 7px;
+  border-top: 1px solid rgb(124 94 48 / 28%);
+  color: #786b57;
+  font-size: 10px;
+  letter-spacing: .03em;
+  line-height: 1.45;
+}
+
+.abyssa-expedition-modal__settlement > p[data-counted] {
+  color: #c7a966;
+}
+
+.abyssa-expedition-modal__settlement > footer {
+  display: flex;
+  margin-top: 6px;
+  align-items: baseline;
+  justify-content: center;
+  color: #766950;
+  font-size: 10px;
+  gap: 7px;
+  line-height: 1;
+}
+
+.abyssa-expedition-modal__settlement > footer i {
+  color: #866c3e;
+  font-style: normal;
+}
+
+.abyssa-expedition-modal__settlement > footer strong {
+  color: #d6ba78;
+  font-size: 13px;
+}
+
+.abyssa-expedition-modal__highlight strong {
+  color: #e0bd72;
+  font-size: 17px;
+}
+
+.abyssa-expedition-modal__total {
+  margin: 8px 0 !important;
+  color: #e0bd72;
+  font-family: var(--font-display);
+  font-size: 34px;
+  letter-spacing: .08em;
+}
+
+.abyssa-expedition-modal__facts {
+  margin-top: 14px;
+  padding: 10px 14px;
+  border: 1px dashed #7a5c2e;
+  text-align: left;
+}
+
+.abyssa-expedition-modal__facts header {
+  margin-bottom: 6px;
+  color: #c8a35c;
+  font-size: 11px;
+  letter-spacing: .1em;
+}
+
+.abyssa-expedition-modal__facts ul {
+  margin: 0;
+  padding: 0;
+  font-size: 12px;
+  line-height: 1.9;
+  list-style: none;
+}
+
+.abyssa-expedition-modal__actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.abyssa-expedition-modal__actions .dice-action-button {
+  min-width: 140px;
+}
+
+/* ---------- 日志文案（中文整行着色） ---------- */
+
+.abyssa-expedition-battle-log li b {
+  font-weight: 500;
+}
+
+/* 万能命数角标（凯尔·静谧之楔）：宝石代替数字，尺寸对齐数字视高 */
+.expedition-die__corner > b[data-wild-pip] {
+  display: block;
+  width: calc(var(--dice-size) * .17);
+  height: calc(var(--dice-size) * .17);
+  color: var(--expedition-die-suit);
+}
+
+.expedition-die__corner > b[data-wild-pip] svg {
+  overflow: visible;
+}
+
+.expedition-die__corner > b[data-wild-pip] [data-fill] {
+  fill: currentColor;
+  filter: drop-shadow(0 1px 2px rgb(0 0 0 / 70%));
+}
+
+.expedition-die__corner > b[data-wild-pip] [data-gem-shine] {
+  fill: rgb(255 248 226 / 62%);
+}
+
+/* ---------- 图形词表：所有战斗动词/意图统一 mask 渲染 ---------- */
+
+.abyssa-expedition-glyph {
+  display: inline-block;
+  width: 1.05em;
+  height: 1.05em;
+  flex: none;
+  background: currentColor;
+  filter: drop-shadow(0 1px 1px rgb(0 0 0 / 72%));
+  mask-image: var(--glyph-source);
+  mask-position: center;
+  mask-repeat: no-repeat;
+  mask-size: contain;
+  vertical-align: -.16em;
+}
+
+/* 拿起角色卡：在"已装载通电"基础上把光束再推一档 */
+.abyssa-expedition-party-column[data-held] .abyssa-expedition-party-link {
+  filter: drop-shadow(0 0 2px rgb(255 214 122 / 48%));
+}
+
+.abyssa-expedition-party-column[data-held] .abyssa-expedition-party-link__main {
+  stroke: #fff4cf;
+  stroke-width: 2.6px;
+}
+
+.abyssa-expedition-party-column[data-held] .abyssa-expedition-party-link__aura {
+  stroke-width: 11px;
+  opacity: .3;
+}
+
+.abyssa-expedition-party-column[data-held] .abyssa-expedition-party-link__high {
+  opacity: .92;
+}
+
+.abyssa-expedition-party-column[data-held] .abyssa-expedition-party-link::after {
+  box-shadow: 0 0 0 2px #2a1909, 0 0 6px rgb(255 226 146 / 58%);
+}
+
+/* ---------- 成牌点亮：参与牌型的数字与花色呈现亮起的凹刻 ----------
+   只用清晰的明暗刻边塑造质感，不使用模糊扩散的赛博辉光。 */
+
+.expedition-die__face[data-scoring] .expedition-die__corner {
+  color: #e5c680;
+}
+
+/* 数字：上沿压暗、下沿提亮，像槽内金属刻字被点亮。 */
+.expedition-die__face[data-scoring] .expedition-die__corner > b {
+  color: #efd394;
+  text-shadow:
+    0 -1px 0 #2a1808,
+    -1px 0 0 #2a1808,
+    1px 0 0 #8f6a33,
+    0 1px 0 #f4e3b5,
+    0 2px 1px rgb(8 5 2 / 88%);
+}
+
+/* 花色：同一方向的硬边刻影，不向外扩散。 */
+.expedition-die__face[data-scoring] .expedition-die__corner > i {
+  opacity: 1;
+  filter:
+    drop-shadow(0 -1px 0 #2a1808)
+    drop-shadow(-1px 0 0 #2a1808)
+    drop-shadow(1px 0 0 #8f6a33)
+    drop-shadow(0 1px 0 #f4e3b5);
+}
+
+.expedition-die__face[data-scoring] .expedition-die__corner > i svg [data-fill] {
+  fill: #e7c982;
+}
+
+.expedition-die__face[data-scoring] .expedition-die__corner > i svg {
+  stroke: #e7c982;
+}
+
+/* ---------- 狂暴：被围困的兽型拼命，视觉上必须一眼看出 ---------- */
+
+.abyssa-expedition-enemy[data-frenzied] > img {
+  filter:
+    grayscale(.28)
+    sepia(.16)
+    saturate(1.35)
+    brightness(1.04)
+    contrast(1.28)
+    drop-shadow(0 7px 7px rgb(0 0 0 / 88%))
+    drop-shadow(0 0 16px rgb(206 62 48 / 62%));
+  animation: expedition-frenzy-throb 820ms ease-in-out infinite;
+}
+
+.abyssa-expedition-enemy[data-frenzied] .abyssa-expedition-enemy__attack b {
+  color: #ff9a86;
+  text-shadow: 0 1px 0 #4a1410, 0 0 9px rgb(255 122 98 / 62%);
+}
+
+/* 自伤：血条透出裂痕般的暗红 */
+.abyssa-expedition-enemy[data-frenzied] .abyssa-expedition-enemy__health i[data-filled] {
+  border-color: #9c3a2c;
+  background: radial-gradient(circle at 35% 28%, #f0a88c 0 19%, #b3452f 64%, #5c1c12 100%);
+}
+
+@keyframes expedition-frenzy-throb {
+  50% { transform: translateY(-18px) scale(1.02); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .abyssa-expedition-enemy[data-frenzied] > img,
+  .abyssa-expedition-enemy__frenzy-status { animation: none; }
+}
+
+/* ---------- 转轮读数：容器与配件 ---------- */
+
+.abyssa-expedition-odometer__reels {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+}
+
+.abyssa-expedition-odometer__prefix {
+  position: relative;
+  z-index: 2;
+  margin-right: 7px;
+  align-self: center;
+  color: #a98249;
+  font-family: var(--font-display);
+  font-size: 22px;
+  text-shadow: 0 2px 1px #080402;
+}
+
+/* 小数点：轮盘之间的固定刻位 */
+.abyssa-expedition-odometer__point {
+  position: relative;
+  z-index: 2;
+  width: 9px;
+  align-self: end;
+  margin-bottom: 14px;
+}
+
+.abyssa-expedition-odometer__point::after {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #d8b170;
+  content: "";
+  transform: translateX(-50%);
+}
+
+/* 前导零轮盘压暗 */
+.abyssa-expedition-odometer__reel[data-dim] .abyssa-expedition-odometer__strip b,
+.abyssa-expedition-odometer__reel[data-dim] .abyssa-expedition-odometer__strip i {
+  color: #4a4032;
+  text-shadow: none;
+}
+
+/* 包裹入袋时整块透出一次金光 */
+.abyssa-expedition-bag-odometer {
+  display: block;
+}
+
+.abyssa-expedition-bag-odometer[data-banking] .abyssa-expedition-odometer {
+  border-color: #a47a33;
+  box-shadow:
+    0 0 0 1px #8d6a2e,
+    0 0 0 2px #0b0704,
+    inset 0 1px rgb(255 231 177 / 12%),
+    inset 0 -5px 8px rgb(0 0 0 / 46%),
+    0 0 18px rgb(226 180 92 / 46%);
+}
+
+.abyssa-expedition-bag-odometer[data-banking] .abyssa-expedition-odometer__strip b {
+  color: #fff0bd;
+  text-shadow: 0 1px 1px #000, 0 0 12px rgb(255 216 122 / 68%);
+}
+
+/* ---------- 倍率转轮：侧栏主角，沿用原始大轮盘 ---------- */
+
+.abyssa-expedition-multiplier__reels {
+  margin-top: 4px;
+  margin-bottom: 2px;
+}
+
+/* ---------- 包裹转轮：次要读数，整体收一档 ---------- */
+
+.abyssa-expedition-bag-odometer .abyssa-expedition-odometer {
+  --odometer-digit-h: 40px;
+  height: 56px;
+  margin-top: 0;
+  padding: 6px 11px;
+}
+
+.abyssa-expedition-bag-odometer .abyssa-expedition-odometer::before {
+  inset: 5px 9px;
+}
+
+.abyssa-expedition-bag-odometer .abyssa-expedition-odometer__reel {
+  width: 27px;
+  height: 40px;
+}
+
+/* 六位包裹金额按 000 000 分组；倍率读数仍沿用自身的小数分隔。 */
+.abyssa-expedition-bag-odometer .abyssa-expedition-odometer__reel[data-order="1"] {
+  margin-right: 0;
+}
+
+.abyssa-expedition-bag-odometer .abyssa-expedition-odometer__reel[data-order="2"] {
+  margin-right: 8px;
+}
+
+.abyssa-expedition-bag-odometer .abyssa-expedition-odometer__strip i,
+.abyssa-expedition-bag-odometer .abyssa-expedition-odometer__strip b {
+  font-size: 20px;
+}
+
+.abyssa-expedition-bag-odometer .abyssa-expedition-odometer__screw {
+  width: 5px;
+  height: 5px;
+}

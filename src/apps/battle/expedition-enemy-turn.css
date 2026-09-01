@@ -1,0 +1,502 @@
+
+/* ============================================================
+   敌方逐个行动 / 我方卡牌受击
+   行动只移动当前怪物与目标卡本身；party-column 不参与 transform，
+   因此骰子到角色卡的交缠连线不会随受击动画偏折。
+============================================================ */
+
+.abyssa-expedition-enemy[data-enemy-acting] {
+  --enemy-action-accent: #bd7651;
+  z-index: 9;
+}
+
+.abyssa-expedition-enemy[data-enemy-action-kind="charge"] { --enemy-action-accent: #b9904f; }
+.abyssa-expedition-enemy[data-enemy-action-kind="seal"] { --enemy-action-accent: #9271ad; }
+.abyssa-expedition-enemy[data-enemy-action-kind="countdown"] { --enemy-action-accent: #bd684c; }
+.abyssa-expedition-enemy[data-enemy-action-kind="summon"] { --enemy-action-accent: #778d6d; }
+
+/* 怪物身后的动作点亮限制在 formation 的 contain: paint 裁剪层里。 */
+.abyssa-expedition-enemy[data-enemy-acting]::after {
+  position: absolute;
+  inset: 54px 13% 24px;
+  z-index: 1;
+  border: 1px solid color-mix(in srgb, var(--enemy-action-accent) 42%, transparent);
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse at 50% 58%,
+    color-mix(in srgb, var(--enemy-action-accent) 24%, transparent),
+    transparent 67%
+  );
+  box-shadow: inset 0 0 22px color-mix(in srgb, var(--enemy-action-accent) 14%, transparent);
+  content: "";
+  opacity: 0;
+  transform: scale(.74);
+  pointer-events: none;
+}
+
+.abyssa-expedition-enemy[data-enemy-action-phase] > img,
+.abyssa-expedition-enemy[data-enemy-action-phase]::after {
+  will-change: transform, opacity;
+}
+
+.abyssa-expedition-enemy[data-enemy-acting] header strong {
+  color: color-mix(in srgb, var(--enemy-action-accent) 58%, #ead7ad);
+  text-shadow: 0 2px 3px #000, 0 0 8px color-mix(in srgb, var(--enemy-action-accent) 44%, transparent);
+}
+
+.abyssa-expedition-enemy[data-enemy-action-phase="anticipate"]::after {
+  animation: expedition-enemy-action-aura-gather 120ms ease-out both;
+}
+
+.abyssa-expedition-enemy[data-enemy-action-phase="lunge"]::after,
+.abyssa-expedition-enemy[data-enemy-action-phase="hitstop"]::after {
+  opacity: .48;
+  transform: scale(1);
+}
+
+.abyssa-expedition-enemy[data-enemy-action-phase="impact"]::after {
+  animation: expedition-enemy-action-aura-release 280ms ease-out both;
+}
+
+.abyssa-expedition-enemy[data-enemy-action-phase="recover"]::after {
+  opacity: 0;
+  transform: scale(1.12);
+}
+
+/* 只有真实攻击会向下扑击；其他意图停在原位做一次短脉冲。 */
+.abyssa-expedition-enemy[data-enemy-action-kind="attack"][data-enemy-action-phase="anticipate"] > img {
+  animation: expedition-enemy-strike-anticipate 120ms cubic-bezier(.14, .78, .2, 1) both;
+}
+
+.abyssa-expedition-enemy[data-enemy-action-kind="attack"][data-enemy-action-phase="lunge"] > img {
+  animation: expedition-enemy-strike-lunge 100ms cubic-bezier(.1, .84, .16, 1) both;
+}
+
+.abyssa-expedition-enemy[data-enemy-action-kind="attack"][data-enemy-action-phase="hitstop"] > img {
+  opacity: 1;
+  transform: translateY(-5px) scale(1.035);
+}
+
+.abyssa-expedition-enemy[data-enemy-action-kind="attack"][data-enemy-action-phase="impact"] > img {
+  animation: expedition-enemy-strike-recover 280ms cubic-bezier(.18, .8, .2, 1) both;
+}
+
+.abyssa-expedition-enemy[data-enemy-action-kind="attack"][data-enemy-action-phase="recover"] > img {
+  opacity: .98;
+  transform: translateY(-18px) scale(1);
+}
+
+.abyssa-expedition-enemy:not([data-enemy-action-kind="attack"])[data-enemy-action-phase="anticipate"] > img {
+  animation: expedition-enemy-intent-anticipate 120ms ease-out both;
+}
+
+.abyssa-expedition-enemy:not([data-enemy-action-kind="attack"]):is(
+  [data-enemy-action-phase="lunge"],
+  [data-enemy-action-phase="hitstop"]
+) > img {
+  transform: translateY(-20px) scale(1.015);
+}
+
+.abyssa-expedition-enemy:not([data-enemy-action-kind="attack"])[data-enemy-action-phase="impact"] > img {
+  animation: expedition-enemy-intent-release 260ms ease-out both;
+}
+
+.abyssa-expedition-enemy:not([data-enemy-action-kind="attack"])[data-enemy-action-phase="recover"] > img {
+  opacity: .98;
+  transform: translateY(-18px) scale(1);
+}
+
+/* 卡内专属裁剪层。所有闪光、盾徽和数字都不得越过卡框。 */
+.abyssa-expedition-enemy-hit-fx {
+  --enemy-hit-accent: #b2473d;
+  --enemy-hit-bright: #ffd0be;
+  position: absolute;
+  inset: 3px;
+  z-index: 10;
+  display: block;
+  overflow: hidden;
+  overflow: clip;
+  contain: paint;
+  isolation: isolate;
+  pointer-events: none;
+}
+
+.abyssa-expedition-party-card[data-enemy-hit-result="blocked"] .abyssa-expedition-enemy-hit-fx {
+  --enemy-hit-accent: #aeb9be;
+  --enemy-hit-bright: #f5f5e8;
+}
+
+.abyssa-expedition-party-card[data-enemy-hit-result="miss"] .abyssa-expedition-enemy-hit-fx {
+  --enemy-hit-accent: #7e776b;
+  --enemy-hit-bright: #c8c0ae;
+}
+
+.abyssa-expedition-party-card[data-enemy-hit-lethal] .abyssa-expedition-enemy-hit-fx {
+  --enemy-hit-accent: #d55246;
+  --enemy-hit-bright: #ffe0d2;
+}
+
+.abyssa-expedition-enemy-hit-fx__flash,
+.abyssa-expedition-enemy-hit-fx__impact,
+.abyssa-expedition-enemy-hit-fx__damage {
+  position: absolute;
+  display: block;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.abyssa-expedition-enemy-hit-fx__flash {
+  inset: 0;
+  background:
+    linear-gradient(106deg, transparent 18%, rgb(255 223 209 / 19%) 47%, transparent 71%),
+    radial-gradient(ellipse at 50% 43%, color-mix(in srgb, var(--enemy-hit-accent) 58%, transparent), transparent 66%),
+    linear-gradient(180deg, color-mix(in srgb, var(--enemy-hit-accent) 22%, transparent), transparent 68%);
+}
+
+.abyssa-expedition-enemy-hit-fx__impact {
+  top: 43%;
+  left: 50%;
+  width: 106px;
+  aspect-ratio: 1;
+  border: 1px solid color-mix(in srgb, var(--enemy-hit-accent) 68%, transparent);
+  border-radius: 50%;
+  box-shadow:
+    inset 0 0 18px color-mix(in srgb, var(--enemy-hit-accent) 34%, transparent),
+    0 0 10px color-mix(in srgb, var(--enemy-hit-accent) 26%, transparent);
+  transform: translate(-50%, -50%) scale(.48);
+}
+
+.abyssa-expedition-enemy-hit-fx__impact::before,
+.abyssa-expedition-enemy-hit-fx__impact::after {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: block;
+  content: "";
+  pointer-events: none;
+}
+
+/* 命中是两道收敛的刻痕，不复用玩家攻击的大范围斩线。 */
+.abyssa-expedition-party-card[data-enemy-hit-result="hit"] .abyssa-expedition-enemy-hit-fx__impact::before {
+  width: 88px;
+  height: 8px;
+  background: linear-gradient(180deg, transparent, #fff3e8 38% 52%, #cc5b4e 62%, transparent 78%);
+  clip-path: polygon(0 47%, 12% 8%, 100% 36%, 89% 100%);
+  box-shadow: 0 0 7px color-mix(in srgb, var(--enemy-hit-accent) 72%, transparent);
+  transform: translate(-50%, -50%) rotate(-17deg);
+}
+
+.abyssa-expedition-party-card[data-enemy-hit-result="hit"] .abyssa-expedition-enemy-hit-fx__impact::after {
+  width: 63px;
+  height: 5px;
+  background: linear-gradient(180deg, transparent, #ffe9dd 39% 55%, #a63f38 64%, transparent 82%);
+  clip-path: polygon(0 35%, 100% 49%, 86% 100%, 9% 70%);
+  box-shadow: 0 0 5px color-mix(in srgb, var(--enemy-hit-accent) 58%, transparent);
+  transform: translate(-50%, -50%) rotate(23deg);
+}
+
+/* 完全格挡：大盾留在卡内，横向冷光表达金属碰撞。 */
+.abyssa-expedition-party-card[data-enemy-hit-result="blocked"] .abyssa-expedition-enemy-hit-fx__impact {
+  border-color: rgb(222 231 234 / 66%);
+  background: radial-gradient(circle, rgb(229 236 238 / 22%), transparent 66%);
+  box-shadow: inset 0 0 20px rgb(204 216 221 / 28%), 0 0 10px rgb(210 222 227 / 22%);
+}
+
+.abyssa-expedition-party-card[data-enemy-hit-result="blocked"] .abyssa-expedition-enemy-hit-fx__impact::before {
+  width: 70px;
+  height: 78px;
+  background: linear-gradient(145deg, #fffdf0 0 12%, #cbd3d6 35%, #68737a 72%, #e3d9bd 100%);
+  filter: drop-shadow(0 2px 2px rgb(0 0 0 / 72%));
+  mask: url("../../assets/svg/ui/game-icon-cross-shield.svg") center / contain no-repeat;
+  transform: translate(-50%, -50%) scale(.92);
+}
+
+.abyssa-expedition-party-card[data-enemy-hit-result="blocked"] .abyssa-expedition-enemy-hit-fx__impact::after {
+  width: 96px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #fff 27% 73%, transparent);
+  box-shadow: 0 0 7px rgb(231 240 243 / 74%);
+  transform: translate(-50%, -50%) rotate(-8deg);
+}
+
+.abyssa-expedition-party-card[data-enemy-hit-result="miss"] .abyssa-expedition-enemy-hit-fx__impact {
+  display: none;
+}
+
+.abyssa-expedition-enemy-hit-fx__damage {
+  top: 21px;
+  left: 50%;
+  z-index: 2;
+  color: var(--enemy-hit-bright);
+  font-family: var(--font-display);
+  font-size: 23px;
+  font-weight: 700;
+  letter-spacing: .01em;
+  line-height: 1;
+  text-align: center;
+  text-shadow: 0 2px 0 #32100d, 0 0 7px color-mix(in srgb, var(--enemy-hit-accent) 60%, transparent);
+  transform: translateX(-50%) translateY(8px) scale(.88);
+  white-space: nowrap;
+}
+
+.abyssa-expedition-enemy-hit-fx__damage :is(b, strong) {
+  color: inherit;
+  font: inherit;
+}
+
+.abyssa-expedition-party-card[data-enemy-hit-lethal] .abyssa-expedition-enemy-hit-fx__damage {
+  font-size: 27px;
+  text-shadow: 0 2px 0 #3c0d09, 0 0 9px rgb(218 73 61 / 72%);
+}
+
+.abyssa-expedition-party-card[data-enemy-hit-result="blocked"] .abyssa-expedition-enemy-hit-fx__damage {
+  color: #edf1ed;
+  font-size: 14px;
+  letter-spacing: .18em;
+  text-shadow: 0 2px 0 #22292c, 0 0 6px rgb(222 231 234 / 48%);
+  text-indent: .18em;
+}
+
+.abyssa-expedition-party-card[data-enemy-hit-result="miss"] .abyssa-expedition-enemy-hit-fx__damage {
+  color: #aca494;
+  font-size: 12px;
+  letter-spacing: .2em;
+  text-shadow: 0 2px 0 #17130e;
+  text-indent: .2em;
+}
+
+.abyssa-expedition-party-card[data-enemy-hit-phase] {
+  z-index: 9;
+}
+
+.abyssa-expedition-party-card[data-enemy-hit-result="hit"][data-enemy-hit-phase] {
+  border-color: #9e443c;
+  box-shadow: 0 0 0 1px rgb(192 73 62 / 42%), 0 0 12px rgb(155 49 42 / 20%);
+}
+
+.abyssa-expedition-party-card[data-enemy-hit-result="blocked"][data-enemy-hit-phase] {
+  border-color: #9ba6aa;
+  box-shadow: 0 0 0 1px rgb(209 219 223 / 38%), 0 0 11px rgb(181 197 203 / 18%);
+}
+
+.abyssa-expedition-party-card[data-enemy-hit-phase] .abyssa-expedition-enemy-hit-fx > *,
+.abyssa-expedition-party-card[data-enemy-hit-result="hit"][data-enemy-hit-phase],
+.abyssa-expedition-party-card[data-enemy-hit-result="blocked"][data-enemy-hit-phase],
+.abyssa-expedition-party-card__hearts i[data-lost-heart] {
+  will-change: transform, opacity;
+}
+
+.abyssa-expedition-party-card[data-enemy-hit-result="hit"][data-enemy-hit-phase="hitstop"] {
+  transform: translateX(-3px);
+}
+
+.abyssa-expedition-party-card[data-enemy-hit-result="hit"][data-enemy-hit-phase="impact"] {
+  animation: expedition-party-enemy-hit 280ms cubic-bezier(.16, .82, .2, 1) both;
+}
+
+.abyssa-expedition-party-card[data-enemy-hit-result="blocked"][data-enemy-hit-phase="impact"] {
+  animation: expedition-party-enemy-block 260ms ease-out both;
+}
+
+.abyssa-expedition-party-card[data-enemy-hit-phase="recover"] {
+  transform: none;
+}
+
+/* miss 只显示文字，不推动、不震动目标卡。 */
+.abyssa-expedition-party-card[data-enemy-hit-result="miss"][data-enemy-hit-phase] {
+  transform: none;
+}
+
+.abyssa-expedition-party-card[data-enemy-hit-result="hit"][data-enemy-hit-phase="hitstop"] .abyssa-expedition-enemy-hit-fx__flash {
+  opacity: .68;
+}
+
+.abyssa-expedition-party-card[data-enemy-hit-result="hit"][data-enemy-hit-phase="impact"] .abyssa-expedition-enemy-hit-fx__flash {
+  animation: expedition-party-hit-flash 230ms ease-out both;
+}
+
+.abyssa-expedition-party-card:is(
+  [data-enemy-hit-result="hit"],
+  [data-enemy-hit-result="blocked"]
+)[data-enemy-hit-phase="impact"] .abyssa-expedition-enemy-hit-fx__impact {
+  animation: expedition-party-hit-impact 270ms ease-out both;
+}
+
+.abyssa-expedition-party-card[data-enemy-hit-phase="impact"] .abyssa-expedition-enemy-hit-fx__damage {
+  animation: expedition-party-hit-damage 310ms ease-out both;
+}
+
+.abyssa-expedition-party-card[data-enemy-hit-phase="recover"] .abyssa-expedition-enemy-hit-fx > * {
+  opacity: 0;
+}
+
+.abyssa-expedition-party-card[data-enemy-hit-result="blocked"][data-enemy-hit-phase="impact"] .abyssa-expedition-party-card__shield {
+  animation: expedition-party-enemy-shield 260ms ease-out both;
+}
+
+/* data-lost-order 由右向左从 0 编号；延迟只错开熄灭，不延迟结算。 */
+.abyssa-expedition-party-card__hearts i[data-lost-heart] { --enemy-heart-loss-delay: 0ms; }
+.abyssa-expedition-party-card__hearts i[data-lost-order="1"] { --enemy-heart-loss-delay: 45ms; }
+.abyssa-expedition-party-card__hearts i[data-lost-order="2"] { --enemy-heart-loss-delay: 90ms; }
+.abyssa-expedition-party-card__hearts i[data-lost-order="3"] { --enemy-heart-loss-delay: 135ms; }
+.abyssa-expedition-party-card__hearts i[data-lost-order="4"] { --enemy-heart-loss-delay: 180ms; }
+.abyssa-expedition-party-card__hearts i[data-lost-order="5"] { --enemy-heart-loss-delay: 225ms; }
+
+.abyssa-expedition-party-card[data-enemy-hit-phase="impact"] .abyssa-expedition-party-card__hearts i[data-lost-heart] {
+  animation: expedition-party-heart-loss 210ms var(--enemy-heart-loss-delay) ease-out both;
+}
+
+/* 敌方演出期间冻结非关键无限动效，给当前怪物和目标卡留出合成预算。 */
+.abyssa-expedition[data-enemy-turn-phase] .abyssa-expedition-intent-line__body,
+.abyssa-expedition[data-enemy-turn-phase] .abyssa-expedition-intent[data-threat="lethal"],
+.abyssa-expedition[data-enemy-turn-phase] .abyssa-expedition-enemy__frenzy-status,
+.abyssa-expedition[data-enemy-turn-phase] .abyssa-expedition-enemy[data-frenzied]:not([data-enemy-action-phase]) > img,
+.abyssa-expedition[data-enemy-turn-phase] .expedition-die__stud[data-wild],
+.abyssa-expedition[data-enemy-turn-phase] .expedition-die__face[data-quality="gild"],
+.abyssa-expedition[data-enemy-turn-phase] .expedition-die__face[data-scoring] .expedition-die__corner > :is(b, i) {
+  animation-play-state: paused;
+}
+
+@keyframes expedition-enemy-action-aura-gather {
+  from { opacity: 0; transform: scale(.74); }
+  to { opacity: .48; transform: scale(1); }
+}
+
+@keyframes expedition-enemy-action-aura-release {
+  0% { opacity: .48; transform: scale(1); }
+  36% { opacity: .62; transform: scale(1.04); }
+  100% { opacity: 0; transform: scale(1.12); }
+}
+
+@keyframes expedition-enemy-strike-anticipate {
+  from { transform: translateY(-18px) scale(1); }
+  to { transform: translateY(-22px) scale(.99, 1.02); }
+}
+
+@keyframes expedition-enemy-strike-lunge {
+  from { transform: translateY(-22px) scale(.99, 1.02); }
+  to { transform: translateY(-5px) scale(1.035); }
+}
+
+@keyframes expedition-enemy-strike-recover {
+  0% { transform: translateY(-5px) scale(1.035); }
+  30% { transform: translateY(-11px) scale(.985, 1.015); }
+  68% { transform: translateY(-20px) scale(1.008); }
+  100% { transform: translateY(-18px) scale(1); }
+}
+
+@keyframes expedition-enemy-intent-anticipate {
+  from { opacity: .98; transform: translateY(-18px) scale(1); }
+  to { opacity: 1; transform: translateY(-20px) scale(1.015); }
+}
+
+@keyframes expedition-enemy-intent-release {
+  0% { opacity: 1; transform: translateY(-20px) scale(1.015); }
+  42% { opacity: .9; transform: translateY(-18px) scale(.99); }
+  100% { opacity: .98; transform: translateY(-18px) scale(1); }
+}
+
+@keyframes expedition-party-enemy-hit {
+  0% { transform: translateX(-3px); }
+  18% { transform: translateX(7px); }
+  40% { transform: translateX(-5px); }
+  62% { transform: translateX(3px); }
+  82% { transform: translateX(-1px); }
+  100% { transform: translateX(0); }
+}
+
+@keyframes expedition-party-enemy-block {
+  0% { transform: scale(1); }
+  24% { transform: translateY(1px) scale(.985); }
+  54% { transform: scale(1.012); }
+  100% { transform: scale(1); }
+}
+
+@keyframes expedition-party-hit-flash {
+  0% { opacity: .72; transform: scale(.96); }
+  36% { opacity: .48; }
+  100% { opacity: 0; transform: scale(1.04); }
+}
+
+@keyframes expedition-party-hit-impact {
+  0% { opacity: .88; transform: translate(-50%, -50%) scale(.48); }
+  34% { opacity: 1; transform: translate(-50%, -50%) scale(1.03); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(1.24); }
+}
+
+@keyframes expedition-party-hit-damage {
+  0% { opacity: 0; transform: translateX(-50%) translateY(8px) scale(.88); }
+  18% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1.06); }
+  62% { opacity: .96; transform: translateX(-50%) translateY(-5px) scale(1); }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-17px) scale(.94); }
+}
+
+@keyframes expedition-party-enemy-shield {
+  0% { transform: scale(.86); }
+  34% { transform: scale(1.18); }
+  100% { transform: scale(1); }
+}
+
+@keyframes expedition-party-heart-loss {
+  0% {
+    background: #df6955;
+    filter: drop-shadow(0 1px 0 #511a15) drop-shadow(0 0 4px rgb(225 80 61 / 52%));
+    opacity: 1;
+    transform: scale(1);
+  }
+  34% {
+    background: #ef8b70;
+    filter: drop-shadow(0 0 6px rgb(236 96 74 / 66%));
+    opacity: 1;
+    transform: scale(1.18);
+  }
+  72% {
+    background: #68342c;
+    filter: drop-shadow(0 1px 0 #24100d);
+    opacity: .7;
+    transform: scale(.64);
+  }
+  100% {
+    background: #4a2d26;
+    filter: drop-shadow(0 1px 0 #050302);
+    opacity: .58;
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .abyssa-expedition-enemy {
+    animation-duration: 120ms;
+  }
+
+  .abyssa-expedition-enemy[data-attack-phase] > img,
+  .abyssa-expedition-enemy[data-attack-phase] > header,
+  .abyssa-expedition-enemy[data-attack-phase] .abyssa-expedition-attack-fx > *,
+  .abyssa-expedition-enemy[data-attack-phase] .abyssa-expedition-attack-damage,
+  .abyssa-expedition-party-card[data-attacking],
+  .abyssa-expedition-support-fx > *,
+  .abyssa-expedition-party-card[data-support-phase],
+  .abyssa-expedition[data-support-phase] .abyssa-expedition-party-card[data-supporting],
+  .abyssa-expedition-enemies::after {
+    animation-duration: 60ms !important;
+    animation-delay: 0ms !important;
+  }
+
+  .abyssa-expedition-enemy[data-enemy-action-phase] > img,
+  .abyssa-expedition-enemy[data-enemy-action-phase]::after,
+  .abyssa-expedition-party-card[data-enemy-hit-phase],
+  .abyssa-expedition-party-card[data-enemy-hit-phase] .abyssa-expedition-enemy-hit-fx > *,
+  .abyssa-expedition-party-card__hearts i[data-lost-heart] {
+    animation-duration: 80ms !important;
+    animation-delay: 0ms !important;
+  }
+
+  .abyssa-expedition-party-card[data-enemy-hit-result="miss"][data-enemy-hit-phase],
+  .abyssa-expedition-party-card[data-enemy-hit-result="hit"][data-enemy-hit-phase="hitstop"] {
+    transform: none;
+  }
+
+  .abyssa-expedition-party-card[data-enemy-hit-result="hit"][data-enemy-hit-phase="impact"] .abyssa-expedition-enemy-hit-fx__flash {
+    opacity: .28;
+  }
+}

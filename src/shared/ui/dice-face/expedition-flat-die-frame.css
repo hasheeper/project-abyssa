@@ -1,0 +1,253 @@
+.expedition-flat-die-frame {
+  --expedition-die-theme-color: #bda260;
+  /* 染色象牙：角色色保留辨识度，暖骨白只负责哑光体积与细孔。 */
+  --frame-ivory-light: color-mix(in srgb, var(--expedition-die-theme-color) 52%, #e3d8bf);
+  --frame-ivory-base: color-mix(in srgb, var(--expedition-die-theme-color) 68%, #b9ab90);
+  --frame-ivory-mid: color-mix(in srgb, var(--expedition-die-theme-color) 78%, #766b5b);
+  --frame-ivory-shadow: color-mix(in srgb, var(--expedition-die-theme-color) 68%, #302a24);
+  --frame-ivory-deep: color-mix(in srgb, var(--expedition-die-theme-color) 55%, #191611);
+  --gold-paper: var(--frame-ivory-light);
+  --gold-light: var(--frame-ivory-light);
+  --gold-dark: var(--frame-ivory-shadow);
+  --gold-ink: var(--frame-ivory-deep);
+  --gold-edge: var(--frame-ivory-deep);
+  --gold-edge-highlight: var(--frame-ivory-light);
+  --frame-fiber-light: color-mix(in srgb, var(--frame-ivory-light) 74%, #f0e8d5);
+  --frame-fiber-dark: color-mix(in srgb, var(--frame-ivory-shadow) 78%, #241f19);
+  --suit-plate: color-mix(in srgb, var(--expedition-die-theme-color) 62%, #b8aa90);
+  --suit-plate-edge: var(--frame-ivory-light);
+  --wood-base: var(--battle-die-wood-base, #33231c);
+  --wood-mid: var(--battle-die-wood-mid, #211713);
+  --wood-dark: var(--battle-die-wood-dark, #100b09);
+  --wood-fiber-light: var(--battle-die-wood-fiber-light, #5f463a);
+  --wood-fiber-dark: var(--battle-die-wood-fiber-dark, #17100d);
+  --expedition-die-stamp-paper: var(--battle-die-icon, #ad8c50);
+  --expedition-die-stamp-edge: var(--battle-die-icon-edge, #382217);
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  margin: 0;
+  transform-style: preserve-3d;
+}
+
+.expedition-flat-die-frame,
+.expedition-flat-die-frame * {
+  box-sizing: border-box;
+}
+
+.expedition-flat-die-frame__panel-layer,
+.expedition-flat-die-frame__frame-layer,
+.expedition-flat-die-frame__panel-surface,
+.expedition-flat-die-frame__frame-surface,
+.expedition-flat-die-frame__guides {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.expedition-flat-die-frame__panel-layer,
+.expedition-flat-die-frame__frame-layer {
+  backface-visibility: hidden;
+  pointer-events: none;
+  transform-style: preserve-3d;
+}
+
+.expedition-flat-die-frame__panel-layer {
+  z-index: 1;
+  transform: translateZ(calc(-1 * var(--expedition-die-recess-depth))) scale(1.025);
+  transform-origin: center;
+}
+
+.expedition-flat-die-frame__frame-layer {
+  z-index: 2;
+  filter: drop-shadow(0 1px .7px rgb(0 0 0 / 48%));
+  transform: translateZ(0);
+}
+
+.expedition-flat-die-frame__panel-surface,
+.expedition-flat-die-frame__frame-surface {
+  overflow: visible;
+}
+
+.expedition-flat-die-frame__main-stamp {
+  position: absolute;
+  z-index: 1;
+  top: calc(50% + var(--expedition-die-stamp-y));
+  left: calc(50% + var(--expedition-die-stamp-x));
+  display: block;
+  width: 49%;
+  aspect-ratio: 1;
+  background:
+    repeating-linear-gradient(96deg, transparent 0 10px, rgb(67 42 25 / 10%) 11px 12px, transparent 13px 21px),
+    var(--expedition-die-stamp-paper);
+  filter:
+    drop-shadow(1px 0 var(--expedition-die-stamp-edge))
+    drop-shadow(-1px 0 var(--expedition-die-stamp-edge))
+    drop-shadow(0 1px var(--expedition-die-stamp-edge))
+    drop-shadow(0 -1px var(--expedition-die-stamp-edge));
+  mask: var(--expedition-die-stamp-icon) center / contain no-repeat;
+  opacity: var(--expedition-die-stamp-opacity);
+  transform: translate(-50%, -50%) rotate(var(--expedition-die-stamp-rotate)) scale(var(--expedition-die-stamp-scale));
+  transform-origin: center;
+  -webkit-mask: var(--expedition-die-stamp-icon) center / contain no-repeat;
+}
+
+.expedition-flat-die-frame__suit-fate > path,
+.expedition-flat-die-frame__suit-fate > circle {
+  fill: var(--suit-plate);
+  stroke: var(--suit-plate-edge);
+  stroke-width: 1.35px;
+  vector-effect: non-scaling-stroke;
+}
+
+.expedition-flat-die-frame__fate {
+  fill: #f0d9a2;
+  stroke: #271a12;
+  stroke-width: 1.25px;
+  font-family: "Avenir Next Condensed", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  font-size: 37px;
+  font-feature-settings: "tnum" 1;
+  font-variant-numeric: lining-nums tabular-nums;
+  font-weight: 800;
+  filter:
+    drop-shadow(0 1px 0 rgb(9 6 4 / 72%))
+    drop-shadow(0 -0.45px 0 rgb(255 244 207 / 34%));
+  stroke-linejoin: round;
+  paint-order: stroke fill;
+}
+
+.expedition-flat-die-frame__suit-fate[data-shape="triangle"] .expedition-flat-die-frame__fate {
+  font-size: 36px;
+}
+
+.expedition-flat-die-frame__suit-fate[data-digits="multi"] .expedition-flat-die-frame__fate {
+  font-size: 24px;
+  stroke-width: 1.2px;
+}
+
+.expedition-flat-die-frame__suit-fate[data-shape="triangle"][data-digits="multi"] .expedition-flat-die-frame__fate {
+  font-size: 23px;
+}
+
+.expedition-flat-die-frame__wild-pip path:first-child {
+  fill: #ead08b;
+  stroke: #302319;
+  stroke-width: 1.2px;
+}
+
+.expedition-flat-die-frame__wild-pip path:last-child {
+  fill: rgb(255 245 204 / 58%);
+  stroke: #9d7940;
+  stroke-width: .8px;
+}
+
+.expedition-flat-die-frame[data-scoring] .expedition-flat-die-frame__suit-fate > path,
+.expedition-flat-die-frame[data-scoring] .expedition-flat-die-frame__suit-fate > circle {
+  stroke: #fff0bd;
+  stroke-width: 1.4px;
+}
+
+.expedition-flat-die-frame[data-scoring] .expedition-flat-die-frame__fate {
+  fill: #f4dfa3;
+  stroke: #21170f;
+  stroke-width: 1.3px;
+}
+
+.expedition-flat-die-frame[data-scoring] .expedition-flat-die-frame__wild-pip {
+  filter: drop-shadow(0 0 2px rgb(255 224 146 / 76%));
+}
+
+.expedition-flat-die-frame__placeholder {
+  fill: none;
+  stroke: var(--gold-dark);
+  stroke-dasharray: 4 3.5;
+  stroke-linejoin: round;
+  stroke-width: 1.25px;
+  opacity: .62;
+}
+
+.expedition-flat-die-frame__seal {
+  --seal: #c9ab68;
+  display: block;
+  overflow: visible;
+  filter: drop-shadow(0 1px .5px rgb(47 33 18 / 42%));
+}
+
+.expedition-flat-die-frame__seal[data-seal="none"] { --seal: #9a958a; }
+.expedition-flat-die-frame__seal[data-seal="rust"] { --seal: #b06a48; }
+.expedition-flat-die-frame__seal[data-seal="gild"] { --seal: #f0dc9e; }
+
+.expedition-flat-die-frame__power {
+  --wedge-light: #b59d6f;
+  --wedge-dark: #715d3d;
+  --wedge-bevel: #dcc58d;
+  --wedge-seam: #3b2b1c;
+  --wedge-line: #1d140e;
+  display: block;
+  overflow: visible;
+  filter:
+    drop-shadow(0 -.6px 0 rgb(12 7 5 / 82%))
+    drop-shadow(0 .65px 0 rgb(220 196 143 / 30%));
+}
+
+.expedition-flat-die-frame__power[data-power="0"] {
+  --wedge-light: #c07a6d;
+  --wedge-dark: #82483f;
+  --wedge-bevel: #e1aa9d;
+  --wedge-seam: #4a1712;
+  --wedge-line: #3d1511;
+}
+
+.expedition-flat-die-frame__power [data-wedge="light"] { fill: var(--wedge-light); }
+.expedition-flat-die-frame__power [data-wedge="dark"] { fill: var(--wedge-dark); }
+
+.expedition-flat-die-frame__power [data-wedge="seam"] {
+  fill: none;
+  stroke: var(--wedge-seam);
+  stroke-width: 1.05px;
+}
+
+.expedition-flat-die-frame__power [data-wedge="line"] {
+  fill: none;
+  stroke: var(--wedge-line);
+  stroke-linejoin: round;
+  stroke-width: .85px;
+}
+
+.expedition-flat-die-frame__guides {
+  z-index: 4;
+  pointer-events: none;
+  transform: translateZ(1px);
+}
+
+.expedition-flat-die-frame__guides i {
+  position: absolute;
+  background: rgb(99 198 204 / 46%);
+}
+
+.expedition-flat-die-frame__guides i[data-axis="x"] {
+  top: 50%;
+  right: 2%;
+  left: 2%;
+  height: 1px;
+}
+
+.expedition-flat-die-frame__guides i[data-axis="y"] {
+  top: 2%;
+  bottom: 2%;
+  left: 50%;
+  width: 1px;
+}
+
+.expedition-flat-die-frame__guides b {
+  position: absolute;
+  right: 7%;
+  bottom: 5%;
+  padding: 2px 4px;
+  color: rgb(154 225 229 / 82%);
+  background: rgb(6 12 13 / 72%);
+  font: 7px/1.2 ui-monospace, monospace;
+}

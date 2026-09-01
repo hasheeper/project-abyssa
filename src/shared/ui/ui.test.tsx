@@ -263,8 +263,7 @@ describe("Abyssa controls", () => {
               description: "完整能力说明",
               iconUrl: "/trait.svg"
             }],
-            record: "人物资料",
-            quote: "角色台词"
+            record: "人物资料"
           }}
         />
       </>
@@ -289,7 +288,6 @@ describe("Abyssa controls", () => {
       maskImage: 'url("/trait.svg")'
     });
     expect(container.querySelector(".abyssa-status-panel__trait-tooltip")).toHaveTextContent("完整能力说明");
-    expect(container.querySelector(".abyssa-status-panel__quote")).toBeInTheDocument();
   });
 
   it("updates an uncontrolled toggle and reports its state", () => {

@@ -1,0 +1,612 @@
+:root {
+  --abyssa-battle-backdrop: #050304;
+}
+
+/* 当前战场原图扩到面板之外：清晰度与商店场景统一，战斗 UI 保持锐利。 */
+.abyssa-battle-stage {
+  --battle-backdrop-filter: saturate(.68) brightness(.5) contrast(.94);
+  --battle-backdrop-tone: linear-gradient(transparent, transparent);
+  --battle-backdrop-vignette:
+    radial-gradient(ellipse at 50% 47%, transparent 18%, rgb(4 2 3 / 24%) 56%, rgb(0 0 0 / 82%) 100%),
+    linear-gradient(180deg, rgb(0 0 0 / 54%), transparent 27%, transparent 68%, rgb(0 0 0 / 66%));
+  --battle-backdrop-shadow: inset 0 0 96px rgb(0 0 0 / 50%);
+  isolation: isolate;
+}
+
+.abyssa-battle-stage--hero-party {
+  --battle-backdrop-filter: sepia(.08) saturate(.74) brightness(.54) contrast(.98);
+  --battle-backdrop-tone:
+    radial-gradient(ellipse at 50% 14%, rgb(205 166 80 / 13%), transparent 43%),
+    linear-gradient(135deg, rgb(15 35 55 / 34%), rgb(4 12 21 / 22%));
+  --battle-backdrop-vignette:
+    radial-gradient(ellipse at 50% 47%, transparent 18%, rgb(5 12 20 / 24%) 56%, rgb(1 5 9 / 84%) 100%),
+    linear-gradient(180deg, rgb(4 10 17 / 56%), transparent 27%, transparent 68%, rgb(2 7 12 / 68%));
+  --battle-backdrop-shadow: inset 0 0 96px rgb(2 7 12 / 54%);
+}
+
+.abyssa-battle-stage--demon-cadre {
+  --battle-backdrop-filter: grayscale(.08) saturate(.56) brightness(.55) contrast(.98);
+  --battle-backdrop-tone:
+    radial-gradient(ellipse at 50% 18%, rgb(88 158 158 / 12%), transparent 45%),
+    linear-gradient(135deg, rgb(5 54 56 / 38%), rgb(1 17 18 / 24%));
+  --battle-backdrop-vignette:
+    radial-gradient(ellipse at 50% 47%, transparent 18%, rgb(2 18 19 / 25%) 56%, rgb(0 8 9 / 84%) 100%),
+    linear-gradient(180deg, rgb(2 20 21 / 54%), transparent 27%, transparent 68%, rgb(1 12 13 / 68%));
+  --battle-backdrop-shadow: inset 0 0 96px rgb(0 12 13 / 54%);
+}
+
+.abyssa-battle-stage--demon-lord {
+  --battle-backdrop-filter: sepia(.06) saturate(.76) brightness(.5) contrast(1);
+  --battle-backdrop-tone:
+    radial-gradient(ellipse at 50% 17%, rgb(143 40 50 / 13%), transparent 44%),
+    linear-gradient(135deg, rgb(73 5 17 / 40%), rgb(20 1 6 / 25%));
+  --battle-backdrop-vignette:
+    radial-gradient(ellipse at 50% 47%, transparent 18%, rgb(26 3 8 / 28%) 56%, rgb(9 0 2 / 86%) 100%),
+    linear-gradient(180deg, rgb(31 3 8 / 56%), transparent 27%, transparent 68%, rgb(18 1 5 / 70%));
+  --battle-backdrop-shadow: inset 0 0 96px rgb(20 1 5 / 58%);
+}
+
+.abyssa-battle-stage::before,
+.abyssa-battle-stage::after {
+  position: absolute;
+  z-index: 0;
+  content: "";
+  pointer-events: none;
+}
+
+.abyssa-battle-stage::before {
+  inset: 0;
+  background: #050304 url("../../assets/png3/background/domains_of_chaos-1.png") center 48% / cover no-repeat;
+  filter: var(--battle-backdrop-filter);
+  transform: scale(1.012);
+}
+
+.abyssa-battle-stage::after {
+  inset: 0;
+  background:
+    var(--battle-backdrop-tone),
+    var(--battle-backdrop-vignette);
+  box-shadow: var(--battle-backdrop-shadow);
+}
+
+.abyssa-battle-stage > .abyssa-expedition-theme {
+  position: relative;
+  z-index: 1;
+}
+
+.abyssa-expedition-theme {
+  --abyssa-header-fill: #21170e;
+  --abyssa-header-middle-frame: #9b7a42;
+  --abyssa-header-ornament: #d9b877;
+  --abyssa-header-pattern: rgb(232 200 122 / 12%);
+  --abyssa-header-text: #e8c87a;
+  --abyssa-frame-dark: #120d08;
+  --abyssa-frame-deep: #070503;
+  --abyssa-text-soft: #cdbda1;
+  --abyssa-text-muted: #88785d;
+  --abyssa-accent-soft: #d7bb7c;
+  --font-display: var(--abyssa-font-display);
+  --font-body: var(--abyssa-font-body);
+  width: 1600px;
+  height: 900px;
+  color: #e8dcc0;
+  font-family: var(--abyssa-font-body);
+}
+
+.abyssa-expedition {
+  position: relative;
+  width: 1600px;
+  height: 900px;
+  overflow: hidden;
+  background: transparent;
+}
+
+.abyssa-expedition::after {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 48%, rgb(0 0 0 / 42%) 100%);
+  content: "";
+  pointer-events: none;
+}
+
+/* 所有几何直接来自 src/shared/stage/stage.css 的共享画框契约。 */
+.abyssa-expedition-frame {
+  /* 战斗页需要同时容纳五列角色骰位与完整账本，单独把内容面扩到 1400px。
+     高度与共享画框比例保持不变，避免影响商店、地图等其他舞台。 */
+  --expedition-interior-w: 1400px;
+  --expedition-battlefield-w: 1040px;
+  --expedition-sidebar-w: 340px;
+  --expedition-region-gap: 20px;
+  --abyssa-frame-interior-w: var(--expedition-interior-w);
+  --abyssa-frame-board-w: calc(
+    var(--expedition-interior-w) + var(--abyssa-frame-pad-inline) * 2 +
+      var(--abyssa-frame-border) * 2
+  );
+  /* 战斗内容主动吃进部分 board 留白；外框本体尺寸仍遵守共享画框契约。 */
+  --expedition-content-bleed-top: 24px;
+  --expedition-content-bleed-bottom: 18px;
+  --expedition-board-pad-top: calc(var(--abyssa-frame-pad-top) - var(--expedition-content-bleed-top));
+  --expedition-board-pad-bottom: calc(var(--abyssa-frame-pad-bottom) - var(--expedition-content-bleed-bottom));
+  --expedition-interior-h: calc(var(--abyssa-frame-interior-h) + var(--expedition-content-bleed-top) + var(--expedition-content-bleed-bottom));
+  --expedition-enemy-panel-h: calc(280px + var(--expedition-content-bleed-top) + var(--expedition-content-bleed-bottom));
+  --expedition-action-dock-bottom: calc(-70px + var(--expedition-content-bleed-bottom));
+  --expedition-shell-w: calc(
+    var(--abyssa-frame-board-w) +
+      (
+          var(--abyssa-frame-brass) + var(--abyssa-frame-border-hair) +
+            var(--abyssa-frame-rail) + var(--abyssa-frame-border)
+        ) * 2
+  );
+  --expedition-shell-h: calc(
+    var(--abyssa-frame-board-h) +
+      (
+          var(--abyssa-frame-brass) + var(--abyssa-frame-border-hair) +
+            var(--abyssa-frame-rail) + var(--abyssa-frame-border)
+        ) * 2
+  );
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--expedition-shell-w);
+  height: calc(var(--abyssa-frame-header-expose) + var(--expedition-shell-h));
+  transform: translate(-50%, -50%) scale(var(--abyssa-frame-k));
+  transform-origin: center;
+  z-index: 1;
+}
+
+.abyssa-expedition-frame__header {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  z-index: 3;
+  width: 560px;
+  height: 116px;
+  transform: translateX(-50%) scale(var(--abyssa-frame-header-scale));
+  transform-origin: top center;
+}
+
+.abyssa-expedition-frame__header .abyssa-rpg-header {
+  --abyssa-header-fill: #24170d;
+  --abyssa-header-text: #e8c87a;
+  --abyssa-header-ornament: #c59d59;
+  --abyssa-header-middle-frame: #8a6f3f;
+  --abyssa-header-pattern: rgb(232 200 122 / 10%);
+  --abyssa-frame-dark: #120b07;
+  --abyssa-frame-deep: #070402;
+  width: 560px;
+  filter: drop-shadow(0 8px 10px rgb(0 0 0 / 58%));
+}
+
+.abyssa-expedition-frame__header .abyssa-rpg-header svg > text {
+  transform: translateY(-6px);
+}
+
+.abyssa-expedition-frame__header > span {
+  position: absolute;
+  top: 49px;
+  left: 50%;
+  color: #9b8a68;
+  font-family: var(--abyssa-font-display);
+  font-size: 8px;
+  letter-spacing: 5px;
+  line-height: 1;
+  pointer-events: none;
+  transform: translateX(-50%);
+}
+
+.abyssa-expedition-frame__shell {
+  position: absolute;
+  top: var(--abyssa-frame-header-expose);
+  left: 0;
+  width: var(--expedition-shell-w);
+  height: var(--expedition-shell-h);
+  padding: var(--abyssa-frame-rail);
+  border: var(--abyssa-frame-border) solid #090603;
+  background: #1a1008;
+  box-shadow: 0 0 0 2px #3a2817, 0 0 0 4px #0b0704;
+}
+
+.abyssa-expedition-frame__rails,
+.abyssa-expedition-frame__rails i {
+  position: absolute;
+  display: block;
+  pointer-events: none;
+}
+
+.abyssa-expedition-frame__rails {
+  inset: 0;
+  z-index: 2;
+}
+
+.abyssa-expedition-frame__rails i {
+  border: 1px solid #090603;
+  background: linear-gradient(180deg, rgb(255 224 165 / 10%), transparent 28%, rgb(0 0 0 / 62%)), #25170c;
+}
+
+.abyssa-expedition-frame__rails [data-edge="top"] {
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: var(--abyssa-frame-rail);
+  clip-path: polygon(0 0, 100% 0, calc(100% - var(--abyssa-frame-rail)) 100%, var(--abyssa-frame-rail) 100%);
+}
+
+.abyssa-expedition-frame__rails [data-edge="right"] {
+  top: 0;
+  right: 0;
+  width: var(--abyssa-frame-rail);
+  height: 100%;
+  clip-path: polygon(0 0, 100% var(--abyssa-frame-rail), 100% calc(100% - var(--abyssa-frame-rail)), 0 100%);
+}
+
+.abyssa-expedition-frame__rails [data-edge="bottom"] {
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: var(--abyssa-frame-rail);
+  clip-path: polygon(var(--abyssa-frame-rail) 0, calc(100% - var(--abyssa-frame-rail)) 0, 100% 100%, 0 100%);
+}
+
+.abyssa-expedition-frame__rails [data-edge="left"] {
+  top: 0;
+  left: 0;
+  width: var(--abyssa-frame-rail);
+  height: 100%;
+  clip-path: polygon(0 var(--abyssa-frame-rail), 100% 0, 100% 100%, 0 calc(100% - var(--abyssa-frame-rail)));
+}
+
+.abyssa-expedition-frame__brass {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  padding: var(--abyssa-frame-brass);
+  border: var(--abyssa-frame-border-hair) solid #24170a;
+  background: linear-gradient(135deg, #4e3518, #c29b58 18%, #745024 46%, #d2af69 73%, #4d3317);
+}
+
+.abyssa-expedition-frame__board {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  padding: var(--expedition-board-pad-top) var(--abyssa-frame-pad-inline)
+    var(--expedition-board-pad-bottom);
+  border: var(--abyssa-frame-border) solid #211307;
+  background:
+    radial-gradient(
+      ellipse at 50% -8%,
+      rgb(170 135 74 / 8%),
+      transparent 46%
+    ),
+    radial-gradient(
+      ellipse at 50% 48%,
+      rgb(74 50 28 / 9%),
+      transparent 68%
+    ),
+    repeating-linear-gradient(
+      2deg,
+      transparent 0 11px,
+      rgb(255 225 175 / 1%) 12px,
+      transparent 14px
+    ),
+    linear-gradient(180deg, #1a1009, #100a06);
+  box-shadow:
+    inset 0 0 0 1px rgb(209 163 83 / 20%),
+    inset 0 1px 0 rgb(255 232 184 / 5%),
+    inset 0 0 72px rgb(3 2 1 / 72%);
+}
+
+.abyssa-expedition-frame__interior {
+  display: grid;
+  width: var(--expedition-interior-w);
+  height: var(--expedition-interior-h);
+  grid-template-columns: var(--expedition-battlefield-w) var(--expedition-sidebar-w);
+  gap: var(--expedition-region-gap);
+}
+
+.abyssa-expedition-regions__battlefield {
+  display: grid;
+  min-width: 0;
+  min-height: 0;
+  /* 新增的纵向空间全部给敌方舞台；我方卡牌与骰盘的内部标尺不变。 */
+  grid-template-rows: var(--expedition-enemy-panel-h) 497px;
+  gap: 10px;
+}
+
+.abyssa-expedition-region {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  border: 1px solid #3f301e;
+  background:
+    linear-gradient(180deg, rgb(51 35 20 / 10%), transparent 28%),
+    rgb(5 4 3 / 16%);
+  box-shadow:
+    inset 0 0 0 1px rgb(0 0 0 / 64%),
+    inset 0 0 38px rgb(0 0 0 / 24%),
+    0 1px 0 rgb(217 184 119 / 4%);
+}
+
+.abyssa-expedition-region::before {
+  position: absolute;
+  inset: 4px;
+  border: 1px solid rgb(217 184 119 / 10%);
+  content: "";
+  pointer-events: none;
+}
+
+.abyssa-expedition-enemies {
+  z-index: 3;
+  grid-column: 1;
+  grid-row: 1;
+  isolation: isolate;
+  overflow: visible;
+  background: #0b0908 url("../../assets/png3/background/domains_of_chaos-1.png") center 48% / cover no-repeat;
+}
+
+.abyssa-expedition-enemies__haze {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    radial-gradient(ellipse at 18% 52%, rgb(143 153 140 / 18%), transparent 25%),
+    radial-gradient(ellipse at 50% 52%, rgb(150 144 150 / 17%), transparent 24%),
+    radial-gradient(ellipse at 82% 51%, rgb(137 151 156 / 10%), transparent 25%),
+    radial-gradient(ellipse at 50% 46%, transparent 20%, rgb(5 7 7 / 26%) 82%),
+    linear-gradient(180deg, rgb(5 8 9 / 24%), rgb(5 6 6 / 8%) 44%, rgb(5 5 4 / 44%));
+  backdrop-filter: brightness(.48) saturate(.42) contrast(.96) blur(.75px);
+  pointer-events: none;
+}
+
+.abyssa-expedition-enemies__formation {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: grid;
+  overflow: hidden;
+  overflow: clip;
+  contain: paint;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.abyssa-expedition-enemy {
+  position: relative;
+  display: grid;
+  min-width: 0;
+  padding-top: 16px;
+  justify-items: center;
+  grid-template-rows: 43px 1fr;
+}
+
+.abyssa-expedition-enemy header {
+  position: relative;
+  z-index: 4;
+  display: grid;
+  align-content: start;
+  gap: 7px;
+  justify-items: center;
+}
+
+.abyssa-expedition-enemy__stats {
+  display: flex;
+  min-height: 18px;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+/* 狂暴状态独立于当前意图：预警倒数，生效后常驻至怪物死亡。 */
+.abyssa-expedition-enemy__frenzy-status {
+  position: absolute;
+  z-index: 7;
+  top: 84px;
+  left: 50%;
+  display: grid;
+  min-width: 132px;
+  padding: 5px 9px 4px;
+  border: 1px solid #a9752f;
+  color: #f0c775;
+  background:
+    linear-gradient(135deg, rgb(235 172 68 / 16%), transparent 62%),
+    rgb(29 18 8 / 94%);
+  box-shadow: 0 2px 7px rgb(0 0 0 / 74%), 0 0 12px rgb(221 143 48 / 28%);
+  font-family: var(--font-display);
+  line-height: 1;
+  pointer-events: none;
+  text-align: center;
+  transform: translateX(-50%);
+  will-change: opacity;
+  animation: expedition-frenzy-warning 1.25s ease-in-out infinite;
+}
+
+.abyssa-expedition-enemy__frenzy-status small {
+  font-size: 9px;
+  letter-spacing: .18em;
+}
+
+.abyssa-expedition-enemy__frenzy-status b {
+  margin-top: 3px;
+  color: #ffe2a0;
+  font-size: 13px;
+  letter-spacing: .08em;
+}
+
+.abyssa-expedition-enemy__frenzy-status em {
+  margin-top: 3px;
+  color: #cfa35d;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-style: normal;
+  letter-spacing: .08em;
+}
+
+.abyssa-expedition-enemy__frenzy-status[data-imminent] {
+  border-color: #cf5c43;
+  color: #ffad91;
+  box-shadow: 0 2px 7px rgb(0 0 0 / 74%), 0 0 16px rgb(215 76 51 / 44%);
+}
+
+.abyssa-expedition-enemy__frenzy-status[data-active] {
+  border-color: #c94e3d;
+  color: #ffb09c;
+  background:
+    radial-gradient(circle at 50% 0%, rgb(218 73 52 / 24%), transparent 68%),
+    rgb(35 10 8 / 96%);
+  box-shadow: 0 2px 7px rgb(0 0 0 / 78%), 0 0 16px rgb(214 62 43 / 42%);
+  animation: none;
+}
+
+.abyssa-expedition-enemy__frenzy-status[data-active] b {
+  color: #ffe0d7;
+}
+
+.abyssa-expedition-enemy__frenzy-status[data-active] em {
+  color: #e58d79;
+}
+
+@keyframes expedition-frenzy-warning {
+  50% { opacity: .78; }
+}
+
+.abyssa-expedition-enemy header strong {
+  color: #b4a58b;
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: .055em;
+  line-height: 1;
+  text-shadow: 0 2px 3px #000;
+}
+
+.abyssa-expedition-enemy__health {
+  display: flex;
+  height: 11px;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.abyssa-expedition-enemy__attack {
+  display: flex;
+  height: 17px;
+  align-items: baseline;
+  gap: 4px;
+  color: #b98255;
+  font-family: var(--font-display);
+  line-height: 1;
+  text-shadow: 0 1px 2px #000;
+}
+
+.abyssa-expedition-enemy__attack small {
+  color: #806c55;
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: .1em;
+}
+
+.abyssa-expedition-enemy__attack b {
+  color: #cf9862;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.abyssa-expedition-enemy__health i {
+  display: block;
+  width: 9px;
+  height: 9px;
+  border: 1px solid #3a2b1c;
+  border-radius: 50%;
+  background: #33291f;
+  box-shadow: inset 0 1px 2px #0a0704, 0 1px 1px rgb(0 0 0 / 52%);
+}
+
+.abyssa-expedition-enemy__health i[data-filled] {
+  border-color: #6d512c;
+  background: radial-gradient(circle at 35% 28%, #ecd290 0 19%, #b78943 64%, #59401f 100%);
+  box-shadow: inset 0 1px 1px rgb(255 238 184 / 35%), 0 1px 2px #000;
+}
+
+.abyssa-expedition-enemy > img {
+  position: relative;
+  z-index: 2;
+  align-self: end;
+  width: 188px;
+  height: 188px;
+  margin-bottom: 74px;
+  object-fit: contain;
+  opacity: .98;
+  filter:
+    grayscale(.72)
+    sepia(.1)
+    saturate(.58)
+    brightness(.92)
+    contrast(1.2)
+    drop-shadow(0 7px 7px rgb(0 0 0 / 88%));
+  transform: translateY(-18px);
+}
+
+.abyssa-expedition-enemy[data-art="sentinel"] > img {
+  width: 232px;
+  height: 232px;
+}
+
+.abyssa-expedition-enemy[data-art="amalgam"] > img {
+  width: 210px;
+  height: 210px;
+}
+
+.abyssa-expedition-enemy[data-art="choir"] > img {
+  width: 282px;
+  height: 178px;
+}
+
+.abyssa-expedition-enemies__intent-lines {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.abyssa-expedition-intent-line__shadow,
+.abyssa-expedition-intent-line__body {
+  fill: none;
+  stroke-linecap: round;
+  stroke-dasharray: 12px 9px;
+}
+
+.abyssa-expedition-intent-line__shadow {
+  stroke: rgb(38 8 7 / 88%);
+  stroke-width: 7.5px;
+  transform: translateY(1px);
+}
+
+.abyssa-expedition-intent-line__body {
+  stroke: rgb(192 73 66 / 90%);
+  stroke-width: 3.6px;
+  filter: drop-shadow(0 1px 1px rgb(0 0 0 / 62%));
+  animation: expedition-intent-flow 980ms linear infinite;
+}
+
+/* 命中演出只有数百毫秒，期间冻结无关的虚线流动，避免与斩击争抢合成帧。 */
+.abyssa-expedition[data-attack-phase] .abyssa-expedition-intent-line__body,
+.abyssa-expedition[data-support-phase] .abyssa-expedition-intent-line__body {
+  animation-play-state: paused;
+}
+
+.abyssa-expedition-intent-line__socket {
+  fill: #250b08;
+  stroke: #a64e47;
+  stroke-width: 2px;
+  filter: drop-shadow(0 2px 2px rgb(0 0 0 / 72%));
+}
+
+@keyframes expedition-intent-flow {
+  to { stroke-dashoffset: -21px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .abyssa-expedition-intent-line__body { animation: none; }
+}

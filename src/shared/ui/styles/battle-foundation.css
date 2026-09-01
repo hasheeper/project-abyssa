@@ -1,0 +1,228 @@
+.abyssa-battle-screen,
+.abyssa-battle-screen * {
+  box-sizing: border-box;
+}
+
+.abyssa-battle-screen {
+  --abyssa-battle-accent: #62a6aa;
+  --abyssa-battle-accent-bright: #91c8ca;
+  --abyssa-battle-accent-shadow: rgb(75 171 176 / 38%);
+  --abyssa-battle-danger: #62a6aa;
+  --abyssa-battle-hp: #75cf7c;
+  --abyssa-battle-mp: #5faee6;
+  --abyssa-battle-edge-shadow: #091111;
+  --abyssa-battle-edge-inner: #526e6c;
+  --abyssa-battle-weave: #6b8280;
+  --abyssa-battle-weave-bright: #829b98;
+  --abyssa-battle-wing: url("../../../assets/png2/top.png?no-inline");
+  --abyssa-battle-corner-image: url("../../../assets/png2/frame-corner-symmetric.png?no-inline");
+  --abyssa-battle-corner-size: clamp(102px, 13.5cqi, 152px);
+  --abyssa-battle-corner-overhang: 8.6%;
+  position: relative;
+  display: block;
+  width: min(100%, calc(100dvh * 1.6380952));
+  max-width: 1376px;
+  aspect-ratio: 1376 / 840;
+  margin-inline: auto;
+  overflow: visible;
+  color: var(--abyssa-text, #edf0f0);
+  font-family: var(--abyssa-font-body, "Songti SC", serif);
+  container-type: inline-size;
+  isolation: isolate;
+}
+
+.abyssa-battle-screen[data-scene-tone="chaos"] {
+  --abyssa-battle-accent: #62a6aa;
+  --abyssa-battle-accent-bright: #91c8ca;
+  --abyssa-battle-accent-shadow: rgb(75 171 176 / 38%);
+  --abyssa-battle-edge-inner: #526e6c;
+  --abyssa-battle-weave: #6b8280;
+  --abyssa-battle-weave-bright: #829b98;
+  --abyssa-battle-wing: url("../../../assets/png2/top.png?no-inline");
+}
+
+.abyssa-battle-screen__header-row {
+  --abyssa-battle-header-half-width: min(37cqi, 270px);
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 20;
+  display: block;
+  width: 100%;
+  height: 15%;
+  pointer-events: none;
+  transition: opacity 220ms ease, filter 220ms ease;
+}
+
+.abyssa-battle-screen__header {
+  position: relative;
+  z-index: 2;
+  width: min(74%, 540px);
+  margin-inline: auto;
+  transform: translateY(2px);
+  --abyssa-header-fill: #1b292a;
+  --abyssa-header-text: #e5eeee;
+  --abyssa-header-ornament: #5d7779;
+  --abyssa-header-middle-frame: #648386;
+  --abyssa-header-pattern: rgb(105 172 175 / 4.5%);
+}
+
+.abyssa-battle-screen__header-wing {
+  position: absolute;
+  top: 50%;
+  z-index: 3;
+  display: block;
+  width: clamp(114px, 20cqi, 238px);
+  aspect-ratio: 4 / 3;
+  background: var(--abyssa-battle-wing) right center / contain no-repeat;
+  filter: drop-shadow(0 2px 2px rgb(0 0 0 / 72%));
+  opacity: .96;
+  transform: translateY(-54%);
+}
+
+.abyssa-battle-screen__header-wing[data-side="left"] {
+  right: calc(50% + var(--abyssa-battle-header-half-width) - 66px);
+}
+
+.abyssa-battle-screen__header-wing[data-side="right"] {
+  left: calc(50% + var(--abyssa-battle-header-half-width) - 66px);
+  transform: translateY(-54%) scaleX(-1);
+}
+
+.abyssa-battle-screen__shell {
+  position: absolute;
+  inset: 5.2% .8% 1.4%;
+  overflow: visible;
+  --abyssa-frame-dark: #182425;
+  --abyssa-frame-deep: #0e1718;
+  --abyssa-frame-light: #789193;
+  --abyssa-frame-surface: #202c2d;
+  --abyssa-panel-black: #172122;
+  --abyssa-panel-dark: #202c2d;
+  --abyssa-ornament: #5f7778;
+  --abyssa-ornament-light: #829a9b;
+  border-width: 2px;
+  border-color: #2c3a3a;
+  box-shadow:
+    0 0 0 1px #222e2f,
+    0 0 0 2px #2b3937,
+    0 0 0 2.75px #546967,
+    0 0 0 4.25px #2b3937,
+    0 0 0 5px #546967,
+    0 0 0 6px #091111,
+    0 14px 34px rgb(5 10 12 / 36%);
+}
+
+.abyssa-battle-screen__shell::before {
+  inset: 6px;
+  border-color: transparent;
+  background: #202c2d;
+}
+
+.abyssa-battle-screen__shell > .abyssa-frame__content {
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.abyssa-battle-screen__shell > .abyssa-frame__ornaments {
+  display: none;
+}
+
+.abyssa-battle-screen__shell > .abyssa-frame__ornaments i {
+  --abyssa-battle-corner-scale-x: 1;
+  --abyssa-battle-corner-scale-y: 1;
+  position: absolute;
+  width: var(--abyssa-battle-corner-size);
+  height: var(--abyssa-battle-corner-size);
+  overflow: visible;
+  border: 0;
+  opacity: .9;
+}
+
+.abyssa-battle-screen__shell > .abyssa-frame__ornaments i::before {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--abyssa-battle-corner-size);
+  height: var(--abyssa-battle-corner-size);
+  background: var(--abyssa-battle-corner-image) center / 100% 100% no-repeat;
+  content: "";
+  filter: drop-shadow(0 3px 5px rgb(0 0 0 / 62%));
+  transform: translate(-50%, -50%) scaleX(var(--abyssa-battle-corner-scale-x)) scaleY(var(--abyssa-battle-corner-scale-y));
+  transform-origin: center;
+}
+
+.abyssa-battle-screen__shell > .abyssa-frame__ornaments [data-corner="tl"] {
+  top: 0;
+  left: 0;
+  translate: calc(var(--abyssa-battle-corner-overhang) * -1) calc(var(--abyssa-battle-corner-overhang) * -1 + 2px);
+}
+
+.abyssa-battle-screen__shell > .abyssa-frame__ornaments [data-corner="tr"] {
+  --abyssa-battle-corner-scale-x: -1;
+  top: 0;
+  right: 0;
+  translate: var(--abyssa-battle-corner-overhang) calc(var(--abyssa-battle-corner-overhang) * -1 + 2px);
+}
+
+.abyssa-battle-screen__shell > .abyssa-frame__ornaments [data-corner="bl"] {
+  --abyssa-battle-corner-scale-y: -1;
+  bottom: 0;
+  left: 0;
+  translate: calc(var(--abyssa-battle-corner-overhang) * -1) var(--abyssa-battle-corner-overhang);
+}
+
+.abyssa-battle-screen__shell > .abyssa-frame__ornaments [data-corner="br"] {
+  --abyssa-battle-corner-scale-x: -1;
+  --abyssa-battle-corner-scale-y: -1;
+  right: 0;
+  bottom: 0;
+  translate: var(--abyssa-battle-corner-overhang) var(--abyssa-battle-corner-overhang);
+}
+
+.abyssa-battle-screen__edge-weave {
+  position: absolute;
+  inset: -1px;
+  z-index: 15;
+  display: block;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.abyssa-battle-screen__edge {
+  position: absolute;
+  display: block;
+  overflow: visible;
+  opacity: .82;
+  filter: drop-shadow(0 1px 1.5px rgb(0 0 0 / 58%));
+}
+
+.abyssa-battle-screen__edge[data-frame-edge="top"],
+.abyssa-battle-screen__edge[data-frame-edge="bottom"] {
+  left: -4px;
+  width: calc(100% + 8px);
+  height: 18px;
+}
+
+.abyssa-battle-screen__edge[data-frame-edge="top"] { top: -4px; }
+.abyssa-battle-screen__edge[data-frame-edge="bottom"] { bottom: -4px; transform: scaleY(-1); }
+
+.abyssa-battle-screen__edge[data-frame-edge="left"],
+.abyssa-battle-screen__edge[data-frame-edge="right"] {
+  top: -4px;
+  width: 18px;
+  height: calc(100% + 8px);
+}
+
+.abyssa-battle-screen__edge[data-frame-edge="left"] { left: -4px; }
+.abyssa-battle-screen__edge[data-frame-edge="right"] { right: -4px; transform: scaleX(-1); }
+.abyssa-battle-screen__edge path { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.abyssa-battle-screen__edge-rail-shadow { stroke: var(--abyssa-battle-edge-shadow); stroke-width: 5px; }
+.abyssa-battle-screen__edge-rail { stroke: var(--abyssa-battle-edge-inner); stroke-width: 1.45px; }
+.abyssa-battle-screen__edge-strand-shadow,
+.abyssa-battle-screen__edge-overpass-shadow { stroke: var(--abyssa-battle-edge-shadow); stroke-width: 4px; }
+.abyssa-battle-screen__edge-strand,
+.abyssa-battle-screen__edge-overpass { stroke: var(--abyssa-battle-weave); stroke-width: 2.1px; }
+.abyssa-battle-screen__edge-highlight,
+.abyssa-battle-screen__edge-overpass-highlight { stroke: var(--abyssa-battle-weave-bright); stroke-width: .5px; opacity: .68; }

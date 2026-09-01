@@ -1,0 +1,1366 @@
+
+/* ============================================================
+   编队界面皮肤
+
+   这里只改「谁在指挥这场战斗」的外壳：画框、结构线、顶饰与底板。
+   生命、攻击、格挡、骰面品质等战斗语义色不得跟随皮肤漂移。
+============================================================ */
+
+.abyssa-expedition[data-ui-skin="timber"] {
+  --battle-skin-accent: #8d7040;
+  --battle-skin-accent-bright: #d7bb7c;
+  --battle-skin-accent-soft: #a68a56;
+  --battle-skin-muted: #796a51;
+  --battle-frame-deep: #090603;
+  --battle-frame-surface: #1a1008;
+  --battle-frame-ring: #3a2817;
+  --battle-rail-surface: #25170c;
+  --battle-rail-sheen: rgb(255 224 165 / 10%);
+  --battle-metal-hair: #24170a;
+  --battle-metal-gradient: linear-gradient(135deg, #4e3518, #c29b58 18%, #745024 46%, #d2af69 73%, #4d3317);
+  --battle-board-border: #211307;
+  --battle-board-background:
+    radial-gradient(ellipse at 50% -8%, rgb(170 135 74 / 8%), transparent 46%),
+    radial-gradient(ellipse at 50% 48%, rgb(74 50 28 / 9%), transparent 68%),
+    repeating-linear-gradient(2deg, transparent 0 11px, rgb(255 225 175 / 1%) 12px, transparent 14px),
+    linear-gradient(180deg, #1a1009, #100a06);
+  --battle-board-ring: rgb(209 163 83 / 20%);
+  --battle-structure-line: #3f301e;
+  --battle-structure-inner: rgb(217 184 119 / 10%);
+  --battle-structure-surface: rgb(5 4 3 / 16%);
+  --battle-sidebar-surface:
+    linear-gradient(180deg, rgb(227 190 116 / 8%), transparent 28%, rgb(0 0 0 / 38%)),
+    repeating-linear-gradient(2deg, transparent 0 8px, rgb(255 224 165 / 1.5%) 9px, transparent 11px),
+    #24170b;
+  --battle-sidebar-inner:
+    radial-gradient(ellipse at 50% 48%, rgb(166 111 53 / 15%), transparent 49%),
+    linear-gradient(90deg, rgb(0 0 0 / 18%), transparent 18% 82%, rgb(0 0 0 / 24%)),
+    repeating-linear-gradient(2deg, transparent 0 7px, rgb(236 190 119 / 2.8%) 8px, transparent 10px),
+    repeating-linear-gradient(89deg, transparent 0 71px, rgb(5 2 1 / 18%) 72px 73px, transparent 74px),
+    #1b1108;
+  --battle-plaque-surface:
+    linear-gradient(180deg, rgb(255 225 175 / 6%), transparent 27%, rgb(0 0 0 / 34%)),
+    repeating-linear-gradient(2deg, transparent 0 7px, rgb(255 225 175 / 1.8%) 8px, transparent 10px),
+    #24180d;
+  --battle-dice-tray:
+    linear-gradient(180deg, rgb(222 181 111 / 7%), transparent 18%, rgb(0 0 0 / 24%) 78%),
+    radial-gradient(ellipse at 50% 40%, #17100a 0%, #100a06 68%, #0c0704 100%);
+  --battle-dock-surface: #201309;
+  --battle-die-wood-base: #33231c;
+  --battle-die-wood-mid: #211713;
+  --battle-die-wood-dark: #100b09;
+  --battle-die-wood-fiber-light: #5f463a;
+  --battle-die-wood-fiber-dark: #17100d;
+  --battle-die-icon: #ad8c50;
+  --battle-die-icon-edge: #382217;
+  --battle-top-ornament-opacity: .68;
+  --battle-corner-opacity: .62;
+  --battle-edge-opacity: .22;
+}
+
+.abyssa-expedition[data-ui-skin="hero-party"] {
+  --battle-skin-accent: #9b8048;
+  --battle-skin-accent-bright: #ead38c;
+  --battle-skin-accent-soft: #cfb577;
+  --battle-skin-muted: #8f805b;
+  --battle-frame-deep: #0c141c;
+  --battle-frame-surface: #17212a;
+  --battle-frame-ring: #8d7744;
+  --battle-rail-surface: #222d38;
+  --battle-rail-sheen: rgb(246 225 158 / 9%);
+  --battle-metal-hair: #514a37;
+  --battle-metal-gradient: linear-gradient(135deg, #17212c, #8d7744 18%, #3a4143 46%, #c5a75d 73%, #17212c);
+  --battle-board-border: #776643;
+  --battle-board-background:
+    radial-gradient(ellipse at 50% -8%, rgb(221 193 118 / 10%), transparent 46%),
+    radial-gradient(ellipse at 50% 48%, rgb(54 73 91 / 13%), transparent 68%),
+    repeating-linear-gradient(2deg, transparent 0 11px, rgb(255 246 215 / 1.2%) 12px, transparent 14px),
+    linear-gradient(180deg, #222d38, #111a23);
+  --battle-board-ring: rgb(207 181 119 / 24%);
+  --battle-structure-line: #776643;
+  --battle-structure-inner: rgb(224 202 134 / 14%);
+  --battle-structure-surface: rgb(12 20 28 / 28%);
+  --battle-sidebar-surface:
+    linear-gradient(180deg, rgb(234 211 140 / 8%), transparent 28%, rgb(0 0 0 / 38%)),
+    repeating-linear-gradient(2deg, transparent 0 8px, rgb(255 246 215 / 1.6%) 9px, transparent 11px),
+    #1b2632;
+  --battle-sidebar-inner:
+    radial-gradient(ellipse at 50% 48%, rgb(143 118 68 / 14%), transparent 49%),
+    linear-gradient(90deg, rgb(0 0 0 / 18%), transparent 18% 82%, rgb(0 0 0 / 24%)),
+    repeating-linear-gradient(2deg, transparent 0 7px, rgb(230 211 157 / 2.5%) 8px, transparent 10px),
+    repeating-linear-gradient(89deg, transparent 0 71px, rgb(4 8 14 / 20%) 72px 73px, transparent 74px),
+    #17212a;
+  --battle-plaque-surface:
+    linear-gradient(180deg, rgb(234 211 140 / 6%), transparent 27%, rgb(0 0 0 / 35%)),
+    repeating-linear-gradient(2deg, transparent 0 7px, rgb(230 211 157 / 1.7%) 8px, transparent 10px),
+    #202b35;
+  --battle-dice-tray:
+    linear-gradient(180deg, rgb(221 193 118 / 7%), transparent 18%, rgb(0 0 0 / 27%) 78%),
+    radial-gradient(ellipse at 50% 40%, #202b35 0%, #16202a 68%, #0c141c 100%);
+  --battle-dock-surface: #14202b;
+  /* 冷灰胡桃木 + 克制的香槟金刻印。 */
+  --battle-die-wood-base: #303033;
+  --battle-die-wood-mid: #202225;
+  --battle-die-wood-dark: #0e1216;
+  --battle-die-wood-fiber-light: #5d6262;
+  --battle-die-wood-fiber-dark: #151a1d;
+  --battle-die-icon: #c5b47d;
+  --battle-die-icon-edge: #333126;
+  --battle-scene-tint:
+    radial-gradient(ellipse at 50% 12%, rgb(211 176 91 / 11%), transparent 43%),
+    linear-gradient(135deg, rgb(20 42 65 / 25%), rgb(6 15 25 / 12%));
+  --battle-scene-curtain: linear-gradient(180deg, rgb(4 12 20 / 25%), transparent 34% 68%, rgb(2 8 14 / 36%));
+  --battle-top-ornament-opacity: .96;
+  --battle-corner-opacity: .9;
+  --battle-edge-opacity: .58;
+  --abyssa-accent-soft: #ead38c;
+  --abyssa-text-soft: #e6ddc4;
+  --abyssa-text-muted: #9f9270;
+}
+
+.abyssa-expedition[data-ui-skin="demon-cadre"] {
+  --battle-skin-accent: #5f8383;
+  --battle-skin-accent-bright: #a3c6c3;
+  --battle-skin-accent-soft: #789e9d;
+  --battle-skin-muted: #708a89;
+  --battle-frame-deep: #071010;
+  --battle-frame-surface: #152223;
+  --battle-frame-ring: #526b69;
+  --battle-rail-surface: #213132;
+  --battle-rail-sheen: rgb(199 235 232 / 9%);
+  --battle-metal-hair: #263839;
+  --battle-metal-gradient: linear-gradient(135deg, #182728, #718c8a 18%, #3c5554 46%, #8ba3a0 73%, #182728);
+  --battle-board-border: #253737;
+  --battle-board-background:
+    radial-gradient(ellipse at 50% -8%, rgb(112 184 187 / 9%), transparent 46%),
+    radial-gradient(ellipse at 50% 48%, rgb(46 86 87 / 11%), transparent 68%),
+    repeating-linear-gradient(2deg, transparent 0 11px, rgb(214 244 242 / 1.2%) 12px, transparent 14px),
+    linear-gradient(180deg, #1c292a, #10191a);
+  --battle-board-ring: rgb(126 174 173 / 24%);
+  --battle-structure-line: #405655;
+  --battle-structure-inner: rgb(151 198 195 / 14%);
+  --battle-structure-surface: rgb(8 17 18 / 24%);
+  --battle-sidebar-surface:
+    linear-gradient(180deg, rgb(173 216 213 / 8%), transparent 28%, rgb(0 0 0 / 39%)),
+    repeating-linear-gradient(2deg, transparent 0 8px, rgb(213 246 243 / 1.7%) 9px, transparent 11px),
+    #1d2b2c;
+  --battle-sidebar-inner:
+    radial-gradient(ellipse at 50% 48%, rgb(73 130 130 / 14%), transparent 49%),
+    linear-gradient(90deg, rgb(0 0 0 / 18%), transparent 18% 82%, rgb(0 0 0 / 24%)),
+    repeating-linear-gradient(2deg, transparent 0 7px, rgb(199 236 233 / 2.6%) 8px, transparent 10px),
+    repeating-linear-gradient(89deg, transparent 0 71px, rgb(2 8 8 / 20%) 72px 73px, transparent 74px),
+    #152122;
+  --battle-plaque-surface:
+    linear-gradient(180deg, rgb(208 240 237 / 5.5%), transparent 27%, rgb(0 0 0 / 35%)),
+    repeating-linear-gradient(2deg, transparent 0 7px, rgb(196 231 229 / 1.8%) 8px, transparent 10px),
+    #1d2b2c;
+  --battle-dice-tray:
+    linear-gradient(180deg, rgb(184 222 219 / 6%), transparent 18%, rgb(0 0 0 / 27%) 78%),
+    radial-gradient(ellipse at 50% 40%, #172526 0%, #111d1e 68%, #0a1213 100%);
+  --battle-dock-surface: #142223;
+  /* 潮湿烟木 + 氧化青铜刻印。 */
+  --battle-die-wood-base: #293432;
+  --battle-die-wood-mid: #192422;
+  --battle-die-wood-dark: #091312;
+  --battle-die-wood-fiber-light: #49615d;
+  --battle-die-wood-fiber-dark: #101b1a;
+  --battle-die-icon: #789c94;
+  --battle-die-icon-edge: #1b302e;
+  --battle-scene-tint:
+    radial-gradient(ellipse at 50% 16%, rgb(103 176 176 / 12%), transparent 45%),
+    linear-gradient(135deg, rgb(5 55 57 / 29%), rgb(2 19 20 / 14%));
+  --battle-scene-curtain: linear-gradient(180deg, rgb(1 20 21 / 26%), transparent 34% 68%, rgb(0 10 11 / 38%));
+  --battle-top-ornament-opacity: .9;
+  --battle-corner-opacity: .86;
+  --battle-edge-opacity: .76;
+  --abyssa-accent-soft: #91c8ca;
+  --abyssa-text-soft: #c6d2d2;
+  --abyssa-text-muted: #8da0a1;
+}
+
+.abyssa-expedition[data-ui-skin="demon-lord"] {
+  --battle-skin-accent: #7b3e46;
+  --battle-skin-accent-bright: #d0817d;
+  --battle-skin-accent-soft: #a75a60;
+  --battle-skin-muted: #8b6667;
+  --battle-frame-deep: #080304;
+  --battle-frame-surface: #190c0f;
+  --battle-frame-ring: #5d3036;
+  --battle-rail-surface: #281217;
+  --battle-rail-sheen: rgb(247 182 179 / 9%);
+  --battle-metal-hair: #3a171c;
+  --battle-metal-gradient: linear-gradient(135deg, #2b1115, #8a414a 18%, #4d2027 46%, #a6535a 73%, #2a0f14);
+  --battle-board-border: #321319;
+  --battle-board-background:
+    radial-gradient(ellipse at 50% -8%, rgb(196 71 82 / 10%), transparent 46%),
+    radial-gradient(ellipse at 50% 48%, rgb(92 28 38 / 11%), transparent 68%),
+    repeating-linear-gradient(2deg, transparent 0 11px, rgb(255 215 209 / 1.1%) 12px, transparent 14px),
+    linear-gradient(180deg, #211114, #10080a);
+  --battle-board-ring: rgb(176 62 67 / 25%);
+  --battle-structure-line: #512a30;
+  --battle-structure-inner: rgb(210 111 120 / 13%);
+  --battle-structure-surface: rgb(16 5 8 / 23%);
+  --battle-sidebar-surface:
+    linear-gradient(180deg, rgb(219 123 124 / 8%), transparent 28%, rgb(0 0 0 / 40%)),
+    repeating-linear-gradient(2deg, transparent 0 8px, rgb(255 218 211 / 1.6%) 9px, transparent 11px),
+    #241216;
+  --battle-sidebar-inner:
+    radial-gradient(ellipse at 50% 48%, rgb(133 48 57 / 15%), transparent 49%),
+    linear-gradient(90deg, rgb(0 0 0 / 19%), transparent 18% 82%, rgb(0 0 0 / 26%)),
+    repeating-linear-gradient(2deg, transparent 0 7px, rgb(243 184 180 / 2.5%) 8px, transparent 10px),
+    repeating-linear-gradient(89deg, transparent 0 71px, rgb(10 1 3 / 22%) 72px 73px, transparent 74px),
+    #1a0d10;
+  --battle-plaque-surface:
+    linear-gradient(180deg, rgb(255 209 204 / 5.5%), transparent 27%, rgb(0 0 0 / 36%)),
+    repeating-linear-gradient(2deg, transparent 0 7px, rgb(246 185 181 / 1.7%) 8px, transparent 10px),
+    #251317;
+  --battle-dice-tray:
+    linear-gradient(180deg, rgb(223 128 126 / 6%), transparent 18%, rgb(0 0 0 / 29%) 78%),
+    radial-gradient(ellipse at 50% 40%, #211216 0%, #160b0e 68%, #0d0608 100%);
+  --battle-dock-surface: #1d0d11;
+  /* 暗红檀木 + 旧铜猩红刻印。 */
+  --battle-die-wood-base: #351f21;
+  --battle-die-wood-mid: #241416;
+  --battle-die-wood-dark: #100709;
+  --battle-die-wood-fiber-light: #664044;
+  --battle-die-wood-fiber-dark: #1e0c10;
+  --battle-die-icon: #a96863;
+  --battle-die-icon-edge: #3b151a;
+  --battle-scene-tint:
+    radial-gradient(ellipse at 50% 16%, rgb(166 55 65 / 12%), transparent 44%),
+    linear-gradient(135deg, rgb(73 7 18 / 30%), rgb(22 2 7 / 15%));
+  --battle-scene-curtain: linear-gradient(180deg, rgb(32 2 8 / 27%), transparent 34% 68%, rgb(15 0 4 / 40%));
+  --battle-top-ornament-opacity: .88;
+  --battle-corner-opacity: .84;
+  --battle-edge-opacity: .78;
+  --abyssa-accent-soft: #cf827b;
+  --abyssa-text-soft: #d7c8c5;
+  --abyssa-text-muted: #9b8584;
+}
+
+.abyssa-expedition[data-ui-ornamented] {
+  --abyssa-frame-dark: var(--battle-frame-surface);
+  --abyssa-frame-deep: var(--battle-frame-deep);
+  --abyssa-text-soft: var(--battle-detail-copy);
+  --abyssa-text-muted: var(--battle-detail-copy-muted);
+  --abyssa-accent-soft: var(--battle-skin-accent-bright);
+  --battle-detail-surface-deep: color-mix(in srgb, var(--battle-frame-deep) 88%, #000);
+  --battle-detail-surface: color-mix(in srgb, var(--battle-frame-surface) 88%, #000);
+  --battle-detail-surface-raised: color-mix(in srgb, var(--battle-frame-surface) 88%, var(--battle-skin-accent) 12%);
+  --battle-detail-line: var(--battle-skin-accent);
+  --battle-detail-line-soft: color-mix(in srgb, var(--battle-skin-accent) 42%, transparent);
+  --battle-detail-line-faint: color-mix(in srgb, var(--battle-skin-accent-soft) 18%, transparent);
+  --battle-detail-copy: color-mix(in srgb, var(--battle-skin-accent-bright) 46%, #d8d5ce);
+  --battle-detail-copy-strong: color-mix(in srgb, var(--battle-skin-accent-bright) 72%, #f1eee8);
+  --battle-detail-copy-muted: color-mix(in srgb, var(--battle-skin-muted) 72%, #8f918e);
+  --battle-detail-glow: color-mix(in srgb, var(--battle-skin-accent-bright) 34%, transparent);
+  --battle-currency-gold: #c7ad76;
+  --battle-currency-gold-strong: #e2c47d;
+  --battle-scene-filter: brightness(.56) saturate(.58) contrast(.98);
+}
+
+.abyssa-expedition[data-ui-skin="hero-party"] { --battle-scene-filter: brightness(.58) saturate(.62) contrast(.98); }
+.abyssa-expedition[data-ui-skin="demon-cadre"] { --battle-scene-filter: brightness(.58) saturate(.5) contrast(.98); }
+.abyssa-expedition[data-ui-skin="demon-lord"] { --battle-scene-filter: brightness(.54) saturate(.68) contrast(1); }
+
+/* 顶栏保持原来的中置招牌几何；左右阵营装饰覆盖在招牌表层。 */
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-frame__header .abyssa-rpg-header {
+  --abyssa-header-fill: color-mix(in srgb, var(--battle-frame-surface) 92%, #000);
+  --abyssa-header-text: var(--battle-skin-accent-bright);
+  --abyssa-header-ornament: var(--battle-skin-accent);
+  --abyssa-header-middle-frame: var(--battle-skin-accent-soft);
+  --abyssa-header-pattern: color-mix(in srgb, var(--battle-skin-accent-bright) 9%, transparent);
+  --abyssa-frame-dark: var(--battle-frame-surface);
+  --abyssa-frame-deep: var(--battle-frame-deep);
+  position: relative;
+  z-index: 2;
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-frame__header > span {
+  z-index: 4;
+  color: var(--battle-skin-muted);
+}
+
+.abyssa-expedition-frame__top-ornament {
+  position: absolute;
+  top: 49%;
+  z-index: 3;
+  display: block;
+  width: 210px;
+  height: auto;
+  opacity: var(--battle-top-ornament-opacity);
+  filter: drop-shadow(0 5px 7px rgb(0 0 0 / 58%));
+  pointer-events: none;
+  animation: battle-skin-ornament-in 180ms ease-out both;
+}
+
+.abyssa-expedition-frame__top-ornament--left {
+  right: calc(100% - 62px);
+  transform: translateY(-53%);
+}
+
+.abyssa-expedition-frame__top-ornament--right {
+  left: calc(100% - 62px);
+  transform: translateY(-53%) scaleX(-1);
+}
+
+/* 右上角切换器属于实体面板，随小界面一起下落，不抢区域标题幕。 */
+.abyssa-expedition-skin-switch {
+  position: absolute;
+  top: 17px;
+  right: 12px;
+  z-index: 8;
+  display: grid;
+  width: 184px;
+  height: 52px;
+  padding: 7px 11px 7px 10px;
+  grid-template-columns: 31px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--battle-frame-deep);
+  color: var(--battle-skin-accent-bright);
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--battle-skin-accent-bright) 7%, transparent), transparent 52%),
+    color-mix(in srgb, var(--battle-frame-surface) 94%, #000);
+  box-shadow:
+    0 0 0 1px var(--battle-skin-accent),
+    0 0 0 3px var(--battle-frame-deep),
+    inset 0 0 0 1px color-mix(in srgb, var(--battle-skin-accent-bright) 13%, transparent),
+    0 6px 13px rgb(0 0 0 / 42%);
+  clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+  cursor: pointer;
+  font-family: var(--font-display);
+  text-align: left;
+  transition: filter 140ms ease, translate 140ms ease;
+}
+
+.abyssa-expedition-skin-switch::after {
+  position: absolute;
+  right: 8px;
+  bottom: 4px;
+  left: 8px;
+  height: 1px;
+  background: linear-gradient(90deg, var(--battle-skin-accent), transparent 74%);
+  content: "";
+  opacity: .58;
+}
+
+.abyssa-expedition-skin-switch:hover {
+  filter: brightness(1.14);
+  translate: 0 -1px;
+}
+
+.abyssa-expedition-skin-switch:focus-visible {
+  outline: 2px solid var(--battle-skin-accent-bright);
+  outline-offset: 5px;
+}
+
+.abyssa-expedition-skin-switch__sigil {
+  position: relative;
+  display: flex;
+  height: 28px;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  border-right: 1px solid color-mix(in srgb, var(--battle-skin-accent) 48%, transparent);
+}
+
+.abyssa-expedition-skin-switch__sigil i {
+  display: block;
+  width: 5px;
+  height: 5px;
+  border: 1px solid var(--battle-skin-accent-soft);
+  background: var(--battle-frame-deep);
+  transform: rotate(45deg);
+}
+
+.abyssa-expedition[data-ui-skin="timber"] .abyssa-expedition-skin-switch__sigil i[data-skin="timber"],
+.abyssa-expedition[data-ui-skin="hero-party"] .abyssa-expedition-skin-switch__sigil i[data-skin="hero-party"],
+.abyssa-expedition[data-ui-skin="demon-cadre"] .abyssa-expedition-skin-switch__sigil i[data-skin="demon-cadre"],
+.abyssa-expedition[data-ui-skin="demon-lord"] .abyssa-expedition-skin-switch__sigil i[data-skin="demon-lord"] {
+  background: var(--battle-skin-accent-bright);
+  box-shadow: 0 0 7px color-mix(in srgb, var(--battle-skin-accent-bright) 58%, transparent);
+}
+
+.abyssa-expedition-skin-switch__copy {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.abyssa-expedition-skin-switch__copy small {
+  color: var(--battle-skin-muted);
+  font-size: 7px;
+  letter-spacing: .2em;
+}
+
+.abyssa-expedition-skin-switch__copy strong {
+  overflow: hidden;
+  color: color-mix(in srgb, var(--battle-skin-accent-bright) 88%, #eee);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .14em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.abyssa-expedition-skin-switch__index {
+  align-self: end;
+  padding-bottom: 4px;
+  color: var(--battle-skin-muted);
+  font-size: 8px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: .06em;
+}
+
+/* 外框材质由皮肤变量接管，固定画布尺寸和 rail 厚度保持完全不变。 */
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-frame__shell {
+  border-color: var(--battle-frame-deep);
+  background: var(--battle-frame-surface);
+  box-shadow: 0 0 0 2px var(--battle-frame-ring), 0 0 0 4px var(--battle-frame-deep);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-frame__rails i {
+  border-color: var(--battle-frame-deep);
+  background: linear-gradient(180deg, var(--battle-rail-sheen), transparent 28%, rgb(0 0 0 / 62%)), var(--battle-rail-surface);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-frame__brass {
+  border-color: var(--battle-metal-hair);
+  background: var(--battle-metal-gradient);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-frame__board {
+  border-color: var(--battle-board-border);
+  background:
+    linear-gradient(180deg, rgb(0 0 0 / 10%), rgb(0 0 0 / 25%)),
+    var(--battle-board-background);
+  box-shadow:
+    inset 0 0 0 1px var(--battle-board-ring),
+    inset 0 1px 0 color-mix(in srgb, var(--battle-skin-accent-bright) 7%, transparent),
+    inset 0 0 78px rgb(3 2 3 / 78%);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-region {
+  border-color: var(--battle-structure-line);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--battle-skin-accent) 8%, transparent), transparent 28%), var(--battle-structure-surface);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-region::before {
+  border-color: var(--battle-structure-inner);
+}
+
+/* 四角使用角色档案页的同源资产，但按战斗画框重新标定尺寸。 */
+.abyssa-expedition-frame__corner-ornaments {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  display: block;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.abyssa-expedition-frame__corner-ornaments img {
+  position: absolute;
+  width: 146px;
+  height: 146px;
+  opacity: var(--battle-corner-opacity);
+  filter: drop-shadow(0 4px 6px rgb(0 0 0 / 58%));
+  object-fit: contain;
+  animation: battle-skin-corner-in 180ms ease-out both;
+}
+
+.abyssa-expedition-frame__corner-ornaments [data-corner="tl"] { top: -8px; left: -8px; }
+.abyssa-expedition-frame__corner-ornaments [data-corner="tr"] { top: -8px; right: -8px; transform: scaleX(-1); }
+.abyssa-expedition-frame__corner-ornaments [data-corner="br"] { right: -8px; bottom: -8px; transform: scale(-1); }
+.abyssa-expedition-frame__corner-ornaments [data-corner="bl"] { bottom: -8px; left: -8px; transform: scaleY(-1); }
+
+/* 青色与猩红版沿用角色页的编织边语法；金色版在下方收束成连续金属脊线。 */
+.abyssa-expedition-frame__edge-weave {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: block;
+  overflow: visible;
+  opacity: var(--battle-edge-opacity);
+  pointer-events: none;
+}
+
+.abyssa-expedition-frame__edge {
+  position: absolute;
+  display: block;
+  overflow: visible;
+  filter: drop-shadow(0 1px 2px rgb(0 0 0 / 64%));
+}
+
+.abyssa-expedition-frame__edge[data-frame-edge="top"],
+.abyssa-expedition-frame__edge[data-frame-edge="bottom"] {
+  left: 82px;
+  width: calc(100% - 164px);
+  height: 18px;
+}
+
+.abyssa-expedition-frame__edge[data-frame-edge="top"] { top: 2px; }
+.abyssa-expedition-frame__edge[data-frame-edge="bottom"] { bottom: 2px; transform: scaleY(-1); }
+
+.abyssa-expedition-frame__edge[data-frame-edge="left"],
+.abyssa-expedition-frame__edge[data-frame-edge="right"] {
+  top: 82px;
+  width: 18px;
+  height: calc(100% - 164px);
+}
+
+.abyssa-expedition-frame__edge[data-frame-edge="left"] { left: 2px; }
+.abyssa-expedition-frame__edge[data-frame-edge="right"] { right: 2px; transform: scaleX(-1); }
+.abyssa-expedition-frame__edge path { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.abyssa-expedition-frame__edge-rail-shadow { stroke: var(--battle-frame-deep); stroke-width: 5px; }
+.abyssa-expedition-frame__edge-rail { stroke: var(--battle-frame-ring); stroke-width: 1.45px; }
+.abyssa-expedition-frame__edge-strand-shadow,
+.abyssa-expedition-frame__edge-overpass-shadow { stroke: var(--battle-frame-deep); stroke-width: 4px; }
+.abyssa-expedition-frame__edge-strand,
+.abyssa-expedition-frame__edge-overpass { stroke: var(--battle-skin-accent); stroke-width: 2.1px; }
+.abyssa-expedition-frame__edge-highlight,
+.abyssa-expedition-frame__edge-overpass-highlight { stroke: var(--battle-skin-accent-bright); stroke-width: .5px; opacity: .62; }
+
+/* 勇者边框以贯通四边的轻金属脊线为主，只残留一层极淡的编织压纹。 */
+.abyssa-expedition[data-ui-skin="hero-party"] .abyssa-expedition-frame__edge {
+  filter: drop-shadow(0 1px 1px rgb(0 0 0 / 52%));
+}
+
+.abyssa-expedition[data-ui-skin="hero-party"] .abyssa-expedition-frame__edge-rail-shadow {
+  stroke-width: 3.2px;
+}
+
+.abyssa-expedition[data-ui-skin="hero-party"] .abyssa-expedition-frame__edge-rail {
+  stroke: var(--battle-skin-accent-soft);
+  stroke-width: 1.65px;
+}
+
+.abyssa-expedition[data-ui-skin="hero-party"] .abyssa-expedition-frame__edge-strand-shadow {
+  stroke-width: 1.3px;
+  opacity: .12;
+}
+
+.abyssa-expedition[data-ui-skin="hero-party"] .abyssa-expedition-frame__edge-strand {
+  stroke: var(--battle-skin-accent);
+  stroke-width: .8px;
+  opacity: .24;
+}
+
+.abyssa-expedition[data-ui-skin="hero-party"] .abyssa-expedition-frame__edge-highlight {
+  stroke-width: .35px;
+  opacity: .18;
+}
+
+.abyssa-expedition[data-ui-skin="hero-party"] .abyssa-expedition-frame__edge-overpass-shadow,
+.abyssa-expedition[data-ui-skin="hero-party"] .abyssa-expedition-frame__edge-overpass,
+.abyssa-expedition[data-ui-skin="hero-party"] .abyssa-expedition-frame__edge-overpass-highlight {
+  opacity: 0;
+}
+
+/* 右侧账本、骰盘和行动条只跟随结构色，内容与功能色不变。 */
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-sidebar {
+  border-color: var(--battle-frame-deep);
+  background: var(--battle-sidebar-surface);
+  box-shadow:
+    0 0 0 2px var(--battle-frame-ring),
+    0 0 0 4px var(--battle-frame-deep),
+    inset 0 0 14px rgb(0 0 0 / 84%);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-sidebar::before {
+  border-color: var(--battle-skin-accent);
+  background: var(--battle-sidebar-inner);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-sidebar__corners i { border-color: var(--battle-skin-accent-soft); }
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-sidebar__header {
+  border-color: var(--battle-frame-deep);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--battle-skin-accent-bright) 7%, transparent), transparent 44%),
+    repeating-linear-gradient(2deg, transparent 0 7px, color-mix(in srgb, var(--battle-skin-accent-bright) 2%, transparent) 8px, transparent 10px),
+    var(--battle-detail-surface-raised);
+  box-shadow:
+    0 0 0 1px var(--battle-skin-accent),
+    inset 0 2px 0 color-mix(in srgb, var(--battle-skin-accent-bright) 8%, transparent),
+    inset 0 -3px 5px rgb(0 0 0 / 42%),
+    0 3px 7px rgb(0 0 0 / 38%);
+}
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-sidebar__header span,
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-sidebar__section-title span,
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-purse__heading strong { color: color-mix(in srgb, var(--battle-skin-accent-bright) 72%, #b7afa0); }
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-sidebar__header small,
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-purse__heading small,
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-purse__footer span { color: var(--battle-skin-muted); }
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-sidebar__section-title i,
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-sidebar__divider::before,
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-sidebar__divider::after { background: linear-gradient(90deg, transparent, var(--battle-skin-accent) 18% 82%, transparent); }
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-sidebar__divider i { border-color: var(--battle-skin-accent-soft); background: var(--battle-frame-surface); }
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-multiplier,
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-purse {
+  border-color: var(--battle-frame-deep);
+  background: var(--battle-plaque-surface);
+  box-shadow:
+    0 0 0 1px var(--battle-skin-accent),
+    0 0 0 2px var(--battle-frame-deep),
+    inset 0 0 0 1px color-mix(in srgb, var(--battle-skin-accent-bright) 14%, transparent),
+    inset 0 1px color-mix(in srgb, var(--battle-skin-accent-bright) 8%, transparent),
+    inset 0 -5px 8px rgb(0 0 0 / 44%),
+    0 4px 7px rgb(0 0 0 / 38%);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-multiplier::before,
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-multiplier::after {
+  border-color: var(--battle-frame-deep);
+  background: radial-gradient(circle at 35% 30%, var(--battle-skin-accent-bright), var(--battle-skin-accent) 72%);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-multiplier__breakdown {
+  color: var(--battle-detail-copy-muted);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-multiplier__breakdown i,
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-multiplier__amounts > i {
+  color: var(--battle-skin-accent);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-multiplier__amounts {
+  border-top-color: var(--battle-detail-line-soft);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-multiplier__amounts strong {
+  color: var(--battle-detail-copy);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-multiplier__amounts [data-value="result"] strong {
+  color: var(--battle-detail-copy-strong);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-multiplier__ticks {
+  background: linear-gradient(90deg, transparent, var(--battle-detail-line) 18% 82%, transparent);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-multiplier[data-finalizing] {
+  border-color: var(--battle-skin-accent-bright);
+  box-shadow:
+    0 0 0 1px var(--battle-skin-accent-bright),
+    0 0 0 2px var(--battle-frame-deep),
+    inset 0 0 0 1px color-mix(in srgb, var(--battle-skin-accent-bright) 24%, transparent),
+    inset 0 -5px 8px rgb(0 0 0 / 44%),
+    0 0 16px var(--battle-detail-glow);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-multiplier[data-finalizing] .abyssa-expedition-sidebar__section-title span {
+  color: var(--battle-detail-copy-strong);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-multiplier[data-finalizing] .abyssa-expedition-multiplier__amounts [data-currency="gold"][data-value="result"] strong {
+  color: var(--battle-detail-copy-strong);
+  text-shadow: 0 0 8px var(--battle-detail-glow);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-dice-panel__tray {
+  border-color: var(--battle-frame-deep);
+  background: var(--battle-dice-tray);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--battle-skin-accent) 46%, transparent),
+    inset 0 0 0 2px color-mix(in srgb, var(--battle-skin-accent-soft) 13%, transparent),
+    inset 0 2px 0 color-mix(in srgb, var(--battle-skin-accent-bright) 7%, transparent),
+    inset 0 12px 22px rgb(0 0 0 / 55%),
+    inset 0 -12px 21px rgb(0 0 0 / 57%),
+    0 3px 7px rgb(0 0 0 / 30%);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-dice-panel__pattern::before {
+  background:
+    linear-gradient(45deg, transparent 47%, color-mix(in srgb, var(--battle-skin-accent-bright) 6%, transparent) 48% 52%, transparent 53%),
+    linear-gradient(-45deg, transparent 47%, color-mix(in srgb, var(--battle-skin-accent-bright) 6%, transparent) 48% 52%, transparent 53%);
+  background-size: 38px 38px;
+}
+
+.abyssa-expedition[data-ui-ornamented] .action-dock__surface {
+  border-inline-color: color-mix(in srgb, var(--battle-skin-accent) 42%, transparent);
+  background:
+    radial-gradient(ellipse at 50% 0%, color-mix(in srgb, var(--battle-skin-accent) 12%, transparent), transparent 44%),
+    repeating-linear-gradient(2deg, transparent 0 11px, color-mix(in srgb, var(--battle-skin-accent-bright) 2%, transparent) 12px, transparent 14px),
+    var(--battle-dock-surface);
+}
+
+.abyssa-expedition[data-ui-ornamented] .action-dock__upper-frame path:nth-child(1) { stroke: var(--battle-frame-deep); }
+.abyssa-expedition[data-ui-ornamented] .action-dock__upper-frame path:nth-child(2) { stroke: var(--battle-frame-ring); }
+.abyssa-expedition[data-ui-ornamented] .action-dock__upper-frame path:nth-child(3) { stroke: var(--battle-skin-accent); }
+.abyssa-expedition[data-ui-ornamented] .action-dock__upper-frame path:nth-child(4) { stroke: var(--battle-skin-accent-soft); }
+.abyssa-expedition[data-ui-ornamented] .action-dock__upper-frame path:nth-child(5) { stroke: var(--battle-skin-accent-bright); }
+.abyssa-expedition[data-ui-ornamented] .action-dock__upper-frame path:nth-child(6) { stroke: var(--battle-skin-accent); }
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-shape-button.dice-action-button {
+  --abyssa-shape-fill: var(--battle-frame-surface);
+  --abyssa-shape-text: color-mix(in srgb, var(--battle-skin-accent-bright) 66%, #eee8df);
+  --abyssa-shape-middle: var(--battle-skin-accent);
+  --abyssa-shape-ornament: var(--battle-skin-accent-soft);
+  --abyssa-shape-pattern-dark: color-mix(in srgb, var(--battle-skin-accent) 8%, transparent);
+  --abyssa-shape-pattern-light: color-mix(in srgb, var(--battle-skin-accent-bright) 4%, transparent);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-shape-button.dice-action-button[data-primary="true"] {
+  --abyssa-shape-fill: color-mix(in srgb, var(--battle-skin-accent) 72%, var(--battle-frame-surface));
+  --abyssa-shape-text: var(--battle-detail-copy-strong);
+  --abyssa-shape-middle: var(--battle-skin-accent-soft);
+  --abyssa-shape-ornament: var(--battle-skin-accent-bright);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-undo.abyssa-icon-button {
+  --abyssa-icon-fill: var(--battle-frame-surface);
+  --abyssa-icon-middle: var(--battle-skin-accent);
+  --abyssa-icon-ornament: var(--battle-skin-accent-soft);
+  --abyssa-icon-ink: color-mix(in srgb, var(--battle-skin-accent-bright) 66%, #eee8df);
+  --abyssa-icon-pattern-dark: color-mix(in srgb, var(--battle-skin-accent) 8%, transparent);
+  --abyssa-icon-pattern-light: color-mix(in srgb, var(--battle-skin-accent-bright) 4%, transparent);
+}
+
+/* 内场仍使用同一张混沌领域原图；皮肤只改变光色与遮罩，不滤到怪物和文字。 */
+.abyssa-expedition[data-ui-ornamented]::after {
+  background:
+    radial-gradient(ellipse at 50% 48%, transparent 44%, color-mix(in srgb, var(--battle-frame-deep) 46%, transparent) 100%),
+    linear-gradient(180deg, color-mix(in srgb, var(--battle-skin-accent) 5%, transparent), transparent 34% 70%, color-mix(in srgb, var(--battle-frame-deep) 20%, transparent));
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-enemies {
+  background:
+    var(--battle-scene-tint),
+    var(--battle-scene-curtain),
+    var(--battle-frame-deep) url("../../assets/png3/background/domains_of_chaos-1.png") center 48% / cover no-repeat;
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-enemies__haze {
+  background:
+    radial-gradient(ellipse at 18% 52%, color-mix(in srgb, var(--battle-skin-accent-bright) 13%, transparent), transparent 25%),
+    radial-gradient(ellipse at 50% 52%, color-mix(in srgb, var(--battle-skin-accent-soft) 12%, transparent), transparent 24%),
+    radial-gradient(ellipse at 82% 51%, color-mix(in srgb, var(--battle-skin-accent-bright) 9%, transparent), transparent 25%),
+    radial-gradient(ellipse at 50% 46%, transparent 20%, color-mix(in srgb, var(--battle-frame-deep) 30%, transparent) 82%),
+    linear-gradient(180deg, color-mix(in srgb, var(--battle-frame-surface) 26%, transparent), transparent 44%, color-mix(in srgb, var(--battle-frame-deep) 42%, transparent));
+  backdrop-filter: var(--battle-scene-filter);
+}
+
+/* 普通敌方读数跟随皮肤；狂暴、致命与完全格挡仍保留告警语义色。 */
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-enemy header strong {
+  color: var(--battle-detail-copy);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-enemy__attack {
+  color: var(--battle-detail-copy);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-enemy__attack small {
+  color: var(--battle-detail-copy-muted);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-enemy:not([data-frenzied]) .abyssa-expedition-enemy__attack b {
+  color: var(--battle-detail-copy-strong);
+  text-shadow: 0 1px 2px var(--battle-frame-deep), 0 0 7px var(--battle-detail-glow);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-enemy__health i {
+  border-color: var(--battle-frame-deep);
+  background: var(--battle-detail-surface-deep);
+  box-shadow:
+    inset 0 1px 2px rgb(0 0 0 / 72%),
+    0 0 0 1px var(--battle-detail-line-faint);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-enemy:not([data-frenzied]) .abyssa-expedition-enemy__health i[data-filled] {
+  border-color: var(--battle-skin-accent);
+  background: radial-gradient(
+    circle at 35% 28%,
+    var(--battle-detail-copy-strong) 0 19%,
+    var(--battle-skin-accent-bright) 48%,
+    var(--battle-skin-accent) 72%,
+    var(--battle-frame-ring) 100%
+  );
+  box-shadow:
+    inset 0 1px 1px color-mix(in srgb, var(--battle-detail-copy-strong) 34%, transparent),
+    0 1px 2px rgb(0 0 0 / 78%),
+    0 0 6px var(--battle-detail-glow);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-intent:not([data-threat="lethal"]):not([data-threat="blocked"]) {
+  border-color: var(--battle-skin-accent);
+  color: var(--battle-detail-copy-strong);
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--battle-skin-accent-bright) 14%, transparent), transparent 60%),
+    color-mix(in srgb, var(--battle-detail-surface-deep) 92%, transparent);
+  box-shadow: 0 2px 6px rgb(0 0 0 / 66%), 0 0 0 1px var(--battle-detail-line-faint);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-enemies__intent-lines g:not([data-threat="lethal"]):not([data-threat="blocked"]) .abyssa-expedition-intent-line__shadow {
+  stroke: color-mix(in srgb, var(--battle-frame-deep) 88%, #000);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-enemies__intent-lines g:not([data-threat="lethal"]):not([data-threat="blocked"]) .abyssa-expedition-intent-line__body {
+  stroke: var(--battle-skin-accent-bright);
+  filter: drop-shadow(0 1px 1px rgb(0 0 0 / 62%)) drop-shadow(0 0 4px var(--battle-detail-glow));
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-enemies__intent-lines g:not([data-threat="lethal"]):not([data-threat="blocked"]) .abyssa-expedition-intent-line__socket {
+  fill: var(--battle-frame-deep);
+  stroke: var(--battle-skin-accent-bright);
+}
+
+/* 房间式区域、角色列与骰盘的结构接点统一换肤。 */
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-dice-panel__corners i {
+  border-color: var(--battle-skin-accent-soft);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-party-nameplate {
+  border-color: var(--battle-frame-deep);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--battle-skin-accent-bright) 7%, transparent), transparent 42%),
+    var(--battle-detail-surface);
+  box-shadow:
+    0 0 0 1px var(--battle-detail-line),
+    inset 0 0 0 2px color-mix(in srgb, var(--battle-frame-deep) 64%, transparent),
+    inset 0 0 0 3px var(--battle-detail-line-faint),
+    0 2px 4px rgb(0 0 0 / 48%);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-party-nameplate::before {
+  border-color: var(--battle-detail-line-soft);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-party-nameplate strong {
+  color: var(--battle-detail-copy);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-party-card__crest {
+  border-color: var(--battle-frame-deep);
+  background: linear-gradient(135deg, var(--battle-skin-accent-bright), var(--battle-skin-accent) 72%);
+  box-shadow: 0 0 0 1px var(--battle-skin-accent-soft), 0 2px 4px rgb(0 0 0 / 62%);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-party-card__crest::after {
+  border-color: var(--battle-frame-deep);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-party-card:not([data-targeted]):not([data-safe]):not([data-healable]):not([data-ready]):not([data-held]):not([data-attacking]):not([data-supporting]):not([data-support-kind]):not([data-enemy-hit-phase]) {
+  border-color: var(--battle-frame-deep);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--party-tone-soft) 58%, var(--battle-frame-deep)),
+    0 3px 8px rgb(0 0 0 / 52%),
+    inset 0 0 0 1px color-mix(in srgb, var(--party-tone-soft) 14%, transparent);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-party-card::after {
+  border-color: color-mix(in srgb, var(--party-tone-soft) 64%, var(--battle-frame-deep));
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-party-card__downed-label {
+  border-color: var(--battle-detail-line-soft);
+  color: var(--battle-detail-copy-muted);
+  background: color-mix(in srgb, var(--battle-detail-surface-deep) 92%, transparent);
+}
+
+/* 待指挥与已拿起属于框体交互态，跟随皮肤；受击、治疗、格挡仍保留功能色。 */
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-party-card[data-ready],
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-party-card[data-ready][data-targeted],
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-party-card[data-ready][data-safe] {
+  border-color: var(--battle-skin-accent);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--battle-skin-accent-bright) 42%, transparent),
+    0 0 14px color-mix(in srgb, var(--battle-skin-accent-bright) 20%, transparent);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-party-card[data-held],
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-party-card[data-held][data-targeted],
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-party-card[data-held][data-safe],
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-party-card[data-held][data-ready] {
+  border-color: var(--battle-skin-accent-bright);
+  box-shadow:
+    0 0 0 2px color-mix(in srgb, var(--battle-skin-accent-bright) 72%, transparent),
+    0 0 22px color-mix(in srgb, var(--battle-skin-accent-bright) 32%, transparent);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-party-card__portrait {
+  border-color: var(--battle-frame-deep);
+  background:
+    radial-gradient(circle at 50% 30%, color-mix(in srgb, var(--party-tone) 72%, var(--battle-detail-copy)), transparent 58%),
+    linear-gradient(180deg, var(--party-tone-deep), var(--battle-detail-surface-deep));
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-party-card__portrait-pattern {
+  background:
+    linear-gradient(45deg, transparent 47%, color-mix(in srgb, var(--party-tone-soft) 8%, transparent) 48% 52%, transparent 53%),
+    linear-gradient(-45deg, transparent 47%, color-mix(in srgb, var(--party-tone-soft) 7%, transparent) 48% 52%, transparent 53%);
+  background-size: 26px 26px;
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-party-card__health {
+  border-top-color: var(--battle-frame-deep);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--party-tone-deep) 72%, var(--battle-detail-surface)), var(--battle-detail-surface-deep));
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-party-card__skills {
+  background: color-mix(in srgb, var(--party-tone-deep) 72%, var(--battle-detail-surface-deep));
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-party-card__skills span {
+  border-color: color-mix(in srgb, var(--party-tone-soft) 48%, var(--battle-frame-deep));
+  color: var(--battle-detail-copy);
+  background:
+    linear-gradient(135deg, rgb(255 255 255 / 5%), transparent 48%),
+    color-mix(in srgb, var(--party-tone) 58%, var(--battle-detail-surface-deep));
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-party-card__skills span[data-empty] {
+  border-color: color-mix(in srgb, var(--party-tone-soft) 25%, var(--battle-frame-deep));
+  background: color-mix(in srgb, var(--battle-detail-surface-deep) 70%, transparent);
+  box-shadow: inset 0 2px 5px rgb(0 0 0 / 48%);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-party-card__skills span > i {
+  color: var(--battle-detail-copy-strong);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-party-link::after {
+  border-color: var(--battle-skin-accent);
+  background: var(--battle-detail-surface-deep);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--battle-frame-deep) 84%, transparent);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-party-link__under {
+  stroke: var(--battle-frame-deep);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-party-link__main {
+  stroke: var(--battle-skin-accent);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-party-column[data-active] .abyssa-expedition-party-nameplate {
+  box-shadow:
+    0 0 0 1px var(--battle-skin-accent-bright),
+    inset 0 0 0 2px color-mix(in srgb, var(--battle-frame-deep) 64%, transparent),
+    inset 0 0 0 3px color-mix(in srgb, var(--battle-skin-accent-bright) 18%, transparent),
+    0 0 10px var(--battle-detail-glow);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-party-column[data-active] .abyssa-expedition-party-nameplate strong {
+  color: var(--battle-detail-copy-strong);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-party-column[data-active] .abyssa-expedition-party-link__main {
+  stroke: var(--battle-skin-accent-bright);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-party-column[data-active] .abyssa-expedition-party-link__aura {
+  stroke: var(--battle-skin-accent);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-party-column[data-active] .abyssa-expedition-party-link__high {
+  stroke: var(--battle-detail-copy-strong);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-party-column[data-active] .abyssa-expedition-party-link::after {
+  border-color: var(--battle-skin-accent-bright);
+  background: var(--battle-skin-accent);
+  box-shadow: 0 0 0 2px var(--battle-frame-deep), 0 0 8px var(--battle-detail-glow);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-party-column[data-held] .abyssa-expedition-party-link {
+  filter: drop-shadow(0 0 5px var(--battle-detail-glow));
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-party-column[data-held] .abyssa-expedition-party-link__main {
+  stroke: var(--battle-detail-copy-strong);
+}
+
+/* 行动条凹槽、牌型读数与点亮状态使用当前皮肤的金属色。 */
+.abyssa-expedition[data-ui-ornamented] .action-dock__slot {
+  border-color: var(--battle-detail-line-soft);
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--battle-skin-accent-bright) 4%, transparent) 25%, transparent 25%) 0 0 / 14px 14px,
+    linear-gradient(225deg, color-mix(in srgb, var(--battle-skin-accent-bright) 3%, transparent) 25%, transparent 25%) 0 0 / 14px 14px,
+    linear-gradient(180deg, rgb(0 0 0 / 34%), transparent 58%),
+    var(--battle-detail-surface-deep);
+  box-shadow:
+    inset 0 2px 7px rgb(0 0 0 / 82%),
+    inset 0 0 0 1px var(--battle-detail-line-faint),
+    0 1px 0 color-mix(in srgb, var(--battle-skin-accent-bright) 10%, transparent);
+}
+
+.abyssa-expedition[data-ui-ornamented] .action-dock__slot > span {
+  color: var(--battle-detail-copy-muted);
+}
+
+.abyssa-expedition[data-ui-ornamented] .action-dock__slot > strong {
+  color: var(--battle-detail-copy-strong);
+  text-shadow: 0 0 7px var(--battle-detail-glow);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-hand {
+  border-color: color-mix(in srgb, var(--battle-skin-accent) 82%, transparent);
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--battle-skin-accent-bright) 4%, transparent) 25%, transparent 25%) 0 0 / 14px 14px,
+    linear-gradient(225deg, color-mix(in srgb, var(--battle-skin-accent-bright) 3%, transparent) 25%, transparent 25%) 0 0 / 14px 14px,
+    radial-gradient(ellipse at 50% 120%, color-mix(in srgb, var(--battle-skin-accent) 22%, transparent), transparent 62%),
+    linear-gradient(180deg, rgb(0 0 0 / 40%), transparent 54%),
+    var(--battle-detail-surface-deep);
+  box-shadow:
+    inset 0 2px 8px rgb(0 0 0 / 84%),
+    inset 0 0 0 1px var(--battle-detail-line-faint),
+    inset 0 -1px 0 color-mix(in srgb, var(--battle-skin-accent-bright) 6%, transparent),
+    0 1px 0 color-mix(in srgb, var(--battle-skin-accent) 10%, transparent);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-hand::before,
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-hand::after {
+  background: linear-gradient(180deg, transparent, var(--battle-detail-line-soft) 22% 78%, transparent);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-hand__rule {
+  background: linear-gradient(transparent, var(--battle-detail-line), transparent);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-hand__name,
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-hand__bonus i {
+  color: var(--battle-detail-copy-muted);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-hand__bonus b,
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-hand[data-idle] .abyssa-expedition-hand__name {
+  color: color-mix(in srgb, var(--battle-detail-copy-muted) 66%, var(--battle-frame-deep));
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-hand[data-scoring] {
+  border-color: var(--battle-skin-accent-bright);
+  box-shadow:
+    inset 0 2px 7px rgb(0 0 0 / 74%),
+    inset 0 0 0 1px color-mix(in srgb, var(--battle-skin-accent-bright) 26%, transparent),
+    inset 0 0 20px color-mix(in srgb, var(--battle-skin-accent) 18%, transparent),
+    0 1px 0 var(--battle-detail-line-faint);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-hand[data-scoring] .abyssa-expedition-hand__name,
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-hand[data-scoring] .abyssa-expedition-hand__bonus b {
+  color: var(--battle-detail-copy-strong);
+  text-shadow: 0 1px 0 color-mix(in srgb, var(--battle-skin-accent-bright) 42%, #fff), 0 2px 0 var(--battle-frame-deep), 0 3px 3px rgb(0 0 0 / 56%), 0 0 9px var(--battle-detail-glow);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-hand__glow {
+  background: linear-gradient(100deg, transparent 20%, color-mix(in srgb, var(--battle-skin-accent-bright) 24%, transparent) 48%, transparent 76%);
+}
+
+.abyssa-expedition[data-ui-ornamented] .expedition-die__verb,
+.abyssa-expedition[data-ui-ornamented] .expedition-die__corner,
+.abyssa-expedition[data-ui-ornamented] .expedition-die__corner > b,
+.abyssa-expedition[data-ui-ornamented] .expedition-die__corner > i {
+  color: var(--battle-detail-copy-strong);
+}
+
+.abyssa-expedition[data-ui-ornamented] .expedition-die__stud[data-on]:not([data-wild]):not([data-grand]) {
+  color: var(--battle-detail-copy);
+  filter: drop-shadow(0 1px 1px rgb(0 0 0 / 60%)) drop-shadow(0 0 4px var(--battle-detail-glow));
+}
+
+.abyssa-expedition[data-ui-ornamented] .expedition-die__stud[data-wild],
+.abyssa-expedition[data-ui-ornamented] .expedition-die__stud[data-grand] {
+  color: var(--battle-detail-copy-strong);
+  filter: drop-shadow(0 1px 1px rgb(0 0 0 / 60%)) drop-shadow(0 0 8px var(--battle-detail-glow));
+}
+
+.abyssa-expedition[data-ui-ornamented] .expedition-die__stud svg [data-gem-core] {
+  fill: color-mix(in srgb, var(--battle-frame-deep) 58%, var(--battle-skin-accent));
+}
+
+.abyssa-expedition[data-ui-ornamented] .expedition-die__face[data-scoring] .expedition-die__corner,
+.abyssa-expedition[data-ui-ornamented] .expedition-die__face[data-scoring] .expedition-die__corner > b {
+  color: var(--battle-skin-accent-bright);
+}
+
+.abyssa-expedition[data-ui-ornamented] .expedition-die__face[data-scoring] .expedition-die__corner > i svg [data-fill] {
+  fill: var(--battle-skin-accent-bright);
+}
+
+.abyssa-expedition[data-ui-ornamented] .expedition-die__face[data-scoring] .expedition-die__corner > i svg {
+  stroke: var(--battle-skin-accent-bright);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-dice-panel .expedition-die__selection {
+  --lock-light: var(--battle-skin-accent-bright);
+  --lock-mid: var(--battle-skin-accent);
+  --lock-dark: var(--battle-frame-ring);
+  --lock-line: color-mix(in srgb, var(--battle-skin-accent-bright) 58%, transparent);
+  --lock-aura: color-mix(in srgb, var(--battle-skin-accent-bright) 16%, transparent);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-dice-panel .expedition-die__selection [data-part="inner-frame"] {
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--battle-frame-deep) 72%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--battle-frame-deep) 84%, transparent);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-dice-panel .expedition-die__selection [data-part="seal"] {
+  box-shadow:
+    0 0 0 2px var(--battle-frame-deep),
+    0 0 0 3px color-mix(in srgb, var(--lock-mid) 74%, var(--battle-frame-deep)),
+    0 2px 4px rgb(0 0 0 / 58%);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-dice-panel .expedition-die[data-held="true"] .expedition-die__face {
+  border-color: var(--battle-skin-accent);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-dice-panel .expedition-die:focus-visible {
+  outline-color: var(--battle-skin-accent-bright);
+}
+
+/* 账本机械件、滚轮、层区列表和日志由同一组结构色驱动。 */
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-odometer {
+  border-color: var(--battle-frame-deep);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--battle-skin-accent-bright) 6%, transparent), transparent 24%, rgb(0 0 0 / 35%)),
+    repeating-linear-gradient(2deg, transparent 0 7px, color-mix(in srgb, var(--battle-skin-accent-bright) 2%, transparent) 8px, transparent 10px),
+    var(--battle-detail-surface-raised);
+  box-shadow:
+    0 0 0 1px var(--battle-skin-accent),
+    0 0 0 2px var(--battle-frame-deep),
+    inset 0 1px color-mix(in srgb, var(--battle-skin-accent-bright) 8%, transparent),
+    inset 0 -5px 8px rgb(0 0 0 / 46%),
+    0 3px 6px rgb(0 0 0 / 34%);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-odometer::before {
+  border-color: var(--battle-frame-deep);
+  background: var(--battle-detail-surface-deep);
+  box-shadow: inset 0 8px 11px #000, inset 0 -8px 11px #000, 0 0 0 1px var(--battle-detail-line-soft);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-odometer::after {
+  border-block-color: var(--battle-detail-line-faint);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--battle-skin-accent-bright) 3%, transparent), transparent 45%, rgb(0 0 0 / 7%));
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-odometer__reel {
+  border-inline-color: var(--battle-detail-line-soft);
+  background: radial-gradient(ellipse at 50% 50%, var(--battle-detail-surface-raised) 0 30%, var(--battle-detail-surface-deep) 72%);
+  box-shadow:
+    inset 0 13px 12px rgb(0 0 0 / 78%),
+    inset 0 -13px 12px rgb(0 0 0 / 76%),
+    inset 3px 0 4px color-mix(in srgb, var(--battle-skin-accent-bright) 3%, transparent),
+    inset -3px 0 4px rgb(0 0 0 / 46%);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-odometer__reel::before {
+  background: var(--battle-detail-line-faint);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-odometer__strip i {
+  color: var(--battle-detail-copy-muted);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-multiplier__reels .abyssa-expedition-odometer__reel[data-dim] .abyssa-expedition-odometer__strip b,
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-multiplier__reels .abyssa-expedition-odometer__reel[data-dim] .abyssa-expedition-odometer__strip i {
+  color: color-mix(in srgb, var(--battle-detail-copy-muted) 54%, var(--battle-frame-deep));
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-multiplier__reels .abyssa-expedition-odometer__strip b,
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-odometer__prefix {
+  color: var(--battle-detail-copy-strong);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-odometer__point::after {
+  background-color: var(--battle-skin-accent-bright);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-odometer__screw {
+  border-color: var(--battle-frame-deep);
+  background: radial-gradient(circle at 36% 30%, var(--battle-skin-accent-bright), var(--battle-skin-accent) 72%);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-odometer__screw::after {
+  background: var(--battle-frame-deep);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-bag-odometer .abyssa-expedition-odometer__strip b {
+  color: var(--battle-detail-copy-strong);
+  text-shadow: 0 1px 1px #000, 0 0 7px var(--battle-detail-glow);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-bag-odometer .abyssa-expedition-odometer__reel[data-dim] .abyssa-expedition-odometer__strip b,
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-bag-odometer .abyssa-expedition-odometer__reel[data-dim] .abyssa-expedition-odometer__strip i {
+  color: color-mix(in srgb, var(--battle-detail-copy-muted) 56%, var(--battle-frame-deep));
+  text-shadow: none;
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-bag-odometer[data-banking] .abyssa-expedition-odometer {
+  border-color: var(--battle-skin-accent-bright);
+  box-shadow:
+    0 0 0 1px var(--battle-skin-accent),
+    0 0 0 2px var(--battle-frame-deep),
+    inset 0 1px color-mix(in srgb, var(--battle-detail-copy-strong) 12%, transparent),
+    inset 0 -5px 8px rgb(0 0 0 / 46%),
+    0 0 18px var(--battle-detail-glow);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-bag-odometer[data-banking] .abyssa-expedition-odometer__strip b {
+  color: var(--battle-detail-copy-strong);
+  text-shadow: 0 1px 1px #000, 0 0 12px var(--battle-detail-glow);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-purse__divider,
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-purse__currency-divider {
+  background: linear-gradient(90deg, transparent, var(--battle-detail-line) 12% 88%, transparent);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-purse__currency-divider {
+  background: linear-gradient(transparent, var(--battle-detail-line), transparent);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-loot {
+  border-color: var(--battle-detail-line-soft);
+  background:
+    linear-gradient(90deg, rgb(0 0 0 / 15%), transparent 18% 82%, rgb(0 0 0 / 18%)),
+    repeating-linear-gradient(2deg, transparent 0 7px, color-mix(in srgb, var(--battle-skin-accent-bright) 2%, transparent) 8px, transparent 10px),
+    color-mix(in srgb, var(--battle-detail-surface-deep) 82%, transparent);
+  scrollbar-color: var(--battle-skin-accent) var(--battle-detail-surface-deep);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-loot::-webkit-scrollbar-track {
+  background: var(--battle-detail-surface-deep);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-loot::-webkit-scrollbar-thumb {
+  border-color: var(--battle-frame-deep);
+  background: var(--battle-skin-accent);
+  box-shadow: inset 0 0 0 1px var(--battle-detail-line-faint);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-loot:focus-visible {
+  outline-color: var(--battle-skin-accent-bright);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-loot__item {
+  border-bottom-color: var(--battle-detail-line-soft);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--battle-skin-accent-bright) 4%, transparent), transparent 42%),
+    color-mix(in srgb, var(--battle-detail-surface-raised) 38%, transparent);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-loot__item > span {
+  color: var(--battle-detail-copy-muted);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-loot__item > strong {
+  color: var(--battle-detail-copy);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-loot__item[data-current] {
+  border-color: var(--battle-skin-accent);
+  color: var(--battle-detail-copy-strong);
+  box-shadow: 0 0 0 1px var(--battle-detail-line-soft);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-battle-log {
+  border-top-color: var(--battle-detail-line-soft);
+  background: color-mix(in srgb, var(--battle-detail-surface-deep) 52%, transparent);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-battle-log header,
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-battle-log time {
+  color: var(--battle-detail-copy-muted);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-battle-log ol,
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-battle-log li {
+  border-color: var(--battle-detail-line-faint);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-battle-log ol {
+  scrollbar-color: var(--battle-skin-accent) transparent;
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-battle-log li span,
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-battle-log li b:not([data-tone]) {
+  color: var(--battle-detail-copy);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-battle-log li b[data-tone="system"] {
+  color: var(--battle-detail-copy-muted);
+}
+
+/* 结算弹窗属于当前战斗外壳；金币、生命等内容图标仍保留语义色。 */
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-modal,
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-modal__settlement {
+  border-color: var(--battle-skin-accent);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--battle-skin-accent-bright) 7%, transparent), transparent 36%),
+    var(--battle-detail-surface);
+  box-shadow:
+    0 22px 70px rgb(0 0 0 / 88%),
+    inset 0 0 0 1px var(--battle-frame-deep),
+    inset 0 0 0 3px var(--battle-detail-line-faint);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-modal h3 {
+  color: var(--battle-detail-copy-strong);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-modal__body,
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-modal__settlement-formula strong {
+  color: var(--battle-detail-copy);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-modal__body strong {
+  color: var(--battle-detail-copy-strong);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-modal__body p[data-tone="dim"],
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-modal__settlement-formula small,
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-modal__settlement > p,
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-modal__settlement > footer {
+  color: var(--battle-detail-copy-muted);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-modal__settlement-formula > i,
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-modal__settlement > footer i {
+  color: var(--battle-skin-accent);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-modal__settlement > p {
+  border-top-color: var(--battle-detail-line-soft);
+}
+
+.abyssa-expedition[data-ui-ornamented] [data-currency="gold"],
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-modal__settlement-formula [data-currency="gold"] strong {
+  color: var(--battle-currency-gold);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-modal__highlight strong[data-currency="gold"],
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-modal__total[data-currency="gold"],
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-modal__settlement-formula [data-currency="gold"][data-result] strong {
+  color: var(--battle-currency-gold-strong);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-modal__facts {
+  border-color: var(--battle-skin-accent);
+}
+
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-modal__facts header {
+  color: var(--battle-skin-accent-bright);
+}
+
+@keyframes battle-skin-ornament-in {
+  from { opacity: 0; }
+}
+
+@keyframes battle-skin-corner-in {
+  from { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .abyssa-expedition-frame__top-ornament,
+  .abyssa-expedition-frame__corner-ornaments img {
+    animation: none;
+  }
+
+  .abyssa-expedition-skin-switch { transition: none; }
+}

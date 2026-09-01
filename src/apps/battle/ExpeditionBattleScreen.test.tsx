@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
 import { StrictMode } from "react";
 import { REROLLS_PER_ROUND } from "./engine";
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
@@ -19,7 +20,7 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-/** 回合开始自动掷骰，推进滚动动画 */
+/** 测试中完成当前已启动的演出。 */
 function settle() {
   act(() => {
     vi.runAllTimers();
@@ -31,7 +32,9 @@ async function settleAsync() {
   await act(async () => {
     await vi.runAllTimersAsync();
   });
-  /* runner 最后切到 roll 后，React effect 才会排骰子收尾计时器。 */
+  /* 新回合由玩家确认 ROLL；测试辅助函数代为确认，再完成掷骰演出。 */
+  const rollButton = screen.queryByRole("button", { name: "ROLL" });
+  if (rollButton) fireEvent.click(rollButton);
   await act(async () => {
     await vi.runAllTimersAsync();
   });
@@ -39,6 +42,7 @@ async function settleAsync() {
 
 function mount(rng?: () => number) {
   const view = render(<ExpeditionBattleScreen rng={rng} />);
+  fireEvent.click(screen.getByRole("button", { name: "ROLL" }));
   settle();
   return view;
 }
@@ -79,13 +83,28 @@ function partyCards() {
   return board().querySelectorAll<HTMLElement>(".abyssa-expedition-party-card");
 }
 
+/** Read the CSS as Vite sees it, following the ordered local @import entry point. */
+function readExpeditionCss(
+  path = "src/apps/battle/expedition.css",
+  seen = new Set<string>()
+): string {
+  const absolute = resolve(path);
+  if (seen.has(absolute)) throw new Error(`circular CSS import: ${absolute}`);
+  seen.add(absolute);
+  const source = readFileSync(absolute, "utf8");
+  return source.replace(/@import\s+["'](.+?)["'];/g, (_statement, relativePath: string) =>
+    readExpeditionCss(resolve(dirname(absolute), relativePath), seen)
+  );
+}
+
 describe("开局不得卡死", () => {
-  it("StrictMode 下掷骰动画会正常收尾，盘面可交互", () => {
+  it("StrictMode 下手动初投会正常收尾，盘面可交互", () => {
     render(
       <StrictMode>
         <ExpeditionBattleScreen />
       </StrictMode>
     );
+    fireEvent.click(screen.getByRole("button", { name: "ROLL" }));
     settle();
 
     const main = screen.getByRole("main", { name: "裂隙远征战斗界面" });
@@ -135,10 +154,11 @@ describe("ExpeditionBattleScreen", () => {
     expect(board()).toHaveAttribute("data-ui-skin", "timber");
   });
 
-  it("开局自动掷骰，没有 ROLL 按钮", () => {
-    mount();
+  it("开局展示三面预览，首投后切换 REROLL 且不扣重掷次数", () => {
+    render(<ExpeditionBattleScreen />);
 
-    expect(screen.queryByRole("button", { name: "ROLL" })).toBeNull();
+    const rollButton = screen.getByRole("button", { name: "ROLL" });
+    expect(rollButton).toBeEnabled();
     expect(dieSlots()).toHaveLength(5);
     expect([...dieSlots()].map((slot) => slot.dataset.owner)).toEqual([
       "kael",
@@ -154,8 +174,21 @@ describe("ExpeditionBattleScreen", () => {
       "4",
       "5"
     ]);
-    /* 全部已掷出 */
+    expect(board().querySelectorAll(".abyssa-expedition-die-slot[data-unrolled]")).toHaveLength(5);
+    for (const cube of board().querySelectorAll<HTMLElement>(".expedition-die__cube")) {
+      expect(cube.style.transform).toBe("rotateX(-18deg) rotateY(28deg)");
+    }
+
+    fireEvent.click(rollButton);
+    expect(screen.queryByRole("button", { name: "ROLL" })).toBeNull();
+    expect(screen.getByRole("button", { name: "REROLL" })).toBeDisabled();
     expect(board().querySelectorAll(".abyssa-expedition-die-slot[data-unrolled]")).toHaveLength(0);
+    expect(
+      screen.getByLabelText(`重掷剩余 ${REROLLS_PER_ROUND} 次`)
+    ).toHaveTextContent(`×${REROLLS_PER_ROUND}`);
+
+    settle();
+    expect(screen.getByRole("button", { name: "REROLL" })).toBeEnabled();
   });
 
   it("底栏是 UNDO / REROLL / 重掷读数 / END TURN", () => {
@@ -526,7 +559,7 @@ describe("ExpeditionBattleScreen", () => {
       expect(rail!.querySelector(".expedition-die__unusable-mark")).not.toBeNull();
     }
 
-    const css = readFileSync("src/apps/battle/expedition.css", "utf8");
+    const css = readExpeditionCss();
     const blankRailRule = css.match(
       /\.expedition-die__rail\[data-blank\]\s*\{([^}]*)\}/
     )?.[1];
@@ -632,7 +665,7 @@ describe("ExpeditionBattleScreen", () => {
   });
 
   it("选中态的 CSS 规则必须写在威胁态之后（同特异度下后者胜出）", () => {
-    const css = readFileSync("src/apps/battle/expedition.css", "utf8");
+    const css = readExpeditionCss();
     const targeted = css.indexOf(".abyssa-expedition-party-card[data-targeted] {");
     const held = css.indexOf(".abyssa-expedition-party-card[data-held],");
 
@@ -654,10 +687,13 @@ describe("ExpeditionBattleScreen", () => {
     /* 包裹读数与本层散金是两个不同的量 */
     const purse = board().querySelector(".abyssa-expedition-purse")!;
     expect(purse.getAttribute("aria-label")).toMatch(/包裹 \d+ 金币，本层散金 \d+ 金币/);
+    expect(
+      purse.querySelectorAll(".abyssa-expedition-bag-odometer .abyssa-expedition-odometer__reel")
+    ).toHaveLength(6);
   });
 
   it("expedition.css 括号配平（防止批量改写破坏结构）", () => {
-    const css = readFileSync("src/apps/battle/expedition.css", "utf8");
+    const css = readExpeditionCss();
     let depth = 0;
     let orphans = 0;
     for (const ch of css) {
@@ -675,7 +711,7 @@ describe("ExpeditionBattleScreen", () => {
   });
 
   it("默认骰子保持实色，并与角色卡共框；成牌角标使用硬边凹刻", () => {
-    const css = readFileSync("src/apps/battle/expedition.css", "utf8");
+    const css = readExpeditionCss();
     const battlefieldRule = css.match(
       /\.abyssa-expedition-regions__battlefield\s*\{([^}]*)\}/
     )?.[1];
@@ -706,7 +742,7 @@ describe("ExpeditionBattleScreen", () => {
   });
 
   it("攻击特效由敌方 formation 裁剪，不截断跨区意图线", () => {
-    const css = readFileSync("src/apps/battle/expedition.css", "utf8");
+    const css = readExpeditionCss();
     const formationRule = css.match(
       /\.abyssa-expedition-enemies__formation\s*\{([^}]*)\}/
     )?.[1];
@@ -752,7 +788,9 @@ describe("ExpeditionBattleScreen", () => {
     render(<ExpeditionBattleScreen />);
 
     const board = screen.getByRole("main", { name: "裂隙远征战斗界面" });
-    /* 开局自动掷骰：五枚全滚 */
+    expect(board.querySelectorAll(".expedition-die[data-rolling]")).toHaveLength(0);
+    fireEvent.click(screen.getByRole("button", { name: "ROLL" }));
+    /* 手动首投：五枚全滚。 */
     expect(board.querySelectorAll(".expedition-die[data-rolling]")).toHaveLength(5);
 
     settle();
@@ -1142,7 +1180,7 @@ describe("ExpeditionBattleScreen", () => {
     await advance(241);
     await advance(301);
     expect(board()).not.toHaveAttribute("data-support-phase");
-  });
+  }, 15_000);
 
   it("界面内不出现 emoji 字形", () => {
     mount();

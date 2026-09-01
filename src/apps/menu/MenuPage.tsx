@@ -88,6 +88,18 @@ const COMMAND_DESTINATIONS: Partial<
   }
 };
 
+/* 左栏档案入口的跳转表。与 COMMAND_DESTINATIONS 同形:未列出的条目仍是
+   纯占位,点了只说话不跳页。目前只有「角色」接到了 STATUS。 */
+const SECTION_DESTINATIONS: Partial<
+  Record<MenuSectionId, { href: string; destination: string; channel: string }>
+> = {
+  roster: {
+    href: "./character-status.html",
+    destination: "角色档案",
+    channel: "正在翻阅"
+  }
+};
+
 export function MenuPage() {
   return (
     <SceneTransitionProvider>
@@ -169,6 +181,17 @@ function MenuPageContent() {
           <MenuSidebar
             selectedId={selectedSection}
             onSelect={(id) => {
+              /* 与命令盘同一套交互:先选中说话,再点已选中的才跳页
+                 (MenuCommandDial.tsx:196 的 select-then-activate)。
+                 左栏没有 onActivate,所以在这里自己判重复点击。 */
+              const target = SECTION_DESTINATIONS[id];
+              if (target && id === selectedSection) {
+                navigate(target.href, {
+                  destination: target.destination,
+                  channel: target.channel
+                });
+                return;
+              }
               setSelectedSection(id);
               say(SECTION_LINES[id]);
             }}

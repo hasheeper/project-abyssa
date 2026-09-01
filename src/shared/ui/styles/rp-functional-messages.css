@@ -1,0 +1,172 @@
+/* ==================== 功能气泡的活跃 / 历史分级 ====================
+   旁白、判定、系统提示不是某个角色在说话,而是场面本身在发生。
+   它们是对白的**注解**:旁白交代场面、判定解释结果,都在服务某句台词。
+
+   所以亮暗编码的是**与焦点的距离**,不是年龄 —— 亮的一定紧贴当前发言。
+   这是 focus + context:同一时刻只允许一个视觉重心,重心周围是焦点区,
+   其余降级为背景上下文。而「紧贴的连续几条一起亮」来自格式塔接近性:
+   相邻元素被读成一个整体,亮的是**当前这一拍**(台词 + 它的注解),
+   一起亮、一起退。
+
+   哪些该亮完全由 JS 决定(见 useLitAux),CSS 只认 data-recent 这个结果。
+   曾经有一版按「各轨自己的最近一条」来判定,结果是十条之前的判定还亮着 ——
+   一个注解飘在离被注解对象十条远的地方发光。那一版的推导也留在 useLitAux 里。
+
+   属性名用 data-recent 而不是复用 data-current,是刻意的:
+   现有 30 条 [data-current] 规则里有 10 条不带 kind 限定,虽然它们的目标
+   (__row / __avatar* / __bubble* / __arrow*)只存在于 say 的 DOM 里、
+   技术上不会误伤,但两套「当前」共用一个属性名,以后谁加一条作用于
+   message 自身的规则就会同时打中两边。分开命名把这份独立性写进 DOM。
+
+   chapter 刻意不参与:它是横跨整栏的**结构分隔**,职责是始终当锚点。
+   拉进来会让章节标题在滚动历史里忽明忽暗;它也因此天然充当段的边界。
+
+   ============ 为什么用 filter: opacity() 而不是 opacity ============
+   .abyssa-rp__message 挂着 abyssa-rp-message-in,fill-mode 是 both、
+   末帧是 opacity: 1。**动画在层叠中压过普通声明**,所以这里写
+   opacity: 0.55 会被那个末帧永久压死,一点效果都没有。
+
+   filter 与 opacity 是两个独立属性:动画只碰后者,filter 不受接管,
+   可以正常声明、正常过渡。视觉结果与整体不透明度一致,
+   而且对 roll 那种带 background + border 的条目是整块一起压暗,正是要的。
+   ================================================================= */
+.abyssa-rp__message[data-kind="narration"],
+.abyssa-rp__message[data-kind="roll"],
+.abyssa-rp__message[data-kind="system"] {
+  /* 0.55:压得下去但仍清晰可读 —— 历史功能气泡是可回看的信息,不是背景纹理。
+     比对白历史态(row 的 opacity 0.72)更暗一档是有意的:
+     对白是主线,功能气泡退居其后,两条轨的历史层次因此还能分出前后。 */
+  --abyssa-rp-aux-dim: 0.55;
+
+  /* 时长与对白交接同步。--abyssa-rp-shift 只声明在 [data-kind="say"] 上,
+     这里拿不到,所以给 400ms 的 fallback —— 数值与那边保持一致。 */
+  filter: opacity(var(--abyssa-rp-aux-dim));
+  transition: filter var(--abyssa-rp-shift, 400ms) var(--abyssa-ease);
+}
+
+/* 紧贴当前发言的那一段:恢复全亮。 */
+.abyssa-rp__message[data-recent] { --abyssa-rp-aux-dim: 1; }
+
+/* 判定与系统提示的边框在活跃态再提一档 —— 它们靠边框立形,
+   光靠整体不透明度不够跳。旁白没有边框,不需要这条。 */
+.abyssa-rp__message[data-kind="roll"][data-recent] {
+  border-block-color: color-mix(in srgb, var(--abyssa-teal) 42%, var(--abyssa-ornament-dark));
+}
+
+.abyssa-rp__message[data-kind="system"][data-recent] {
+  border-block-color: color-mix(in srgb, var(--abyssa-teal) 34%, var(--abyssa-ornament-dark));
+}
+
+/* ==================== 查阅模式(data-mode="log")====================
+   演绎态的亮暗编码的是「与焦点的距离」(focus + context);查阅态没有
+   焦点 —— 读者自己就是焦点,视线落在哪哪就是重点。所以:
+     形态上  人人都是历史形(TSX 摘掉 data-current / data-recent,
+             最后一条对白自动收窄靠边、露头像框、无聚焦装置、无逐字);
+     明暗上  人人全亮 —— 压暗跟着焦点走,焦点没了,压暗也没了。
+   这两条合起来就是「开始查阅」:像翻一本摊平的记录,而不是看舞台。
+
+   只覆盖明暗,不碰形态 —— 形态由 data-current 的缺席自然回落,
+   这里若再写形态规则就是第二份真相。 */
+.abyssa-rp[data-mode="log"] .abyssa-rp__row { opacity: 1; }
+
+.abyssa-rp[data-mode="log"] .abyssa-rp__message[data-kind="narration"],
+.abyssa-rp[data-mode="log"] .abyssa-rp__message[data-kind="roll"],
+.abyssa-rp[data-mode="log"] .abyssa-rp__message[data-kind="system"] {
+  --abyssa-rp-aux-dim: 1;
+}
+
+/* ---------- 旁白 ---------- */
+.abyssa-rp__message[data-kind="narration"] {
+  align-self: center;
+  max-width: min(92%, 620px);
+  padding: 1px 4px;
+  /* 只留整体的浮起淡入。逐字揭示由内部的 .abyssa-rp__type-char 各自承担,
+     不在这一层挂第二条动画——父级再淡入一次会把刚打出来的字压暗,
+     波的前沿就糊掉了。
+
+     时长/曲线必须与 .abyssa-rp__message 那条一致:
+     animation 是简写,写在这里会整条覆盖掉上面的设置。 */
+  animation: abyssa-rp-message-in 0.34s var(--abyssa-ease) both;
+  color: var(--abyssa-text-soft);
+  font-size: 14px;
+  letter-spacing: 0.05em;
+  line-height: 1.95;
+  text-align: justify;
+  white-space: pre-wrap;
+}
+
+/* ---------- 骰子检定 ---------- */
+.abyssa-rp__message[data-kind="roll"] {
+  display: flex;
+  align-self: center;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 22px;
+  border-block: 1px solid var(--abyssa-ornament-dark);
+  background: rgb(28 36 36 / 55%);
+  font-size: 12.5px;
+  letter-spacing: 0.08em;
+}
+
+.abyssa-rp__roll-label { color: var(--abyssa-text-muted); }
+
+.abyssa-rp__roll-formula {
+  color: var(--abyssa-text-soft);
+  font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+  letter-spacing: 0.02em;
+}
+
+.abyssa-rp__roll-formula b { font-size: 15.5px; }
+
+.abyssa-rp__roll-tag {
+  font-weight: 700;
+  letter-spacing: 0.26em;
+  text-indent: 0.26em;
+}
+
+.abyssa-rp__message[data-outcome="success"] .abyssa-rp__roll-formula b,
+.abyssa-rp__message[data-outcome="success"] .abyssa-rp__roll-tag { color: var(--abyssa-teal); }
+
+.abyssa-rp__message[data-outcome="fail"] .abyssa-rp__roll-formula b,
+.abyssa-rp__message[data-outcome="fail"] .abyssa-rp__roll-tag { color: var(--abyssa-danger); }
+
+/* ---------- 章节 ---------- */
+.abyssa-rp__message[data-kind="chapter"] {
+  display: flex;
+  align-self: stretch;
+  align-items: center;
+  gap: 15px;
+  margin-block: 6px;
+  color: var(--abyssa-teal-soft);
+  font-family: var(--abyssa-font-display);
+  font-size: 13px;
+  letter-spacing: 0.3em;
+  text-indent: 0.3em;
+}
+
+.abyssa-rp__message[data-kind="chapter"]::before,
+.abyssa-rp__message[data-kind="chapter"]::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--abyssa-ornament) 32%, var(--abyssa-ornament) 68%, transparent);
+}
+
+.abyssa-rp__message[data-kind="chapter"] span { flex: none; }
+
+/* ---------- 系统 ---------- */
+.abyssa-rp__message[data-kind="system"] {
+  align-self: center;
+  padding: 3px 18px;
+  border-block: 1px dashed var(--abyssa-ornament-dark);
+  color: var(--abyssa-text-muted);
+  font-size: 11.5px;
+  letter-spacing: 0.24em;
+}
+
+/* 原有 @media (max-width: 1100px) 的窄屏档已删除:固定画布下内容区宽恒为
+   1350,该查询永不触发,属死代码。 */
+
+
+/* 原有 @media (max-width: 820px) 的单栏档(隐藏左右席位)同样删除:
+   固定画布下内容区宽恒为 1350,永不触发。 */

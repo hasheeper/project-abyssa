@@ -32,11 +32,11 @@ idle → closing → closed / real loading → opening → idle
 
 ## 接入
 
-入口引入样式并包住页面。全屏世界页使用默认 `fade`：
+从公共入口引入组件并包住页面。`transition.css` 已与 `SceneTransition`
+组件共置并自动加载，业务页面不要再重复引入。全屏世界页使用默认 `fade`：
 
 ```tsx
 import { SceneTransitionProvider } from "../../shared/transition";
-import "../../shared/transition/transition.css";
 
 <SceneTransitionProvider>
   <App />
