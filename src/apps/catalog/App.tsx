@@ -31,7 +31,7 @@ import {
   VerticalIndicator
 } from "../../index";
 import { characterProfiles } from "../../content/characters/profiles";
-import demoItemIcon from "../../assets/svg/items/game-icons/hot-meal.svg";
+import demoItemIcon from "../../assets/icons/items/hot-meal.svg";
 import { DialogueFlowExample, SystemConfigExample } from "./CompositionExamples";
 
 type CategoryId = "structure" | "actions" | "display" | "compositions";

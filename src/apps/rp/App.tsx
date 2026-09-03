@@ -1,17 +1,17 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties, MouseEvent } from "react";
 import { RpScene } from "../../shared/ui/patterns/RpScene";
-import anticlockwiseRotationIcon from "../../assets/svg/anticlockwise-rotation.svg";
-import fastForwardIcon from "../../assets/svg/fast-forward-button.svg";
-import playIcon from "../../assets/svg/play-button.svg";
-import openBookIcon from "../../assets/svg/items/game-icons/open-book.svg";
+import anticlockwiseRotationIcon from "../../assets/icons/anticlockwise-rotation.svg";
+import fastForwardIcon from "../../assets/icons/fast-forward-button.svg";
+import playIcon from "../../assets/icons/play-button.svg";
+import openBookIcon from "../../assets/icons/items/open-book.svg";
 import { Stage } from "../../shared/stage";
 import { AdvStage } from "../../shared/presentation/adv/AdvStage";
 import { SCENES } from "./transcript";
 
 const background = import.meta.env.DEV
-  ? "/src/assets/bg/shop.png"
-  : "../src/assets/bg/shop.png";
+  ? "/src/assets/backgrounds/shop.png"
+  : "../src/assets/backgrounds/shop.png";
 
 /** 自动播放时每条停留多久。 */
 const AUTO_MS = 2200;

@@ -323,12 +323,12 @@
   mask-size: contain;
 }
 
-.abyssa-expedition-loot__item > i[data-icon="ore"] { mask-image: url("../../assets/svg/items/game-icons/ore.svg"); }
-.abyssa-expedition-loot__item > i[data-icon="crystal"] { color: #9380a9; mask-image: url("../../assets/svg/items/game-icons/crystal-cluster.svg"); }
-.abyssa-expedition-loot__item > i[data-icon="herbs"] { color: #78856a; mask-image: url("../../assets/svg/items/game-icons/herbs-bundle.svg"); }
-.abyssa-expedition-loot__item > i[data-icon="scroll"] { mask-image: url("../../assets/svg/items/game-icons/tied-scroll.svg"); }
-.abyssa-expedition-loot__item > i[data-icon="fang"] { color: #a0957e; mask-image: url("../../assets/svg/items/game-icons/pretty-fangs.svg"); }
-.abyssa-expedition-loot__item > i[data-icon="dust"] { color: #aa8b4c; mask-image: url("../../assets/svg/items/game-icons/pollen-dust.svg"); }
+.abyssa-expedition-loot__item > i[data-icon="ore"] { mask-image: url("../../assets/icons/items/ore.svg"); }
+.abyssa-expedition-loot__item > i[data-icon="crystal"] { color: #9380a9; mask-image: url("../../assets/icons/items/crystal-cluster.svg"); }
+.abyssa-expedition-loot__item > i[data-icon="herbs"] { color: #78856a; mask-image: url("../../assets/icons/items/herbs-bundle.svg"); }
+.abyssa-expedition-loot__item > i[data-icon="scroll"] { mask-image: url("../../assets/icons/items/tied-scroll.svg"); }
+.abyssa-expedition-loot__item > i[data-icon="fang"] { color: #a0957e; mask-image: url("../../assets/icons/items/pretty-fangs.svg"); }
+.abyssa-expedition-loot__item > i[data-icon="dust"] { color: #aa8b4c; mask-image: url("../../assets/icons/items/pollen-dust.svg"); }
 
 .abyssa-expedition-loot__item > span {
   overflow: hidden;

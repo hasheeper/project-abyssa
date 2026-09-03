@@ -4,8 +4,8 @@ import { SCENARIOS } from "./scenarios";
 import type { ScenarioId } from "./scenarios";
 
 const shopBg = import.meta.env.DEV
-  ? "/src/assets/bg/shop.png"
-  : "../src/assets/bg/shop.png";
+  ? "/src/assets/backgrounds/shop.png"
+  : "../src/assets/backgrounds/shop.png";
 
 const ORDER: ScenarioId[] = ["two", "three", "four"];
 

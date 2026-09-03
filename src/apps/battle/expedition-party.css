@@ -352,7 +352,7 @@
   height: 16px;
   background: #4a2d26;
   filter: drop-shadow(0 1px 0 #050302);
-  mask-image: url("../../assets/svg/8-1-heart-drop.svg");
+  mask-image: url("../../assets/icons/8-1-heart-drop.svg");
   mask-position: center;
   mask-repeat: no-repeat;
   mask-size: contain;
@@ -412,16 +412,16 @@
   mask-size: contain;
 }
 
-.abyssa-expedition-party-card__skills [data-icon="all-for-one"] { mask-image: url("../../assets/svg/0-0-all-for-one.svg"); }
-.abyssa-expedition-party-card__skills [data-icon="sword"] { mask-image: url("../../assets/svg/0-1-bouncing-sword.svg"); }
-.abyssa-expedition-party-card__skills [data-icon="miracle"] { mask-image: url("../../assets/svg/1-0-embrassed-energy.svg"); }
-.abyssa-expedition-party-card__skills [data-icon="wand"] { mask-image: url("../../assets/svg/1-1-fairy-wand.svg"); }
-.abyssa-expedition-party-card__skills [data-icon="gravity"] { mask-image: url("../../assets/svg/2-0-pentagram-rose.svg"); }
-.abyssa-expedition-party-card__skills [data-icon="star"] { mask-image: url("../../assets/svg/2-1-explosion-rays.svg"); }
-.abyssa-expedition-party-card__skills [data-icon="arsenal"] { mask-image: url("../../assets/svg/3-0-assassin-pocket.svg"); }
-.abyssa-expedition-party-card__skills [data-icon="mask"] { mask-image: url("../../assets/svg/3-1-duality-mask.svg"); }
-.abyssa-expedition-party-card__skills [data-icon="moon"] { mask-image: url("../../assets/svg/4-0-moon.svg"); }
-.abyssa-expedition-party-card__skills [data-icon="goo"] { mask-image: url("../../assets/svg/4-1-goo-explosion.svg"); }
-.abyssa-expedition-party-card__skills [data-icon="split-cross"] { mask-image: url("../../assets/svg/6-0-split-cross.svg"); }
-.abyssa-expedition-party-card__skills [data-icon="fast-arrow"] { mask-image: url("../../assets/svg/6-1-fast-arrow.svg"); }
-.abyssa-expedition-party-card__skills [data-icon="heart"] { mask-image: url("../../assets/svg/8-1-heart-drop.svg"); }
+.abyssa-expedition-party-card__skills [data-icon="all-for-one"] { mask-image: url("../../assets/icons/0-0-all-for-one.svg"); }
+.abyssa-expedition-party-card__skills [data-icon="sword"] { mask-image: url("../../assets/icons/0-1-bouncing-sword.svg"); }
+.abyssa-expedition-party-card__skills [data-icon="miracle"] { mask-image: url("../../assets/icons/1-0-embrassed-energy.svg"); }
+.abyssa-expedition-party-card__skills [data-icon="wand"] { mask-image: url("../../assets/icons/1-1-fairy-wand.svg"); }
+.abyssa-expedition-party-card__skills [data-icon="gravity"] { mask-image: url("../../assets/icons/2-0-pentagram-rose.svg"); }
+.abyssa-expedition-party-card__skills [data-icon="star"] { mask-image: url("../../assets/icons/2-1-explosion-rays.svg"); }
+.abyssa-expedition-party-card__skills [data-icon="arsenal"] { mask-image: url("../../assets/icons/3-0-assassin-pocket.svg"); }
+.abyssa-expedition-party-card__skills [data-icon="mask"] { mask-image: url("../../assets/icons/3-1-duality-mask.svg"); }
+.abyssa-expedition-party-card__skills [data-icon="moon"] { mask-image: url("../../assets/icons/4-0-moon.svg"); }
+.abyssa-expedition-party-card__skills [data-icon="goo"] { mask-image: url("../../assets/icons/4-1-goo-explosion.svg"); }
+.abyssa-expedition-party-card__skills [data-icon="split-cross"] { mask-image: url("../../assets/icons/6-0-split-cross.svg"); }
+.abyssa-expedition-party-card__skills [data-icon="fast-arrow"] { mask-image: url("../../assets/icons/6-1-fast-arrow.svg"); }
+.abyssa-expedition-party-card__skills [data-icon="heart"] { mask-image: url("../../assets/icons/8-1-heart-drop.svg"); }

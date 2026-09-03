@@ -1,11 +1,11 @@
-import abyssaAvatar from "../../assets/avatar/abyssa.png";
-import eloraAvatar from "../../assets/avatar/elora.png";
-import eusticeAvatar from "../../assets/avatar/eustice.png";
-import kororoAvatar from "../../assets/avatar/kororo.png";
-import lenoreAvatar from "../../assets/avatar/lenore.png";
-import mariettaAvatar from "../../assets/avatar/marietta.png";
-import normaAvatar from "../../assets/avatar/norma.png";
-import vivienneAvatar from "../../assets/avatar/vivienne.png";
+import abyssaAvatar from "../../assets/characters/avatars/abyssa.png";
+import eloraAvatar from "../../assets/characters/avatars/elora.png";
+import eusticeAvatar from "../../assets/characters/avatars/eustice.png";
+import kororoAvatar from "../../assets/characters/avatars/kororo.png";
+import lenoreAvatar from "../../assets/characters/avatars/lenore.png";
+import mariettaAvatar from "../../assets/characters/avatars/marietta.png";
+import normaAvatar from "../../assets/characters/avatars/norma.png";
+import vivienneAvatar from "../../assets/characters/avatars/vivienne.png";
 import type { RpActor, RpMessage } from "../../shared/ui/patterns/RpScene";
 
 /** 一幕:自带名册的一段演出。

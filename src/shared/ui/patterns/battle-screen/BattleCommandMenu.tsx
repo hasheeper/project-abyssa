@@ -1,9 +1,9 @@
 import { useId } from "react";
 import type { CSSProperties } from "react";
-import bookmarkIcon from "../../../../assets/svg/items/game-icons/bookmark.svg";
-import crossedSwordsIcon from "../../../../assets/svg/ui/crossed-swords.svg";
-import slashedShieldIcon from "../../../../assets/svg/ui/slashed-shield.svg";
-import swapBagIcon from "../../../../assets/svg/items/game-icons/swap-bag.svg";
+import bookmarkIcon from "../../../../assets/icons/items/bookmark.svg";
+import crossedSwordsIcon from "../../../../assets/icons/crossed-swords.svg";
+import slashedShieldIcon from "../../../../assets/icons/slashed-shield.svg";
+import swapBagIcon from "../../../../assets/icons/items/swap-bag.svg";
 import type { BattleCommandId } from "./types";
 
 const battleCommands: ReadonlyArray<{

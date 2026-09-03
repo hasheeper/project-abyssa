@@ -1,14 +1,14 @@
 import type { ExpeditionDieSuit } from "../ExpeditionDie3D";
 import type { CharacterId, EnemyState } from "../engine";
 import type { GlyphName } from "../ExpeditionGlyph";
-import kaelPortrait from "../../../assets/png/kael.png";
-import eusticePortrait from "../../../assets/png/eustice.png";
-import eloraPortrait from "../../../assets/png/elora.png";
-import kororoPortrait from "../../../assets/png/kororo.png";
-import normaPortrait from "../../../assets/png/norma.png";
-import blightedSentinel from "../../../assets/png3/monster/blighted_sentinel.png";
-import crystallineChoir from "../../../assets/png3/monster/crystalline_choir.png";
-import miasmaAmalgam from "../../../assets/png3/monster/miasma_amalgam.png";
+import kaelPortrait from "../../../assets/characters/portraits/kael.png";
+import eusticePortrait from "../../../assets/characters/portraits/eustice.png";
+import eloraPortrait from "../../../assets/characters/portraits/elora.png";
+import kororoPortrait from "../../../assets/characters/portraits/kororo.png";
+import normaPortrait from "../../../assets/characters/portraits/norma.png";
+import blightedSentinel from "../../../assets/battle/enemy-blighted-sentinel.png";
+import crystallineChoir from "../../../assets/battle/enemy-crystalline-choir.png";
+import miasmaAmalgam from "../../../assets/battle/enemy-miasma-amalgam.png";
 
 export interface PartyVisual {
   id: CharacterId;

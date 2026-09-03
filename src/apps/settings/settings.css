@@ -1,0 +1,556 @@
+/* ==================== Abyssa 设置 ====================
+
+   ============ 结构照搬 catalog 的 SystemConfigExample ============
+   那是这套组件库里已经定稿的设置界面范式,本页只是把它放进固定画布、
+   换成真实条目:
+     RpgHeader(招牌)
+     → 顶部页签,骑在画框顶边上
+     → RpgFrame:heading(西文小标 + 中文标题 + 状态节点)
+                / 两栏 grid(左清单 + 右竖栏)
+                / 底部 NotchButton + HexButton
+   参考实现见 src/apps/catalog/CompositionExamples.tsx 与 demo.css 的
+   .assembled-config-*。
+
+   ============ 页签为什么必须在上 ============
+   RpgTab 的 viewBox 是 180x78,路径 "M7 78 V20 Q7 7 20 7 H160 Q173 7 173 20 V78"
+   —— 上两角圆、下沿平口不闭合。这是「坐在面板顶上」的页签形状:平口与
+   画框顶边接缝,靠 margin-bottom 负值咬进去,底部那条深色粗线把未选中的
+   页签压回背后。
+   竖排会让平口朝侧面、圆角朝另一侧,形状语义整个错位 —— 初版就是这么错的。
+
+   ============ 几何 ============
+   宽 1250(取画框契约的 --abyssa-frame-interior-w 做横向对齐)。
+   竖向实测:招牌 660x116 等比 → 露出 90(负 margin 吃掉 26)
+             页签 78 + 画框 ~700
+   合计仍在画布可用高 884(900 上下各留 8)内,不需要 fit 缩放,即 k2 = 1。
+
+   注:本页用的是 RpgFrame(自带三层描边 + 四角装饰),不是 shop/dice 那套
+   board/rail/brass 木质画框。只借了 1250 这个宽度,并未声称与它们逐层
+   可见边缘对齐 —— 那需要连 rail、brass、招牌露出高一起复刻。
+
+   铁律(shared/stage/README.md)照办:画布内全部设计原值、不用媒体查询
+   重排、装饰随整组缩放。
+   ===================================================== */
+
+:root {
+  --settings-backdrop:
+    radial-gradient(circle at 50% 18%, rgb(74 102 100 / 16%), transparent 58%),
+    linear-gradient(90deg, rgb(255 255 255 / 1.2%) 1px, transparent 1px) 0 0 / 48px 48px,
+    linear-gradient(rgb(255 255 255 / 1.2%) 1px, transparent 1px) 0 0 / 48px 48px,
+    #0b1010;
+  --settings-backdrop-plain: #0b1010;
+
+  /* 幽青:直接取 tokens.css 的 teal 三档,不另立色板 ——
+     另立一份会让主题切换(如 [data-accent="silver"])漏掉这里。 */
+  --settings-accent: var(--abyssa-teal);
+  --settings-accent-dark: var(--abyssa-teal-dark);
+  --settings-accent-soft: var(--abyssa-teal-soft);
+
+  /* 分隔线取参考里的 #3c4747 / #485454,保持同一套灰阶。 */
+  --settings-rule: #3c4747;
+  --settings-rule-strong: #485454;
+  --settings-well: rgb(9 14 14 / 42%);
+}
+
+* { box-sizing: border-box; }
+
+html { min-width: 320px; min-height: 100%; overflow-x: hidden; }
+body { min-width: 320px; margin: 0; overflow-x: hidden; }
+button { font: inherit; }
+#root { width: 100%; height: 100%; }
+
+/* ==================== 外壳 ==================== */
+.settings-app {
+  display: grid;
+  width: 1250px;
+  color: var(--abyssa-text);
+  font-family: var(--abyssa-font-body);
+}
+
+/* 招牌向下压进页签行(招牌本就允许遮挡下方)。 */
+.settings-app > .abyssa-rpg-header {
+  width: 660px;
+  margin: 0 auto -4px;
+  pointer-events: none;
+}
+
+/* ==================== 顶部页签 ====================
+   与参考的 .assembled-config__tabs 同则:
+     · 等宽网格,整组居中
+     · margin-bottom: -1px 让页签平口与画框顶边接缝
+     · border-bottom 那条粗线是「面板顶边」,未选中的页签被它压在背后
+     · align-items: end 让高度不同的页签底部对齐 */
+.settings-app__tabs {
+  display: grid;
+  width: min(52%, 560px);
+  margin: 0 auto -1px;
+  border-bottom: 5px solid var(--abyssa-frame-dark);
+  align-items: end;
+  gap: 10px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.settings-app__tabs .abyssa-rpg-tab { cursor: pointer; }
+
+.settings-app__frame { width: 100%; }
+
+.settings-app__frame > .abyssa-frame__content {
+  display: grid;
+  padding: 30px;
+  gap: 0;
+  grid-template-rows: auto 1fr auto;
+}
+
+/* ==================== 标题行 ==================== */
+.settings-app__heading {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  padding: 0 0 22px;
+  border-bottom: 1px solid var(--settings-rule-strong);
+  gap: 20px;
+}
+
+.settings-app__heading > div { display: grid; gap: 6px; }
+
+.settings-app__heading span {
+  color: var(--settings-accent-soft);
+  font-family: ui-monospace, monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.16em;
+}
+
+.settings-app__heading h3 {
+  margin: 0;
+  color: var(--abyssa-text);
+  font-family: var(--abyssa-font-display);
+  font-size: 1.28rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+}
+
+.settings-app__heading p {
+  margin: 0;
+  color: var(--abyssa-text-muted);
+  font-size: 0.7rem;
+}
+
+/* ==================== 面板 ==================== */
+.settings-app__panel { min-height: 0; }
+
+.settings-app__panel:focus-visible {
+  outline: 2px solid var(--abyssa-focus);
+  outline-offset: 4px;
+}
+
+/* 两栏:左清单 + 右竖栏。比例取自参考的 1.15fr / .85fr。 */
+.settings-grid {
+  display: grid;
+  height: 100%;
+  min-height: 0;
+  grid-template-columns: minmax(0, 1.15fr) minmax(300px, 0.85fr);
+}
+
+.settings-list {
+  min-width: 0;
+  padding: 16px 28px 0 0;
+  /* 条目多于一屏时纵向滚动。这是画布内唯一允许的滚动:
+     设置项数量属于内容量,不该被塞进固定高度里压扁。 */
+  overflow-y: auto;
+  scrollbar-color: var(--settings-accent-dark) transparent;
+  scrollbar-width: thin;
+}
+
+.settings-side {
+  display: grid;
+  align-content: start;
+  justify-items: center;
+  min-width: 0;
+  padding: 28px 0 0 28px;
+  border-left: 1px solid var(--settings-rule);
+  gap: 20px;
+}
+
+.settings-side__label {
+  color: var(--settings-accent-soft);
+  font-family: ui-monospace, monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.16em;
+}
+
+.settings-side .abyssa-progress-group { width: min(100%, 320px); }
+.settings-side .abyssa-diamond-track { width: min(100%, 320px); }
+
+/* ==================== 设置行 ====================
+   与参考的 .assembled-setting 同构:左 strong + small,右控件。 */
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 74px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--settings-rule);
+  gap: 24px;
+}
+
+.settings-row[data-disabled] { opacity: 0.5; }
+
+.settings-row__text { display: grid; gap: 5px; min-width: 0; }
+
+.settings-row__text strong {
+  color: var(--abyssa-text-soft);
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+}
+
+.settings-row__text small {
+  color: var(--abyssa-text-muted);
+  font-family: ui-monospace, monospace;
+  font-size: 0.55rem;
+  letter-spacing: 0.12em;
+}
+
+.settings-row__control {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 0;
+}
+
+/* 滑块要占宽,不能被 flex: none 压扁。 */
+.settings-row__control:has(.settings-slider) { flex: 1; max-width: 260px; }
+
+/* ==================== 滑块 ====================
+   原生 input[type=range] 只贡献行为(键盘 ←→/Home/End、拖拽、
+   aria-value*),外观全部自绘。见 SettingsSlider.tsx 的说明。 */
+.settings-slider { display: grid; width: 100%; gap: 5px; }
+.settings-slider[data-disabled] { opacity: 0.45; pointer-events: none; }
+
+.settings-slider__readout { display: flex; justify-content: flex-end; }
+
+.settings-slider__value {
+  color: var(--settings-accent-soft);
+  font-family: ui-monospace, monospace;
+  font-size: 0.56rem;
+  letter-spacing: 0.1em;
+}
+
+.settings-slider__track-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.settings-slider__anchor {
+  flex: none;
+  width: 24px;
+  color: var(--abyssa-text-muted);
+  font-size: 0.55rem;
+  text-align: center;
+}
+
+.settings-slider__track { position: relative; display: block; flex: 1; min-width: 0; }
+
+/* 凹槽。--fill 由组件按 (value-min)/(max-min) 算好传进来:
+   CSS 拿不到 min/max,这个换算只能在 JS 侧做。 */
+.settings-slider__track::before {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 6px;
+  border: 1px solid var(--abyssa-frame-deep);
+  background:
+    linear-gradient(
+      90deg,
+      var(--settings-accent-dark) 0 var(--fill, 0%),
+      transparent var(--fill, 0%)
+    ),
+    var(--settings-well);
+  box-shadow: inset 0 1px 2px rgb(0 0 0 / 55%);
+  content: "";
+  transform: translateY(-50%);
+}
+
+.settings-slider__input {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 22px;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.settings-slider__input:disabled { cursor: not-allowed; }
+.settings-slider__input:focus { outline: none; }
+
+.settings-slider__input::-webkit-slider-runnable-track { height: 22px; background: transparent; }
+.settings-slider__input::-moz-range-track { height: 22px; background: transparent; }
+
+/* ============ thumb 的两套伪元素必须分开写 ============
+   ::-webkit-slider-thumb 与 ::-moz-range-thumb 不能合并进同一条规则:
+   浏览器遇到不认识的选择器会丢弃**整条**规则,合并等于两边都失效。
+   这是原生 range 换肤最常见的翻车点。 */
+.settings-slider__input::-webkit-slider-thumb {
+  width: 15px;
+  height: 15px;
+  border: 1px solid var(--abyssa-frame-deep);
+  background: linear-gradient(150deg, var(--settings-accent-soft), var(--settings-accent-dark));
+  box-shadow: 0 0 0 2px var(--abyssa-frame-dark), 0 2px 4px rgb(0 0 0 / 45%);
+  /* 菱形 —— 呼应 DiamondWatermark 与 RpgFacetDiamond 的母题。 */
+  transform: rotate(45deg);
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.settings-slider__input::-moz-range-thumb {
+  width: 15px;
+  height: 15px;
+  border: 1px solid var(--abyssa-frame-deep);
+  background: linear-gradient(150deg, var(--settings-accent-soft), var(--settings-accent-dark));
+  box-shadow: 0 0 0 2px var(--abyssa-frame-dark), 0 2px 4px rgb(0 0 0 / 45%);
+  transform: rotate(45deg);
+  appearance: none;
+}
+
+.settings-slider__input:focus-visible::-webkit-slider-thumb {
+  outline: 2px solid var(--abyssa-focus);
+  outline-offset: 3px;
+}
+
+.settings-slider__input:focus-visible::-moz-range-thumb {
+  outline: 2px solid var(--abyssa-focus);
+  outline-offset: 3px;
+}
+
+/* ==================== 单选组 ====================
+   与参考的 .assembled-setting--choice 同则:横排,钮下小字。 */
+.settings-choice-group { display: flex; align-items: center; gap: 14px; }
+
+.settings-choice {
+  display: grid;
+  justify-items: center;
+  gap: 3px;
+  color: var(--abyssa-text-muted);
+  font-size: 0.55rem;
+  cursor: pointer;
+}
+
+.settings-choice .abyssa-choice { width: 22px; height: 22px; }
+
+/* ==================== 打字机预览 ==================== */
+.settings-preview {
+  display: grid;
+  width: min(100%, 320px);
+  padding: 12px 14px;
+  border: 1px solid var(--settings-rule);
+  background: var(--settings-well);
+  gap: 7px;
+}
+
+.settings-preview__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.settings-preview__title {
+  color: var(--settings-accent-soft);
+  font-family: ui-monospace, monospace;
+  font-size: 0.55rem;
+  letter-spacing: 0.16em;
+}
+
+.settings-preview__replay {
+  padding: 2px 10px;
+  border: 1px solid var(--settings-rule);
+  background: transparent;
+  color: var(--abyssa-text-soft);
+  font-size: 0.55rem;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: border-color 140ms var(--abyssa-ease), color 140ms var(--abyssa-ease);
+}
+
+.settings-preview__replay:hover:not(:disabled) {
+  border-color: var(--settings-accent);
+  color: var(--settings-accent-soft);
+}
+
+.settings-preview__replay:focus-visible {
+  outline: 2px solid var(--abyssa-focus);
+  outline-offset: 3px;
+}
+
+.settings-preview__replay:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* 固定高度:文本在两三行之间变化时,下方不该跟着上下跳。 */
+.settings-preview__body { display: flex; min-height: 76px; align-items: center; }
+
+.settings-preview__text {
+  margin: 0;
+  color: var(--abyssa-text);
+  font-size: 0.75rem;
+  line-height: 1.75;
+  /* 与 rp 气泡正文同则:允许任意位置断开,于是逐字 span 的拆分
+     不改变折行结果(见 rp-typing.css 的说明)。 */
+  overflow-wrap: anywhere;
+}
+
+.settings-preview__meta {
+  display: flex;
+  align-items: center;
+  margin: 0;
+  color: var(--abyssa-text-muted);
+  font-size: 0.55rem;
+  gap: 8px;
+  letter-spacing: 0.05em;
+}
+
+.settings-preview__state {
+  padding: 1px 7px;
+  border: 1px solid var(--settings-rule);
+  color: var(--abyssa-text-muted);
+  font-size: 0.5rem;
+  letter-spacing: 0.1em;
+}
+
+.settings-preview__state[data-playing] {
+  border-color: color-mix(in srgb, var(--settings-accent) 55%, transparent);
+  color: var(--settings-accent-soft);
+}
+
+/* ==================== 渲染负载清单 ==================== */
+.settings-load {
+  display: grid;
+  width: min(100%, 320px);
+  margin: 0;
+  padding: 0;
+  gap: 8px;
+  list-style: none;
+}
+
+.settings-load li {
+  display: flex;
+  align-items: center;
+  padding-bottom: 7px;
+  border-bottom: 1px solid var(--settings-rule);
+  color: var(--abyssa-text-muted);
+  font-size: 0.65rem;
+  gap: 8px;
+}
+
+.settings-load i {
+  width: 7px;
+  height: 7px;
+  flex: none;
+  border: 1px solid var(--abyssa-frame-deep);
+  background: var(--abyssa-ornament);
+  transform: rotate(45deg);
+}
+
+.settings-load li[data-on] { color: var(--abyssa-text-soft); }
+.settings-load li[data-on] i { background: var(--settings-accent); }
+
+.settings-load em {
+  margin-left: auto;
+  font-family: ui-monospace, monospace;
+  font-size: 0.5rem;
+  font-style: normal;
+  letter-spacing: 0.1em;
+}
+
+/* ==================== AI 服务占位 ==================== */
+.settings-scope {
+  padding: 2px 9px;
+  border: 1px solid var(--settings-rule);
+  color: var(--abyssa-text-muted);
+  font-family: ui-monospace, monospace;
+  font-size: 0.5rem;
+  letter-spacing: 0.1em;
+}
+
+/* 本机作用域用幽青标出 —— 后端明确规定凭据与绑定不进 Release/Archive,
+   这个区分是契约里最要紧的一条,值得在占位阶段就体现出来。 */
+.settings-scope[data-scope="本机"] {
+  border-color: color-mix(in srgb, var(--settings-accent) 45%, transparent);
+  color: var(--settings-accent-soft);
+}
+
+.settings-status {
+  display: inline-flex;
+  align-items: center;
+  color: var(--abyssa-text-muted);
+  font-size: 0.65rem;
+  gap: 7px;
+  letter-spacing: 0.08em;
+}
+
+.settings-status i {
+  width: 7px;
+  height: 7px;
+  border: 1px solid var(--abyssa-frame-deep);
+  background: var(--abyssa-ornament);
+  transform: rotate(45deg);
+}
+
+/* 空槽:示意此处将来会有可填内容,但不预设它是什么形状。 */
+.settings-slot { display: grid; width: min(100%, 320px); gap: 6px; }
+
+.settings-slot i {
+  height: 9px;
+  border: 1px solid var(--settings-rule);
+  background: repeating-linear-gradient(
+    135deg,
+    rgb(255 255 255 / 3%) 0 6px,
+    transparent 6px 12px
+  );
+}
+
+.settings-slot i:last-child { width: 62%; }
+
+/* ==================== 说明条 ==================== */
+.settings-note {
+  width: min(100%, 320px);
+  margin: 0;
+  padding: 9px 12px;
+  border-left: 2px solid var(--settings-accent-dark);
+  background: var(--settings-well);
+  color: var(--abyssa-text-muted);
+  font-size: 0.62rem;
+  line-height: 1.6;
+}
+
+.settings-note[data-tone="pending"] { border-left-color: var(--abyssa-ornament); }
+
+/* ==================== 底部动作 ====================
+   与参考的 .assembled-config__save 同则:方钮 + 满宽六边钮。 */
+.settings-app__save {
+  display: grid;
+  width: min(100%, 380px);
+  align-items: center;
+  margin-top: 22px;
+  margin-left: auto;
+  gap: 14px;
+  grid-template-columns: 82px minmax(0, 1fr);
+}
+
+.settings-app__save .abyssa-notch-button { width: 82px; height: 82px; cursor: pointer; }
+.settings-app__save .abyssa-notch-button:disabled { opacity: 0.4; cursor: not-allowed; }
+.settings-app__save .abyssa-hex-button { width: 100%; }
+
+/* ==================== 减弱动态效果 ====================
+   与 tokens.css 的 @media (prefers-reduced-motion: reduce) 同一套处理,
+   区别只在触发源:那边是系统偏好,这里是页面内的手动开关。两者并存。 */
+.settings-app[data-reduced-motion],
+.settings-app[data-reduced-motion] * {
+  scroll-behavior: auto !important;
+  transition-duration: 0.01ms !important;
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+}

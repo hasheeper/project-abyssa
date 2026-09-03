@@ -207,7 +207,7 @@
   height: 78px;
   background: linear-gradient(145deg, #fffdf0 0 12%, #cbd3d6 35%, #68737a 72%, #e3d9bd 100%);
   filter: drop-shadow(0 2px 2px rgb(0 0 0 / 72%));
-  mask: url("../../assets/svg/ui/game-icon-cross-shield.svg") center / contain no-repeat;
+  mask: url("../../assets/icons/game-icon-cross-shield.svg") center / contain no-repeat;
   transform: translate(-50%, -50%) scale(.92);
 }
 

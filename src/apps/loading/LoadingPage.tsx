@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import manorNightGallery from "../../assets/bg/manor-night-gallery.jpg";
+import manorNightGallery from "../../assets/backgrounds/manor-night-gallery.jpg";
 import { SceneArrivalTitle, SceneTransition } from "../../shared/transition";
 import type { SceneTransitionPhase } from "../../shared/transition";
 

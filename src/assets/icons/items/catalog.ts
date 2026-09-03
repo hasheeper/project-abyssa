@@ -46,7 +46,7 @@ export type ItemIconMatch = {
   reviewStatus: ItemIconReviewStatus;
 };
 
-const svgModules = import.meta.glob("./game-icons/*.svg", {
+const svgModules = import.meta.glob("./*.svg", {
   eager: true,
   query: "?url&no-inline",
   import: "default"
@@ -55,7 +55,7 @@ const svgModules = import.meta.glob("./game-icons/*.svg", {
 const sourceCommit = "82d948812bfe3f269ef8f731dcdb07b08160edc4";
 
 export const itemIconCatalog: ItemIconCatalogEntry[] = (selectionData as SelectionEntry[]).map((selection) => {
-  const assetUrl = svgModules[`./game-icons/${selection.id}.svg`];
+  const assetUrl = svgModules[`./${selection.id}.svg`];
   if (!assetUrl) throw new Error(`Incomplete item icon catalog entry: ${selection.id}`);
   return {
     ...selection,

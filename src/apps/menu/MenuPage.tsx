@@ -5,7 +5,7 @@ import { RpgDialogue } from "../../shared/ui/primitives/RpgDialogue";
 import { Stage } from "../../shared/stage";
 import { SceneTransitionProvider, useSceneTransition } from "../../shared/transition";
 import { characterProfiles } from "../../content/characters/profiles";
-import manorNightGallery from "../../assets/bg/manor-night-gallery.jpg";
+import manorNightGallery from "../../assets/backgrounds/manor-night-gallery.jpg";
 import { MenuBackdrop } from "./MenuBackdrop";
 import { MenuCommandDial } from "./MenuCommandDial";
 import type { MenuCommandId } from "./MenuCommandDial";

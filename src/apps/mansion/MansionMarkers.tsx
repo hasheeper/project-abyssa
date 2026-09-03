@@ -1,9 +1,9 @@
-import cargoCrateGlyph from "../../assets/svg/items/game-icons/cargo-crate.svg";
-import hammerNailsGlyph from "../../assets/svg/items/game-icons/hammer-nails.svg";
-import herbsBundleGlyph from "../../assets/svg/items/game-icons/herbs-bundle.svg";
-import hotMealGlyph from "../../assets/svg/items/game-icons/hot-meal.svg";
-import scrollQuillGlyph from "../../assets/svg/items/game-icons/scroll-quill.svg";
-import toolboxGlyph from "../../assets/svg/items/game-icons/toolbox.svg";
+import cargoCrateGlyph from "../../assets/icons/items/cargo-crate.svg";
+import hammerNailsGlyph from "../../assets/icons/items/hammer-nails.svg";
+import herbsBundleGlyph from "../../assets/icons/items/herbs-bundle.svg";
+import hotMealGlyph from "../../assets/icons/items/hot-meal.svg";
+import scrollQuillGlyph from "../../assets/icons/items/scroll-quill.svg";
+import toolboxGlyph from "../../assets/icons/items/toolbox.svg";
 import type { MansionProductionIcon } from "./data";
 
 /**

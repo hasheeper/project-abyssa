@@ -23,7 +23,7 @@ body { font-family: "Noto Serif SC", "Songti SC", serif; }
 }
 
 .abyssa-shop-stage::before {
-  background: url("../../assets/bg/shop-bg3.jpg") center / cover no-repeat;
+  background: url("../../assets/backgrounds/shop-bg3.jpg") center / cover no-repeat;
   filter: saturate(.68) brightness(.5) contrast(.94);
   transform: scale(1.012);
 }
@@ -177,7 +177,7 @@ body { font-family: "Noto Serif SC", "Songti SC", serif; }
   overflow: hidden;
   border: var(--abyssa-frame-border) solid #211307;
   background-color: #2a1a0c;
-  background-image: url("../../assets/bg/shop.png");
+  background-image: url("../../assets/backgrounds/shop.png");
   background-position: center top;
   background-repeat: no-repeat;
   background-size: cover;
@@ -329,7 +329,7 @@ body { font-family: "Noto Serif SC", "Songti SC", serif; }
 .abyssa-shop-screen__side { position: relative; display: grid; min-width: 0; width: 92%; justify-self: end; align-content: start; }
 .abyssa-shop-screen__portrait { height: 580px; aspect-ratio: auto; }
 .abyssa-shop-screen__portrait .abyssa-frame__content { position: relative; height: 100%; overflow: hidden; background: #110c07; }
-.abyssa-shop-screen__portrait-background { position: absolute; inset: 8px; z-index: 0; opacity: .60; background: url("../../assets/bg/shop-bg2.png") center / cover no-repeat; filter: brightness(.72) contrast(1.16) saturate(.82); }
+.abyssa-shop-screen__portrait-background { position: absolute; inset: 8px; z-index: 0; opacity: .60; background: url("../../assets/backgrounds/shop-bg2.png") center / cover no-repeat; filter: brightness(.72) contrast(1.16) saturate(.82); }
 .abyssa-shop-screen__portrait img { position: relative; z-index: 1; display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 14%; transform: translateY(24px) scale(1.12); transform-origin: center top; }
 .abyssa-shop-screen__portrait-shade { position: absolute; z-index: 2; inset: 0; border: 5px solid rgb(3 2 1 / 88%); outline: 1px solid rgb(142 105 53 / 38%); outline-offset: -8px; pointer-events: none; background: linear-gradient(180deg, rgb(0 0 0 / 32%) 0%, transparent 30%, rgb(0 0 0 / 28%) 60%, rgb(0 0 0 / 84%) 100%); box-shadow: inset 0 0 72px rgb(0 0 0 / 84%), inset 0 0 0 9px rgb(0 0 0 / 28%); }
 .abyssa-shop-screen__side .abyssa-nameplate { z-index: 2; width: min(88%, 340px); margin: -26px auto 14px; }

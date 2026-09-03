@@ -15,7 +15,7 @@ import {
   getAbyssaLogoIntroStep
 } from "./abyssaLogoIntro";
 import type { AbyssaLogoIntroPieceId } from "./abyssaLogoIntro";
-import wordmarkArt from "../../../assets/svg/logo/abyssa-wordmark.svg";
+import wordmarkArt from "../../../assets/ui/abyssa-wordmark.svg";
 
 /** Whether the logo paints its own dark plate, or composites onto a scene. */
 export type AbyssaLogoBackground = "radial" | "none";

@@ -7,28 +7,28 @@ const outputDir = resolve(projectRoot, "static-preview");
 const previewDir = resolve(projectRoot, "preview");
 const frameCornerSource = resolve(
   projectRoot,
-  "src/assets/png2/frame-corner-symmetric.png"
+  "src/assets/ui/battle-frame-corner.png"
 );
 const frameCornerOutput = resolve(outputDir, "assets/frame-corner.png");
-const frameCornerCssSource = "../../../assets/png2/frame-corner-symmetric.png";
+const frameCornerCssSource = "../../../assets/ui/battle-frame-corner.png";
 const frameCornerCssOutput = "./assets/frame-corner.png";
 const redFrameCornerSource = resolve(
   projectRoot,
-  "src/assets/png2/frame-corner-symmetric-red.png"
+  "src/assets/ui/battle-frame-corner-red.png"
 );
 const redFrameCornerOutput = resolve(outputDir, "assets/frame-corner-red.png");
-const redFrameCornerCssSource = "../../../assets/png2/frame-corner-symmetric-red.png";
+const redFrameCornerCssSource = "../../../assets/ui/battle-frame-corner-red.png";
 const redFrameCornerCssOutput = "./assets/frame-corner-red.png";
 const goldFrameCornerSource = resolve(
   projectRoot,
-  "src/assets/png2/frame-corner-symmetric-gold.png"
+  "src/assets/ui/battle-frame-corner-gold.png"
 );
 const goldFrameCornerOutput = resolve(outputDir, "assets/frame-corner-gold.png");
-const goldFrameCornerCssSource = "../../../assets/png2/frame-corner-symmetric-gold.png";
+const goldFrameCornerCssSource = "../../../assets/ui/battle-frame-corner-gold.png";
 const goldFrameCornerCssOutput = "./assets/frame-corner-gold.png";
-const affiliationIconSource = resolve(projectRoot, "src/assets/png2/icon.png");
+const affiliationIconSource = resolve(projectRoot, "src/assets/ui/status-panel-emblem.png");
 const affiliationIconOutput = resolve(outputDir, "assets/affiliation-icons.png");
-const affiliationIconCssSource = "../../../assets/png2/icon.png";
+const affiliationIconCssSource = "../../../assets/ui/status-panel-emblem.png";
 const affiliationIconCssOutput = "./assets/affiliation-icons.png";
 const server = await createServer({
   root: projectRoot,

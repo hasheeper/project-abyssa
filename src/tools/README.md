@@ -7,9 +7,17 @@
 - app 不得依赖 tool，tool 也不得直接引用 app；
 - 可复用契约进入 `shared/domain`，项目实例数据进入 `content`。
 
-当前包含洋馆热区标注器、通用视觉工作台以及地图队伍立绘参数工作台。
+当前共有 5 个工具入口：
 
-## Party Figure Studio
+| 目录 | 当前职责 |
+| --- | --- |
+| `studio` | 校准纸娃娃画布、舞台站位、表情、漫符与动作，并导出内容参数。 |
+| `party-figure-studio` | 校准地图 Q 版队伍立绘的缩放、偏移与朝向，并导出共享参数。 |
+| `logo-studio` | 调整 `AbyssaLogo` 八个部件的布局与透明度，导入／导出 JSON 或 TypeScript 参数。 |
+| `dice-studio` | 独立检查共享远征骰面、六面配置与旋转交互。 |
+| `mansion-editor` | 在洋馆原图坐标系中标注矩形或多边形房间热区并导出参数。 |
+
+## Party Figure Studio 维护约束
 
 地图 Q 版队伍立绘的独立校准入口：
 

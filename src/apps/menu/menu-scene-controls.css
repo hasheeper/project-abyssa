@@ -97,12 +97,12 @@
   filter: drop-shadow(0 2px 2px rgb(0 0 0 / 72%));
 }
 .menu-scene-controls__item[data-kind="character"] .menu-scene-controls__icon {
-  mask-image: url("../../assets/svg/items/game-icons/hood.svg");
+  mask-image: url("../../assets/icons/items/hood.svg");
 }
 .menu-scene-controls__item[data-kind="background"] .menu-scene-controls__icon {
   width: 25px;
   height: 25px;
-  mask-image: url("../../assets/svg/items/game-icons/mirror-mirror.svg");
+  mask-image: url("../../assets/icons/items/mirror-mirror.svg");
 }
 .menu-scene-controls__counter {
   position: relative;
@@ -133,7 +133,7 @@
   background: currentColor;
   content: "";
   filter: drop-shadow(0 1px 2px rgb(0 0 0 / 72%));
-  mask: url("../../assets/svg/anticlockwise-rotation.svg") center / contain no-repeat;
+  mask: url("../../assets/icons/anticlockwise-rotation.svg") center / contain no-repeat;
 }
 .menu-scene-controls__item:hover .menu-scene-controls__switch-mark {
   color: #b5d0cc;

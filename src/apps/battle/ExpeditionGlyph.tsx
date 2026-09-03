@@ -1,17 +1,17 @@
 import type { CSSProperties } from "react";
-import plainDagger from "../../assets/svg/items/game-icons/plain-dagger.svg";
-import crossShield from "../../assets/svg/ui/game-icon-cross-shield.svg";
-import hospitalCross from "../../assets/svg/ui/game-icon-hospital-cross.svg";
-import swapBag from "../../assets/svg/items/game-icons/swap-bag.svg";
-import magicPalm from "../../assets/svg/ui/game-icon-magic-palm.svg";
-import crossedSwords from "../../assets/svg/ui/crossed-swords.svg";
-import slashedShield from "../../assets/svg/ui/slashed-shield.svg";
-import heartDrop from "../../assets/svg/8-1-heart-drop.svg";
-import explosionRays from "../../assets/svg/2-1-explosion-rays.svg";
-import timeBomb from "../../assets/svg/items/game-icons/time-bomb.svg";
-import skeletalHand from "../../assets/svg/7-0-skeletal-hand.svg";
-import gooExplosion from "../../assets/svg/4-1-goo-explosion.svg";
-import splitCross from "../../assets/svg/6-0-split-cross.svg";
+import plainDagger from "../../assets/icons/items/plain-dagger.svg";
+import crossShield from "../../assets/icons/game-icon-cross-shield.svg";
+import hospitalCross from "../../assets/icons/game-icon-hospital-cross.svg";
+import swapBag from "../../assets/icons/items/swap-bag.svg";
+import magicPalm from "../../assets/icons/game-icon-magic-palm.svg";
+import crossedSwords from "../../assets/icons/crossed-swords.svg";
+import slashedShield from "../../assets/icons/slashed-shield.svg";
+import heartDrop from "../../assets/icons/8-1-heart-drop.svg";
+import explosionRays from "../../assets/icons/2-1-explosion-rays.svg";
+import timeBomb from "../../assets/icons/items/time-bomb.svg";
+import skeletalHand from "../../assets/icons/7-0-skeletal-hand.svg";
+import gooExplosion from "../../assets/icons/4-1-goo-explosion.svg";
+import splitCross from "../../assets/icons/6-0-split-cross.svg";
 
 /*
  * 战斗界面的图形词表。界面内不出现任何 emoji：

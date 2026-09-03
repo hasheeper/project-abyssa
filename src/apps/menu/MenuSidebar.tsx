@@ -1,10 +1,10 @@
 import { useId } from "react";
-import bookPileIcon from "../../assets/svg/items/game-icons/book-pile.svg";
-import crystalBallIcon from "../../assets/svg/items/game-icons/crystal-ball.svg";
-import diamondTrophyIcon from "../../assets/svg/items/game-icons/diamond-trophy.svg";
-import hoodIcon from "../../assets/svg/items/game-icons/hood.svg";
-import monkeyWrenchIcon from "../../assets/svg/items/game-icons/monkey-wrench.svg";
-import pocketWatchIcon from "../../assets/svg/items/game-icons/pocket-watch.svg";
+import bookPileIcon from "../../assets/icons/items/book-pile.svg";
+import crystalBallIcon from "../../assets/icons/items/crystal-ball.svg";
+import diamondTrophyIcon from "../../assets/icons/items/diamond-trophy.svg";
+import hoodIcon from "../../assets/icons/items/hood.svg";
+import monkeyWrenchIcon from "../../assets/icons/items/monkey-wrench.svg";
+import pocketWatchIcon from "../../assets/icons/items/pocket-watch.svg";
 import { DiamondWatermark } from "../../shared/ui/primitives/DiamondWatermark";
 
 /* 图鉴 / 角色 / 设置 / 记忆 / 回顾 / 成就是查阅入口，使用标准横向侧栏。 */

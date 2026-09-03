@@ -1,8 +1,8 @@
 # @abyssa/ui
 
-Abyssa 的复古 RPG React 组件库与交互场景仓库。项目从静态视觉原型中提取可复用组件，并用角色状态、战斗、骰局、地图、视觉小说、跑团、商店、洋馆和制作工具等独立入口验证组合效果。
+Abyssa 的复古 RPG React 组件库与交互场景仓库。项目从静态视觉原型中提取可复用组件，并用角色状态、战斗、骰局、地图、视觉小说、跑团、商店、洋馆、设置页和制作工具等独立入口验证组合效果。
 
-组件使用原生语义元素、TypeScript 类型和命名空间化 CSS 变量；组件包本身不依赖业务后端。仓库内共有 **15 个 Vite 入口**：1 个组件目录、11 个场景／实验入口和 3 个制作工具。
+组件使用原生语义元素、TypeScript 类型和命名空间化 CSS 变量；组件包本身不依赖业务后端。仓库内共有 **18 个 Vite 入口**：1 个组件目录、12 个场景／实验入口和 5 个制作工具。
 
 ## 当前组件
 
@@ -83,27 +83,30 @@ Storybook 默认运行在 `http://127.0.0.1:6006/`。
 
 ### 应用预览
 
-仓库共有 15 个 Vite 入口。除骰局与战斗包含局部规则外，其余场景主要用于验证 UI 状态、交互和动画；这些入口仍相互独立，不代表已经形成完整游戏流程。
+仓库共有 18 个 Vite 入口。除骰局与战斗包含局部规则外，其余场景主要用于验证 UI 状态、交互和动画；这些入口仍相互独立，不代表已经形成完整游戏流程。
 
 | 命令 | 入口 | 当前功能 |
 | --- | --- | --- |
 | `npm run dev` | 组件目录 | 按结构、操作、展示和组合范例分类；支持搜索、交互预览与复制最小调用代码，默认端口 5173 |
 | `npm run dev:battle` | 裂隙远征 | 五人命数骰编队、敌方意图、攻击／防御／治疗、远征账本与木制／勇者／四席／魔王四套 UI 主题 |
 | `npm run dev:dice` | 明暗骰 | 五骰牌型、固定注额下注、公开/私有锁骰、重掷、庄家轮换、筹码结算、3D 骰子和本地对手逻辑 |
-| `npm run dev:map` | 副本地图 | Three.js + GSAP 纸芝居地图、三处可选地点、镜头视差、入场动画和木质画框 |
+| `npm run dev:map` | 副本地图 | Three.js + GSAP 地图、三处副本海报、选点镜头聚焦、四人编队、勇者亲征／托管和预备出征；当前会写入出击令，但 battle 尚未消费 |
 | `npm run dev:title` | 标题画面 | 字标徽记做旧并逐部件弹入、四项档案层命令（继续/新开/记录/设定）、缓速自转放射背景场、两侧 CG 交叉淡入轮播，黑金／猩红／青幽三套主题，经共享黑幕接力进入枢纽，固定端口 5182 |
 | `npm run dev:menu` | 枢纽主界面 | 四角命令盘（府邸/出征/仓库/商店）、破窗立绘与吐槽、档案侧栏、资源与相位顶栏 |
 | `npm run dev:loading` | 场景交接实验室 | 骰子六面体黑幕、区域抵达标题、真实资源等待，以及淡入与实体面板落入的切换演示 |
 | `npm run dev:mansion` | 洋馆基地 | 剖面图房间交互、相位切换、角色 ADV、修缮与设施收获原型 |
 | `npm run dev:novel` | 视觉小说 | 双人/三人/四人剧本切换、两席位立绘轮换、表情延续、逐字对话，以及点击/空格/回车推进 |
 | `npm run dev:rp` | 跑团演出 | NVL 消息流与 ADV 对话框两种版式、幕解锁与历史回看、LOG、AUTO、SKIP、REPLAY、判定条和逐字演出 |
+| `npm run dev:settings` | 设置页 | 对齐现有 RP 默认参数的演出节奏、视觉显示与预览控件；状态当前只在本页生效，AI 服务栏仍是禁用占位，固定端口 5188 |
 | `npm run dev:shop` | 商店界面 | 购买、出售、鉴定、砍价、分类、分页、库存、里拉/远古晶石双货币和店主反馈 |
 | `npm run dev:studio` | 立绘工作台 | 调整逐角色画布、舞台站位、表情、漫符和动作；自动保存到本地并导出 TS、CSS、漫符参数或 JSON 快照，固定端口 5176 |
+| `npm run dev:party-figure-studio` | 地图立绘工作台 | 校准十名地图 Q 版立绘的缩放、偏移与朝向，并以单图和五人编队两种视图导出共享参数，固定端口 5187 |
 | `npm run dev:logo-studio` | Logo 工作台 | 逐部件调整位置、缩放、旋转与透明度；自动保存并导入／导出 JSON 或 TypeScript 布局参数，固定端口 5181 |
+| `npm run dev:dice-studio` | 骰面工作台 | 独立检查共享远征骰面、六面配置与旋转交互，固定端口 5184 |
 | `npm run dev:character-status` | 角色状态页 | 角色与服装切换、档案标签、属性/特性/记录展示，以及随阵营变化的界面主题 |
 | `npm run dev:mansion-editor` | 洋馆热区标注器 | 在固定原图坐标系中标注矩形与多边形房间，并导出正式页面使用的参数 |
 
-场景应用分别提供 `build:<name>` 与 `preview:<name>`，产物落在 `<name>-dist/`。组件库使用 `npm run build`，静态组件目录使用 `npm run build:preview` / `npm run preview:components`，命名与场景应用略有不同。
+除组件目录外，各入口均提供 `build:<name>`；多数入口另有 `preview:<name>`，准确命令以 `package.json` 为准。产物落在 `<name>-dist/`。组件库使用 `npm run build`，静态组件目录使用 `npm run build:preview` / `npm run preview:components`。
 
 ### 骰局 Runtime
 
@@ -131,16 +134,17 @@ npm run dev:dice
 ### 外部资源
 
 - 构建出的 `@abyssa/ui` 组件包不主动请求远程字体、图片或业务接口。
-- 地图 Demo 的地面与三个地点图目前从 `files.catbox.moe` 加载。
-- 骰局 Demo 的缇比立绘目前从 `files.catbox.moe` 加载；LLM Runtime 默认连接本机 8787 端口。
-- 商店 Demo 通过 Google Fonts 加载 Cinzel 与 Noto Serif SC。
+- 地图入口的地面与三个地图节点图仍从 `files.catbox.moe` 加载；委托面板的三张战斗背景已经位于 `src/assets/map/quest-backgrounds/`。
+- 骰局和商店入口的缇比立绘仍从 `files.catbox.moe` 加载；骰局的可选 LLM Runtime 默认连接本机 8787 端口。
+- `loading`、`mansion`、`menu`、`shop` 与 `title` 的 HTML 入口通过 Google Fonts 加载 Cinzel 与 Noto Serif SC。
 
 需要完全离线部署这些 Demo 时，应先把上述图片和字体转为本地资产，并关闭或替换骰局 Runtime。
 
 ### 素材管线
 
 ```bash
-npm run icons:sync      # 同步 game-icons 图标；--check 版本检测漂移
+npm run icons:sync      # 同步 game-icons 图标
+npm run icons:check     # 校验 317 个本地图标、清单与哈希
 npm run emotes:build    # 把混合来源的 GIF/APNG 收敛成 30 帧 / 67ms / 192px
 npm run emotes:check
 npm run pack:setting    # 打包 st/setting/ 世界观设定
@@ -174,9 +178,14 @@ npm run build:loading
 npm run build:mansion-editor
 npm run build:novel
 npm run build:rp
+npm run build:settings
 npm run build:shop
 npm run build:studio
 npm run build:character-status
+npm run build:title
+npm run build:party-figure-studio
+npm run build:logo-studio
+npm run build:dice-studio
 ```
 
 仓库目前没有聚合的 `build:all`。每个场景产物位于对应的 `<name>-dist/`；组件目录的无 Vite 依赖静态版本通过 `npm run build:preview` 生成到 `static-preview/`。
@@ -274,16 +283,16 @@ export function StatusPage() {
 
 ```text
 src/
-  apps/           catalog + 11 个相互独立的场景／实验入口
+  apps/           catalog + 12 个相互独立的场景／实验入口
     battle/       裂隙远征规则、表现层与四套 UI 皮肤
     loading/      场景交接视觉实验页
     menu/         守望者之崖枢纽主界面
     title/        标题画面：字标徽记 + 档案层命令 + 双侧 CG 轮播 + 三套主题
     mansion/      洋馆房间、角色 ADV、修缮与设施收益
-  tools/          mansion-editor + studio 两个内容制作工具
+  tools/          5 个内容制作、标注与参数校准工具
   content/        角色资料、洋馆默认区域等项目实例数据
   shared/         domain / lib / presentation / stage / transition / ui
-  assets/         svg / png / emote / 场景背景素材
+  assets/         characters / backgrounds / battle / map / ui / icons / emote / cg
   index.ts        @abyssa/ui 唯一公共导出入口
 scripts/          素材管线与构建工具(.mjs)
 references/
@@ -301,3 +310,5 @@ static-preview/   无构建工具依赖的组件目录预览
 ## 素材说明
 
 `references/images/` 中的图片带有示例水印，只作为视觉方向参考，不会被打进组件包。正式项目应使用原创 SVG/CSS 或已获得授权的素材。
+
+共享素材按用途归类，目录和新增素材放置规则见 [`src/assets/README.md`](src/assets/README.md)。

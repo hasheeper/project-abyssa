@@ -1,9 +1,9 @@
 import { useId } from "react";
 import type { CSSProperties } from "react";
-import cargoCrateIcon from "../../assets/svg/items/game-icons/cargo-crate.svg";
-import fireplaceIcon from "../../assets/svg/items/game-icons/fireplace.svg";
-import twoCoinsIcon from "../../assets/svg/items/game-icons/two-coins.svg";
-import crossedSwordsIcon from "../../assets/svg/ui/crossed-swords.svg";
+import cargoCrateIcon from "../../assets/icons/items/cargo-crate.svg";
+import fireplaceIcon from "../../assets/icons/items/fireplace.svg";
+import twoCoinsIcon from "../../assets/icons/items/two-coins.svg";
+import crossedSwordsIcon from "../../assets/icons/crossed-swords.svg";
 
 /* ============ 四角命令盘 ============
  *

@@ -8,7 +8,7 @@ import { AbyssaProvider } from "../../shared/ui/primitives/AbyssaProvider";
 import { IconButton } from "../../shared/ui/primitives/IconButton";
 import { Nameplate } from "../../shared/ui/primitives/Nameplate";
 import type { RpActor, RpMessage } from "../../shared/ui/patterns/RpScene";
-import kaelPortrait from "../../assets/png/kael.png";
+import kaelPortrait from "../../assets/characters/portraits/kael.png";
 import {
   DEFAULT_MANSION_RECTANGLES,
   DEFAULT_MANSION_REGIONS
@@ -62,7 +62,7 @@ import { MansionRoomDrawer } from "./MansionRoomDrawer";
 const LEFT_DRAWER_REGION_IDS = new Set(["eustice", "norma", "elora", "kororo", "gate"]);
 
 const MANSION_SPRITE_BASE = import.meta.env.DEV
-  ? "/src/assets/png/"
+  ? "/src/assets/characters/paper-dolls/"
   : `${import.meta.env.BASE_URL}character-art/`;
 
 export function MansionPage() {

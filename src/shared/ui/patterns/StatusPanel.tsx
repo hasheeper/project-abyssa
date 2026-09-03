@@ -4,11 +4,11 @@ import { cx } from "../../lib/cx";
 import { DiamondWatermark } from "../primitives/DiamondWatermark";
 import type { DiamondWatermarkConfig } from "../primitives/DiamondWatermark";
 import { BondCrystal } from "../primitives/BondCrystal";
-import bandageRollIcon from "../../../assets/svg/items/game-icons/bandage-roll.svg";
-import openBookIcon from "../../../assets/svg/items/game-icons/open-book.svg";
-import padlockIcon from "../../../assets/svg/items/game-icons/padlock.svg";
-import runeStoneIcon from "../../../assets/svg/items/game-icons/rune-stone.svg";
-import tiedScrollIcon from "../../../assets/svg/items/game-icons/tied-scroll.svg";
+import bandageRollIcon from "../../../assets/icons/items/bandage-roll.svg";
+import openBookIcon from "../../../assets/icons/items/open-book.svg";
+import padlockIcon from "../../../assets/icons/items/padlock.svg";
+import runeStoneIcon from "../../../assets/icons/items/rune-stone.svg";
+import tiedScrollIcon from "../../../assets/icons/items/tied-scroll.svg";
 
 export interface StatusField {
   label: ReactNode;

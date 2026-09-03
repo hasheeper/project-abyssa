@@ -58,7 +58,7 @@
   width: 94px;
   aspect-ratio: 1;
   background: linear-gradient(135deg, #fffdf0 0 14%, #cbd3d6 37%, #707a80 72%, #f0e4bd 100%);
-  mask-image: url("../../assets/svg/ui/game-icon-cross-shield.svg");
+  mask-image: url("../../assets/icons/game-icon-cross-shield.svg");
   mask-position: center;
   mask-repeat: no-repeat;
   mask-size: contain;
@@ -68,7 +68,7 @@
 .abyssa-expedition-support-fx[data-kind="heal"] .abyssa-expedition-support-fx__emblem {
   width: 72px;
   background: linear-gradient(145deg, #ecffda 0 16%, #78dc68 46%, #267c3a 82%, #b8f69c 100%);
-  mask-image: url("../../assets/svg/ui/game-icon-hospital-cross.svg");
+  mask-image: url("../../assets/icons/game-icon-hospital-cross.svg");
 }
 
 .abyssa-expedition-support-fx > strong {
@@ -91,7 +91,7 @@
   width: 17px;
   aspect-ratio: 1;
   background: linear-gradient(145deg, #edffdc, #66cf61 68%, #2d7c3c);
-  mask-image: url("../../assets/svg/ui/game-icon-hospital-cross.svg");
+  mask-image: url("../../assets/icons/game-icon-hospital-cross.svg");
   mask-position: center;
   mask-repeat: no-repeat;
   mask-size: contain;

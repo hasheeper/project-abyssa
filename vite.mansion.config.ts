@@ -24,7 +24,7 @@ function copyMansionCharacterArt(): Plugin {
     async writeBundle(outputOptions) {
       const outputDirectory = resolve(import.meta.dirname, outputOptions.dir ?? "mansion-dist");
       await Promise.all(MANSION_CHARACTER_IDS.map((characterId) => cp(
-        resolve(import.meta.dirname, "src/assets/png", characterId),
+        resolve(import.meta.dirname, "src/assets/characters/paper-dolls", characterId),
         resolve(outputDirectory, "character-art", characterId),
         { recursive: true }
       )));

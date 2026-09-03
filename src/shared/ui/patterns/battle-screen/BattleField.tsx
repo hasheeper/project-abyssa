@@ -1,5 +1,5 @@
-import holyRoseIcon from "../../../../assets/svg/2-0-pentagram-rose.svg";
-import holyCrossIcon from "../../../../assets/svg/6-0-split-cross.svg";
+import holyRoseIcon from "../../../../assets/icons/2-0-pentagram-rose.svg";
+import holyCrossIcon from "../../../../assets/icons/6-0-split-cross.svg";
 import { Nameplate } from "../../primitives/Nameplate";
 import { Progress } from "../../primitives/Progress";
 import type {

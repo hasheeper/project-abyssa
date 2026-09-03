@@ -476,7 +476,7 @@ describe("Abyssa controls", () => {
     );
     expect(
       characterScreen.style.getPropertyValue("--abyssa-character-corner-image-theme")
-    ).toContain("frame-corner-symmetric-red.png");
+    ).toContain("battle-frame-corner-red.png");
     const topOrnaments = Array.from(
       container.querySelectorAll<HTMLImageElement>(".abyssa-character-screen__top-ornament")
     );
@@ -528,7 +528,7 @@ describe("Abyssa controls", () => {
     );
     expect(
       characterScreen.style.getPropertyValue("--abyssa-character-corner-image-theme")
-    ).toContain("frame-corner-symmetric.png");
+    ).toContain("battle-frame-corner.png");
     expect(topOrnaments[0]).toHaveAttribute("data-tone", "demon-cadre");
     expect(topOrnaments[1]?.getAttribute("src")).toBe(topOrnaments[0]?.getAttribute("src"));
     expect(screen.queryByRole("group", { name: "换装选择" })).not.toBeInTheDocument();

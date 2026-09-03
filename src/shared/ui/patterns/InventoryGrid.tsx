@@ -21,7 +21,7 @@ import type { ItemRarity } from "../items/rarity";
 export interface InventoryEntry {
   id: string;
   name: string;
-  /** 图标 URL。由应用侧解析(通常走 assets/svg/items/catalog 的 resolveItemIcon)。 */
+  /** 图标 URL。由应用侧解析(通常走 assets/icons/items/catalog 的 resolveItemIcon)。 */
   icon: string;
   rarity?: ItemRarity | string;
   quantity?: number;

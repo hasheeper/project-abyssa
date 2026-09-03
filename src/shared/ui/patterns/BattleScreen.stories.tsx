@@ -1,19 +1,19 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import domainsOfChaos from "../../../assets/png3/background/domains_of_chaos.png";
-import eloraSpriteSheet from "../../../assets/png3/elora.png";
-import eusticeSpriteSheet from "../../../assets/png3/eustice.png";
-import kororoSpriteSheet from "../../../assets/png3/kororo.png";
-import blightedSentinel from "../../../assets/png3/monster/blighted_sentinel.png";
-import miasmaAmalgam from "../../../assets/png3/monster/miasma_amalgam.png";
-import normaSpriteSheet from "../../../assets/png3/norma.png";
-import eloraStandingPortrait from "../../../assets/png/elora.png";
-import eusticeStandingPortrait from "../../../assets/png/eustice.png";
-import kororoStandingPortrait from "../../../assets/png/kororo.png";
-import normaStandingPortrait from "../../../assets/png/norma.png";
-import eloraPortrait from "../../../assets/avatar/elora.png";
-import eusticePortrait from "../../../assets/avatar/eustice.png";
-import kororoPortrait from "../../../assets/avatar/kororo.png";
-import normaPortrait from "../../../assets/avatar/norma.png";
+import domainsOfChaos from "../../../assets/backgrounds/battle-domains-of-chaos-illustrated.png";
+import eloraSpriteSheet from "../../../assets/battle/actor-elora.png";
+import eusticeSpriteSheet from "../../../assets/battle/actor-eustice.png";
+import kororoSpriteSheet from "../../../assets/battle/actor-kororo.png";
+import blightedSentinel from "../../../assets/battle/enemy-blighted-sentinel.png";
+import miasmaAmalgam from "../../../assets/battle/enemy-miasma-amalgam.png";
+import normaSpriteSheet from "../../../assets/battle/actor-norma.png";
+import eloraStandingPortrait from "../../../assets/characters/portraits/elora.png";
+import eusticeStandingPortrait from "../../../assets/characters/portraits/eustice.png";
+import kororoStandingPortrait from "../../../assets/characters/portraits/kororo.png";
+import normaStandingPortrait from "../../../assets/characters/portraits/norma.png";
+import eloraPortrait from "../../../assets/characters/avatars/elora.png";
+import eusticePortrait from "../../../assets/characters/avatars/eustice.png";
+import kororoPortrait from "../../../assets/characters/avatars/kororo.png";
+import normaPortrait from "../../../assets/characters/avatars/norma.png";
 import { BattleScreen } from "./BattleScreen";
 import type {
   BattleAlly,

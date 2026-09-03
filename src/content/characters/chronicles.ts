@@ -1,8 +1,8 @@
 import type { CharacterChronicle } from "../../shared/domain/characters/chronicle";
-import bandageRollIcon from "../../assets/svg/items/game-icons/bandage-roll.svg";
-import heartKeyIcon from "../../assets/svg/items/game-icons/heart-key.svg";
-import ribbonMedalIcon from "../../assets/svg/items/game-icons/ribbon-medal.svg";
-import tiedScrollIcon from "../../assets/svg/items/game-icons/tied-scroll.svg";
+import bandageRollIcon from "../../assets/icons/items/bandage-roll.svg";
+import heartKeyIcon from "../../assets/icons/items/heart-key.svg";
+import ribbonMedalIcon from "../../assets/icons/items/ribbon-medal.svg";
+import tiedScrollIcon from "../../assets/icons/items/tied-scroll.svg";
 
 /* 角色记事的**样稿**内容。
    ------------------------------------------------------------------

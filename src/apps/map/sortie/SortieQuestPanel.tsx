@@ -33,7 +33,7 @@ export interface SortieQuestPanelProps {
   onClose: () => void;
 }
 
-/* 凯尔没有头像素材（src/assets/avatar/ 只有九人，缺他），
+/* 凯尔没有头像素材（src/assets/characters/avatars/ 只有九人，缺他），
    所以这一格退回立绘，靠 RP 那套逐角色校准取景。
    只取 scale 与 x：校准表的 y 是为「站地」设计的（origin 在脚底），
    这里锚定顶部，套用会把头切掉。 */
@@ -248,7 +248,7 @@ export function SortieQuestPanel({
             data-leader="true"
             data-enlisted={party.command === "personal" || undefined}
           >
-            {/* 凯尔缺 avatar 素材（src/assets/avatar/ 只有九人），
+            {/* 凯尔缺 avatar 素材（src/assets/characters/avatars/ 只有九人），
                 所以照片区放立绘并自己取景。框还是同一个 —— 形制统一，
                 只是里面那张图的来源不同。 */}
             <AvatarFrame className="abyssa-sortie-slot__art" data-kind="portrait">

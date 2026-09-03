@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { VisualNovelScene } from "./VisualNovelScene";
 import { PaperDoll } from "./PaperDoll";
 import { CHARACTER_CALIBRATION } from "./spriteCalibration";
-import shopBg from "../../../assets/bg/shop.png";
+import shopBg from "../../../assets/backgrounds/shop.png";
 
 const ALL_CHARS = ["abyssa", "alvitr", "elora", "eustice", "kororo", "lenore", "marietta", "norma", "tibby", "vivienne"];
 

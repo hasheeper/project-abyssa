@@ -13,7 +13,7 @@ import type {
   ChronicleBlock,
   ChronicleCategory
 } from "../../domain/characters/chronicle";
-import slashedShieldIcon from "../../../assets/svg/ui/slashed-shield.svg";
+import slashedShieldIcon from "../../../assets/icons/slashed-shield.svg";
 
 type ChronicleFilter = "all" | Exclude<ChronicleCategory, "daily">;
 

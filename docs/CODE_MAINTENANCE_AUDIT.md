@@ -2,18 +2,18 @@
 
 > 盘点日期：2026-09-03
 > 基准起点：`314e31b chore: checkpoint current development baseline`
-> 统计对象：当前工作树，包含未提交的 no-unused 清理、共享样式/API 治理、`src/apps/map/sortie/`、地图队伍立绘与独立校准工作台
+> 统计对象：当前工作树，包含未提交的 no-unused 清理、共享样式/API 治理、`src/apps/map/sortie/`、地图队伍立绘与独立校准工作台、设置页及用途化素材目录
 > 当前阶段：概念原型 / 垂直切片验证期
 
 ## 1. 结论摘要
 
-当前有效代码共有 **532 个文件、92,967 个物理行**。其中生产代码 76,356 行、测试代码 15,799 行、Storybook stories 812 行。与 2026-09-01 的盘点相比，净增 **58 个文件、13,481 行**，主要来自队伍立绘共享校准、地图交互与外框回归、独立 Party Figure Studio。
+当前有效代码共有 **546 个文件、94,678 个物理行**。其中生产代码 77,927 行、测试代码 15,939 行、Storybook stories 812 行。仓库现有 **18 个 Vite 入口**：1 个组件目录、12 个场景／实验入口和 5 个制作工具。与 2026-09-01 的盘点相比，净增 **72 个文件、15,192 行**，主要来自队伍立绘共享校准、地图交互与外框回归、独立 Party Figure Studio，以及新增的设置页概念入口。
 
 当前结构判断：
 
 - `src/shared` 已成为最大区域：175 个文件、28,520 行；
 - `src/apps/battle` 为第二大区域：102 个文件、23,502 行；
-- 两者合计 52,022 行，占全部有效代码 **56.0%**；
+- 两者合计 52,022 行，占全部有效代码 **55.0%**；
 - 当前有一个超过 1,500 行的生产文件；
 - 最大生产文件是 1,808 行的 `sortie.css`；
 - 最大生产 React 文件是 775 行的 `ExpeditionBattleScreen.tsx`；
@@ -21,7 +21,7 @@
 
 本次全量质量基线正常：
 
-- **79 个测试文件、686 项测试全部通过**；
+- **80 个测试文件、695 项测试全部通过**；
 - TypeScript 类型检查和模块边界检查通过；
 - 默认组件库、全部应用/工具入口与 Storybook 构建通过；
 - 发布包动态导入、声明文件、资产清单和体积门禁通过；
@@ -29,7 +29,7 @@
 
 本阶段完成后风险地图为：
 
-1. **已关闭 P1：共享 CSS 与公共 API 边界。** 样式已按 core、角色状态和内部角色档案分层；Library CSS 从 248,826 B 降至 213,930 B，公共类型出口也已补齐。
+1. **已关闭 P1：共享 CSS 与公共 API 边界。** 样式已按 core、角色状态和内部角色档案分层；Library CSS 从 248,826 B 降至 214,817 B，公共类型出口也已补齐。
 2. **延期 P1：地图 Sortie 的跨应用消费闭环。** 地图端 UI、规则校验和出击令写入已经接入；按当前产品安排暂不实现 battle 端的读取、解析、消费与清理。
 3. **P2：大型领域 CSS、`DiceLoadoutPanel` 与大型测试。** 已有明确所有权或高价值覆盖，按功能变化和协作痛点拆分，不按行数机械搬运。
 
@@ -54,22 +54,22 @@
 
 | 用途 | 文件数 | 物理行数 | 占总行数 |
 | --- | ---: | ---: | ---: |
-| 生产代码 | 431 | 76,356 | 82.1% |
-| 测试代码 | 79 | 15,799 | 17.0% |
+| 生产代码 | 444 | 77,927 | 82.3% |
+| 测试代码 | 80 | 15,939 | 16.8% |
 | Storybook stories | 22 | 812 | 0.9% |
-| **合计** | **532** | **92,967** | **100%** |
+| **合计** | **546** | **94,678** | **100%** |
 
 ### 2.2 按文件类型统计
 
 | 类型 | 文件数 | 物理行数 | 占总行数 |
 | --- | ---: | ---: | ---: |
-| TypeScript `.ts` | 216 | 31,081 | 33.4% |
-| React `.tsx` | 191 | 29,723 | 32.0% |
-| CSS | 97 | 29,703 | 31.9% |
-| JavaScript / MJS | 9 | 2,088 | 2.3% |
-| HTML | 18 | 289 | 0.3% |
+| TypeScript `.ts` | 218 | 31,253 | 33.0% |
+| React `.tsx` | 201 | 30,692 | 32.4% |
+| CSS | 98 | 30,259 | 32.0% |
+| JavaScript / MJS | 9 | 2,088 | 2.2% |
+| HTML | 19 | 303 | 0.3% |
 | Python | 1 | 83 | 0.1% |
-| **合计** | **532** | **92,967** | **100%** |
+| **合计** | **546** | **94,678** | **100%** |
 
 ### 2.3 主要模块体量
 
@@ -85,19 +85,20 @@
 | `src/apps/mansion` | 23 | 5,555 | 页面、状态、世界与区域样式已有拆分边界 |
 | `src/apps/menu` | 17 | 2,268 | 枢纽页和标题栏边界明确 |
 | `src/apps/title` | 13 | 1,787 | 命令、主题、CG、几何与入口测试已分层 |
+| `src/apps/settings` | 12 | 1,679 | 独立设置概念页；模型对齐现有旋钮，但当前状态只在本页预览 |
 | `src/apps/rp` | 8 | 1,480 | 应用壳与共享 RP 场景边界明确 |
 | `src/apps/character-status` | 4 | 360 | 三页角色档案的应用接线层，显式选择三层样式包 |
 
-`shared` 与 `battle` 合计 52,022 行，占全部有效代码约 **56.0%**，仍是长期维护资源最应集中的两个区域。
+`shared` 与 `battle` 合计 52,022 行，占全部有效代码约 **55.0%**，仍是长期维护资源最应集中的两个区域。
 
 ### 2.4 相对上次盘点的变化
 
 | 指标 | 2026-09-01 | 当前 | 变化 |
 | --- | ---: | ---: | ---: |
-| 文件数 | 474 | 532 | +58 |
-| 总行数 | 79,486 | 92,967 | +13,481 |
-| 生产代码 | 67,214 | 76,356 | +9,142 |
-| 测试代码 | 11,459 | 15,799 | +4,340 |
+| 文件数 | 474 | 546 | +72 |
+| 总行数 | 79,486 | 94,678 | +15,192 |
+| 生产代码 | 67,214 | 77,927 | +10,713 |
+| 测试代码 | 11,459 | 15,939 | +4,480 |
 | `src/shared` | 22,341 | 28,520 | +6,179 |
 | `src/apps/battle` | 24,926 | 23,502 | -1,424 |
 | `src/apps/map` | 1,557 | 7,049 | +5,492 |
@@ -171,14 +172,41 @@
 
 标题栏不应复制洋馆的时间推进状态；骰面结构调整应同步验证战斗与骰子工作室两个真实消费方。
 
-### 3.4 no-unused 清理
+### 3.4 设置页概念入口
+
+新增 `settings` 独立入口：应用目录为 **12 个文件、1,679 行**；连同 `settings.html` 与 `vite.settings.config.ts`，本次入口增量共 **14 个文件、1,711 行**，并有 9 项直接测试。
+
+当前边界如下：
+
+- 演出节奏与视觉显示只收录能够指向现有下游旋钮的项目，默认值对齐 RP 当前的 step / dur、自动播放、版式过场与取景参数；
+- 页面复用 shared 的固定舞台、页签、画框和按钮，不直接导入 `rp` app；
+- 用户修改仅投影到设置页自身的预览与 CSS 变量，刷新后恢复默认，尚未写入 localStorage、sessionStorage 或统一配置层，也不会改变其他入口；
+- AI 服务页在后端契约确定前保持禁用占位，不提前固化密钥、Provider 或模型表单。
+
+因此它应被描述为“设置界面概念预览”，而不是已经接通的全局设置中心。后续真正接线时，需要先确定配置所有权、持久化范围、版本迁移和各 app 的读取契约。
+
+### 3.5 素材目录收口
+
+`src/assets` 已从按 PNG/SVG 格式和历史批次堆放，收口为 8 个用途目录：`characters / backgrounds / battle / map / ui / icons / emote / cg`。本轮以 Git rename 保留了 **518 个文件**的历史；`scenes/ui/icons` 没有继续扩张多层分类，只有数量较大的物品图标集中在 `icons/items`。
+
+当前素材事实：
+
+- `/Users/liuhang/Downloads/q-char` 对应的 10 张地图队伍立绘已进入 `src/assets/map/party-figures/`，由同目录 catalog 统一映射；
+- `bg-a.jpg` 至 `bg-c.jpg` 已按场景语义命名为三张委托背景并进入 `src/assets/map/quest-backgrounds/`；
+- `src/assets/ui/abyssa-wordmark.svg` 是完整 Logo 的字标部件；完整徽记由 `AbyssaLogo.tsx` 组合绘制，不存在另一张完整 Logo SVG；
+- 地图地面、三个地图节点图，以及骰局/商店中的部分 Tibby 立绘仍来自 `files.catbox.moe`，尚未完成全离线化；
+- `icons/items/ATTRIBUTION.md` 继续作为物品图标授权事实来源。
+
+目录迁移只改变所有权和路径，不改变原图内容。后续新增素材按消费场景落位，不再新建 `png2`、`png3`、`svg/ui` 这类格式或临时批次目录。
+
+### 3.6 no-unused 清理
 
 当前工作树的大量删除主要来自 TypeScript 启用：
 
 - `noUnusedLocals`；
 - `noUnusedParameters`。
 
-这轮清理横跨 battle、dice、mansion、menu、title、RP、shared 与 tools。类型检查、686 项测试和全部入口构建通过，说明现有引用链已经完成清理；后续不应为恢复旧草稿而回填已删除符号。
+这轮清理横跨 battle、dice、mansion、menu、title、RP、shared 与 tools。类型检查、695 项测试和全部入口构建通过，说明现有引用链已经完成清理；后续不应为恢复旧草稿而回填已删除符号。
 
 ## 4. 已完成的结构治理基线
 
@@ -250,17 +278,19 @@
 | `src/shared/ui/patterns/CharacterChroniclePanel.test.tsx` | 610 | P2 | 仅在检索困难时按时间线、空态和交互拆 |
 | `src/content/characters/profiles.ts` | 609 | P2 | 集中角色内容；按角色分工出现协作冲突时拆 |
 | `src/apps/mansion/MansionPage.tsx` | 607 | P2 | 已是组合入口，避免重新聚集状态 |
+| `src/apps/map/sortie/sortie-layout.test.ts` | 581 | P2 | 集中保护舞台、名单、委托集结与两侧镜像几何；仅在检索困难时按区域拆分 |
 | `src/shared/ui/patterns/DiceLoadoutPanel.test.tsx` | 576 | P2 | 与面板能力同步维护，不减少覆盖 |
 | `src/apps/title/title.css` | 575 | P2 | 主题入口职责清楚，观察场景变体增长 |
 | `src/tools/dice-studio/dice-studio.css` | 565 | P2 | 面板结构稳定后再按所有权拆分 |
 | `src/apps/rp/App.tsx` | 559 | P2 | 功能增长时抽阅读控制 hook |
+| `src/apps/settings/settings.css` | 556 | P2 | 设置页单一入口；真实接入配置层后再按页签职责拆分 |
 | `src/apps/mansion/data.ts` | 555 | P2 | 集中内容定义，当前可保持 |
 | `src/apps/dice/dice-board.css` | 554 | P2 | 单一骰盘域，保持 |
 | `src/shared/ui/ui.test.tsx` | 552 | P2 | 仅在定位困难时按 primitive/pattern/screen 拆 |
 | `src/tools/dice-studio/App.tsx` | 546 | P2 | 配置状态继续增长时提取纯 model |
 | `src/shared/ui/styles/rp-bubble-effects.css` | 541 | P2 | 气泡演出域明确，保持 |
 | `src/shared/ui/styles/components-dialogue.css` | 521 | P2 | 对话域清楚，观察跨组件覆盖 |
-| `src/apps/map/sortie/sortie-layout.test.ts` | 518 | P2 | 集中保护舞台、名单、委托集结与两侧镜像几何；仅在检索困难时按区域拆分 |
+| `src/apps/map/createMapScene.ts` | 515 | P2 | Three.js 场景装配边界明确；新增节点或镜头行为时优先提取纯配置 |
 | `src/shared/ui/styles/battle-field.css` | 514 | P2 | 战场域清楚，保持 |
 | `src/shared/ui/dice-face/ExpeditionFlatDieFrame.tsx` | 513 | P2 | 共享所有权明确；按 SVG 图元独立变化需求再拆 |
 | `src/apps/battle/rules/resolver.test.ts` | 510 | P2 | 随效果族扩展拆分 |
@@ -307,27 +337,27 @@ Vite 输出中的 CSS 体积（十进制 kB）变化如下：
 
 | 入口 | 治理前 | 当前 | 减少 |
 | --- | ---: | ---: | ---: |
-| battle | 406.03 kB | 296.53 kB | 109.50 kB |
-| RP | 328.35 kB | 182.42 kB | 145.93 kB |
-| Studio | 299.85 kB | 153.92 kB | 145.93 kB |
-| shop | 283.54 kB | 80.80 kB | 202.74 kB |
-| character-status | 258.12 kB | 179.33 kB | 78.79 kB |
-| dice | 195.38 kB | 85.88 kB | 109.50 kB |
-| loading | 167.77 kB | 58.27 kB | 109.50 kB |
-| map | 162.83 kB | 91.91 kB | 70.92 kB |
+| battle | 406.03 kB | 297.39 kB | 108.64 kB |
+| RP | 328.35 kB | 184.06 kB | 144.29 kB |
+| Studio | 299.85 kB | 155.57 kB | 144.28 kB |
+| shop | 283.54 kB | 81.65 kB | 201.89 kB |
+| character-status | 258.12 kB | 180.19 kB | 77.93 kB |
+| dice | 195.38 kB | 86.72 kB | 108.66 kB |
+| loading | 167.77 kB | 59.11 kB | 108.66 kB |
+| map | 162.83 kB | 104.91 kB | 57.92 kB |
 
-Library CSS 从 248,826 B 降至 **213,930 B**（约 208.92 KiB），减少 34,896 B；256 KiB 门禁占用从约 94.9% 降至 **81.6%**，可用余量从约 13.0 KiB 增至 **47.08 KiB**。
+Library CSS 从 248,826 B 降至 **214,817 B**（约 209.78 KiB），减少 34,009 B；256 KiB 门禁占用从约 94.9% 降至 **82.0%**，当前可用余量约 **46.22 KiB**。
 
 当前发布结果：
 
 | 指标 | 当前结果 |
 | --- | ---: |
-| 发布包压缩体积 | 6,621,551 B（6.31 MiB） |
-| 发布包解包体积 | 7,187,125 B（6.85 MiB） |
-| 发布文件 | 182 |
+| 发布包压缩体积 | 6,623,054 B（6.32 MiB） |
+| 发布包解包体积 | 7,191,899 B（6.86 MiB） |
+| 发布文件 | 184 |
 | 外置 PNG | 7 |
-| Library CSS | 213,930 B |
-| Library 全部 JS | 278,992 B |
+| Library CSS | 214,817 B |
+| Library 全部 JS | 279,012 B |
 | 根入口运行时导出 | 103 |
 | `branding` / `patterns` / `primitives` | 14 / 32 / 57 |
 
@@ -342,7 +372,7 @@ Library CSS 从 248,826 B 降至 **213,930 B**（约 208.92 KiB），减少 34,8
 本轮重新审计实际执行并通过：
 
 ~~~bash
-npx vitest run --maxWorkers=1 --no-file-parallelism
+npm test -- --maxWorkers=1 --no-file-parallelism
 npm run typecheck
 npm run boundaries:check
 npm run release:check
@@ -354,6 +384,7 @@ npm run build:mansion
 npm run build:menu
 npm run build:title
 npm run build:rp
+npm run build:settings
 npm run build:shop
 npm run build:novel
 npm run build:loading
@@ -367,9 +398,10 @@ npm run build-storybook
 
 结果：
 
-- Vitest：79 个测试文件、686 项测试全部通过；
+- Vitest：80 个测试文件、695 项测试全部通过；
 - map：11 个测试文件、87 项测试通过；在 4 项外框布局回归之外，委托集结、视觉聚焦、队伍前顶和横幅裁切边缘均有直接回归覆盖；
 - party-figure-studio：3 个测试文件、13 项测试通过；独立生产构建成功，浏览器复核十人名册、Alvitr `1.11 / x+4 / flipX` 与五人实机比例预览，并以直接测试锁定 `v3` 存储键；
+- settings：1 个测试文件、9 项测试通过；独立生产构建成功，默认值、顶部页签、重置、显示开关和 AI 禁用占位均有直接覆盖；
 - shop 改为直接依赖 shared 后，ShopPage 与样式边界 2 个文件、7 项针对性回归再次通过；
 - TypeScript：无类型错误；
 - 模块边界：无意外跨层依赖；
@@ -426,7 +458,9 @@ npm run build-storybook
 3. **标题、标题栏与骰面按现有所有权演进。** 结构搬迁与视觉/规则变化分开评审。
 4. **大型文件由实际痛点触发拆分。** 以职责、测试可检索性和冲突频率为依据，不追求数字好看。
 5. **队伍立绘只维护一套共享校准。** 调整先在 Party Figure Studio 完成并导出，再审核回填 content；不要在 map 或 tool 中复制第二份角色参数。
-6. **Sortie 只延期跨应用消费端。** 地图端继续按现有 UI/规则边界维护；产品决定让 battle 消费出击令时，再按 8.2 补运行时解析、降级、清理和端到端契约。
+6. **设置页先保持概念入口边界。** 在配置所有权和持久化契约确定前，不把页内 reducer 或 CSS 变量描述成全局设置，也不添加没有下游的假开关。
+7. **素材继续按用途落位。** 地图立绘、委托背景、Logo 字标和物品图标分别维护既有 catalog、来源说明与授权文件，不再按格式或导入批次新建目录。
+8. **Sortie 只延期跨应用消费端。** 地图端继续按现有 UI/规则边界维护；产品决定让 battle 消费出击令时，再按 8.2 补运行时解析、降级、清理和端到端契约。
 
 ## 10. 不应手工维护的目录
 
@@ -438,7 +472,7 @@ npm run build-storybook
 
 `static-preview/` 虽然是生成结果，但当前刻意提交用于直接分享，应只通过 `npm run build:preview` 更新。
 
-图片和 SVG 不属于本轮“大代码文件”统计。地图队伍 Q 版立绘的来源映射、处理基线和接入边界已记录在 `src/assets/map/party-figures/README.md`；授权、全仓重复项和离线可用性仍应在后续完整资产审计中统一检查。
+图片和 SVG 不属于本轮“大代码文件”统计。`src/assets` 已改为按用途归类的 `characters / backgrounds / battle / map / ui / icons / emote / cg`；物品图标仅保留 `icons/items` 一层集中目录。地图队伍 Q 版立绘的来源映射、处理基线和接入边界记录在 `src/assets/map/party-figures/README.md`；授权与全仓重复项仍应在后续专项资产审计中检查。
 
 ## 11. 长期软限制
 

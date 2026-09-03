@@ -9,7 +9,7 @@ import { RpgHeader } from "../../shared/ui/primitives/RpgHeader";
 import { RpgNotchedPillButton } from "../../shared/ui/primitives/RpgNotchedPillButton";
 import { RpgTab } from "../../shared/ui/primitives/RpgTab";
 import { VerticalIndicator } from "../../shared/ui/primitives/VerticalIndicator";
-import { resolveItemIcon as resolveCatalogItemIcon } from "../../assets/svg/items/catalog";
+import { resolveItemIcon as resolveCatalogItemIcon } from "../../assets/icons/items/catalog";
 import { MetalCorner } from "../../shared/ui/decorations/MetalCorner";
 import { Stage } from "../../shared/stage";
 import { SceneArrivalTitle } from "../../shared/transition";

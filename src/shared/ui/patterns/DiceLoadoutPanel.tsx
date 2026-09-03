@@ -13,16 +13,16 @@ import type {
 import { ExpeditionFlatDieFrame } from "../dice-face/ExpeditionFlatDieFrame";
 import { ItemSlot } from "../primitives/ItemSlot";
 import { RpgFrame } from "../primitives/RpgFrame";
-import broadswordIcon from "../../../assets/svg/items/game-icons/broadsword.svg";
-import swapBagIcon from "../../../assets/svg/items/game-icons/swap-bag.svg";
-import splitCrossIcon from "../../../assets/svg/6-0-split-cross.svg";
-import crossShieldIcon from "../../../assets/svg/ui/game-icon-cross-shield.svg";
-import hospitalCrossIcon from "../../../assets/svg/ui/game-icon-hospital-cross.svg";
-import magicPalmIcon from "../../../assets/svg/ui/game-icon-magic-palm.svg";
-import slashedShieldIcon from "../../../assets/svg/ui/slashed-shield.svg";
-import scrollIcon from "../../../assets/svg/items/game-icons/scroll-unfurled.svg";
-import ringIcon from "../../../assets/svg/items/game-icons/diamond-ring.svg";
-import bookIcon from "../../../assets/svg/items/game-icons/spell-book.svg";
+import broadswordIcon from "../../../assets/icons/items/broadsword.svg";
+import swapBagIcon from "../../../assets/icons/items/swap-bag.svg";
+import splitCrossIcon from "../../../assets/icons/6-0-split-cross.svg";
+import crossShieldIcon from "../../../assets/icons/game-icon-cross-shield.svg";
+import hospitalCrossIcon from "../../../assets/icons/game-icon-hospital-cross.svg";
+import magicPalmIcon from "../../../assets/icons/game-icon-magic-palm.svg";
+import slashedShieldIcon from "../../../assets/icons/slashed-shield.svg";
+import scrollIcon from "../../../assets/icons/items/scroll-unfurled.svg";
+import ringIcon from "../../../assets/icons/items/diamond-ring.svg";
+import bookIcon from "../../../assets/icons/items/spell-book.svg";
 import {
   CHARM_KIND_LABELS,
   CHARM_SLOT_COUNT,

@@ -17,7 +17,7 @@ describe("curated RPG item icon catalog", () => {
     const manifestById = new Map(manifest.icons.map((entry) => [entry.id, entry]));
     expect(itemIconCatalog.every((entry) => manifestById.get(entry.id)?.author === entry.author)).toBe(true);
 
-    const attribution = readFileSync(resolve(process.cwd(), "src/assets/svg/items/ATTRIBUTION.md"), "utf8");
+    const attribution = readFileSync(resolve(process.cwd(), "src/assets/icons/items/ATTRIBUTION.md"), "utf8");
     for (const author of new Set(itemIconCatalog.map((entry) => entry.author))) expect(attribution).toContain(author);
   });
 
@@ -25,7 +25,7 @@ describe("curated RPG item icon catalog", () => {
     expect(manifest.sourceCommit).toBe("82d948812bfe3f269ef8f731dcdb07b08160edc4");
     expect(manifest.icons).toHaveLength(selection.length);
     for (const entry of manifest.icons) {
-      const svg = readFileSync(resolve(process.cwd(), `src/assets/svg/items/game-icons/${entry.id}.svg`), "utf8");
+      const svg = readFileSync(resolve(process.cwd(), `src/assets/icons/items/${entry.id}.svg`), "utf8");
       expect(svg).toContain('viewBox="0 0 512 512"');
       expect(svg).not.toMatch(/d="M0 0h512v512H0z"/i);
       expect(svg).not.toMatch(/<(?:script|image|foreignObject|use)\b/i);

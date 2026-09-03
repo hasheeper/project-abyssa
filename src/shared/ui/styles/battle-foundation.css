@@ -14,7 +14,7 @@
   --abyssa-battle-edge-inner: #526e6c;
   --abyssa-battle-weave: #6b8280;
   --abyssa-battle-weave-bright: #829b98;
-  --abyssa-battle-wing: url("../../../assets/png2/top.png?no-inline");
+  --abyssa-battle-wing: url("../../../assets/ui/battle-frame-top.png?no-inline");
   position: relative;
   display: block;
   width: min(100%, calc(100dvh * 1.6380952));
@@ -35,7 +35,7 @@
   --abyssa-battle-edge-inner: #526e6c;
   --abyssa-battle-weave: #6b8280;
   --abyssa-battle-weave-bright: #829b98;
-  --abyssa-battle-wing: url("../../../assets/png2/top.png?no-inline");
+  --abyssa-battle-wing: url("../../../assets/ui/battle-frame-top.png?no-inline");
 }
 
 .abyssa-battle-screen__header-row {

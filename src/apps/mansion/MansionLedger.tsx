@@ -1,6 +1,6 @@
 import { useId } from "react";
 import type { Ref } from "react";
-import chestGlyph from "../../assets/svg/items/game-icons/chest.svg";
+import chestGlyph from "../../assets/icons/items/chest.svg";
 import { CurrencyAmount } from "../../shared/ui/primitives/CurrencyAmount";
 import { DiamondWatermark } from "../../shared/ui/primitives/DiamondWatermark";
 

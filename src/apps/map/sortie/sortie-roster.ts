@@ -1,4 +1,4 @@
-import kaelPortrait from "../../../assets/png/kael.png";
+import kaelPortrait from "../../../assets/characters/portraits/kael.png";
 import { partyFigureCatalogById } from "../../../assets/map/party-figures/catalog";
 import type { PartyFigureId } from "../../../content/characters/partyFigureCalibration";
 import { characterProfiles } from "../../../content/characters/profiles";

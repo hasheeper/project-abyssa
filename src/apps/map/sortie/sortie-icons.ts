@@ -1,12 +1,12 @@
 import type { CSSProperties } from "react";
-import broadswordIcon from "../../../assets/svg/items/game-icons/broadsword.svg";
-import swapBagIcon from "../../../assets/svg/items/game-icons/swap-bag.svg";
-import mineralsIcon from "../../../assets/svg/items/game-icons/minerals.svg";
-import splitCrossIcon from "../../../assets/svg/6-0-split-cross.svg";
-import crossShieldIcon from "../../../assets/svg/ui/game-icon-cross-shield.svg";
-import hospitalCrossIcon from "../../../assets/svg/ui/game-icon-hospital-cross.svg";
-import magicPalmIcon from "../../../assets/svg/ui/game-icon-magic-palm.svg";
-import slashedShieldIcon from "../../../assets/svg/ui/slashed-shield.svg";
+import broadswordIcon from "../../../assets/icons/items/broadsword.svg";
+import swapBagIcon from "../../../assets/icons/items/swap-bag.svg";
+import mineralsIcon from "../../../assets/icons/items/minerals.svg";
+import splitCrossIcon from "../../../assets/icons/6-0-split-cross.svg";
+import crossShieldIcon from "../../../assets/icons/game-icon-cross-shield.svg";
+import hospitalCrossIcon from "../../../assets/icons/game-icon-hospital-cross.svg";
+import magicPalmIcon from "../../../assets/icons/game-icon-magic-palm.svg";
+import slashedShieldIcon from "../../../assets/icons/slashed-shield.svg";
 import type { DieFaceAction } from "../../../shared/domain/dice/face";
 import type { QuestSpoil } from "./sortie-quests";
 

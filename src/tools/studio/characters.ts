@@ -1,7 +1,7 @@
 import { CHARACTER_EXPRESSIONS, EXPRESSION_LABELS } from "../../shared/ui/patterns/expressions";
 
 /**
- * 十人名册 —— 立绘素材目录(src/assets/png/<id>/)与角色名的对应表。
+ * 十人名册 —— 立绘素材目录(src/assets/characters/paper-dolls/<id>/)与角色名的对应表。
  *
  * 顺序与 spriteCalibration.ts / rp.css 那两张表**保持一致**(字母序)。
  * 这一点是刻意的:导出的表体要能与源文件逐行对照,顺序一变就得肉眼比对,

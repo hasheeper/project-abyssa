@@ -1,9 +1,9 @@
-import demonCadreCornerOrnament from "../../assets/png2/frame-corner-symmetric.png";
-import demonLordCornerOrnament from "../../assets/png2/frame-corner-symmetric-red.png";
-import heroPartyCornerOrnament from "../../assets/png2/frame-corner-symmetric-gold.png";
-import demonCadreTopOrnament from "../../assets/png2/top.png";
-import demonLordTopOrnament from "../../assets/png2/top-red.png";
-import heroPartyTopOrnament from "../../assets/png2/top-gold.png";
+import demonCadreCornerOrnament from "../../assets/ui/battle-frame-corner.png";
+import demonLordCornerOrnament from "../../assets/ui/battle-frame-corner-red.png";
+import heroPartyCornerOrnament from "../../assets/ui/battle-frame-corner-gold.png";
+import demonCadreTopOrnament from "../../assets/ui/battle-frame-top.png";
+import demonLordTopOrnament from "../../assets/ui/battle-frame-top-red.png";
+import heroPartyTopOrnament from "../../assets/ui/battle-frame-top-gold.png";
 
 export type BattleUiSkin = "timber" | "hero-party" | "demon-cadre" | "demon-lord";
 

@@ -17,14 +17,14 @@ import type { SpriteCalibration } from "./spriteCalibration";
 
 // 默认路径兼容组件库现有用法；独立产品构建可通过 spriteBaseUrl
 // 指向随产物复制的素材目录，避免把全部 PNG eager import 进每个入口。
-const DEFAULT_SPRITE_BASE = import.meta.env.DEV ? "/src/assets/png/" : "../src/assets/png/";
+const DEFAULT_SPRITE_BASE = import.meta.env.DEV ? "/src/assets/characters/paper-dolls/" : "../src/assets/characters/paper-dolls/";
 
 function partUrl(base: string, characterId: string, part: string): string {
   return `${base}${characterId}/${part}.png`;
 }
 
 export interface PaperDollProps extends HTMLAttributes<HTMLDivElement> {
-  /** 角色 id(对应 src/assets/png/<id>/ 目录)。 */
+  /** 角色 id(对应 src/assets/characters/paper-dolls/<id>/ 目录)。 */
   characterId: string;
   /** 表情代号(a~n 或特殊表情),默认 "a"。 */
   expression?: ExpressionId;

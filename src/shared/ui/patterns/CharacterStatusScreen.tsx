@@ -1,11 +1,11 @@
 import { useId, useState } from "react";
 import type { CSSProperties, HTMLAttributes, KeyboardEvent, ReactNode } from "react";
-import demonCadreCornerOrnament from "../../../assets/png2/frame-corner-symmetric.png?no-inline";
-import demonLordCornerOrnament from "../../../assets/png2/frame-corner-symmetric-red.png?no-inline";
-import heroPartyCornerOrnament from "../../../assets/png2/frame-corner-symmetric-gold.png?no-inline";
-import demonCadreTopOrnament from "../../../assets/png2/top.png?no-inline";
-import demonLordTopOrnament from "../../../assets/png2/top-red.png?no-inline";
-import heroPartyTopOrnament from "../../../assets/png2/top-gold.png?no-inline";
+import demonCadreCornerOrnament from "../../../assets/ui/battle-frame-corner.png?no-inline";
+import demonLordCornerOrnament from "../../../assets/ui/battle-frame-corner-red.png?no-inline";
+import heroPartyCornerOrnament from "../../../assets/ui/battle-frame-corner-gold.png?no-inline";
+import demonCadreTopOrnament from "../../../assets/ui/battle-frame-top.png?no-inline";
+import demonLordTopOrnament from "../../../assets/ui/battle-frame-top-red.png?no-inline";
+import heroPartyTopOrnament from "../../../assets/ui/battle-frame-top-gold.png?no-inline";
 import { useControllableState } from "../../lib/useControllableState";
 import type { PanelVariant } from "../types";
 import { cx } from "../../lib/cx";

@@ -718,7 +718,7 @@
   background:
     var(--battle-scene-tint),
     var(--battle-scene-curtain),
-    var(--battle-frame-deep) url("../../assets/png3/background/domains_of_chaos-1.png") center 48% / cover no-repeat;
+    var(--battle-frame-deep) url("../../assets/backgrounds/battle-domains-of-chaos.png") center 48% / cover no-repeat;
 }
 
 .abyssa-expedition[data-ui-ornamented] .abyssa-expedition-enemies__haze {

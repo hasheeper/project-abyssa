@@ -15,13 +15,13 @@ const entrypoints = {
   primitives: 57
 };
 const requiredAssets = [
-  "dist/frame-corner-symmetric-gold.png",
-  "dist/frame-corner-symmetric-red.png",
-  "dist/frame-corner-symmetric.png",
-  "dist/icon.png",
-  "dist/top-gold.png",
-  "dist/top-red.png",
-  "dist/top.png"
+  "dist/battle-frame-corner-gold.png",
+  "dist/battle-frame-corner-red.png",
+  "dist/battle-frame-corner.png",
+  "dist/status-panel-emblem.png",
+  "dist/battle-frame-top-gold.png",
+  "dist/battle-frame-top-red.png",
+  "dist/battle-frame-top.png"
 ];
 const budgets = {
   packedBytes: 7 * 1024 * 1024,
