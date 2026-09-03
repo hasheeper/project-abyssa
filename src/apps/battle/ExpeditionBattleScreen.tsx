@@ -34,8 +34,7 @@ import {
 import {
   ENEMY_ART,
   INTENT_GLYPH,
-  PARTY_VISUALS,
-  PIP_SLOTS
+  PARTY_VISUALS
 } from "./presentation/expedition-visuals";
 import {
   INTENT_VIEW_WIDTH,

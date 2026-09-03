@@ -37,10 +37,6 @@ import type { MansionProductionIcon } from "./data";
 /** 图钉:屏上约 29px。
  *  它只是提示层，继续压低一级，避免修缮与收获图标抢过房间和角色。 */
 export const MARKER_SIZE = 62;
-/** 头像盘:屏上约 52px。 */
-export const AVATAR_SIZE = 110;
-/** 对话气泡:屏上约 30px。 */
-export const BUBBLE_SIZE = 64;
 
 /**
  * 八边形牌面 —— **等宽等高**,图标居中。

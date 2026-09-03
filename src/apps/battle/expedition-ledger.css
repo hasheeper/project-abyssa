@@ -81,44 +81,6 @@
   text-indent: .18em;
 }
 
-.abyssa-expedition-multiplier {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  min-height: 188px;
-  margin-top: 14px;
-  padding: 15px 12px 13px;
-  place-items: center;
-  border: 3px solid #160b05;
-  background:
-    radial-gradient(ellipse at 50% 38%, rgb(210 148 73 / 8%), transparent 48%),
-    repeating-linear-gradient(1deg, transparent 0 8px, rgb(237 181 106 / 3%) 9px, transparent 11px),
-    linear-gradient(105deg, #2b170b, #1d1008 48%, #2a160b);
-  box-shadow:
-    0 0 0 1px #745029,
-    inset 0 0 0 2px rgb(224 174 95 / 13%),
-    inset 0 3px 5px rgb(255 220 155 / 5%),
-    inset 0 -7px 12px rgb(0 0 0 / 36%),
-    0 5px 10px rgb(0 0 0 / 38%);
-  grid-template-rows: auto 1fr auto auto;
-}
-
-.abyssa-expedition-multiplier::before,
-.abyssa-expedition-multiplier::after {
-  position: absolute;
-  top: 10px;
-  width: 6px;
-  height: 6px;
-  border: 1px solid #211207;
-  border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, #e1bd70, #6d4519 72%);
-  box-shadow: 0 1px 2px #000;
-  content: "";
-}
-
-.abyssa-expedition-multiplier::before { left: 10px; }
-.abyssa-expedition-multiplier::after { right: 10px; }
-
 .abyssa-expedition-sidebar__section-title {
   display: flex;
   width: 100%;
@@ -126,75 +88,12 @@
   gap: 9px;
 }
 
-.abyssa-expedition-sidebar__section-title i {
-  height: 1px;
-  background: linear-gradient(90deg, transparent, #725027);
-  flex: 1;
-}
-
-.abyssa-expedition-sidebar__section-title i:last-child { transform: scaleX(-1); }
-
 .abyssa-expedition-sidebar__section-title span {
   color: #9d835b;
   font-family: var(--font-display);
   font-size: 8px;
   letter-spacing: .16em;
   text-indent: .16em;
-}
-
-.abyssa-expedition-multiplier__readout {
-  display: flex;
-  align-items: baseline;
-  justify-content: center;
-  filter: drop-shadow(0 5px 2px rgb(0 0 0 / 58%));
-}
-
-.abyssa-expedition-multiplier__readout span {
-  margin-right: 3px;
-  color: #a98249;
-  font-family: var(--font-display);
-  font-size: 28px;
-  text-shadow: 0 2px 1px #080402;
-}
-
-.abyssa-expedition-multiplier__readout strong {
-  color: #f2d488;
-  font-family: var(--font-display);
-  font-size: 53px;
-  font-weight: 600;
-  letter-spacing: -.05em;
-  line-height: .88;
-  text-shadow:
-    0 1px 0 #fff0b6,
-    0 3px 0 #6f431b,
-    0 5px 4px rgb(0 0 0 / 52%);
-}
-
-.abyssa-expedition-multiplier__ticks {
-  display: flex;
-  width: 86%;
-  height: 8px;
-  align-items: center;
-  justify-content: space-between;
-  border-block: 1px solid rgb(116 80 38 / 34%);
-}
-
-.abyssa-expedition-multiplier__ticks i {
-  width: 3px;
-  height: 3px;
-  border-radius: 50%;
-  background: #72502b;
-  box-shadow: 0 1px 1px #000;
-}
-
-.abyssa-expedition-multiplier__ticks i[data-major] { width: 5px; height: 5px; background: #b08347; }
-
-.abyssa-expedition-multiplier > small {
-  color: #675946;
-  font-family: var(--font-display);
-  font-size: 7px;
-  letter-spacing: .18em;
-  text-indent: .18em;
 }
 
 .abyssa-expedition-sidebar__divider {
@@ -225,38 +124,11 @@
   transform: rotate(45deg);
 }
 
-.abyssa-expedition-purse {
-  position: relative;
-  z-index: 2;
-  padding: 16px 13px 15px;
-  border: 3px solid #150c06;
-  background:
-    repeating-linear-gradient(2deg, transparent 0 7px, rgb(236 178 101 / 3%) 8px, transparent 10px),
-    linear-gradient(105deg, #2b190d, #1c1008 52%, #28160b);
-  box-shadow:
-    0 0 0 1px #684822,
-    inset 0 0 0 2px rgb(226 174 91 / 10%),
-    inset 0 3px 5px rgb(255 225 168 / 4%),
-    inset 0 -6px 10px rgb(0 0 0 / 34%),
-    0 4px 9px rgb(0 0 0 / 34%);
-}
-
 .abyssa-expedition-purse__heading {
   display: flex;
   align-items: center;
   gap: 10px;
 }
-
-.abyssa-expedition-purse__coin {
-  width: 34px;
-  height: 34px;
-  color: #d7ae57;
-  background: currentColor;
-  filter: drop-shadow(0 2px 1px rgb(0 0 0 / 58%));
-  mask: url("../../assets/svg/items/game-icons/swap-bag.svg") center / contain no-repeat;
-}
-
-.abyssa-expedition-purse__heading div { display: grid; gap: 3px; }
 
 .abyssa-expedition-purse__heading strong {
   color: #d3bd8a;
@@ -356,11 +228,7 @@
   will-change: transform;
 }
 
-.abyssa-expedition-odometer__reel[data-order="0"] { --odometer-delay: 0; }
-.abyssa-expedition-odometer__reel[data-order="1"] { --odometer-delay: 1; margin-right: 8px; }
-.abyssa-expedition-odometer__reel[data-order="2"] { --odometer-delay: 2; }
-.abyssa-expedition-odometer__reel[data-order="3"] { --odometer-delay: 3; }
-.abyssa-expedition-odometer__reel[data-order="4"] { --odometer-delay: 4; }
+.abyssa-expedition-odometer__reel[data-order="1"] { margin-right: 8px; }
 
 .abyssa-expedition-odometer__strip i,
 .abyssa-expedition-odometer__strip b {
@@ -406,27 +274,3 @@
 
 .abyssa-expedition-odometer__screw[data-side="left"] { left: 5px; }
 .abyssa-expedition-odometer__screw[data-side="right"] { right: 5px; }
-
-.abyssa-expedition-purse__footer {
-  display: flex;
-  margin-top: 12px;
-  padding-top: 10px;
-  align-items: baseline;
-  justify-content: space-between;
-  border-top: 1px solid #342717;
-}
-
-.abyssa-expedition-purse__footer span {
-  color: #75664f;
-  font-family: var(--font-display);
-  font-size: 7px;
-  letter-spacing: .16em;
-}
-
-.abyssa-expedition-purse__footer strong {
-  color: #cda957;
-  font-family: var(--font-display);
-  font-size: 15px;
-  font-weight: 500;
-  letter-spacing: .06em;
-}

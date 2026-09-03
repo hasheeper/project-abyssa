@@ -350,10 +350,7 @@
 .abyssa-expedition[data-enemy-turn-phase] .abyssa-expedition-intent-line__body,
 .abyssa-expedition[data-enemy-turn-phase] .abyssa-expedition-intent[data-threat="lethal"],
 .abyssa-expedition[data-enemy-turn-phase] .abyssa-expedition-enemy__frenzy-status,
-.abyssa-expedition[data-enemy-turn-phase] .abyssa-expedition-enemy[data-frenzied]:not([data-enemy-action-phase]) > img,
-.abyssa-expedition[data-enemy-turn-phase] .expedition-die__stud[data-wild],
-.abyssa-expedition[data-enemy-turn-phase] .expedition-die__face[data-quality="gild"],
-.abyssa-expedition[data-enemy-turn-phase] .expedition-die__face[data-scoring] .expedition-die__corner > :is(b, i) {
+.abyssa-expedition[data-enemy-turn-phase] .abyssa-expedition-enemy[data-frenzied]:not([data-enemy-action-phase]) > img {
   animation-play-state: paused;
 }
 

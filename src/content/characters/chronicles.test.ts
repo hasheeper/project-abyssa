@@ -72,8 +72,7 @@ describe("character chronicles", () => {
       expect(categories, `样稿没有覆盖 ${category}`).toContain(category);
     }
 
-    // 当前编年史只写现行结果，不再陈列旧条款；引语仍需有样例。
-    expect(entries.some((e) => e.kind === "entry" && e.struck)).toBe(false);
+    // 当前编年史保留角色引语样例。
     expect(entries.some((e) => e.kind === "entry" && e.voice)).toBe(true);
   });
 

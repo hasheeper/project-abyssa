@@ -69,12 +69,6 @@ export function ExpeditionDicePanel({
 
   return (
     <section className="abyssa-expedition-region abyssa-expedition-dice-panel" aria-label="骰子区域">
-      <span className="abyssa-expedition-dice-panel__corners" aria-hidden="true">
-        <i data-corner="tl" />
-        <i data-corner="tr" />
-        <i data-corner="br" />
-        <i data-corner="bl" />
-      </span>
       <div className="abyssa-expedition-dice-panel__tray">
         <span className="abyssa-expedition-dice-panel__pattern" aria-hidden="true" />
         <div className="abyssa-expedition-dice-panel__row">

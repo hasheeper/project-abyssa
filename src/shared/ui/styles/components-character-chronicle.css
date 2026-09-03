@@ -20,7 +20,7 @@
       骰装页那条约束不适用，不为对称乱加。
 
    ============ 视觉驱动，不焊业务 ============
-   条目的 stamp / badge / struck 都是任意字符串。样式**不假设**
+   条目的 stamp / badge 都是任意字符串。样式**不假设**
    badge 是等级、stamp 是天数 —— 机制未对齐，见 chronicle.ts 文件头。
 
    顶部余隙 16：页签 translateY(6) 后压进 tabpanel 11px，再加 RpgFrame 5px 外环。
@@ -588,18 +588,6 @@
   font-weight: 400;
   letter-spacing: .5px;
   line-height: 1.62;
-}
-/* 被取代的旧值。<del> 的默认线太重，改成低对比中划。 */
-.abyssa-chronicle__struck {
-  margin: 5px 0 0;
-  color: color-mix(in srgb, var(--chr-dim) 70%, transparent);
-  font-size: 10px;
-  letter-spacing: .5px;
-  line-height: 1.5;
-}
-.abyssa-chronicle__struck del {
-  text-decoration-color: color-mix(in srgb, var(--chr-dim) 55%, transparent);
-  text-decoration-thickness: 1px;
 }
 /* 引语：左侧一道细竖线 + 斜体缩进。 */
 .abyssa-chronicle__voice {

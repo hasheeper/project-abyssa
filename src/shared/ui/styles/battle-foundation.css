@@ -15,9 +15,6 @@
   --abyssa-battle-weave: #6b8280;
   --abyssa-battle-weave-bright: #829b98;
   --abyssa-battle-wing: url("../../../assets/png2/top.png?no-inline");
-  --abyssa-battle-corner-image: url("../../../assets/png2/frame-corner-symmetric.png?no-inline");
-  --abyssa-battle-corner-size: clamp(102px, 13.5cqi, 152px);
-  --abyssa-battle-corner-overhang: 8.6%;
   position: relative;
   display: block;
   width: min(100%, calc(100dvh * 1.6380952));
@@ -123,62 +120,6 @@
   height: 100%;
   min-height: 0;
   overflow: hidden;
-}
-
-.abyssa-battle-screen__shell > .abyssa-frame__ornaments {
-  display: none;
-}
-
-.abyssa-battle-screen__shell > .abyssa-frame__ornaments i {
-  --abyssa-battle-corner-scale-x: 1;
-  --abyssa-battle-corner-scale-y: 1;
-  position: absolute;
-  width: var(--abyssa-battle-corner-size);
-  height: var(--abyssa-battle-corner-size);
-  overflow: visible;
-  border: 0;
-  opacity: .9;
-}
-
-.abyssa-battle-screen__shell > .abyssa-frame__ornaments i::before {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: var(--abyssa-battle-corner-size);
-  height: var(--abyssa-battle-corner-size);
-  background: var(--abyssa-battle-corner-image) center / 100% 100% no-repeat;
-  content: "";
-  filter: drop-shadow(0 3px 5px rgb(0 0 0 / 62%));
-  transform: translate(-50%, -50%) scaleX(var(--abyssa-battle-corner-scale-x)) scaleY(var(--abyssa-battle-corner-scale-y));
-  transform-origin: center;
-}
-
-.abyssa-battle-screen__shell > .abyssa-frame__ornaments [data-corner="tl"] {
-  top: 0;
-  left: 0;
-  translate: calc(var(--abyssa-battle-corner-overhang) * -1) calc(var(--abyssa-battle-corner-overhang) * -1 + 2px);
-}
-
-.abyssa-battle-screen__shell > .abyssa-frame__ornaments [data-corner="tr"] {
-  --abyssa-battle-corner-scale-x: -1;
-  top: 0;
-  right: 0;
-  translate: var(--abyssa-battle-corner-overhang) calc(var(--abyssa-battle-corner-overhang) * -1 + 2px);
-}
-
-.abyssa-battle-screen__shell > .abyssa-frame__ornaments [data-corner="bl"] {
-  --abyssa-battle-corner-scale-y: -1;
-  bottom: 0;
-  left: 0;
-  translate: calc(var(--abyssa-battle-corner-overhang) * -1) var(--abyssa-battle-corner-overhang);
-}
-
-.abyssa-battle-screen__shell > .abyssa-frame__ornaments [data-corner="br"] {
-  --abyssa-battle-corner-scale-x: -1;
-  --abyssa-battle-corner-scale-y: -1;
-  right: 0;
-  bottom: 0;
-  translate: var(--abyssa-battle-corner-overhang) var(--abyssa-battle-corner-overhang);
 }
 
 .abyssa-battle-screen__edge-weave {

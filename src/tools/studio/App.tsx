@@ -77,7 +77,6 @@ export function App() {
 
   // 漫符参数与立绘参数分开存:两者的默认值来源不同(前者来自 emotes.ts,
   // 后者来自 spriteCalibration.ts),合成一个 state 后任一方改结构都要动另一方。
-  const emoteDefaults = useMemo(buildEmoteDefaults, []);
   const [emotes, setEmotes] = useState<EmoteState>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
@@ -310,7 +309,6 @@ export function App() {
           dirty={isDirty(left.characterId, params[left.characterId], defaults)}
           beatRef={leftBeat}
           emotes={emotes}
-          emoteDefaults={emoteDefaults}
           onSeat={(patch) => {
             setLeft((s) => ({ ...s, ...patch }));
             // active 同步:两侧高度差 28.9px 全部来自它,单独切一侧
@@ -347,7 +345,6 @@ export function App() {
           dirty={isDirty(right.characterId, params[right.characterId], defaults)}
           beatRef={rightBeat}
           emotes={emotes}
-          emoteDefaults={emoteDefaults}
           onSeat={(patch) => {
             setRight((s) => ({ ...s, ...patch }));
             if (syncActive && patch.active !== undefined) {

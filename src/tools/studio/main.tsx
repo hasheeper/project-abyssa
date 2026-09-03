@@ -2,7 +2,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { App } from "./App";
 import "../../shared/ui/styles/tokens.css";
-import "../../shared/ui/styles/components.css";
+import "../../shared/ui/styles/components-core.css";
 import "../../shared/ui/styles/paper-doll.css";
 // rp.css 必须引入:工作台的舞台直接复用 .abyssa-rp / .abyssa-rp__seat /
 // .abyssa-rp__actor 这套类,几何、取景、明暗全部走 rp 的同一份规则。

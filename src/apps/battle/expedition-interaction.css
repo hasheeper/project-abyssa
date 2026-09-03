@@ -736,27 +736,6 @@
   font-weight: 500;
 }
 
-/* 万能命数角标（凯尔·静谧之楔）：宝石代替数字，尺寸对齐数字视高 */
-.expedition-die__corner > b[data-wild-pip] {
-  display: block;
-  width: calc(var(--dice-size) * .17);
-  height: calc(var(--dice-size) * .17);
-  color: var(--expedition-die-suit);
-}
-
-.expedition-die__corner > b[data-wild-pip] svg {
-  overflow: visible;
-}
-
-.expedition-die__corner > b[data-wild-pip] [data-fill] {
-  fill: currentColor;
-  filter: drop-shadow(0 1px 2px rgb(0 0 0 / 70%));
-}
-
-.expedition-die__corner > b[data-wild-pip] [data-gem-shine] {
-  fill: rgb(255 248 226 / 62%);
-}
-
 /* ---------- 图形词表：所有战斗动词/意图统一 mask 渲染 ---------- */
 
 .abyssa-expedition-glyph {
@@ -794,42 +773,6 @@
 
 .abyssa-expedition-party-column[data-held] .abyssa-expedition-party-link::after {
   box-shadow: 0 0 0 2px #2a1909, 0 0 6px rgb(255 226 146 / 58%);
-}
-
-/* ---------- 成牌点亮：参与牌型的数字与花色呈现亮起的凹刻 ----------
-   只用清晰的明暗刻边塑造质感，不使用模糊扩散的赛博辉光。 */
-
-.expedition-die__face[data-scoring] .expedition-die__corner {
-  color: #e5c680;
-}
-
-/* 数字：上沿压暗、下沿提亮，像槽内金属刻字被点亮。 */
-.expedition-die__face[data-scoring] .expedition-die__corner > b {
-  color: #efd394;
-  text-shadow:
-    0 -1px 0 #2a1808,
-    -1px 0 0 #2a1808,
-    1px 0 0 #8f6a33,
-    0 1px 0 #f4e3b5,
-    0 2px 1px rgb(8 5 2 / 88%);
-}
-
-/* 花色：同一方向的硬边刻影，不向外扩散。 */
-.expedition-die__face[data-scoring] .expedition-die__corner > i {
-  opacity: 1;
-  filter:
-    drop-shadow(0 -1px 0 #2a1808)
-    drop-shadow(-1px 0 0 #2a1808)
-    drop-shadow(1px 0 0 #8f6a33)
-    drop-shadow(0 1px 0 #f4e3b5);
-}
-
-.expedition-die__face[data-scoring] .expedition-die__corner > i svg [data-fill] {
-  fill: #e7c982;
-}
-
-.expedition-die__face[data-scoring] .expedition-die__corner > i svg {
-  stroke: #e7c982;
 }
 
 /* ---------- 狂暴：被围困的兽型拼命，视觉上必须一眼看出 ---------- */

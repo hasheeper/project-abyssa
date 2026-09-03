@@ -1,0 +1,3 @@
+/* Product-only character archive tabs; not part of the public library stylesheet. */
+@import "./components-dice-loadout.css";
+@import "./components-character-chronicle.css";

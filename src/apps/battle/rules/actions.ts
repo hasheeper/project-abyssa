@@ -7,8 +7,7 @@ import type {
   CharacterId,
   ExpeditionState,
   FaceDef,
-  Rng,
-  Verb
+  Rng
 } from "../domain/state";
 import type { TargetRef } from "../domain/targets";
 import { isEnemyDefeated } from "../selectors/battle-selectors";
@@ -223,7 +222,6 @@ export function performHeal(
   const contribution = buildActionEffectContribution(
     state,
     "heal",
-    actorId,
     actor.face.effectDefinitionIds ?? [],
     (suffix, tags) => actionBase(state, actorId, actor.face, suffix, tags)
   );
@@ -310,9 +308,4 @@ export function performSteal(
     `${CHARACTERS[actorId].name}偷取${enemy.name}`,
     effects
   );
-}
-
-export function getActionVerb(state: ExpeditionState, actorId: CharacterId): Verb | null {
-  const die = state.dice.find((candidate) => candidate.ownerId === actorId);
-  return die ? (getStateFace(state, die)?.verb ?? null) : null;
 }

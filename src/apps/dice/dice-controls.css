@@ -6,13 +6,8 @@
 }
 
 .action-dock .betting-controls,
-.action-dock .lock-controls,
-.action-dock .player-phase-hint {
-  margin-top: 0;
-}
-
-.action-dock .betting-controls,
 .action-dock .lock-controls {
+  margin-top: 0;
   transform: translateY(5px);
   gap: 12px;
 }
@@ -32,23 +27,10 @@
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
-.lock-controls > span,
-.player-phase-hint {
+.lock-controls > span {
   color: var(--abyssa-text-muted);
   font-size: 10px;
   letter-spacing: 0.1em;
-}
-
-.player-phase-hint {
-  margin-top: 14px;
-  padding: 9px;
-  border-top: 1px solid var(--abyssa-ornament-dark);
-  text-align: center;
-}
-
-.action-dock .player-phase-hint {
-  padding: 7px 9px;
-  border: 0;
 }
 
 .result-panel .dice-action-button {

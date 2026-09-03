@@ -7,7 +7,6 @@ import {
 } from "react";
 import { randomRollDuration } from "../../../shared/presentation/roll/timing";
 import {
-  getExpeditionDieRotation,
   nextExpeditionDieRotation,
   type ExpeditionDieRotation
 } from "../ExpeditionDie3D";

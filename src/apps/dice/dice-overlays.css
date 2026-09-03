@@ -88,40 +88,6 @@
   text-indent: 0.3em;
 }
 
-.result-panel__scores {
-  display: flex;
-  margin: 20px 0;
-  align-items: center;
-  justify-content: center;
-  gap: 24px;
-}
-
-.result-panel__score {
-  display: grid;
-  min-width: 105px;
-  gap: 5px;
-}
-
-.result-panel__score small {
-  color: var(--abyssa-text-muted);
-  font-family: var(--font-display);
-  font-size: 8px;
-  letter-spacing: 0.2em;
-}
-
-.result-panel__score strong {
-  color: var(--abyssa-accent-soft);
-  font-family: var(--font-display);
-  font-size: 38px;
-  font-weight: 500;
-}
-
-.result-panel__versus {
-  color: var(--abyssa-ornament);
-  font-family: var(--font-display);
-  font-size: 11px;
-}
-
 .result-panel p {
   margin: 0 0 24px;
   color: var(--abyssa-text-soft);

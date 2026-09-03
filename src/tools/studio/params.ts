@@ -41,7 +41,7 @@ export interface CharacterParams {
 export type ParamMap = Record<string, CharacterParams>;
 
 /** rp.css 末尾那张表当前的值 —— 十行全是基准值,一个都没调过。 */
-export const DEFAULT_STAGE: StageParams = { h: 100, x: 0, y: 0 };
+const DEFAULT_STAGE: StageParams = { h: 100, x: 0, y: 0 };
 
 /** 各控件的范围与步长。范围按现有值的量级留出余量,不是随便定的。 */
 export const RANGES = {
@@ -80,12 +80,6 @@ export function buildEmoteDefaults(): EmoteState {
   for (const { id } of EMOTES) base[id] = { ...EMOTE_PLACEMENT[id] };
   // adjust 起始为空对象 —— 稀疏结构,空 = 没调过(见 emotes.ts)。
   return { base, adjust: {} };
-}
-
-export function isEmoteDirty(emoteId: string, base: EmotePlacement, defaults: EmoteState): boolean {
-  const d = defaults.base[emoteId];
-  if (!d) return true;
-  return base.x !== d.x || base.y !== d.y || base.size !== d.size;
 }
 
 /** 某角色 × 漫符是否有非零偏移。空对象与全零都算「没调过」。 */

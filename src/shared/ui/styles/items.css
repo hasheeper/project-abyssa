@@ -556,13 +556,6 @@
   color: var(--abyssa-ornament, #647171);
   text-decoration: none;
 }
-.abyssa-inventory__count {
-  color: var(--abyssa-text-muted, #8f9b9b);
-  font-family: var(--abyssa-font-display, Georgia, serif);
-  font-size: 11px;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: .14em;
-}
 .abyssa-inventory__pagination {
   display: flex;
   align-items: center;

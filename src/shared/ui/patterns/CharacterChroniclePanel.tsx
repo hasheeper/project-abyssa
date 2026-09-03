@@ -34,7 +34,7 @@ const EMPTY_BLOCKS: ChronicleBlock[] = [];
  * 一条连续竖轴时间线：章节是轴上的水准线节点，条目依轻重挂在轴上。
  *
  * ============ 这一层只排版，不理解 ============
- * 契约里全是字符串插槽（stamp / badge / struck），组件原样渲染：
+ * 契约里的戳记与徽标都是字符串插槽，组件原样渲染：
  *   - 不解析 badge（"Lv.4" 与 "II" 走同一条路径）
  *   - 不假设 stamp 是天数
  *   - 不跨文件比对好感等级
@@ -139,11 +139,6 @@ function ChronicleBlockView({ block }: { block: ChronicleBlock }) {
             <span className="abyssa-chronicle__badge">{block.badge}</span>
           )}
         </div>
-        {block.struck && (
-          <p className="abyssa-chronicle__struck">
-            <del>{block.struck}</del>
-          </p>
-        )}
         {block.body && <p className="abyssa-chronicle__text">{block.body}</p>}
         {block.voice && (
           <p className="abyssa-chronicle__voice">{block.voice}</p>

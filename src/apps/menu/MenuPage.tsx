@@ -7,10 +7,10 @@ import { SceneTransitionProvider, useSceneTransition } from "../../shared/transi
 import { characterProfiles } from "../../content/characters/profiles";
 import manorNightGallery from "../../assets/bg/manor-night-gallery.jpg";
 import { MenuBackdrop } from "./MenuBackdrop";
-import { MenuCommandDial, MENU_COMMANDS } from "./MenuCommandDial";
+import { MenuCommandDial } from "./MenuCommandDial";
 import type { MenuCommandId } from "./MenuCommandDial";
 import { MenuSceneControls } from "./MenuSceneControls";
-import { MenuSidebar, MENU_SECTIONS } from "./MenuSidebar";
+import { MenuSidebar } from "./MenuSidebar";
 import type { MenuSectionId } from "./MenuSidebar";
 import { MenuTopBar } from "./MenuTopBar";
 import type { MenuPhaseId } from "./MenuTopBar";
@@ -254,5 +254,3 @@ function MenuPageContent() {
     </Stage>
   );
 }
-
-export { MENU_COMMANDS, MENU_SECTIONS };

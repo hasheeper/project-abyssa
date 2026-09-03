@@ -212,8 +212,6 @@ export function MansionPage() {
     expression: "a",
     text: activeCharacter.lines[phase]
   }] : [], [activeCharacter, phase]);
-  const currentPhase = MANSION_PHASES.find((item) => item.id === phase) ?? MANSION_PHASES[1];
-
   /** 对话开启时,世界与四角挂件一律退出可交互与无障碍树。
    *  原先这个三元在 7 处重复写成 `activeCharacter ? true : undefined`。 */
   const chromeInert = activeCharacter ? true : undefined;

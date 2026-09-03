@@ -80,8 +80,6 @@ export const ENEMY_ART: Record<EnemyState["art"], string> = {
   choir: crystallineChoir
 };
 
-export const PIP_SLOTS = 6;
-
 export const INTENT_GLYPH: Record<string, GlyphName> = {
   attack: "intent-attack",
   charge: "intent-charge",

@@ -67,15 +67,6 @@
 .menu-hud-frame__inner { stroke: #0a1112; stroke-width: 2.5px; }
 .menu-hud-frame__inset { stroke: #536d6a; stroke-width: 1.5px; opacity: .88; }
 .menu-hud-frame__ridge { stroke: #aec0bc; stroke-width: 1.5px; opacity: .7; }
-.menu-hud-frame__facet { fill: rgb(112 146 141 / 18%); stroke: #75908c; stroke-width: 1.35px; }
-.menu-hud-frame__facet-line {
-  fill: none;
-  stroke: #91a7a3;
-  stroke-linecap: square;
-  stroke-width: 1.15px;
-  opacity: .64;
-}
-.menu-hud-frame__rivet { fill: #263a39; stroke: #aec1bd; stroke-width: 1.4px; }
 .menu-hud-frame__time-step {
   fill: rgb(119 151 147 / 7%);
   stroke: #617976;

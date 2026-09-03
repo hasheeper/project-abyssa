@@ -20,6 +20,19 @@ describe("character status app", () => {
     );
   });
 
+  it("only mounts the edge weave for themes that display it", async () => {
+    const user = userEvent.setup();
+    const { container } = render(<App />);
+
+    expect(container.querySelector(".abyssa-character-screen__edge-weave")).not.toBeNull();
+
+    await user.click(screen.getByRole("button", { name: /尤斯缇丝/ }));
+    expect(container.querySelector(".abyssa-character-screen__edge-weave")).toBeNull();
+
+    await user.click(screen.getByRole("button", { name: /艾比希斯/ }));
+    expect(container.querySelector(".abyssa-character-screen__edge-weave")).not.toBeNull();
+  });
+
   /* 六维评级已删除:它不参战也不叙事。档案不得把它加回来。 */
   it("no longer renders the six parameter ranks", () => {
     const { container } = render(<App />);

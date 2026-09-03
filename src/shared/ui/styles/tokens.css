@@ -1,5 +1,4 @@
 :root {
-  --abyssa-page: #98a7a9;
   --abyssa-frame-dark: #192020;
   --abyssa-frame-deep: #101616;
   --abyssa-frame-light: #a7b3b4;
@@ -36,10 +35,6 @@
   --abyssa-teal: #a8b4b5;
   --abyssa-teal-dark: #687373;
   --abyssa-teal-soft: #d7dddd;
-}
-
-.abyssa-theme[data-density="compact"] {
-  --abyssa-control-scale: 0.86;
 }
 
 @media (prefers-reduced-motion: reduce) {

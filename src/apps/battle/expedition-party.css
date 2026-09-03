@@ -2,7 +2,6 @@
 /* Party nameplates: portrait-first cards based on the supplied tabletop
    reference. Full-height repository PNGs are cropped in the viewport. */
 .abyssa-expedition-party {
-  --party-card-gap: 8px;
   grid-column: 1;
   grid-row: 2;
   padding: 8px 18px;

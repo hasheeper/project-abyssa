@@ -61,18 +61,18 @@
 }
 
 .abyssa-expedition-multiplier {
+  position: relative;
+  z-index: 2;
+  display: grid;
   min-height: 148px;
   margin: 10px 20px 0;
   padding: 10px 12px 10px;
+  place-items: center;
   grid-template-rows: auto 1fr auto;
 }
 
-.abyssa-expedition-multiplier::before,
-.abyssa-expedition-multiplier::after { display: none; }
-
 .abyssa-expedition-sidebar__section-title span,
-.abyssa-expedition-purse__heading small,
-.abyssa-expedition-purse__footer span {
+.abyssa-expedition-purse__heading small {
   color: #8c7b63;
   font-weight: 700;
   text-shadow: 0 1px 2px #000;
@@ -87,150 +87,6 @@
   font-size: 9px;
   letter-spacing: .13em;
   text-indent: .13em;
-}
-
-.abyssa-expedition-sidebar__section-title i {
-  background: linear-gradient(90deg, transparent, #80663d 18% 82%, transparent);
-  box-shadow: 0 1px rgb(0 0 0 / 48%);
-}
-
-.abyssa-expedition-multiplier__readout strong {
-  color: #d1b77d;
-  font-size: 62px;
-  font-weight: 600;
-  text-shadow:
-    0 1px 0 rgb(255 237 191 / 18%),
-    0 3px 0 #553719,
-    0 4px 5px rgb(0 0 0 / 62%);
-}
-
-.abyssa-expedition-multiplier__readout span {
-  color: #927a50;
-  margin-right: 0;
-  margin-left: 4px;
-  font-size: 31px;
-  text-transform: lowercase;
-}
-
-.abyssa-expedition-multiplier__readout small {
-  align-self: flex-end;
-  margin-bottom: 9px;
-  margin-left: 7px;
-  color: #746e65;
-  font-family: var(--font-body);
-  font-size: 12px;
-  font-variant-numeric: lining-nums tabular-nums;
-  font-weight: 600;
-  letter-spacing: .02em;
-  line-height: 1;
-  text-shadow: 0 1px 2px #000;
-}
-
-.abyssa-expedition-multiplier__readout {
-  position: relative;
-  z-index: 1;
-  align-self: center;
-  padding-top: 2px;
-}
-
-.abyssa-expedition-multiplier__readout::before {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  z-index: -1;
-  width: 175px;
-  height: 72px;
-  background: radial-gradient(ellipse, rgb(217 151 55 / 16%), transparent 68%);
-  content: "";
-  transform: translate(-50%, -50%);
-}
-
-.abyssa-expedition-multiplier__equation {
-  display: grid;
-  width: 100%;
-  align-self: center;
-  align-items: end;
-  gap: 7px;
-  grid-template-columns: minmax(0, .88fr) auto minmax(0, 1.12fr);
-}
-
-.abyssa-expedition-multiplier__equation div {
-  display: grid;
-  min-width: 0;
-  gap: 4px;
-  justify-items: center;
-}
-
-.abyssa-expedition-multiplier__equation small {
-  color: #726653;
-  font-family: var(--font-display);
-  font-size: 6px;
-  font-weight: 700;
-  letter-spacing: .17em;
-  line-height: 1;
-  text-indent: .17em;
-  text-shadow: 0 1px 2px #000;
-}
-
-.abyssa-expedition-multiplier__equation strong {
-  color: #a99b7d;
-  font-family: var(--font-body);
-  font-size: 19px;
-  font-variant-numeric: lining-nums tabular-nums;
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1;
-  text-shadow: 0 2px 3px rgb(0 0 0 / 62%);
-}
-
-.abyssa-expedition-multiplier__equation > span {
-  align-self: end;
-  padding-bottom: 1px;
-  color: #9e804c;
-  font-family: var(--font-display);
-  font-size: 13px;
-  font-weight: 600;
-  line-height: 1;
-  text-shadow: 0 2px 3px #000;
-}
-
-.abyssa-expedition-multiplier__equation [data-value="result"] strong {
-  color: #d1b77d;
-  font-size: 24px;
-  text-shadow:
-    0 1px 0 rgb(255 237 191 / 14%),
-    0 2px 0 #4e3217,
-    0 3px 4px rgb(0 0 0 / 58%);
-}
-
-.abyssa-expedition-multiplier__factor {
-  display: flex;
-  align-self: center;
-  align-items: baseline;
-  justify-content: center;
-  filter: drop-shadow(0 3px 3px rgb(0 0 0 / 54%));
-}
-
-.abyssa-expedition-multiplier__factor span {
-  margin-right: 3px;
-  color: #91774d;
-  font-family: var(--font-display);
-  font-size: 23px;
-  font-weight: 500;
-  line-height: 1;
-}
-
-.abyssa-expedition-multiplier__factor strong {
-  color: #d1b77d;
-  font-family: var(--font-display);
-  font-size: 49px;
-  font-weight: 600;
-  letter-spacing: -.035em;
-  line-height: .9;
-  text-shadow:
-    0 1px 0 rgb(255 237 191 / 16%),
-    0 3px 0 #503318,
-    0 4px 4px rgb(0 0 0 / 52%);
 }
 
 /* 倍率拆解：牌型 × 层基础倍率，说明这个数字是怎么来的 */
@@ -309,76 +165,13 @@
   color: #e0c17c;
 }
 
-.abyssa-expedition-multiplier__meter {
-  position: relative;
-  width: 100%;
-  height: 22px;
-  padding: 4px;
-  border: 1px solid #090603;
-  background:
-    linear-gradient(180deg, rgb(255 229 170 / 5%), transparent 45%),
-    #160e08;
-  box-shadow:
-    0 0 0 1px #5e4323,
-    inset 0 2px 4px rgb(0 0 0 / 64%),
-    0 2px 3px rgb(0 0 0 / 34%);
-  clip-path: polygon(3px 0, calc(100% - 3px) 0, 100% 3px, 100% calc(100% - 3px), calc(100% - 3px) 100%, 3px 100%, 0 calc(100% - 3px), 0 3px);
-  justify-self: stretch;
-}
-
-.abyssa-expedition-multiplier__meter > span {
-  position: relative;
-  display: block;
-  width: 100%;
-  height: 100%;
-  overflow: visible;
-  background: #21140a;
-  box-shadow: inset 0 2px 3px rgb(0 0 0 / 58%);
-}
-
-.abyssa-expedition-multiplier__meter i {
-  position: absolute;
-  inset: 0 auto 0 0;
-  width: 72%;
-  border-right: 1px solid #fff2b4;
-  background:
-    linear-gradient(180deg, rgb(255 246 196 / 48%), transparent 36%),
-    linear-gradient(90deg, #a96d1f, #d8952f 58%, #f1c461);
-  box-shadow: inset 0 -3px 4px rgb(112 53 7 / 42%), 0 0 7px rgb(227 160 61 / 34%);
-}
-
-.abyssa-expedition-multiplier__meter b {
-  position: absolute;
-  top: -5px;
-  bottom: -5px;
-  left: 72%;
-  width: 2px;
-  background: #f4d58a;
-  box-shadow: 0 0 5px rgb(255 211 105 / 62%);
-  transform: translateX(-50%);
-}
-
-.abyssa-expedition-multiplier__ticks {
-  width: min(70%, 76px);
-  height: 1px;
-  border: 0;
-  background: linear-gradient(90deg, transparent, #80663d 18% 82%, transparent);
-  box-shadow: 0 1px rgb(0 0 0 / 48%);
-}
-
-.abyssa-expedition-multiplier__ticks i { display: none; }
-
 .abyssa-expedition-sidebar__divider { height: 16px; }
 
 .abyssa-expedition-purse {
+  position: relative;
+  z-index: 2;
   margin: 0 12px;
   padding: 10px 12px 11px;
-}
-
-.abyssa-expedition-purse__coin {
-  width: 28px;
-  height: 28px;
-  color: #a68a4c;
 }
 
 .abyssa-expedition-purse__heading {

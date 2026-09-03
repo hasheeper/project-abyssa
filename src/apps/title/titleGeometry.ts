@@ -34,7 +34,7 @@ export const TITLE_STACK_REGION_H = 900 - TITLE_FOOTER_H;
 export const TITLE_EMBLEM_W = 560;
 export const TITLE_EMBLEM_H = (TITLE_EMBLEM_W * EMBLEM_VIEW_H) / EMBLEM_VIEW_W;
 
-export const TITLE_COMMAND_W = 520;
+const TITLE_COMMAND_W = 520;
 export const TITLE_COMMAND_GAP = 20;
 export const TITLE_COMMAND_COUNT = 4;
 
@@ -45,7 +45,7 @@ export const TITLE_COMMAND_COLUMN_H =
   TITLE_COMMAND_COUNT * TITLE_RIBBON_H + (TITLE_COMMAND_COUNT - 1) * TITLE_COMMAND_GAP;
 
 /** 徽记与命令列之间的呼吸。 */
-export const TITLE_STACK_GAP = 76;
+const TITLE_STACK_GAP = 76;
 
 export const TITLE_BLOCK_H = TITLE_EMBLEM_H + TITLE_STACK_GAP + TITLE_COMMAND_COLUMN_H;
 
@@ -61,7 +61,7 @@ export const TITLE_COMMAND_COLUMN_BOTTOM =
  * 裁切的几何中心,所以外部法阵也必须共用这个点。
  */
 export const TITLE_EMBLEM_CENTRE_Y = TITLE_BLOCK_PAD + TITLE_EMBLEM_H / 2;
-export const TITLE_EMBLEM_CENTRE_X = 800;
+const TITLE_EMBLEM_CENTRE_X = 800;
 
 /* ---- 背景场原点 ----
  *
@@ -89,7 +89,7 @@ export const TITLE_CG_W = (TITLE_CG_H * CG_VIEW_W) / CG_VIEW_H;
 export const TITLE_CG_TOP = 60;
 
 /** CG 主体中线(距画布外缘)。主体居中,所以就是 CG 宽度的一半。 */
-export const TITLE_CG_SUBJECT_X = TITLE_CG_W / 2;
+const TITLE_CG_SUBJECT_X = TITLE_CG_W / 2;
 
 /** 徽记外缘距画布外缘。CG 主体必须落在它之内才不会被压。 */
 export const TITLE_EMBLEM_EDGE_X = TITLE_EMBLEM_CENTRE_X - TITLE_EMBLEM_W / 2;

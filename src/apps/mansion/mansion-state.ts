@@ -12,19 +12,19 @@ import { cleanRegionLabel } from "./mansion-geometry";
 
 export const MAX_FACILITY_LEVEL = 4;
 export const REPAIR_STEPS = 3;
-export const REPAIR_PHASES = 1;
-export const PROMOTE_COST_FACTOR = 2;
+const REPAIR_PHASES = 1;
+const PROMOTE_COST_FACTOR = 2;
 export const MAX_DAMAGED = 3;
 
 export const STOCK_COLUMNS = 6;
 export const STOCK_ROWS = 4;
 export const STOCK_CAPACITY = STOCK_COLUMNS * STOCK_ROWS * 2;
 
-export const MANSION_PRODUCTION_ROOM_IDS = Object.entries(MANSION_ROOM_DETAILS)
+const MANSION_PRODUCTION_ROOM_IDS = Object.entries(MANSION_ROOM_DETAILS)
   .filter(([, detail]) => detail.production)
   .map(([id]) => id);
 
-export const MANSION_REPAIRABLE_ROOM_IDS = Object.entries(MANSION_ROOM_DETAILS)
+const MANSION_REPAIRABLE_ROOM_IDS = Object.entries(MANSION_ROOM_DETAILS)
   .filter(([, detail]) => detail.upgradeCost && detail.fund && !detail.state)
   .map(([id]) => id);
 

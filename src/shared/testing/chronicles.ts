@@ -5,7 +5,7 @@ import type { CharacterChronicle } from "../domain/characters/chronicle";
    所以 DiceLoadoutPanel 那边也是这么做的（shared/testing/diceLoadouts.ts）。
 
    夹具刻意覆盖全部视觉形态：章节分隔、四种节点、三档色调、
-   四种筛选分类、徽标、兼容态旧值、引语。 */
+   四种筛选分类、徽标与引语。 */
 
 export const chronicleFixture: CharacterChronicle = {
   characterId: "fixture",
@@ -39,7 +39,6 @@ export const chronicleFixture: CharacterChronicle = {
       stamp: "DAY 03",
       title: "阶段变更",
       badge: "私约 II",
-      struck: "旧：被取代的条款",
       body: "新：空心菱形。",
       categories: ["pact"],
       marker: "hollow",

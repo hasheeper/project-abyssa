@@ -1,5 +1,6 @@
 @import "./tokens.css";
-@import "./components.css";
+@import "./components-core.css";
+@import "./components-character-status.css";
 @import "./items.css";
 @import "./battle.css";
 @import "./paper-doll.css";

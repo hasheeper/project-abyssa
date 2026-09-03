@@ -22,7 +22,6 @@ import {
 } from "./MansionMarkers";
 import { getMansionAvatar } from "./MansionRoomViews";
 import {
-  CHARACTER_AVATAR,
   UNDERGROUND_BOTTOM,
   UNDERGROUND_LEFT,
   UNDERGROUND_RIGHT,

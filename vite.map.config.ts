@@ -5,6 +5,7 @@ import { defineConfig } from "vite";
 export default defineConfig({
   base: "./",
   plugins: [react()],
+  server: { host: "127.0.0.1", port: 5186, open: "/map.html" },
   build: {
     outDir: "map-dist",
     emptyOutDir: true,

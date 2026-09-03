@@ -335,7 +335,6 @@
   --marker-shade: #16261f;
   --marker-edge: #8fbfa4;
   --marker-rim: #c3e2ce;
-  --marker-ink: #e6f2e6;
   --marker-glow: rgb(139 224 180 / 68%);
   animation: mansion-ready 2s ease-in-out infinite;
 }
@@ -347,7 +346,6 @@
   --marker-shade: #241413;
   --marker-edge: #c08e7f;
   --marker-rim: #e0b6a6;
-  --marker-ink: #f6e2d8;
   --marker-glow: rgb(236 134 113 / 66%);
 }
 .mansion-marker--repair[data-state="working"] {
@@ -356,7 +354,6 @@
   --marker-shade: #1d1c14;
   --marker-edge: #b3a377;
   --marker-rim: #d9c9a1;
-  --marker-ink: #f2e8cd;
   --marker-glow: rgb(226 204 139 / 64%);
 }
 
@@ -369,7 +366,6 @@
   --marker-shade: #271e0b;
   --marker-edge: #d5b874;
   --marker-rim: #f2ddab;
-  --marker-ink: #fdf3d6;
   --marker-promote-ink: #f7e7b4;
   --marker-glow: rgb(238 205 122 / 72%);
   animation: mansion-ready 2s ease-in-out infinite;
@@ -398,7 +394,6 @@
    现在 52x52 圆形头像,面积约为原来的 1/16。 */
 .mansion-character {
   --character-color: #d1bd83;
-  --character-dark: #57472f;
   position: absolute;
   z-index: 135;
   display: block;

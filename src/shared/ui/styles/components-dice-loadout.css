@@ -46,9 +46,6 @@
   --dice-pit: var(--abyssa-frame-deep, #101616);
   --dice-well: var(--abyssa-panel-black, #1d2121);
   --dice-surface: color-mix(in srgb, var(--abyssa-panel-dark, #242929) 76%, var(--dice-pit));
-  /* CJK 字距补偿:letter-spacing 会在末字后多留一份,
-     不补掉的话所有"标签 + 值"的间距都偏右。 */
-  --dice-track: 1.4px;
   display: block;
   /* 605.93 = 646 - (页签行 45.07 - 5)。**随页签数量变**:
      4 个页签时是 609.18,3 个时是 605.93 —— 单个页签受 max-width:104 限制,
@@ -272,135 +269,6 @@
   text-align: left;
 }
 .abyssa-dice__column:focus-visible { outline: 0; }
-
-/* 骰面自身已经承载命数、花色与铭；参考布局不另占一整行。 */
-.abyssa-dice__marks { display: none; }
-
-/* ===== 标记行:三枚小图标(白骰点数 / 花色 / 铭) =====
-   战面数值由骰面自己的右下角角标承载,这里不重复。 */
-.abyssa-dice__marks {
-  display: none;
-  height: 40px;
-  align-items: center;
-  justify-items: center;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 4px;
-  min-width: 0;
-}
-.abyssa-dice__mark {
-  display: grid;
-  width: 100%;
-  height: 100%;
-  place-items: center;
-  border: 1px solid var(--dice-hair);
-  background: rgb(0 0 0 / 20%);
-}
-
-/* 白骰:经典骰子 —— 白底 + 黑点,点数用 radial-gradient 摆位。
-   比抽象图标直觉得多,一眼就知道是"点数"。 */
-.abyssa-dice__mark[data-kind="pip"] i {
-  display: block;
-  width: 22px;
-  height: 22px;
-  border-radius: 3px;
-  background: linear-gradient(160deg, #f4f1e8, #d8d3c4);
-  box-shadow:
-    inset 0 0 0 1px rgb(0 0 0 / 22%),
-    0 1px 2px rgb(0 0 0 / 45%);
-}
-/* 点位:三行三列的九宫格,单位为格边长的百分比。 */
-.abyssa-dice__mark[data-kind="pip"] i[data-pip] {
-  --p: #1a1a1a;
-  --r: 2.1px;
-  background-repeat: no-repeat;
-  background-image: none;
-}
-.abyssa-dice__mark[data-kind="pip"] i[data-pip="1"] {
-  background-image: radial-gradient(circle var(--r) at 50% 50%, var(--p) 99%, transparent);
-}
-.abyssa-dice__mark[data-kind="pip"] i[data-pip="2"] {
-  background-image:
-    radial-gradient(circle var(--r) at 28% 28%, var(--p) 99%, transparent),
-    radial-gradient(circle var(--r) at 72% 72%, var(--p) 99%, transparent);
-}
-.abyssa-dice__mark[data-kind="pip"] i[data-pip="3"] {
-  background-image:
-    radial-gradient(circle var(--r) at 26% 26%, var(--p) 99%, transparent),
-    radial-gradient(circle var(--r) at 50% 50%, var(--p) 99%, transparent),
-    radial-gradient(circle var(--r) at 74% 74%, var(--p) 99%, transparent);
-}
-.abyssa-dice__mark[data-kind="pip"] i[data-pip="4"] {
-  background-image:
-    radial-gradient(circle var(--r) at 28% 28%, var(--p) 99%, transparent),
-    radial-gradient(circle var(--r) at 72% 28%, var(--p) 99%, transparent),
-    radial-gradient(circle var(--r) at 28% 72%, var(--p) 99%, transparent),
-    radial-gradient(circle var(--r) at 72% 72%, var(--p) 99%, transparent);
-}
-.abyssa-dice__mark[data-kind="pip"] i[data-pip="5"] {
-  background-image:
-    radial-gradient(circle var(--r) at 27% 27%, var(--p) 99%, transparent),
-    radial-gradient(circle var(--r) at 73% 27%, var(--p) 99%, transparent),
-    radial-gradient(circle var(--r) at 50% 50%, var(--p) 99%, transparent),
-    radial-gradient(circle var(--r) at 27% 73%, var(--p) 99%, transparent),
-    radial-gradient(circle var(--r) at 73% 73%, var(--p) 99%, transparent);
-}
-.abyssa-dice__mark[data-kind="pip"] i[data-pip="6"] {
-  background-image:
-    radial-gradient(circle var(--r) at 28% 24%, var(--p) 99%, transparent),
-    radial-gradient(circle var(--r) at 72% 24%, var(--p) 99%, transparent),
-    radial-gradient(circle var(--r) at 28% 50%, var(--p) 99%, transparent),
-    radial-gradient(circle var(--r) at 72% 50%, var(--p) 99%, transparent),
-    radial-gradient(circle var(--r) at 28% 76%, var(--p) 99%, transparent),
-    radial-gradient(circle var(--r) at 72% 76%, var(--p) 99%, transparent);
-}
-/* 沉眠面:骰子留白,一个点都不刻 —— 点数不进牌型。 */
-.abyssa-dice__mark[data-kind="pip"] i:not([data-pip]) {
-  background-image: repeating-linear-gradient(135deg, transparent 0 3px, rgb(0 0 0 / 14%) 3px 4px);
-}
-
-/* 花色底板:纯 CSS 几何,与骰面左上角的 suit plate 同形。 */
-.abyssa-dice__mark[data-kind="suit"] i {
-  display: block;
-  width: 13px;
-  height: 13px;
-  background: currentcolor;
-}
-.abyssa-dice__mark[data-kind="suit"] i[data-plate="diamond"] { rotate: 45deg; }
-.abyssa-dice__mark[data-kind="suit"] i[data-plate="circle"] { border-radius: 50%; }
-.abyssa-dice__mark[data-kind="suit"] i[data-plate="triangle"] {
-  width: 0;
-  height: 0;
-  background: none;
-  border-right: 6.5px solid transparent;
-  border-bottom: 13px solid currentcolor;
-  border-left: 6.5px solid transparent;
-}
-
-/* 铭:与 SealMark(ExpeditionFlatDieFrame.tsx:144-183)同形。
-   素铭实点 / 无铭虚线空圆。 */
-.abyssa-dice__mark[data-kind="seal"] i {
-  display: block;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-}
-.abyssa-dice__mark[data-kind="seal"] i[data-seal="plain"] { background: #c9ab68; }
-.abyssa-dice__mark[data-kind="seal"] i[data-seal="none"] {
-  border: 1px dashed #6d6a63;
-}
-
-/* 沉眠列:标记整体压暗。 */
-.abyssa-dice__column[data-fate="asleep"] .abyssa-dice__mark { opacity: .42; }
-
-/* 悬停 / 选中:整列一起亮。 */
-.abyssa-dice__column:hover .abyssa-dice__mark,
-.abyssa-dice__column:focus-visible .abyssa-dice__mark {
-  border-color: color-mix(in srgb, var(--dice-accent) 45%, transparent);
-}
-.abyssa-dice__column[data-selected] .abyssa-dice__mark {
-  border-color: color-mix(in srgb, var(--dice-accent) 70%, transparent);
-  background: color-mix(in srgb, var(--dice-accent) 9%, rgb(0 0 0 / 20%));
-}
 
 /* 骰面格。perspective 见文件头第 2 条。 */
 .abyssa-dice__cell {
@@ -1023,7 +891,6 @@
 .abyssa-dice__ident h3 > em {
   white-space: nowrap;
 }
-.abyssa-dice__ident h3:empty { display: none; }
 /* 主数值/词根用阵营色,并压一道细描边让它像刻上去的。 */
 .abyssa-dice__ident h3 em {
   color: var(--dice-accent-soft);

@@ -7,7 +7,6 @@ import type { BattleTransition } from "../domain/commands";
 import type { AtomicEffect, AtomicEffectBase } from "../domain/effects";
 import type { BattleEvent } from "../domain/events";
 import type {
-  CharacterId,
   EnemyKind,
   ExpeditionState,
   HandEvaluation,

@@ -590,9 +590,7 @@
 .abyssa-expedition[data-ui-ornamented] .abyssa-expedition-sidebar__section-title span,
 .abyssa-expedition[data-ui-ornamented] .abyssa-expedition-purse__heading strong { color: color-mix(in srgb, var(--battle-skin-accent-bright) 72%, #b7afa0); }
 .abyssa-expedition[data-ui-ornamented] .abyssa-expedition-sidebar__header small,
-.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-purse__heading small,
-.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-purse__footer span { color: var(--battle-skin-muted); }
-.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-sidebar__section-title i,
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-purse__heading small { color: var(--battle-skin-muted); }
 .abyssa-expedition[data-ui-ornamented] .abyssa-expedition-sidebar__divider::before,
 .abyssa-expedition[data-ui-ornamented] .abyssa-expedition-sidebar__divider::after { background: linear-gradient(90deg, transparent, var(--battle-skin-accent) 18% 82%, transparent); }
 .abyssa-expedition[data-ui-ornamented] .abyssa-expedition-sidebar__divider i { border-color: var(--battle-skin-accent-soft); background: var(--battle-frame-surface); }
@@ -608,12 +606,6 @@
     inset 0 1px color-mix(in srgb, var(--battle-skin-accent-bright) 8%, transparent),
     inset 0 -5px 8px rgb(0 0 0 / 44%),
     0 4px 7px rgb(0 0 0 / 38%);
-}
-
-.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-multiplier::before,
-.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-multiplier::after {
-  border-color: var(--battle-frame-deep);
-  background: radial-gradient(circle at 35% 30%, var(--battle-skin-accent-bright), var(--battle-skin-accent) 72%);
 }
 
 .abyssa-expedition[data-ui-ornamented] .abyssa-expedition-multiplier__breakdown {
@@ -635,10 +627,6 @@
 
 .abyssa-expedition[data-ui-ornamented] .abyssa-expedition-multiplier__amounts [data-value="result"] strong {
   color: var(--battle-detail-copy-strong);
-}
-
-.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-multiplier__ticks {
-  background: linear-gradient(90deg, transparent, var(--battle-detail-line) 18% 82%, transparent);
 }
 
 .abyssa-expedition[data-ui-ornamented] .abyssa-expedition-multiplier[data-finalizing] {
@@ -805,11 +793,6 @@
 .abyssa-expedition[data-ui-ornamented] .abyssa-expedition-enemies__intent-lines g:not([data-threat="lethal"]):not([data-threat="blocked"]) .abyssa-expedition-intent-line__socket {
   fill: var(--battle-frame-deep);
   stroke: var(--battle-skin-accent-bright);
-}
-
-/* 房间式区域、角色列与骰盘的结构接点统一换肤。 */
-.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-dice-panel__corners i {
-  border-color: var(--battle-skin-accent-soft);
 }
 
 .abyssa-expedition[data-ui-ornamented] .abyssa-expedition-party-nameplate {
@@ -1047,41 +1030,6 @@
 
 .abyssa-expedition[data-ui-ornamented] .abyssa-expedition-hand__glow {
   background: linear-gradient(100deg, transparent 20%, color-mix(in srgb, var(--battle-skin-accent-bright) 24%, transparent) 48%, transparent 76%);
-}
-
-.abyssa-expedition[data-ui-ornamented] .expedition-die__verb,
-.abyssa-expedition[data-ui-ornamented] .expedition-die__corner,
-.abyssa-expedition[data-ui-ornamented] .expedition-die__corner > b,
-.abyssa-expedition[data-ui-ornamented] .expedition-die__corner > i {
-  color: var(--battle-detail-copy-strong);
-}
-
-.abyssa-expedition[data-ui-ornamented] .expedition-die__stud[data-on]:not([data-wild]):not([data-grand]) {
-  color: var(--battle-detail-copy);
-  filter: drop-shadow(0 1px 1px rgb(0 0 0 / 60%)) drop-shadow(0 0 4px var(--battle-detail-glow));
-}
-
-.abyssa-expedition[data-ui-ornamented] .expedition-die__stud[data-wild],
-.abyssa-expedition[data-ui-ornamented] .expedition-die__stud[data-grand] {
-  color: var(--battle-detail-copy-strong);
-  filter: drop-shadow(0 1px 1px rgb(0 0 0 / 60%)) drop-shadow(0 0 8px var(--battle-detail-glow));
-}
-
-.abyssa-expedition[data-ui-ornamented] .expedition-die__stud svg [data-gem-core] {
-  fill: color-mix(in srgb, var(--battle-frame-deep) 58%, var(--battle-skin-accent));
-}
-
-.abyssa-expedition[data-ui-ornamented] .expedition-die__face[data-scoring] .expedition-die__corner,
-.abyssa-expedition[data-ui-ornamented] .expedition-die__face[data-scoring] .expedition-die__corner > b {
-  color: var(--battle-skin-accent-bright);
-}
-
-.abyssa-expedition[data-ui-ornamented] .expedition-die__face[data-scoring] .expedition-die__corner > i svg [data-fill] {
-  fill: var(--battle-skin-accent-bright);
-}
-
-.abyssa-expedition[data-ui-ornamented] .expedition-die__face[data-scoring] .expedition-die__corner > i svg {
-  stroke: var(--battle-skin-accent-bright);
 }
 
 .abyssa-expedition[data-ui-ornamented] .abyssa-expedition-dice-panel .expedition-die__selection {

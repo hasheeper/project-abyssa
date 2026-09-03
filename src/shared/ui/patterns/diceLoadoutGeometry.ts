@@ -13,26 +13,11 @@
    第七块骰面。六面采用标准的 1–4–1 骰网排列。 */
 
 import {
-  CHARACTER_PANEL_FRAME_CLEARANCE,
-  CHARACTER_PANEL_H,
   CHARACTER_PANEL_INNER_H,
   CHARACTER_PANEL_INNER_W,
-  CHARACTER_PANEL_TOP_CLEARANCE,
-  CHARACTER_PANEL_W,
-  CHARACTER_TAB_COUNT,
-  CHARACTER_TAB_OVERLAP,
   RPG_FRAME_SM_INSET
 } from "./characterTabPanelGeometry";
 
-/* 槽位量沿用共用定义。此处以骰装的旧名再导出,是为了让
-   components-dice-loadout.css 的镜像注释与既有测试仍能对照阅读;
-   新的页签页请直接从 characterTabPanelGeometry 取。 */
-export const DICE_PANEL_W = CHARACTER_PANEL_W;
-export const DICE_PANEL_H = CHARACTER_PANEL_H;
-export const DICE_TAB_COUNT = CHARACTER_TAB_COUNT;
-export const DICE_TAB_OVERLAP = CHARACTER_TAB_OVERLAP;
-export const DICE_FRAME_CLEARANCE = CHARACTER_PANEL_FRAME_CLEARANCE;
-export const DICE_TOP_CLEARANCE = CHARACTER_PANEL_TOP_CLEARANCE;
 export const DICE_INNER_W = CHARACTER_PANEL_INNER_W;
 export const DICE_INNER_H = CHARACTER_PANEL_INNER_H;
 export const DICE_FRAME_INSET = RPG_FRAME_SM_INSET;

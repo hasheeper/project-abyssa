@@ -30,14 +30,14 @@ export const CHARACTER_PANEL_W = 718.67;
    曾把 609.18(4 页签的值)写死成常量,改成 3 个页签后
    面板比槽位高 3.25px,切到骰装页时把整张卡片顶开 3.25px。
    概要页用 height:100% 跟着槽位走,所以只有写死高度的页会涨。 */
-export const CHARACTER_TABS_W = 422;
-export const CHARACTER_TAB_GAP = 12;
-export const CHARACTER_TAB_MAX_W = 104;
-export const CHARACTER_TAB_RATIO = 78 / 180;
+const CHARACTER_TABS_W = 422;
+const CHARACTER_TAB_GAP = 12;
+const CHARACTER_TAB_MAX_W = 104;
+const CHARACTER_TAB_RATIO = 78 / 180;
 /** 页签靠负 margin 压回的量。 */
-export const CHARACTER_TAB_PULL = 5;
+const CHARACTER_TAB_PULL = 5;
 /** 详情列的最小高度,也是页签 + 面板的总高。 */
-export const CHARACTER_DETAILS_H = 646;
+const CHARACTER_DETAILS_H = 646;
 
 export function characterTabRowHeight(tabCount: number): number {
   const available = CHARACTER_TABS_W - CHARACTER_TAB_GAP * (tabCount - 1);

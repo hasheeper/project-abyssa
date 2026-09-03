@@ -40,8 +40,8 @@ import type { TitleThemeId } from "./titleThemes";
  */
 
 const IDLE_HINT = "尚未有存档。";
-export const TITLE_COMMAND_INTRO_GAP_MS = 130;
-export const TITLE_COMMAND_INTRO_START_MS = ABYSSA_LOGO_INTRO_TOTAL_MS + 160;
+const TITLE_COMMAND_INTRO_GAP_MS = 130;
+const TITLE_COMMAND_INTRO_START_MS = ABYSSA_LOGO_INTRO_TOTAL_MS + 160;
 
 /* SVG 法阵、自转轴与下层透光区共用同一个原点。放在共同祖先上可避免
    其中一层改了坐标、另一层仍停在画布中心。 */

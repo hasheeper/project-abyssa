@@ -236,7 +236,9 @@ export function CharacterStatusScreen({
       </div>
 
       <RpgFrame className="abyssa-character-screen__shell" padding="lg">
-        <FrameEdgeWeave namespace="abyssa-character-screen" />
+        {resolvedInterfaceTone !== "hero-party" && (
+          <FrameEdgeWeave namespace="abyssa-character-screen" />
+        )}
         <div className="abyssa-character-screen__layout">
           <div
             className="abyssa-character-screen__visual"

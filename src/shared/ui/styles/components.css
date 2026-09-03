@@ -1,9 +1,4 @@
 /* Ordered compatibility entry point for shared UI component styles. */
-@import "./components-foundation.css";
-@import "./components-controls.css";
-@import "./components-dialogue.css";
-@import "./components-character-selector.css";
-@import "./components-status-panel.css";
-@import "./components-character-screen.css";
-@import "./components-dice-loadout.css";
-@import "./components-character-chronicle.css";
+@import "./components-core.css";
+@import "./components-character-status.css";
+@import "./components-character-archive.css";

@@ -32,9 +32,6 @@ export const NAME_BY_ID: Record<string, string> = Object.fromEntries(
   ROSTER.map(({ id, name }) => [id, name])
 );
 
-/** 标准表情代号,a–n 十四个。 */
-export const BASE_EXPRESSIONS = Object.keys(EXPRESSION_LABELS);
-
 /**
  * 某角色的全部表情代号,标准的在前、专属的在后。
  *

@@ -70,6 +70,7 @@ export type {
   CharacterMenuItem,
   CharacterOutfit,
   CharacterProfile,
+  CharacterTabRenderArgs,
   CharacterStatusScreenProps
 } from "./shared/ui/patterns/CharacterStatusScreen";
 export { CurrencyAmount } from "./shared/ui/primitives/CurrencyAmount";
@@ -267,7 +268,12 @@ export { SectionHeader } from "./shared/ui/primitives/SectionHeader";
 export type { SectionHeaderProps } from "./shared/ui/primitives/SectionHeader";
 export { StatusPanel } from "./shared/ui/patterns/StatusPanel";
 export type {
+  StatusBond,
+  StatusChip,
   StatusField,
+  StatusPact,
+  StatusPanelAffiliation,
+  StatusPanelAffiliationTone,
   StatusPanelData,
   StatusPanelProps,
   StatusStat,

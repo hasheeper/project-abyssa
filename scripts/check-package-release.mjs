@@ -135,6 +135,31 @@ if (pack) {
       );
     }
   }
+
+  if (packageFiles.has("dist/abyssa-ui.css")) {
+    const libraryCss = readFileSync(resolve(projectRoot, "dist/abyssa-ui.css"), "utf8");
+    const publicStyleMarkers = [
+      ["character status panel", /\.abyssa-status-panel(?:[\s,{.:>])/],
+      ["character status screen", /\.abyssa-character-screen(?:[\s,{.:>])/]
+    ];
+    const internalStyleMarkers = [
+      ["character dice loadout", /\.abyssa-dice(?:[\s,{.:>])/],
+      ["character chronicle", /\.abyssa-chronicle(?:[\s,{.:>])/]
+    ];
+
+    for (const [label, marker] of publicStyleMarkers) {
+      check(
+        marker.test(libraryCss),
+        `dist/abyssa-ui.css must contain public ${label} styles`
+      );
+    }
+    for (const [label, marker] of internalStyleMarkers) {
+      check(
+        !marker.test(libraryCss),
+        `dist/abyssa-ui.css must not contain product-only ${label} styles`
+      );
+    }
+  }
 }
 
 const expectedExportPaths = {

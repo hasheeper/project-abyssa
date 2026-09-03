@@ -144,7 +144,6 @@
   --abyssa-character-tab-glow: rgb(196 54 68 / 52%);
   --abyssa-character-tab-focus: #cf827b;
   --abyssa-character-dock-surface: #160d10;
-  --abyssa-character-dock-line: rgb(137 54 63 / 58%);
   --abyssa-character-dock-idle-fill: #110a0c;
   --abyssa-character-dock-idle-middle: #5c343a;
   --abyssa-character-dock-idle-ornament: #7c474d;
@@ -348,7 +347,6 @@
   --abyssa-character-tab-focus: #ead38c;
   --abyssa-character-dock-surface: #14202b;
   --abyssa-character-dock-well: #1c2a35;
-  --abyssa-character-dock-line: rgb(164 137 72 / 56%);
   --abyssa-character-dock-idle-fill: #121c26;
   --abyssa-character-dock-idle-middle: #685d3d;
   --abyssa-character-dock-idle-ornament: #927d4a;
@@ -417,7 +415,6 @@
 .abyssa-character-screen[data-skin="hero-party"] .abyssa-character-screen__shell > .abyssa-frame__ornaments {
   inset: -7px;
 }
-.abyssa-character-screen[data-skin="hero-party"] .abyssa-character-screen__edge-weave { display: none; }
 .abyssa-character-screen[data-skin="hero-party"] .abyssa-character-screen__outfit-selector .abyssa-diamond-node {
   --abyssa-node-fill: #17212b;
   --abyssa-node-middle: #7d765f;

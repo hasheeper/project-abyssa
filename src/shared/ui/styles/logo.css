@@ -305,23 +305,6 @@
   }
 }
 
-/* 从中心展开:横向 scaleX 由 0 拉到 1,纵向不动。 */
-@keyframes abyssa-logo-sweep-in {
-  from {
-    opacity: 0;
-    translate: calc(var(--abyssa-logo-pivot-x) * 1px) 0;
-    scale: 0 1;
-  }
-  40% {
-    opacity: var(--abyssa-logo-part-opacity, 1);
-  }
-  to {
-    opacity: var(--abyssa-logo-part-opacity, 1);
-    translate: 0 0;
-    scale: 1 1;
-  }
-}
-
 /* 字标揭开:mask-size 宽度 0 → 1400px。
    元素宽约 746 用户单位,900px 起不透明核心即完全覆盖,
    1400px 留足余量,收尾干净。几何完全不动,不可能破坏布局。 */

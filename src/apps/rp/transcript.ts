@@ -326,7 +326,3 @@ export const SCENES: RpSceneData[] = [
   { id: "act-1", title: "月末的长桌", actors: ACT_ONE_ACTORS, messages: ACT_ONE_MESSAGES },
   { id: "act-2", title: "申时的厨房动线", actors: ACT_TWO_ACTORS, messages: ACT_TWO_MESSAGES }
 ];
-
-/** 兼容旧引用:第一幕的名册与消息。 */
-export const ACTORS = ACT_ONE_ACTORS;
-export const TRANSCRIPT = ACT_ONE_MESSAGES;

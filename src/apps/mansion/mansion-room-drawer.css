@@ -436,7 +436,6 @@
 }
 
 .mansion-room-card__footer { display: flex; align-items: flex-end; justify-content: space-between; gap: 14px; margin-top: auto; padding-top: 16px; border-top: 1px solid rgb(93 111 110 / 38%); }
-.mansion-room-card__fund-note { color: #7d8d8d; font-size: 10px; line-height: 1.65; white-space: nowrap; }
 .mansion-room-card__actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 7px; }
 .mansion-room-card__action.abyssa-notched-pill { width: 158px; height: 42px; }
 .mansion-room-card__repair {

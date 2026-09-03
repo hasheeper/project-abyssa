@@ -16,7 +16,6 @@
   cursor: pointer;
   animation: mansion-adv-stage-in 360ms cubic-bezier(.16, .84, .3, 1) both;
 }
-.mansion-adv-dialogue .rp-adv__bg { display: none; }
 .mansion-adv-dialogue .rp-adv::after,
 .mansion-adv-dialogue .rp-adv__frame-ornaments { display: none; }
 .mansion-adv-dialogue .rp-adv__cast::after {
@@ -61,10 +60,6 @@
    top 128 = 相位栏底(18 + 92 + 下沉 4 = 114)再留 14 间隙。两者都居中,
    若沿用原来的 92 会正好压在牌面上。 */
 .mansion-toast { position: absolute; z-index: 700; top: 128px; left: 50%; padding: 9px 17px; border: 1px solid #9d9069; color: #eee2bd; background: rgb(21 25 24 / 94%); box-shadow: 0 10px 22px rgb(0 0 0 / 36%); font-size: 11px; letter-spacing: .1em; transform: translateX(-50%); animation: mansion-toast-in 180ms ease-out; }
-
-/* .mansion-help 已删 —— 「按住拖拽 · 滚轮平移 · 点击房间 · 点击角色」
-   是常驻说明书,游戏不把图例钉在屏幕上。真要引导应当首次进入淡入一次
-   然后消失,而不是永久占角。 */
 
 /* 产出图钉的「可收取」呼吸。
    ============ 这里曾经错得很隐蔽 ============

@@ -237,66 +237,6 @@ describe("dice loadout panel", () => {
     expect(CSS).toMatch(/--dice-accent:\s*var\(--abyssa-teal/);
   });
 
-  /* 每列骰面下方一排三枚小标记:白骰点数 / 花色 / 铭。
-     **纯图标,连数字都没有** —— 战面数值由骰面自己的右下角角标承载,
-     六列并排时任何文字都会挤成一团。 */
-  it("expands each die into three icon-only marks", () => {
-    const { container } = render(<DiceLoadoutPanel loadout={authored()} />);
-
-    const first = container.querySelector(".abyssa-dice__column")!;
-    const marks = first.querySelectorAll(".abyssa-dice__mark");
-    expect(marks).toHaveLength(3);
-
-    // 顺序固定:白骰 → 花色 → 铭。
-    expect([...marks].map((m) => m.getAttribute("data-kind"))).toEqual([
-      "pip",
-      "suit",
-      "seal"
-    ]);
-
-    for (const mark of marks) {
-      // 一枚图标,别无其他;不许出现任何文案。
-      expect(mark.querySelectorAll("i")).toHaveLength(1);
-      expect(mark.textContent).toBe("");
-    }
-
-    // 整排对读屏隐藏,语义由列的 aria-label 承载。
-    expect(first.querySelector(".abyssa-dice__marks")).toHaveAttribute(
-      "aria-hidden",
-      "true"
-    );
-  });
-
-  /* 白骰点数用经典骰子的点位画,而不是数字或抽象图标。 */
-  it("renders the pip mark as a classic white die", () => {
-    const { container } = render(<DiceLoadoutPanel loadout={authored()} />);
-
-    const pips = container.querySelectorAll('.abyssa-dice__mark[data-kind="pip"] i');
-    expect(pips).toHaveLength(6);
-
-    // 已醒面带 data-pip(1..6),沉眠面不带 —— 点数不进牌型,骰子留白。
-    const values = [...pips].map((i) => i.getAttribute("data-pip"));
-    expect(values.filter((v) => v !== null).sort()).toEqual(["2", "3", "5", "6"]);
-    expect(values.filter((v) => v === null)).toHaveLength(2);
-
-    // 点位是 CSS 画的,不是字符。
-    const pipCss = CSS.slice(
-      CSS.indexOf('.abyssa-dice__mark[data-kind="pip"] i[data-pip="5"]')
-    );
-    expect(pipCss.slice(0, 400)).toMatch(/radial-gradient/);
-  });
-
-  /* 沉眠列整排压暗。 */
-  it("dims the marks on dormant faces", () => {
-    const { container } = render(<DiceLoadoutPanel loadout={authored()} />);
-    expect(
-      container.querySelectorAll('.abyssa-dice__column[data-fate="asleep"]')
-    ).toHaveLength(2);
-    expect(CSS).toMatch(
-      /\[data-fate="asleep"\] \.abyssa-dice__mark \{\s*opacity:/
-    );
-  });
-
   /* 检视栏是 580x233 的宽扁框:必须左铭牌 + 右数据网格,
      不能退回竖排窄行(那会浪费 530px 的宽度)。 */
   it("splits the inspector into an identity plaque and a data grid", () => {

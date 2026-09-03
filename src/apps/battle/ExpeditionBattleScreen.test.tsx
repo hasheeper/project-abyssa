@@ -419,9 +419,11 @@ describe("ExpeditionBattleScreen", () => {
     expect(gildCount).toHaveTextContent("1");
     expect(gildCount).toHaveAttribute("title", "尤斯缇丝的命数骰有 1 面金铭");
     expect(dieSlots()[1]).not.toHaveTextContent("锈 1/6");
-    expect(
-      dieSlots()[1]!.querySelector('.expedition-die__face[data-face="1"]')
-    ).toHaveAttribute("data-quality", "rust");
+    const rustFace = dieSlots()[1]!.querySelector('.expedition-die__face[data-face="1"]')!;
+    expect(rustFace.querySelector(".expedition-flat-die-frame__seal")).toHaveAttribute(
+      "data-seal",
+      "rust"
+    );
     expect(dice()[1]).toBeDisabled();
   });
 
@@ -531,43 +533,33 @@ describe("ExpeditionBattleScreen", () => {
     expect(shield.getAttribute("data-empty")).toBe("true");
   });
 
-  it("骰面 rail 只用菱形，高伤害面升格为大菱形而非数字", () => {
+  it("骰面强度由可见楔形刻度表达，不再渲染隐藏的旧 rail", () => {
     mount();
 
-    /* rail 内不得出现数字读数 */
-    expect(board().querySelector(".expedition-die__rail-value")).toBeNull();
-
-    /* 柯萝萝有 power 4/5 面，其骰上必存在大菱形槽 */
-    const grand = board().querySelectorAll(".expedition-die__rail[data-grand]");
-    expect(grand.length).toBeGreaterThan(0);
-    /* 大菱形槽内只有一颗宝石 */
-    for (const rail of grand) {
-      expect(rail.querySelectorAll(".expedition-die__stud")).toHaveLength(1);
-      expect(rail.querySelector(".expedition-die__stud[data-grand]")).not.toBeNull();
+    /* 柯萝萝有 power 4/5 面；当前可见组件直接携带其强度。 */
+    const highPower = board().querySelectorAll(
+      '.expedition-flat-die-frame__power[data-power="4"], .expedition-flat-die-frame__power[data-power="5"]'
+    );
+    expect(highPower.length).toBeGreaterThan(0);
+    for (const mark of highPower) {
+      expect(mark.querySelectorAll("use").length).toBeGreaterThan(0);
+      expect(mark.textContent).toBe("");
     }
+    expect(board().querySelector(".expedition-die__legacy-face")).toBeNull();
+    expect(board().querySelector(".expedition-die__rail")).toBeNull();
   });
 
-  it("摆烂面复用短凹槽显示小红叉，且不能指挥角色", () => {
+  it("摆烂面使用当前骰面组件的封印图标，且不能指挥角色", () => {
     mount(() => 0.9);
 
-    const blankFaces = board().querySelectorAll('.expedition-die__face[data-verb="blank"]');
+    const blankFaces = board().querySelectorAll(
+      '.expedition-flat-die-frame[data-action="blank"]'
+    );
     expect(blankFaces.length).toBeGreaterThan(0);
     for (const face of blankFaces) {
-      const rail = face.querySelector('.expedition-die__rail[data-blank="true"]');
-      expect(rail).not.toBeNull();
-      expect(rail!.querySelectorAll(".expedition-die__stud")).toHaveLength(0);
-      expect(rail!.querySelector(".expedition-die__unusable-mark")).not.toBeNull();
+      expect(face.querySelector('.expedition-flat-die-frame__power[data-power="0"]')).not.toBeNull();
+      expect(face.querySelector(".expedition-flat-die-frame__main-stamp")).not.toBeNull();
     }
-
-    const css = readExpeditionCss();
-    const blankRailRule = css.match(
-      /\.expedition-die__rail\[data-blank\]\s*\{([^}]*)\}/
-    )?.[1];
-    expect(blankRailRule).toContain("height:");
-    /* 材质、内阴影和圆角必须继承通用 rail，blank 只负责缩短。 */
-    expect(blankRailRule).not.toContain("background:");
-    expect(blankRailRule).not.toContain("box-shadow:");
-    expect(blankRailRule).not.toContain("border-radius:");
 
     /* 0.9 令柯萝萝掷出六面 blank：可锁定点数，但角色卡不亮、不响应。 */
     expect(dice()[3]).toHaveAttribute("data-unusable", "true");
@@ -625,7 +617,7 @@ describe("ExpeditionBattleScreen", () => {
     mount(() => 0.4);
 
     const slot = board().querySelector(".abyssa-expedition-hand")!;
-    const lit = board().querySelectorAll(".expedition-die__face[data-scoring]");
+    const lit = board().querySelectorAll(".expedition-flat-die-frame[data-scoring]");
 
     if (slot.getAttribute("data-scoring") === "true") {
       /* 成牌：至少两枚骰的结果面角标亮起 */
@@ -710,7 +702,7 @@ describe("ExpeditionBattleScreen", () => {
     expect(depth).toBe(0);
   });
 
-  it("默认骰子保持实色，并与角色卡共框；成牌角标使用硬边凹刻", () => {
+  it("默认骰子保持实色，并与角色卡共框", () => {
     const css = readExpeditionCss();
     const battlefieldRule = css.match(
       /\.abyssa-expedition-regions__battlefield\s*\{([^}]*)\}/
@@ -722,23 +714,12 @@ describe("ExpeditionBattleScreen", () => {
     const defaultDieRule = css.match(
       /\.abyssa-expedition-die-slot:not\(\[data-loaded\]\) \.expedition-die\s*\{([^}]*)\}/
     )?.[1];
-    const scoringNumberRule = css.match(
-      /\.expedition-die__face\[data-scoring\] \.expedition-die__corner > b\s*\{([^}]*)\}/
-    )?.[1];
-    const scoringSuitRule = css.match(
-      /\.expedition-die__face\[data-scoring\] \.expedition-die__corner > i\s*\{([^}]*)\}/
-    )?.[1];
-
     expect(defaultDieRule).toContain("opacity: 1");
     expect(battlefieldRule).toContain(
       "grid-template-rows: var(--expedition-enemy-panel-h) 497px"
     );
     expect(partyRule).toContain("grid-row: 2");
     expect(dicePanelRule).toContain("grid-row: 2");
-    expect(scoringNumberRule).not.toMatch(/0\s+0\s+[1-9]\d*px/);
-    expect(scoringNumberRule).not.toContain("animation:");
-    expect(scoringSuitRule).not.toContain("drop-shadow(0 0");
-    expect(scoringSuitRule).not.toContain("animation:");
   });
 
   it("攻击特效由敌方 formation 裁剪，不截断跨区意图线", () => {

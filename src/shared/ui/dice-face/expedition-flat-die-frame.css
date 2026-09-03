@@ -6,12 +6,6 @@
   --frame-ivory-mid: color-mix(in srgb, var(--expedition-die-theme-color) 78%, #766b5b);
   --frame-ivory-shadow: color-mix(in srgb, var(--expedition-die-theme-color) 68%, #302a24);
   --frame-ivory-deep: color-mix(in srgb, var(--expedition-die-theme-color) 55%, #191611);
-  --gold-paper: var(--frame-ivory-light);
-  --gold-light: var(--frame-ivory-light);
-  --gold-dark: var(--frame-ivory-shadow);
-  --gold-ink: var(--frame-ivory-deep);
-  --gold-edge: var(--frame-ivory-deep);
-  --gold-edge-highlight: var(--frame-ivory-light);
   --frame-fiber-light: color-mix(in srgb, var(--frame-ivory-light) 74%, #f0e8d5);
   --frame-fiber-dark: color-mix(in srgb, var(--frame-ivory-shadow) 78%, #241f19);
   --suit-plate: color-mix(in srgb, var(--expedition-die-theme-color) 62%, #b8aa90);
@@ -158,15 +152,6 @@
 
 .expedition-flat-die-frame[data-scoring] .expedition-flat-die-frame__wild-pip {
   filter: drop-shadow(0 0 2px rgb(255 224 146 / 76%));
-}
-
-.expedition-flat-die-frame__placeholder {
-  fill: none;
-  stroke: var(--gold-dark);
-  stroke-dasharray: 4 3.5;
-  stroke-linejoin: round;
-  stroke-width: 1.25px;
-  opacity: .62;
 }
 
 .expedition-flat-die-frame__seal {

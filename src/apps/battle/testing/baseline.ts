@@ -27,7 +27,7 @@ import {
   isEnemyFrenzied
 } from "../rules/frenzy-status";
 
-export type BaselineTraceStep = {
+type BaselineTraceStep = {
   index: number;
   command: string;
   fingerprint: string;
@@ -41,7 +41,7 @@ export type BaselineRun = {
 };
 
 /** Stable, dependency-free FNV-1a fingerprint for readable golden traces. */
-export function fingerprintBattleSummary(value: string): string {
+function fingerprintBattleSummary(value: string): string {
   let hash = 0x811c9dc5;
   for (let index = 0; index < value.length; index += 1) {
     hash ^= value.charCodeAt(index);
@@ -51,7 +51,7 @@ export function fingerprintBattleSummary(value: string): string {
 }
 
 /** Compact semantic state; deliberately excludes undo snapshots and full log history. */
-export function summarizeExpeditionState(state: ExpeditionState): string {
+function summarizeExpeditionState(state: ExpeditionState): string {
   const phase = getBattlePhase(state);
   const status = getExpeditionStatus(state);
   return JSON.stringify({

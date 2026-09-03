@@ -50,6 +50,10 @@ interface MapSceneOptions {
 export interface MapSceneController {
   replay: () => void;
   updateLocation: (id: MapLocationId, location: MapLocationConfig) => void;
+  /** 高亮并聚焦地标；panelSide 用来把视觉中心让出给委托侧板。 */
+  setSelected: (id: MapLocationId | null, panelSide?: "left" | "right") => void;
+  /** 关掉拾取。UI 浮层展开时地图不再响应点击，但视差与渲染继续。 */
+  setInteractive: (interactive: boolean) => void;
   destroy: () => void;
 }
 
@@ -75,7 +79,18 @@ export function createMapScene(container: HTMLElement, options: MapSceneOptions)
   const initialSize = size();
   const camera = new PerspectiveCamera(30.5, initialSize.width / initialSize.height, 0.1, 100);
   const cameraBasePosition = new Vector3(0, 17, 22);
-  const cameraLookTarget = new Vector3(0, -0.5, 0);
+  const cameraBaseLookTarget = new Vector3(0, -0.5, 0);
+  const cameraLookTarget = cameraBaseLookTarget.clone();
+  const cameraBaseOffset = cameraBasePosition.clone().sub(cameraBaseLookTarget);
+  const cameraScreenUp = new Vector3(0, cameraBaseOffset.z, -cameraBaseOffset.y).normalize();
+  const cameraPose = {
+    positionX: cameraBasePosition.x,
+    positionY: cameraBasePosition.y,
+    positionZ: cameraBasePosition.z,
+    targetX: cameraBaseLookTarget.x,
+    targetY: cameraBaseLookTarget.y,
+    targetZ: cameraBaseLookTarget.z
+  };
   const cameraPitchAngle = Math.atan2(cameraBasePosition.y, cameraBasePosition.z);
   camera.position.copy(cameraBasePosition);
   camera.lookAt(cameraLookTarget);
@@ -335,9 +350,79 @@ export function createMapScene(container: HTMLElement, options: MapSceneOptions)
     drawRoute();
   }
 
+  /* 选中态住在 Three 侧而不是 DOM 侧：地标是 WebGL 里的纸片 billboard，
+     HTML 遮罩盖不住 canvas 内部，做不到「选中地标浮在遮罩之上」。
+     于是高亮改为提亮纸片本色 —— 遮罩只压 UI 层，地图整体变暗由 CSS 负责，
+     被选中的那张纸靠自身亮度从暗场里浮出来。 */
+  const LOCATION_TINT = 0xd2bea0;
+  const LOCATION_TINT_SELECTED = 0xfff0d8;
+  const CAMERA_FOCUS_SCALE = 0.76;
+  const CAMERA_FOCUS_X = { left: 0.67, right: 0.33 } as const;
+  const CAMERA_FOCUS_Y = 0.43;
+  let selectedId: MapLocationId | null = null;
+  let selectedPanelSide: "left" | "right" | undefined;
+  let interactive = true;
+
+  function applySelectionTint() {
+    sceneObjects.forEach((object, id) => {
+      const material = object.sceneMesh.material as MeshLambertMaterial;
+      material.color.setHex(
+        selectedId !== null && id === selectedId ? LOCATION_TINT_SELECTED : LOCATION_TINT
+      );
+    });
+  }
+
+  function animateCameraTo(id: MapLocationId | null, panelSide?: "left" | "right") {
+    const location = id === null
+      ? null
+      : locations.find((entry) => entry.id === id) ?? null;
+    const scale = location ? CAMERA_FOCUS_SCALE : 1;
+    const focusDistance = cameraBaseOffset.length() * scale;
+    const halfViewHeight = focusDistance * Math.tan((camera.fov * Math.PI) / 360);
+    const halfViewWidth = halfViewHeight * camera.aspect;
+    const anchorX = panelSide ? CAMERA_FOCUS_X[panelSide] : 0.5;
+    const anchorY = panelSide ? CAMERA_FOCUS_Y : 0.5;
+    const ndcX = anchorX * 2 - 1;
+    const ndcY = 1 - anchorY * 2;
+    const locationTargetY = location
+      ? Math.max(0.35, location.height * 0.24)
+      : cameraBaseLookTarget.y;
+    /* 视图中心向侧板与小队方向偏移，地标便落在剩余可视区中心。
+       x 是相机右轴；纵向沿相机屏幕上轴反算，俯视角改变时仍然成立。 */
+    const targetX = (location?.position.x ?? cameraBaseLookTarget.x) - ndcX * halfViewWidth;
+    const targetY = locationTargetY - ndcY * halfViewHeight * cameraScreenUp.y;
+    const targetZ = (location?.position.z ?? cameraBaseLookTarget.z) -
+      ndcY * halfViewHeight * cameraScreenUp.z;
+
+    gsap.killTweensOf(cameraPose);
+    gsap.to(cameraPose, {
+      positionX: targetX + cameraBaseOffset.x * scale,
+      positionY: targetY + cameraBaseOffset.y * scale,
+      positionZ: targetZ + cameraBaseOffset.z * scale,
+      targetX,
+      targetY,
+      targetZ,
+      duration: 0.78,
+      ease: "power3.inOut"
+    });
+  }
+
+  function setSelected(id: MapLocationId | null, panelSide?: "left" | "right") {
+    if (runtime.destroyed || (selectedId === id && selectedPanelSide === panelSide)) return;
+    selectedId = id;
+    selectedPanelSide = panelSide;
+    applySelectionTint();
+    animateCameraTo(id, panelSide);
+  }
+
+  function setInteractive(next: boolean) {
+    interactive = next;
+  }
+
   const raycaster = new Raycaster();
   const pointer = new Vector2();
   function handlePointerDown(event: PointerEvent) {
+    if (!interactive) return;
     const bounds = renderer.domElement.getBoundingClientRect();
     pointer.x = ((event.clientX - bounds.left) / bounds.width) * 2 - 1;
     pointer.y = -((event.clientY - bounds.top) / bounds.height) * 2 + 1;
@@ -368,8 +453,13 @@ export function createMapScene(container: HTMLElement, options: MapSceneOptions)
   }
 
   function renderFrame() {
-    camera.position.x += (cameraBasePosition.x + pointerX * 0.3 - camera.position.x) * 0.04;
-    camera.position.y += (cameraBasePosition.y + pointerY * 0.2 - camera.position.y) * 0.04;
+    const parallax = selectedId === null ? 1 : 0.28;
+    camera.position.set(
+      cameraPose.positionX + pointerX * 0.3 * parallax,
+      cameraPose.positionY + pointerY * 0.2 * parallax,
+      cameraPose.positionZ
+    );
+    cameraLookTarget.set(cameraPose.targetX, cameraPose.targetY, cameraPose.targetZ);
     camera.lookAt(cameraLookTarget);
     sceneObjects.forEach((object) => object.rootGroup.quaternion.copy(camera.quaternion));
     renderer.render(scene, camera);
@@ -383,6 +473,7 @@ export function createMapScene(container: HTMLElement, options: MapSceneOptions)
     onPointerMove: handlePointerMove,
     onDestroy() {
       disposePendingTextures();
+      gsap.killTweensOf(cameraPose);
       sceneObjects.forEach((object) => {
         gsap.killTweensOf(object.pivotGroup.rotation);
         gsap.killTweensOf(object.pivotGroup.scale);
@@ -405,6 +496,8 @@ export function createMapScene(container: HTMLElement, options: MapSceneOptions)
     createGround(groundTexture);
     pendingTextures.delete(groundTexture);
     locations.forEach((location, index) => createLocation(location, locationTextures[index]));
+    /* 地标是异步建出来的：选中可能早于建成（例如恢复上次的选择）。 */
+    applySelectionTint();
     options.onReady?.();
     runtime.scheduleReplay(replay, 200);
   }).catch((error: unknown) => {
@@ -415,6 +508,8 @@ export function createMapScene(container: HTMLElement, options: MapSceneOptions)
   return {
     replay,
     updateLocation,
+    setSelected,
+    setInteractive,
     destroy: runtime.destroy
   };
 }

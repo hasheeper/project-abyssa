@@ -1,0 +1,1808 @@
+/* ============ 出击配队 ============
+ *
+ * 三条硬约束（src/shared/stage/README.md）：
+ *   1. 画布固定 1600x900，可用区 1311.67x787。**禁 vw/vh/%**（宽度百分比除外）
+ *      —— 外层已有 scale，视口单位会二次缩放。
+ *   2. 禁媒体查询重排。
+ *   3. 装饰随内容缩放。
+ *
+ * 皮肤沿用 map.css 的木金语汇：深木底 + 黄铜描边 + 羊皮纸字。
+ * 不引入新色系 —— 这一层浮在地图之上，色相打架会把纸芝居质感冲掉。
+ *
+ * 几何全部是算出来的定值，不是手调的孤值：
+ *   可用区        1311.67 x 787
+ *   浮层内缩      18
+ *   抽屉          1275.67 x 314   (18 + 262 海报 + 18 标签 + 10 间隙 + 24 padding)
+ *   抽屉内宽      1251.67 = 1275.67 - 12*2
+ *   信息栏        404
+ *   名单可见宽    835.67 = 1251.67 - 404 - 12
+ *   海报          128 x 262，间隙 10 → 露 6.13 张（九人滚两屏不到）
+ *   十字格        42 → 展开图 180 x 134，落在 384 x 144 的骰区内
+ *   委托侧板      412 x 731 */
+
+.abyssa-sortie-stage,
+.abyssa-sortie-roster,
+.abyssa-sortie-quest,
+.abyssa-map-dim {
+  --sortie-inset: 18px;
+  /* RpgFrame 有三层嵌套装饰，最内侧是 inset:10 处 2px 宽的四角括号
+     ——装饰内缘落在 12px。padding 必须大于它，否则内容压在括号上。
+     20 留出 8px 净间隙；14(sm) 只剩 2px，仍然挤。 */
+  --sortie-pad: 20px;
+  --sortie-gap: 10px;
+  /* 2:3 电影海报比例，撑满内容行（--sortie-row-h = 252）。
+     曾是 128x192：只占行高 76%，下方白白空掉 60px。
+     246 而不是 252：留 --sortie-poster-lift 给悬停上浮，
+     否则滚动容器的 overflow 会把浮起来的那截切掉。 */
+  --sortie-poster-w: 160px;
+  --sortie-poster-h: 240px;
+  --sortie-poster-lift: 6px;
+  /* 横向滚动条占掉内容盒底部这么高（见 ::-webkit-scrollbar）。
+     九人必定溢出，滚动条常驻，所以它一定要算进行高预算。 */
+  --sortie-scrollbar-h: 6px;
+  /* 立绘放大倍率。1.0 时 2:3 的框会露到素材 71.7%（大腿），
+     下半张全是腿；1.5 露到 47.8%，切在腰上才是半身像。 */
+  --sortie-poster-zoom: 1.5;
+  --sortie-info-w: 480px;
+  --sortie-info-pad: 16px;
+  /* 内容行高由信息栏决定(要放下 42 格十字 = 252)，海报 216 顶对齐。 */
+  --sortie-row-h: 252px;
+  --sortie-roster-pad-x: 16px;
+  --sortie-roster-pad-top: 12px;
+  --sortie-roster-pad-bottom: 16px;
+  --sortie-roster-gap: 8px;
+  /* 12 顶距 + 42 标题 + 8 间距 + 252 内容 + 16 底距。 */
+  --sortie-roster-label-h: 42px;
+  --sortie-drawer-h: 330px;
+  /* 侧板是模态浮层，队伍会在对侧集结而不参与它的布局。
+     412 内容宽 372，仍能容纳五枚 68px 头像与四段 8px 间隔。 */
+  --sortie-quest-w: 412px;
+  /* 委托态集结区。侧板右置时队伍 x=47；侧板左置时 x=485。
+     两侧与面板都留约 47px，不靠偶然的 z-index 遮挡来假装不重叠。 */
+  --sortie-muster-h: 290px;
+  --sortie-muster-left-x: 47px;
+  --sortie-muster-right-x: 485px;
+  --sortie-muster-top: 497px;
+  --sortie-muster-w: 780px;
+  /* 出战名册的槽位。5*68 + 4*8 = 372 < 侧板内容宽 380。
+     高 72 而不是 80：头像素材是 1:1，格子越接近方形裁得越少
+     （1:1.06 每侧只裁 2.8%，1:1.18 要裁 7.5%）。
+     zoom 只作用于凯尔那一格（他缺 avatar，退回立绘）。 */
+  --sortie-slot-w: 68px;
+  --sortie-slot-h: 72px;
+  --sortie-slot-zoom: 2;
+  /* 骰面格。六面一排 6*68 + 5*4 = 428 < 信息栏内宽 462。
+     摊成一排后不再受十字三行的高度限制，格子从 42 一路放到 68。
+     上限由「名单至少要露 4 张」倒推：info <= 553.67，
+     再留 20px 不让骰面贴住右边。 */
+  --sortie-cell: 68px;
+
+  --sortie-ink: #e6d3b7;
+  --sortie-ink-dim: #b99b7b;
+  --sortie-ink-mute: #8a7157;
+  --sortie-gold: #d2af69;
+  --sortie-gold-hi: #e8cf8f;
+  --sortie-edge: #806044;
+  --sortie-edge-dim: #5b4633;
+  --sortie-panel: #1c130b;
+  --sortie-deep: #120c07;
+  --sortie-wood: #2b1c11;
+  /* 与 Three 镜头的 0.78s 推进保持同一时间窗，避免侧板和小队先到、
+     地图随后才追上的拖滞感。 */
+  --sortie-focus-duration: 780ms;
+  --sortie-focus-ease: cubic-bezier(0.65, 0, 0.35, 1);
+  --sortie-stage-duration: 400ms;
+  --sortie-stage-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  font-family: var(--abyssa-font-body, "Noto Serif SC", serif);
+}
+
+/* ============ 遮罩 ============
+   配队仍需要均匀压住地图；预备出征则围绕镜头锚点开一扇柔和的窗，
+   选中地标几乎不染黑，只在远离焦点的画面边缘收暗。 */
+.abyssa-map-dim {
+  --sortie-dim-focus-x: 50%;
+
+  position: absolute;
+  z-index: 8;
+  padding: 0;
+  border: 0;
+  background: rgb(18 12 7 / 62%);
+  inset: 0;
+  opacity: 0;
+  cursor: default;
+  pointer-events: none;
+  transition: opacity 300ms ease;
+}
+
+/* 与 Three 镜头 CAMERA_FOCUS_X / Y 对齐：侧板在哪边，透明焦点就在对侧。 */
+.abyssa-map-dim[data-focus-side="right"] { --sortie-dim-focus-x: 33%; }
+.abyssa-map-dim[data-focus-side="left"] { --sortie-dim-focus-x: 67%; }
+
+.abyssa-map-dim[data-focus-side] {
+  background: radial-gradient(
+    ellipse 58% 72% at var(--sortie-dim-focus-x) 43%,
+    rgb(18 12 7 / 0%) 0 22%,
+    rgb(18 12 7 / 5%) 40%,
+    rgb(18 12 7 / 20%) 66%,
+    rgb(18 12 7 / 46%) 100%
+  );
+}
+
+.abyssa-map-viewport[data-mode="team"] .abyssa-map-dim,
+.abyssa-map-viewport[data-mode="pop"] .abyssa-map-dim {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ============ 队伍立绘 ============
+   一棵 DOM 三种姿态，靠 transform 补间过渡。换组件会卸载重建，过渡就没了。 */
+.abyssa-sortie-stage {
+  position: absolute;
+  z-index: 9;
+  display: block;
+  padding: 0;
+  border: 0;
+  background: none;
+  transition:
+    left var(--sortie-stage-duration) var(--sortie-stage-ease),
+    top var(--sortie-stage-duration) var(--sortie-stage-ease),
+    width var(--sortie-stage-duration) var(--sortie-stage-ease),
+    height var(--sortie-stage-duration) var(--sortie-stage-ease),
+    opacity 260ms ease;
+}
+
+/* 地图态：在左下横向展开，整组仍是一个大按钮。 */
+.abyssa-sortie-stage[data-mode="map"] {
+  left: 0;
+  top: 577px;   /* 787 - 210 探出高 */
+  width: 600px;
+  height: 210px;
+  clip-path: inset(-80px 0 -32px 0);
+  cursor: pointer;
+}
+
+/* 配队态：移到中上部收紧站位，让人物成为展开界面的视觉主体，
+   同时让出下方名单抽屉。 */
+.abyssa-sortie-stage[data-mode="team"] {
+  left: 216px;
+  top: 54px;
+  width: 880px;
+  height: 350px;
+  cursor: default;
+}
+
+/* 委托态：小队在侧板对侧贴底集结。
+   stage 空白区不接管指针；只有实际人物可点进入配队。 */
+.abyssa-sortie-stage[data-mode="pop"] {
+  --sortie-stage-duration: var(--sortie-focus-duration);
+  --sortie-stage-ease: var(--sortie-focus-ease);
+
+  top: var(--sortie-muster-top);
+  width: var(--sortie-muster-w);
+  height: var(--sortie-muster-h);
+  cursor: default;
+  pointer-events: none;
+}
+
+/* 侧板在右，队伍靠左且保持朝右；侧板在左，队伍靠右并转身朝左。 */
+.abyssa-sortie-stage[data-mode="pop"][data-quest-side="right"] {
+  left: var(--sortie-muster-left-x);
+}
+
+.abyssa-sortie-stage[data-mode="pop"][data-quest-side="left"] {
+  left: var(--sortie-muster-right-x);
+}
+
+.abyssa-sortie-stage__ground {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 350ms ease 100ms;
+}
+
+.abyssa-sortie-stage__ground {
+  right: -56px;
+  bottom: 30px;
+  left: -56px;
+  z-index: 0;
+  border-top: 1px dashed var(--sortie-edge-dim);
+}
+
+.abyssa-sortie-stage[data-mode="team"] .abyssa-sortie-stage__ground {
+  opacity: 1;
+}
+
+/* 一条收住脚底的集结线：从地图态升起后落稳，而不是浮在暗幕上。 */
+.abyssa-sortie-stage[data-mode="pop"] .abyssa-sortie-stage__ground {
+  right: 0;
+  bottom: 4px;
+  left: 0;
+  border-top-style: solid;
+  border-top-color: rgb(210 175 105 / 62%);
+  box-shadow: 0 -7px 18px rgb(210 175 105 / 12%);
+  opacity: 0.78;
+}
+
+.abyssa-sortie-stage__slots {
+  position: relative;
+  z-index: 1;
+  display: block;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  transform: scaleX(1);
+  transform-origin: center bottom;
+  transition: transform var(--sortie-stage-duration) var(--sortie-stage-ease);
+}
+
+/* 整组镜像只放在 slots 外层。逐角色的 x/y/scale/flipX 校准仍在 img，
+   不会因为转身而被第二套参数覆盖。 */
+.abyssa-sortie-stage[data-mode="pop"][data-quest-side="left"]
+  .abyssa-sortie-stage__slots {
+  transform: scaleX(-1);
+}
+
+.abyssa-sortie-stage__slot {
+  position: absolute;
+  bottom: 0;
+  transition:
+    left var(--sortie-stage-duration) var(--sortie-stage-ease),
+    width var(--sortie-stage-duration) var(--sortie-stage-ease),
+    height var(--sortie-stage-duration) var(--sortie-stage-ease),
+    opacity 240ms ease;
+}
+
+/* 地图态尺寸保留层次，横坐标则由真实出战顺序计算。空槽不参与队形，
+   所以一人 + 凯尔会占第 0/1 位，而不是物理槽 0/4。 */
+.abyssa-sortie-stage[data-mode="map"] .abyssa-sortie-stage__slot[data-lineup-index] {
+  left: var(--sortie-map-left);
+}
+
+.abyssa-sortie-stage[data-mode="map"] .abyssa-sortie-stage__slot:nth-child(1) { z-index: 1; width: 116px; height: 174px; }
+.abyssa-sortie-stage[data-mode="map"] .abyssa-sortie-stage__slot:nth-child(2) { z-index: 3; width: 120px; height: 186px; }
+.abyssa-sortie-stage[data-mode="map"] .abyssa-sortie-stage__slot:nth-child(3) { z-index: 4; width: 126px; height: 196px; }
+.abyssa-sortie-stage[data-mode="map"] .abyssa-sortie-stage__slot:nth-child(4) { z-index: 2; width: 120px; height: 186px; }
+.abyssa-sortie-stage[data-mode="map"] .abyssa-sortie-stage__slot:nth-child(5) { z-index: 2; width: 132px; height: 206px; }
+
+/* 配队态站位：人物放大后收紧为一组，命中盒最多只叠 5px；中间靠前，
+   凯尔略高略远，保留清楚的队伍层次。 */
+.abyssa-sortie-stage[data-mode="team"] .abyssa-sortie-stage__slot:nth-child(1) { left: 20px; z-index: 3; width: 170px; height: 285px; }
+.abyssa-sortie-stage[data-mode="team"] .abyssa-sortie-stage__slot:nth-child(2) { left: 185px; z-index: 4; width: 170px; height: 305px; }
+.abyssa-sortie-stage[data-mode="team"] .abyssa-sortie-stage__slot:nth-child(3) { left: 350px; z-index: 5; width: 180px; height: 320px; }
+.abyssa-sortie-stage[data-mode="team"] .abyssa-sortie-stage__slot:nth-child(4) { left: 525px; z-index: 4; width: 170px; height: 305px; }
+.abyssa-sortie-stage[data-mode="team"] .abyssa-sortie-stage__slot:nth-child(5) { left: 690px; z-index: 4; width: 180px; height: 330px; }
+
+/* 委托态沿地图队形放大，仍使用同一连续序号，不让隐藏空槽重新撑开。 */
+.abyssa-sortie-stage[data-mode="pop"] .abyssa-sortie-stage__slot[data-lineup-index] {
+  left: var(--sortie-pop-left);
+}
+
+.abyssa-sortie-stage[data-mode="pop"] .abyssa-sortie-stage__slot:nth-child(1) { z-index: 1; width: 145px; height: 218px; }
+.abyssa-sortie-stage[data-mode="pop"] .abyssa-sortie-stage__slot:nth-child(2) { z-index: 3; width: 150px; height: 233px; }
+.abyssa-sortie-stage[data-mode="pop"] .abyssa-sortie-stage__slot:nth-child(3) { z-index: 4; width: 158px; height: 245px; }
+.abyssa-sortie-stage[data-mode="pop"] .abyssa-sortie-stage__slot:nth-child(4) { z-index: 2; width: 150px; height: 233px; }
+.abyssa-sortie-stage[data-mode="pop"] .abyssa-sortie-stage__slot:nth-child(5) { z-index: 2; width: 165px; height: 258px; }
+
+.abyssa-sortie-stage[data-mode="map"] .abyssa-sortie-stage__slot[data-empty],
+.abyssa-sortie-stage[data-mode="pop"] .abyssa-sortie-stage__slot[data-empty] {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* 普通地图态仍在左边缘露一点凯尔，提示当前由他留守。 */
+.abyssa-sortie-stage[data-mode="map"]
+  .abyssa-sortie-stage__slot[data-leader][data-stowed] {
+  left: -88px;
+  z-index: 0;
+  opacity: 0.48;
+}
+
+/* 预备出征只展示实际上阵的人。必须同时停掉 muster-in：它的最终关键帧
+   会把普通规则里的 opacity:0 动画回 1，这正是灰色凯尔仍在前台的原因。 */
+.abyssa-sortie-stage[data-mode="pop"]
+  .abyssa-sortie-stage__slot[data-leader][data-stowed] {
+  visibility: hidden;
+  opacity: 0;
+  animation: none;
+  pointer-events: none;
+}
+
+/* 只在首次打开委托时做落定；650ms + 最多 112ms 错峰，与 780ms 镜头同时收住。
+   位移与转身仍由上面的 transition 负责。 */
+.abyssa-sortie-stage[data-mode="pop"] .abyssa-sortie-stage__slot {
+  animation: abyssa-sortie-muster-in 650ms var(--sortie-focus-ease) both;
+}
+
+.abyssa-sortie-stage[data-mode="pop"] .abyssa-sortie-stage__slot:nth-child(2) { animation-delay: 28ms; }
+.abyssa-sortie-stage[data-mode="pop"] .abyssa-sortie-stage__slot:nth-child(3) { animation-delay: 56ms; }
+.abyssa-sortie-stage[data-mode="pop"] .abyssa-sortie-stage__slot:nth-child(4) { animation-delay: 84ms; }
+.abyssa-sortie-stage[data-mode="pop"] .abyssa-sortie-stage__slot:nth-child(5) { animation-delay: 112ms; }
+
+@keyframes abyssa-sortie-muster-in {
+  from { opacity: 0.42; transform: translateY(18px) scale(0.94); }
+  72% { opacity: 1; transform: translateY(-3px) scale(1.015); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.abyssa-sortie-figure {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  flex-direction: column;
+  font: inherit;
+}
+
+.abyssa-sortie-stage[data-mode="team"] .abyssa-sortie-figure:not([data-empty]) { cursor: pointer; }
+
+/* pop 态只把人物自身还给指针，stage 空白区仍穿透到暗幕。 */
+.abyssa-sortie-stage[data-mode="pop"] .abyssa-sortie-figure:not([data-empty]) {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.abyssa-sortie-stage[data-mode="pop"] .abyssa-sortie-figure[data-empty="true"] {
+  opacity: 0;
+}
+
+/* 地图态整队只有一个入口：交给 stage 父层打开编队。
+   四席排满时，子级 disabled button 会覆盖整组人物并吞掉点击；
+   让子项在 map 态不接管命中，点任意立绘都落到整队按钮。 */
+.abyssa-sortie-stage[data-mode="map"] .abyssa-sortie-stage__slots {
+  pointer-events: none;
+}
+
+.abyssa-sortie-figure__art {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  border: 1px solid transparent;
+  border-radius: 46px 46px 6px 6px;
+  flex: 1;
+  transition: border-color 200ms ease, filter 200ms ease;
+}
+
+.abyssa-sortie-figure__art img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: bottom center;
+}
+
+/* Q 版队伍图是统一的方画布，不能继续按纵长海报的 contain 规则缩放：
+   那样实际角色只占槽位下半截。以脚底为锚稍微放大透明画布，允许宽帽、
+   翅膀和触手越过窄槽横向叠压；图片不接管命中，点击边界仍由席位按钮决定。 */
+.abyssa-sortie-figure[data-art="figure"] .abyssa-sortie-figure__art {
+  overflow: visible;
+}
+
+.abyssa-sortie-figure[data-art="figure"] .abyssa-sortie-figure__art img {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: auto;
+  max-width: none;
+  height: 110%;
+  filter:
+    contrast(1.07)
+    drop-shadow(0 0 1px rgb(20 12 7 / 96%))
+    drop-shadow(0 2px 2px rgb(0 0 0 / 70%))
+    drop-shadow(0 5px 4px rgb(0 0 0 / 48%));
+  object-fit: unset;
+  pointer-events: none;
+  transform:
+    translateX(calc(-50% + var(--sortie-figure-x, 0%)))
+    translateY(calc(0% - var(--sortie-figure-y, 0%)))
+    scale(var(--sortie-figure-scale, 1))
+    scaleX(var(--sortie-figure-flip-x, 1));
+  transform-origin: bottom center;
+}
+
+/* 地图态沿用上面的 110%；配队态扣除 26px 文字区与 4px 间距后，
+   图片吃满剩余人物区。各角色的共享校准继续叠加在这层尺寸之上。 */
+.abyssa-sortie-stage[data-mode="team"]
+  .abyssa-sortie-figure[data-art="figure"]
+  .abyssa-sortie-figure__art img {
+  height: 100%;
+}
+
+.abyssa-sortie-figure[data-empty="true"] .abyssa-sortie-figure__art {
+  border: 1px dotted var(--sortie-edge-dim);
+  opacity: 0.55;
+}
+
+/* 托管：凯尔还在台上，但退到暗处 —— 他没走，只是不上车。 */
+.abyssa-sortie-figure[data-leader="true"]:not([data-enlisted]) .abyssa-sortie-figure__art {
+  filter: grayscale(0.85) brightness(0.5);
+}
+
+.abyssa-sortie-stage[data-mode="team"] .abyssa-sortie-figure:not([data-empty]):hover .abyssa-sortie-figure__art,
+.abyssa-sortie-stage[data-mode="team"] .abyssa-sortie-figure:not([data-empty]):focus-visible .abyssa-sortie-figure__art {
+  border-color: var(--sortie-gold);
+}
+
+/* 名字只在配队态出现：不再画连续矩形名牌，靠字号、字重与暗色文字阴影
+   保证清晰。地图与预备出征仍保留纯剪影。 */
+.abyssa-sortie-figure__nm {
+  display: flex;
+  height: 0;
+  overflow: hidden;
+  border: 0;
+  background: transparent;
+  color: #d9cdbd;
+  align-items: center;
+  justify-content: center;
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  line-height: 1;
+  text-indent: 0.14em;
+  text-shadow: 0 1px 1px rgb(5 3 2 / 92%), 0 0 5px rgb(10 6 4 / 72%);
+  transition: height 400ms ease, margin-top 400ms ease;
+}
+
+.abyssa-sortie-stage[data-mode="team"] .abyssa-sortie-figure__nm {
+  height: 26px;
+  margin-top: 4px;
+}
+
+.abyssa-sortie-stage[data-mode="team"]
+  .abyssa-sortie-figure[data-empty="true"]
+  .abyssa-sortie-figure__nm {
+  color: rgb(185 170 151 / 72%);
+  font-weight: 500;
+}
+
+.abyssa-sortie-stage[data-mode="team"]
+  .abyssa-sortie-figure[data-leader="true"][data-enlisted]
+  .abyssa-sortie-figure__nm {
+  color: #ddcba9;
+}
+
+/* ============ 名单抽屉 ============ */
+/* 外框由 RpgFrame 提供（.abyssa-frame 的描边、内衬与四角）。
+   这里只定位与配色 —— 木金皮肤覆盖它的青灰默认令牌。
+   版面挂在 RpgFrame 的 __content 上：那才是子元素真正的父盒。 */
+.abyssa-sortie-roster {
+  /* 名单浮层贴近地图画框的暗木 / 旧纸色，刻意压低原先金色的饱和度
+     与明度差；金只作为细边提示，不再承担大面积文字颜色。 */
+  --sortie-ink: #c7bcb0;
+  --sortie-ink-dim: #9a8c7e;
+  --sortie-ink-mute: #786b5f;
+  --sortie-gold: #9d8668;
+  --sortie-gold-hi: #b5a081;
+  --sortie-edge: #685345;
+  --sortie-edge-dim: #483b32;
+  --sortie-panel: #1b1512;
+  --sortie-deep: #100d0b;
+  --sortie-wood: #251d18;
+  --abyssa-frame-dark: #1b1512;
+  --abyssa-frame-deep: #090706;
+  --abyssa-frame-light: #6c5646;
+  --abyssa-frame-surface: #1b1512;
+  --abyssa-ornament: #6f5a49;
+  --abyssa-ornament-light: #927a64;
+  --abyssa-frame-ink: var(--sortie-ink);
+
+  position: absolute;
+  right: var(--sortie-inset);
+  bottom: var(--sortie-inset);
+  left: var(--sortie-inset);
+  z-index: 10;
+  height: var(--sortie-drawer-h);
+  animation: abyssa-sortie-drawer-in 320ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* 名单不用通用 RpgFrame 的五层等距套框。这里收成两道不同权重的边：
+   外侧铜质切口负责轮廓，内侧暗线负责厚度；角件再补短线，不重复围矩形。 */
+.abyssa-sortie-roster.abyssa-frame {
+  border: 1px solid #0b0907;
+  background: #14100d;
+  box-shadow:
+    0 0 0 1px #5e493a,
+    0 7px 20px rgb(4 2 1 / 34%);
+}
+
+.abyssa-sortie-roster.abyssa-frame::before {
+  inset: 4px;
+  border-color: rgb(143 116 91 / 34%);
+  background-color: var(--sortie-panel);
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 52%);
+}
+
+.abyssa-sortie-roster > .abyssa-frame__ornaments {
+  inset: 8px;
+}
+
+.abyssa-sortie-roster > .abyssa-frame__ornaments i {
+  width: 15px;
+  height: 15px;
+  border-color: rgb(160 136 106 / 48%);
+  opacity: 0.74;
+}
+
+.abyssa-sortie-roster > .abyssa-frame__ornaments i::after {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-color: inherit;
+  border-style: solid;
+  content: "";
+  opacity: 0.42;
+}
+
+.abyssa-sortie-roster > .abyssa-frame__ornaments [data-corner="tl"] { border-width: 1px 0 0 1px; }
+.abyssa-sortie-roster > .abyssa-frame__ornaments [data-corner="tr"] { border-width: 1px 1px 0 0; }
+.abyssa-sortie-roster > .abyssa-frame__ornaments [data-corner="bl"] { border-width: 0 0 1px 1px; }
+.abyssa-sortie-roster > .abyssa-frame__ornaments [data-corner="br"] { border-width: 0 1px 1px 0; }
+.abyssa-sortie-roster > .abyssa-frame__ornaments [data-corner="tl"]::after { top: 4px; left: 4px; border-width: 1px 0 0 1px; }
+.abyssa-sortie-roster > .abyssa-frame__ornaments [data-corner="tr"]::after { top: 4px; right: 4px; border-width: 1px 1px 0 0; }
+.abyssa-sortie-roster > .abyssa-frame__ornaments [data-corner="bl"]::after { bottom: 4px; left: 4px; border-width: 0 0 1px 1px; }
+.abyssa-sortie-roster > .abyssa-frame__ornaments [data-corner="br"]::after { right: 4px; bottom: 4px; border-width: 0 1px 1px 0; }
+
+/* 选择器必须带上 [data-padding]：foundation 的
+   `.abyssa-frame[data-padding="none"] > .abyssa-frame__content { padding: 0 }`
+   是 0-3-0，不带属性选择器的 0-2-0 会被它压掉 —— padding 静默失效。 */
+.abyssa-sortie-roster[data-padding] > .abyssa-frame__content {
+  display: grid;
+  height: 100%;
+  padding: var(--sortie-roster-pad-top) var(--sortie-roster-pad-x) var(--sortie-roster-pad-bottom);
+  background: transparent;
+  box-shadow: none;
+  gap: var(--sortie-roster-gap) var(--sortie-roster-pad-x);
+  grid-template-columns: 1fr var(--sortie-info-w);
+  grid-template-rows: var(--sortie-roster-label-h) var(--sortie-row-h);
+}
+
+@keyframes abyssa-sortie-drawer-in {
+  from { opacity: 0; transform: translateY(28px); }
+}
+
+.abyssa-sortie-roster__lab {
+  display: flex;
+  min-width: 0;
+  color: var(--sortie-ink-mute);
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+}
+
+.abyssa-sortie-roster__lab--list {
+  position: relative;
+  padding: 0 6px 0 2px;
+  border-bottom: 1px solid rgb(126 103 84 / 28%);
+  background: transparent;
+  box-shadow: none;
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.abyssa-sortie-roster__title {
+  display: inline-flex;
+  color: color-mix(in srgb, var(--sortie-ink) 84%, var(--sortie-gold));
+  align-items: center;
+  font-size: 15px;
+  letter-spacing: 0.2em;
+  text-shadow: 0 1px 2px rgb(0 0 0 / 58%);
+}
+
+.abyssa-sortie-roster__count {
+  color: color-mix(in srgb, var(--sortie-ink-dim) 88%, transparent);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.12em;
+  white-space: nowrap;
+}
+
+/* 右栏仍是“标题在上、内容在下”，但整块略高于底板：左侧名单是凹槽，
+   右侧资料是放在其上的薄铭牌。棕色体系不变，只借角色面板的层级关系。 */
+.abyssa-sortie-info-panel {
+  position: relative;
+  display: grid;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  border: 1px solid rgb(126 103 84 / 34%);
+  background: #211a15;
+  box-shadow:
+    inset 0 1px rgb(211 197 178 / 5%),
+    inset 0 0 0 1px rgb(0 0 0 / 24%),
+    0 4px 10px rgb(4 2 1 / 24%);
+  grid-column: 2;
+  grid-row: 1 / 3;
+  grid-template-rows: var(--sortie-roster-label-h) minmax(0, 1fr);
+}
+
+.abyssa-sortie-roster__lab--info {
+  position: relative;
+  z-index: 1;
+  padding: 0 8px 0 14px;
+  border-bottom: 1px solid rgb(126 103 84 / 26%);
+  background: transparent;
+  box-shadow: none;
+}
+
+.abyssa-sortie-roster__summary {
+  display: inline-flex;
+  min-width: 0;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.abyssa-sortie-roster__summary > span {
+  overflow: hidden;
+  color: color-mix(in srgb, var(--sortie-ink) 78%, var(--sortie-gold));
+  font-size: 15px;
+  font-weight: 560;
+  letter-spacing: 0.16em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.abyssa-sortie-roster__summary em {
+  color: var(--sortie-ink-mute);
+  font-size: 11.5px;
+  font-style: normal;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  white-space: nowrap;
+}
+
+.abyssa-sortie-roster__done.abyssa-icon-button[data-size] {
+  --abyssa-icon-size: 40px;
+  --abyssa-icon-fill: #211a15;
+  --abyssa-icon-middle: #665442;
+  --abyssa-icon-ornament: rgb(181 160 129 / 42%);
+  --abyssa-icon-ink: #b6a388;
+  --abyssa-icon-pattern-dark: rgb(157 134 104 / 5%);
+  --abyssa-icon-pattern-light: rgb(199 188 176 / 2%);
+
+  margin-right: 1px;
+  flex: 0 0 auto;
+}
+
+.abyssa-sortie-roster__done .abyssa-icon-button__custom {
+  inset: 25%;
+}
+
+.abyssa-sortie-roster__done .abyssa-icon-button__custom svg {
+  overflow: visible;
+  stroke: currentColor;
+  stroke-width: 2.35;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ============ 海报排 ============ */
+/* padding-top 让出上浮的空间。
+   为什么不能靠 overflow-y:visible：CSS 规定两轴不能一个 visible、
+   一个 auto —— 浏览器会把 y 也算成 auto，纵向冒出滚动条，更糟。
+   为什么不能只靠「海报比行矮 6px」：align-items 是 flex-start，
+   那 6px 全空在**下方**，卡片往上浮时照样顶出上沿被裁
+   （这正是上一版「上边框被挡住」的原因）。
+   底部不留：投影向下扩散约 25px，全留出来海报就得再缩一圈；
+   卡片本就是从暗背景里浮起，投影下缘融进底色是可以接受的，
+   必须完整的是卡片自身那道描边。 */
+.abyssa-sortie-roster__row {
+  position: relative;
+  display: flex;
+  padding-right: 10px;
+  padding-left: 10px;
+  padding-top: var(--sortie-poster-lift);
+  overflow-x: auto;
+  overflow-y: hidden;
+  outline: 1px solid rgb(126 103 84 / 30%);
+  outline-offset: -1px;
+  background: var(--sortie-deep);
+  box-shadow:
+    inset 0 0 0 3px rgb(0 0 0 / 24%),
+    inset 0 3px 9px rgb(0 0 0 / 24%),
+    0 1px 0 rgb(232 207 143 / 4%);
+  align-items: flex-start;
+  gap: var(--sortie-gap);
+  grid-column: 1;
+  grid-row: 2;
+  scroll-padding-inline: 10px;
+  scrollbar-color: var(--sortie-edge-dim) var(--sortie-deep);
+  scrollbar-width: thin;
+}
+
+.abyssa-sortie-roster__row::-webkit-scrollbar { height: var(--sortie-scrollbar-h); }
+.abyssa-sortie-roster__row::-webkit-scrollbar-track { background: var(--sortie-deep); }
+.abyssa-sortie-roster__row::-webkit-scrollbar-thumb { background: var(--sortie-edge-dim); }
+
+/* 卡面分两层，这是为了让投影不被裁掉：
+     .abyssa-sortie-poster        外层 —— 负责浮动与投影，**不 overflow**
+     .abyssa-sortie-poster__clip  内层 —— 负责裁图与描边，overflow:hidden
+   合成一层的话，overflow / mask 会把自己的 box-shadow 一并切掉，
+   悬停时卡片只是变亮却没有轮廓与投影，看着像「少了边角」。 */
+.abyssa-sortie-poster {
+  position: relative;
+  display: block;
+  height: var(--sortie-poster-h);
+  padding: 0;
+  overflow: visible;
+  border: 0;
+  background: none;
+  color: var(--sortie-ink);
+  flex: 0 0 var(--sortie-poster-w);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: transform 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* 淡描边 + 内嵌感：外圈一道极淡的亮线（像卡纸的切口反光），
+   内侧压一层顶部暗、底部更暗的内阴影，让画面像嵌进凹槽里，
+   而不是一张贴在面板上的贴纸。 */
+.abyssa-sortie-poster__clip {
+  --poster-outline: rgb(196 158 106 / 22%);
+
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border: 1px solid rgb(196 158 106 / 22%);
+  border-radius: 3px;
+  background: linear-gradient(180deg, #241811, #14100c 62%, #100b07);
+  box-shadow:
+    inset 0 1px 2px rgb(0 0 0 / 62%),
+    inset 0 -14px 26px rgb(0 0 0 / 46%),
+    inset 0 0 0 1px rgb(0 0 0 / 42%);
+  transition: border-color 220ms ease, box-shadow 220ms ease, filter 220ms ease;
+}
+
+/* CSS border 会先于绝对定位的立绘内容绘制，浅色素材因此会把底边盖掉。
+   另用最上层伪元素复描四边，保证轮廓始终完整。 */
+.abyssa-sortie-poster__clip::after {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  border: 1px solid var(--poster-outline);
+  border-radius: inherit;
+  content: "";
+  pointer-events: none;
+  transition: border-color 220ms ease;
+}
+
+.abyssa-sortie-poster[data-faction="hero-party"] { --poster-accent: #aa9474; }
+.abyssa-sortie-poster[data-faction="demon-cadre"] { --poster-accent: #78999a; }
+.abyssa-sortie-poster[data-faction="demon-lord"] { --poster-accent: #9e7672; }
+
+/* 悬停：整张卡抬起，描边转亮，投影落在外层（不会被裁）。 */
+.abyssa-sortie-poster:hover:not(:disabled),
+.abyssa-sortie-poster:focus-visible {
+  transform: translateY(calc(-1 * var(--sortie-poster-lift)));
+}
+
+.abyssa-sortie-poster:hover:not(:disabled) .abyssa-sortie-poster__clip,
+.abyssa-sortie-poster:focus-visible .abyssa-sortie-poster__clip {
+  --poster-outline: rgb(174 151 119 / 42%);
+
+  border-color: rgb(174 151 119 / 42%);
+  box-shadow:
+    inset 0 1px 2px rgb(0 0 0 / 46%),
+    inset 0 -14px 26px rgb(0 0 0 / 34%),
+    inset 0 0 0 1px rgb(0 0 0 / 30%),
+    0 12px 26px rgb(4 2 1 / 62%);
+  filter: brightness(1.1);
+}
+
+/* 入选：描边取阵营色，底色回暖，内嵌感保留。 */
+.abyssa-sortie-poster[data-chosen] .abyssa-sortie-poster__clip {
+  --poster-outline: color-mix(in srgb, var(--poster-accent, #d2af69) 62%, transparent);
+
+  border-color: color-mix(in srgb, var(--poster-accent, #d2af69) 62%, transparent);
+  background: linear-gradient(180deg, #33251492, #1c1610 62%, #120d08);
+  box-shadow:
+    inset 0 1px 2px rgb(0 0 0 / 52%),
+    inset 0 -14px 26px rgb(0 0 0 / 38%),
+    inset 0 0 0 1px color-mix(in srgb, var(--poster-accent, #d2af69) 22%, transparent),
+    0 6px 18px rgb(4 2 1 / 48%);
+}
+
+.abyssa-sortie-poster:disabled { cursor: not-allowed; }
+
+.abyssa-sortie-poster:disabled .abyssa-sortie-poster__clip {
+  filter: grayscale(0.9) brightness(0.42);
+}
+
+/* 入队序号复用组件库的金属切面节点。缩成克制的小章并从卡角退开，
+   不再用大面积阵营色三角遮住立绘。 */
+.abyssa-sortie-poster__num {
+  --abyssa-facet-size: 31px;
+  --abyssa-facet-fill: #4c4337;
+  --abyssa-facet-lit: #716656;
+  --abyssa-facet-shade: #211b15;
+  --abyssa-facet-edge: #877a65;
+  --abyssa-facet-rim: #aa9c83;
+  --abyssa-facet-ink: #f0e7d5;
+  --abyssa-frame-dark: #1c1610;
+  --abyssa-frame-deep: #0d0a07;
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 5;
+  filter: drop-shadow(0 2px 3px rgb(5 3 2 / 56%));
+}
+
+.abyssa-sortie-poster__num b {
+  color: var(--abyssa-facet-ink);
+  font: 700 12px/1 var(--abyssa-font-display, Georgia, serif);
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 1px rgb(0 0 0 / 72%);
+}
+
+/* 半身取景。
+   立绘按 1.5x 铺满宽度后再裁：素材 704x1472 若 1:1 等比放进 2:3 的框，
+   会露到 71.7%（大腿），下半张全是腿——这是上一版「下面空一大块」的原因。
+   1.5x 时露出顶部 47.8%，正好切在腰上。
+   解剖位置由 alpha 通道实测得到：头 0-13%、肩 22%、胸 35%、腰 52%。
+   九人上半身水平重心都在 47.9%-55%，所以居中裁是安全的。 */
+.abyssa-sortie-poster__art {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: block;
+  overflow: hidden;
+}
+
+/* width 与 transform 由 portraitFraming() 行内注入（逐角色校准，
+   与 RP 共用 spriteCalibration）。这里只给不随角色变的部分。 */
+.abyssa-sortie-poster__art img {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  display: block;
+  height: auto;
+  aspect-ratio: 704 / 1472;
+  transform-origin: top center;
+  transition: scale 420ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* 悬停时立绘再推近一点。用独立的 scale 属性而不是改 transform ——
+   transform 里存着逐角色的 x 校准，覆盖它会把校准冲掉。 */
+.abyssa-sortie-poster:hover:not(:disabled) .abyssa-sortie-poster__art img,
+.abyssa-sortie-poster:focus-visible .abyssa-sortie-poster__art img {
+  scale: 1.05;
+}
+
+/* 名字区的背景：从画面里长出来的渐隐，不是一条实心色带。 */
+.abyssa-sortie-poster__art::after {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 132px;
+  background: linear-gradient(
+    180deg,
+    transparent 0 18%,
+    rgb(16 13 11 / 72%) 48%,
+    var(--sortie-deep) 82% 100%
+  );
+  content: "";
+  pointer-events: none;
+}
+
+.abyssa-sortie-poster__void {
+  position: absolute;
+  inset: 13px 13px 44px;
+  z-index: 1;
+  display: block;
+  border: 1px dashed var(--sortie-edge-dim);
+  opacity: 0.5;
+}
+
+/* 缺勤缎带：斜贯卡面。理由直接写在脸上，不必悬停才知道为什么点不动。
+   斜带是「盖章作废」的语汇，比横条更像海报上的封条。 */
+.abyssa-sortie-poster__rib {
+  position: absolute;
+  top: 46%;
+  right: -18px;
+  left: -18px;
+  z-index: 4;
+  padding: 4px 0;
+  background: rgb(24 16 10 / 92%);
+  box-shadow: 0 0 0 1px rgb(128 96 68 / 52%);
+  color: #d8c6ab;
+  font-size: 11.5px;
+  letter-spacing: 0.08em;
+  line-height: 1.4;
+  text-align: center;
+  transform: rotate(-11deg);
+}
+
+/* 名字左下角起排，不居中 —— 居中是证件照，左下是海报。
+   底缘留 26px 给 mask 的渐隐，字不会被吃掉。 */
+.abyssa-sortie-poster__nm {
+  position: absolute;
+  right: 11px;
+  bottom: 34px;
+  left: 12px;
+  z-index: 3;
+  display: block;
+  overflow: hidden;
+  color: #d7cdc1;
+  font-size: 16.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  text-shadow: 0 1px 4px rgb(0 0 0 / 92%), 0 0 14px rgb(0 0 0 / 62%);
+  white-space: nowrap;
+}
+
+/* 阵营小标：名字下方一行极小的字，压在渐隐里。 */
+.abyssa-sortie-poster__tag {
+  position: absolute;
+  right: 11px;
+  bottom: 17px;
+  left: 12px;
+  z-index: 3;
+  display: block;
+  overflow: hidden;
+  color: var(--poster-accent, var(--sortie-ink-mute));
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-overflow: ellipsis;
+  text-shadow: 0 1px 3px rgb(0 0 0 / 92%);
+  white-space: nowrap;
+  opacity: 0.9;
+}
+
+/* ============ 信息栏 ============ */
+/* 标题在上，详细资料在下；内侧比标题带再暗一档，形成角色面板常用的
+   “铭牌压住资料底板”层次。外框统一由 .abyssa-sortie-info-panel 提供。 */
+.abyssa-sortie-info {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  min-height: 0;
+  padding: 14px var(--sortie-info-pad) 24px;
+  border: 0;
+  background: var(--sortie-panel);
+  gap: 16px;
+  grid-template-rows: 1fr auto;
+}
+
+/* 骰面靠左起排，不居中：右侧留白让它与右邻的读数分开，
+   居中会让六面图在栏里随内容左右浮动。 */
+.abyssa-sortie-info__dice {
+  position: relative;
+  display: flex;
+  min-height: 0;
+  padding: 10px 8px 12px;
+  align-items: center;
+  justify-content: flex-start;
+  isolation: isolate;
+}
+
+/* 头像列与六面骰共用一块略浅的浮雕承托板。它比右栏底色只亮一阶，
+   靠上沿反光、下沿压暗和投影表达“浮在上面”，不靠亮金描边。 */
+.abyssa-sortie-info__dice::before,
+.abyssa-sortie-info__dice::after {
+  position: absolute;
+  content: "";
+  pointer-events: none;
+}
+
+.abyssa-sortie-info__dice::before {
+  inset: 0;
+  z-index: 0;
+  background: #27211c;
+  box-shadow:
+    inset 0 1px rgb(211 197 178 / 7%),
+    inset 0 -2px rgb(5 3 2 / 24%),
+    inset 0 0 0 1px rgb(117 100 84 / 26%);
+  clip-path: polygon(6px 0, calc(100% - 6px) 0, 100% 6px, 100% calc(100% - 6px), calc(100% - 6px) 100%, 6px 100%, 0 calc(100% - 6px), 0 6px);
+  filter: drop-shadow(0 3px 3px rgb(4 2 1 / 28%));
+}
+
+.abyssa-sortie-info__dice::after {
+  inset: 3px;
+  z-index: 0;
+  border: 1px solid rgb(181 160 129 / 16%);
+  clip-path: polygon(4px 0, calc(100% - 4px) 0, 100% 4px, 100% calc(100% - 4px), calc(100% - 4px) 100%, 4px 100%, 0 calc(100% - 4px), 0 4px);
+}
+
+.abyssa-sortie-info__dice > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* 六面一排。与骰装页同一套骰面件，但摊平不折十字：
+   编队时是横向顺次比对，不是逐面检视。
+   一排 6*56 + 5*4 = 356，落在信息栏内宽 386 之内。 */
+.abyssa-sortie__strip {
+  display: grid;
+  gap: 4px;
+  grid-template-columns: repeat(6, var(--sortie-cell));
+}
+
+.abyssa-sortie__strip-cell {
+  position: relative;
+  display: block;
+  width: var(--sortie-cell);
+  height: var(--sortie-cell);
+}
+
+.abyssa-sortie__strip-cell svg { display: block; width: 100%; height: 100%; }
+
+/* 沉眠面压暗：它不进牌局，不该和已醒面抢注意力。 */
+.abyssa-sortie__strip-cell[data-fate="asleep"] { opacity: 0.42; }
+
+.abyssa-sortie-info__minis {
+  --sortie-slot-w: 60px;
+  --sortie-slot-h: 64px;
+
+  display: flex;
+  margin: 0;
+  padding: 0;
+  align-items: flex-start;
+  gap: 14px;
+  list-style: none;
+}
+
+.abyssa-sortie-info__minis .abyssa-sortie-slot { gap: 4px; }
+
+.abyssa-sortie-info__minis .abyssa-sortie-slot__nm {
+  color: #b9ac9e;
+  font-size: 12px;
+  font-weight: 500;
+  text-shadow: 0 1px 2px rgb(5 3 2 / 68%);
+}
+
+.abyssa-sortie-roster
+  .abyssa-sortie-info__minis
+  .abyssa-sortie-slot[data-empty="true"]
+  .abyssa-sortie-slot__nm {
+  color: #9b8e81;
+  opacity: 0.9;
+}
+
+.abyssa-sortie-roster
+  .abyssa-sortie-info__minis
+  .abyssa-sortie-slot[data-leader="true"][data-enlisted]
+  .abyssa-sortie-slot__nm {
+  color: #cbbba5;
+}
+
+/* 当前队伍直接复用点位副本面板的 .abyssa-sortie-slot 与 AvatarFrame。
+   头像源、切角五层框、木金皮肤、阵营描边和裁切规则因此只有一份。 */
+
+/* 战面与花色并排做成两组轻量读数；赌法单独落到底部。
+   不再用三条横向虚线切碎信息栏。 */
+.abyssa-sortie-info__kv {
+  display: grid;
+  margin: 0;
+  gap: 12px 26px;
+  grid-template-columns: minmax(0, 1.45fr) minmax(140px, 1fr);
+}
+
+.abyssa-sortie-info__kv > div {
+  display: grid;
+  min-width: 0;
+  align-content: start;
+  gap: 7px;
+}
+
+.abyssa-sortie-info__kv > div:last-child {
+  padding: 12px 2px 2px;
+  border-top: 1px solid rgb(128 96 68 / 22%);
+  align-items: baseline;
+  gap: 12px;
+  grid-column: 1 / -1;
+  grid-template-columns: 48px 1fr;
+}
+
+.abyssa-sortie-info__kv dt {
+  color: var(--sortie-ink-mute);
+  font-size: 12.5px;
+  font-weight: 400;
+  letter-spacing: 0.18em;
+  line-height: 1.35;
+}
+
+.abyssa-sortie-info__kv dd {
+  margin: 0;
+  color: color-mix(in srgb, var(--sortie-ink) 86%, transparent);
+  font-size: 16px;
+  font-weight: 400;
+}
+
+.abyssa-sortie-info__kv dd.abyssa-sortie-info__note {
+  color: color-mix(in srgb, var(--sortie-ink-dim) 82%, transparent);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.65;
+}
+
+/* ============ 构成表 ============
+   图标一律 mask，不用文字符号。 */
+.abyssa-sortie__tally {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px 14px;
+}
+
+/* position:relative 是必须的：里面的 .abyssa-sortie__sr 用绝对定位收起来，
+   没有定位祖先的话它会脱到更外层去，在别处占位并显示出来
+   （委托侧板曾因此渲染出「收益薄」这样的重复文字）。 */
+.abyssa-sortie__tally-item {
+  position: relative;
+  display: inline-flex;
+  color: var(--sortie-ink);
+  align-items: center;
+  gap: 4px;
+}
+
+.abyssa-sortie__tally-item b {
+  color: color-mix(in srgb, var(--sortie-ink) 88%, transparent);
+  font-size: 16px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.abyssa-sortie__tally-icon {
+  display: block;
+  width: 17px;
+  height: 17px;
+  background-color: color-mix(in srgb, var(--sortie-gold) 82%, transparent);
+  flex: 0 0 auto;
+}
+
+/* 花色底板：纯几何，与骰面左上角的 suit plate 同形。 */
+.abyssa-sortie__suit {
+  display: block;
+  width: 15px;
+  height: 15px;
+  background: currentcolor;
+  flex: 0 0 auto;
+}
+
+.abyssa-sortie__suit[data-plate="diamond"] { rotate: 45deg; }
+.abyssa-sortie__suit[data-plate="circle"] { border-radius: 50%; }
+.abyssa-sortie__suit[data-plate="triangle"] {
+  width: 0;
+  height: 0;
+  background: none;
+  border-right: 7px solid transparent;
+  border-bottom: 14px solid currentcolor;
+  border-left: 7px solid transparent;
+}
+
+.abyssa-sortie-info .abyssa-sortie__muted {
+  font-size: 14px;
+}
+
+.abyssa-sortie__muted {
+  margin: 0;
+  color: var(--sortie-ink-mute);
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.abyssa-sortie__link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--sortie-gold);
+  font: inherit;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.abyssa-sortie__link:hover { color: var(--sortie-gold-hi); }
+
+/* 只给读屏器的补充说明：图标表达的语义要有文字等价物。 */
+.abyssa-sortie__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ============ 委托侧板 ============ */
+.abyssa-sortie-quest {
+  /* 给骑在外沿的关闭键留下安全区，不再贴住地图画框的金属角件。 */
+  --sortie-inset: 28px;
+
+  /* 与编队抽屉共用低饱和暗木 / 旧纸色阶。副本信息靠明度分层，
+     不再单独使用一套亮金高饱和皮肤。 */
+  --sortie-ink: #c7bcb0;
+  --sortie-ink-dim: #9a8c7e;
+  --sortie-ink-mute: #786b5f;
+  --sortie-gold: #9d8668;
+  --sortie-gold-hi: #b5a081;
+  --sortie-edge: #685345;
+  --sortie-edge-dim: #483b32;
+  --sortie-panel: #1b1512;
+  --sortie-deep: #100d0b;
+  --sortie-wood: #251d18;
+  --abyssa-frame-dark: #1b1512;
+  --abyssa-frame-deep: #090706;
+  --abyssa-frame-light: #6c5646;
+  --abyssa-frame-surface: #1b1512;
+  --abyssa-ornament: #6f5a49;
+  --abyssa-ornament-light: #927a64;
+  --abyssa-frame-ink: var(--sortie-ink);
+
+  position: absolute;
+  top: var(--sortie-inset);
+  bottom: var(--sortie-inset);
+  z-index: 10;
+  width: var(--sortie-quest-w);
+}
+
+.abyssa-sortie-quest[data-padding] > .abyssa-frame__content {
+  display: flex;
+  height: 100%;
+  padding: var(--sortie-pad);
+  /* 关闭键骑在内容盒外沿，不能被这里裁掉；内容本身均有各自裁切层。 */
+  overflow: visible;
+  flex-direction: column;
+  gap: 8px;
+  /* RpgFrame 的四角装饰默认是 z=2，必须让关闭键所属内容层压在其上。 */
+  z-index: 3;
+}
+
+.abyssa-sortie-quest[data-side="right"] {
+  right: var(--sortie-inset);
+  animation: abyssa-sortie-quest-in-r var(--sortie-focus-duration) var(--sortie-focus-ease);
+}
+
+.abyssa-sortie-quest[data-side="left"] {
+  left: var(--sortie-inset);
+  animation: abyssa-sortie-quest-in-l var(--sortie-focus-duration) var(--sortie-focus-ease);
+}
+
+@keyframes abyssa-sortie-quest-in-r {
+  from { opacity: 0; transform: translateX(40px); }
+}
+
+@keyframes abyssa-sortie-quest-in-l {
+  from { opacity: 0; transform: translateX(-40px); }
+}
+
+/* 场景横幅是真实背景图的固定接入口。没有素材时保留同尺寸占位，
+   后续只填 sceneImageUrl，不再改侧板结构。 */
+.abyssa-sortie-quest__hero {
+  --sortie-quest-scene-image:
+    radial-gradient(ellipse at 66% 78%, rgb(115 82 51 / 24%), transparent 34%),
+    linear-gradient(145deg, #18100a, #28180d 58%, #120c08);
+
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+  border: 0;
+  background-color: #120c07;
+  background-image:
+    linear-gradient(180deg, rgb(8 5 3 / 8%), transparent 56%, rgb(8 5 3 / 58%)),
+    var(--sortie-quest-scene-image);
+  /* 原图是 16:9，横幅更宽。只用 cover 会保留完整横向信息，缩成一张
+     密集缩略图；把场景层放到 160%，让它成为明确的局部环境镜头。 */
+  background-position: center, center 48%;
+  background-repeat: no-repeat;
+  background-size: 100% 100%, 160% auto;
+  /* 下沿由场景渐暗自然收口。这里曾同时叠 border-bottom、四边 inset
+     描边和底部阴影，裁切后会混成一条明暗不匀的“幽灵边”。只保留
+     上、左、右三面的极淡内沿，避免在图片底部重复描线。 */
+  box-shadow:
+    inset 1px 0 rgb(181 160 129 / 9%),
+    inset -1px 0 rgb(181 160 129 / 9%),
+    inset 0 1px rgb(181 160 129 / 9%);
+  flex: 0 0 156px;
+}
+
+.abyssa-sortie-quest__hero[data-placeholder] {
+  background-image:
+    linear-gradient(180deg, rgb(8 5 3 / 3%), transparent 52%, rgb(8 5 3 / 62%)),
+    radial-gradient(ellipse at 68% 42%, rgb(120 105 87 / 18%), transparent 42%),
+    linear-gradient(155deg, #171310, #221b16 52%, #100d0b);
+  background-position: center;
+  background-size: cover;
+}
+
+.abyssa-sortie-quest__hero::after {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 56% 44%, transparent 36%, rgb(6 4 2 / 38%)),
+    linear-gradient(180deg, transparent 58%, rgb(6 4 2 / 52%));
+  content: "";
+  pointer-events: none;
+}
+
+.abyssa-sortie-quest__hd {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: grid;
+  padding: 14px 16px;
+  align-items: end;
+}
+
+.abyssa-sortie-quest__title {
+  position: relative;
+  display: grid;
+  padding-left: 12px;
+  gap: 3px;
+}
+
+.abyssa-sortie-quest__title::before {
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  left: 0;
+  width: 1px;
+  background: rgb(157 134 104 / 68%);
+  box-shadow: 0 0 8px rgb(157 134 104 / 14%);
+  content: "";
+}
+
+.abyssa-sortie-quest__title > span {
+  color: rgb(169 151 131 / 78%);
+  font-family: var(--abyssa-font-ui, "Noto Sans SC", sans-serif);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  line-height: 1.2;
+  text-shadow: 0 1px 5px rgb(0 0 0 / 92%);
+  text-transform: uppercase;
+}
+
+.abyssa-sortie-quest__hd h2 {
+  display: block;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  color: #d2c4b3;
+  font-size: 21px;
+  font-weight: 560;
+  letter-spacing: 0.1em;
+  line-height: 1.12;
+  text-shadow: 0 2px 8px rgb(0 0 0 / 92%);
+}
+
+.abyssa-sortie-quest__close.abyssa-icon-button[data-size] {
+  --abyssa-icon-size: 52px;
+  --abyssa-icon-fill: #211a15;
+  --abyssa-icon-middle: #6f5a49;
+  --abyssa-icon-ornament: rgb(181 160 129 / 64%);
+  --abyssa-icon-ink: #d2c4b3;
+  --abyssa-icon-pattern-dark: rgb(157 134 104 / 7%);
+  --abyssa-icon-pattern-light: rgb(181 160 129 / 3%);
+
+  position: absolute;
+  top: -14px;
+  right: -14px;
+  z-index: 6;
+  filter: drop-shadow(0 5px 9px rgb(4 2 1 / 58%));
+}
+
+/* 简报不再套一块黑色文本框；以一根细引线接在场景图下方。 */
+.abyssa-sortie-quest__flavor {
+  margin: 0;
+  padding: 2px 2px 2px 11px;
+  border-left: 1px solid rgb(157 134 104 / 46%);
+  background: none;
+  color: color-mix(in srgb, var(--sortie-ink-dim) 84%, transparent);
+  flex: 0 0 auto;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.abyssa-sortie-quest__flavor[data-pending="true"] {
+  border-left-style: dashed;
+  color: var(--sortie-ink-mute);
+  font-style: normal;
+}
+
+.abyssa-sortie-quest__block {
+  display: grid;
+  flex: 0 0 auto;
+  gap: 6px;
+}
+
+.abyssa-sortie-quest__intel {
+  display: grid;
+  min-width: 0;
+  gap: 11px;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+/* 威胁与收益必须各自吃满整行。副本文案是长句，强拆双栏会同时压缩
+   威胁的阅读宽度和收益星级的留白。第二段用细线续接，不再套小卡片。 */
+.abyssa-sortie-quest__intel .abyssa-sortie-quest__block + .abyssa-sortie-quest__block {
+  padding-top: 10px;
+  border-top: 1px solid rgb(128 96 68 / 22%);
+}
+
+.abyssa-sortie-quest__block h3 {
+  margin: 0;
+  color: var(--sortie-ink-mute);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.22em;
+  text-indent: 0.22em;
+}
+
+.abyssa-sortie-quest__threats {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  gap: 4px;
+  list-style: none;
+}
+
+.abyssa-sortie-quest__threats li {
+  display: grid;
+  align-items: start;
+  gap: 7px;
+  grid-template-columns: 12px 1fr;
+}
+
+.abyssa-sortie-quest__threats i {
+  display: block;
+  width: 12px;
+  height: 12px;
+  margin-top: 3px;
+  background-color: color-mix(in srgb, var(--sortie-gold) 62%, transparent);
+}
+
+.abyssa-sortie-quest__threats span {
+  color: color-mix(in srgb, var(--sortie-ink) 88%, transparent);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.42;
+}
+
+.abyssa-sortie-quest__yields {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  gap: 3px;
+  list-style: none;
+}
+
+.abyssa-sortie-quest__yields li {
+  display: grid;
+  min-height: 25px;
+  align-items: center;
+  gap: 6px;
+  grid-template-columns: 16px minmax(0, 1fr) auto;
+}
+
+/* 素材图标走 mask（game-icons 素材），才能被令牌色着色。 */
+.abyssa-sortie-quest__spoil {
+  display: block;
+  width: 16px;
+  height: 16px;
+  background-color: var(--sortie-ink-mute);
+}
+
+/* 金币与晶石复用 .abyssa-currency-amount 的货币形制。
+   原生尺寸是给行内数字配的（金币 13、晶石 8），在这一列偏小，
+   按视觉等重放大到与 18px 的素材图标齐平：
+   金币是实心圆取 17；晶石是旋转 45° 的方，外接边长 = 11*1.414 ≈ 15.6。 */
+.abyssa-sortie-quest__coin {
+  display: flex;
+  width: 16px;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+}
+
+.abyssa-sortie-quest__coin i { width: 15px; height: 15px; }
+
+.abyssa-sortie-quest__coin[data-currency="crystal"] i { width: 11px; height: 11px; }
+
+.abyssa-sortie-quest__yields li > span {
+  color: var(--sortie-ink-dim);
+  font-size: 12px;
+  letter-spacing: 0.05em;
+}
+
+/* 星级是相对收益，不是确定掉落数量。星形用 CSS 几何绘制，避免字体差异。 */
+.abyssa-sortie-quest__grade {
+  display: inline-grid;
+  gap: 2px;
+  grid-template-columns: repeat(3, 9px);
+}
+
+.abyssa-sortie-quest__grade i {
+  display: block;
+  width: 9px;
+  height: 9px;
+  background: rgb(128 96 68 / 30%);
+  clip-path: polygon(50% 0, 61% 35%, 98% 35%, 68% 56%, 79% 94%, 50% 72%, 21% 94%, 32% 56%, 2% 35%, 39% 35%);
+}
+
+.abyssa-sortie-quest__grade i[data-active] {
+  background: var(--sortie-gold-hi);
+  filter: drop-shadow(0 0 3px rgb(157 134 104 / 28%));
+}
+
+.abyssa-sortie-quest__event {
+  margin: 0;
+  padding: 4px 0 4px 10px;
+  border: 0;
+  border-left: 1px solid rgb(157 134 104 / 52%);
+  color: color-mix(in srgb, var(--sortie-gold) 78%, var(--sortie-ink-dim));
+  flex: 0 0 auto;
+  font-size: 11.5px;
+  font-weight: 400;
+  line-height: 1.42;
+  letter-spacing: 0.04em;
+}
+
+.abyssa-sortie-quest__pt {
+  display: grid;
+  margin-top: auto;
+  padding: 10px 0 0;
+  border: 0;
+  border-top: 1px solid rgb(128 96 68 / 30%);
+  flex: 0 0 auto;
+  gap: 8px;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.abyssa-sortie-quest__party-head {
+  display: flex;
+  min-height: 36px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.abyssa-sortie-quest__party-head h3 {
+  margin: 0;
+  color: var(--sortie-ink-mute);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.22em;
+  text-indent: 0.22em;
+  white-space: nowrap;
+}
+
+.abyssa-sortie-quest__party-tools {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 10px;
+}
+
+/* 点位副本面板的出战名册。五个槽恒定画出（四个可选 + 凯尔第五席），
+   空位也占地 —— 玩家得看见还剩几个孔，这与骰装页「挂坠空位也显示」同理。
+   5*68 + 4*8 = 372，落在侧板内容宽 380 之内。 */
+.abyssa-sortie-quest__mini {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  gap: 8px;
+  grid-template-columns: repeat(5, var(--sortie-slot-w));
+  justify-content: space-between;
+  list-style: none;
+}
+
+.abyssa-sortie-slot {
+  position: relative;
+  display: grid;
+  gap: 5px;
+  grid-template-rows: var(--sortie-slot-h) auto;
+  justify-items: center;
+}
+
+/* 头像框换成木金皮肤。形制（切角六边形 + 五层描边）由共享件提供，
+   这里只改五个颜色令牌 —— 与 RP 对话是同一个件，不是另画一套。 */
+.abyssa-sortie-slot__art {
+  --abyssa-avatar-fill: #18130f;
+  --abyssa-avatar-frame: #272019;
+  --abyssa-avatar-middle: var(--slot-accent, #6f5a49);
+  --abyssa-avatar-deep: #090706;
+  --abyssa-avatar-ornament: rgb(170 148 120 / 42%);
+
+  width: var(--sortie-slot-w);
+  height: var(--sortie-slot-h);
+}
+
+.abyssa-sortie-slot__art .abyssa-avatar__photo { background: #100b07; }
+
+/* 凯尔那格放的是全身立绘，自己取景（width/transform 行内注入）。 */
+.abyssa-sortie-slot__art[data-kind="portrait"] .abyssa-avatar__photo img {
+  position: absolute;
+  top: -10px;
+  left: calc(50% + 2px);
+  width: auto;
+  height: auto;
+  aspect-ratio: 704 / 1472;
+  object-fit: fill;
+  transform-origin: top center;
+}
+
+/* 阵营色进中间那层描边 —— 框本身就有承载它的位置，
+   不必再额外画一道边。 */
+.abyssa-sortie-slot[data-faction="hero-party"] { --slot-accent: #aa9474; }
+.abyssa-sortie-slot[data-faction="demon-cadre"] { --slot-accent: #78999a; }
+.abyssa-sortie-slot[data-faction="demon-lord"] { --slot-accent: #9e7672; }
+
+.abyssa-sortie-slot__nm {
+  display: block;
+  max-width: var(--sortie-slot-w);
+  overflow: hidden;
+  color: var(--sortie-ink-dim);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 空位：框还在（形状一致才读得出「这里能放人」），但整体压暗。 */
+.abyssa-sortie-slot[data-empty="true"] .abyssa-sortie-slot__art {
+  --abyssa-avatar-middle: rgb(128 96 68 / 30%);
+  --abyssa-avatar-ornament: rgb(128 96 68 / 34%);
+
+  opacity: 0.62;
+}
+
+.abyssa-sortie-slot[data-empty="true"] .abyssa-sortie-slot__nm {
+  color: var(--sortie-ink-mute);
+  opacity: 0.72;
+}
+
+/* 队长席：中间层描边取金，名字提亮 —— 第五骰是亲征专属，值得一眼认出。 */
+.abyssa-sortie-slot[data-leader="true"][data-enlisted] .abyssa-sortie-slot__art {
+  --abyssa-avatar-middle: var(--sortie-gold);
+  --abyssa-avatar-ornament: rgb(181 160 129 / 52%);
+}
+
+.abyssa-sortie-slot[data-leader="true"][data-enlisted] .abyssa-sortie-slot__nm {
+  color: var(--sortie-gold-hi);
+  font-weight: 600;
+}
+
+/* 两处头像框共用同一套低饱和阵营色；这里保留抽屉作用域作为皮肤护栏，
+   避免以后调整副本面板时意外把编辑态重新带亮。 */
+.abyssa-sortie-roster .abyssa-sortie-slot__art {
+  --abyssa-avatar-fill: #18130f;
+  --abyssa-avatar-frame: #272019;
+  --abyssa-avatar-ornament: rgb(170 148 120 / 42%);
+}
+
+.abyssa-sortie-roster .abyssa-sortie-slot[data-faction="hero-party"] { --slot-accent: #aa9474; }
+.abyssa-sortie-roster .abyssa-sortie-slot[data-faction="demon-cadre"] { --slot-accent: #78999a; }
+.abyssa-sortie-roster .abyssa-sortie-slot[data-faction="demon-lord"] { --slot-accent: #9e7672; }
+
+.abyssa-sortie-roster
+  .abyssa-sortie-slot[data-leader="true"][data-enlisted]
+  .abyssa-sortie-slot__art {
+  --abyssa-avatar-middle: var(--sortie-gold);
+  --abyssa-avatar-ornament: rgb(181 160 129 / 52%);
+}
+
+/* 托管：凯尔留守，压暗但仍在位。 */
+.abyssa-sortie-slot[data-leader="true"]:not([data-enlisted]) .abyssa-avatar__photo img {
+  filter: grayscale(0.85) brightness(0.46);
+}
+
+.abyssa-sortie-quest__kv { display: grid; margin: 0; gap: 2px; }
+
+.abyssa-sortie-quest__kv > div {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.abyssa-sortie-quest__kv dt {
+  color: var(--sortie-ink-mute);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.2em;
+}
+
+.abyssa-sortie-quest__kv dd {
+  margin: 0;
+  color: var(--sortie-ink);
+  font-size: 12px;
+  font-weight: 450;
+  white-space: nowrap;
+}
+
+.abyssa-sortie-quest__edit-party.abyssa-icon-button[data-size] {
+  --abyssa-icon-size: 38px;
+  --abyssa-icon-fill: #211a15;
+  --abyssa-icon-middle: #6f5a49;
+  --abyssa-icon-ornament: rgb(181 160 129 / 48%);
+  --abyssa-icon-ink: #b5a081;
+  --abyssa-icon-pattern-dark: rgb(157 134 104 / 7%);
+  --abyssa-icon-pattern-light: rgb(181 160 129 / 3%);
+
+  flex: 0 0 auto;
+}
+
+.abyssa-sortie-quest__edit-party .abyssa-icon-button__custom {
+  inset: 24%;
+}
+
+.abyssa-sortie-quest__edit-party .abyssa-icon-button__custom svg {
+  overflow: visible;
+  stroke: currentColor;
+  stroke-width: 1.55;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* 主行动直接使用组件库 RibbonButton 的 SVG 多层边框与水印，
+   本地只覆写木金皮肤，不再维护一只普通矩形 Web 按钮。 */
+.abyssa-sortie-quest__go {
+  --abyssa-ribbon-fill: #251d18;
+  --abyssa-ribbon-text: #c7bcb0;
+  --abyssa-ribbon-pattern: rgb(157 134 104 / 7%);
+  --abyssa-frame-dark: #090706;
+  --abyssa-frame-light: #6c5646;
+
+  height: 46px;
+  aspect-ratio: auto;
+  flex: 0 0 auto;
+  filter: drop-shadow(0 5px 9px rgb(4 2 1 / 42%));
+}
+
+.abyssa-sortie-quest__go .abyssa-ribbon-button__label {
+  color: var(--abyssa-ribbon-text);
+  font-family: var(--abyssa-font-body, "Noto Serif SC", serif);
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0.42em;
+  text-indent: 0.42em;
+  text-shadow: 0 1px 3px rgb(0 0 0 / 76%);
+}
+
+.abyssa-sortie-quest__go:disabled {
+  opacity: 0.48;
+}
+
+.abyssa-sortie-quest__reject {
+  margin: 0;
+  color: var(--sortie-ink-mute);
+  flex: 0 0 auto;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  line-height: 1.25;
+  text-align: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .abyssa-sortie-stage,
+  .abyssa-sortie-stage__slots,
+  .abyssa-sortie-stage__slot,
+  .abyssa-sortie-figure__nm,
+  .abyssa-map-dim { transition-duration: 1ms; }
+
+  .abyssa-sortie-roster,
+  .abyssa-sortie-quest { animation-duration: 1ms; }
+
+  .abyssa-sortie-stage[data-mode="pop"] .abyssa-sortie-stage__slot {
+    animation-delay: 0ms;
+    animation-duration: 1ms;
+  }
+
+  .abyssa-sortie-poster:hover:not(:disabled) { transform: none; }
+}

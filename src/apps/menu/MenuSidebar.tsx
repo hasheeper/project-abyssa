@@ -17,13 +17,13 @@ export type MenuSectionId =
   | "replay"
   | "achievements";
 
-export interface MenuSection {
+interface MenuSection {
   id: MenuSectionId;
   label: string;
   icon: string;
 }
 
-export const MENU_SECTIONS: readonly MenuSection[] = [
+const MENU_SECTIONS: readonly MenuSection[] = [
   { id: "codex", label: "图鉴", icon: bookPileIcon },
   { id: "roster", label: "角色", icon: hoodIcon },
   { id: "memory", label: "记忆", icon: crystalBallIcon },

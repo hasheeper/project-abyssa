@@ -547,9 +547,6 @@ export function DiceLoadoutPanel({
               const isAwake = fateEntersHand(face.fate);
               const selected = selectedFace === face.face;
 
-              /* 一列 = 骰面 + 下方逐行展开的信息。
-                 信息行只有图标 + 数字,没有文字标签 —— 六列并排时
-                 文字会挤成一团,而图标与骰面上的刻印同源,可直接对读。 */
               return (
                 <button
                   type="button"
@@ -590,19 +587,6 @@ export function DiceLoadoutPanel({
                     )}
                   </span>
 
-                  <span className="abyssa-dice__marks" aria-hidden="true">
-                    {/* 三枚小标记:白骰点数 / 花色 / 铭。
-                        战面数值已经压在骰面右下角,这里不再重复。 */}
-                    <span className="abyssa-dice__mark" data-kind="pip">
-                      <i data-pip={isAwake ? face.pip : undefined} />
-                    </span>
-                    <span className="abyssa-dice__mark" data-kind="suit">
-                      <i data-plate={DIE_SUIT_SHAPES[face.suit]} data-suit={face.suit} />
-                    </span>
-                    <span className="abyssa-dice__mark" data-kind="seal">
-                      <i data-seal={isAwake ? "plain" : "none"} />
-                    </span>
-                  </span>
                 </button>
               );
               })}

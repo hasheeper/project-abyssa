@@ -4,7 +4,6 @@ import { makeEnemy } from "../content/enemies";
 import type { BattleError, BattleTransition } from "../domain/commands";
 import type { AtomicEffect, AtomicEffectBase } from "../domain/effects";
 import type {
-  CharacterId,
   EnemyIntent,
   EnemyState,
   EnemyTurnEvent,

@@ -30,7 +30,7 @@ import crossedSwordsIcon from "../../assets/svg/ui/crossed-swords.svg";
 
 export type MenuCommandId = "estate" | "storage" | "shop" | "sortie";
 
-export interface MenuCommand {
+interface MenuCommand {
   id: MenuCommandId;
   /** 中文语义名，用于读屏与交互文案。 */
   label: string;
@@ -41,7 +41,7 @@ export interface MenuCommand {
 }
 
 /** N / W / E / S —— 视觉阅读顺序,不是类型联合的声明顺序。 */
-export const MENU_COMMANDS: readonly MenuCommand[] = [
+const MENU_COMMANDS: readonly MenuCommand[] = [
   { id: "estate", label: "府邸", displayLabel: "MANOR", caption: "回到守望者之崖洋馆" },
   { id: "storage", label: "仓库", displayLabel: "STORAGE", caption: "查看领地库存" },
   { id: "shop", label: "商店", displayLabel: "SHOP", caption: "前往守望者杂货铺" },

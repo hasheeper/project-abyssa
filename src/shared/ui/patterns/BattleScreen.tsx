@@ -146,6 +146,7 @@ export function BattleScreen({
         className="abyssa-battle-screen__shell"
         padding="none"
         variant="dark"
+        ornamented={false}
       >
         <FrameEdgeWeave namespace="abyssa-battle-screen" />
         <BattleTurnOrder entries={turnOrder} activeActorId={activeActorId} />

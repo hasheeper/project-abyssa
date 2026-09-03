@@ -196,8 +196,6 @@ describe("MansionPage", () => {
     expect(screen.getByLabelText("第 2 天")).toBeInTheDocument();
   });
 
-  /* 旧的 .mansion-stock__list 下拉层**完全没有测试**,所以能被自由重写。
-     换成共享 InventoryDialog 后补上契约,避免下次重构再无网。 */
   it("opens the estate stock as a modal inventory with fixed slots", async () => {
     const user = userEvent.setup();
     render(<MansionPage />);

@@ -208,4 +208,48 @@ describe("createMapScene", () => {
       expect(texture.dispose).toHaveBeenCalledOnce();
     }
   });
+
+  it("pushes the camera toward the selected landmark and restores the full-map pose", async () => {
+    const container = document.createElement("div");
+    Object.defineProperties(container, {
+      clientWidth: { value: 800 },
+      clientHeight: { value: 450 }
+    });
+    const locations = cloneMapLocations();
+    const controller = createMapScene(container, { locations });
+    await flushPromiseQueue();
+    mocks.gsapTo.mockClear();
+    mocks.gsapKill.mockClear();
+
+    const tower = locations.find((location) => location.id === "tower")!;
+    controller.setSelected(tower.id, "right");
+
+    const focusTween = mocks.gsapTo.mock.lastCall!;
+    const focusPose = focusTween[1] as Record<string, number | string>;
+    expect(mocks.gsapKill).toHaveBeenCalledWith(focusTween[0]);
+    expect(focusPose).toMatchObject({
+      duration: 0.78,
+      ease: "power3.inOut"
+    });
+    /* 侧板在右，镜头中心向右让位，地标因此落在左侧可视区。 */
+    expect(focusPose.targetX as number).toBeGreaterThan(tower.position.x);
+    expect(focusPose.positionX as number).toBeGreaterThan(tower.position.x);
+    /* 小队占住底部，镜头中心向下让位，地标落在上方可视区。 */
+    expect(focusPose.targetY as number).toBeLessThan(tower.height * 0.24);
+    expect(focusPose.targetZ as number).toBeGreaterThan(tower.position.z);
+    expect(focusPose.positionY as number).toBeLessThan(17);
+    expect(focusPose.positionZ as number).toBeLessThan(22);
+
+    controller.setSelected(null);
+    expect(mocks.gsapTo.mock.lastCall?.[1]).toMatchObject({
+      positionX: 0,
+      positionY: 17,
+      positionZ: 22,
+      targetX: 0,
+      targetY: -0.5,
+      targetZ: 0
+    });
+
+    controller.destroy();
+  });
 });

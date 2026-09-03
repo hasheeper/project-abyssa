@@ -14,7 +14,7 @@ import type {
   Rng,
   RngStreamName
 } from "../domain/state";
-import type { EffectSourceRef, TargetRef } from "../domain/targets";
+import type { EffectSourceRef } from "../domain/targets";
 import {
   advanceRngStream,
   createRngCursor,
@@ -162,10 +162,6 @@ function getRng(
       next.rng[streamName] = cursor.snapshot();
     }
   };
-}
-
-function systemSource(id: string): EffectSourceRef {
-  return { kind: "system", id };
 }
 
 function dispatchSteal(

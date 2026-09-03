@@ -68,7 +68,6 @@ export function StudioSeatPanel({
   dirty,
   beatRef,
   emotes,
-  emoteDefaults,
   onSeat,
   onParams,
   onResetOne,
@@ -82,7 +81,6 @@ export function StudioSeatPanel({
   /** 指向该席位的 .actor-beat 层 —— 一次性动作直接在这个元素上 animate()。 */
   beatRef: RefObject<HTMLDivElement | null>;
   emotes: EmoteState;
-  emoteDefaults: EmoteState;
   onSeat: (patch: Partial<StudioSeatState>) => void;
   onParams: (next: CharacterParams) => void;
   onResetOne: () => void;

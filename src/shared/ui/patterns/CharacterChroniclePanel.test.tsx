@@ -591,17 +591,6 @@ describe("character chronicle panel", () => {
     expect(screen.getByText("Lv.9")).toBeInTheDocument();
   });
 
-  /* 旧数据仍可兼容；当前正式内容已不再提供这段冗余。 */
-  it("keeps legacy superseded values renderable", () => {
-    const { container } = render(
-      <CharacterChroniclePanel chronicle={chronicleFixture} />
-    );
-
-    const del = container.querySelector(".abyssa-chronicle__struck del");
-    expect(del).not.toBeNull();
-    expect(del?.textContent).toBe("旧：被取代的条款");
-  });
-
   it("counts entries without counting chapter rules", () => {
     render(<CharacterChroniclePanel chronicle={chronicleFixture} />);
     // 夹具是 4 条目 + 2 章节。

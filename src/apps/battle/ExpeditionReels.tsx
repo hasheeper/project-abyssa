@@ -19,12 +19,6 @@ const STRIP_CYCLES = 3;
 const SPIN_DURATION = 760;
 const DIGIT_STAGGER = 70;
 
-/** 把数值拆成定长数字数组 */
-function toDigits(value: number, digits: number): number[] {
-  const clamped = Math.max(0, Math.floor(value));
-  return [...String(clamped).padStart(digits, "0").slice(-digits)].map(Number);
-}
-
 /** 单个轮盘：累计位移，跨 9→0 时继续向前 */
 function Reel({
   digit,

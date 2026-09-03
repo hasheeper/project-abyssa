@@ -4,7 +4,7 @@ import type {
   AtomicEffect,
   AtomicEffectBase
 } from "../domain/effects";
-import type { CharacterId, ExpeditionState } from "../domain/state";
+import type { ExpeditionState } from "../domain/state";
 import type { BattleResource } from "../domain/targets";
 
 export type ActionEffectContribution = {
@@ -22,7 +22,6 @@ function resourceValue(state: ExpeditionState, resource: BattleResource): number
 export function buildActionEffectContribution(
   state: ExpeditionState,
   trigger: "heal",
-  actorId: CharacterId,
   definitionIds: readonly string[],
   createBase: (suffix: string, tags?: string[]) => AtomicEffectBase,
   definitions: ActionEffectDefinitionRegistry = ACTION_EFFECT_DEFINITIONS

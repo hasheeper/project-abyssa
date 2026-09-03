@@ -60,7 +60,6 @@ export interface CharacterArchivePact {
   iconUrl?: string;
   currentStage?: 1 | 2 | 3;
   trigger: string;
-  obsoleteTerm?: string;
   currentTerm: string;
   nextLevel?: number;
   nextLabel?: string;

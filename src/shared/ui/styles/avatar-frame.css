@@ -1,0 +1,57 @@
+/* 头像框。形制说明见 primitives/AvatarFrame.tsx。
+   默认皮肤是青灰（与 RP 对话一致），调用方覆盖五个令牌即可换皮。 */
+.abyssa-avatar {
+  --abyssa-avatar-fill: #10191a;
+  --abyssa-avatar-frame: var(--abyssa-frame-dark, #192020);
+  --abyssa-avatar-middle: #3c565880;
+  --abyssa-avatar-deep: var(--abyssa-frame-deep, #101616);
+  --abyssa-avatar-ornament: #5a7b7d99;
+
+  position: relative;
+  display: block;
+  flex: none;
+}
+
+.abyssa-avatar__art {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* 照片嵌在框内。inset 8.5% 让它落在「内 2px 极深描边」的里侧，
+   不压住那条 inner 装饰线；clip-path 复刻外框的切角。 */
+.abyssa-avatar__photo {
+  position: absolute;
+  inset: 8.5%;
+  display: grid;
+  overflow: hidden;
+  background: #0c1212;
+  clip-path: polygon(11% 0, 100% 0, 100% 81%, 81% 100%, 0 100%, 0 11%);
+  color: var(--abyssa-avatar-ornament);
+  place-items: center;
+  font-weight: 600;
+}
+
+/* 内阴影压边：让照片看起来是嵌进框里，而不是贴在框上。
+   放在 ::after 而非 box-shadow —— 照片是 <img> 子元素，
+   父级的 inset shadow 会被图片盖住。 */
+.abyssa-avatar__photo::after {
+  position: absolute;
+  inset: 0;
+  box-shadow:
+    inset 0 0 5px 1px rgb(0 0 0 / 62%),
+    inset 0 3px 6px rgb(0 0 0 / 45%),
+    inset 0 -3px 7px rgb(0 0 0 / 38%);
+  content: "";
+  pointer-events: none;
+}
+
+.abyssa-avatar__photo img {
+  width: 100%;
+  height: 100%;
+  /* 头像原图是半身，锚定上部对齐脸。这个位置由 RP 实测得出。 */
+  object-fit: cover;
+  object-position: 50% 10%;
+}

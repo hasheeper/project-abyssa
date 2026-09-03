@@ -1,16 +1,14 @@
 import { useMemo, useState } from "react";
-import {
-  AbyssaProvider,
-  CurrencyAmount,
-  IconButton,
-  Nameplate,
-  RpgDialogue,
-  RpgFrame,
-  RpgHeader,
-  RpgNotchedPillButton,
-  RpgTab,
-  VerticalIndicator
-} from "../../index";
+import { AbyssaProvider } from "../../shared/ui/primitives/AbyssaProvider";
+import { CurrencyAmount } from "../../shared/ui/primitives/CurrencyAmount";
+import { IconButton } from "../../shared/ui/primitives/IconButton";
+import { Nameplate } from "../../shared/ui/primitives/Nameplate";
+import { RpgDialogue } from "../../shared/ui/primitives/RpgDialogue";
+import { RpgFrame } from "../../shared/ui/primitives/RpgFrame";
+import { RpgHeader } from "../../shared/ui/primitives/RpgHeader";
+import { RpgNotchedPillButton } from "../../shared/ui/primitives/RpgNotchedPillButton";
+import { RpgTab } from "../../shared/ui/primitives/RpgTab";
+import { VerticalIndicator } from "../../shared/ui/primitives/VerticalIndicator";
 import { resolveItemIcon as resolveCatalogItemIcon } from "../../assets/svg/items/catalog";
 import { MetalCorner } from "../../shared/ui/decorations/MetalCorner";
 import { Stage } from "../../shared/stage";

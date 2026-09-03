@@ -50,7 +50,7 @@ export interface RoomLight {
  * 固定光源。与「有没有人」无关。
  * 键是 defaultRegions 的房间 id。
  */
-export const FIXED_ROOM_LIGHTS: Partial<Record<string, RoomLight>> = {
+const FIXED_ROOM_LIGHTS: Partial<Record<string, RoomLight>> = {
   // 「壁炉全年不熄」—— 全场最暖最亮的一处,是「家」的锚点。
   hall: { tone: "hearth", intensity: 0.95, flicker: "flame" },
   // 「一堆篝火」—— 村舍中心。
@@ -73,7 +73,7 @@ export const FIXED_ROOM_LIGHTS: Partial<Record<string, RoomLight>> = {
  * 明确**不点灯**的房间。即使夜里有人也不点(或只给极弱微光)。
  * 这些都有文案依据,不是随手挑的。
  */
-export const LIGHT_OVERRIDES: Partial<Record<string, RoomLight | null>> = {
+const LIGHT_OVERRIDES: Partial<Record<string, RoomLight | null>> = {
   // 「烽火台从未点燃过——但愿永远如此」。有人但不点火,只有窗内微光。
   towerTop: { tone: "dim", intensity: 0.3 },
   // 「熟睡中」—— 极弱微光,不是正常照明。

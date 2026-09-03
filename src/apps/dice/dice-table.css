@@ -177,13 +177,6 @@
     0 0 6px rgb(215 187 124 / 8%);
 }
 
-.table-status__pot small {
-  color: #8c7b63;
-  font-family: var(--font-display);
-  font-size: 7px;
-  letter-spacing: 0.18em;
-}
-
 .table-status__coin-field {
   position: relative;
   width: 100%;
@@ -380,6 +373,8 @@
 .table-status__pot small {
   position: relative;
   color: var(--abyssa-text-muted);
+  font-family: var(--font-display);
+  font-size: 7px;
   font-weight: 700;
   letter-spacing: 0.28em;
   text-indent: 0.28em;

@@ -16,7 +16,6 @@
 
   /* 黄铜强调色 */
   --abyssa-accent: #aa874a;
-  --abyssa-accent-dark: #5d431d;
   --abyssa-accent-soft: #d7bb7c;
 
   /* 装饰与边框 */
@@ -30,20 +29,6 @@
   --abyssa-text-muted: #88785d;
   --abyssa-text-dark: #211408;
   --abyssa-focus: #eee0bc;
-
-  /* 货币 */
-  --currency-gold: #e0b755;
-  --currency-gold-dark: #684313;
-  --currency-gold-highlight: #fff0b1;
-
-  --currency-crystal: #a267d5;
-  --currency-crystal-dark: #4b286c;
-  --currency-crystal-light: #efe2ff;
-
-  /* 额外状态色 */
-  --status-danger: #9b4237;
-  --status-danger-soft: #d38975;
-  --status-success: #c6a45c;
 
   --abyssa-shadow: 0 14px 30px rgb(5 3 1 / 52%);
   --ease-rpg: cubic-bezier(0.2, 0.75, 0.2, 1);

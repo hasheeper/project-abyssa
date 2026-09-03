@@ -13,12 +13,12 @@ import { MenuHudFrame } from "./MenuHudFrame";
 
 export type MenuPhaseId = "dawn" | "day" | "dusk" | "night";
 
-export interface MenuPhase {
+interface MenuPhase {
   id: MenuPhaseId;
   label: string;
 }
 
-export const MENU_PHASES: readonly MenuPhase[] = [
+const MENU_PHASES: readonly MenuPhase[] = [
   { id: "dawn", label: "晨" },
   { id: "day", label: "昼" },
   { id: "dusk", label: "昏" },

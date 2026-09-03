@@ -40,7 +40,7 @@ export const CHRONICLE_MARKERS: readonly ChronicleMarker[] = [
 /** 色调。三档都有现成令牌，不新增颜色。 */
 export type ChronicleTone = "default" | "accent" | "alert";
 
-export const CHRONICLE_TONES: readonly ChronicleTone[] = [
+const CHRONICLE_TONES: readonly ChronicleTone[] = [
   "default",
   "accent",
   "alert"
@@ -66,8 +66,6 @@ export interface ChronicleEntry {
   body?: string;
   /** 引语，斜体缩进。 */
   voice?: string;
-  /** 被取代的旧值（旧权柄这类），渲染成 <del>。 */
-  struck?: string;
   /** 显式筛选分类；不根据文案猜测。省略时按普通日常处理。 */
   categories?: ChronicleCategory[];
   marker?: ChronicleMarker;

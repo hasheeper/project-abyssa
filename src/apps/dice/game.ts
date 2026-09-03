@@ -77,7 +77,7 @@ export interface BetOptions {
   canRaiseBig: boolean;
 }
 
-export const FACE_ROTATIONS: Record<number, readonly [number, number]> = {
+const FACE_ROTATIONS: Record<number, readonly [number, number]> = {
   1: [0, 0], 2: [0, -90], 3: [-90, 0], 4: [90, 0], 5: [0, 90], 6: [0, 180]
 };
 
@@ -170,7 +170,7 @@ export function randomDie() {
   return 1 + Math.floor(Math.random() * 6);
 }
 
-export function countDice(dice: number[]) {
+function countDice(dice: number[]) {
   return dice.reduce<Record<number, number>>((counts, value) => {
     counts[value] = (counts[value] ?? 0) + 1;
     return counts;
@@ -303,7 +303,7 @@ export function cloneGame(game: GameState): GameState {
   };
 }
 
-export function countLocked(locks: readonly boolean[]) {
+function countLocked(locks: readonly boolean[]) {
   return locks.filter(Boolean).length;
 }
 

@@ -32,6 +32,7 @@ export type {
   CharacterMenuItem,
   CharacterOutfit,
   CharacterProfile,
+  CharacterTabRenderArgs,
   CharacterStatusScreenProps
 } from "./shared/ui/patterns/CharacterStatusScreen";
 export { InventoryDialog } from "./shared/ui/patterns/InventoryDialog";
@@ -107,7 +108,12 @@ export type {
 } from "./shared/ui/patterns/motions";
 export { StatusPanel } from "./shared/ui/patterns/StatusPanel";
 export type {
+  StatusBond,
+  StatusChip,
   StatusField,
+  StatusPact,
+  StatusPanelAffiliation,
+  StatusPanelAffiliationTone,
   StatusPanelData,
   StatusPanelProps,
   StatusStat,
