@@ -1,0 +1,81 @@
+/* One frame, one alignment grid. The rail itself widens to reveal its labels. */
+.game-menu {
+  --menu-width: 58px;
+  --menu-edge: #4d5d53;
+  --menu-ink: #b7c0b4;
+  position: fixed;
+  z-index: 100;
+  top: var(--game-menu-top, 20px);
+  left: 0;
+  width: var(--menu-width);
+  padding: 6px;
+  box-sizing: border-box;
+  color: var(--menu-ink);
+  font-family: var(--abyssa-font-body, serif);
+  isolation: isolate;
+  filter: drop-shadow(3px 6px 6px #0007);
+  transition: width 280ms cubic-bezier(.2,.7,.3,1);
+}
+.game-menu[data-expanded] { --menu-width: 194px; }
+.game-menu__frame {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--menu-edge);
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%);
+  pointer-events: none;
+}
+.game-menu__frame::after {
+  content: "";
+  position: absolute;
+  inset: 1px 1px 1px 0;
+  clip-path: polygon(0 0, calc(100% - 9.4px) 0, 100% 9.4px, 100% calc(100% - 9.4px), calc(100% - 9.4px) 100%, 0 100%);
+  background: linear-gradient(110deg, #ffffff04, transparent 62%), #101715;
+  box-shadow: inset 0 1px #a4b5a60b;
+}
+.game-menu button, .game-menu a { font-family: inherit; -webkit-tap-highlight-color: transparent; }
+.game-menu__header { margin: 0; padding: 0 0 6px; }
+.game-menu__toggle, .game-menu__entry {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  height: 34px;
+  min-width: 0;
+  margin: 0;
+  padding: 0 12px;
+  box-sizing: border-box;
+  border: 0;
+  background: none;
+  color: inherit;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.game-menu__toggle { color: #90a091; }
+.game-menu__toggle > svg {
+  display: block;
+  flex: 0 0 20px;
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.2;
+}
+.game-menu__toggle-point { display: none; }
+.game-menu[data-expanded] .game-menu__toggle > svg > path:first-child { display: none; }
+.game-menu[data-expanded] .game-menu__toggle-point { display: block; transform: rotate(180deg); transform-origin: center; }
+.game-menu__toggle .game-menu__label { font-size: 12px; letter-spacing: .16em; }
+.game-menu__entries { overflow: hidden; }
+.game-menu__group { display: flex; flex-direction: column; padding: 5px 0; border-top: 1px solid #7b93782b; }
+.game-menu__icon { display: block; flex: 0 0 20px; width: 20px; height: 20px; background: currentColor; mask: no-repeat center / contain; opacity: .8; }
+.game-menu__label { flex: 0 0 auto; opacity: 0; transform: translateX(-3px); transition: opacity 120ms ease, transform 180ms ease; font-size: 14px; font-weight: 400; letter-spacing: .08em; }
+.game-menu[data-expanded] .game-menu__label { opacity: 1; transform: none; transition-delay: 100ms; }
+.game-menu__locked { margin-left: auto; flex-shrink: 0; font-size: 9px; opacity: .6; }
+.game-menu__entry:disabled { opacity: .32; cursor: default; }
+.game-menu__entry:not(:disabled):hover, .game-menu__toggle:hover { background: linear-gradient(90deg, #536b502e, #536b5010); color: #d1d3be; }
+.game-menu button:focus-visible, .game-menu a:focus-visible { outline: 1px solid #839780; outline-offset: -2px; background: #536b5020; }
+@media(prefers-reduced-motion:reduce) { .game-menu, .game-menu__label { transition: none !important; } }

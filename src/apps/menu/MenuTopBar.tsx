@@ -86,7 +86,7 @@ export function MenuTopBar({ day, phase, publicFund, partyFund, crystals }: Menu
               <i className="menu-topbar__funds-face" aria-hidden="true" />
               <dt>维稳公款</dt>
               <dd>
-                <CurrencyAmount value={publicFund} label={`维稳公款 ${publicFund}`} />
+                <CurrencyAmount value={publicFund} currency="gold" label={`维稳公款 ${publicFund}`} />
               </dd>
             </div>
             <div>
@@ -95,7 +95,7 @@ export function MenuTopBar({ day, phase, publicFund, partyFund, crystals }: Menu
               <i className="menu-topbar__funds-face" aria-hidden="true" />
               <dt>小队资金</dt>
               <dd>
-                <CurrencyAmount value={partyFund} label={`小队资金 ${partyFund}`} />
+                <CurrencyAmount value={partyFund} currency="gold" label={`小队资金 ${partyFund}`} />
               </dd>
             </div>
             <div>

@@ -3,15 +3,21 @@ import cgB2 from "../../assets/cg/cg-b-2.webp";
 import cgB3 from "../../assets/cg/cg-b-3.webp";
 import cgB4 from "../../assets/cg/cg-b-4.webp";
 import cgB5 from "../../assets/cg/cg-b-5.webp";
+import cgB6 from "../../assets/cg/cg-b-6.webp";
+import cgB7 from "../../assets/cg/cg-b-7.webp";
+import cgB8 from "../../assets/cg/cg-b-8.webp";
+import cgB9 from "../../assets/cg/cg-b-9.webp";
+import cgB10 from "../../assets/cg/cg-b-10.webp";
+import cgB11 from "../../assets/cg/cg-b-11.webp";
 
 /* ============ 标题两侧 CG ============
  *
  * 原图 832×1216(比例 0.6842),统一压成 h=1100 的 WebP:
- * 五张合计约 717KB,远小于直接加载多兆字节 PNG —— 标题是首屏,
+ * 十一张合计约 1.4MiB,远小于直接加载多兆字节 PNG —— 标题是首屏,
  * 不能把源图体积原样带进运行时。
  *
  * ---- 为什么用软遮罩而不是硬裁 ----
- * 五张 CG 的主体都在画面中央附近,
+ * 这些 CG 的主体都在画面中央附近,
  * 不是我原先假设的「主体在外侧 60%」。所以任何贴着徽记的硬边裁切都会
  * 把人物切成两半。改用向内渐隐的遮罩:主体完整保留,只让最内侧的
  * 背景像素溶解掉。
@@ -31,7 +37,13 @@ export const TITLE_CG_FRAMES: readonly TitleCgFrame[] = [
   { src: cgB2, label: "cg-b-2" },
   { src: cgB3, label: "cg-b-3" },
   { src: cgB4, label: "cg-b-4" },
-  { src: cgB5, label: "cg-b-5" }
+  { src: cgB5, label: "cg-b-5" },
+  { src: cgB6, label: "cg-b-6" },
+  { src: cgB7, label: "cg-b-7" },
+  { src: cgB8, label: "cg-b-8" },
+  { src: cgB9, label: "cg-b-9" },
+  { src: cgB10, label: "cg-b-10" },
+  { src: cgB11, label: "cg-b-11" }
 ] as const;
 
 /**

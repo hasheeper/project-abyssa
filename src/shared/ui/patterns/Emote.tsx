@@ -18,9 +18,9 @@ import type { EmotePlacement } from "./emotes";
  * 用 .png 走 image/png,浏览器读到 acTL 自动按动画播放。
  */
 
-// 与 PaperDoll 同一套路径策略:素材不打进产物,运行时按路径引用。
-// dev 下文档在服务根,构建产物在 <outDir>/ 下,故相对回退一级。
-const DEFAULT_EMOTE_BASE = import.meta.env.DEV ? "/src/assets/emote/" : "../src/assets/emote/";
+// 应用构建指定随产物复制的素材目录；组件库保留既有默认值与 prop 覆盖能力。
+const DEFAULT_EMOTE_BASE = import.meta.env.VITE_EMOTE_BASE_URL ??
+  (import.meta.env.DEV ? "/src/assets/emote/" : "../src/assets/emote/");
 
 export interface EmoteProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
   /** 漫符 id(对应 src/assets/emote/<id>.png)。 */

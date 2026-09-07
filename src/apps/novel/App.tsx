@@ -3,9 +3,7 @@ import { VisualNovelScene } from "../../shared/ui/patterns/VisualNovelScene";
 import { SCENARIOS } from "./scenarios";
 import type { ScenarioId } from "./scenarios";
 
-const shopBg = import.meta.env.DEV
-  ? "/src/assets/backgrounds/shop.png"
-  : "../src/assets/backgrounds/shop.png";
+import shopBg from "../../assets/backgrounds/shop.png";
 
 const ORDER: ScenarioId[] = ["two", "three", "four"];
 

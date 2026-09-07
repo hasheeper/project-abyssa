@@ -1,9 +1,13 @@
 import { copyFile, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { createServer } from "vite";
+import { assertOutputDirectory, distRoot } from "../config/paths.mjs";
 
 const projectRoot = resolve(import.meta.dirname, "..");
-const outputDir = resolve(projectRoot, "static-preview");
+const outputArgument = process.argv.indexOf("--outDir");
+if (outputArgument >= 0 && !process.argv[outputArgument + 1]) throw new Error("--outDir requires a path");
+const outputDir = resolve(projectRoot, (outputArgument >= 0 ? process.argv[outputArgument + 1] : "static-preview") ?? "static-preview");
+if (outputDir !== resolve(projectRoot, "static-preview")) assertOutputDirectory(outputDir, resolve(distRoot, "preview"));
 const previewDir = resolve(projectRoot, "preview");
 const frameCornerSource = resolve(
   projectRoot,
@@ -31,6 +35,7 @@ const affiliationIconOutput = resolve(outputDir, "assets/affiliation-icons.png")
 const affiliationIconCssSource = "../../../assets/ui/status-panel-emblem.png";
 const affiliationIconCssOutput = "./assets/affiliation-icons.png";
 const server = await createServer({
+  configFile: false,
   root: projectRoot,
   appType: "custom",
   logLevel: "error",

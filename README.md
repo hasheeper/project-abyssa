@@ -4,6 +4,17 @@ Abyssa 的复古 RPG React 组件库与交互场景仓库。项目从静态视�
 
 组件使用原生语义元素、TypeScript 类型和命名空间化 CSS 变量；组件包本身不依赖业务后端。仓库内共有 **18 个 Vite 入口**：1 个组件目录、12 个场景／实验入口和 5 个制作工具。
 
+当前游戏已经接通同档案的角色、地图出征、庄园初战／维护／回忆、成长装备、基础商店与结算恢复；默认使用规则4／内容3。新档目前仍直接进入菜单，当前先制作CG开场、洋馆介绍和基础教学副本。庄园难度与剧作仍需返工。
+
+- [文档统一入口](docs/README.md)
+- [当前机制与完整游戏闭环](docs/GAME_SYSTEMS_AND_CONTENT_SPEC.md)
+- [定稿、完成度与下一步](docs/DESIGN_DECISIONS_AND_CURRENT_STATUS.md)
+- [初章与引导计划](docs/plans/DEMO_PROLOGUE_AND_ONBOARDING_PLAN.md)
+- [运行／构建与工程配置](config/README.md)
+- [历史计划与验收档案](docs/archive/README.md)
+
+Abyssa独立拥有游戏规则与存档，复杂LLM上下文／管线按需交给rp-style-lab。原始人设、已定稿美术和既有界面继续保留；工程接线通过不代表内容质量已验收。
+
 ## 当前组件
 
 ### 基础结构
@@ -56,6 +67,10 @@ Abyssa 的复古 RPG React 组件库与交互场景仓库。项目从静态视�
 
 ```text
 src/
+  game-core/  # 纯规则、Catalog 契约、三层状态；独立 Node 验证
+  game-application/  # 命令、回执、Fact、存储/AI Port
+  game-infrastructure/  # Memory / IndexedDB / 本地短反应
+  game-runtime/  # 具体内容和适配器装配，旧页面兼容入口
   apps/       # 独立运行的概念原型；app 之间禁止直接引用
   tools/      # 洋馆标注器、立绘工作台等内容制作工具
   content/    # 角色、房间等项目实例数据
@@ -64,16 +79,19 @@ src/
   index.ts    # @abyssa/ui 公共导出
 ```
 
-依赖方向为 `apps/tools → content/shared/assets`、`content → shared/domain`；`shared` 不反向依赖应用、工具或内容。可运行 `npm run boundaries:check` 检查边界，细则见 [`src/shared/README.md`](src/shared/README.md)。
+游戏链路为 `apps → runtime → application → core/Port`，runtime 装配 `content/gameplay` 和 infrastructure；工具继续使用展示 content/shared/assets。应用服务说明见 [game-application](/Users/liuhang/Documents/project-abyssa/src/game-application/README.md)。`shared` 不反向依赖游戏内核、应用、工具或内容。`game-core` 仅依赖内部纯 TypeScript；它不进入 UI 包导出。运行 `npm run check:core` 检查独立类型、依赖、Node 测试与导入，`npm run check:baseline` 覆盖整个工程。共享边界见 [`src/shared/README.md`](src/shared/README.md)。
 
 ## 本地运行
 
 ```bash
-npm install
+# 使用 .nvmrc 指定的 Node 22.23.2 与 npm 10.9.8
+npm ci
 npm run dev
 ```
 
 组件目录默认运行在 `http://127.0.0.1:5173/`。它以实际接入为主：左侧按功能分类，支持名称/能力搜索；基础组件和组合范例提供交互预览、常用属性说明和可复制的最小调用代码。战斗、视觉小说和跑团等大型场景由对应应用与 Storybook 展示。
+
+聚合开发入口：`npm run dev:game`（5190，标题首页）、`npm run dev:lab`（5191，组件目录与演出实验）、`npm run dev:tools`（5192，制作工具索引）。端口占用时明确报错；旧 `dev:<name>` 命令继续使用已登记的端口和页面。
 
 ```bash
 npm run storybook
@@ -83,43 +101,38 @@ Storybook 默认运行在 `http://127.0.0.1:6006/`。
 
 ### 应用预览
 
-仓库共有 18 个 Vite 入口。除骰局与战斗包含局部规则外，其余场景主要用于验证 UI 状态、交互和动画；这些入口仍相互独立，不代表已经形成完整游戏流程。
+仓库共有 18 个 Vite 入口。Title、Menu、Map、Battle、Mansion、Shop 通过 save/epoch 定位同一 IndexedDB 档案；从标题新建或继续即可进入完整远征循环。裸场景链接会引导选择档案。骰局、演出实验和制作工具保持独立用途。
 
 | 命令 | 入口 | 当前功能 |
 | --- | --- | --- |
 | `npm run dev` | 组件目录 | 按结构、操作、展示和组合范例分类；支持搜索、交互预览与复制最小调用代码，默认端口 5173 |
-| `npm run dev:battle` | 裂隙远征 | 五人命数骰编队、敌方意图、攻击／防御／治疗、远征账本与木制／勇者／四席／魔王四套 UI 主题 |
+| `npm run dev:battle` | 裂隙远征 | 2–5 人真实编队、持久战斗、敌方意图与顺序演出、一次结算；木制／勇者／四席／魔王四套 UI 主题 |
 | `npm run dev:dice` | 明暗骰 | 五骰牌型、固定注额下注、公开/私有锁骰、重掷、庄家轮换、筹码结算、3D 骰子和本地对手逻辑 |
-| `npm run dev:map` | 副本地图 | Three.js + GSAP 地图、三处副本海报、选点镜头聚焦、四人编队、勇者亲征／托管和预备出征；当前会写入出击令，但 battle 尚未消费 |
-| `npm run dev:title` | 标题画面 | 字标徽记做旧并逐部件弹入、四项档案层命令（继续/新开/记录/设定）、缓速自转放射背景场、两侧 CG 交叉淡入轮播，黑金／猩红／青幽三套主题，经共享黑幕接力进入枢纽，固定端口 5182 |
+| `npm run dev:map` | 副本地图 | Three.js + GSAP 地图、选点镜头聚焦、凯尔加 1–4 名伙伴、真实库存领用；裂隙远征提交成功后进入 Battle，托管暂未开放 |
+| `npm run dev:title` | 标题画面 | 新建/继续、多档列表、导入/导出与坏档诊断；字标、CG 轮播、三套主题及黑幕转场保留，固定端口 5182 |
 | `npm run dev:menu` | 枢纽主界面 | 四角命令盘（府邸/出征/仓库/商店）、破窗立绘与吐槽、档案侧栏、资源与相位顶栏 |
 | `npm run dev:loading` | 场景交接实验室 | 骰子六面体黑幕、区域抵达标题、真实资源等待，以及淡入与实体面板落入的切换演示 |
-| `npm run dev:mansion` | 洋馆基地 | 剖面图房间交互、相位切换、角色 ADV、修缮与设施收获原型 |
+| `npm run dev:mansion` | 洋馆基地 | 剖面图房间交互、角色 ADV、真实资金/库存/远征经历与本地反应；建设、生产和相位推进暂未开放 |
 | `npm run dev:novel` | 视觉小说 | 双人/三人/四人剧本切换、两席位立绘轮换、表情延续、逐字对话，以及点击/空格/回车推进 |
 | `npm run dev:rp` | 跑团演出 | NVL 消息流与 ADV 对话框两种版式、幕解锁与历史回看、LOG、AUTO、SKIP、REPLAY、判定条和逐字演出 |
 | `npm run dev:settings` | 设置页 | 对齐现有 RP 默认参数的演出节奏、视觉显示与预览控件；状态当前只在本页生效，AI 服务栏仍是禁用占位，固定端口 5188 |
-| `npm run dev:shop` | 商店界面 | 购买、出售、鉴定、砍价、分类、分页、库存、里拉/远古晶石双货币和店主反馈 |
+| `npm run dev:shop` | 商店界面 | 真实余额与游戏导航，交易和鉴定暂未开放；旧商品操作保留在显式 ShopPreview 原型中 |
 | `npm run dev:studio` | 立绘工作台 | 调整逐角色画布、舞台站位、表情、漫符和动作；自动保存到本地并导出 TS、CSS、漫符参数或 JSON 快照，固定端口 5176 |
 | `npm run dev:party-figure-studio` | 地图立绘工作台 | 校准十名地图 Q 版立绘的缩放、偏移与朝向，并以单图和五人编队两种视图导出共享参数，固定端口 5187 |
 | `npm run dev:logo-studio` | Logo 工作台 | 逐部件调整位置、缩放、旋转与透明度；自动保存并导入／导出 JSON 或 TypeScript 布局参数，固定端口 5181 |
 | `npm run dev:dice-studio` | 骰面工作台 | 独立检查共享远征骰面、六面配置与旋转交互，固定端口 5184 |
-| `npm run dev:character-status` | 角色状态页 | 角色与服装切换、档案标签、属性/特性/记录展示，以及随阵营变化的界面主题 |
+| `npm run dev:character-status` | 角色状态页 | 读取当前档案的概要／骰装／记事；无档案时选档，地图和战斗均可检视并返回 |
 | `npm run dev:mansion-editor` | 洋馆热区标注器 | 在固定原图坐标系中标注矩形与多边形房间，并导出正式页面使用的参数 |
 
-除组件目录外，各入口均提供 `build:<name>`；多数入口另有 `preview:<name>`，准确命令以 `package.json` 为准。产物落在 `<name>-dist/`。组件库使用 `npm run build`，静态组件目录使用 `npm run build:preview` / `npm run preview:components`。
+除组件目录外，各入口均提供 `build:<name>`；多数入口另有 `preview:<name>`，准确命令以 `package.json` 为准。独立产物位于 `dist/entries/<name>/`，并包含已登记的下游导航页面。组件库使用 `npm run build`，静态组件目录使用 `npm run build:preview` / `npm run preview:components`。
 
 ### 骰局 Runtime
 
 骰局的牌型、下注、锁骰、重掷和结算都能在浏览器本地运行。外部 LLM Runtime 是可选增强，用于实时对手决策和局后战报润色；服务不可用时界面显示 `LOCAL FALLBACK`，核心骰局仍可游玩。
 
-开发服务器会把 `dev:dice` 的 `/api` 代理到 `127.0.0.1:8787`。需要启用 Runtime 时，先启动仓库外的服务，再运行：
+所有目标默认关闭远程调用，不要求 AI 服务在线。旧实验接口可由 `npm run dev:dice -- --ai` 或显式环境变量 `VITE_DICE_RUNTIME_ENABLED=true` 启用，开发代理此时才转发 `/api` 到 `127.0.0.1:8787`。
 
-```bash
-npm run setup:dice-runtime
-npm run dev:dice
-```
-
-可通过 `VITE_DICE_RUNTIME_ENABLED=false` 明确关闭 Runtime，或用 `VITE_DICE_RUNTIME_API_BASE_URL`、`VITE_DICE_RUNTIME_APPLICATION_SLUG` 覆盖默认连接参数。
+旧骰局适配器和 `setup:dice-runtime` 尚未迁移到 rp-style-lab 当前的 Model Slot／Pipeline 协议，不作为现行服务的安装指引，也不进入构建、启动或 CI 依赖链。接入工作留到 S4；S0 的页面与本地规则不依赖该接口。
 
 ### 共享固定画布
 
@@ -134,8 +147,8 @@ npm run dev:dice
 ### 外部资源
 
 - 构建出的 `@abyssa/ui` 组件包不主动请求远程字体、图片或业务接口。
-- 地图入口的地面与三个地图节点图仍从 `files.catbox.moe` 加载；委托面板的三张战斗背景已经位于 `src/assets/map/quest-backgrounds/`。
-- 骰局和商店入口的缇比立绘仍从 `files.catbox.moe` 加载；骰局的可选 LLM Runtime 默认连接本机 8787 端口。
+- 地图底图、三个节点、委托背景与 Q 版队伍立绘均已归入 `src/assets/map/`，通过静态 import 随构建打包；目录和文件名见[地图素材说明](/Users/liuhang/Documents/project-abyssa/src/assets/map/README.md)。地图图片不再依赖外部图床。
+- 骰局和商店入口的缇比立绘仍从 `files.catbox.moe` 加载；骰局的可选 LLM Runtime 只有显式启用后才连接本机 8787 端口。
 - `loading`、`mansion`、`menu`、`shop` 与 `title` 的 HTML 入口通过 Google Fonts 加载 Cinzel 与 Noto Serif SC。
 
 需要完全离线部署这些 Demo 时，应先把上述图片和字体转为本地资产，并关闭或替换骰局 Runtime。
@@ -164,7 +177,19 @@ npm run build
 npm run build-storybook
 ```
 
-`npm run build` **只构建组件库**。产物位于 `dist/`，包含 ESM、类型声明和独立样式文件；`npm run build-storybook` 的产物位于 `storybook-static/`。
+`npm run build` **只构建组件库**。产物位于 `dist/ui/`，包含 ESM、类型声明和独立样式文件；包导出键保持不变。`npm run build-storybook` 的产物位于 `dist/storybook/`。
+
+```bash
+npm run check:baseline   # 应用与工具类型、入口、模块边界、应用及构建测试
+npm run build:all        # ui / game / lab / tools，输出互相隔离
+npm run preview:game
+npm run release:check:ui
+npm run release:check:game
+npm run build:entries    # 18 个兼容入口的临时构建与产物验证
+npm run check:auxiliary  # 脚本语法及静态分享预览的隔离验证
+```
+
+浏览器检查先运行 `npx playwright install --only-shell chromium`，再运行 `npm run test:smoke`。它只服务真实 `dist`，检查根路径、子路径和无 AI 服务时的页面操作；保留既有外链素材，不宣称完全离线部署。`.github/workflows/ci.yml` 复用这些命令。
 
 场景应用需要分别构建：
 
@@ -188,7 +213,7 @@ npm run build:logo-studio
 npm run build:dice-studio
 ```
 
-仓库目前没有聚合的 `build:all`。每个场景产物位于对应的 `<name>-dist/`；组件目录的无 Vite 依赖静态版本通过 `npm run build:preview` 生成到 `static-preview/`。
+聚合游戏、实验和工具分别输出到 `dist/game`、`dist/lab`、`dist/tools`；独立构建输出到 `dist/entries/<name>`。组件目录的无 Vite 依赖静态版本仍通过 `npm run build:preview` 生成到刻意提交的 `static-preview/`；自动检查使用临时目录，不刷新该分享快照。
 
 ## 前端接入
 
@@ -294,18 +319,18 @@ src/
   shared/         domain / lib / presentation / stage / transition / ui
   assets/         characters / backgrounds / battle / map / ui / icons / emote / cg
   index.ts        @abyssa/ui 唯一公共导出入口
-scripts/          素材管线与构建工具(.mjs)
+config/           入口登记、目标、公共 Vite 工厂与浏览器检查配置
+scripts/          目标运行、产物检查与素材工具(.mjs)
+tests/            构建基础设施及静态发行物冒烟检查
 references/
   html/           英文命名的视觉原型 HTML
   images/         英文命名的视觉参考图片
 st/setting/       世界观与角色设定文本
-*-dist/           各场景的 Vite 构建产物
-dist/             @abyssa/ui 组件库构建产物
-storybook-static/ Storybook 静态构建产物
+dist/             ui / game / lab / tools / entries / storybook / reports
 static-preview/   无构建工具依赖的组件目录预览
 ```
 
-视觉原型统一归档在 `references/`，不参与组件库生产构建。根目录的 `index.html`、`battle.html`、`dice.html` 等文件是各应用的 Vite HTML 入口，对应构建设置位于 `vite.*.config.ts`。
+视觉原型统一归档在 `references/`，不参与组件库生产构建。根目录的 18 个 HTML 保留为兼容入口，在 `config/entries.mjs` 登记，由公共工厂构建。旧 `vite --config vite.<name>.config.ts` 调用改用对应 npm 命令；默认 `vite.config.ts` 仍兼容直接运行 Vite。
 
 ## 素材说明
 

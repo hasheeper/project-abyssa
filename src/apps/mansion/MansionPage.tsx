@@ -48,10 +48,14 @@ import {
 import type { DrawerSide, SceneRegion } from "./mansion-geometry";
 import { useMansionViewport } from "./useMansionViewport";
 import { useMansionEstate } from "./useMansionEstate";
+import { GameProvider, GameGate, useGameState } from "../../game-client/react";
+import { gameHref, recordLocator } from "../../game-client/navigation";
+import { CampaignPanel } from "../../game-client/CampaignPanel";
+import { GrowthStory } from "../../game-client/GrowthStory";
+import { growthStories, teamMilestoneStory } from "../../content/presentation/growth-stories";
 import {
   MAX_FACILITY_LEVEL,
   REPAIR_STEPS,
-  STOCK_CAPACITY,
   STOCK_COLUMNS,
   STOCK_ROWS
 } from "./mansion-state";
@@ -66,6 +70,20 @@ const MANSION_SPRITE_BASE = import.meta.env.DEV
   : `${import.meta.env.BASE_URL}character-art/`;
 
 export function MansionPage() {
+  return <GameProvider><GameGate><MansionScene /></GameGate></GameProvider>;
+}
+function MansionScene() {
+  const game = useGameState();
+  const [growthReview,setGrowthReview] = useState<string|null>(null);
+  const [growthNotice,setGrowthNotice] = useState<string|null>(null);
+  const campaign = game.record?.schemaVersion===4 ? game.record.snapshot.campaign : null;
+  const growthSession = campaign?.stories.find(s=>s.id===campaign.activeStoryId && growthStories[s.eventId]);
+  const growthEventId = growthReview ?? growthSession?.eventId;
+  useEffect(()=>{
+    if(!growthNotice) return;
+    const timer=window.setTimeout(()=>setGrowthNotice(null),6000);
+    return ()=>window.clearTimeout(timer);
+  },[growthNotice]);
   const lastFocusRef = useRef<HTMLElement | null>(null);
   const drawerCloseRef = useRef<HTMLButtonElement>(null);
   const dialogueCloseRef = useRef<HTMLButtonElement>(null);
@@ -214,7 +232,7 @@ export function MansionPage() {
   }] : [], [activeCharacter, phase]);
   /** 对话开启时,世界与四角挂件一律退出可交互与无障碍树。
    *  原先这个三元在 7 处重复写成 `activeCharacter ? true : undefined`。 */
-  const chromeInert = activeCharacter ? true : undefined;
+  const chromeInert = activeCharacter || growthEventId ? true : undefined;
 
   useEffect(() => {
     if (selectedRegionId) {
@@ -281,6 +299,7 @@ export function MansionPage() {
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
+      if (growthEventId) return;
       const target = event.target as HTMLElement | null;
       const isControl = target?.matches("button, input, textarea, select, [contenteditable='true']");
       if (event.key === "Escape") {
@@ -309,7 +328,7 @@ export function MansionPage() {
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [activeCharacterId, dialogueSettled, selectedRegionId, shiftPan]);
+  }, [activeCharacterId, dialogueSettled, selectedRegionId, shiftPan,growthEventId]);
 
   const openRegion = (regionId: string) => {
     if (isClickSuppressed()) return;
@@ -368,7 +387,8 @@ export function MansionPage() {
   const selectedCanPromote = selectedRepairSteps >= REPAIR_STEPS && !selectedRepairComplete;
 
   const navigateTo = (href: string) => {
-    window.location.assign(href);
+    if (href.includes("dice")) return;
+    window.location.assign(gameHref(href.includes("shop") ? "shop" : "map", recordLocator(game.record!)));
   };
 
   const useCompositeFallback = manifestError || failedLayers.size > 0;
@@ -458,6 +478,7 @@ export function MansionPage() {
           aria-hidden={chromeInert}
         >
           <MansionPhaseBar
+            readOnly
             phases={MANSION_PHASES}
             value={phase}
             day={day}
@@ -519,6 +540,7 @@ export function MansionPage() {
 
         {selectedRegion && selectedDetail && (
           <MansionRoomDrawer
+            readOnly
             region={selectedRegion}
             detail={selectedDetail}
             side={selectedDrawerSide}
@@ -594,13 +616,20 @@ export function MansionPage() {
           entries={inventoryEntries}
           columns={STOCK_COLUMNS}
           rows={STOCK_ROWS}
-          capacity={STOCK_CAPACITY}
+          capacity={estate.capacity}
           categories={MANSION_ITEM_CATEGORIES}
-          emptyHint="尚未收取本轮产出。到各房间的产出图钉上收取。"
+          emptyHint="营地暂无物品。建设与生产尚未开放。"
           returnFocusRef={stockButtonRef}
         />
 
-        {toast && <div className="mansion-toast" role="status" data-no-pan>{toast}</div>}
+        {(growthNotice || toast) && <div className="mansion-toast" role="status" data-no-pan>{growthNotice || toast}</div>}
+        <div inert={chromeInert}><CampaignPanel report onReviewGrowth={setGrowthReview}/></div>
+        {growthEventId && <div style={{position:"absolute",inset:0,zIndex:610,display:"grid",placeItems:"center",background:"var(--abyssa-rp-backdrop)"}}>
+          <GrowthStory key={`${growthEventId}:${!!growthReview}`} eventId={growthEventId} review={!!growthReview} onClose={()=>{if(growthEventId===teamMilestoneStory.eventId)setGrowthNotice(teamMilestoneStory.resultText);setGrowthReview(null);}} onCompleted={milestone=>{
+            setGrowthNotice(growthStories[growthEventId].resultText);
+            setGrowthReview(milestone ? teamMilestoneStory.eventId : null);
+          }}/>
+        </div>}
       </AbyssaProvider>
     </Stage>
   );

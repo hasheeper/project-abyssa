@@ -5,7 +5,7 @@
 ## 接入顺序
 
 1. 在 `domain/state.ts` 的 `EnemyIntent` 判别联合中增加新 `type` 与全部可序列化参数。
-2. 若它属于新敌人种类，再扩展 `EnemyKind` 和 `content/enemies.ts` 的手工遭遇配置。
+2. 若它属于新敌人种类，再扩展 `EnemyKind` 和 `src/content/gameplay/legacy-v1/catalog.ts（enemies/encounters/routes）` 的手工遭遇配置。
 3. 在 `rules/turns.ts` 的 `buildEnemyIntentEffects` 中生成公开意图，并通过 `modify-intent: replace` 写入。
 4. 在 `rules/enemy-intents.ts` 新增 `resolveXxx`，把结算拆成既有原子效果。
 5. 在 `buildIntentEffects` 增加穷尽分支；TypeScript 必须继续把遗漏视为错误。

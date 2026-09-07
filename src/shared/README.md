@@ -11,10 +11,10 @@
 
 依赖规则：
 
-- `shared` 不得引用 `apps`、`tools` 或 `content`；
+- `shared` 不得引用 `game-core`、`apps`、`tools` 或 `content`；
 - `shared/domain` 不依赖 React 与 UI；
 - 具体角色、房间、剧本和页面状态不进入 `shared`；
-- 没有第二个真实消费者的代码默认留在原型内部；
+- 没有第二个真实消费者的共享候选默认留在原型内部；Battle 规则的所有权已在 S1 明确迁入 `src/game-core`，不受共享 UI 的复用数量要求限制；
 - 不建立导出全部内容的根级 barrel，按稳定叶子模块显式引用。
 
 ## 当前稳定模块
@@ -30,4 +30,4 @@
 
 `transition` 可以接收目标 URL 和短文案，但这些值必须由调用方提供；它不能反向登记或导入 `menu`、`battle`、`shop`、`mansion`。同理，库存 UI 只展示调用方传入的数据，不拥有领地库存的 canonical state。
 
-完整规划见 [`docs/architecture/CONCEPT_PROTOTYPE_STRUCTURE_AND_SHARED_PLAN.md`](../../docs/architecture/CONCEPT_PROTOTYPE_STRUCTURE_AND_SHARED_PLAN.md)。
+原型时期的结构规划保留在[历史档案](../../docs/archive/architecture/CONCEPT_PROTOTYPE_STRUCTURE_AND_SHARED_PLAN.md)；当前游戏／共享边界以各模块现行README为准。

@@ -150,11 +150,11 @@ export function MansionLedger({
         <dl className="mansion-ledger__funds">
           <div>
             <dt>维稳公款</dt>
-            <dd><CurrencyAmount value={publicFund} label={`维稳公款 ${publicFund}`} /></dd>
+            <dd><CurrencyAmount value={publicFund} currency="gold" label={`维稳公款 ${publicFund}`} /></dd>
           </div>
           <div>
             <dt>小队资金</dt>
-            <dd><CurrencyAmount value={partyFund} label={`小队资金 ${partyFund}`} /></dd>
+            <dd><CurrencyAmount value={partyFund} currency="gold" label={`小队资金 ${partyFund}`} /></dd>
           </div>
         </dl>
       </section>

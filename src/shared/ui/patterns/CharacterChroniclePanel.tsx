@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { HTMLAttributes } from "react";
+import type { HTMLAttributes, ReactNode } from "react";
 import { cx } from "../../lib/cx";
 import { RpgFrame } from "../primitives/RpgFrame";
 import {
@@ -91,6 +91,8 @@ export interface CharacterChroniclePanelProps
   /** 摘要行右侧的两枚派生读数。由调用方给出字符串，
       本组件不从 chronicle 推导任何数值。 */
   summary?: { label: string; value: string }[];
+  /** Optional leading list items sharing the chronicle's timeline and scroll surface. */
+  leadingContent?: ReactNode;
 }
 
 function ChronicleBlockView({ block }: { block: ChronicleBlock }) {
@@ -152,6 +154,7 @@ export function CharacterChroniclePanel({
   chronicle,
   characterName,
   summary,
+  leadingContent,
   className,
   ...props
 }: CharacterChroniclePanelProps) {
@@ -182,7 +185,7 @@ export function CharacterChroniclePanel({
   }, [activeFilter, characterId]);
 
   /* 占位态：记事尚未录入。宁可明说，也不渲染一条假年表。 */
-  if (blocks.length === 0) {
+  if (blocks.length === 0 && !leadingContent) {
     return (
       <div
         className={cx("abyssa-chronicle", className)}
@@ -256,8 +259,9 @@ export function CharacterChroniclePanel({
             tabIndex={0}
             aria-live="polite"
           >
-            {visibleBlocks.some((block) => block.kind === "entry") ? (
+            {leadingContent || visibleBlocks.some((block) => block.kind === "entry") ? (
               <ol className="abyssa-chronicle__list">
+                {leadingContent}
                 {visibleBlocks.map((block) => (
                   <ChronicleBlockView block={block} key={block.id} />
                 ))}
@@ -265,6 +269,11 @@ export function CharacterChroniclePanel({
             ) : (
               <p className="abyssa-chronicle__filter-empty" role="status">
                 此分类暂无记事
+              </p>
+            )}
+            {leadingContent && visibleBlocks.length === 0 && (
+              <p className="abyssa-chronicle__filter-empty" role="note">
+                {blocks.length === 0 ? chronicle?.placeholderNote ?? "尚无冒险记事" : "此分类暂无记事"}
               </p>
             )}
           </div>

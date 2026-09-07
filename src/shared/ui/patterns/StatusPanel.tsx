@@ -43,7 +43,9 @@ export interface StatusPanelAffiliation {
 }
 
 export interface StatusBond {
-  level: number;
+  level: number | null;
+  discrete?: boolean;
+  maxLevel?: number;
   progress?: number;
   progressMax?: number;
   slots?: number;
@@ -65,12 +67,15 @@ const statusChipIcons = {
 export interface StatusPact {
   name: ReactNode;
   iconUrl?: string;
-  currentStage?: 1 | 2 | 3;
+  currentStage?: 1 | 2 | 3 | null;
+  stageLabels?: string[];
+  stageLimit?: number;
   trigger: ReactNode;
   currentTerm: ReactNode;
 }
 
 export interface StatusPanelData {
+  notice?: ReactNode;
   title: ReactNode;
   titleRootIndex?: number;
   subtitle?: ReactNode;
@@ -128,19 +133,24 @@ function PactGlyph({ src, name }: { src: string; name: string }) {
   );
 }
 
-function BondBand({ bond, chips = [] }: { bond: StatusBond; chips?: StatusChip[] }) {
+function BondBand({ bond, chips = [] }: { bond?: StatusBond; chips?: StatusChip[] }) {
+  const hasBond = !!bond;
+  bond = bond ?? { level: null, discrete: true };
   const slots = Math.max(1, bond.slots ?? 5);
-  const level = Math.max(0, Math.min(slots, Math.floor(bond.level)));
-  const progress = Math.max(0, bond.progress ?? 0);
+  const known = bond.level !== null;
+  const level = Math.max(0, Math.min(slots, Math.floor(bond.level ?? 0)));
+  const maxLevel = Math.min(slots, bond.maxLevel ?? slots);
+  const progress = bond.discrete ? 0 : Math.max(0, bond.progress ?? 0);
   const progressMax = Math.max(1, bond.progressMax ?? 100);
   const currentRatio = level < slots ? Math.min(1, progress / progressMax) : 0;
   const totalProgress = Math.min(100, ((level + currentRatio) / slots) * 100);
+  const stageState = (index: number) => known && index < level ? "complete" : known && index === level && index < maxLevel ? "current" : "locked";
 
   return (
     <section className="abyssa-status-panel__bond" aria-label="羁绊与当前状态">
-      <div className="abyssa-status-panel__bond-main">
+      {hasBond && <div className="abyssa-status-panel__bond-main">
         <header className="abyssa-status-panel__bond-heading">
-          <span>BOND 羁绊 · Lv.{level}</span>
+          <span>BOND 羁绊{known ? ` · Lv.${level}` : ""}</span>
         </header>
         <div
           className="abyssa-status-panel__bond-track"
@@ -153,17 +163,17 @@ function BondBand({ bond, chips = [] }: { bond: StatusBond; chips?: StatusChip[]
         >
           {Array.from({ length: slots }, (_, index) => {
             const stage = index + 1;
-            const state = index < level ? "complete" : index === level ? "current" : "locked";
+            const state = stageState(index);
             return (
               <span
                 className="abyssa-status-panel__bond-node"
                 data-state={state}
                 role="listitem"
                 aria-label={
-                  state === "complete"
+                  !known ? `羁绊阶段 ${stage}，未记录` : stage > maxLevel ? `羁绊阶段 ${stage}，本 DEMO 未开放` : state === "complete"
                     ? `羁绊阶段 ${stage}，已达成`
                     : state === "current"
-                      ? `羁绊阶段 ${stage}，进行中 ${progress} / ${progressMax}`
+                      ? bond.discrete ? `羁绊阶段 ${stage}，下一阶段` : `羁绊阶段 ${stage}，进行中 ${progress} / ${progressMax}`
                       : `羁绊阶段 ${stage}，未解锁`
                 }
                 key={stage}
@@ -173,6 +183,7 @@ function BondBand({ bond, chips = [] }: { bond: StatusBond; chips?: StatusChip[]
                   stage={stage}
                   progress={progress}
                   progressMax={progressMax}
+                  progressLabel={bond.discrete ? "—" : undefined}
                   textureSeed={stage * 11}
                 />
               </span>
@@ -180,13 +191,14 @@ function BondBand({ bond, chips = [] }: { bond: StatusBond; chips?: StatusChip[]
           })}
           <span className="abyssa-status-panel__bond-scale" aria-hidden="true">
             {Array.from({ length: slots }, (_, index) => {
-              const state = index < level ? "complete" : index === level ? "current" : "locked";
+              const state = stageState(index);
               return <i data-state={state} key={index} />;
             })}
           </span>
-          <small className="abyssa-status-panel__bond-progress">{progress}/{progressMax}</small>
+          <small className="abyssa-status-panel__bond-progress">{!known ? "未记录" : bond.discrete ? level >= maxLevel ? "本 DEMO 已达上限" : `Lv.${level} / Lv.${maxLevel}` : `${progress}/${progressMax}`}</small>
         </div>
       </div>
+      }
       {!!chips.length && (
         <aside className="abyssa-status-panel__status">
           <h4>STATUS 当前状态</h4>
@@ -218,8 +230,8 @@ function BondBand({ bond, chips = [] }: { bond: StatusBond; chips?: StatusChip[]
 }
 
 function PactPanel({ pact }: { pact: StatusPact }) {
-  const currentStage = pact.currentStage ?? 1;
-  const stageLabels = [
+  const currentStage = pact.currentStage === null ? 0 : pact.currentStage ?? 1;
+  const stageLabels = pact.stageLabels?.map((label, i) => ({number: ["I", "II", "III"][i]!, label})) ?? [
     { number: "I", label: "初始" },
     { number: "II", label: "现行" },
     { number: "III", label: "重签" }
@@ -242,7 +254,7 @@ function PactPanel({ pact }: { pact: StatusPact }) {
             const stateIcon = state === "locked" ? padlockIcon : undefined;
 
             return (
-              <li data-state={state} key={number}>
+              <li data-state={state} key={number} title={pact.stageLimit && stage > pact.stageLimit ? "本 DEMO 未开放" : currentStage === 0 ? "未记录" : undefined}>
                 <i className="abyssa-status-panel__pact-stage-inset" aria-hidden="true" />
                 <b>{number}</b>
                 <span>{label}</span>
@@ -343,7 +355,7 @@ export function StatusPanel({ data, watermark, className, ...props }: StatusPane
                 )}
               </section>
 
-              {data.bond && <BondBand bond={data.bond} chips={data.statusChips} />}
+              {(data.bond || !!data.statusChips?.length) && <BondBand bond={data.bond} chips={data.statusChips} />}
 
               {!!data.stats?.length && (
                 <section className="abyssa-status-panel__parameters" aria-label="参数">
@@ -454,6 +466,7 @@ export function StatusPanel({ data, watermark, className, ...props }: StatusPane
                               </>
                             ) : data.record}
                           </div>
+                          {data.notice && <p className="abyssa-status-panel__notice" role="note">{data.notice}</p>}
                         </section>
                       )}
                     </div>

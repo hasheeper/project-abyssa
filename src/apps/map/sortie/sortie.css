@@ -1372,7 +1372,7 @@
   padding: 0;
   border: 0;
   color: #d2c4b3;
-  font-size: 21px;
+  font-size: 23px;
   font-weight: 560;
   letter-spacing: 0.1em;
   line-height: 1.12;
@@ -1403,7 +1403,7 @@
   background: none;
   color: color-mix(in srgb, var(--sortie-ink-dim) 84%, transparent);
   flex: 0 0 auto;
-  font-size: 14px;
+  font-size: 16px;
   font-style: normal;
   font-weight: 400;
   line-height: 1.5;
@@ -1438,7 +1438,7 @@
 .abyssa-sortie-quest__block h3 {
   margin: 0;
   color: var(--sortie-ink-mute);
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 400;
   letter-spacing: 0.22em;
   text-indent: 0.22em;
@@ -1469,7 +1469,7 @@
 
 .abyssa-sortie-quest__threats span {
   color: color-mix(in srgb, var(--sortie-ink) 88%, transparent);
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 400;
   line-height: 1.42;
 }
@@ -1547,7 +1547,7 @@
   border-left: 1px solid rgb(157 134 104 / 52%);
   color: color-mix(in srgb, var(--sortie-gold) 78%, var(--sortie-ink-dim));
   flex: 0 0 auto;
-  font-size: 11.5px;
+  font-size: 14px;
   font-weight: 400;
   line-height: 1.42;
   letter-spacing: 0.04em;
@@ -1575,7 +1575,7 @@
 .abyssa-sortie-quest__party-head h3 {
   margin: 0;
   color: var(--sortie-ink-mute);
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 400;
   letter-spacing: 0.22em;
   text-indent: 0.22em;
@@ -1768,7 +1768,7 @@
 .abyssa-sortie-quest__go .abyssa-ribbon-button__label {
   color: var(--abyssa-ribbon-text);
   font-family: var(--abyssa-font-body, "Noto Serif SC", serif);
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 500;
   letter-spacing: 0.42em;
   text-indent: 0.42em;
@@ -1783,7 +1783,7 @@
   margin: 0;
   color: var(--sortie-ink-mute);
   flex: 0 0 auto;
-  font-size: 11px;
+  font-size: 13px;
   letter-spacing: 0.06em;
   line-height: 1.25;
   text-align: center;

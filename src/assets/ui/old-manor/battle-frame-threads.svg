@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1540" height="1087.78" viewBox="0 -62 1540 1087.78" preserveAspectRatio="none" fill="none">
+  <!-- Whole-frame coordinates: header shoulders (490,29)/(1050,29), shell top 80.78.
+       Extra slack hangs between existing knots; no isolated peripheral uprights. -->
+  <defs>
+    <path id="suspended-thread" d="M421-66L490 29C496 24 500 30 496 34C492 38 487 33 490 29C411 82 299 120 224 120C161 126 99 126 37 115C46 308 32 545 40 738C44 849 48 937 39 994C297 1006 489 998 735 1004C990 1011 1309 997 1501 994C1491 852 1509 697 1500 522C1494 361 1504 226 1503 116C1430 125 1375 135 1308 127C1217 115 1133 83 1050 29C1045 24 1041 30 1045 34C1049 38 1054 33 1050 29L1118-66"/>
+    <path id="inner-thread" d="M37 115C263 105 393 137 552 124C722 112 857 135 1034 122C1202 109 1373 125 1503 116C1481 282 1498 445 1488 628C1481 777 1497 914 1501 994C1284 984 1098 1009 879 997C602 983 331 1013 39 994C58 841 44 726 51 581C62 397 40 237 37 115Z"/>
+  </defs>
+  <!-- No glow/blur: a narrow contact shadow gives the red silk a physical edge. -->
+  <g stroke="#080b0b" stroke-width="3.2" opacity=".6" transform="translate(0 1)">
+    <use href="#suspended-thread"/>
+    <use href="#inner-thread"/>
+  </g>
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <use href="#suspended-thread" stroke="#99404c" stroke-width="1.45"/>
+    <use href="#inner-thread" stroke="#7f303f" stroke-width="1.15"/>
+
+    <!-- Taut bundles: unequal spacing and angles, all tied onto actual plaque edges. -->
+    <g stroke="#85313f" stroke-width="1.1">
+      <path d="M466-66L496 34C423 106 242 143 37 115"/>
+      <path d="M366-66L484 22C404 92 210 125 37 115"/>
+      <path d="M1148-66L1045 34C1164 127 1349 141 1503 116"/>
+      <path d="M1089-66L1057 22C1200 109 1392 130 1503 116"/>
+    </g>
+    <g stroke="#6c2c38" stroke-width=".85">
+      <path d="M446-66L492 30"/>
+      <path d="M1159-66L1047 32"/>
+    </g>
+
+    <!-- Light slack is carried by existing taut strands. Its lowest point falls
+         below the anchors; unequal spans keep the bundles from forming a mirror. -->
+    <g stroke="#883643" stroke-width="1" opacity=".8">
+      <path d="M440-39.84C610 10 940 20 1110-54.82"/>
+      <path d="M440-39.84C378 109 186 132 37 115"/>
+      <path d="M1122-40.76C1196 98 1380 155 1503 116"/>
+    </g>
+    <path d="M440-39.84C411 20 359 99 224 120" stroke="#6b2c38" stroke-width=".7" opacity=".65"/>
+
+    <!-- Short loose ends hang from the shoulder wraps, settling towards vertical. -->
+    <g stroke="#91404b" stroke-width=".85" opacity=".8">
+      <path d="M490 29C482 45 477 60 479 75C480 86 480 96 479 104"/>
+      <path d="M1045 34C1051 46 1058 51 1060 61C1061 67 1061 72 1060 78"/>
+    </g>
+
+    <!-- A second long return stays within the board margins; corners are continuous. -->
+    <path d="M484 22C360 88 184 110 25 104C23 353 41 505 28 715C21 856 31 952 39 994C325 985 562 1018 865 1008C1124 997 1327 1018 1514 1006C1510 813 1499 648 1513 459C1522 317 1507 206 1503 116C1512 111 1513 109 1514 103C1310 116 1176 71 1057 22" stroke="#632c36" stroke-width="1.05"/>
+
+    <!-- Local slack follows the same anchor points; no detached decorative segments. -->
+    <g stroke="#963a48" stroke-width=".85" opacity=".75">
+      <path d="M37 115C63 201 60 271 43 350C31 423 42 508 51 581"/>
+      <path d="M51 581C30 725 26 876 39 994"/>
+      <path d="M1503 116C1474 209 1474 305 1493 402C1513 493 1497 552 1488 628"/>
+      <path d="M1488 628C1515 746 1521 868 1501 994"/>
+      <path d="M39 994C226 1028 465 1018 735 1004"/>
+      <path d="M879 997C1152 990 1401 984 1501 994"/>
+      <path d="M37 115C197 142 384 136 552 124"/>
+      <path d="M1034 122C1204 140 1397 143 1503 116"/>
+    </g>
+
+    <!-- Small silk wraps at shared junctions, not metal pins or repeated chain loops. -->
+    <g stroke="#ad505a" stroke-width="1">
+      <path d="M436-42L444-38M1107-57L1114-53M1118-43L1126-39"/>
+      <path d="M221 118L228 122" opacity=".6"/>
+      <path d="M484 22L498 31M488 26L498 35M1057 22L1043 31M1053 26L1043 35"/>
+      <path d="M32 111L43 119M32 115L43 123M33 119L43 127"/>
+      <path d="M1497 113L1508 121M1497 117L1508 125"/>
+      <path d="M35 989L45 996M34 993L44 1000"/>
+      <path d="M1495 990L1508 998M1495 994L1508 1002"/>
+      <path d="M47 578L55 584M1484 625L1492 631"/>
+    </g>
+  </g>
+</svg>

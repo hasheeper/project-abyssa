@@ -573,3 +573,16 @@
   background: rgb(20 14 8 / 82%);
   color: var(--abyssa-teal-soft, #efd19a);
 }
+/* RpgModal owns centering within Stage. Scroll the body so the close button
+   remains visible and does not inherit the old standalone dialog's inset. */
+.title-archive.abyssa-modal__panel {
+  width: 760px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: 0 12px 80px #000c;
+}
+.title-archive .abyssa-modal__body { max-height: 600px; overflow-y: auto; }
+.title-archive__list { max-height: 340px; overflow-y: auto; }
+.title-archive article { border-bottom: 1px solid #81704c; padding: 8px; }
+.title-archive label { display: block; margin: 15px 0; }

@@ -1,17 +1,18 @@
 import type { ExpeditionDieFace } from "../ExpeditionDie3D";
 import {
   CHARACTERS,
+  MAX_HP,
   PARTY_ORDER,
   getEffectiveFaceQuality,
   getStateFace,
   isEnemyDefeated
-} from "../engine";
+} from "../view";
 import type {
   BattleCommand,
   CharacterId,
   EnemyIntent,
   ExpeditionState
-} from "../engine";
+} from "../view";
 
 export const INTENT_VIEW_WIDTH = 1040;
 /* 与角色区的边框、外层 padding 和卡列 padding 对齐：1 + 18 + 34。 */
@@ -34,11 +35,11 @@ export function enemyAnchorX(index: number, count: number): number {
   return ((index + 0.5) / Math.max(count, 1)) * INTENT_VIEW_WIDTH;
 }
 
-export function partyAnchorX(memberId: CharacterId): number {
-  const index = PARTY_ORDER.indexOf(memberId);
+export function partyAnchorX(memberId: CharacterId, order: readonly CharacterId[] = PARTY_ORDER): number {
+  const index = order.indexOf(memberId);
   if (index < 0) return INTENT_VIEW_WIDTH / 2;
   const columnWidth =
-    (INTENT_VIEW_WIDTH - PARTY_GRID_INSET * 2) / PARTY_ORDER.length;
+    (INTENT_VIEW_WIDTH - PARTY_GRID_INSET * 2) / order.length;
   return PARTY_GRID_INSET + (index + 0.5) * columnWidth;
 }
 
@@ -50,6 +51,8 @@ export function getMemberTargetCommand(
   const die = state.dice.find((candidate) => candidate.ownerId === actorId);
   const face = die ? getStateFace(state, die) : null;
   if (face?.verb === "heal") {
+    const target = state.party.find(member => member.id === targetId);
+    if (!target || target.downed || target.hp >= MAX_HP) return null;
     return { type: "heal-member", actorId, targetId };
   }
   if (face?.verb !== "guard" && face?.verb !== "wild") return null;

@@ -15,13 +15,13 @@ const entrypoints = {
   primitives: 57
 };
 const requiredAssets = [
-  "dist/battle-frame-corner-gold.png",
-  "dist/battle-frame-corner-red.png",
-  "dist/battle-frame-corner.png",
-  "dist/status-panel-emblem.png",
-  "dist/battle-frame-top-gold.png",
-  "dist/battle-frame-top-red.png",
-  "dist/battle-frame-top.png"
+  "dist/ui/battle-frame-corner-gold.png",
+  "dist/ui/battle-frame-corner-red.png",
+  "dist/ui/battle-frame-corner.png",
+  "dist/ui/status-panel-emblem.png",
+  "dist/ui/battle-frame-top-gold.png",
+  "dist/ui/battle-frame-top-red.png",
+  "dist/ui/battle-frame-top.png"
 ];
 const budgets = {
   packedBytes: 7 * 1024 * 1024,
@@ -32,16 +32,19 @@ const budgets = {
 
 const failures = [];
 
+/** @param {boolean} condition @param {string} message */
 function check(condition, message) {
   if (!condition) {
     failures.push(message);
   }
 }
 
+/** @param {number} bytes */
 function formatBytes(bytes) {
   return `${(bytes / 1024 / 1024).toFixed(2)} MiB`;
 }
 
+/** @param {string} source */
 function findDataUrls(source) {
   const urls = [];
   const marker = /data:(?:image|font)\/[a-z0-9.+-]+(?:;[^,]*)?,/gi;
@@ -64,6 +67,7 @@ function findDataUrls(source) {
   return urls;
 }
 
+/** @type {{files: {path: string, size: number}[], size: number, unpackedSize: number} | undefined} */
 let pack;
 
 try {
@@ -78,17 +82,18 @@ try {
   );
   [pack] = JSON.parse(output);
 } catch (error) {
-  const details = error.stderr?.toString().trim() || error.message;
+  const details = error instanceof Error ? error.message : String(error);
   failures.push(`npm pack --dry-run failed: ${details}`);
 }
 
 if (pack) {
   const packageFiles = new Map(pack.files.map((file) => [file.path, file]));
+  check([...packageFiles.keys()].every(file => file.startsWith("dist/ui/") || /^(package\.json|README(?:\.[^/]+)?|LICEN[CS]E(?:\.[^/]+)?)$/i.test(file)), "UI package contains files outside dist/ui");
   const requiredFiles = [
-    "dist/abyssa-ui.css",
+    "dist/ui/abyssa-ui.css",
     ...Object.keys(entrypoints).flatMap((entry) => [
-      `dist/${entry}.js`,
-      `dist/${entry}.d.ts`
+      `dist/ui/${entry}.js`,
+      `dist/ui/${entry}.d.ts`
     ]),
     ...requiredAssets
   ];
@@ -98,7 +103,7 @@ if (pack) {
   }
 
   const packagedPngs = [...packageFiles.keys()].filter(
-    (file) => file.startsWith("dist/") && file.endsWith(".png")
+    (file) => file.startsWith("dist/ui/") && file.endsWith(".png")
   );
   check(
     packagedPngs.length === requiredAssets.length &&
@@ -107,9 +112,9 @@ if (pack) {
   );
   check(
     ![...packageFiles.keys()].some(
-      (file) => file === "dist/mansion-map" || file.startsWith("dist/mansion-map/")
+      (file) => file === "dist/ui/mansion-map" || file.startsWith("dist/ui/mansion-map/")
     ),
-    "dist/mansion-map must not be included in the package"
+    "dist/ui/mansion-map must not be included in the package"
   );
   check(
     pack.size <= budgets.packedBytes,
@@ -136,12 +141,14 @@ if (pack) {
     }
   }
 
-  if (packageFiles.has("dist/abyssa-ui.css")) {
-    const libraryCss = readFileSync(resolve(projectRoot, "dist/abyssa-ui.css"), "utf8");
+  if (packageFiles.has("dist/ui/abyssa-ui.css")) {
+    const libraryCss = readFileSync(resolve(projectRoot, "dist/ui/abyssa-ui.css"), "utf8");
+    /** @type {[string, RegExp][]} */
     const publicStyleMarkers = [
       ["character status panel", /\.abyssa-status-panel(?:[\s,{.:>])/],
       ["character status screen", /\.abyssa-character-screen(?:[\s,{.:>])/]
     ];
+    /** @type {[string, RegExp][]} */
     const internalStyleMarkers = [
       ["character dice loadout", /\.abyssa-dice(?:[\s,{.:>])/],
       ["character chronicle", /\.abyssa-chronicle(?:[\s,{.:>])/]
@@ -150,34 +157,36 @@ if (pack) {
     for (const [label, marker] of publicStyleMarkers) {
       check(
         marker.test(libraryCss),
-        `dist/abyssa-ui.css must contain public ${label} styles`
+        `dist/ui/abyssa-ui.css must contain public ${label} styles`
       );
     }
     for (const [label, marker] of internalStyleMarkers) {
       check(
         !marker.test(libraryCss),
-        `dist/abyssa-ui.css must not contain product-only ${label} styles`
+        `dist/ui/abyssa-ui.css must not contain product-only ${label} styles`
       );
     }
   }
 }
 
+/** @type {Record<string, string>} */
 const expectedExportPaths = {
   index: ".",
   branding: "./branding",
   patterns: "./patterns",
   primitives: "./primitives"
 };
+/** @type {Record<string, string[]>} */
 const loadedEntrypoints = {};
 
 for (const [entry, expectedExportCount] of Object.entries(entrypoints)) {
   const exportPath = expectedExportPaths[entry];
   const expected = packageJson.exports?.[exportPath];
-  check(expected?.import === `./dist/${entry}.js`, `Invalid import path for ${exportPath}`);
-  check(expected?.types === `./dist/${entry}.d.ts`, `Invalid types path for ${exportPath}`);
+  check(expected?.import === `./dist/ui/${entry}.js`, `Invalid import path for ${exportPath}`);
+  check(expected?.types === `./dist/ui/${entry}.d.ts`, `Invalid types path for ${exportPath}`);
 
   try {
-    const moduleUrl = pathToFileURL(resolve(projectRoot, `dist/${entry}.js`));
+    const moduleUrl = pathToFileURL(resolve(projectRoot, `dist/ui/${entry}.js`));
     const loaded = await import(`${moduleUrl.href}?release-check=${Date.now()}`);
     const exportNames = Object.keys(loaded);
     loadedEntrypoints[entry] = exportNames;
@@ -186,7 +195,7 @@ for (const [entry, expectedExportCount] of Object.entries(entrypoints)) {
       `${entry} exports ${exportNames.length} runtime values; expected ${expectedExportCount}`
     );
   } catch (error) {
-    failures.push(`Unable to import dist/${entry}.js: ${error.message}`);
+    failures.push(`Unable to import dist/ui/${entry}.js: ${error instanceof Error ? error.message : String(error)}`);
   }
 }
 
@@ -202,7 +211,7 @@ for (const entry of ["branding", "patterns", "primitives"]) {
 }
 
 check(
-  packageJson.exports?.["./styles.css"] === "./dist/abyssa-ui.css",
+  packageJson.exports?.["./styles.css"] === "./dist/ui/abyssa-ui.css",
   "Invalid export path for ./styles.css"
 );
 
@@ -212,7 +221,7 @@ if (failures.length > 0) {
     console.error(`- ${failure}`);
   }
   process.exitCode = 1;
-} else {
+} else if (pack) {
   console.log("Package release check passed.");
   console.log(
     `Packed ${formatBytes(pack.size)} / unpacked ${formatBytes(pack.unpackedSize)}; ` +

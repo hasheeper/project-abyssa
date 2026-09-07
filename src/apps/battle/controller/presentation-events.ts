@@ -1,5 +1,5 @@
-import type { BattleEvent } from "../domain/events";
-import type { CharacterId, EnemyTurnEvent } from "../domain/state";
+import type { BattleEvent } from "../view";
+import type { CharacterId, EnemyTurnEvent } from "../view";
 
 export type PlayerAttackCue = {
   actorId: CharacterId;

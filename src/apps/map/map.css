@@ -16,15 +16,19 @@ button,
 input { font: inherit; }
 
 /* ============ 画框契约接入 ============
-   招牌位置、内容区 5:3 与整组 k 仍沿用 Stage 契约。
+   招牌位置与内容区 5:3 沿用 Stage 契约；地图主体单独适配可用空间。
 
    地图是一张直接贴到画框里的画，不是 shop 那种需要 60/40/38px
    内容留白的面板。旧地图的屏幕观感是 rail 12px / mat 14px；
-   画框现在还会经过 k=.78024 缩放，所以设计值反算为 16/18px。
+   木轨和垫边的设计值保持 16/18px，随地图主体一起缩放。
    这两个 map 专用令牌只收紧木轨和棕色垫边，不改变 1311.67x787
    的地图内容区。边线用 2px 设计值，避免经过两层 scale 后掉到
    1px 以下而像“缺了四条边”。 */
 .abyssa-map-page {
+  /* 1397.67×873 的薄框以 .85 显示为 1188×742：顶部仍与通用主框
+     对齐，底部约844，左边约206，为展开的194px菜单留出12px。
+     只放大地图及框内的委托/编队，页面导航和共享招牌保持原尺寸。 */
+  --abyssa-map-frame-k: .85;
   --abyssa-frame-dark: #1b1512;
   --abyssa-frame-deep: #090706;
   --abyssa-frame-light: #8b6c50;
@@ -91,7 +95,7 @@ input { font: inherit; }
 
 .abyssa-map-heading__bar [fill="#0d1212"] { fill: #0c0805; }
 
-/* 外壳 —— 整组缩放的承载点；位置和 k 取 Stage 契约，rail 用 map 专用值。 */
+/* 外壳 —— 顶边取 Stage 契约，整组用地图空间预算，rail 用 map 专用值。 */
 .abyssa-map-frame {
   position: relative;
   z-index: 1;
@@ -100,7 +104,7 @@ input { font: inherit; }
     38.41px + var(--abyssa-frame-header-expose) * var(--abyssa-frame-k)
   );
   padding: var(--abyssa-map-frame-rail);
-  transform: scale(var(--abyssa-frame-k));
+  transform: scale(var(--abyssa-map-frame-k));
   transform-origin: top center;
   border: var(--abyssa-frame-border) solid #090603;
   background: #1a1008;
@@ -257,3 +261,7 @@ input { font: inherit; }
   pointer-events: none;
   transform: translate(-50%, -50%);
 }
+.map-loadout { position: absolute; top: 230px; left: 18px; z-index: 40; max-width: 430px; max-height: 240px; overflow: auto; font-size: 14px; }
+.map-loadout label { display: block; }
+
+.abyssa-sortie-inspect-link { color: #c9b88d; font-size: 11px; text-underline-offset: 3px; margin-left: auto; }

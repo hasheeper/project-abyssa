@@ -18,6 +18,7 @@ import {
 } from "./mansion-state";
 
 export type MansionRoomDrawerProps = {
+  readOnly?: boolean;
   region: SceneRegion;
   detail: MansionRoomDetail;
   side: DrawerSide;
@@ -39,6 +40,7 @@ export type MansionRoomDrawerProps = {
 };
 
 export function MansionRoomDrawer({
+  readOnly = false,
   region,
   detail,
   side,
@@ -132,7 +134,7 @@ export function MansionRoomDrawer({
               aria-label={productionReady
                 ? `收取${detail.production.label} ${detail.production.amount}${detail.production.unit}`
                 : `${detail.production.label}本相位已收取`}
-              disabled={!productionReady}
+              disabled={readOnly || !productionReady}
               onClick={() => onCollectProduction(region.id)}
             >
               <i
@@ -217,7 +219,7 @@ export function MansionRoomDrawer({
                   type="button"
                   className="mansion-room-card__promote"
                   aria-label={`升级至 Lv.${level + 1}，花费 ${promoteCost(detail.upgradeCost)} 金币`}
-                  disabled={funds[detail.fund] < promoteCost(detail.upgradeCost)}
+                  disabled={readOnly || funds[detail.fund] < promoteCost(detail.upgradeCost)}
                   onClick={() => onPromoteFacility(region.id)}
                 >
                   <span className="mansion-room-card__promote-icon" aria-hidden="true">
@@ -242,7 +244,7 @@ export function MansionRoomDrawer({
                     : repairComplete
                       ? `修缮已完成，Lv.${MAX_FACILITY_LEVEL}`
                       : `修缮，花费 ${detail.upgradeCost} 金币`}
-                  disabled={Boolean(upgradeRemaining) || repairComplete}
+                  disabled={readOnly || Boolean(upgradeRemaining) || repairComplete}
                   onClick={() => onStartUpgrade(region.id)}
                 >
                   <span className="mansion-room-card__repair-icon"><RepairIcon /></span>
@@ -264,6 +266,7 @@ export function MansionRoomDrawer({
                   className="mansion-room-card__action"
                   variant="teal"
                   label={detail.actionLabel}
+                  disabled={readOnly && detail.href!.includes("dice")}
                   onClick={() => onNavigate(detail.href!)}
                 />
               )}

@@ -1,4 +1,4 @@
-import type { CSSProperties } from "react";
+import { memo, type CSSProperties } from "react";
 import { ExpeditionFlatDieFrame } from "../../shared/ui/dice-face/ExpeditionFlatDieFrame";
 import type { ExpeditionDieSuitShape } from "../../shared/ui/dice-face/ExpeditionFlatDieFrame";
 
@@ -12,6 +12,10 @@ export type ExpeditionDieFace = {
   quality: ExpeditionDieQuality;
   /** 命数为万能点数（凯尔·静谧之楔）：角标渲染为宝石而非数字 */
   wildPip?: boolean;
+  pip?: number;
+  suit?: ExpeditionDieSuit;
+  name?: string;
+  asleep?: boolean;
 };
 
 export type ExpeditionDieRotation = {
@@ -36,6 +40,8 @@ type ExpeditionDie3DProps = {
   downed?: boolean;
   rustFaces?: number;
   gildFaces?: number;
+  /** Battle-only explanation; event checks retain their own outcome presentation. */
+  handHint?: string;
   onToggle?: (index: number) => void;
 };
 
@@ -48,7 +54,11 @@ const FACE_ROTATIONS: Record<number, readonly [number, number]> = {
   6: [0, 180]
 };
 
-function getExpeditionDieRotation(value: number): ExpeditionDieRotation {
+export const EXPEDITION_DIE_ROLL_MS = 900;
+
+/** An idle die always faces its saved result; null is the unrolled preview. */
+export function getExpeditionDieRotation(value: number | null): ExpeditionDieRotation {
+  if (value === null) return { x: -18, y: 28 };
   const [x, y] = FACE_ROTATIONS[value] ?? FACE_ROTATIONS[1];
   return { x, y };
 }
@@ -75,6 +85,10 @@ const SUIT_SHAPES: Record<ExpeditionDieSuit, ExpeditionDieSuitShape> = {
 
 const FACE_TEXTURE_ROTATIONS = [0, 90, 180, 270, 90, 180] as const;
 
+// Each surface is static while its cube moves. Skip rebuilding thirty SVG trees
+// when presentation phases or the action dock update.
+const BattleDieFace = memo(ExpeditionFlatDieFrame);
+
 function SelectionFrame() {
   return (
     <span className="expedition-die__selection" aria-hidden="true">
@@ -99,11 +113,12 @@ export function ExpeditionDie3D({
   scoring = false,
   rotation,
   rolling = false,
-  rollDuration = 0.9,
+  rollDuration = EXPEDITION_DIE_ROLL_MS / 1000,
   disabled = false,
   downed = false,
   rustFaces = 0,
   gildFaces = 0,
+  handHint,
   onToggle
 }: ExpeditionDie3DProps) {
   const resolvedRotation = rotation ?? getExpeditionDieRotation(value);
@@ -120,15 +135,17 @@ export function ExpeditionDie3D({
     <button
       type="button"
       className="expedition-die"
-      data-held={held || undefined}
+      data-held={(held && !rolling) || undefined}
       data-rolling={rolling || undefined}
       data-downed={downed || undefined}
       data-unusable={unusable || undefined}
-      aria-label={`${characterName}命数骰，第 ${index + 1} 槽，当前 ${value} 点${
+      aria-label={`${characterName}命数骰，第 ${index + 1} 槽，当前 ${currentFace?.name ? `${currentFace.name}，` : ""}${currentFace?.name && currentFace?.wildPip ? "万能" : currentFace?.pip ?? value} 点${currentFace?.asleep ? "（沉眠，不参与牌型）" : ""}${
         rustFaces > 0 ? `，锈铭 ${rustFaces} 面` : ""
       }${
         gildFaces > 0 ? `，金铭 ${gildFaces} 面` : ""
       }${unusable ? "，无行动面，无法指挥角色" : ""}${downed ? "，力竭不可用" : ""}`}
+      aria-description={handHint}
+      title={handHint ? [currentFace?.name, handHint].filter(Boolean).join("\n") : currentFace?.name}
       aria-pressed={held}
       disabled={disabled}
       style={style}
@@ -143,14 +160,15 @@ export function ExpeditionDie3D({
               data-face={pip}
               key={pip}
             >
-              <ExpeditionFlatDieFrame
+              <BattleDieFace
                 action={face.verb}
-                fate={pip}
+                fate={face.pip ?? pip}
                 power={face.power}
                 seal={face.quality}
-                suitShape={SUIT_SHAPES[suit]}
+                suitShape={SUIT_SHAPES[face.suit ?? suit]}
                 themeColor={themeColor}
                 wildPip={face.wildPip}
+                asleep={face.asleep}
                 scoring={scoring && pip === value}
                 textureRotation={FACE_TEXTURE_ROTATIONS[pip - 1]}
                 recessDepth={2}
@@ -159,7 +177,7 @@ export function ExpeditionDie3D({
           );
         })}
       </span>
-      {held && <SelectionFrame />}
+      {held && !rolling && <SelectionFrame />}
       <span className="expedition-die__shadow" aria-hidden="true" />
       {(rustFaces > 0 || gildFaces > 0) && (
         <span className="expedition-die__quality-counts" aria-hidden="true">

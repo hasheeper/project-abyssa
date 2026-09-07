@@ -34,6 +34,8 @@ export interface SortieAbsence {
 }
 
 export interface SortieMember {
+  /** Production readiness comes from the gameplay Catalog, never archive samples. */
+  ready?: boolean;
   id: string;
   name: string;
   secondaryName?: string;
@@ -89,7 +91,7 @@ export interface SortieParty {
 export const EMPTY_SORTIE_PARTY: SortieParty = { memberIds: [], command: "personal" };
 
 export function isMemberAvailable(member: SortieMember): boolean {
-  return !member.absence && member.faces.length > 0;
+  return member.ready ?? (!member.absence && member.faces.length > 0);
 }
 
 export function isPartyFull(party: SortieParty): boolean {

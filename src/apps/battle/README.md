@@ -1,126 +1,83 @@
-# Battle engine
+# Battle 页面与演出
 
-Battle 是一个确定性、可保存、事件驱动的小规模回合制效果系统。当前实现保留五人队伍、少量敌群和既有演出，同时为手工策划的道具、装备、特质、状态与敌人机制提供统一底座。
+本目录负责玩家输入、战斗／事件／AVG画面和提交后的演出。当前默认为**应用／规则4、内容3**；旧独立Battle的schema4／rules1／content1只是另一套兼容格式。
 
-当前持久化版本为 schema v4；规则与内容版本均为 v1。
-
-后续开发请先阅读 [`DEVELOPMENT_GUIDE.md`](DEVELOPMENT_GUIDE.md)，其中集中列出了接口、文件位置、运行流程、扩展落点和提交检查清单。
-
-产品理念、长期方向与讨论语境集中保存在 [`DESIGN_REFERENCE_LOG.md`](DESIGN_REFERENCE_LOG.md)。该文档是参考日志，不自动覆盖当前实现规格。
-
-四套战斗皮肤、背景滤镜、框体层级、上下留白与 `panel-drop` 入场属于表现层，统一记录在 [`UI_PRESENTATION_BASELINE.md`](UI_PRESENTATION_BASELINE.md)。`uiSkin` 只存在于 React UI，不进入 canonical state、存档、undo 或规则版本；右上切换按钮是概念原型期的巡检工具。
+玩法数值、流程与完成度见[当前机制总览](../../../docs/GAME_SYSTEMS_AND_CONTENT_SPEC.md)，UI基线见[UI_PRESENTATION_BASELINE](UI_PRESENTATION_BASELINE.md)。旧设计日志与工程计划已进[历史档案](../../../docs/archive/README.md)。
 
 ## 核心保证
 
-- 所有正式规则变化从 `dispatchBattleCommand` 进入。
-- 规则规划器只生成原子效果；核心字段由 `resolveAtomicEffects` 写入。
-- 每次转换返回新状态、有序事件和明确错误，不修改输入。
-- 生命周期、敌方 cursor、RNG、触发队列和 undo 均可序列化。
-- 同初始状态、seed 和命令序列得到相同 state 与 event trace。
-- React 只负责输入与演出，不通过 state diff 反推领域结果。
-- 一条玩家命令及其全部 reaction 只有一个 undo checkpoint。
-- 单次解析最多 256 个事件、触发深度最多 8，循环会明确失败而不会卡死。
+- 正式页面经game-client → runtime → application提交，由正确版本的core执行规则。
+- 状态、事实、回执通过CAS保存成功后才播放演出；动画命中帧不能再次执行伤害或发奖励。
+- 同一初始配置、seed与命令序列产生确定结果；当前head变化后，旧演出失效。
+- React的皮肤、hover、目标选择、动画phase和timer不进入权威存档。
+- 旧 `dispatchBattleCommand`／`resolveAtomicEffects` 是规则1接口，不是当前v4唯一入口；各版规则和reader独立校验。
 
 ## 数据流
 
 ```text
-content definitions ───────────────┐
-                                   ↓
-UI → controller → command dispatcher → rule planner → atomic effect resolver
-                      ↑                                    │
-                      │                                    ↓
-                 state RNG                         next state + events
-                                                           │
-                            selectors ← canonical state ←───┘
-                                ↓                    ↓
-                               UI               persistence
+UI → controller → game-client → application → core
+                                  │            ↓
+                                  └── CAS提交（状态／事实／回执）
+                                           ↓
+                      已提交批次＋已验证head → 视觉副本 → 动画
 ```
-
-`batchId` 允许表现层把同批 AOE 并行动画化，但不会改变 resolver 的执行顺序和事件 `sequence`。
 
 ## 目录职责
 
-| 目录/文件 | 职责 |
+| 文件／层 | 当前职责 |
 | --- | --- |
-| `domain/` | command、state、effect、event、target、版本与 invariant 类型。不得依赖 React。 |
-| `content/` | 手工策划的角色、敌人、平衡常量和 effect definition。 |
-| `rules/dispatcher.ts` | 唯一命令网关，选择 RNG stream 并调用规则转换。 |
-| `rules/actions.ts` | 把攻击、防御、治疗、偷取规划成原子效果。 |
-| `rules/turns.ts` / `enemy-intents.ts` | 回合推进、意图公开和逐只意图结算。 |
-| `rules/resolver.ts` | 原子写入、modifier、reaction、死亡/力竭收束、事件预算与原子 undo。 |
-| `rules/effect-runtime.ts` | 从 loadout、status 和 encounter rule 实例编译 modifier/reaction。 |
-| `selectors/` | 从 canonical state 派生交互、展示和统计结果。 |
-| `persistence/` | schema DTO、迁移、JSON clone 与三条确定性 RNG stream。 |
-| `controller/` | React 状态提交、targeting、事件到演出 cue 和统一 presentation queue。 |
-| `testing/` | scenario builder、golden trace、effect fixture 和 invariant 测试工具。 |
-| `engine.ts` | 稳定兼容门面，只导出实现，不承载核心规则。 |
-| `battleUiSkins.ts` / `expedition.css` | 四套表现层皮肤、场景背景、外框装饰和固定布局合同，不得写入领域状态。 |
-
-Battle 外部调用方优先从 `engine.ts` 使用稳定 API；Battle 内部模块使用具体边界的直接 import，避免经门面形成循环依赖。
+| `App.tsx`／`ExpeditionBattleScreen.tsx` | 页面入口与版本接线 |
+| `ManorBattleBinding.tsx`／`ManorBattleView.tsx` | 正式庄园／回忆和完整AVG衔接 |
+| `controller/useManorBattlePresentation.ts` | 庄园命令、查询、已提交事件与视觉队列 |
+| `controller/useExpeditionBattleController.ts` | 旧裂隙兼容页面的提交与表现 |
+| `presentation/` | 只读视图、事件转cue、机械仪表、道具坞、场景和角色演出 |
+| `expedition*.css`／`battle-story.css`／`battleUiSkins.ts` | 布局、皮肤与过场，不承担规则 |
+| `engine.ts` | 旧规则转发门面，仅兼容／测试；正式入口禁止依赖 |
+| `src/game-core/battle/` | 分版本纯战斗规则、校验、RNG与selectors |
+| `src/game-core/session/` | 远征、房间、资产、成长与结算 |
+| `src/content/gameplay/demo-v3/` | 当前默认内容装配；legacy-v1仅用于旧档 |
 
 ## Command、effect 与 event
 
-三者含义不能混用：
-
-- Command 是玩家或流程发出的意图，例如 `attack-enemy`、`resolve-next-enemy`。
-- Atomic effect 是规则已经决定要执行的最小写入，例如 `damage`、`apply-status`、`modify-resource`。
-- Event 是已经发生的事实，例如 `damage-applied`、`unit-defeated`、`layer-cleared`。
-
-UI 发送 command、消费 event；装备与状态通过 modifier/reaction 改变或追加 effect；event 不能再次当成 command 应用。
+Command表示请求；Event表示规则产生的事实，不能重新当作命令应用。旧规则1通过AtomicEffect规划并执行写入；当前D5的命令／证据按其版本合同处理，不要求页面自行拼效果。具体接口见[开发手册](DEVELOPMENT_GUIDE.md)中的版本适用说明。
 
 ## Canonical state
 
-唯一事实来源详见 [`domain/CANONICAL_STATE.md`](domain/CANONICAL_STATE.md)。最重要的约束是：
-
-- 流程只看 `mode`。
-- 敌人生死只看 HP；骰子力竭和锈蚀从骰主角色派生。
-- 狂暴只由 status 表示。
-- UI 动画 phase、timer、DOM 和视觉随机永远不进入领域状态。
+权威记录由[应用服务](../../game-application/README.md)保存。当前普通远征、回忆与剧情状态各有严格reader，不能用旧BattleState字段或React状态反推。旧规则1字段参考仍在[CANONICAL_STATE](../../game-core/battle/domain/CANONICAL_STATE.md)。
 
 ## 随机、保存与撤回
 
-正式规则使用状态内 `combat`、`loot`、`flavor` 三条 RNG stream。失败命令不提交 cursor，undo 同时恢复 cursor 与 event sequence。
+当前规则保存自己的RNG、敌方队列和合法撤回点，应用层保留单调head、事实撤回与事务回执。v4掷骰／重掷会清掉此前撤回栈。页面刷新恢复已提交结果，不靠视觉随机决定骰面。
 
-存档必须通过 `serializeBattleState` / `deserializeBattleState`，迁移和版本策略见 [`persistence/README.md`](persistence/README.md)。不要保存 React state，也不要直接恢复未校验 JSON。
+旧 `serializeBattleState`／`deserializeBattleState` 只处理历史独立Battle格式，不能用来保存当前完整Campaign。旧格式的迁移资料见[persistence](../../game-core/battle/persistence/README.md)。
 
 ## 新内容入口
 
-维护指南位于 [`docs/README.md`](docs/README.md)：
+先确定目标Catalog／规则版，再扩展对应core契约与内容定义。当前规则4的普通／历史入口分别为 `createD5BattleEngine`／`createD5MemoryEngine`；完整远征另经 `createD5ExpeditionEngine`。新教学路线还需解除现有庄园准入与终局约束，不能只替换敌人素材。
 
-- [新增角色能力](docs/ADDING_CHARACTER_ABILITY.md)
-- [新增敌人意图](docs/ADDING_ENEMY_INTENT.md)
-- [新增道具](docs/ADDING_ITEM.md)
-- [新增状态](docs/ADDING_STATUS.md)
-- [新增词条](docs/ADDING_AFFIX.md)
-
-常规内容应通过 definition + modifier/reaction + 既有原子效果组合。只有现有原语无法表达且需求已确定时，才扩展 effect taxonomy；扩展后必须补 resolver 的穷尽分支和独立测试。
+[扩展指南](docs/README.md)中的原子效果示例主要对应规则1；[开发手册](DEVELOPMENT_GUIDE.md)保留具体接口，使用前核对版本。
 
 ## 验证命令
 
 ```sh
 npm run typecheck
-npx vitest run src/apps/battle
+npm run test:core
+npm exec vitest -- run --project app src/apps/battle
 npm run build:battle
-npx vitest bench src/apps/battle/engine.bench.ts --run
 ```
 
-测试矩阵包括：
-
-- 领域 invariant、非法命令和输入不可变。
-- fixed-seed golden trace、RNG stream 隔离和 undo 重做。
-- JSON round-trip、逐版迁移和敌方回合中途恢复。
-- modifier 排序、status 生命周期、reaction exactly-once 与预算保护。
-- 力竭、复苏、狂暴、召唤、逃跑、奖励和层结算。
-- 攻击/支援/逐只受击/斩杀退场/自动清层的 UI 时序。
-- 四套 UI 皮肤循环、Stage 与框体同步、装饰存在性和关键布局令牌。
-
-只有有意修改规则语义并人工审查首个差异后，才允许更新 golden trace。性能历史与复现条件见 [`ENGINE_PHASE_0_BASELINE.md`](ENGINE_PHASE_0_BASELINE.md)。
+按改动范围选择检查。确定性基线、规则测试、交互／恢复测试与人工视觉验收分别证明不同事情；通过测试不能代替难度／剧作验收，也不能无审查重录golden trace。
 
 ## 长期维护禁区
 
-- 不在 UI、selector 或内容定义中直接改 state。
-- 不新增第二个 dispatcher、敌方 cursor、随机源或撤回字段白名单。
-- 不把函数存进 state、status、item data 或存档 DTO。
-- 不依赖对象/数组偶然遍历顺序；modifier/reaction 必须使用稳定排序。
-- 不让 AOE 动画并行改变规则执行顺序。
-- 不为尚未确定的玩法引入 ECS、脚本 VM 或无限随机词条系统。
+- 不在UI或selector直接改规则状态，不把函数、DOM、timer存入档案。
+- 不绕过版本服务另建玩家资产或随机源。
+- 不让AOE并行动画改变已提交的规则顺序。
+- 不为未确定玩法引入ECS、脚本VM或无限词条系统。
+- 调整布局／接线须保留用户已定的组件与美术语言，避免用另一套样式替换。
+
+## S3 演出合同
+
+此合同仍适用：提交成功后安排演出，impact只更新视觉值，finish安装最新已验证状态。敌方意图按已提交事件顺序呈现；取消、卸载或更新head使旧队列失效，不能因此撤回已提交命令。
+
+装载、投掷、重掷、行动、撤回、深入和离场走正式持久命令；选目标、皮肤、hover为本地UI。终局结算确认后才返回洋馆。全AVG衔接复用SceneSequence，规范见[战斗与AVG交接](../../../docs/design/BATTLE_AVG_SCENE_HANDOFF.md)。旧文档的“命中帧提交状态”仅描述历史实现。

@@ -7,6 +7,8 @@ export interface BondCrystalProps {
   stage?: number;
   progress?: number;
   progressMax?: number;
+  /** Preserve the crystal label slot when a source has no numeric progress. */
+  progressLabel?: string;
   textureSeed?: number;
   className?: string;
 }
@@ -36,6 +38,7 @@ export function BondCrystal({
   stage,
   progress = 0,
   progressMax = 100,
+  progressLabel,
   textureSeed = 1,
   className
 }: BondCrystalProps) {
@@ -370,7 +373,7 @@ export function BondCrystal({
           y="151"
           textAnchor="middle"
         >
-          {percentage}%
+          {progressLabel ?? `${percentage}%`}
         </text>
       )}
     </svg>

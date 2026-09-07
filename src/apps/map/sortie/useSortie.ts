@@ -32,11 +32,14 @@ export interface UseSortieOptions {
   onDepart: (nodeId: MapLocationId, party: SortieParty) => void;
   storage?: Pick<Storage, "setItem">;
   now?: () => number;
+  persistOrder?: boolean;
+  personalOnly?: boolean;
+  initialMemberIds?: string[];
 }
 
-export function useSortie({ roster, nodeIds, onDepart, storage, now }: UseSortieOptions) {
+export function useSortie({ roster, nodeIds, onDepart, storage, now, persistOrder = true, personalOnly = false, initialMemberIds }: UseSortieOptions) {
   const [mode, setMode] = useState<SortieMode>("map");
-  const [party, setParty] = useState<SortieParty>(EMPTY_SORTIE_PARTY);
+  const [party, setParty] = useState<SortieParty>(() => initialMemberIds ? {...EMPTY_SORTIE_PARTY, memberIds: initialMemberIds} : EMPTY_SORTIE_PARTY);
   const [activeNode, setActiveNode] = useState<MapLocationId | null>(null);
   const [backTo, setBackTo] = useState<MapLocationId | null>(null);
 
@@ -48,9 +51,9 @@ export function useSortie({ roster, nodeIds, onDepart, storage, now }: UseSortie
   const toggleCommand = useCallback(
     () =>
       setParty((current) =>
-        setCommandMode(current, current.command === "personal" ? "delegate" : "personal")
+        setCommandMode(current, personalOnly ? "personal" : current.command === "personal" ? "delegate" : "personal")
       ),
-    []
+    [personalOnly]
   );
 
   const openTeam = useCallback((fromNode?: MapLocationId | null) => {
@@ -102,11 +105,13 @@ export function useSortie({ roster, nodeIds, onDepart, storage, now }: UseSortie
   const depart = useCallback(() => {
     if (activeNode === null) return;
     if (explainSortieOrderRejection(roster, nodeIds, activeNode, reconciled) !== null) return;
-    const order = buildSortieOrder(activeNode, reconciled, (now ?? Date.now)());
-    const target = storage ?? (typeof sessionStorage === "undefined" ? null : sessionStorage);
-    if (target) saveSortieOrder(target, order);
+    if (persistOrder) {
+      const order = buildSortieOrder(activeNode, reconciled, (now ?? Date.now)());
+      const target = storage ?? (typeof sessionStorage === "undefined" ? null : sessionStorage);
+      if (target) saveSortieOrder(target, order);
+    }
     onDepart(activeNode, reconciled);
-  }, [activeNode, roster, nodeIds, reconciled, now, storage, onDepart]);
+  }, [activeNode, roster, nodeIds, reconciled, now, storage, onDepart, persistOrder]);
 
   return {
     mode,

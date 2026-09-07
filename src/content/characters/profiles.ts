@@ -1,22 +1,3 @@
-import abyssaPortrait from "../../assets/characters/portraits/abyssa.png";
-import abyssaGothicPortrait from "../../assets/characters/portraits/abyssa-gothic.png";
-import alvitrPortrait from "../../assets/characters/portraits/alvitr.png";
-import eloraPortrait from "../../assets/characters/portraits/elora.png";
-import eusticePortrait from "../../assets/characters/portraits/eustice.png";
-import kororoPortrait from "../../assets/characters/portraits/kororo.png";
-import lenorePortrait from "../../assets/characters/portraits/lenore.png";
-import mariettaPortrait from "../../assets/characters/portraits/marietta.png";
-import normaPortrait from "../../assets/characters/portraits/norma.png";
-import viviennePortrait from "../../assets/characters/portraits/vivienne.png";
-import abyssaAvatar from "../../assets/characters/avatars/abyssa.png";
-import alvitrAvatar from "../../assets/characters/avatars/alvitr.png";
-import eloraAvatar from "../../assets/characters/avatars/elora.png";
-import eusticeAvatar from "../../assets/characters/avatars/eustice.png";
-import kororoAvatar from "../../assets/characters/avatars/kororo.png";
-import lenoreAvatar from "../../assets/characters/avatars/lenore.png";
-import mariettaAvatar from "../../assets/characters/avatars/marietta.png";
-import normaAvatar from "../../assets/characters/avatars/norma.png";
-import vivienneAvatar from "../../assets/characters/avatars/vivienne.png";
 import eusticeDomainIcon from "../../assets/icons/0-0-all-for-one.svg";
 import eusticeSwordIcon from "../../assets/icons/0-1-bouncing-sword.svg";
 import eloraMiracleIcon from "../../assets/icons/1-0-embrassed-energy.svg";
@@ -47,29 +28,16 @@ import runeSwordIcon from "../../assets/icons/items/rune-sword.svg";
 import scrollQuillIcon from "../../assets/icons/items/scroll-quill.svg";
 import sewingStringIcon from "../../assets/icons/items/sewing-string.svg";
 import sofaIcon from "../../assets/icons/items/sofa.svg";
+import { characterIdentities } from "./identities";
 
-export const characterProfiles: CharacterArchiveProfile[] = [
-  {
-    id: "eustice",
-    number: "00",
-    name: "尤斯缇丝·格里芬",
-    secondaryName: "EUSTICE GRIFFIN",
-    selectorLabel: "尤斯缇丝",
-    selectorVariant: "gray",
-    portraitUrl: eusticePortrait,
-    portraitAlt: "尤斯缇丝·格里芬角色立绘",
-    appearanceLabel: "冒险的样子",
-    thumbnailUrl: eusticeAvatar,
-    thumbnailAlt: "尤斯缇丝·格里芬头像",
-    status: {
-      title: "红莲剑姬",
-      titleRootIndex: 2,
-      subtitle: "THE CRIMSON SWORD PRINCESS",
-      affiliation: {
-        label: "勇者小队",
-        secondaryLabel: "HERO PARTY",
-        tone: "hero-party",
-      },
+/** Visual samples only; player pages use identities and committed game queries. */
+const sampleStatus = new Map<
+  string,
+  Partial<CharacterArchiveProfile["status"]>
+>([
+  [
+    "eustice",
+    {
       bond: { level: 4, progress: 38, progressMax: 100, slots: 5 },
       statusChips: [
         { label: "前庭整备中", iconUrl: runeSwordIcon },
@@ -82,12 +50,6 @@ export const characterProfiles: CharacterArchiveProfile[] = [
         trigger: "同花成型时",
         currentTerm: "全队本回合格挡值 +1",
       },
-      fields: [
-        { label: "种族", value: "人类" },
-        { label: "职能", value: "前线指挥官" },
-        { label: "年龄", value: "18" },
-        { label: "身高", value: "164cm" },
-      ],
       traits: [
         {
           name: "王权领域：红莲战阵",
@@ -104,31 +66,11 @@ export const characterProfiles: CharacterArchiveProfile[] = [
             "以刺剑描出猩红剑轨，锁定防具与魔力薄弱处；残留轨迹会一同引爆，完成精准切割。",
         },
       ],
-      record:
-        "格里芬家族出身的王家军事学院首席，以满分毕业后被指派为勇者小队前线指挥。她嘴上严苛，实则把“所有人活着回来”当作不容动摇的骑士底线。",
     },
-  },
-  {
-    id: "elora",
-    number: "01",
-    name: "艾洛拉·亚金特",
-    secondaryName: "ELORA ARGENT",
-    selectorLabel: "艾洛拉",
-    selectorVariant: "light",
-    portraitUrl: eloraPortrait,
-    portraitAlt: "艾洛拉·亚金特角色立绘",
-    appearanceLabel: "冒险的样子",
-    thumbnailUrl: eloraAvatar,
-    thumbnailAlt: "艾洛拉·亚金特头像",
-    status: {
-      title: "奇迹白圣女",
-      titleRootIndex: 2,
-      subtitle: "THE MIRACULOUS WHITE SAINT",
-      affiliation: {
-        label: "勇者小队",
-        secondaryLabel: "HERO PARTY",
-        tone: "hero-party",
-      },
+  ],
+  [
+    "elora",
+    {
       bond: { level: 4, progress: 56, progressMax: 100, slots: 5 },
       statusChips: [
         { label: "温室晒药草", iconUrl: herbsBundleIcon },
@@ -141,12 +83,6 @@ export const characterProfiles: CharacterArchiveProfile[] = [
         trigger: "三条成型时",
         currentTerm: "治疗生命最低的友方 2 点，并净化一项负面状态",
       },
-      fields: [
-        { label: "种族", value: "人类" },
-        { label: "职能", value: "首席神官" },
-        { label: "年龄", value: "15" },
-        { label: "身高", value: "141cm" },
-      ],
       traits: [
         {
           name: "神圣治愈：越限奇迹",
@@ -163,31 +99,11 @@ export const characterProfiles: CharacterArchiveProfile[] = [
             "那把纯金星盘十字圣杖既是祈祷媒介，也是重型钝器；她能用意外的力气砸退绕后的偷袭者。",
         },
       ],
-      record:
-        "战后流民聚落长大的小神官，早早看见草药与绷带稀缺时的无力。如今她负责小队的物资与治疗：平日精打细算，面对伤病却从不吝惜任何代价。",
     },
-  },
-  {
-    id: "kororo",
-    number: "02",
-    name: "柯萝萝·拉普拉斯",
-    secondaryName: "KORORO LAPLACE",
-    selectorLabel: "柯萝萝",
-    selectorVariant: "deep",
-    portraitUrl: kororoPortrait,
-    portraitAlt: "柯萝萝·拉普拉斯角色立绘",
-    appearanceLabel: "冒险的样子",
-    thumbnailUrl: kororoAvatar,
-    thumbnailAlt: "柯萝萝·拉普拉斯头像",
-    status: {
-      title: "星盘魔法使",
-      titleRootIndex: 2,
-      subtitle: "THE ASTROLABE MAGE",
-      affiliation: {
-        label: "勇者小队",
-        secondaryLabel: "HERO PARTY",
-        tone: "hero-party",
-      },
+  ],
+  [
+    "kororo",
+    {
       bond: { level: 4, progress: 21, progressMax: 100, slots: 5 },
       statusChips: [
         { label: "房间补觉中", iconUrl: pillowIcon },
@@ -200,12 +116,6 @@ export const characterProfiles: CharacterArchiveProfile[] = [
         trigger: "小顺成型时",
         currentTerm: "压住一枚敌方意图，使其延迟一回合且伤害 -1",
       },
-      fields: [
-        { label: "种族", value: "人类" },
-        { label: "职能", value: "首席魔法使" },
-        { label: "年龄", value: "16" },
-        { label: "身高", value: "154cm" },
-      ],
       traits: [
         {
           name: "星轨干涉：渊星重压",
@@ -222,31 +132,11 @@ export const characterProfiles: CharacterArchiveProfile[] = [
             "将流星雨的破坏力凝缩为拳大的星芒，以无声重压击穿重甲、结界与最棘手的障碍。",
         },
       ],
-      record:
-        "传统魔法世家的天才，为逃离高压期待而消极怠工，却在勇者小队选拔中随手打破纪录。凯尔给予的日常照料成了她最安心的归处，也令她开始和艾比希斯争夺沙发与注意力。",
     },
-  },
-  {
-    id: "norma",
-    number: "03",
-    name: "诺玛·洛克",
-    secondaryName: "NORMA LOCKE",
-    selectorLabel: "诺玛",
-    selectorVariant: "dark",
-    portraitUrl: normaPortrait,
-    portraitAlt: "诺玛·洛克角色立绘",
-    appearanceLabel: "冒险的样子",
-    thumbnailUrl: normaAvatar,
-    thumbnailAlt: "诺玛·洛克头像",
-    status: {
-      title: "黑街潜行者",
-      titleRootIndex: 2,
-      subtitle: "THE BLACKSTREET INFILTRATOR",
-      affiliation: {
-        label: "勇者小队",
-        secondaryLabel: "HERO PARTY",
-        tone: "hero-party",
-      },
+  ],
+  [
+    "norma",
+    {
       bond: { level: 3, progress: 84, progressMax: 100, slots: 5 },
       statusChips: [
         { label: "杂货铺砍价", iconUrl: coinsPileIcon },
@@ -259,12 +149,6 @@ export const characterProfiles: CharacterArchiveProfile[] = [
         trigger: "两对且含沉眠面时",
         currentTerm: "标记一枚敌方意图，本回合首次命中追加 2 点伤害",
       },
-      fields: [
-        { label: "种族", value: "亚人" },
-        { label: "职能", value: "斥候与后勤联络员" },
-        { label: "年龄", value: "18" },
-        { label: "身高", value: "158cm" },
-      ],
       traits: [
         {
           name: "黑街戏法：无限制武装",
@@ -281,49 +165,11 @@ export const characterProfiles: CharacterArchiveProfile[] = [
             "将呼吸、心跳与脚步一并藏进阴影，从绝对死角切入要害后立刻脱离，把低风险收割贯彻到底。",
         },
       ],
-      record:
-        "王都黑街长大的亚人孤儿，曾受雇潜入勇者小队监视并清除“弃子”。雨夜遭背弃后，她倒向小队，促成共犯般的结盟，如今负责侦察、联络与最不体面的善后。",
     },
-  },
-  {
-    id: "abyssa",
-    number: "04",
-    name: "艾比希斯·贝尔泽兰",
-    secondaryName: "ABYSSA BEELZERAN",
-    selectorLabel: "艾比希斯",
-    selectorVariant: "teal-outline",
-    portraitUrl: abyssaPortrait,
-    portraitAlt: "艾比希斯·贝尔泽兰角色立绘",
-    appearanceLabel: "原生的样子",
-    thumbnailUrl: abyssaAvatar,
-    thumbnailAlt: "艾比希斯·贝尔泽兰头像",
-    outfits: [
-      {
-        id: "abyssa-origin",
-        label: "原生质睡衣",
-        displayLabel: "00",
-        appearanceLabel: "原生的样子",
-        portraitUrl: abyssaPortrait,
-        portraitAlt: "艾比希斯·贝尔泽兰原生质睡衣立绘",
-      },
-      {
-        id: "abyssa-gothic",
-        label: "哥特礼服",
-        displayLabel: "01",
-        appearanceLabel: "礼服的样子",
-        portraitUrl: abyssaGothicPortrait,
-        portraitAlt: "艾比希斯·贝尔泽兰哥特礼服立绘",
-      },
-    ],
-    status: {
-      title: "无冕幼神",
-      titleRootIndex: 2,
-      subtitle: "THE CROWNLESS YOUNG GOD",
-      affiliation: {
-        label: "魔王",
-        secondaryLabel: "DEMON LORD",
-        tone: "demon-lord",
-      },
+  ],
+  [
+    "abyssa",
+    {
       bond: { level: 5, progress: 100, progressMax: 100, slots: 5 },
       statusChips: [
         { label: "倚窗晒太阳", iconUrl: sofaIcon },
@@ -336,12 +182,6 @@ export const characterProfiles: CharacterArchiveProfile[] = [
         trigger: "三面沉眠同时朝上时",
         currentTerm: "本回合免疫一次失手",
       },
-      fields: [
-        { label: "种族", value: "根源存在" },
-        { label: "职能", value: "世界法则稳定器" },
-        { label: "外观", value: "少女" },
-        { label: "所在地", value: "魔王城" },
-      ],
       traits: [
         {
           name: "我的平静",
@@ -358,31 +198,11 @@ export const characterProfiles: CharacterArchiveProfile[] = [
             "令黑色原生质化作触手、衣装、屏障或其他所需形态；这是她无需起身也能贯彻意志的延伸。",
         },
       ],
-      record:
-        "灰石村的少女被献入黑色裂隙，根源之力填满躯壳，成为大天平选中的当代魔王。四天王将她带回魔王城；如今那里是她无需解释的“家”。",
     },
-  },
-  {
-    id: "marietta",
-    number: "05",
-    name: "玛丽埃塔·克雷格",
-    secondaryName: "MARIETTA CRAIG",
-    selectorLabel: "玛丽埃塔",
-    selectorVariant: "gray",
-    portraitUrl: mariettaPortrait,
-    portraitAlt: "玛丽埃塔·克雷格角色立绘",
-    appearanceLabel: "工作的样子",
-    thumbnailUrl: mariettaAvatar,
-    thumbnailAlt: "玛丽埃塔·克雷格头像",
-    status: {
-      title: "提线魔女",
-      titleRootIndex: 2,
-      subtitle: "THE MARIONETTE WITCH",
-      affiliation: {
-        label: "魔王干部",
-        secondaryLabel: "DEMON LORD'S CADRE",
-        tone: "demon-cadre",
-      },
+  ],
+  [
+    "marietta",
+    {
       bond: { level: 3, progress: 31, progressMax: 100, slots: 5 },
       statusChips: [
         { label: "红线运转正常", iconUrl: sewingStringIcon },
@@ -395,12 +215,6 @@ export const characterProfiles: CharacterArchiveProfile[] = [
         trigger: "葫芦成型时",
         currentTerm: "重排本回合结算顺序，最先行动的友方获得 2 点格挡",
       },
-      fields: [
-        { label: "种族", value: "提线魔女 / 自律人偶" },
-        { label: "职能", value: "内务与结界总管" },
-        { label: "年龄", value: "外观14–15岁" },
-        { label: "身高", value: "148cm" },
-      ],
       traits: [
         {
           name: "万象操偶",
@@ -417,31 +231,11 @@ export const characterProfiles: CharacterArchiveProfile[] = [
             "魔力红线渗入魔王城的砖石，令她感知并支配领地内的一切风吹草动；灰尘也无法越过她的规矩。",
         },
       ],
-      record:
-        "为长久履职而将灵魂与提线魔法融合，蜕为自律人偶。克雷格家族消亡后，她独守旧庄园数百年；接受招揽后，把魔王城视作新的宅邸与职场。",
     },
-  },
-  {
-    id: "alvitr",
-    number: "06",
-    name: "阿尔薇特·塞维琳",
-    secondaryName: "ALVITR SEVERIN",
-    selectorLabel: "阿尔薇特",
-    selectorVariant: "deep",
-    portraitUrl: alvitrPortrait,
-    portraitAlt: "阿尔薇特·塞维琳角色立绘",
-    appearanceLabel: "战斗的样子",
-    thumbnailUrl: alvitrAvatar,
-    thumbnailAlt: "阿尔薇特·塞维琳头像",
-    status: {
-      title: "堕落武神",
-      titleRootIndex: 2,
-      subtitle: "THE FALLEN VALKYRIE",
-      affiliation: {
-        label: "魔王干部",
-        secondaryLabel: "DEMON LORD'S CADRE",
-        tone: "demon-cadre",
-      },
+  ],
+  [
+    "alvitr",
+    {
       bond: { level: 4, progress: 67, progressMax: 100, slots: 5 },
       statusChips: [
         { label: "塔顶警戒中", iconUrl: roundShieldIcon },
@@ -458,12 +252,6 @@ export const characterProfiles: CharacterArchiveProfile[] = [
         trigger: "大顺成型时",
         currentTerm: "抵消一枚敌方法术意图，并使全队获得 1 点格挡",
       },
-      fields: [
-        { label: "种族", value: "堕落女武神" },
-        { label: "职能", value: "首席卫队长" },
-        { label: "年龄", value: "外观少女" },
-        { label: "身高", value: "159cm" },
-      ],
       traits: [
         {
           name: "秩序残辉：裂光阵线",
@@ -480,31 +268,11 @@ export const characterProfiles: CharacterArchiveProfile[] = [
             "借黑灰化作混沌粒子，无视距离与结界瞬跃；在敌人死角重新凝聚后，以长枪贯穿护盾。",
         },
       ],
-      record:
-        "曾为掩护主力，在深渊边缘独守三日三夜；神核遭侵蚀后反被神域判为不洁、处以抹除。逃离刑场的她在魔族得到接纳，并将忠诚化作最坚实的防线。",
     },
-  },
-  {
-    id: "lenore",
-    number: "07",
-    name: "蕾诺尔·伏尼契",
-    secondaryName: "LENORE VOYNICH",
-    selectorLabel: "蕾诺尔",
-    selectorVariant: "dark",
-    portraitUrl: lenorePortrait,
-    portraitAlt: "蕾诺尔·伏尼契角色立绘",
-    appearanceLabel: "常态",
-    thumbnailUrl: lenoreAvatar,
-    thumbnailAlt: "蕾诺尔·伏尼契头像",
-    status: {
-      title: "禁书库之主",
-      titleRootIndex: 4,
-      subtitle: "THE FORBIDDEN ARCHIVIST",
-      affiliation: {
-        label: "魔王干部",
-        secondaryLabel: "DEMON LORD'S CADRE",
-        tone: "demon-cadre",
-      },
+  ],
+  [
+    "lenore",
+    {
       bond: { level: 3, progress: 62, progressMax: 100, slots: 5 },
       statusChips: [
         { label: "轻伤休养", detail: "2天", tone: "danger", icon: "wound" },
@@ -517,12 +285,6 @@ export const characterProfiles: CharacterArchiveProfile[] = [
         trigger: "两对成型时",
         currentTerm: "捆住一枚敌方意图延迟一回合，目标由你指定",
       },
-      fields: [
-        { label: "种族", value: "巫妖" },
-        { label: "职能", value: "图书与情报部长" },
-        { label: "年龄", value: "约千年" },
-        { label: "身高", value: "143cm" },
-      ],
       traits: [
         {
           name: "伴生魔灵：守墓者之腕",
@@ -539,31 +301,11 @@ export const characterProfiles: CharacterArchiveProfile[] = [
             "书页在魂火中化作锁链与阵法，封锁敌人的魔力与发声；也能化作符文书页，为友军附加高阶增益。",
         },
       ],
-      record:
-        "目睹母国覆灭后，她为留存消亡文明而化作不会遗忘的亡灵史官。如今执掌魔王城书库与情报，也以规矩和距离把自己藏进阴影。",
     },
-  },
-  {
-    id: "vivienne",
-    number: "08",
-    name: "薇薇安·桑格温",
-    secondaryName: "VIVIENNE SANGUINE",
-    selectorLabel: "薇薇安",
-    selectorVariant: "gray",
-    portraitUrl: viviennePortrait,
-    portraitAlt: "薇薇安·桑格温角色立绘",
-    appearanceLabel: "社交的样子",
-    thumbnailUrl: vivienneAvatar,
-    thumbnailAlt: "薇薇安·桑格温头像",
-    status: {
-      title: "血宴女爵",
-      titleRootIndex: 2,
-      subtitle: "THE BLOODFEAST COUNTESS",
-      affiliation: {
-        label: "魔王干部",
-        secondaryLabel: "DEMON LORD'S CADRE",
-        tone: "demon-cadre",
-      },
+  ],
+  [
+    "vivienne",
+    {
       bond: { level: 2, progress: 74, progressMax: 100, slots: 5 },
       statusChips: [
         {
@@ -580,12 +322,6 @@ export const characterProfiles: CharacterArchiveProfile[] = [
         trigger: "四条成型时",
         currentTerm: "令一枚敌方意图失去目标，并附加一回合虚弱",
       },
-      fields: [
-        { label: "种族", value: "高阶吸血鬼" },
-        { label: "职能", value: "外务大臣" },
-        { label: "年龄", value: "漫长寿命" },
-        { label: "身高", value: "165cm" },
-      ],
       traits: [
         {
           name: "荆棘与血蔷薇",
@@ -602,8 +338,11 @@ export const characterProfiles: CharacterArchiveProfile[] = [
             "以阴影或大衣化作血色帷幕，将区域拖入她支配的剧场，任意扰乱敌人的五感与认知。",
         },
       ],
-      record:
-        "出身古老纯血氏族，却用筹码与秘密取代粗鄙统治，在人类权贵间织成情报与利益网。担任魔王城外务大臣后，她更愿在谈判桌上瓦解敌对同盟。",
     },
-  },
-];
+  ],
+]);
+export const characterProfiles: CharacterArchiveProfile[] =
+  characterIdentities.map((identity) => ({
+    ...identity,
+    status: { ...identity.status, ...sampleStatus.get(identity.id) },
+  }));

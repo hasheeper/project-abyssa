@@ -1,6 +1,14 @@
+import { clientFixture } from "../../game-client/testing/helpers";
+let fixture: Awaited<ReturnType<typeof clientFixture>>;
+vi.mock("../../game-client/react", async importOriginal => {
+  const original = await importOriginal<typeof import("../../game-client/react")>();
+  return { ...original, GameProvider: ({ children }: { children: React.ReactNode }) => <original.GameSessionScope session={fixture.session}>{children}</original.GameSessionScope> };
+});
+beforeEach(async () => { fixture = await clientFixture({ start: false, initial: { clock: { day: 12, phase: "dusk" }, funds: { public: 12800, party: 1450, crystals: 8 } } }); });
+afterEach(() => fixture.session.dispose());
 import { cleanup, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { MenuPage } from "./MenuPage";
 
 afterEach(cleanup);

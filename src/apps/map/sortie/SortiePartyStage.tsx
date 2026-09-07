@@ -29,6 +29,8 @@ export interface SortiePartyStageProps {
   roster: readonly SortieMember[];
   leader: SortieLeader;
   party: SortieParty;
+  /** 托管尚未开放时锁死第五席切换（由页面按当前玩法声明，而非从数据形状猜）。 */
+  delegateLocked?: boolean;
   onOpen: () => void;
   onRemoveMember: (memberId: string) => void;
   onToggleCommand: () => void;
@@ -72,6 +74,7 @@ export function SortiePartyStage({
   roster,
   leader,
   party,
+  delegateLocked = false,
   onOpen,
   onRemoveMember,
   onToggleCommand
@@ -190,10 +193,10 @@ export function SortiePartyStage({
             data-art={leader.figureUrl ? "figure" : "portrait"}
             data-leader="true"
             data-enlisted={enlisted || undefined}
-            disabled={map}
+            disabled={map || (team && delegateLocked)}
             aria-pressed={team ? enlisted : undefined}
             aria-label={
-              team
+              team && delegateLocked ? `${leader.name}亲征，托管尚未开放` : team
                 ? enlisted
                   ? `${leader.name}亲征，点击改为托管`
                   : `${leader.name}留守，点击改为亲征`

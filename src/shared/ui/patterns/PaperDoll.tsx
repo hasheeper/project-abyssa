@@ -17,7 +17,8 @@ import type { SpriteCalibration } from "./spriteCalibration";
 
 // 默认路径兼容组件库现有用法；独立产品构建可通过 spriteBaseUrl
 // 指向随产物复制的素材目录，避免把全部 PNG eager import 进每个入口。
-const DEFAULT_SPRITE_BASE = import.meta.env.DEV ? "/src/assets/characters/paper-dolls/" : "../src/assets/characters/paper-dolls/";
+const DEFAULT_SPRITE_BASE = import.meta.env.VITE_PAPER_DOLL_BASE_URL ??
+  (import.meta.env.DEV ? "/src/assets/characters/paper-dolls/" : "../src/assets/characters/paper-dolls/");
 
 function partUrl(base: string, characterId: string, part: string): string {
   return `${base}${characterId}/${part}.png`;

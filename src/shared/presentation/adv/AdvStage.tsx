@@ -31,6 +31,8 @@ export interface AdvStageProps {
   actors: RpActor[];
   messages: RpMessage[];
   background?: string;
+  /** Authored cast is present even when a scene opens with narration. */
+  initialSlots?: Partial<Record<RpSeat, string>>;
   /** 打字机是否运行;false = 直接呈现终态(切模式/回看时不重打)。 */
   typing: boolean;
   /**
@@ -75,7 +77,7 @@ function resolveFrame(message: RpMessage | undefined, actorById: Map<string, RpA
   }
 }
 
-export function AdvStage({ actors, messages, background, typing, hydrate = false, onTypingEnd }: AdvStageProps) {
+export function AdvStage({ actors, messages, background, initialSlots, typing, hydrate = false, onTypingEnd }: AdvStageProps) {
   const actorById = useMemo(() => {
     const map = new Map<string, RpActor>();
     for (const actor of actors) map.set(actor.id, actor);
@@ -83,7 +85,7 @@ export function AdvStage({ actors, messages, background, typing, hydrate = false
   }, [actors]);
 
   // 站位与分屏完全同源。
-  const { slots } = useMemo(() => deriveRpStage(messages), [messages]);
+  const { slots } = useMemo(() => deriveRpStage(messages, initialSlots), [messages, initialSlots?.left, initialSlots?.right]);
 
   const current = messages[messages.length - 1];
   const overlay = isOverlayKind(current) ? current : undefined;
@@ -115,30 +117,22 @@ export function AdvStage({ actors, messages, background, typing, hydrate = false
   // 换人才会真正重挂载、重放进场;绑槽位的话只是原地换图,毫无过渡。
   const [departing, setDeparting] = useState<Record<RpSeat, string | null>>({ left: null, right: null });
   const prevSlots = useRef<Record<RpSeat, string | null>>({ left: null, right: null });
+  const departureTimers = useRef<Partial<Record<RpSeat, number>>>({});
 
   useEffect(() => {
-    const leaving: Partial<Record<RpSeat, string>> = {};
     for (const seat of ["left", "right"] as RpSeat[]) {
       const previous = prevSlots.current[seat];
-      if (previous && previous !== slots[seat]) leaving[seat] = previous;
+      if (!previous || previous === slots[seat]) continue;
+      window.clearTimeout(departureTimers.current[seat]);
+      setDeparting(current => ({...current, [seat]:previous}));
+      departureTimers.current[seat] = window.setTimeout(() => {
+        setDeparting(current => current[seat] === previous ? {...current,[seat]:null} : current);
+        delete departureTimers.current[seat];
+      }, LEAVE_MS);
     }
     prevSlots.current = { ...slots };
-    if (Object.keys(leaving).length) {
-      setDeparting((current) => ({ ...current, ...leaving }));
-      const timer = window.setTimeout(
-        () =>
-          setDeparting((current) => {
-            const next = { ...current };
-            for (const seat of Object.keys(leaving) as RpSeat[]) {
-              if (next[seat] === leaving[seat]) next[seat] = null;
-            }
-            return next;
-          }),
-        LEAVE_MS
-      );
-      return () => window.clearTimeout(timer);
-    }
-  }, [slots]);
+  }, [slots.left, slots.right]);
+  useEffect(() => () => {Object.values(departureTimers.current).forEach(timer => window.clearTimeout(timer));}, []);
 
   /* 出生即在场的立绘。hydrate 时它们不播进场动画。
 
@@ -180,7 +174,7 @@ export function AdvStage({ actors, messages, background, typing, hydrate = false
       }
       return next ?? prev;
     });
-  }, [slots]);
+  }, [slots.left, slots.right]);
 
   const renderDoll = (actorId: string, seat: RpSeat, phase: "enter" | "leave") => {
     const actor = actorById.get(actorId);
@@ -196,6 +190,7 @@ export function AdvStage({ actors, messages, background, typing, hydrate = false
         }
         data-active={active ? "true" : "false"}
         data-character={actorId}
+        data-expression={expressionByActor.get(actorId) ?? actor.expression ?? "a"}
         key={`${phase}-${seat}-${actorId}`}
         aria-hidden={phase === "leave" || undefined}
       >

@@ -1,3 +1,8 @@
+import watchersCliffGroundUrl from "../../assets/map/terrain/watchers-cliff-ground.png";
+import weatheredSanctumUrl from "../../assets/map/landmarks/weathered-sanctum.png";
+import abandonedWatchtowerUrl from "../../assets/map/landmarks/abandoned-watchtower.png";
+import tidecallGrottoUrl from "../../assets/map/landmarks/tidecall-grotto.png";
+
 export type MapLocationId = "cave" | "tower" | "church";
 
 export interface MapLocationConfig {
@@ -10,14 +15,14 @@ export interface MapLocationConfig {
   plateY: number;
 }
 
-export const MAP_GROUND_URL = "https://files.catbox.moe/n68e83.png";
+export const MAP_GROUND_URL = watchersCliffGroundUrl;
 
 const INITIAL_MAP_LOCATIONS: MapLocationConfig[] = [
   {
     id: "church",
     name: "风化圣堂",
     englishName: "The Weathered Sanctum",
-    imageUrl: "https://files.catbox.moe/orgrb3.png",
+    imageUrl: weatheredSanctumUrl,
     position: { x: -10.6, z: -3.5 },
     height: 2.9,
     plateY: -0.65
@@ -26,7 +31,7 @@ const INITIAL_MAP_LOCATIONS: MapLocationConfig[] = [
     id: "tower",
     name: "废弃哨塔",
     englishName: "The Abandoned Watchtower",
-    imageUrl: "https://files.catbox.moe/im16jb.png",
+    imageUrl: abandonedWatchtowerUrl,
     position: { x: -0.6, z: 0.9 },
     height: 3.5,
     plateY: -0.65
@@ -35,7 +40,7 @@ const INITIAL_MAP_LOCATIONS: MapLocationConfig[] = [
     id: "cave",
     name: "潮声溶洞",
     englishName: "Tidecall Grotto",
-    imageUrl: "https://files.catbox.moe/vn7j2p.png",
+    imageUrl: tidecallGrottoUrl,
     position: { x: 7.8, z: -4.5 },
     height: 2.8,
     plateY: -0.75

@@ -4,3 +4,6 @@
 @import "./mansion-world.css";
 @import "./mansion-room-drawer.css";
 @import "./mansion-dialogue.css";
+
+/* Above edge-panning hit areas (300), below room drawers (500). */
+.mansion-app .game-menu { --game-menu-top:104px; z-index:310; }

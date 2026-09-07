@@ -1,144 +1,57 @@
-import { CurrencyAmount } from "../../../shared/ui/primitives/CurrencyAmount";
-import { ExpeditionBagOdometer, ExpeditionOdometer } from "../ExpeditionReels";
-import {
-  LAYER_MULTIPLIERS,
-  MAX_LAYER,
-  type ExpeditionState
-} from "../engine";
-import { LOG_TONE_COLOR } from "./expedition-visuals";
+import { useEffect, useState } from "react";
+import { RpgDialogue } from "../../../shared/ui/primitives/RpgDialogue";
+import mariettaPortrait from "../../../assets/characters/portraits/marietta.png";
+import { PARTY_VISUALS } from "./expedition-visuals";
+import { type ExpeditionLedgerProps } from "./ExpeditionLedger";
+import { makeBattleReaction, type BattleReaction } from "./battle-reactions";
+import { CompanionStatus } from "./CompanionStatus";
+import { ExpeditionBattleLedger } from "./ExpeditionBattleLedger";
+import { REACTION_LABELS } from "../../../content/presentation/battle-reactions";
 
-export type ExpeditionBattleSidebarProps = {
-  engine: ExpeditionState;
-  layerClearPending: boolean;
-  handFactor: number;
-  layerFactor: number;
-  projected: number;
+const portraits: Record<string, {name: string; portrait: string; nameplate: string}> = {
+  ...PARTY_VISUALS,
+  marietta: {name: "玛丽埃塔", portrait: mariettaPortrait, nameplate: "MARIETTA"},
 };
+export type ExpeditionBattleSidebarProps = ExpeditionLedgerProps & {
+  partyIds: readonly string[];
+  reaction: BattleReaction | null;
+};
+function ReactionPortrait({ actorId }: { actorId: string }) {
+  const [frame, setFrame] = useState({current: actorId, previous: null as string | null});
+  if (frame.current !== actorId) setFrame({current: actorId, previous: frame.current});
+  useEffect(() => {
+    if (!frame.previous) return;
+    const timer = window.setTimeout(() => setFrame(f => ({...f, previous: null})), 460);
+    return () => window.clearTimeout(timer);
+  }, [frame.current, frame.previous]);
+  return <div className="battle-reaction__portrait" aria-hidden="true">
+    {frame.previous && <img key={`out:${frame.previous}`} data-character={frame.previous} data-outgoing src={portraits[frame.previous]?.portrait} alt="" draggable={false} />}
+    <img key={frame.current} data-character={frame.current} data-arriving={!!frame.previous || undefined} src={portraits[frame.current]?.portrait} alt="" draggable={false} />
+  </div>;
+}
 
-export function ExpeditionBattleSidebar({
-  engine,
-  layerClearPending,
-  handFactor,
-  layerFactor,
-  projected
-}: ExpeditionBattleSidebarProps) {
-  const logEntries = [...engine.log].slice(-40).reverse();
-
-  return (
-    <aside className="abyssa-expedition-region abyssa-expedition-sidebar" aria-label="远征账本">
-      <span className="abyssa-expedition-sidebar__corners" aria-hidden="true">
-        <i data-corner="tl" />
-        <i data-corner="tr" />
-        <i data-corner="br" />
-        <i data-corner="bl" />
-      </span>
-
-      <header className="abyssa-expedition-sidebar__header">
-        <span>RIFT YIELD</span>
-        <small>
-          {engine.location} · 第 {engine.layer}/{MAX_LAYER} 层 · 回合 {engine.round}
-        </small>
-      </header>
-
-      <section
-        className="abyssa-expedition-multiplier"
-        data-finalizing={layerClearPending || undefined}
-        aria-label={`本层散金 ${engine.gold}，牌型倍率 ${handFactor.toFixed(2)}${
-          layerClearPending ? "（已计入最后回合）" : ""
-        }，第 ${engine.layer} 层基础倍率 ${layerFactor}，本层预计入袋 ${projected}`}
-      >
-        <div className="abyssa-expedition-sidebar__section-title">
-          <span>
-            {layerClearPending
-              ? "FINAL PAYOUT · 本回合已计入"
-              : "CUMULATIVE MULTIPLIER"}
-          </span>
-        </div>
-        <ExpeditionOdometer
-          className="abyssa-expedition-multiplier__reels"
-          value={handFactor * layerFactor}
-          digits={2}
-          decimals={2}
-          prefix="×"
-          label={`当前总倍率 ${(handFactor * layerFactor).toFixed(2)}`}
-        />
-        <div className="abyssa-expedition-multiplier__breakdown">
-          <span>{layerClearPending ? "最终牌型" : "牌型"} ×{handFactor.toFixed(2)}</span>
-          <i aria-hidden="true">·</i>
-          <span>第 {engine.layer} 层 ×{layerFactor}</span>
-        </div>
-        <div className="abyssa-expedition-multiplier__amounts">
-          <div data-currency="gold" data-value="base">
-            <strong>{engine.gold.toLocaleString()}</strong>
-          </div>
-          <i aria-hidden="true">→</i>
-          <div data-currency="gold" data-value="result">
-            <strong>{projected.toLocaleString()}</strong>
-          </div>
-        </div>
-      </section>
-
-      <span className="abyssa-expedition-sidebar__divider" aria-hidden="true"><i /></span>
-
-      <section
-        className="abyssa-expedition-purse"
-        aria-label={`包裹 ${engine.bagGold} 金币，本层散金 ${engine.gold} 金币`}
-      >
-        <div className="abyssa-expedition-purse__heading">
-          <strong>BAG &amp; MATERIALS</strong>
-          <small>AUREI</small>
-        </div>
-        <span className="abyssa-expedition-purse__divider" aria-hidden="true" />
-        <div className="abyssa-expedition-purse__amount">
-          <div className="abyssa-expedition-purse__currency" data-kind="gold">
-            <ExpeditionBagOdometer
-              value={engine.bagGold}
-              label={`包裹 ${engine.bagGold} 枚金币`}
-            />
-          </div>
-          <span className="abyssa-expedition-purse__currency-divider" aria-hidden="true" />
-          <div className="abyssa-expedition-purse__currency" data-kind="crystal">
-            <CurrencyAmount
-              value={engine.result?.crystal ? 1 : 0}
-              currency="crystal"
-              label={`${engine.result?.crystal ? 1 : 0} 枚远古晶石`}
-            />
-          </div>
-        </div>
-        <div className="abyssa-expedition-loot" role="region" aria-label="层区倍率" tabIndex={0}>
-          <div className="abyssa-expedition-loot__list">
-            {LAYER_MULTIPLIERS.map((layerMultiplier, index) => (
-              <div
-                className="abyssa-expedition-loot__item"
-                data-current={index + 1 === engine.layer || undefined}
-                data-passed={index + 1 < engine.layer || undefined}
-                key={index}
-              >
-                <i
-                  data-icon={index + 1 <= engine.deepestLayer ? "crystal" : "ore"}
-                  aria-hidden="true"
-                />
-                <span>第 {index + 1} 层</span>
-                <strong>×{layerMultiplier}</strong>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="abyssa-expedition-battle-log" aria-label="战斗日志">
-        <header>BATTLE LOG</header>
-        <ol>
-          {logEntries.map((entry, index) => (
-            <li key={`${entry.layer}-${entry.round}-${index}`}>
-              <time>{`L${entry.layer}R${entry.round}`}</time>
-              <span>
-                <b data-tone={LOG_TONE_COLOR[entry.tone] ?? "system"}>{entry.text}</b>
-              </span>
-            </li>
-          ))}
-        </ol>
-      </section>
-    </aside>
-  );
+/** A single instrument body groups the readings above the companion stage. */
+export function ExpeditionBattleSidebar({partyIds, reaction, ...ledger}: ExpeditionBattleSidebarProps) {
+  const fallback = partyIds.find(id => id !== "kael" && portraits[id]) ?? partyIds.find(id => portraits[id]) ?? "kael";
+  const current = reaction && partyIds.includes(reaction.actorId) ? reaction : makeBattleReaction(`ready:${fallback}`, fallback, "ready")!;
+  const actor = portraits[current.actorId]!;
+  const {engine, memory} = ledger;
+  return <aside className="abyssa-expedition-region abyssa-expedition-sidebar battle-companion" aria-label="同行伙伴">
+    <span className="abyssa-expedition-sidebar__corners" aria-hidden="true"><i data-corner="tl"/><i data-corner="tr"/><i data-corner="br"/><i data-corner="bl"/></span>
+    <div className="battle-companion__instrument">
+      <CompanionStatus layer={engine.layer} round={engine.round} memory={!!memory}/>
+      <ExpeditionBattleLedger {...ledger}/>
+    </div>
+    <section className="battle-reaction" aria-label={`${actor.name}的战斗反应`} data-actor={current.actorId} data-reaction-id={current.key}>
+      <div className="battle-reaction__stage">
+        <span className="battle-reaction__inlay" aria-hidden="true"/>
+        <ReactionPortrait actorId={current.actorId}/>
+        <div className="battle-reaction__name"><small>{actor.nameplate}</small><strong>{actor.name}</strong><span>{REACTION_LABELS[current.kind]}</span></div>
+      </div>
+      <div className="battle-reaction__speech" role="status" aria-live="polite" aria-atomic="true">
+        <RpgDialogue key={current.key} className="battle-reaction__dialogue" name={actor.name} showNameplate={false} autoHeight text={current.text}/>
+      </div>
+    </section>
+    {memory?.preview && <p className="battle-companion__preview">{memory.preview}</p>}
+  </aside>;
 }

@@ -1,0 +1,193 @@
+/* Shared frame, original mechanical reels and dialogue materials. */
+.abyssa-expedition .battle-companion {
+  overflow: hidden;
+  padding: 22px 18px 20px;
+  isolation: isolate;
+}
+/* One raised instrument body, with an inset upper rail and a lower cash slot.
+   The original reel housings supply the small-scale depth inside this body. */
+.battle-companion__instrument {
+  position: relative;
+  z-index: 12;
+  flex-shrink: 0;
+  border: 1px solid var(--battle-frame-deep);
+  background:
+    linear-gradient(100deg, rgb(0 0 0 / 14%), transparent 24% 72%, rgb(0 0 0 / 18%)),
+    var(--battle-plaque-surface);
+  box-shadow:
+    0 0 0 1px var(--battle-structure-line),
+    inset 1px 0 var(--battle-structure-inner),
+    inset -1px 0 rgb(0 0 0 / 60%),
+    0 5px 0 var(--battle-frame-deep),
+    0 6px 0 var(--battle-structure-line),
+    0 13px 13px rgb(0 0 0 / 55%);
+}
+.battle-companion__instrument::after {
+  position: absolute;
+  right: 1px;
+  bottom: 0;
+  left: 1px;
+  height: 4px;
+  border-top: 1px solid var(--battle-structure-inner);
+  background: linear-gradient(var(--battle-frame-surface), var(--battle-frame-deep));
+  content: "";
+  pointer-events: none;
+}
+.battle-companion__status {
+  position: relative;
+  z-index: 2;
+  height: 45px;
+  margin: 0;
+  padding: 4px 12px;
+  border-bottom: 1px solid var(--battle-frame-deep);
+  background: linear-gradient(180deg, rgb(0 0 0 / 50%), rgb(0 0 0 / 16%));
+  box-shadow: inset 0 1px var(--battle-structure-inner), inset 0 5px 9px rgb(0 0 0 / 28%), 0 1px var(--battle-structure-inner);
+}
+.battle-companion__counters { position: relative; display: grid; height: 36px; grid-template-columns: 1fr 1fr; }
+.battle-companion__counter + .battle-companion__counter { border-left: 1px solid var(--battle-structure-inner); }
+.battle-companion__counter { display: flex; justify-content: center; align-items: center; gap: 13px; }
+.battle-companion__counter svg { width: 18px; height: 18px; fill: none; stroke: var(--battle-skin-accent-soft); stroke-width: 1.4; filter: drop-shadow(0 1px 1px #000); }
+.battle-companion__sand { fill: var(--battle-skin-accent-soft); stroke: none; }
+.battle-companion__counter strong { min-width: 26px; color: var(--battle-skin-accent-bright); font: 25px/1 var(--font-display); font-variant-numeric: lining-nums tabular-nums; text-shadow: 0 2px 2px #000; }
+.battle-reaction { display: flex; position: relative; z-index: 1; flex-direction: column; flex: 1; min-height: 0; margin-top: 22px; }
+.battle-reaction__stage { position: relative; flex: 1; min-height: 0; overflow: visible; isolation: isolate; }
+.battle-reaction__inlay { position: absolute; inset: 24px 5px 27px; border: 1px solid var(--battle-structure-inner); box-shadow: inset 0 0 0 5px var(--battle-frame-surface), inset 0 0 0 6px var(--battle-structure-inner); background: radial-gradient(ellipse at 50% 32%, color-mix(in srgb, var(--battle-skin-accent) 15%, transparent), transparent 65%); }
+.battle-reaction__portrait { position: absolute; inset: -30px 0 0; overflow: visible; mask-image: linear-gradient(#000 0 74%, rgb(0 0 0 / 65%) 85%, transparent 100%); }
+.battle-reaction__portrait img { position: absolute; top: 6px; left: 50%; width: 382px; max-width: none; height: auto; transform: translateX(-50%); filter: saturate(.82) brightness(.9); }
+.battle-reaction__portrait [data-character="kael"] { width: 376px; top: -54px; }
+.battle-reaction__portrait [data-character="eustice"] { width: 375px; }
+.battle-reaction__portrait [data-character="elora"] { width: 348px; top: -10px; }
+.battle-reaction__portrait [data-character="kororo"] { width: 390px; top: 10px; }
+.battle-reaction__portrait [data-character="norma"] { width: 385px; }
+.battle-reaction__portrait [data-character="marietta"] { width: 368px; }
+.battle-reaction__portrait [data-outgoing] { animation: companion-fade-out 420ms ease-in-out both; }
+.battle-reaction__portrait [data-arriving] { animation: companion-fade-in 420ms ease-in-out both; }
+.battle-reaction__name { position: absolute; right: 8px; bottom: 15px; left: 8px; display: grid; grid-template-columns: 1fr auto; align-items: end; row-gap: 9px; padding: 20px 16px 9px; border-bottom: 1px solid var(--battle-skin-accent); background: linear-gradient(transparent, color-mix(in srgb, var(--battle-frame-deep) 85%, transparent) 60%); }
+.battle-reaction__name small { grid-column: 1/-1; color: var(--battle-skin-muted); font: 10px var(--font-display); letter-spacing: .25em; }
+.battle-reaction__name strong { color: color-mix(in srgb, var(--battle-skin-accent-bright) 78%, var(--battle-skin-muted)); font: 25px var(--font-body); letter-spacing: .12em; }
+.battle-reaction__name > span { padding-bottom: 3px; color: var(--battle-skin-muted); font: 12px var(--font-body); letter-spacing: .12em; }
+.battle-reaction__speech { position: relative; flex-shrink: 0; }
+.battle-reaction .battle-reaction__dialogue {
+  --abyssa-dialogue-fill: var(--battle-frame-surface);
+  --abyssa-dialogue-text: var(--battle-detail-copy, #cdbda1);
+  --abyssa-dialogue-middle: var(--battle-structure-line);
+  --abyssa-dialogue-ornament: var(--battle-skin-accent);
+  --abyssa-frame-dark: var(--battle-frame-deep);
+  height: auto;
+  min-height: 147px;
+  animation: companion-fade-in 300ms ease-out both;
+}
+.battle-reaction .battle-reaction__dialogue .abyssa-dialogue__content { display: flex; align-items: center; min-height: 147px; padding: 25px 26px; font-size: 18px; line-height: 1.75; letter-spacing: .035em; overflow-wrap: anywhere; }
+.battle-reaction__dialogue .abyssa-dialogue__auto-frame [data-part="middle"] { border-width: 1px; inset: 5px; }
+.battle-reaction__dialogue .abyssa-dialogue__auto-frame [data-part="inner"] { opacity: .4; }
+.battle-reaction__dialogue .abyssa-dialogue__auto-frame [data-part="corner"] { opacity: .65; }
+.battle-companion__preview { position: relative; z-index: 1; flex-shrink: 0; margin: 10px 6px 0; color: var(--battle-skin-muted); font-size: 12px; line-height: 1.5; }
+/* The record drawer uses the full frame height, with a wider reading area.
+   It opens over the right edge without squeezing the battle's five columns. */
+.battle-ledger-drawer {
+  position: absolute;
+  z-index: 20;
+  top: 0;
+  right: 0;
+  width: 584px;
+  height: 100%;
+  padding: 0 0 18px 24px;
+  overflow: hidden;
+  visibility: hidden;
+  pointer-events: none;
+  transition: visibility 0s linear 620ms;
+}
+.battle-ledger-drawer[data-open] { visibility: visible; pointer-events: auto; transition-delay: 0s; }
+.battle-ledger-drawer__travel {
+  position: relative;
+  height: 100%;
+  transform: translateY(calc(-100% - 32px));
+  transition: transform 620ms cubic-bezier(.22, .72, .2, 1);
+  box-shadow: 0 6px 0 var(--battle-frame-deep), 0 7px 0 var(--battle-structure-line), 0 14px 10px rgb(0 0 0 / 78%), 0 26px 26px rgb(0 0 0 / 68%);
+}
+.battle-ledger-drawer__travel::after { position: absolute; content: ""; right: 18px; bottom: -7px; left: 18px; height: 6px; border-top: 1px solid var(--battle-structure-line); background: linear-gradient(var(--battle-frame-surface), var(--battle-frame-deep)); pointer-events: none; }
+.battle-ledger-drawer[data-open] .battle-ledger-drawer__travel { transform: translateY(0); }
+.abyssa-expedition .battle-ledger {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: 48px minmax(0, 1fr) auto;
+  gap: 14px;
+  padding: 22px;
+  width: 100%;
+  height: 100%;
+}
+.abyssa-expedition .battle-ledger > .abyssa-expedition-sidebar__header {
+  grid-column: 1/-1;
+  height: 48px;
+  padding: 4px 0 11px;
+  grid-template-columns: minmax(0, 1fr) 64px;
+  align-items: center;
+  justify-items: stretch;
+  border-bottom: 1px solid var(--battle-structure-line);
+  background: none;
+  box-shadow: 0 1px 0 var(--battle-frame-deep);
+}
+.battle-ledger__heading { grid-column: 1; grid-row: 1; display: grid; gap: 8px; justify-items: start; padding-left: 12px; border-left: 2px solid var(--battle-skin-accent); }
+.abyssa-expedition .battle-ledger__heading span { font: 16px var(--font-body); letter-spacing: .18em; text-indent: 0; }
+.abyssa-expedition .battle-ledger__heading small { font: 9px var(--font-body); letter-spacing: .1em; text-indent: 0; color: var(--battle-skin-muted); }
+.battle-ledger > .abyssa-expedition-purse { grid-column: 1; grid-row: 3; min-height: 0; display: flex; flex-direction: column; margin: 0; }
+.battle-ledger .abyssa-expedition-loot { height: auto; max-height: 142px; min-height: 0; overflow: auto; }
+.battle-ledger .abyssa-expedition-loot__list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.battle-ledger__memory-leave { display: flex; justify-content: flex-end; margin-top: 10px; }
+.battle-ledger__records { position: relative; z-index: 2; grid-column: 1; grid-row: 2; min-height: 0; display: flex; flex-direction: column; gap: 14px; }
+.battle-ledger__records > .abyssa-expedition-battle-log { flex: 1; min-height: 120px; margin: 0; }
+.battle-ledger .abyssa-expedition-battle-log ol { max-height: none; }
+.battle-ledger .abyssa-expedition-battle-log header { display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+.battle-ledger .abyssa-expedition-battle-log header small { font: 8px var(--font-display); color: var(--battle-skin-muted); letter-spacing: .14em; }
+.battle-ledger .abyssa-expedition-battle-log li { grid-template-columns: 40px minmax(0, 1fr); align-items: start; }
+.battle-ledger .abyssa-expedition-battle-log li time { padding-top: 3px; }
+.battle-ledger .abyssa-expedition-battle-log li span { white-space: normal; overflow-wrap: anywhere; line-height: 1.65; }
+.battle-ledger-drawer__close { grid-column: 2; grid-row: 1; display: flex; align-items: center; justify-content: center; height: 30px; width: 64px; padding: 0 8px; border: 1px solid var(--battle-frame-deep); border-top-color: var(--battle-structure-line); border-bottom-width: 3px; background: linear-gradient(var(--battle-frame-surface), var(--battle-frame-deep)); box-shadow: 0 0 0 1px var(--battle-structure-inner), 0 3px 3px rgb(0 0 0 / 40%); color: var(--battle-skin-accent-soft); font: 12px var(--font-body); letter-spacing: .12em; cursor: pointer; }
+.battle-ledger-drawer__close:hover { color: var(--battle-skin-accent-bright); border-color: var(--battle-skin-accent-soft); }
+@keyframes companion-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes companion-fade-out { from { opacity: 1; } to { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .battle-reaction__portrait img, .battle-reaction__dialogue, .battle-ledger-drawer { animation: none !important; }
+  .battle-reaction__portrait [data-outgoing] { visibility: hidden; }
+  .battle-ledger-toggle, .battle-ledger-drawer, .battle-ledger-drawer__travel { transition: none; }
+}
+
+/* No separate plaques around the two readouts: their depth belongs to the body. */
+.battle-sidebar-readouts { position: relative; min-width: 0; }
+.abyssa-expedition .battle-companion .battle-sidebar-readouts > :is(.abyssa-expedition-multiplier, .abyssa-expedition-purse) {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  clip-path: none;
+  margin: 0;
+}
+.battle-sidebar-readouts > .abyssa-expedition-multiplier { min-height: 0; padding: 4px 12px 5px; grid-template-rows: auto; }
+/* The caption occupies the mounting lip; it does not add a separate row. */
+.battle-meter-mount { position: relative; padding: 8px 8px 4px; isolation: isolate; }
+.battle-meter-mount::before {
+  position: absolute;
+  z-index: -1;
+  inset: 5px 0 0;
+  border-top: 1px solid var(--battle-frame-deep);
+  border-bottom: 1px solid var(--battle-structure-inner);
+  background: linear-gradient(180deg, rgb(0 0 0 / 45%), rgb(0 0 0 / 10%));
+  box-shadow: inset 0 4px 6px rgb(0 0 0 / 75%), inset 2px 0 3px rgb(0 0 0 / 35%), inset -2px 0 3px rgb(0 0 0 / 35%);
+  content: "";
+}
+.battle-meter-mount > .abyssa-expedition-sidebar__section-title { position: absolute; z-index: 5; top: -1px; left: 50%; transform: translateX(-50%); padding: 0 6px; background: var(--battle-frame-surface); white-space: nowrap; line-height: 10px; }
+.battle-meter-mount > .abyssa-expedition-sidebar__section-title span { font-size: 10px; line-height: 10px; letter-spacing: .1em; }
+.battle-meter-mount > .abyssa-expedition-multiplier__reels { margin: 0; }
+.abyssa-expedition .battle-companion .battle-sidebar-readouts > .abyssa-expedition-purse {
+  padding: 9px 12px 13px;
+  border-top: 2px solid var(--battle-frame-deep);
+  background: linear-gradient(180deg, rgb(0 0 0 / 26%), rgb(0 0 0 / 8%));
+  box-shadow: inset 0 1px var(--battle-structure-inner), 0 -1px var(--battle-structure-inner);
+}
+.battle-sidebar-readouts .abyssa-expedition-purse__heading { align-items: center; margin-bottom: 5px; }
+.abyssa-expedition-frame:has(.battle-sidebar-readouts) > .abyssa-expedition-skin-switch { left: 12px; right: auto; }
+.battle-ledger-toggle { display: flex; justify-content: center; align-items: center; gap: 5px; min-height: 24px; padding: 0 2px; border: 0; background: none; color: var(--battle-skin-accent-soft); cursor: pointer; font: 11px var(--font-body); letter-spacing: .1em; transition: color 160ms ease; }
+.battle-ledger-toggle:hover { color: var(--battle-skin-accent-bright); }
+.battle-ledger-toggle svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.2; }
+.battle-ledger-toggle:focus-visible, .battle-ledger-drawer__close:focus-visible { outline: 2px solid var(--battle-skin-accent-soft); outline-offset: 3px; }
+.battle-sidebar-readouts__note { color: var(--battle-skin-accent-soft); margin: 0; font-size: 14px; text-align: center; line-height: 1.8; letter-spacing: .1em; }
+.battle-sidebar-readouts__note small { color: var(--battle-skin-muted); font-size: 11px; }

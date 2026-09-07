@@ -1,0 +1,17 @@
+.game-client-gate { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; background: #17191b; color: #f0e4c8; font: 18px serif; }
+.game-client-gate a, .game-client-gate button { color: #e9c887; }
+.game-client-status { position: fixed; left: 16px; top: 10px; z-index: 10000; max-width: calc(100% - 32px); color: #f2dcac; background: #191b20ed; }
+.game-client-status:empty { display: none; }
+.game-client-status button { margin-left: 12px; }
+.game-client-panel { padding: 20px; background: #24252c; color: #eee2ca; border: 1px solid #a58a54; }
+.game-client-panel button, .game-client-panel a { margin: 6px; color: #f0d39d; }
+.campaign-panel { position: fixed; bottom: 12px; right: 18px; z-index: 90; padding: 12px 18px; background: #1a1d22ee; color: #f0e2c5; border: 1px solid #9a8050; font: 14px/1.5 serif; }
+.campaign-panel a:not(.game-menu__entry) { color: #ead09b; }
+.campaign-panel--report { width: 325px; max-height: 380px; overflow: auto; }
+.campaign-history { max-height: 100px; overflow: auto; padding-left: 20px; }
+
+.game-client-gate--scene { min-height: 900px; width: 1600px; }
+
+/* Navigation now owns its compact trigger; report content keeps its existing home. */
+.campaign-panel:not(.campaign-panel--report) { position:static; padding:0; border:0; background:none; }
+.game-client-loading { min-height: 100vh; background: #020506; }

@@ -1,0 +1,2 @@
+.battle-story-shell { position: absolute; inset: 0; width: 1600px; height: 900px; }
+.battle-story-shell > .abyssa-theme { position: relative; z-index: 1; }

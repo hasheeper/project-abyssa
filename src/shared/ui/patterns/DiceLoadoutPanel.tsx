@@ -1,14 +1,14 @@
-import { useRef, useState } from "react";
+import { memo, useRef, useState } from "react";
 import type {
   HTMLAttributes,
   KeyboardEvent as ReactKeyboardEvent,
-  PointerEvent as ReactPointerEvent
+  PointerEvent as ReactPointerEvent,
 } from "react";
 import { cx } from "../../lib/cx";
 import { ExpeditionDieCube } from "../dice-face/ExpeditionDieCube";
 import type {
   ExpeditionDieFaceConfig,
-  ExpeditionDieRotation
+  ExpeditionDieRotation,
 } from "../dice-face/ExpeditionDieCube";
 import { ExpeditionFlatDieFrame } from "../dice-face/ExpeditionFlatDieFrame";
 import { ItemSlot } from "../primitives/ItemSlot";
@@ -32,12 +32,12 @@ import {
   DIE_SUIT_SHAPES,
   awakeFaces,
   countSuit,
-  fateEntersHand
+  fateEntersHand,
 } from "../../domain/dice/face";
 import type {
   CharacterDiceLoadout,
   DieCharm,
-  DieFace
+  DieFace,
 } from "../../domain/dice/face";
 import { DICE_NET_PLACEMENTS } from "./diceLoadoutGeometry";
 
@@ -65,20 +65,20 @@ const ACTION_ICONS = {
   coin: swapBagIcon,
   art: magicPalmIcon,
   wild: splitCrossIcon,
-  blank: slashedShieldIcon
+  blank: slashedShieldIcon,
 } as const;
 
 const CHARM_ICONS = {
   ...ACTION_ICONS,
   scroll: scrollIcon,
   ring: ringIcon,
-  book: bookIcon
+  book: bookIcon,
 } as const;
 
 /** 挂坠类别决定稀有度色带:战面改写偏金,命数修正偏紫。 */
 const CHARM_RARITY = {
   "combat-face": "gold",
-  fate: "amethyst"
+  fate: "amethyst",
 } as const;
 
 type Inspection =
@@ -112,7 +112,7 @@ function SuitGlyph({ suit }: { suit: DieFace["suit"] }) {
 function maskStyle(icon: string) {
   return {
     WebkitMaskImage: `url("${icon}")`,
-    maskImage: `url("${icon}")`
+    maskImage: `url("${icon}")`,
   };
 }
 
@@ -120,6 +120,8 @@ export interface DiceLoadoutPanelProps extends HTMLAttributes<HTMLDivElement> {
   loadout?: CharacterDiceLoadout;
   characterName?: string;
   themeColor?: string;
+  /** Optional application-owned action in the existing general-slot inspector. */
+  equipmentAction?: React.ReactNode;
 }
 
 /* 一格数据。标签在上、值在下,不再是「标签 + 冒号 + 值」的窄行 ——
@@ -131,7 +133,7 @@ function Cell({
   wide,
   tone,
   icon,
-  glyph
+  glyph,
 }: {
   label: string;
   children: React.ReactNode;
@@ -143,9 +145,19 @@ function Cell({
   glyph?: React.ReactNode;
 }) {
   return (
-    <div className="abyssa-dice__cell-data" data-wide={wide || undefined} data-tone={tone}>
+    <div
+      className="abyssa-dice__cell-data"
+      data-wide={wide || undefined}
+      data-tone={tone}
+    >
       <b>
-        {icon && <i className="abyssa-dice__cell-icon" style={maskStyle(icon)} aria-hidden="true" />}
+        {icon && (
+          <i
+            className="abyssa-dice__cell-icon"
+            style={maskStyle(icon)}
+            aria-hidden="true"
+          />
+        )}
         {glyph}
         {label}
       </b>
@@ -164,7 +176,7 @@ function Plate({
   pip,
   strip,
   children,
-  foot
+  foot,
 }: {
   kicker: string;
   /** 归属前缀（「艾比希斯的」）。单独一行小字 ——
@@ -226,14 +238,17 @@ function Plate({
   );
 }
 
-function DiceCubePreview({
+const DiceCubePreview = memo(function DiceCubePreview({
   faces,
-  themeColor
+  themeColor,
 }: {
   faces: DieFace[];
   themeColor?: string;
 }) {
-  const [rotation, setRotation] = useState<ExpeditionDieRotation>({ x: -18, y: 28 });
+  const [rotation, setRotation] = useState<ExpeditionDieRotation>({
+    x: -18,
+    y: 28,
+  });
   const [dragging, setDragging] = useState(false);
   const drag = useRef<CubeDragState>({ active: false, x: 0, y: 0 });
   const cubeFaces: ExpeditionDieFaceConfig[] = faces.map((face) => {
@@ -242,12 +257,15 @@ function DiceCubePreview({
       number: face.face,
       fate: face.pip,
       power: face.power,
-      seal: awake ? "plain" : "none",
+      seal: face.live?.quality ?? (awake ? "plain" : "none"),
       action: face.action,
       textureRotation: PREVIEW_TEXTURE_ROTATIONS[face.face - 1] ?? 0,
-      suitShape: DIE_SUIT_SHAPES[face.suit],
+      suitShape:
+        face.live && !face.live.suitKnown
+          ? undefined
+          : DIE_SUIT_SHAPES[face.suit],
       wildPip: face.wildPip,
-      scoring: awake
+      scoring: awake,
     };
   });
 
@@ -266,7 +284,7 @@ function DiceCubePreview({
     drag.current.y = event.clientY;
     setRotation((current) => ({
       x: Math.max(-78, Math.min(78, current.x - deltaY * 0.55)),
-      y: current.y + deltaX * 0.55
+      y: current.y + deltaX * 0.55,
     }));
   }
 
@@ -281,14 +299,31 @@ function DiceCubePreview({
 
   function rotateFromKeyboard(event: ReactKeyboardEvent<HTMLDivElement>) {
     const step = 12;
-    if (!["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(event.key)) return;
+    if (
+      !["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(event.key)
+    )
+      return;
     event.preventDefault();
     setRotation((current) => ({
       x: Math.max(
         -78,
-        Math.min(78, current.x + (event.key === "ArrowUp" ? step : event.key === "ArrowDown" ? -step : 0))
+        Math.min(
+          78,
+          current.x +
+            (event.key === "ArrowUp"
+              ? step
+              : event.key === "ArrowDown"
+                ? -step
+                : 0),
+        ),
       ),
-      y: current.y + (event.key === "ArrowLeft" ? -step : event.key === "ArrowRight" ? step : 0)
+      y:
+        current.y +
+        (event.key === "ArrowLeft"
+          ? -step
+          : event.key === "ArrowRight"
+            ? step
+            : 0),
     }));
   }
 
@@ -312,7 +347,10 @@ function DiceCubePreview({
         onPointerUp={endDrag}
         onPointerCancel={endDrag}
       >
-        <div className="abyssa-dice__cube-spin" data-paused={dragging || undefined}>
+        <div
+          className="abyssa-dice__cube-spin"
+          data-paused={dragging || undefined}
+        >
           <ExpeditionDieCube
             className="abyssa-dice__preview-cube"
             faces={cubeFaces}
@@ -324,20 +362,138 @@ function DiceCubePreview({
           />
         </div>
       </div>
-      <span className="abyssa-dice__cube-hint" aria-hidden="true">拖动旋转</span>
+      <span className="abyssa-dice__cube-hint" aria-hidden="true">
+        拖动旋转
+      </span>
     </aside>
+  );
+});
+
+const QUALITY_LABELS = {
+  none: "无铭",
+  plain: "素铭",
+  gild: "金铭",
+  rust: "锈铭",
+};
+const SLOT_LABELS = {
+  unavailable: "本 DEMO 未开放",
+  inapplicable: "不适用",
+  empty: "空槽",
+  equipped: "已装备",
+  legacy: "旧版配置",
+};
+function LiveInspector({
+  inspection,
+  loadout,
+  characterName,
+  equipmentAction,
+}: {
+  inspection: Inspection;
+  loadout: CharacterDiceLoadout;
+  characterName?: string;
+  equipmentAction?: React.ReactNode;
+}) {
+  const live = loadout.live!;
+  if (inspection.kind === "face" && inspection.face.live) {
+    const f = inspection.face,
+      detail = f.live!;
+    const rust = {
+      none: "",
+      legacy: "旧版固有锈",
+      removable: "基础可除锈 · 本 DEMO 未开放除锈",
+      permanent: "永久锈 · 不能清理",
+      temporary: "本趟临时锈 · 原品质",
+    }[detail.rust];
+    return (
+      <Plate
+        kicker={`FACE · 第 ${f.face} 面`}
+        title={detail.actionLabel}
+        titleAccent={String(f.power)}
+        sub={f.fate === "awake" ? "AWAKE" : "ASLEEP"}
+        pip={detail.pip.kind === "natural" ? detail.pip.value : undefined}
+        foot={detail.description}
+      >
+        <Cell label="命点">
+          {detail.pip.kind === "wild" ? "万能 · 无原生点数" : `自然点 ${detail.pip.value}`}
+        </Cell>
+        <Cell label="品质">{QUALITY_LABELS[detail.quality]}</Cell>
+        <Cell label={live.version === 1 ? "成牌" : "命数"}>
+          {f.fate === "awake" ? "可参与成牌" : "沉眠 · 不参与成牌"}
+        </Cell>
+        <Cell label="花色">
+          {detail.suitKnown ? DIE_SUIT_LABELS[f.suit] : "此版本未提供"}
+        </Cell>
+        {rust && (
+          <Cell label="锈来源" wide>
+            {rust}
+            {detail.rust === "temporary"
+              ? ` ${QUALITY_LABELS[detail.baseQuality]}`
+              : ""}
+          </Cell>
+        )}
+        {detail.replacement && (
+          <Cell label="装备改写" wide>
+            {detail.replacement}
+          </Cell>
+        )}
+      </Plate>
+    );
+  }
+  if (inspection.kind === "charm") {
+    const slot = live.slots.find((s) => s.id === inspection.charm.id)!;
+    return (
+      <Plate
+        kicker={equipmentAction && slot.id === "general" ? "EQUIPMENT · 通用" : "EQUIPMENT · 只读"}
+        title={slot.name ?? slot.label}
+        sub={slot.label}
+        foot={equipmentAction && slot.id === "general" ? equipmentAction : "装备获取与装卸尚未开放"}
+      >
+        <Cell label="槽位状态" wide>
+          {SLOT_LABELS[slot.state]}
+        </Cell>
+        <Cell label="说明" wide>
+          {slot.description}
+        </Cell>
+      </Plate>
+    );
+  }
+  return (
+    <Plate
+      kicker="ARCHIVE · 当前配置"
+      owner={characterName}
+      title="命骰"
+      sub={live.scope}
+      foot="点击骰面或装备槽查看细节"
+    >
+      <Cell label="六面">{loadout.faces.length} 面</Cell>
+      <Cell label="成牌资格">{awakeFaces(loadout.faces).length} 面已醒</Cell>
+      <Cell label={live.version === 2 ? "成长" : "档案版本"} wide>
+        {live.growth}
+      </Cell>
+    </Plate>
   );
 }
 
 function InspectorBody({
   inspection,
   loadout,
-  characterName
+  characterName,
+  equipmentAction,
 }: {
   inspection: Inspection;
   loadout: CharacterDiceLoadout;
   characterName?: string;
+  equipmentAction?: React.ReactNode;
 }) {
+  if (loadout.live)
+    return (
+      <LiveInspector
+        inspection={inspection}
+        loadout={loadout}
+        characterName={characterName}
+        equipmentAction={equipmentAction}
+      />
+    );
   if (inspection.kind === "overview") {
     const awake = awakeFaces(loadout.faces).length;
     const asleep = loadout.faces.length - awake;
@@ -370,11 +526,30 @@ function InspectorBody({
             <s>{countSuit(loadout.faces, loadout.secondarySuit)} 面</s>
           </Cell>
         )}
-        <Cell label="已醒" tone="gold" glyph={<i className="abyssa-dice__cell-seal" data-seal="plain" aria-hidden="true" />}>
+        <Cell
+          label="已醒"
+          tone="gold"
+          glyph={
+            <i
+              className="abyssa-dice__cell-seal"
+              data-seal="plain"
+              aria-hidden="true"
+            />
+          }
+        >
           {awake}
           <s>/ 6</s>
         </Cell>
-        <Cell label="沉眠" glyph={<i className="abyssa-dice__cell-seal" data-seal="none" aria-hidden="true" />}>
+        <Cell
+          label="沉眠"
+          glyph={
+            <i
+              className="abyssa-dice__cell-seal"
+              data-seal="none"
+              aria-hidden="true"
+            />
+          }
+        >
           {asleep}
           <s>/ 6</s>
         </Cell>
@@ -403,7 +578,13 @@ function InspectorBody({
           <Cell
             label="状态"
             wide
-            glyph={<i className="abyssa-dice__cell-seal" data-seal="none" aria-hidden="true" />}
+            glyph={
+              <i
+                className="abyssa-dice__cell-seal"
+                data-seal="none"
+                aria-hidden="true"
+              />
+            }
           >
             刻痕被漫长的岁月磨平，点数不参与任何牌型。
           </Cell>
@@ -433,7 +614,13 @@ function InspectorBody({
         </Cell>
         <Cell
           label="铭"
-          glyph={<i className="abyssa-dice__cell-seal" data-seal="plain" aria-hidden="true" />}
+          glyph={
+            <i
+              className="abyssa-dice__cell-seal"
+              data-seal="plain"
+              aria-hidden="true"
+            />
+          }
         >
           素铭
         </Cell>
@@ -463,10 +650,17 @@ function InspectorBody({
         <Cell label="效果" wide tone="accent" icon={CHARM_ICONS[charm.icon]}>
           {charm.effect}
         </Cell>
-        <Cell label="类别" icon={charm.kind === "combat-face" ? broadswordIcon : ringIcon}>
+        <Cell
+          label="类别"
+          icon={charm.kind === "combat-face" ? broadswordIcon : ringIcon}
+        >
           {CHARM_KIND_LABELS[charm.kind]}
         </Cell>
-        {charm.origin && <Cell label="来源" icon={swapBagIcon}>{charm.origin}</Cell>}
+        {charm.origin && (
+          <Cell label="来源" icon={swapBagIcon}>
+            {charm.origin}
+          </Cell>
+        )}
       </Plate>
     );
   }
@@ -480,32 +674,84 @@ function InspectorBody({
   );
 }
 
-export function DiceLoadoutPanel({
+export function DiceLoadoutPanel(props: DiceLoadoutPanelProps) {
+  return (
+    <DiceLoadoutContent
+      key={props.loadout?.characterId ?? "empty"}
+      {...props}
+    />
+  );
+}
+
+function DiceLoadoutContent({
   loadout,
   characterName,
   themeColor,
+  equipmentAction,
   className,
   ...props
 }: DiceLoadoutPanelProps) {
-  const [inspection, setInspection] = useState<Inspection>({ kind: "overview" });
+  const [selection, setSelection] = useState<{
+    kind: "overview" | "face" | "charm" | "vacant";
+    id?: string;
+  }>({ kind: "overview" });
+  const charms: DieCharm[] = loadout?.live
+    ? loadout.live.slots.map((slot) => ({
+        id: slot.id,
+        name: slot.name ?? slot.label,
+        kind: "combat-face",
+        icon: slot.icon ?? "scroll",
+        effect: slot.description,
+      }))
+    : (loadout?.charms ?? []);
+  const selected =
+    selection.kind === "face"
+      ? loadout?.faces.find(
+          (f) => (f.live?.id ?? String(f.face)) === selection.id,
+        )
+      : undefined;
+  const selectedItem =
+    selection.kind === "charm"
+      ? charms.find((c) => c.id === selection.id)
+      : undefined;
+  const inspection: Inspection = selected
+    ? { kind: "face", face: selected }
+    : selectedItem
+      ? { kind: "charm", charm: selectedItem }
+      : selection.kind === "vacant"
+        ? { kind: "vacant" }
+        : { kind: "overview" };
+  const setInspection = (next: Inspection) =>
+    setSelection({
+      kind: next.kind,
+      ...(next.kind === "face"
+        ? { id: next.face.live?.id ?? String(next.face.face) }
+        : next.kind === "charm"
+          ? { id: next.charm.id }
+          : {}),
+    });
   const faces = loadout?.faces ?? [];
 
   /* 占位态:引擎目前只认五人,档案九人里有五人一面骰都没有。
      宁可明说「未编入远征」,也不渲染一副假骰子。 */
   if (faces.length === 0) {
     return (
-      <div className={cx("abyssa-dice", className)} data-placeholder="true" {...props}>
+      <div
+        className={cx("abyssa-dice", className)}
+        data-placeholder="true"
+        {...props}
+      >
         <RpgFrame className="abyssa-dice__placeholder-frame" padding="lg">
           <div className="abyssa-dice__placeholder" role="note">
             <i
               className="abyssa-dice__placeholder-glyph"
               style={{
                 WebkitMaskImage: `url("${slashedShieldIcon}")`,
-                maskImage: `url("${slashedShieldIcon}")`
+                maskImage: `url("${slashedShieldIcon}")`,
               }}
               aria-hidden="true"
             />
-            <strong>未编入远征</strong>
+            <strong>{loadout?.placeholderTitle ?? "未编入远征"}</strong>
             <p>{loadout?.placeholderNote ?? "尚未编入远征队列"}</p>
           </div>
         </RpgFrame>
@@ -514,100 +760,123 @@ export function DiceLoadoutPanel({
   }
 
   const byFace = new Map(faces.map((face) => [face.face, face]));
-  const charms = loadout?.charms ?? [];
 
   const charmMask = (charmId: string) => {
     const icon = charms.find((charm) => charm.id === charmId)?.icon ?? "scroll";
     return {
       WebkitMaskImage: `url("${CHARM_ICONS[icon]}")`,
-      maskImage: `url("${CHARM_ICONS[icon]}")`
+      maskImage: `url("${CHARM_ICONS[icon]}")`,
     };
   };
 
-  const selectedFace = inspection.kind === "face" ? inspection.face.face : undefined;
-  const selectedCharm = inspection.kind === "charm" ? inspection.charm.id : undefined;
+  const selectedFace =
+    inspection.kind === "face" ? inspection.face.face : undefined;
+  const selectedCharm =
+    inspection.kind === "charm" ? inspection.charm.id : undefined;
 
   return (
     <div className={cx("abyssa-dice", className)} {...props}>
       <div className="abyssa-dice__stage">
         {/* ===== 右上:命骰十字网 ===== */}
         <RpgFrame className="abyssa-dice__net-frame" padding="sm">
-        <div className="abyssa-dice__net-inner">
-          {/* 左上角标题栏。 */}
-          <div className="abyssa-dice__band-title">
-            <span className="abyssa-dice__band-kicker">FATE DIE</span>
-            <b>命骰{characterName ? ` · ${characterName}` : ""}</b>
-          </div>
+          <div className="abyssa-dice__net-inner">
+            {/* 左上角标题栏。 */}
+            <div className="abyssa-dice__band-title">
+              <span className="abyssa-dice__band-kicker">FATE DIE</span>
+              <b>命骰{characterName ? ` · ${characterName}` : ""}</b>
+            </div>
 
-          <div className="abyssa-dice__net-body">
-            <section className="abyssa-dice__net" aria-label="命骰六面">
-              {DICE_NET_PLACEMENTS.map((placement) => {
-              const face = byFace.get(placement.face);
-              if (!face) return null;
-              const isAwake = fateEntersHand(face.fate);
-              const selected = selectedFace === face.face;
+            <div className="abyssa-dice__net-body">
+              <section className="abyssa-dice__net" aria-label="命骰六面">
+                {DICE_NET_PLACEMENTS.map((placement) => {
+                  const face = byFace.get(placement.face);
+                  if (!face) return null;
+                  const isAwake = fateEntersHand(face.fate);
+                  const selected = selectedFace === face.face;
 
-              return (
-                <button
-                  type="button"
-                  className="abyssa-dice__column"
-                  style={{
-                    gridColumn: placement.column,
-                    gridRow: placement.row
-                  }}
-                  key={placement.face}
-                  data-face={face.face}
-                  data-fate={face.fate}
-                  data-selected={selected || undefined}
-                  aria-pressed={selected}
-                  aria-label={`第 ${face.face} 面，${
-                    isAwake
-                      ? `${DIE_FACE_ACTION_LABELS[face.action]} ${face.power}，命数 ${face.pip}，${DIE_SUIT_LABELS[face.suit]}`
-                      : "沉眠"
-                  }`}
-                  onClick={() => setInspection({ kind: "face", face })}
-                >
-                  <span className="abyssa-dice__cell">
-                    <ExpeditionFlatDieFrame
-                      action={face.action}
-                      fate={face.pip}
-                      power={face.power}
-                      seal={isAwake ? "plain" : "none"}
-                      suitShape={DIE_SUIT_SHAPES[face.suit]}
-                      themeColor={themeColor}
-                      wildPip={face.wildPip}
-                      scoring={isAwake}
-                      recessDepth={2}
-                      label=""
-                    />
-                    {face.chamedBy && (
-                      <span className="abyssa-dice__pin" aria-hidden="true">
-                        <i style={charmMask(face.chamedBy)} />
+                  return (
+                    <button
+                      type="button"
+                      className="abyssa-dice__column"
+                      style={{
+                        gridColumn: placement.column,
+                        gridRow: placement.row,
+                      }}
+                      key={placement.face}
+                      data-face={face.face}
+                      data-fate={face.fate}
+                      data-selected={selected || undefined}
+                      aria-pressed={selected}
+                      aria-label={
+                        face.live
+                          ? `第 ${face.face} 面，${face.live.actionLabel} ${face.power}，命数 ${face.live.pip.kind === "wild" ? "万能" : face.live.pip.value}，${face.fate === "awake" ? "已醒" : "沉眠"}`
+                          : `第 ${face.face} 面，${
+                              isAwake
+                                ? `${DIE_FACE_ACTION_LABELS[face.action]} ${face.power}，命数 ${face.pip}，${DIE_SUIT_LABELS[face.suit]}`
+                                : "沉眠"
+                            }`
+                      }
+                      onClick={() => setInspection({ kind: "face", face })}
+                    >
+                      <span className="abyssa-dice__cell">
+                        <ExpeditionFlatDieFrame
+                          action={face.action}
+                          fate={face.pip}
+                          power={face.power}
+                          seal={
+                            face.live?.quality ?? (isAwake ? "plain" : "none")
+                          }
+                          suitShape={
+                            face.live && !face.live.suitKnown
+                              ? undefined
+                              : DIE_SUIT_SHAPES[face.suit]
+                          }
+                          themeColor={themeColor}
+                          wildPip={face.wildPip}
+                          scoring={isAwake}
+                          recessDepth={2}
+                          label=""
+                        />
+                        {face.chamedBy && (
+                          <span className="abyssa-dice__pin" aria-hidden="true">
+                            <i style={charmMask(face.chamedBy)} />
+                          </span>
+                        )}
                       </span>
-                    )}
-                  </span>
-
-                </button>
-              );
-              })}
-            </section>
-            <DiceCubePreview faces={faces} themeColor={themeColor} />
+                    </button>
+                  );
+                })}
+              </section>
+              <DiceCubePreview faces={faces} themeColor={themeColor} />
+            </div>
           </div>
-        </div>
         </RpgFrame>
 
         {/* display:contents 只保留语义分组；子项参与外层版面。 */}
         <div className="abyssa-dice__lower">
-          <div className="abyssa-dice__charms" role="group" aria-label="饰品挂坠">
-              {Array.from({ length: CHARM_SLOT_COUNT }, (_, index) => {
+          <div
+            className="abyssa-dice__charms"
+            role="group"
+            aria-label={loadout?.live ? "装备槽" : "饰品挂坠"}
+          >
+            {Array.from(
+              { length: loadout?.live?.slots.length ?? CHARM_SLOT_COUNT },
+              (_, index) => {
                 const charm = charms[index];
 
                 if (!charm) {
                   return (
-                    <div className="abyssa-dice__charm" data-empty="true" key={index}>
+                    <div
+                      className="abyssa-dice__charm"
+                      data-empty="true"
+                      key={index}
+                    >
                       <span className="abyssa-dice__hook" aria-hidden="true" />
                       <div className="abyssa-dice__charm-token">
-                        <span className="abyssa-dice__charm-backdrop" aria-hidden="true" />
+                        <span
+                          className="abyssa-dice__charm-backdrop"
+                          aria-hidden="true"
+                        />
                         <span className="abyssa-dice__charm-medallion">
                           <ItemSlot
                             size={52}
@@ -616,13 +885,17 @@ export function DiceLoadoutPanel({
                                空插孔不该有稀有度。显式 aria-label 覆盖它自算的名字。 */
                             aria-label={`挂坠位 ${index + 1} 空`}
                             aria-pressed={inspection.kind === "vacant"}
-                            data-selected={inspection.kind === "vacant" || undefined}
+                            data-selected={
+                              inspection.kind === "vacant" || undefined
+                            }
                             onClick={() => setInspection({ kind: "vacant" })}
                           />
                         </span>
                         <span className="abyssa-dice__charm-name">
                           <span className="abyssa-dice__charm-name-inner">
-                            <span className="abyssa-dice__charm-name-text">空之位</span>
+                            <span className="abyssa-dice__charm-name-text">
+                              空之位
+                            </span>
                           </span>
                         </span>
                       </div>
@@ -633,22 +906,41 @@ export function DiceLoadoutPanel({
                 return (
                   <div
                     className="abyssa-dice__charm abyssa-rarity"
-                    data-rarity={CHARM_RARITY[charm.kind]}
+                    data-rarity={
+                      loadout?.live ? undefined : CHARM_RARITY[charm.kind]
+                    }
+                    data-empty={
+                      (loadout?.live &&
+                        !loadout.live.slots[index].instanceId) ||
+                      undefined
+                    }
                     key={charm.id}
                   >
                     <span className="abyssa-dice__hook" aria-hidden="true" />
                     <div className="abyssa-dice__charm-token">
-                      <span className="abyssa-dice__charm-backdrop" aria-hidden="true" />
+                      <span
+                        className="abyssa-dice__charm-backdrop"
+                        aria-hidden="true"
+                      />
                       <span className="abyssa-dice__charm-medallion">
                         <ItemSlot
-                          icon={CHARM_ICONS[charm.icon]}
+                          icon={
+                            loadout?.live &&
+                            !loadout.live.slots[index].instanceId
+                              ? undefined
+                              : CHARM_ICONS[charm.icon]
+                          }
                           name={charm.name}
                           rarity={CHARM_RARITY[charm.kind]}
                           size={52}
                           showRarity={false}
                           aria-pressed={selectedCharm === charm.id}
-                          data-selected={selectedCharm === charm.id || undefined}
-                          onClick={() => setInspection({ kind: "charm", charm })}
+                          data-selected={
+                            selectedCharm === charm.id || undefined
+                          }
+                          onClick={() =>
+                            setInspection({ kind: "charm", charm })
+                          }
                         />
                       </span>
                       <span className="abyssa-dice__charm-name">
@@ -661,19 +953,25 @@ export function DiceLoadoutPanel({
                     </div>
                   </div>
                 );
-              })}
+              },
+            )}
           </div>
 
           <RpgFrame className="abyssa-dice__inspector" padding="sm">
             <div className="abyssa-dice__plate">
               {/* 内容可能长过槽位(轶闻、私约),所以正文自己滚动,
                   绝不让容器被内容顶破。 */}
-              <div className="abyssa-dice__plate-scroll" tabIndex={0} aria-live="polite">
+              <div
+                className="abyssa-dice__plate-scroll"
+                tabIndex={0}
+                aria-live="polite"
+              >
                 {loadout && (
                   <InspectorBody
                     inspection={inspection}
                     loadout={loadout}
                     characterName={characterName}
+                    equipmentAction={equipmentAction}
                   />
                 )}
               </div>

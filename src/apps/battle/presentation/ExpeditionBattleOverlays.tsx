@@ -3,21 +3,23 @@ import {
   getExpeditionStatus,
   getGreedSummary,
   type ExpeditionState
-} from "../engine";
+} from "../view";
 import { LayerSettlementBreakdown } from "./ExpeditionBattleChrome";
 
 export type ExpeditionBattleOverlaysProps = {
   engine: ExpeditionState;
   onGoDeeper: () => void;
   onLeaveExpedition: () => void;
-  onRestart: () => void;
+  onSettle: () => void;
+  busy?: boolean;
 };
 
 export function ExpeditionBattleOverlays({
   engine,
   onGoDeeper,
   onLeaveExpedition,
-  onRestart
+  onSettle,
+  busy = false
 }: ExpeditionBattleOverlaysProps) {
   const status = getExpeditionStatus(engine);
   const greed = status === "greed" ? getGreedSummary(engine) : null;
@@ -65,8 +67,8 @@ export function ExpeditionBattleOverlays({
               </p>
             </div>
             <div className="abyssa-expedition-modal__actions">
-              <DiceActionButton label="再深一层" primary onClick={onGoDeeper} />
-              <DiceActionButton label="带宝离场" onClick={onLeaveExpedition} />
+              <DiceActionButton label="再深一层" primary disabled={busy} onClick={onGoDeeper} />
+              <DiceActionButton label="带宝离场" disabled={busy} onClick={onLeaveExpedition} />
             </div>
           </div>
         </div>
@@ -97,19 +99,10 @@ export function ExpeditionBattleOverlays({
                 最深抵达第 {engine.result.deepestLayer} 层
                 {engine.result.crystal ? " · 远古晶石 ×1" : ""}
               </p>
-              {engine.facts.length > 0 && (
-                <div className="abyssa-expedition-modal__facts">
-                  <header>事实海关 · 供战报与餐桌话题</header>
-                  <ul>
-                    {engine.facts.map((fact) => (
-                      <li key={fact}>▹ {fact}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
+
             </div>
             <div className="abyssa-expedition-modal__actions">
-              <DiceActionButton label="再来一局" primary onClick={onRestart} />
+              <DiceActionButton label="结算并返回洋馆" primary disabled={busy} onClick={onSettle} />
             </div>
           </div>
         </div>

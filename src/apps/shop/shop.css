@@ -347,3 +347,4 @@ body { font-family: "Noto Serif SC", "Songti SC", serif; }
    若日后要支持手机**竖屏**(画布比例完全不同,等比缩放会小得没法用),
    正确做法是用 @container 查询舞台自身尺寸来重排,而不是查视口。
    ============================================================ */
+.shop-closed { position: absolute; left: 440px; top: 240px; width: 680px; padding: 60px; }

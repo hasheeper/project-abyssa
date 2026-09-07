@@ -111,8 +111,9 @@
 
 /* 所有几何直接来自 src/shared/stage/stage.css 的共享画框契约。 */
 .abyssa-expedition-frame {
-  /* 战斗页需要同时容纳五列角色骰位与完整账本，单独把内容面扩到 1400px。
-     高度与共享画框比例保持不变，避免影响商店、地图等其他舞台。 */
+  /* 战斗页独立容纳五列角色骰位、行动区与右栏读数。
+     只扩展本页内容高度；边框、卡牌与骰子的原尺寸继续沿用。 */
+  --abyssa-frame-interior-h: 845px;
   --expedition-interior-w: 1400px;
   --expedition-battlefield-w: 1040px;
   --expedition-sidebar-w: 340px;
@@ -122,14 +123,21 @@
     var(--expedition-interior-w) + var(--abyssa-frame-pad-inline) * 2 +
       var(--abyssa-frame-border) * 2
   );
+  --abyssa-frame-board-h: calc(
+    var(--abyssa-frame-interior-h) + var(--abyssa-frame-pad-top) +
+      var(--abyssa-frame-pad-bottom) + var(--abyssa-frame-border) * 2
+  );
   /* 战斗内容主动吃进部分 board 留白；外框本体尺寸仍遵守共享画框契约。 */
-  --expedition-content-bleed-top: 24px;
-  --expedition-content-bleed-bottom: 18px;
+  --expedition-content-bleed-top: 38px;
+  --expedition-content-bleed-bottom: 34px;
   --expedition-board-pad-top: calc(var(--abyssa-frame-pad-top) - var(--expedition-content-bleed-top));
   --expedition-board-pad-bottom: calc(var(--abyssa-frame-pad-bottom) - var(--expedition-content-bleed-bottom));
   --expedition-interior-h: calc(var(--abyssa-frame-interior-h) + var(--expedition-content-bleed-top) + var(--expedition-content-bleed-bottom));
-  --expedition-enemy-panel-h: calc(280px + var(--expedition-content-bleed-top) + var(--expedition-content-bleed-bottom));
-  --expedition-action-dock-bottom: calc(-70px + var(--expedition-content-bleed-bottom));
+  --expedition-action-primary-h: 78px;
+  --expedition-action-dock-h: var(--expedition-action-primary-h);
+  --expedition-dice-panel-h: calc(188px + var(--expedition-action-dock-h));
+  /* 角色与骰子相隔的 280px 不变；余下高度归敌区，不在底部留空。 */
+  --expedition-enemy-panel-h: calc(var(--expedition-interior-h) - 280px - var(--expedition-dice-panel-h) - 10px);
   --expedition-shell-w: calc(
     var(--abyssa-frame-board-w) +
       (
@@ -152,6 +160,23 @@
   transform: translate(-50%, -50%) scale(var(--abyssa-frame-k));
   transform-origin: center;
   z-index: 1;
+}
+
+.abyssa-expedition-frame:has(.action-dock[data-alternate]) {
+  --expedition-action-dock-h: 96px;
+}
+
+.abyssa-expedition-frame__overlay {
+  position: absolute;
+  top: calc(-1 * var(--battle-frame-overlay-outset, 0px));
+  left: 0;
+  z-index: 4;
+  display: block;
+  width: 100%;
+  height: calc(100% + var(--battle-frame-overlay-outset, 0px));
+  max-width: none;
+  pointer-events: none;
+  user-select: none;
 }
 
 .abyssa-expedition-frame__header {
@@ -296,6 +321,7 @@
 }
 
 .abyssa-expedition-frame__interior {
+  position: relative;
   display: grid;
   width: var(--expedition-interior-w);
   height: var(--expedition-interior-h);
@@ -307,8 +333,7 @@
   display: grid;
   min-width: 0;
   min-height: 0;
-  /* 新增的纵向空间全部给敌方舞台；我方卡牌与骰盘的内部标尺不变。 */
-  grid-template-rows: var(--expedition-enemy-panel-h) 497px;
+  grid-template-rows: var(--expedition-enemy-panel-h) minmax(0, 1fr);
   gap: 10px;
 }
 
@@ -355,6 +380,17 @@
     radial-gradient(ellipse at 50% 46%, transparent 20%, rgb(5 7 7 / 26%) 82%),
     linear-gradient(180deg, rgb(5 8 9 / 24%), rgb(5 6 6 / 8%) 44%, rgb(5 5 4 / 44%));
   backdrop-filter: brightness(.48) saturate(.42) contrast(.96) blur(.75px);
+  pointer-events: none;
+}
+
+.abyssa-expedition-enemies__mist {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  display: block;
+  contain: strict;
   pointer-events: none;
 }
 
@@ -568,6 +604,8 @@
   height: 100%;
   overflow: visible;
   pointer-events: none;
+  /* Isolate the continuously changing SVG dash pattern from the static scene. */
+  transform: translateZ(0);
 }
 
 .abyssa-expedition-intent-line__shadow,
@@ -590,7 +628,9 @@
   animation: expedition-intent-flow 980ms linear infinite;
 }
 
-/* 命中演出只有数百毫秒，期间冻结无关的虚线流动，避免与斩击争抢合成帧。 */
+/* 前景演出期间保留指向，暂停装饰流动，避免与掷骰、命中争抢绘制帧。 */
+.abyssa-expedition[data-dice-rolling] .abyssa-expedition-intent-line__body,
+.abyssa-expedition[data-enemy-turn-phase] .abyssa-expedition-intent-line__body,
 .abyssa-expedition[data-attack-phase] .abyssa-expedition-intent-line__body,
 .abyssa-expedition[data-support-phase] .abyssa-expedition-intent-line__body {
   animation-play-state: paused;

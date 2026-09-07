@@ -1,35 +1,13 @@
-import {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState
-} from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { randomRollDuration } from "../../../shared/presentation/roll/timing";
-import {
-  nextExpeditionDieRotation,
-  type ExpeditionDieRotation
-} from "../ExpeditionDie3D";
-import {
-  PARTY_ORDER,
-  getBattlePhase,
-  getExpeditionStatus,
-  getRoundOutcome,
-  isEnemyDefeated,
-  type CharacterId,
-  type EnemyIntent,
-  type EnemyTurnEvent,
-  type ExpeditionState
-} from "../engine";
-import {
-  getEnemyTurnCue,
-  type PlayerAttackCue,
-  type PlayerSupportCue
-} from "../controller/presentation-events";
-import {
-  useExpeditionBattleController
-} from "../controller/useExpeditionBattleController";
+import { EXPEDITION_DIE_ROLL_MS, getExpeditionDieRotation, nextExpeditionDieRotation, type ExpeditionDieRotation } from "../ExpeditionDie3D";
+import { getBattlePhase, getExpeditionStatus, getRoundOutcome, isEnemyDefeated, type CharacterId, type EnemyIntent, type EnemyTurnEvent, type BattleCommand, type ExpeditionState } from "../view";
+import { getPlayerAttackCue, getPlayerSupportCue, type PlayerAttackCue, type PlayerSupportCue } from "../controller/presentation-events";
+import { useExpeditionBattleController } from "../controller/useExpeditionBattleController";
 import { usePresentationQueue } from "../controller/usePresentationQueue";
+import { applyVisibleEvents, enemyPresentationGroups } from "./committed-events";
+import { battleState } from "../../../game-runtime/views";
+import { legacyBattleReaction, useBattleReaction } from "./battle-reactions";
 
 export type ExpeditionDieVisual = {
   rotation: ExpeditionDieRotation;
@@ -66,405 +44,151 @@ export type EnemyTurnFx = EnemyTurnEvent & {
   phase: EnemyTurnPhase;
 };
 
-const ATTACK_TIMING = {
-  anticipate: 100,
-  hitstop: 70,
-  impact: 260,
-  recover: 320,
-  defeat: 460
-} as const;
 
-const SUPPORT_TIMING = {
-  anticipate: 90,
-  release: 120,
-  impact: 240,
-  settle: 300
-} as const;
-
-/* 每只怪物完成整段演出后，下一只才进入 anticipate。 */
-const ENEMY_TURN_TIMING = {
-  anticipate: 120,
-  lunge: 100,
-  hitstop: 60,
-  impact: 320,
-  recover: 220
-} as const;
-
-/* 最后一只怪物倒下后，留足时间播放斩杀退场，再打开层结算。 */
-const LAYER_CLEAR_DELAY = 1200;
-
-function effectFrameDuration(duration: number): number {
-  if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
-    return duration;
-  }
-  return window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    ? Math.min(duration, 60)
-    : duration;
+function duration(ms: number) { return window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ? Math.min(ms, 60) : ms; }
+function initialVisuals(state: ExpeditionState): Record<CharacterId, ExpeditionDieVisual> {
+  return Object.fromEntries(state.dice.map(d => [d.ownerId, {
+    rotation: getExpeditionDieRotation(d.faceIndex === null ? null : d.faceIndex + 1),
+    rolling: false,
+    rollDuration: EXPEDITION_DIE_ROLL_MS / 1000,
+  }]));
 }
-
-function createInitialVisuals(): Record<CharacterId, ExpeditionDieVisual> {
-  return Object.fromEntries(
-    PARTY_ORDER.map((id) => [
-      id,
-      { rotation: { x: -18, y: 28 }, rolling: false, rollDuration: 0.9 }
-    ])
-  ) as Record<CharacterId, ExpeditionDieVisual>;
-}
-
-type ExpeditionBattleController = ReturnType<typeof useExpeditionBattleController>;
-
-/**
- * Owns battle-only animation state and timing. Domain transitions still come
- * from the controller; this hook only decides when their visible state commits.
- */
-export function useExpeditionBattlePresentation(
-  controller: ExpeditionBattleController
-) {
+/** Plays committed receipts. Every mutation here affects only the visual copy. */
+export function useExpeditionBattlePresentation(controller: ReturnType<typeof useExpeditionBattleController>) {
+  const reactions = useBattleReaction();
   const presentation = usePresentationQueue();
   const engine = controller.state;
-  const commitTransition = controller.commitTransition;
-  const setHeldActor = controller.holdActor;
-  const getEngine = controller.getState;
-  const transition = controller.transition;
-  const pendingLayerClearId = controller.pendingLayerClearId;
-  const acknowledgeLayerClear = controller.acknowledgeLayerClear;
-  const [visuals, setVisuals] = useState<Record<CharacterId, ExpeditionDieVisual>>(
-    createInitialVisuals
-  );
+  const [visuals, setVisuals] = useState(() => initialVisuals(engine));
   const [attackFx, setAttackFx] = useState<PlayerAttackFx | null>(null);
   const [supportFx, setSupportFx] = useState<PlayerSupportFx | null>(null);
   const [enemyTurnFx, setEnemyTurnFx] = useState<EnemyTurnFx | null>(null);
-  const rollTimerRef = useRef<number | null>(null);
-  const layerClearTimerRef = useRef<number | null>(null);
   const enemyNodesRef = useRef(new Map<string, HTMLElement>());
   const previousEnemyRectsRef = useRef(new Map<string, DOMRect>());
-
-  const phase = getBattlePhase(engine);
-  const status = getExpeditionStatus(engine);
-  const layerClearPending = pendingLayerClearId !== null;
-  const isRolling = PARTY_ORDER.some((id) => visuals[id].rolling);
-  const interactive =
-    phase === "act" &&
-    status === "active" &&
-    !layerClearPending &&
-    !isRolling &&
-    !presentation.busy &&
-    attackFx === null &&
-    supportFx === null &&
-    enemyTurnFx === null;
-  const canInitialRoll =
-    phase === "roll" &&
-    status === "active" &&
-    !layerClearPending &&
-    !isRolling &&
-    !presentation.busy &&
-    attackFx === null &&
-    supportFx === null &&
-    enemyTurnFx === null;
-
-  useEffect(() => () => {
-    if (rollTimerRef.current !== null) window.clearTimeout(rollTimerRef.current);
-    if (layerClearTimerRef.current !== null) window.clearTimeout(layerClearTimerRef.current);
-  }, []);
-
   useEffect(() => {
-    if (!pendingLayerClearId) return;
-
-    const timer = window.setTimeout(() => {
-      if (layerClearTimerRef.current !== timer) return;
-      layerClearTimerRef.current = null;
-      setHeldActor(null);
-      acknowledgeLayerClear();
-    }, LAYER_CLEAR_DELAY);
-    layerClearTimerRef.current = timer;
-
-    return () => {
-      window.clearTimeout(timer);
-      if (layerClearTimerRef.current === timer) layerClearTimerRef.current = null;
-    };
-  }, [acknowledgeLayerClear, pendingLayerClearId, setHeldActor]);
-
-  const animateDice = (after: ExpeditionState) => {
-    /* Build the complete plan synchronously; StrictMode may replay state updaters. */
-    const plan: { ownerId: CharacterId; value: number; duration: number }[] = [];
-    const tossed = new Set(after.lastTossed);
-
-    for (const die of after.dice) {
-      if (die.sealed || die.faceIndex === null || !tossed.has(die.ownerId)) continue;
-      plan.push({
-        ownerId: die.ownerId,
-        value: die.faceIndex + 1,
-        duration: randomRollDuration()
-      });
-    }
-
-    if (plan.length === 0) return;
-    const maxDuration = plan.reduce(
-      (longest, entry) => Math.max(longest, entry.duration),
-      0
-    );
-
-    setVisuals((current) => {
-      const next = { ...current };
-      for (const entry of plan) {
-        next[entry.ownerId] = {
-          rotation: nextExpeditionDieRotation(
-            current[entry.ownerId].rotation,
-            entry.value
-          ),
-          rolling: true,
-          rollDuration: entry.duration
-        };
-      }
-      return next;
-    });
-
-    if (rollTimerRef.current !== null) window.clearTimeout(rollTimerRef.current);
-    rollTimerRef.current = window.setTimeout(() => {
-      setVisuals((current) => {
-        const next = { ...current };
-        for (const id of PARTY_ORDER) next[id] = { ...next[id], rolling: false };
-        return next;
-      });
-      rollTimerRef.current = null;
-    }, maxDuration * 1000 + 80);
-  };
-
-  const setAttackPhase = (runId: number, nextPhase: PlayerAttackPhase) => {
-    setAttackFx((current) =>
-      current?.runId === runId ? { ...current, phase: nextPhase } : current
-    );
-  };
-
-  const playPlayerAttack = async (
-    result: Parameters<typeof commitTransition>[0],
-    cue: PlayerAttackCue
-  ) => {
+    presentation.cancel(); controller.finish(); setAttackFx(null); setSupportFx(null); setEnemyTurnFx(null);
+    reactions.clear();
+    setVisuals(initialVisuals(controller.getState()));
+  }, [controller.generation]);
+  const play = async (command: BattleCommand) => {
     const runId = presentation.begin();
     if (runId === null) return;
-    setAttackFx({ ...cue, runId, phase: "anticipate" });
-
-    if (!(await presentation.wait(effectFrameDuration(ATTACK_TIMING.anticipate), runId))) return;
-    setAttackPhase(runId, "hitstop");
-
-    if (!(await presentation.wait(effectFrameDuration(ATTACK_TIMING.hitstop), runId))) return;
-    commitTransition(result);
-    setHeldActor(null);
-    setAttackPhase(runId, "impact");
-
-    if (!(await presentation.wait(effectFrameDuration(ATTACK_TIMING.impact), runId))) return;
-    setAttackPhase(runId, cue.lethal ? "defeat" : "recover");
-
-    if (
-      !(await presentation.wait(
-        effectFrameDuration(cue.lethal ? ATTACK_TIMING.defeat : ATTACK_TIMING.recover),
-        runId
-      ))
-    ) {
-      return;
-    }
-
-    setAttackFx((current) => (current?.runId === runId ? null : current));
-    presentation.complete(runId);
-  };
-
-  const setSupportPhase = (runId: number, nextPhase: PlayerSupportPhase) => {
-    setSupportFx((current) =>
-      current?.runId === runId ? { ...current, phase: nextPhase } : current
-    );
-  };
-
-  const playPlayerSupport = async (
-    result: Parameters<typeof commitTransition>[0],
-    cue: PlayerSupportCue
-  ) => {
-    const runId = presentation.begin();
-    if (runId === null) return;
-    setSupportFx({ ...cue, runId, phase: "anticipate" });
-
-    if (!(await presentation.wait(effectFrameDuration(SUPPORT_TIMING.anticipate), runId))) return;
-    setSupportPhase(runId, "release");
-
-    if (!(await presentation.wait(effectFrameDuration(SUPPORT_TIMING.release), runId))) return;
-    commitTransition(result);
-    setHeldActor(null);
-    setSupportPhase(runId, "impact");
-
-    if (!(await presentation.wait(effectFrameDuration(SUPPORT_TIMING.impact), runId))) return;
-    setSupportPhase(runId, "settle");
-
-    if (!(await presentation.wait(effectFrameDuration(SUPPORT_TIMING.settle), runId))) return;
-    setSupportFx((current) => (current?.runId === runId ? null : current));
-    presentation.complete(runId);
-  };
-
-  const setEnemyTurnPhase = (
-    runId: number,
-    actionId: number,
-    nextPhase: EnemyTurnPhase
-  ) => {
-    setEnemyTurnFx((current) =>
-      current?.runId === runId && current.actionId === actionId
-        ? { ...current, phase: nextPhase }
-        : current
-    );
-  };
-
-  const playEnemyTurn = async () => {
-    const runId = presentation.begin();
-    if (runId === null) return;
-
-    const prepared = transition({ type: "begin-enemy-turn" }, getEngine());
-    if (prepared.error) {
-      presentation.complete(runId);
-      return;
-    }
-    let presentationIndex = 0;
-    commitTransition(prepared);
-    setHeldActor(null);
-
-    while (true) {
-      if (!presentation.isCurrent(runId)) return;
-      const current = getEngine();
-      if (
-        current.mode.type !== "enemy-turn" ||
-        current.mode.cursor >= current.mode.enemyOrder.length
-      ) {
-        break;
-      }
-
-      const enemyId = current.mode.enemyOrder[current.mode.cursor]!;
-      const actingEnemy = current.enemies.find((enemy) => enemy.id === enemyId);
-      const intent = actingEnemy?.intent;
-      if (!actingEnemy || !intent) break;
-
-      const step = transition({ type: "resolve-next-enemy" }, current);
-      const cue = getEnemyTurnCue(step.events);
-      if (step.error || !cue) break;
-
-      const actionId = runId * 100 + presentationIndex;
-      presentationIndex += 1;
-      setEnemyTurnFx({
-        ...cue,
-        runId,
-        actionId,
-        enemyName: actingEnemy.name,
-        intent,
-        phase: "anticipate"
-      });
-
-      if (!(await presentation.wait(effectFrameDuration(ENEMY_TURN_TIMING.anticipate), runId))) return;
-      setEnemyTurnPhase(runId, actionId, "lunge");
-
-      if (!(await presentation.wait(effectFrameDuration(ENEMY_TURN_TIMING.lunge), runId))) return;
-      setEnemyTurnPhase(runId, actionId, "hitstop");
-
-      if (!(await presentation.wait(effectFrameDuration(ENEMY_TURN_TIMING.hitstop), runId))) return;
-      commitTransition(step);
-      setEnemyTurnPhase(runId, actionId, "impact");
-
-      if (!(await presentation.wait(effectFrameDuration(ENEMY_TURN_TIMING.impact), runId))) return;
-      setEnemyTurnPhase(runId, actionId, "recover");
-
-      if (!(await presentation.wait(effectFrameDuration(ENEMY_TURN_TIMING.recover), runId))) return;
-    }
-
-    if (!presentation.isCurrent(runId)) return;
-    const completed = transition({ type: "finish-enemy-turn" }, getEngine());
-    if (completed.error) {
-      setEnemyTurnFx(null);
-      presentation.complete(runId);
-      return;
-    }
-
-    let finalTransition = completed;
-    if (getRoundOutcome(completed.state) === "continue") {
-      const nextRound = transition({ type: "next-round" }, completed.state);
-      if (!nextRound.error) finalTransition = nextRound;
-    }
-    setEnemyTurnFx(null);
-    presentation.complete(runId);
-    commitTransition(finalTransition);
-  };
-
-  const presentedEnemies = engine.enemies.filter(
-    (enemy) =>
-      !isEnemyDefeated(enemy) ||
-      enemy.id === attackFx?.targetId ||
-      enemy.id === enemyTurnFx?.enemyId
-  );
-  const enemyLayoutKey = presentedEnemies.map((enemy) => enemy.id).join("|");
-
-  const registerEnemyNode = useCallback((enemyId: string, node: HTMLElement | null) => {
-    if (node) enemyNodesRef.current.set(enemyId, node);
-    else enemyNodesRef.current.delete(enemyId);
-  }, []);
-
-  useLayoutEffect(() => {
-    const previous = previousEnemyRectsRef.current;
-    const current = new Map<string, DOMRect>();
-
-    for (const enemy of presentedEnemies) {
-      const node = enemyNodesRef.current.get(enemy.id);
-      if (!node) continue;
-
-      const nextRect = node.getBoundingClientRect();
-      current.set(enemy.id, nextRect);
-      const previousRect = previous.get(enemy.id);
-      if (!previousRect || typeof node.animate !== "function") continue;
-
-      const deltaX = previousRect.left - nextRect.left;
-      const deltaY = previousRect.top - nextRect.top;
-      if (Math.abs(deltaX) < 0.5 && Math.abs(deltaY) < 0.5) continue;
-
-      node.animate(
-        [
-          { transform: `translate(${deltaX}px, ${deltaY}px)` },
-          { transform: "translate(0, 0)" }
-        ],
-        {
-          duration: effectFrameDuration(320),
-          easing: "cubic-bezier(.2, .78, .22, 1)"
+    try {
+      const batch = await controller.submit(command);
+      if (!batch || !presentation.isCurrent(runId) || !controller.current(batch)) return;
+      if (command.type === "undo") reactions.clear();
+      for (const receipt of batch.receipts) reactions.observe(legacyBattleReaction(receipt.events, receipt.requestId));
+      const wait = async (ms: number) => (await presentation.wait(duration(ms), runId)) && controller.current(batch);
+      for (const receipt of batch.receipts) {
+        if (!presentation.isCurrent(runId) || !controller.current(batch)) return;
+        const events = receipt.events;
+        const roll = events.find(e => e.type === "dice-rolled");
+        if (roll) {
+          const before = controller.getState();
+          const final = battleState(batch.after);
+          // Keep the original per-die timing and tumble variation. Plan outside
+          // the updater so React replay cannot resample the animation.
+          const plan = roll.payload.results.flatMap(result => {
+            if (result.sealed || result.faceIndex === null) return [];
+            const previousFace = before.dice.find(die => die.ownerId === result.ownerId)?.faceIndex;
+            return [{
+              ownerId: result.ownerId,
+              visual: {
+                rotation: nextExpeditionDieRotation(
+                  getExpeditionDieRotation(previousFace == null ? null : previousFace + 1),
+                  result.faceIndex + 1,
+                ),
+                rolling: true,
+                rollDuration: duration(randomRollDuration() * 1000) / 1000,
+              },
+            }];
+          });
+          controller.show(final);
+          setVisuals(current => {
+            const next = { ...current };
+            // The receipt identifies participants, including auto-loaded final rolls.
+            // Held, spent, sealed and downed dice receive no animation or new angles.
+            for (const entry of plan) next[entry.ownerId] = entry.visual;
+            return next;
+          });
+          const longestRoll = Math.max(0, ...plan.map(entry => entry.visual.rollDuration * 1000));
+          if (!(await wait(longestRoll + 80))) return;
+          setVisuals(current => Object.fromEntries(Object.entries(current).map(([id, value]) => [id, { ...value, rolling: false }])));
+          continue;
         }
-      );
+        const enemies = enemyPresentationGroups(events);
+        if (enemies.some(group => group.cue)) {
+          let actionIndex = 0;
+          for (const group of enemies) {
+            const cue = group.cue;
+            if (!cue) { controller.show(applyVisibleEvents(controller.getState(), group.events)); continue; }
+            const actionId = runId * 100 + actionIndex++;
+            setEnemyTurnFx({ ...cue, runId, actionId, phase: "anticipate" });
+            if (!(await wait(120))) return;
+            setEnemyTurnFx(fx => fx ? { ...fx, phase: "lunge" } : null);
+            if (!(await wait(100))) return;
+            setEnemyTurnFx(fx => fx ? { ...fx, phase: "hitstop" } : null);
+            if (!(await wait(60))) return;
+            controller.show(applyVisibleEvents(controller.getState(), group.events));
+            setEnemyTurnFx(fx => fx ? { ...fx, phase: "impact" } : null);
+            if (!(await wait(320))) return;
+            setEnemyTurnFx(fx => fx ? { ...fx, phase: "recover" } : null);
+            if (!(await wait(220))) return;
+          }
+          setEnemyTurnFx(null);
+          continue;
+        }
+        const attack = getPlayerAttackCue(events), support = getPlayerSupportCue(events);
+        if (attack) {
+          setAttackFx({ ...attack, runId, phase: "anticipate" });
+          if (!(await wait(100))) return;
+          setAttackFx(fx => fx ? { ...fx, phase: "hitstop" } : null);
+          if (!(await wait(70))) return;
+          controller.show(applyVisibleEvents(controller.getState(), events)); controller.holdActor(null);
+          setAttackFx(fx => fx ? { ...fx, phase: "impact" } : null);
+          if (!(await wait(260))) return;
+          setAttackFx(fx => fx ? { ...fx, phase: attack.lethal ? "defeat" : "recover" } : null);
+          if (!(await wait(attack.lethal ? 460 : 320))) return;
+          setAttackFx(null);
+        } else if (support) {
+          setSupportFx({ ...support, runId, phase: "anticipate" });
+          if (!(await wait(90))) return;
+          setSupportFx(fx => fx ? { ...fx, phase: "release" } : null);
+          if (!(await wait(120))) return;
+          controller.show(applyVisibleEvents(controller.getState(), events)); controller.holdActor(null);
+          setSupportFx(fx => fx ? { ...fx, phase: "impact" } : null);
+          if (!(await wait(240))) return;
+          setSupportFx(fx => fx ? { ...fx, phase: "settle" } : null);
+          if (!(await wait(300))) return;
+          setSupportFx(null);
+        } else controller.show(applyVisibleEvents(controller.getState(), events));
+        if (events.some(e => e.type === "layer-cleared" && e.payload.settlement === null) && !(await wait(1200))) return;
+      }
+    } finally {
+      if (presentation.isCurrent(runId)) {
+        setAttackFx(null); setSupportFx(null); setEnemyTurnFx(null);
+        setVisuals(current => Object.fromEntries(Object.entries(current).map(([id, value]) => [id, { ...value, rolling: false }])));
+        presentation.complete(runId); controller.finish();
+      }
     }
-
-    previousEnemyRectsRef.current = current;
-    // presentedEnemies is deliberately represented by the stable identity key.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [enemyLayoutKey]);
-
-  const resetPresentation = () => {
-    if (rollTimerRef.current !== null) window.clearTimeout(rollTimerRef.current);
-    rollTimerRef.current = null;
-    if (layerClearTimerRef.current !== null) window.clearTimeout(layerClearTimerRef.current);
-    layerClearTimerRef.current = null;
-    presentation.cancel();
-    setAttackFx(null);
-    setSupportFx(null);
-    setEnemyTurnFx(null);
-    controller.restart();
-    setVisuals(createInitialVisuals());
   };
-
-  return {
-    phase,
-    status,
-    layerClearPending,
-    interactive,
-    canInitialRoll,
-    isRolling,
-    visuals,
-    attackFx,
-    supportFx,
-    enemyTurnFx,
-    presentedEnemies,
-    registerEnemyNode,
-    isBusy: presentation.isBusy,
-    animateDice,
-    playPlayerAttack,
-    playPlayerSupport,
-    playEnemyTurn,
-    resetPresentation
+  const presentedEnemies = engine.enemies.filter(enemy => !isEnemyDefeated(enemy) || enemy.id === attackFx?.targetId || enemy.id === enemyTurnFx?.enemyId);
+  const enemyLayoutKey = presentedEnemies.map(enemy => enemy.id).join("|");
+  const registerEnemyNode = useCallback((id: string, node: HTMLElement | null) => { if (node) enemyNodesRef.current.set(id, node); else enemyNodesRef.current.delete(id); }, []);
+  useLayoutEffect(() => {
+    const current = new Map<string, DOMRect>();
+    for (const enemy of presentedEnemies) {
+      const node = enemyNodesRef.current.get(enemy.id); if (!node) continue;
+      const rect = node.getBoundingClientRect(), previous = previousEnemyRectsRef.current.get(enemy.id); current.set(enemy.id, rect);
+      if (previous && typeof node.animate === "function") node.animate([{ transform: `translate(${previous.left - rect.left}px, ${previous.top - rect.top}px)` }, { transform: "translate(0, 0)" }], { duration: duration(320), easing: "ease-out" });
+    }
+    previousEnemyRectsRef.current = current;
+  }, [enemyLayoutKey]);
+  const phase = enemyTurnFx ? "enemy" : getBattlePhase(engine), status = getExpeditionStatus(engine);
+  const layerClearPending = engine.mode.type === "player-turn" && getRoundOutcome(engine) === "layer-cleared";
+  const isRolling = Object.values(visuals).some(value => value.rolling);
+  const available = controller.ready && !presentation.busy && !layerClearPending;
+  return { phase, status, layerClearPending, isRolling, visuals, attackFx, supportFx, enemyTurnFx, presentedEnemies, registerEnemyNode,
+    interactive: available && phase === "act" && status === "active", canInitialRoll: available && phase === "roll" && status === "active",
+    isBusy: presentation.isBusy, play, reaction: reactions.reaction,
   };
 }

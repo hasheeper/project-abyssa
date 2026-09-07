@@ -1,9 +1,9 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it } from "vitest";
-import { ShopPage } from "./ShopPage";
+import { ShopPreview as ShopPage } from "./ShopPreview";
 
-describe("ShopPage", () => {
+describe("ShopPreview (explicit prototype)", () => {
   afterEach(cleanup);
 
   it("uses the component-library shop controls to complete a purchase", async () => {

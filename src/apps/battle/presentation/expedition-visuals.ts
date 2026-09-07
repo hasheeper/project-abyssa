@@ -1,11 +1,12 @@
 import type { ExpeditionDieSuit } from "../ExpeditionDie3D";
-import type { CharacterId, EnemyState } from "../engine";
+import type { CharacterId, EnemyState } from "../view";
 import type { GlyphName } from "../ExpeditionGlyph";
 import kaelPortrait from "../../../assets/characters/portraits/kael.png";
 import eusticePortrait from "../../../assets/characters/portraits/eustice.png";
 import eloraPortrait from "../../../assets/characters/portraits/elora.png";
 import kororoPortrait from "../../../assets/characters/portraits/kororo.png";
 import normaPortrait from "../../../assets/characters/portraits/norma.png";
+import mariettaPortrait from "../../../assets/characters/portraits/marietta.png";
 import blightedSentinel from "../../../assets/battle/enemy-blighted-sentinel.png";
 import crystallineChoir from "../../../assets/battle/enemy-crystalline-choir.png";
 import miasmaAmalgam from "../../../assets/battle/enemy-miasma-amalgam.png";
@@ -21,7 +22,11 @@ export interface PartyVisual {
   suit: ExpeditionDieSuit;
 }
 
-export const PARTY_VISUALS: Record<CharacterId, PartyVisual> = {
+export const PARTY_VISUALS: Record<CharacterId | "marietta", Omit<PartyVisual, "id"> & {id: CharacterId | "marietta"}> = {
+  marietta: {
+    id: "marietta", name: "玛丽埃塔", nameplate: "MARIETTA", portrait: mariettaPortrait,
+    tone: "crimson", skills: ["sword", "split-cross", "fast-arrow"], themeColor: "#7b342f", suit: "abyss"
+  },
   kael: {
     id: "kael",
     name: "凯尔",
@@ -81,6 +86,8 @@ export const ENEMY_ART: Record<EnemyState["art"], string> = {
 };
 
 export const INTENT_GLYPH: Record<string, GlyphName> = {
+  repair: "heal",
+  idle: "art",
   attack: "intent-attack",
   charge: "intent-charge",
   seal: "intent-seal",

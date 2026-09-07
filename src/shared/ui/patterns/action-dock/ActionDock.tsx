@@ -1,5 +1,6 @@
-import type { ReactNode } from "react";
+import { useRef, type ReactNode } from "react";
 import { CurrencyAmount } from "../../primitives/CurrencyAmount";
+import { IconButton } from "../../primitives/IconButton";
 import "./action-dock.css";
 
 export interface ActionDockProps {
@@ -7,6 +8,8 @@ export interface ActionDockProps {
   busy?: boolean;
   balance?: number;
   children?: ReactNode;
+  leading?: ReactNode;
+  alternate?: { open: boolean; label: string; icon: string; onToggle: () => void; panel: ReactNode };
 }
 
 export interface ActionDockSlotProps {
@@ -24,11 +27,13 @@ export function ActionDockSlot({ caption, label, value }: ActionDockSlotProps) {
   );
 }
 
-export function ActionDock({ active, busy = false, balance, children }: ActionDockProps) {
+export function ActionDock({ active, busy = false, balance, children, leading, alternate }: ActionDockProps) {
   const hasFunds = balance !== undefined;
+  const toggle = useRef<HTMLButtonElement>(null);
 
   return (
-    <section className="action-dock" data-state={busy ? "busy" : active ? "active" : "idle"} aria-label="行动面板" aria-busy={busy || undefined}>
+    <section className="action-dock" data-state={busy ? "busy" : active ? "active" : "idle"} data-alternate={alternate?.open || undefined} aria-label="行动面板" aria-busy={busy || undefined} onKeyDown={e => {if (e.key === "Escape" && alternate?.open && !e.defaultPrevented) {e.preventDefault(); alternate.onToggle(); toggle.current?.focus();}}}>
+      <div className="action-dock__primary" inert={alternate?.open || undefined} aria-hidden={alternate?.open || undefined}>
       <span className="action-dock__surface" aria-hidden="true" />
       <svg className="action-dock__upper-frame" viewBox="0 0 1000 76" preserveAspectRatio="none" aria-hidden="true">
         <path d="M20 4 H980 L996 20 M4 20 L20 4" fill="none" stroke="#3d2915" strokeWidth="8" strokeLinejoin="miter" />
@@ -50,6 +55,14 @@ export function ActionDock({ active, busy = false, balance, children }: ActionDo
           </>
         )}
       </div>
+      </div>
+      {leading}
+      {alternate && <>
+        <div className="action-dock__alternate" inert={!alternate.open || undefined} aria-hidden={!alternate.open || undefined}>{alternate.panel}</div>
+        <IconButton ref={toggle} className="action-dock__switch" label={alternate.label} title={alternate.label} shape="diamond" size="md" variant="dark" aria-expanded={alternate.open} onClick={alternate.onToggle}>
+          <i className="action-dock__switch-icon" style={{maskImage: `url("${alternate.icon}")`}} aria-hidden="true"/>
+        </IconButton>
+      </>}
     </section>
   );
 }

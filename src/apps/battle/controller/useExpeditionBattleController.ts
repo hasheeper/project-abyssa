@@ -1,129 +1,50 @@
-import { useCallback, useRef, useState } from "react";
-import type {
-  BattleCommand,
-  BattleTransition
-} from "../domain/commands";
-import type { CharacterId, ExpeditionState, Rng } from "../domain/state";
-import { getTrackedRngSnapshot, mulberry32 } from "../persistence/rng";
-import { createExpedition } from "../rules/compatibility";
-import { dispatchBattleCommand } from "../rules/dispatcher";
+import { useCallback, useEffect, useRef, useState } from "react";
+import type { BattleCommand, BattleTransition, CharacterId, ExpeditionState } from "../view";
+import { useGameSession, useGameState } from "../../../game-client/react";
+import { battleState, sameHead } from "../../../game-runtime/views";
+import type { CommittedBatch as AnyCommittedBatch } from "../../../game-client/session";
 
-export type TargetingMode =
-  | { type: "idle" }
-  | { type: "actor"; actorId: CharacterId }
-  | { type: "item"; itemInstanceId: string }
-  | { type: "ability"; actorId: CharacterId; abilityId: string };
-
-export function getPendingLayerClearEventId(
-  result: BattleTransition
-): string | null {
-  if (result.error) return null;
-  return result.events.find(
-    (event) => event.type === "layer-cleared" && event.payload.settlement === null
-  )?.id ?? null;
+import type { GameRecord, CommandReceipt } from "../../../game-application";
+export type LegacyCommittedBatch = Omit<AnyCommittedBatch, "before" | "after" | "receipts"> & {before: GameRecord; after: GameRecord; receipts: CommandReceipt[]};
+export function legacyRecord(record: import("../../../game-application").AnyGameRecord): GameRecord { if (record.schemaVersion !== 1) throw new Error("Legacy battle required"); return record; }
+export function getPendingLayerClearEventId(result: BattleTransition): string | null {
+  return result.error ? null : result.events.find(e => e.type === "layer-cleared" && e.payload.settlement === null)?.id ?? null;
 }
-
-function createRuntimeRng(): Rng {
-  const seed = Math.floor(Math.random() * 0x1_0000_0000);
-  return mulberry32(seed);
-}
-
-export function useExpeditionBattleController(rng?: Rng) {
-  const initialRngRef = useRef<Rng | null>(null);
-  if (initialRngRef.current === null) {
-    initialRngRef.current = rng ?? createRuntimeRng();
-  }
-
-  const [state, setState] = useState<ExpeditionState>(() =>
-    createExpedition(initialRngRef.current!)
-  );
-  const stateRef = useRef(state);
-  const rngRef = useRef(initialRngRef.current);
-  const compatibilityRngRef = useRef<Rng | null>(null);
-  if (rng) {
-    rngRef.current = rng;
-    compatibilityRngRef.current = getTrackedRngSnapshot(rng) ? null : rng;
-  } else {
-    compatibilityRngRef.current = null;
-  }
-  const [targetingMode, setTargetingMode] = useState<TargetingMode>({ type: "idle" });
-  const [pendingLayerClearId, setPendingLayerClearId] = useState<string | null>(null);
-
-  const commit = useCallback((next: ExpeditionState) => {
-    stateRef.current = next;
-    setState(next);
+/** Holds only a presentation copy. All authoritative transitions go through GameSession. */
+export function useExpeditionBattleController() {
+  const session = useGameSession(), game = useGameState();
+  const [state, setState] = useState(() => battleState(legacyRecord(game.record!)));
+  const stateRef = useRef(state), locked = useRef(false), alive = useRef(true);
+  const [heldActor, holdActor] = useState<CharacterId | null>(null);
+  const [presenting, setPresenting] = useState(false);
+  const show = useCallback((next: ExpeditionState) => {
+    if (!alive.current) return;
+    stateRef.current = next; setState(next);
   }, []);
-  const getState = useCallback(() => stateRef.current, []);
-
-  const transition = useCallback(
-    (command: BattleCommand, input: ExpeditionState = stateRef.current): BattleTransition =>
-      dispatchBattleCommand(
-        input,
-        command,
-        compatibilityRngRef.current ? { rng: compatibilityRngRef.current } : undefined
-      ),
-    []
-  );
-
-  const commitTransition = useCallback((result: BattleTransition) => {
-    if (result.error) return false;
-    commit(result.state);
-    setPendingLayerClearId(getPendingLayerClearEventId(result));
-    return true;
-  }, [commit]);
-
-  const dispatch = useCallback(
-    (command: BattleCommand): BattleTransition => {
-      const result = transition(command);
-      commitTransition(result);
-      return result;
-    },
-    [commitTransition, transition]
-  );
-
-  const holdActor = useCallback((actorId: CharacterId | null) => {
-    setTargetingMode(actorId ? { type: "actor", actorId } : { type: "idle" });
-  }, []);
-
-  const targetItem = useCallback((itemInstanceId: string) => {
-    setTargetingMode({ type: "item", itemInstanceId });
-  }, []);
-
-  const targetAbility = useCallback((actorId: CharacterId, abilityId: string) => {
-    setTargetingMode({ type: "ability", actorId, abilityId });
-  }, []);
-
-  const cancelTargeting = useCallback(() => {
-    setTargetingMode({ type: "idle" });
-  }, []);
-
-  const restart = useCallback(() => {
-    commit(createExpedition(rngRef.current));
-    setTargetingMode({ type: "idle" });
-    setPendingLayerClearId(null);
-  }, [commit]);
-
-  const acknowledgeLayerClear = useCallback((): BattleTransition => {
-    const result = transition({ type: "end-turn" });
-    commitTransition(result);
-    return result;
-  }, [commitTransition, transition]);
-
-  return {
-    state,
-    getState,
-    commit,
-    commitTransition,
-    transition,
-    dispatch,
-    targetingMode,
-    heldActor: targetingMode.type === "actor" ? targetingMode.actorId : null,
-    pendingLayerClearId,
-    acknowledgeLayerClear,
-    holdActor,
-    targetItem,
-    targetAbility,
-    cancelTargeting,
-    restart
+  useEffect(() => { alive.current = true; return () => { alive.current = false; }; }, []);
+  const finish = useCallback(() => {
+    locked.current = false;
+    if (!alive.current) return;
+    const record = session.getSnapshot().record;
+    if (record?.schemaVersion === 1 && record.snapshot.expedition?.id === session.locator.expeditionId) show(battleState(record!));
+    holdActor(null); setPresenting(false);
+  }, [session, show]);
+  useEffect(() => {
+    if (!locked.current && game.record?.schemaVersion === 1 && game.record.snapshot.expedition) { show(battleState(game.record)); holdActor(null); }
+  }, [game.record?.head.revision, game.generation, show]);
+  const submit = async (command: BattleCommand): Promise<LegacyCommittedBatch | null> => {
+    if (locked.current || session.getSnapshot().status !== "ready") return null;
+    const record = legacyRecord(session.getSnapshot().record!);
+    if (!record.snapshot.expedition || record.snapshot.expedition.id !== session.locator.expeditionId) return null;
+    locked.current = true; setPresenting(true);
+    const expeditionId = record.snapshot.expedition.id;
+    const result = await session.dispatch(command.type === "undo" ? { type: "undo", expeditionId } : { type: "battle-command", expeditionId, command });
+    if (!result || !result.presentable || !alive.current) { finish(); return null; }
+    if (result.before.schemaVersion !== 1 || result.after.schemaVersion !== 1) { finish(); return null; }
+    return {...result, before: result.before, after: result.after, receipts: result.receipts.filter((r): r is CommandReceipt => r.version === 1)};
+  };
+  return { state, getState: () => stateRef.current, show, finish, submit, heldActor, holdActor, presenting,
+    ready: game.status === "ready" && !presenting, generation: game.generation,
+    current: (batch: AnyCommittedBatch) => alive.current && sameHead(session.getSnapshot().record?.head ?? null, batch.after.head),
   };
 }

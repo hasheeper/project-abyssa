@@ -1,0 +1,5210 @@
+{
+  "exports": [
+    "ACTION_EFFECT_DEFINITIONS",
+    "BATTLE_CONTENT_VERSION",
+    "BATTLE_EFFECT_DEFINITIONS",
+    "BATTLE_REACTION_REGISTRY",
+    "BATTLE_RULES_VERSION",
+    "BATTLE_SCHEMA_VERSION",
+    "CHARACTERS",
+    "DEFAULT_EFFECT_DEPTH_LIMIT",
+    "DEFAULT_EFFECT_EVENT_BUDGET",
+    "DOWNED_RETURN_HP",
+    "EXPENSIVE_HEAL_EFFECT_ID",
+    "FRENZY_ACTIVE_STATUS_ID",
+    "FRENZY_ATTACK_BONUS",
+    "FRENZY_WARNING_DURATION",
+    "FRENZY_WARNING_STATUS_ID",
+    "HAND_BONUSES",
+    "LAYER_MULTIPLIERS",
+    "MAX_HP",
+    "MAX_LAYER",
+    "PARTY_ORDER",
+    "REROLLS_PER_ROUND",
+    "STALL_GRACE_ROUNDS",
+    "actOnEnemy",
+    "actOnMember",
+    "activateScheduledFrenzyForNextRoundTransition",
+    "advanceRngStream",
+    "advanceStatusDurations",
+    "applyFrenzyRecoilTransition",
+    "applyNumericModifiers",
+    "assertExpeditionInvariants",
+    "assessStalling",
+    "attackEnemy",
+    "beginNextRoundTransition",
+    "blockIntent",
+    "buildActionEffectContribution",
+    "canActWith",
+    "canToggleLoad",
+    "canUndo",
+    "cloneBattleLoadout",
+    "cloneBattleState",
+    "collectEventReactions",
+    "collectExpeditionInvariantViolations",
+    "compareOrderedSources",
+    "compareReactionBindings",
+    "compileEffectRuntime",
+    "completeNextRoundAfterFrenzyTransition",
+    "createBattleCompletionOutput",
+    "createBattleLoadoutSettlement",
+    "createBattleRngState",
+    "createBattleSaveDto",
+    "createEmptyBattleLoadout",
+    "createExpedition",
+    "createExpeditionFromSeed",
+    "createExpeditionState",
+    "createExpeditionStateFromInput",
+    "createExpeditionTransition",
+    "createRngCursor",
+    "deserializeBattleState",
+    "dispatchBattleCommand",
+    "drawRngValue",
+    "endTurn",
+    "evaluateHand",
+    "finishEnemyTurn",
+    "getBattlePhase",
+    "getBlocked",
+    "getEffectiveFaceQuality",
+    "getEnemyFrenzyActiveStatus",
+    "getEnemyFrenzyWarningStatus",
+    "getEnemyTotalHp",
+    "getExpeditionStatus",
+    "getFace",
+    "getFaceValue",
+    "getFrenzyWarningRounds",
+    "getGildFaceCount",
+    "getGreedSummary",
+    "getIncomingDamageFor",
+    "getIntentThreat",
+    "getLayerPayout",
+    "getLayerSettlement",
+    "getPartyTotalHp",
+    "getPotentialDamage",
+    "getReadyDamage",
+    "getRoundOutcome",
+    "getRustFaceCount",
+    "getRustableFaceCapacity",
+    "getStateFace",
+    "getTotalThreat",
+    "getTrackedRngSnapshot",
+    "getUndoLabel",
+    "goDeeper",
+    "goDeeperTransition",
+    "hasEnemyFrenzyWarning",
+    "hasPendingAction",
+    "hasUnloadedDice",
+    "healMember",
+    "isDieDowned",
+    "isEnemyDefeated",
+    "isEnemyFrenzied",
+    "leaveExpedition",
+    "leaveExpeditionTransition",
+    "mergeEffectResolutionOptions",
+    "migrateBattleSaveDto",
+    "mulberry32",
+    "nextRound",
+    "performInitialRoll",
+    "performReroll",
+    "performToggleLoad",
+    "performUndo",
+    "prepareEnemyTurn",
+    "prepareEnemyTurnTransition",
+    "rankHand",
+    "rerollDice",
+    "resolveAtomicEffects",
+    "resolveEffectsCommand",
+    "resolveEnemyIntentTransition",
+    "resolveEnemyTurnStep",
+    "rollDice",
+    "serializeBattleState",
+    "settleEnemyTurnTransition",
+    "startLayerTransition",
+    "stealFrom",
+    "targetRefKey",
+    "toggleLoad",
+    "undo"
+  ],
+  "versions": [
+    4,
+    1,
+    1
+  ],
+  "expeditions": [
+    {
+      "seed": 11,
+      "steps": [
+        {
+          "command": "create",
+          "state": "55d5c9ab182664fb540e25a8636d1355425ba56120ca0107c060e7f131391b10"
+        },
+        {
+          "command": "roll",
+          "state": "95d2c8d95d989c44900d29b85c8b52ed9576f1e05e98d309d6becfb7f70c6d13"
+        },
+        {
+          "command": "load:kael",
+          "state": "52400764270d597f6190007636b7214d07aba0efa6c0b048d4e7f441af62bb9f"
+        },
+        {
+          "command": "act:kael:guard:enemy-1",
+          "state": "71bb5e947a1a9396a18487e89533aff66dc3327d498faa1082e287acc1e7c44f"
+        },
+        {
+          "command": "load:eustice",
+          "state": "61c1cf6b0ccaeb677b33cc1bc9774254a1a42042505c802e3c09ca9e49f4a5c0"
+        },
+        {
+          "command": "act:eustice:attack:enemy-1",
+          "state": "ed1758748560bbb3a618670427c9c028e1483093a2834d69901b6106aa083f59"
+        },
+        {
+          "command": "load:elora",
+          "state": "73488a38d4dae28650995b0d0dfaa24a02c8995cea86a8e9cb07e6c881f35eba"
+        },
+        {
+          "command": "load:kororo",
+          "state": "41b99d90a0b22988c3ea50881580f8c244e19d48dddad908a3251b9b2025b728"
+        },
+        {
+          "command": "load:norma",
+          "state": "757261890a3a500f3c9efb7f0f4259d28ed8fd8b864e1ef8dcd98e1916824bf7"
+        },
+        {
+          "command": "act:norma:coin:enemy-2",
+          "state": "2e56e5fa8ce6b831272ad54979587250206e1dcd336c07155286afcb5543f4ed"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "928d4e751d2f2b12a9e21ad1d67c6dacf116c1d1d7c781d6d756ccfecc63c48c"
+        },
+        {
+          "command": "next-round",
+          "state": "91e521e901ff8d1e6a035eed34798bd3b9dc9a01a7e6362085c0a57cc5d70f8d"
+        },
+        {
+          "command": "roll",
+          "state": "eb2b006ebd4d9ce8d86e3f0bc4e3ed1f96820ea85611d1495d8661cb3dcbfd1e"
+        },
+        {
+          "command": "load:kael",
+          "state": "d4b930f4b347365ef7b74f0adbb2830c283dd92d46713cbe55a9ed63351ffd5e"
+        },
+        {
+          "command": "act:kael:guard:enemy-2",
+          "state": "a9d5746396c5bdd57c2c1ba060be566acc45c60ae8b4d3a479356c0269974cdf"
+        },
+        {
+          "command": "load:eustice",
+          "state": "715f42cfb2579e7110c5e911e31212c338cda56f01c41d744a1fe6f1d519e233"
+        },
+        {
+          "command": "act:eustice:attack:enemy-2",
+          "state": "aa87b7071f4289727a093d1822e0821f81a61a550ed9275d3ab2031a891de1c9"
+        },
+        {
+          "command": "load:elora",
+          "state": "2b0ac7f50f22fa209f6f9ee74d2e1208be87d882185a9e2a256b2f242e743af9"
+        },
+        {
+          "command": "load:kororo",
+          "state": "4a26b55a13006848e2abebfda9b827b114f3ebb15e7ec2fd14f3f22e0090d9cd"
+        },
+        {
+          "command": "act:kororo:attack:enemy-2",
+          "state": "7cfe7f5391813087408fe720fed84e05555268f74839cc3b67f26736c5f928ea"
+        },
+        {
+          "command": "load:norma",
+          "state": "2927a737b3c6a3167c1b7074dca5900ae22d5d18857ff688ed1d95b7f3de3e76"
+        },
+        {
+          "command": "end-turn:layer-cleared",
+          "state": "d5857571183e8a7e426716901211c0834b7548f9e4f855e97287a7e25ec86c82"
+        },
+        {
+          "command": "go-deeper",
+          "state": "a833f901b603d4d5feb65b6e4626278884c72ee41875acd3f0bf33aee34d0776"
+        },
+        {
+          "command": "roll",
+          "state": "3dd057b985db0ba28bb206e7adc8a27b9b408a9b5f46f90de1e57ee57ae09b9d"
+        },
+        {
+          "command": "load:kael",
+          "state": "13abba385d1bd481ff1738511695624c5505fa029a46af71cc36efcc09a86089"
+        },
+        {
+          "command": "act:kael:attack:enemy-3",
+          "state": "d31293d8d5be7ae549ba8fea1dde065cfee6bc44e2ed5cf82e281de367caa674"
+        },
+        {
+          "command": "load:eustice",
+          "state": "160ed1b41d672cffbeca1538beba68d18aa05022673210789f4f7934795da4b5"
+        },
+        {
+          "command": "act:eustice:attack:enemy-3",
+          "state": "0d809424d6a1aca234f01ccd306d349b3d846e77dec62bde87b8692c4fa19310"
+        },
+        {
+          "command": "load:elora",
+          "state": "635ccfe50f161549fdc9a9daacd649608b4b6b4b89b891b1de23288ccae31324"
+        },
+        {
+          "command": "act:elora:heal:elora",
+          "state": "edc3f80294c6bc5ede0868b4482efb947f36a19fa19f4e669377cbfd3b543ebc"
+        },
+        {
+          "command": "load:kororo",
+          "state": "10dcfecb10426c22902d4bd68929e45397c084790f483efe5093d227d7bb1110"
+        },
+        {
+          "command": "act:kororo:attack:enemy-4",
+          "state": "5e1c05e93d6678b5a03fa70f995ac2f9dac61257ae5d3b1af14f87bcb1e61815"
+        },
+        {
+          "command": "load:norma",
+          "state": "1f12b55698ff126ebb4385399ac22e34ba41f8ae6d4db0e3c0140e7a9980ca59"
+        },
+        {
+          "command": "end-turn:layer-cleared",
+          "state": "d786083b1b7dbfbe3978afe7527aa35889b2645ee3a3d639f831b5973ed8f5be"
+        },
+        {
+          "command": "go-deeper",
+          "state": "545773695a6dcd08cdd88369c51e1175e07e46bba942cda557eff670bbca5542"
+        },
+        {
+          "command": "roll",
+          "state": "547765d266aab43ee946fc0ffb905bf39badfbf1823ac7cc848276c4d2d0b23e"
+        },
+        {
+          "command": "load:kael",
+          "state": "e38a0a102f310814a5052398b4a890b584db773babf085a52da0430298203a3d"
+        },
+        {
+          "command": "act:kael:guard:enemy-5",
+          "state": "f75296fb0021456c01849b025e0e9e4fd8d67d7ed487838df3f04ab43806b7ff"
+        },
+        {
+          "command": "load:eustice",
+          "state": "05b112dda1890ade1ed3bb0df9c0ce23d9cdf95838dc576dcb08c7fca570ad19"
+        },
+        {
+          "command": "act:eustice:attack:enemy-5",
+          "state": "159ac0700ae2e16617f37278f50bd63271d1ce3e3bb14fd2c59fc802ac694a95"
+        },
+        {
+          "command": "load:elora",
+          "state": "133b6456faa3523f4d70759656fcf147f3a43dc247cfe6b4556cb50466fcea68"
+        },
+        {
+          "command": "load:kororo",
+          "state": "90fa207bb785afe68d80375d3419eaf8f2ac4cc9f8089e2e472fd5927fc5cad2"
+        },
+        {
+          "command": "load:norma",
+          "state": "335c2ed5e637ffb4030d8a69710279af357239f0a6b7195af8169a10da66f1fe"
+        },
+        {
+          "command": "act:norma:guard:enemy-5",
+          "state": "89c297a7e64bf662799fc61af51615b8aee0530669bd7f55a53bbfb8622e124c"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "c3b0f4e5b2a5365899e4c2a81feefa0e350c3cb61a8f14c1a252828cda39a30f"
+        },
+        {
+          "command": "next-round",
+          "state": "427c818f8b716b9b1240ffe33fed89eb30071e2f6b183eebb19912c055475263"
+        },
+        {
+          "command": "roll",
+          "state": "c20b5d80116d9c8ff337fd1852721865be2ba62fa6b142ac7dc06c40fcbd570e"
+        },
+        {
+          "command": "load:kael",
+          "state": "5a885c56d3ce208fde4bbed05df4bcb13a74f747440928f12b9cc7fbdd36914d"
+        },
+        {
+          "command": "act:kael:attack:enemy-5",
+          "state": "601d4c1599d6a645ca55c59e1b5831eee039eea213340d86cc2c37f7b65cda60"
+        },
+        {
+          "command": "load:eustice",
+          "state": "b76024de5f5cb974dc2bfd3e11bc82f6cf4c65184135840a82a78466bee77478"
+        },
+        {
+          "command": "act:eustice:guard:enemy-8",
+          "state": "509a3f50cd0b6c1c3c754a3f7633e18842d57191747b04181d24ec12cabc92d0"
+        },
+        {
+          "command": "load:kororo",
+          "state": "44de01f3232d4bcb6ac7b53e61935542aadffe20becc258b90cbc3a5cc356c67"
+        },
+        {
+          "command": "load:norma",
+          "state": "9106548c313398c2848dd78dfb77952e495dd09b03c0d6a4f8c653d3ee68b4c1"
+        },
+        {
+          "command": "act:norma:coin:enemy-6",
+          "state": "65144e8ef971c9653cee796ab9be509c6b44adf0720e4c2676a28c46d912642b"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "49df6421ce732a3e3d404fb8b37c8432019b7eb218eacb2f76d64e8e0ce4cc08"
+        },
+        {
+          "command": "next-round",
+          "state": "78f1fffc58d305e0b4038c534d5357dec1c407f919bc75ceba99c61f7d604d41"
+        },
+        {
+          "command": "roll",
+          "state": "e6713a4e6a63c9cb32499a9216fd5c51e955c870a1fc47de9b62f6f46cccd870"
+        },
+        {
+          "command": "load:kael",
+          "state": "d40989fb5df417d27783d149bf6527627f38d761b5b9a5bf99e3efb72e310e0d"
+        },
+        {
+          "command": "act:kael:guard:enemy-8",
+          "state": "3f3757277e1098ab9f45e4966984191a6021585843c23efaccd0dba9fc8d077a"
+        },
+        {
+          "command": "load:eustice",
+          "state": "6e0d045f67223a40cc68094b3aa03fbd917e7aedc71f6d018b3c30ab028c861f"
+        },
+        {
+          "command": "load:elora",
+          "state": "55df40448cae098224abe6faf55c7b0d7e263218d07cd0f3ba11e7ba20377c9c"
+        },
+        {
+          "command": "act:elora:heal:elora",
+          "state": "d56811899d0c4401484fc40b51ba5ce95b9d44219f2c53fd9b2f7b09d40744ea"
+        },
+        {
+          "command": "load:norma",
+          "state": "7d0581126dcd4e75ff4006662ef5469ed4258ef4126ae4d20b97d03b2c02ddf7"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "9cd5aff8170fb243c52d52d014372de3ea1f3b2bf23188721d358906dbd73764"
+        },
+        {
+          "command": "next-round",
+          "state": "9e3069959ad9e64655c6d45cc0ea28aad2cfbeccb4a359cdcb1bd99f8cd1755d"
+        },
+        {
+          "command": "roll",
+          "state": "082d30154af02a8a3918dca51ea43412c58b86f441c66e008ba922e264975cfc"
+        },
+        {
+          "command": "load:kael",
+          "state": "172e5a083f321dffb2d095af5f9901e7fa201fab85c2f04419943257fb34955c"
+        },
+        {
+          "command": "act:kael:wild:enemy-6",
+          "state": "d569844556b178768407668d8eee68888fb6f9d97dbb7e91f62275bfee0e063e"
+        },
+        {
+          "command": "load:eustice",
+          "state": "35ed46b6b6729c5dcd044c1eb396cc7e0d7e862170764fcb8c396e86006bf974"
+        },
+        {
+          "command": "act:eustice:attack:enemy-6",
+          "state": "e77fae0fc5af00409beadc62c22ad5d892ddbc0f36fc615c7edfe4e9c219190e"
+        },
+        {
+          "command": "load:elora",
+          "state": "37553f1d680aa0ca5d85b0fb54df5e792711a5809c5858bd11fcd4d197aec12e"
+        },
+        {
+          "command": "act:elora:heal:elora",
+          "state": "c75b60c83d71532002108467366e74f85ec777be7b063fc83fef3c7440ddbd84"
+        },
+        {
+          "command": "load:norma",
+          "state": "f20c928ebff50110369c5f8967a012fbba2d8793669de66a7d4de2cb01d46f83"
+        },
+        {
+          "command": "act:norma:coin:enemy-7",
+          "state": "17fb9528a0bf4263ee9b2d7df148285a115e50c2f357fcd6a059ad53a4cccf10"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "47133008e6f2107a4e808b4cf1295a1eeb5c8d27dd66b42888491cc6e2abddaa"
+        },
+        {
+          "command": "next-round",
+          "state": "8492725ebcdc2386ccb5dfeebf0c4bf3c3d08a1c9053304e143e3de2f5cc2b4b"
+        },
+        {
+          "command": "roll",
+          "state": "34a909ca5450a51061cba1f2b8c8bcfc15b8f1eda1ceba8c9754ca272ffafd7a"
+        },
+        {
+          "command": "load:kael",
+          "state": "74d13fffb3a890ca749bcc2b0d26bfb871f1604107da1a0833d571a8b771ccb2"
+        },
+        {
+          "command": "act:kael:guard:enemy-8",
+          "state": "37767e609a06d3de0477c6feebe9cff1c30534b1281262e3657e9de4ff7e4ecd"
+        },
+        {
+          "command": "load:eustice",
+          "state": "c2c353e12f3225e944903a57f045c0de6cf85d4f0ad7a2071761db421756bace"
+        },
+        {
+          "command": "act:eustice:attack:enemy-7",
+          "state": "d148c3bc05145602603252461f46b69d8d45a0b04ebc34cb2547e5997a497054"
+        },
+        {
+          "command": "load:elora",
+          "state": "816d6eaa20068c4afcdb4b2bdef9291eec0a2e6c0b70da2229c78f94d0cb47b1"
+        },
+        {
+          "command": "load:kororo",
+          "state": "09443811b5298336784e93c26251297f3f7fbac0f49ba3eea3d5f32b8601ad73"
+        },
+        {
+          "command": "act:kororo:attack:enemy-8",
+          "state": "8e95922ce4e0a2f376b8675ead7e439557ab78d1d74ca7c4e6f74a1b88235d57"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "c6a3424ee119907e61ba96036ddeb932efdbd6a50f87f6298d0b2a250b1cfdc5"
+        },
+        {
+          "command": "next-round",
+          "state": "a21309f5df63636d5e09b99161b89491e523fbc1cc1bf72f1bbff7414aa92de6"
+        },
+        {
+          "command": "roll",
+          "state": "9a3b8cad7ba1e3a73bb595ea2df07ca3644df61841ab621083b28ee9f9c71939"
+        },
+        {
+          "command": "load:eustice",
+          "state": "33e9801b3e262677e9651714321e1bc40ce90187f21c524123ff7d29e5e348ed"
+        },
+        {
+          "command": "act:eustice:attack:enemy-9",
+          "state": "050ca573dd53248f84ad9dfc7200952916b5479b5ce5e7f2bd9d35ef70fc8f12"
+        },
+        {
+          "command": "load:elora",
+          "state": "6900c995bf3c7f00b7df12e78d076fdf35dde0028b7c4f3be909eca86339f1d2"
+        },
+        {
+          "command": "act:elora:heal:eustice",
+          "state": "43764942d2a73c06fc90c8a1f6fbe3f9e0fd2912c5f0fd315928c51c293ba610"
+        },
+        {
+          "command": "load:kororo",
+          "state": "e08a53fa45a9393285cdf4bae4a6fba8006891c9abccd2904909c7cfba25a864"
+        },
+        {
+          "command": "act:kororo:attack:enemy-9",
+          "state": "f7f2da45f8ea77bd05511ecc3f7edff5b054d5beb2a60b3f0e7a396366f42fee"
+        },
+        {
+          "command": "load:norma",
+          "state": "b9ae857cb7bde3fd2af8ca214dc48a576f4fcda4be7396fea5e367b7623b5953"
+        },
+        {
+          "command": "act:norma:guard:enemy-10",
+          "state": "046baa4cfb826a5b23a3dedc84b2a8445af2567b8b0e9182206751483374c1d7"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "81aa184fe9cb9acb44ed219f3582769408c155a90c55b9cf0ea07076109d704a"
+        },
+        {
+          "command": "next-round",
+          "state": "8a9968d95da880b4810fbeb07aee10b52b73c8310febfada42935c4caabc7123"
+        },
+        {
+          "command": "roll",
+          "state": "8f88a458daf87d264ced85658e8f63d27828260f6d5f560ed5c0918443e25302"
+        },
+        {
+          "command": "load:eustice",
+          "state": "a68cf11f991e2f84ddb7b0ab1020f3d6c2e6fd4e28e0963e7ad83a3e6fd6fc94"
+        },
+        {
+          "command": "act:eustice:attack:enemy-10",
+          "state": "f023a8b7b39db41754ca9f79d0c501629b6a03e7993c4d29019956f6bf5088a2"
+        },
+        {
+          "command": "load:elora",
+          "state": "fd685de3159c6714322b4d8de64c13f6c6664b0690d2226b8ea94e30e2bb9fa4"
+        },
+        {
+          "command": "act:elora:heal:kororo",
+          "state": "852a1a04c5f8895c0814ded818f18b08764ab16eb574e8f7992d9fee91af89e9"
+        },
+        {
+          "command": "load:kororo",
+          "state": "20a6fadfb6bb1c2ad6a9155ed0462af6030b2fd08483f573754aa4d20fba3ef7"
+        },
+        {
+          "command": "load:norma",
+          "state": "19ec8a58e5cb6907eae645c51c87b6813baf626e076330fff28403b0963548f5"
+        },
+        {
+          "command": "end-turn:layer-cleared",
+          "state": "ef6eb9f315186a768647eff106c0d3f7b906a0e1e281779c8a58f7bc311465bb"
+        },
+        {
+          "command": "go-deeper",
+          "state": "9efb5acf032763e6fac6474dcabacdcfe5a51c67540b3e78171637fd833d3db8"
+        },
+        {
+          "command": "roll",
+          "state": "37e752f1d3ed8d2489b7de97eaa00338d6edbfc6f59b7af3fe4e3368daaabb0b"
+        },
+        {
+          "command": "load:kael",
+          "state": "d53b454b6a924ed606b113df573a1e7e93242696752ebed4262842d5c2a580f4"
+        },
+        {
+          "command": "act:kael:guard:enemy-13",
+          "state": "3bfb8d7db6020c066600edb70ebebc8d9a83b971c88f4e028cf070830a58f5fa"
+        },
+        {
+          "command": "load:eustice",
+          "state": "342c217f5ddc8946d4e74db0d8dc3200d6d60f389676929a8a838eb74ca21460"
+        },
+        {
+          "command": "act:eustice:attack:enemy-11",
+          "state": "18aa7f697de7ce7d6b8111b77be8c777a474f631d0062433f9f41df75c2399c7"
+        },
+        {
+          "command": "load:elora",
+          "state": "fdf56e7870f3e35c121dec8d1bacbb2e0d78d971c3dbef1f832c4075dc7f6cc7"
+        },
+        {
+          "command": "act:elora:heal:kael",
+          "state": "8faae8711d1b73cfe4ff96440ff921143064f029388beed62f4bf87590ce6099"
+        },
+        {
+          "command": "load:kororo",
+          "state": "d92712aac6618d06187b43a483273a499548922f12a0d39b41442e3d50301ed1"
+        },
+        {
+          "command": "act:kororo:attack:enemy-11",
+          "state": "839b246fe3f5bcc016fe8ecccffce9c1d0580914a64202d31578b5155d39c4cf"
+        },
+        {
+          "command": "load:norma",
+          "state": "e9230fa355a13f0f0c4eaf97ecbdb8484c67d4d08def42d655d5d8c0022999ff"
+        },
+        {
+          "command": "act:norma:attack:enemy-12",
+          "state": "0b0c59ba5766e8d443478398bf17c4fbf98a4402efc11595a951588d53d0c36f"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "6c6035e355f8a7f577fa1ddb95d83669226d82e059ebba2460c156bad6a44ee1"
+        },
+        {
+          "command": "next-round",
+          "state": "d894846feb69dab45ba986ff3167b780b3e95c5b52d7afc9be2d405c5d124c13"
+        },
+        {
+          "command": "roll",
+          "state": "4c07181410b9ef1b73da2b918cd66f3495ded6c97055052e4195fb2d966ad002"
+        },
+        {
+          "command": "load:kael",
+          "state": "f6eee1facaa9deba0340ed15426a3202e252e4040c5065c5d7cc34cd2b7e0f50"
+        },
+        {
+          "command": "act:kael:guard:enemy-13",
+          "state": "0af5367ac459bb4e8e6e969d11921d2709526cec0ca7d0597c30e3bed5f9d563"
+        },
+        {
+          "command": "load:eustice",
+          "state": "ff1cf9bf2e0ca85990aa2ab5c8bb39d2310c1bfa0d1f4935432fe6f57952d359"
+        },
+        {
+          "command": "act:eustice:attack:enemy-12",
+          "state": "153ad09090827f224a1ae1c0cd27a8dd2c720bb3bc5b565fa4570b0772812438"
+        },
+        {
+          "command": "load:elora",
+          "state": "be5e407d1089dd957d2c83b4eadccf1272c7cea52f21c692c18f5518890d8ba3"
+        },
+        {
+          "command": "load:kororo",
+          "state": "994947c5f4f47d321aa180932e4cc808c0a10113a584bfe6c138d0d7565c431b"
+        },
+        {
+          "command": "load:norma",
+          "state": "da90f510600b14253ebe0935f0d8d44afa9a289cc3936c2365869e6e4ce6948a"
+        },
+        {
+          "command": "act:norma:attack:enemy-13",
+          "state": "b10f4e66aa29b6bfe366e9d3c44e4b1c29b16374d0c289b50e3cd0ccb19876e2"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "43b2609f8d25c3dd2d20b200a4116714274c1966e5ffa78395e4e7cea4c06afb"
+        },
+        {
+          "command": "next-round",
+          "state": "cc38d790275afe9ca35ac09af62a22905fddbd259ba4a1d2956442b7a9b9516e"
+        },
+        {
+          "command": "roll",
+          "state": "d748cc7bd74dae0672674550741f1649e23a276e62e3fab8185e331ca5f8f59f"
+        },
+        {
+          "command": "load:kael",
+          "state": "7c50be4d874b9d78d4db6f120bc259ff13adcd02028faca52725cf2b493048b9"
+        },
+        {
+          "command": "act:kael:attack:enemy-13",
+          "state": "c64de07cd2e429b237f33422eac35b4cb68de6fe5c23a888e0a6575182265873"
+        },
+        {
+          "command": "load:eustice",
+          "state": "6f3456826b32baae01deebffef0ad3eff6c888854339675e69b3add140dac815"
+        },
+        {
+          "command": "load:elora",
+          "state": "03b4d92e0db4f814d38d56ae754e3592dad9eef91d2c49d73322afb871c65787"
+        },
+        {
+          "command": "act:elora:guard:enemy-14",
+          "state": "2059288f6b4478c766dfcd106ef3966a30b910d26e430bd84a7eabfaf70b9215"
+        },
+        {
+          "command": "load:kororo",
+          "state": "2c13825fc8d8f86bdfd14937ded914f05a1212e3374b69980591be27834c6dfe"
+        },
+        {
+          "command": "act:kororo:attack:enemy-14",
+          "state": "eb5126cd40924b2e9a46367b0675b2c9daaa812eae2a766ffb9e27673d4ea406"
+        },
+        {
+          "command": "load:norma",
+          "state": "a4b0c221719a1c1ea5d47d03f3e5dc1124a9759d1ad9d4bbb313fe47058aaf9d"
+        },
+        {
+          "command": "end-turn:layer-cleared",
+          "state": "ebb02d8bc89ea120d858d56def03dd05c9e4b97b170a741cf52bffd4f7b26b12"
+        },
+        {
+          "command": "go-deeper",
+          "state": "a9f31ff391139ecb93a4473e26f627cdede32abd73607958787e59f108247ac7"
+        },
+        {
+          "command": "roll",
+          "state": "4af58325ed6c01b56085a520634906c75efadf9a96e6377b66c20b31b13b5e31"
+        },
+        {
+          "command": "load:kael",
+          "state": "b7cf63142f520052213ae21e6b54ca351bc5a4c0bb5e9a8d84116cf5a6a2cc73"
+        },
+        {
+          "command": "act:kael:guard:enemy-15",
+          "state": "093ca5a5177bbc3433f2c8c2b23d9e176bb0e865b80cdc9a6060d9c88d9644e1"
+        },
+        {
+          "command": "load:eustice",
+          "state": "da8f75dfed8281d48e5108d2dffc4eb4023a570c7b856d3ccaeb6b4f71d7ffd2"
+        },
+        {
+          "command": "act:eustice:attack:enemy-15",
+          "state": "0ca2d68d68ae1ef029ddfdd722f9ef2f3d75988e87165902a6a0b393e4424e7d"
+        },
+        {
+          "command": "load:elora",
+          "state": "13e234d039221df52af2961b6bf7a600741947fa58b3e5ca68cbac5126768337"
+        },
+        {
+          "command": "act:elora:heal:kael",
+          "state": "fcf70b0bca056bfab414cb0fde32d234615a51fce2b39bdf289937aa765b4a99"
+        },
+        {
+          "command": "load:kororo",
+          "state": "30a8fddbb58afb3ad52875c04eb5e8535e48536ccd80d6970455e5f4477c6219"
+        },
+        {
+          "command": "load:norma",
+          "state": "97f2533742276b70cf334b890c0693e879b0416e0882ff083d9f993a9788a3c3"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "af37c96b28f96ec470043ec5cf7be5f9ac023b57aa85fb9d8ad5059821b20c8a"
+        },
+        {
+          "command": "next-round",
+          "state": "b6588b51c12943f4f8104f17fbd0186e004b3e3c3b2509d2d5bdaa175bee4629"
+        },
+        {
+          "command": "roll",
+          "state": "3c1a9ffd31640cf45005acb52317676e95b6aaf278cae90c7f2da73d1a718f03"
+        },
+        {
+          "command": "load:eustice",
+          "state": "ecc295d20388b47dee0f812bc8e8844dfeffe1b7ad0f639c55a2ac935f803c54"
+        },
+        {
+          "command": "act:eustice:attack:enemy-15",
+          "state": "d275b14ad03eef86d59a5572184ca4a965a35811592f696c7bc4424a8fd1d360"
+        },
+        {
+          "command": "load:norma",
+          "state": "c5a478a1a1943c5f6fb3e445bb7f0b7e005d6906a12da542cd0b149fb51509d5"
+        },
+        {
+          "command": "act:norma:guard:enemy-15",
+          "state": "45cfe3fbacdfc34edcf5c6ee7af0e73c066f5a4110e5db8161b2a4280efad299"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "0293ef518f671febc920f8e4336dfb5fa1852e38a5d4934588c1939b51fd8277"
+        },
+        {
+          "command": "next-round",
+          "state": "6013175f6e120e79a971252214ff27e4ca7b241a997074afb789935620915415"
+        },
+        {
+          "command": "roll",
+          "state": "3deb65a2064cd9050765ff8041dd1e68427405907011c30ea3cc9f74a1d8ae24"
+        },
+        {
+          "command": "load:eustice",
+          "state": "a8f3500a701c40cc2143e7bdcad88d95c8126cd26052da274b664a42cba0168e"
+        },
+        {
+          "command": "act:eustice:attack:enemy-15",
+          "state": "e7431846c7054a0a56531b46bace30cce470d4aef0239cc7796a0e8f96ee02bc"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "11640da98579aaea371c69d7840eeba446681087ccea62ff2e02d8dbaf2553a6"
+        },
+        {
+          "command": "next-round",
+          "state": "e2c3e1b8cf9d5f3731da66ffedf7f2fff593c7d5ed4f5afc7391c929af95e26d"
+        },
+        {
+          "command": "roll",
+          "state": "8bf14edca0cc9feeed2eb1f61c480e41c099611b6e224c0cee8e3b0e2496461b"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "52e502cb3efde575768f84d0f38ac8c67c9d569f11bbb51fe475d8b923c5113f"
+        },
+        {
+          "command": "next-round",
+          "state": "9558ff67175441631ec162c80693179d30f419c14272f955f866934b20c4b654"
+        },
+        {
+          "command": "roll",
+          "state": "17262d818f0a03e92ae64982f6543260836a123c75df196a0f5212e20f7529ee"
+        },
+        {
+          "command": "end-turn:wipe",
+          "state": "8b05d634877022d152f880e155b06dc8f76ecb33fe5ff0a486a95a59f506152a"
+        }
+      ],
+      "terminalSave": "d80292cb30396a7612614bc8cd91d552ffa136440fd781357f823a47c298f742"
+    },
+    {
+      "seed": 29,
+      "steps": [
+        {
+          "command": "create",
+          "state": "ad87a310574fbcc3a76ccb2bffc9f4a341ba911ef37e748f98dbc5e38e8eab72"
+        },
+        {
+          "command": "roll",
+          "state": "207bb393b1b84a90d897390e5fb15fe855f62dcabd44291bb7989988bee2d8cf"
+        },
+        {
+          "command": "load:kael",
+          "state": "3839fda9bfdc1628c09eb9d1b7f89c81c1358baf6cddea898366aa9c32266f60"
+        },
+        {
+          "command": "act:kael:attack:enemy-1",
+          "state": "2454b402d38a9a0d4135edb8cd6835a78c8e29a6bd4987846be497f52d116d48"
+        },
+        {
+          "command": "load:eustice",
+          "state": "79bef0b693eaa5d316060b163c0bb870e3f5058b8574d9103bf928687ff9cc01"
+        },
+        {
+          "command": "act:eustice:attack:enemy-1",
+          "state": "3278d3cb35a3b4e24df3e8cef46e89d7515949813c7ad465778335df81f05cf6"
+        },
+        {
+          "command": "load:elora",
+          "state": "d8190a3abf287e65f70ad76f88255a47e94e14fd6e474864d8897790c6e7aabd"
+        },
+        {
+          "command": "load:kororo",
+          "state": "13d6589ac4e4d2e1c549e1e695cc7a0544c9b40e98bcaa5d2d48062168f2c009"
+        },
+        {
+          "command": "act:kororo:attack:enemy-2",
+          "state": "3efd9687616ed7fb5f31efedeef74dc47598af37e219bdac52b3390e56df3dca"
+        },
+        {
+          "command": "load:norma",
+          "state": "ac171256114e318d8942ed35fdb6498a47153e4c51c1e8d1404ced062e648e05"
+        },
+        {
+          "command": "end-turn:layer-cleared",
+          "state": "d1ab01b86f75a655091fcb52abd90e947123c384ff570f4defadde678fbc2ae4"
+        },
+        {
+          "command": "go-deeper",
+          "state": "45dadef1d84603cfe4c0d5dd0be30ed531d2af7356d59c104f99b264f5065798"
+        },
+        {
+          "command": "roll",
+          "state": "b7b1ec394cb40700222d8b769bc2f7f000c59e2ff99c85c9424e680220a7f61d"
+        },
+        {
+          "command": "load:kael",
+          "state": "cc344aab735c2ccb72577296e87af8dbc0dede07c29fac38f3e3fd2e9900c14f"
+        },
+        {
+          "command": "act:kael:guard:enemy-3",
+          "state": "1899f91db37c74171cf7f170e7880b89779e7f6a4220af21223c964d863a972b"
+        },
+        {
+          "command": "load:eustice",
+          "state": "85a5789c88d6e10573c205f3e9cbb874d88ae8e04056919ce8b7dbaf63abc4d7"
+        },
+        {
+          "command": "act:eustice:attack:enemy-3",
+          "state": "de124ec1ba910bb56260a498b43e4b0d9a70ab6d4a3fdb82d1fffbdb3c5ff351"
+        },
+        {
+          "command": "load:elora",
+          "state": "8775edb464d0dca0aac7dcf218aa946280656dcd6f795ac9058d1ec3d9855c5d"
+        },
+        {
+          "command": "load:kororo",
+          "state": "73b0e11b9f62dfad544514f382df583d6dd9d7376b04129e850dd755c1a166fe"
+        },
+        {
+          "command": "load:norma",
+          "state": "0e0c093f979bc62a282fa4ac8fe0a4419b4e253621ae937d590c13f0e435fa4b"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "1572ecc9780493561fbd18de5725b53f2553b18b1268e4574de6612deb387ad7"
+        },
+        {
+          "command": "next-round",
+          "state": "2aa3bf442a8c0e90cec33f8555ce22e7b62978a8cacc5dce818b17c80ff3ec3b"
+        },
+        {
+          "command": "roll",
+          "state": "7acd8ee2bf80fcb79842a309c4b7ac6ceea5aae8bb2af968359b7fa6aa9e7fc0"
+        },
+        {
+          "command": "load:eustice",
+          "state": "7d46f80aaa350e1e513ea4a25ae7d25b9e5de154359684a83da258766a8ae982"
+        },
+        {
+          "command": "act:eustice:attack:enemy-3",
+          "state": "c5471f3579dfc5e26f64afa65712d200fd455d31b03d7ced310dda131f7899cd"
+        },
+        {
+          "command": "load:elora",
+          "state": "b64a5d47ae8a04acd494d0420a50ae10eeab5484dc2e8bdc15ed3b9efe9f196e"
+        },
+        {
+          "command": "load:kororo",
+          "state": "229db671b2c51f76a19d91b5f38816f1bcb92d7e7e1e819bf605fd629bb81298"
+        },
+        {
+          "command": "load:norma",
+          "state": "3dc9628821b785fcf767010d8cb685c0d3934b62ed0ce95551d81f56960880e7"
+        },
+        {
+          "command": "act:norma:guard:enemy-3",
+          "state": "1ecd7693929ad67942f92f8081bc67bb2f7742aa45504bc92901659d57274315"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "bf735bf39cb6be0f885c20e9e3f26a69dd4343e14cecf044ccc13a2a681de562"
+        },
+        {
+          "command": "next-round",
+          "state": "82ca156ee8290de0e289cab4b945d3bb90d286579585f07a5b250f22bd7275c1"
+        },
+        {
+          "command": "roll",
+          "state": "388acc3d53624ea92cd1671d373c100308c7fb09cd1068a056e72dfdccfdc67d"
+        },
+        {
+          "command": "load:kael",
+          "state": "13c005e8e4f2282f10e6bffc48fb8dd8c7c2543ec310bfe2a04438e7673c0c23"
+        },
+        {
+          "command": "act:kael:attack:enemy-3",
+          "state": "aefba543d0d52f76f556db6a63eb6b6ebceca650fa7683346876a714e6bfe3c9"
+        },
+        {
+          "command": "load:eustice",
+          "state": "ae462edb7e75a0b6f201806d5caf82555ccf7ed6606287398ef9bafbc13be98a"
+        },
+        {
+          "command": "act:eustice:attack:enemy-4",
+          "state": "1b964b972cc74f5ae65acb5c1dde3f479b11dabe13c9cc187c868545dd920f1d"
+        },
+        {
+          "command": "load:elora",
+          "state": "4b1da7e42cc631227b3b7f4e0e188caab2977b6d37ce9f151a70a557bbf9aee6"
+        },
+        {
+          "command": "act:elora:heal:eustice",
+          "state": "b848445d6179bd8034373940d248df99b52b141b43d96a61d926fa0c27b85daa"
+        },
+        {
+          "command": "load:norma",
+          "state": "ae0b0fc90a3dc4a85485aafb88a7dc889290d7f915bf450c3fc566e6519a0303"
+        },
+        {
+          "command": "end-turn:layer-cleared",
+          "state": "b4fca41bd588cfb1d139e3fd6ad2fab714ff3fbc50397c5c2417a11051199d32"
+        },
+        {
+          "command": "go-deeper",
+          "state": "73eb4fc02b2b3ccec4a06081f531e5e69b63adf19da72e3dae4ec35d5de4b8ad"
+        },
+        {
+          "command": "roll",
+          "state": "9b200dbf84ef9834f03a6d65b0b96960982c956d6a82392e897c4a40965769af"
+        },
+        {
+          "command": "load:kael",
+          "state": "4481805e1eab65008423d2957abb20bf8b43a1ee6db1b3f13f545e5939d0e93a"
+        },
+        {
+          "command": "act:kael:guard:enemy-5",
+          "state": "1496a93ff87142cf6561166c7d59add2419abc49e14757cf55c6e67b71502030"
+        },
+        {
+          "command": "load:eustice",
+          "state": "419e4d613e7226cc9e7eaf0e04ecf0ec7ca1317096145be113d5f7abd345d620"
+        },
+        {
+          "command": "act:eustice:attack:enemy-5",
+          "state": "5e431590958aed8bbe89ca68018ce08420519dc7f277d0134d6bb35e6b433c69"
+        },
+        {
+          "command": "load:elora",
+          "state": "156c82609ed7b479ad01d37e93c9fea8bb211cf95a42640e8b2db875149866a8"
+        },
+        {
+          "command": "act:elora:guard:enemy-5",
+          "state": "4424009e5062659e3aba8778a0d807d972e8e996d27621a5b63102982ea8ebf8"
+        },
+        {
+          "command": "load:kororo",
+          "state": "20734d12c9f3b242e1a9402899c19856508969add9235d3357e260b6b3b0c68f"
+        },
+        {
+          "command": "load:norma",
+          "state": "a75a778f36e8f811efd43341dff92379bb3428d8ce26c30d1adfe92e1e1fd992"
+        },
+        {
+          "command": "act:norma:coin:enemy-5",
+          "state": "20b1de11ca4466f2430a7a790bdf12d10e5040b89580de14531c7e9020f8ca5b"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "2cf883a39f8d8990e1970dbf79b33daac29ca0bceb043e45dea7e3b38fa092d7"
+        },
+        {
+          "command": "next-round",
+          "state": "c52dd0795b0f43a17e8498e62cb56694592694a99ac694fea64e3a7500a80b06"
+        },
+        {
+          "command": "roll",
+          "state": "cccb229a74d7760b5ea78c045ce973ec25c6d69df877713cf87de5d6fe25ee3a"
+        },
+        {
+          "command": "load:kael",
+          "state": "aa3fd4647edfa515ad44a5a7bcc8c5b2c670ace60f5d6cae791d661cb1250348"
+        },
+        {
+          "command": "load:elora",
+          "state": "08e822cce1161b01b17c1df970d103da4cad8776fdc03d448e4d466c132a7390"
+        },
+        {
+          "command": "load:kororo",
+          "state": "6b7d3f4432ba9d3625f8dc87d27b55faad10cff77b621a338033d5ce61171b5f"
+        },
+        {
+          "command": "load:norma",
+          "state": "4884cafe80a29f9e68e6377e36d4a2be5857dcae100f84da61fa2e54d58e89cf"
+        },
+        {
+          "command": "act:norma:coin:enemy-5",
+          "state": "e59d25e89d31bcd2f54f9f9a3cc32ee5877e5c75208c1c4d314b50864dc6a4c2"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "77104550df34f515ed84a79ed37c667e8857d2018747436e3be77dff550e5049"
+        },
+        {
+          "command": "next-round",
+          "state": "a2c130bb063c5d5470d6a5a2271dc071fd7b492e04f22e82ef60a2c9a9b1c3b7"
+        },
+        {
+          "command": "roll",
+          "state": "43013cb6b4fa57bc29699fe4c100740f1355e1c76f49a6d009cbb77119a03fb0"
+        },
+        {
+          "command": "load:kael",
+          "state": "f73941e27fe60f3f6d7eb2a97ca6a06ddd11a2c7bbf50d5f707aa8bcb309859a"
+        },
+        {
+          "command": "act:kael:guard:enemy-5",
+          "state": "bdce1a7f4bd4f2de05092f03aa09c8d528fefc48dcb528d9360e685af9fd0f7e"
+        },
+        {
+          "command": "load:eustice",
+          "state": "a9bafe200d501c2ecd094a30a3f5f5c7ff2a2e00e4db6f972b3b998449452730"
+        },
+        {
+          "command": "act:eustice:attack:enemy-5",
+          "state": "ed4e20442395a199e713b1114ef495710b7740aad9a0bd434c881b7aded91dd8"
+        },
+        {
+          "command": "load:elora",
+          "state": "889cd915f427fbefe4ba6b890565d23681e7ee50f41ee7d9affbbf9cacbaa26e"
+        },
+        {
+          "command": "act:elora:heal:kororo",
+          "state": "c41f9d934436ee8402a886e8e4cd345dce97d2e4d393804822d9ef011f555426"
+        },
+        {
+          "command": "load:norma",
+          "state": "cbda07b6ca74f93270df5bd9cbac6252d897f75abedc645f746fe5b35cc6f45d"
+        },
+        {
+          "command": "act:norma:guard:enemy-8",
+          "state": "ba8a8bf031b011a5e574c4d5b3f2e317050d629379b0e9991db04995ea32019b"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "f6ea1a3c0e22a80b366c6544c2d13503d07b553847baaf751a1a10b4a4f94422"
+        },
+        {
+          "command": "next-round",
+          "state": "f25ba00ae9241f39618233ab7f1ac8bf300f174b53c436d62cb595ff4b1fd158"
+        },
+        {
+          "command": "roll",
+          "state": "73bde81b8d539dd6e5d31d6cd7d7741404a49097c1cf639ef82e756ed1e2c64d"
+        },
+        {
+          "command": "load:kael",
+          "state": "0df423bc32eb0348432f50422398a5dc2063c8dd7deeda821d7d47d3ec4c043a"
+        },
+        {
+          "command": "act:kael:attack:enemy-6",
+          "state": "bc40437a8e64b9d645a0418d22686c94160f9b3a4bdff4a683830826db86a6d4"
+        },
+        {
+          "command": "load:elora",
+          "state": "d8fe8f034a5d37e601da9b1350041b0ccf37f84113250d4b0cb2e028f5f12cb1"
+        },
+        {
+          "command": "act:elora:heal:kororo",
+          "state": "7526c890f76b1b1650ed77df3cb1697d04a90242dd3b6603473ad9fd543ae74b"
+        },
+        {
+          "command": "load:kororo",
+          "state": "c018401dc104125233907fd3b18aa80f902d0753b5fbdf7c955e1e0647237608"
+        },
+        {
+          "command": "load:norma",
+          "state": "684c37849489cea82aa15099ddff4107a3af20d4941c52b669555372a902e7e1"
+        },
+        {
+          "command": "act:norma:attack:enemy-6",
+          "state": "106eed2f56f1c77c7ace1fbf9276f531e5fdf35d24a9756f6f4f6891a94769b4"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "49f2908eef117f5b3bcfb7e1750e9eeee47d5b671bedb1c7688a0f000492e112"
+        },
+        {
+          "command": "next-round",
+          "state": "6bfa98efa3559a31806bed1932cfeef860d723f37cb8539da478181e14ad3177"
+        },
+        {
+          "command": "roll",
+          "state": "efbb3f88aa0f24b82519ed2fc1ed29c7ce3445e0dacf209a6ab47ad2cf6d051f"
+        },
+        {
+          "command": "load:kael",
+          "state": "9fae279226bfca2b7d77bc3f90315778164f2b35b76c314bf5952374d3dcb9f0"
+        },
+        {
+          "command": "act:kael:wild:enemy-7",
+          "state": "b3265de3add5c5587a899eb3db306761af70b17d0a29e6a279c9d32f86c124f1"
+        },
+        {
+          "command": "load:elora",
+          "state": "90e87efab28ee7bb133b38ce97ebf08f010c63a04f948eab616fd9b5cd441532"
+        },
+        {
+          "command": "act:elora:guard:enemy-8",
+          "state": "faa5287fd0b2841508999e1cced43660da2630d101ad6c9b70eb74bb16d9d42d"
+        },
+        {
+          "command": "load:kororo",
+          "state": "28ed2f98e6e215391ecb0d2dc88fd7373a7a7fa42cf0182f158622db6f103692"
+        },
+        {
+          "command": "load:norma",
+          "state": "3244aa180d8a59b3289081f62e8e4f7ca5c40ec093c5b702742954a47b121cb1"
+        },
+        {
+          "command": "act:norma:coin:enemy-7",
+          "state": "2d19f10d1d39c35795cb3a711852a112b5c70a5f3c435515efc54938740475b7"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "24ee890b74a9eeef7429e54e6775b04642a4145a1f4cd6a9e53c3c828b0d1009"
+        },
+        {
+          "command": "next-round",
+          "state": "ec640989db071c9b470fd3b88d62e53e194fb2acd43469148428ff89dbbc54e2"
+        },
+        {
+          "command": "roll",
+          "state": "b623b30e12342fe4ef065f547da9f80f46b703184a83af40e49b20d0898d4148"
+        },
+        {
+          "command": "load:kael",
+          "state": "9a8d5fcf953bb937c5c80ed07aa2b53509458199336da06b32dd34f28f3b2bf0"
+        },
+        {
+          "command": "act:kael:wild:enemy-7",
+          "state": "4c421411e9de4790f31c13ed53e461cdc7f8b425cb7f86428ed4d18c20991a91"
+        },
+        {
+          "command": "load:eustice",
+          "state": "cad3f99d3c6707751403df14e9e5f6b3e799d2ef0a3d4aadaddf0000a011c316"
+        },
+        {
+          "command": "act:eustice:attack:enemy-8",
+          "state": "b20ee76adbe7257cd1a0a89dfef28a1d253a272b746aac3ecc7373e6be55aebd"
+        },
+        {
+          "command": "load:kororo",
+          "state": "3314c2beb8fea532aab695759bf5be880daafc38c4e1690f0038f4ec5b0cb49d"
+        },
+        {
+          "command": "act:kororo:attack:enemy-9",
+          "state": "7d80eb35e68377353a0e3ab19e06e7985ae4d182f93e5b8916422e560684616a"
+        },
+        {
+          "command": "load:norma",
+          "state": "e7d0cc98f4a33a83e4cbcba6ea2db171a0a1798f4c4ed6e172a54515faa4ff95"
+        },
+        {
+          "command": "act:norma:coin:enemy-10",
+          "state": "341ef0f3724ff4eec185c95cabf859adce0faa94d823036d7baaa46bf63d1ae1"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "942122f4a22bca3e2c07c5eea23cdd88e2bf22868281067856b4ec4bdf07cfe8"
+        },
+        {
+          "command": "next-round",
+          "state": "056d0a97865bb7bfa4d5b9db27ad933642df2acf2dca99458b7fff91d2b3c41e"
+        },
+        {
+          "command": "roll",
+          "state": "9df01df314f385500da97d2f8ae5bfacb42b8a027dc4a8dd8032bbf9665b92c6"
+        },
+        {
+          "command": "load:kael",
+          "state": "64dcb4b33dbed4dce9f401207e7272ec26d87bacb5fe07908dac151c2b420d20"
+        },
+        {
+          "command": "act:kael:wild:enemy-10",
+          "state": "be5160779c467f9235c5c376d93ddb6f565f5be7bac0585a596d25615e447d2c"
+        },
+        {
+          "command": "load:eustice",
+          "state": "7d36cf48ee24cf32c528d5436ff8b8c7c52d8ffcff399837b1a2796680bb282a"
+        },
+        {
+          "command": "act:eustice:attack:enemy-10",
+          "state": "a5d5bb44b7f2b0e367322d5927619998d7d86857fc40d5a4c8f5567aece5e1c1"
+        },
+        {
+          "command": "load:elora",
+          "state": "69cff0b0aaaeed4bcc5c7f9043645e980ff8556ef927e4102aa33c3ee15d5b0c"
+        },
+        {
+          "command": "act:elora:heal:eustice",
+          "state": "382a1f7c815c0e5446c676a67caf1b466122eafbf84ddfe0d78c584a4e689b49"
+        },
+        {
+          "command": "load:kororo",
+          "state": "a626a83aeb290b0a6d9453628b3186e90c3b0e05652caa495d75828fd7d39797"
+        },
+        {
+          "command": "load:norma",
+          "state": "5ef9a5e698684be051da94d0b1a5e5a4a721afc2fac5c4bd87dc273dbcb37a3b"
+        },
+        {
+          "command": "end-turn:layer-cleared",
+          "state": "3ad2fb38d9973e2bdbeab8d092fb96f77e48e6265306a4098f2ba5dfa5e1c3b2"
+        },
+        {
+          "command": "go-deeper",
+          "state": "cbb5fb1ddef561d3d9bb0b04dc0b7fc6f6075888d88ee5e7a94da45ee07dc559"
+        },
+        {
+          "command": "roll",
+          "state": "dc26eec5ac9e3965fb4dcbfd074a9076610edbd9d9663148ed6ab161dd503602"
+        },
+        {
+          "command": "load:kael",
+          "state": "007691890b2949d429a5ce613ef8bb70183df514bb3b399dcf1d6e434eb9fe59"
+        },
+        {
+          "command": "act:kael:guard:enemy-13",
+          "state": "3b6bb8069ea69ff9fa1a69bbc4c1dff0e723158a563b8f919450559edb8a171c"
+        },
+        {
+          "command": "load:eustice",
+          "state": "35f4bfe68bc35b107e728949489291efe5343fb68c694697dc43d96e529c02a8"
+        },
+        {
+          "command": "act:eustice:attack:enemy-11",
+          "state": "98f062337c226c885d0b135ed736807d89992a85db65e536f89ad7257c53bc5a"
+        },
+        {
+          "command": "load:elora",
+          "state": "1b00d7d9af0bdbaf1e64fda4a19e71ae13066a5ea0759ff583f825f4101869c3"
+        },
+        {
+          "command": "act:elora:heal:elora",
+          "state": "d66d6347e59aa0d7e5330b4e621e498b09629499f52b09ac4ff8fadf31c1ad90"
+        },
+        {
+          "command": "load:kororo",
+          "state": "d69d088f3debd007b3416b88bd33f3fed90fc96338ea477b685fdb02d6836445"
+        },
+        {
+          "command": "act:kororo:attack:enemy-11",
+          "state": "a8e3f1da8a54815b1acf081a1c4ef132daa0d1301a565101c3e887cabd081eb5"
+        },
+        {
+          "command": "load:norma",
+          "state": "395b5bb198fd531dc3ac6448fec65517fc66d61262c9dde1018878ea15129339"
+        },
+        {
+          "command": "act:norma:coin:enemy-12",
+          "state": "65423f8afac09c1668c5e6beff173a113b8cd79ced4357406d69a961b454ea6a"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "d7a525031e85a377dcfb154f804ad421ca7f87c523de498ddf921fa8a135125c"
+        },
+        {
+          "command": "next-round",
+          "state": "228a4068b66376f4271df652e2c919e92478fa53deb2aa24b117bd3ad5646b14"
+        },
+        {
+          "command": "roll",
+          "state": "7f40edd497f5f0d4acd5c181c15ce95eeac614fd4807ca03488ddd5f836c8a90"
+        },
+        {
+          "command": "load:kael",
+          "state": "8ee0759f4a5a1916e606a902f6a0a50970d2377209b7cc5ad6cf1b6d216b0fd9"
+        },
+        {
+          "command": "act:kael:guard:enemy-13",
+          "state": "e5d289cf3175e331d3c3e77608c1111c26254134cbfb1b810fa2ca2d8fda3377"
+        },
+        {
+          "command": "load:eustice",
+          "state": "5950350df815ebb916a4722d1dd1f33f77a6bd8cda6a4f2c181e8968a6c89e55"
+        },
+        {
+          "command": "act:eustice:attack:enemy-12",
+          "state": "8abbbd988b96931618da13689f75ed7ed8165bb9008c675679d78efb4daa66ff"
+        },
+        {
+          "command": "load:elora",
+          "state": "3908b5c5f2767843bf951f6f114de071feb555a13c0dea944e75bdf7a195f41d"
+        },
+        {
+          "command": "act:elora:heal:elora",
+          "state": "f957759797f51d1d0e445628207be10984408df0d48a9cafacce443bd374bc42"
+        },
+        {
+          "command": "load:kororo",
+          "state": "df45a6c680c562467a219c598eac3c4a9f258160e069e241e7e4608838cb36f4"
+        },
+        {
+          "command": "load:norma",
+          "state": "6118237e4d853e416f50022f76ccf9b5afc0c1243169165806769cefbc1741c1"
+        },
+        {
+          "command": "act:norma:guard:enemy-13",
+          "state": "47ae85749326144f42c23bc2490c59b8593542f13d1fc696939ba7a7f737fef7"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "009baf33300cc7aaeafc97b98b27a618ac4321b1043891d4f4715bedf7ac296f"
+        },
+        {
+          "command": "next-round",
+          "state": "6055d65263df51fb0a1f4a1f7b003ab7d1b42c7c9fbaf61423b009f9df303686"
+        },
+        {
+          "command": "roll",
+          "state": "3b766327822de1f897713fc547e35ef64d95270e93f837a0b7c052de27cf850d"
+        },
+        {
+          "command": "load:kael",
+          "state": "0aab25378d3a6d25f75076a56e42893ed1cdead276150c7d47c826ed06d9d2bb"
+        },
+        {
+          "command": "act:kael:heal:kael",
+          "state": "0a17e4ff998ab8c60b9e89aaf083b9df09dc99a949f2b99de29102c5c3ee1381"
+        },
+        {
+          "command": "load:eustice",
+          "state": "a2653e3f1cf773d955f57adf99c4f1776a7b4b637e4b953c5f902c4ee935c970"
+        },
+        {
+          "command": "load:elora",
+          "state": "21cf7d450b455b78949f3dff47be44450738d353feec3c22a89356d3b59774e1"
+        },
+        {
+          "command": "act:elora:guard:enemy-13",
+          "state": "ea4102565a61fa9f0414433e8210bcd2fc264917182b6219bc35ca914a73c26b"
+        },
+        {
+          "command": "load:kororo",
+          "state": "f6a1bdb11d61badabab94b3793e01033a64797f75c0675f35c2290695bfe63d2"
+        },
+        {
+          "command": "act:kororo:attack:enemy-12",
+          "state": "b15c4b37cd668aedb5a0965540d7e745b93bc8e9d5379e3de076c2feb02dc0de"
+        },
+        {
+          "command": "load:norma",
+          "state": "66e58602e6be19d14f17cd578dfe726d1907a024ba0c0daf169bce721d3f7b4c"
+        },
+        {
+          "command": "act:norma:guard:enemy-13",
+          "state": "5ee47e26b2e6c3f15e94c0a5f23a218c104ef3e19a5f11c81667be92c7e63bde"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "27bf7fed82ed6a6da1f57efcfea18b9e6de95bfc21e48f988bcea3da5d72952b"
+        },
+        {
+          "command": "next-round",
+          "state": "026ef108c2dd535a3b2e830750f3ee0ed2eed3f92aa4baacf92998d68e5c33f6"
+        },
+        {
+          "command": "roll",
+          "state": "fa64f0826fb0d674d298bdea711574f87e0234cf2575d1268d46919fb9cd5937"
+        },
+        {
+          "command": "load:kael",
+          "state": "2ad444335aa08a7a6a3fb8e1057a695c46d12373eb75f7a6a5d9d34e0ec6cf41"
+        },
+        {
+          "command": "act:kael:heal:elora",
+          "state": "2129489b42b6e4cd8a3373d778afdea147b575d7c870881e37e7efdb76b3180e"
+        },
+        {
+          "command": "load:eustice",
+          "state": "1219c871823305d4a3d18549cca5fed126e99a1b4c2803a8e071e5777a67b7cd"
+        },
+        {
+          "command": "load:elora",
+          "state": "80ab6d97f6ff6dd405ba870d77ceda763212697d23de51adf946fbd80f7f0e85"
+        },
+        {
+          "command": "act:elora:heal:norma",
+          "state": "5912ce93e4ba53512502923cb5975140bdeb7bed4701b56875c7ae5ca716d704"
+        },
+        {
+          "command": "load:kororo",
+          "state": "aceddf2525b47ae534795afd2a8856c96a89099478040965a2b6e03b9595494f"
+        },
+        {
+          "command": "act:kororo:attack:enemy-13",
+          "state": "a23ad537a1d3e429c9a0d82ec6bc30f9f3ca019abf939fe2d03d14406d4c34f5"
+        },
+        {
+          "command": "load:norma",
+          "state": "36bb4225af9a93bb35efcc50f527f037abc9b09e193d98072443c644ab2df3bb"
+        },
+        {
+          "command": "act:norma:guard:enemy-14",
+          "state": "719e100b307a48f946d6690f87c7db1cd78cafb129f482045b930c295ccc7277"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "936a38b6ae94b994d21898321924cbb5ca546bf88456e5421f4879d3bba73b6f"
+        },
+        {
+          "command": "next-round",
+          "state": "a842c33c9be9f41130df56ad293ae26009903d9c3f37f2fe9ec6f45373e5bb86"
+        },
+        {
+          "command": "roll",
+          "state": "96c18d7eb898db5b6bf042062ee65a48de75ed3d60c6bae61ae42d53e2f9b22b"
+        },
+        {
+          "command": "load:kael",
+          "state": "8d6e76bbc2fa0cf9a8fb86dbe492cee4716c79afc96eab846449c890c46d287c"
+        },
+        {
+          "command": "act:kael:guard:enemy-14",
+          "state": "802ef5ab29815f84d82c15846106197b814164f44d81ea9d52bc3868cae28c11"
+        },
+        {
+          "command": "load:eustice",
+          "state": "7479a5539984c4f96286d63dcacb8d3fb758a76e5d70aa0ed2c489a10c79aeb0"
+        },
+        {
+          "command": "act:eustice:attack:enemy-14",
+          "state": "e13a3b02136df9c04b7a32f0adb84b06ad633f5cf5c994b1ac77b243cca866ad"
+        },
+        {
+          "command": "load:elora",
+          "state": "9f62f8dbb0a31e1cf7188375f1472ff19e2de0ca14801c8fad2bea21cc7a2747"
+        },
+        {
+          "command": "act:elora:guard:enemy-15",
+          "state": "5b2b591844ecbffabc8b0b9272e68ac91bbfec3c2e87c787c0c683514b7248ee"
+        },
+        {
+          "command": "load:kororo",
+          "state": "e2218a258fd1d92ff0bb94e73462692e4520a3073c31dcfce4e8e1221763558b"
+        },
+        {
+          "command": "load:norma",
+          "state": "3bb81c46c2b49b06149fc8426d98ef191c0080d6b3d914143e03b4f9af9bf84b"
+        },
+        {
+          "command": "act:norma:coin:enemy-15",
+          "state": "94952a822888d870a8fc651cf88a80abda7494b7d2028804d1f2ca1ca2811cb7"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "f2a9960e5396fa6d6f985d5a744257dbedc9898b5aa9f6c9d644f800e395d0c1"
+        },
+        {
+          "command": "next-round",
+          "state": "2e7c5701b2aaff86342359f90a125e4bc8e09d02cb7bd9665f889184814b2f32"
+        },
+        {
+          "command": "roll",
+          "state": "9eb6412e1a8cbc82f4df4b1d8cf6ac71eb73555a5b025ee91bfe59fbf9b54a5c"
+        },
+        {
+          "command": "load:kael",
+          "state": "29b3959babbb6b09980400af8050240975bfce5cdd2fd6464704c0e01d47f252"
+        },
+        {
+          "command": "act:kael:wild:enemy-15",
+          "state": "c8a533668589bcab51c9d73b7f1b84d0c256b056f2c4338e359203dc92dfd700"
+        },
+        {
+          "command": "load:eustice",
+          "state": "d9697a698004150ffeefc37c561890d154937d635444771a2db021ad0e500c37"
+        },
+        {
+          "command": "act:eustice:guard:enemy-15",
+          "state": "2883a73ed9045d8415e4cec9ce772f7c658298e572d1a1b8e9e8254f90373637"
+        },
+        {
+          "command": "load:elora",
+          "state": "ea862e416e9c54f02df658a466ca423e243971a4326d32fb18343896f8ba8b63"
+        },
+        {
+          "command": "act:elora:heal:norma",
+          "state": "da943beeb0c467fb2481684192b0f4a8a1aa381c63f1252551773c18cc6b49e0"
+        },
+        {
+          "command": "load:kororo",
+          "state": "383b3d3bb005112014f9b4bb969ecf3532c8c14c6b92910d44e687e977cf5791"
+        },
+        {
+          "command": "load:norma",
+          "state": "ca7ddad39cba44df2a01d3004c50255fd5d7caffdd01647f20d713889fe94828"
+        },
+        {
+          "command": "act:norma:coin:enemy-15",
+          "state": "c9ecea94cc45922c06bbabfa0705c6313014bdfe70ddd322c460020e64a5264a"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "bcac6650fe96f006246b6d1110f3fa0be544fe49a06fd22888fdf3d0556c592b"
+        },
+        {
+          "command": "next-round",
+          "state": "7cf986d87d4b8ed75deee7f0e052cd0a20c0f302092cd1754128af9b11395350"
+        },
+        {
+          "command": "roll",
+          "state": "d4631789b10bac097e3f34ce4863c9c5252c99dbdb01d97ac5777c69ea2ddcd6"
+        },
+        {
+          "command": "load:kael",
+          "state": "a28d2064d2802359455c8cd9dbfccbb5393e7636aaf8e042f61047bae5e22006"
+        },
+        {
+          "command": "act:kael:guard:enemy-15",
+          "state": "07e20bed2f9cb5c3d45245fc97a832e074b9c060c7d4b84940498445cb96e59c"
+        },
+        {
+          "command": "load:eustice",
+          "state": "7281e55671c980c3d2ccd44e9ea77b48ed48dd9ad145a2933535ef3963fdda30"
+        },
+        {
+          "command": "load:elora",
+          "state": "3e2b040365b7d8bb593c60d7272520b5d1d7d33ea781b7eaa27f0d5b31776c97"
+        },
+        {
+          "command": "act:elora:heal:kael",
+          "state": "0956c10b7cedec50f1ec1b7130c09ec571e62d1f9ebeddc6b5a038096e3ce488"
+        },
+        {
+          "command": "load:kororo",
+          "state": "ea716a687699ed5fa6c77d3669bb8020a6e198f00d991cd94b136ba76beeaae7"
+        },
+        {
+          "command": "act:kororo:attack:enemy-15",
+          "state": "037d55f7eb562f8398f4c27ecbc973639ab77c67968752d16b9c204a96dc3487"
+        },
+        {
+          "command": "load:norma",
+          "state": "5c4997363b82045e9567c4afae23635a4ab8c654b6bab1d015a8cead64dfee7a"
+        },
+        {
+          "command": "end-turn:layer-cleared",
+          "state": "42f2e256ede13475b3181c348e6614d87623d0554e9520b4c8d3f1d1370b8c46"
+        },
+        {
+          "command": "go-deeper",
+          "state": "9118a7d469b416160a0ad2c4ee2494e2bf84f090bb7b340b3f339f163f8d4bf4"
+        },
+        {
+          "command": "roll",
+          "state": "6bed8fd929f9eef047d9a05e0bbeba1cf1b3481ce54092ebad2e0c9a49ac2029"
+        },
+        {
+          "command": "load:kael",
+          "state": "0655b4c140ec08418a71e8e9d747189e6cb6aa12dd6f70b26c2e0532cfeee78b"
+        },
+        {
+          "command": "act:kael:attack:enemy-16",
+          "state": "7e779c8774dcb067778e2c505608dfa2211dbdab7a2ada38af14907d0eeabeee"
+        },
+        {
+          "command": "load:eustice",
+          "state": "0eb7aae09c992bc688be69f4b226845d862df9a45fdad273592c3e556f90f947"
+        },
+        {
+          "command": "act:eustice:attack:enemy-16",
+          "state": "e9b214494ad96a0f1c2a7eb3702705f77be86a5359f31c12c5db2d983e891f49"
+        },
+        {
+          "command": "load:elora",
+          "state": "155ad69051daae7197b6581e8815ffad24fa86f1827a85e740b59d74400f0018"
+        },
+        {
+          "command": "act:elora:guard:enemy-16",
+          "state": "050f6e1e831a245c6163cf1bb85a3e547be2419bb06d6ddd8d5c9e3749e1e3fa"
+        },
+        {
+          "command": "load:kororo",
+          "state": "8cb19a34a62ac1f32ce3bff342242661ffffe371fb84ff897fcb2b24a8cf41c0"
+        },
+        {
+          "command": "load:norma",
+          "state": "7ff7ce1d330ee0ccd2ca31421686a7492d11e8fdc8536edf11a6aeed0b4533a0"
+        },
+        {
+          "command": "act:norma:guard:enemy-16",
+          "state": "b1b8468d1e3e5d661647a2496f5ab2dc225bb71b333972a1b93471ca6f83a66d"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "a86090ed99b9e6f9ec7af244151caf50cb3c3ddd9dd09a98c36e87ac4d2e27ce"
+        },
+        {
+          "command": "next-round",
+          "state": "ea6b271f5b9bf220668bbfb04b229ede3dc99bc46241400f3596f8dfacde4df6"
+        },
+        {
+          "command": "roll",
+          "state": "2fa2c4fdddce9913737be63b41a41383b01310f2a148e996b7bf6196493af67d"
+        },
+        {
+          "command": "load:kael",
+          "state": "7d31e5fce7d9a72d8b4e695bbac38e79f441bb150751357d6b6048702475ea80"
+        },
+        {
+          "command": "act:kael:wild:enemy-16",
+          "state": "bdc717d4841641bb634faa72be68dceca2afb3d4884c380bcff65b7c2b477685"
+        },
+        {
+          "command": "load:elora",
+          "state": "0e99e65327d05f9143b35015ad62a340293c2846ffc7ea218b4cf65217c45bdf"
+        },
+        {
+          "command": "act:elora:heal:elora",
+          "state": "00afe4096ad9bf5b424463dbb41cf5d90367b4145fb4c9365edf54f1063d450a"
+        },
+        {
+          "command": "load:kororo",
+          "state": "f9d63b7d7b30e7bfb008c6af6fe8f28366429dc7f433e21ef1e28621f93446aa"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "47129feeab5fd0e62f5b946f430cd7f3005c9126b0c78061b8c992b17709238e"
+        },
+        {
+          "command": "next-round",
+          "state": "213189033a4fbfd01285a7a3b726423ae6c3a0fb6dd8d0f28f15f77f78e12435"
+        },
+        {
+          "command": "roll",
+          "state": "51693533b060f120f34aca269ae2b53f1442d8ab085d86191bee25c8f864453c"
+        },
+        {
+          "command": "load:elora",
+          "state": "ba8a6c2228c124ca6bb47c94e3b73a75cf22a13fb5fbe883d4f0edb816a355ad"
+        },
+        {
+          "command": "act:elora:heal:norma",
+          "state": "e98170655b671fdbc55e0e21d5913f53177a5bbcc2888080e022361f4e390c6b"
+        },
+        {
+          "command": "load:norma",
+          "state": "37e6bed727482d0f8706340334820c66dd8e6564a9c0e4042475aa6c1d30ee0e"
+        },
+        {
+          "command": "act:norma:coin:enemy-16",
+          "state": "b286ba668ae29a7efabc38aae204739e8e36adbbd2034df86f3ccece42c677f6"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "f1e02720dbc4c8725c2c3646a89dd45021f07fd237ebf92e1755565d2d8ecbf3"
+        },
+        {
+          "command": "next-round",
+          "state": "2ca24f73e5debe84064a54f38d96104eb292be1df0fa3cfc257795b9428523ac"
+        },
+        {
+          "command": "roll",
+          "state": "06b8528f28efc705cd027c12bae3075740736af8ae175e8dc8477e79e98bc156"
+        },
+        {
+          "command": "end-turn:wipe",
+          "state": "cc30ff8f72a9eb321267dcb6128227fee858d55e564426a0fb6bca1651b47f2f"
+        }
+      ],
+      "terminalSave": "f7c008a6776a14b32fa99050e314c41b5406abc05a3f899eccdb7c218aa5128e"
+    },
+    {
+      "seed": 47,
+      "steps": [
+        {
+          "command": "create",
+          "state": "2742c98e0056e8d9239043c517dd6ee59453917359af0c78ea53878e8457f6d3"
+        },
+        {
+          "command": "roll",
+          "state": "2a46a2d3e01cd920c7f564acb9181fdf4e510b9b9ff3a60e1a82083a58da9a2f"
+        },
+        {
+          "command": "load:kael",
+          "state": "cfba180efa0994277095ae15b4ae0cb5c67bcc2cee195d594d9cbbf6212852eb"
+        },
+        {
+          "command": "act:kael:guard:enemy-1",
+          "state": "7d28182c241ab86ff483dacd0910e3bf48d63ea326a0df42f284283e290f928e"
+        },
+        {
+          "command": "load:eustice",
+          "state": "d0d262d1fc7c8b830508007b8494e7d8818a8d22a1e352552169421af39fd55a"
+        },
+        {
+          "command": "act:eustice:attack:enemy-1",
+          "state": "4f51f072a99a6575f02c95957104f5fd95859dfda5d05e786cbfe36ac84b1996"
+        },
+        {
+          "command": "load:elora",
+          "state": "a22f0e4cc378307a94c80349d17581778ac4862510d733dea3667a77a90c7934"
+        },
+        {
+          "command": "load:kororo",
+          "state": "5be5a49ff3948bcd29884fc27db6fec5f6628c3fc58e70ccf57da33482460b19"
+        },
+        {
+          "command": "load:norma",
+          "state": "3dcce63cd652cef502431ce798c0b153c10c1b67417bed4d5838c510bfecfa58"
+        },
+        {
+          "command": "act:norma:guard:enemy-2",
+          "state": "0c78c43dd84887080d7feb2f677daf921c4892fadaa6154b34116aff823d40ee"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "135ab382788413a497e45450a408f01f5cb49b723bf456f3379770cde360caf2"
+        },
+        {
+          "command": "next-round",
+          "state": "bb5c5f28f2b5732be7344ab43b76ec427acfc91ac48edf6450354a86b4270779"
+        },
+        {
+          "command": "roll",
+          "state": "79ceade373df61a7b614f026099219865299fa8190bb2a41e51d19c6219ffc77"
+        },
+        {
+          "command": "load:kael",
+          "state": "096d97a70da39d2955f1f82a092a5ca5ea22b091844a2d42290b03df4a48f7cd"
+        },
+        {
+          "command": "act:kael:attack:enemy-2",
+          "state": "9a117f7473631f982c6ed9bce3b2c2dc57e485a8d315a9d8cda60ffceb0453f1"
+        },
+        {
+          "command": "load:eustice",
+          "state": "86eb858ad7d4b295e6d82f236bda19702e56916917052deb30e3070fa4db0991"
+        },
+        {
+          "command": "act:eustice:attack:enemy-2",
+          "state": "a18bb002e52f9da3c76bd582e2b931e6a26d5f1b93432a6fa5989319105ec83c"
+        },
+        {
+          "command": "load:elora",
+          "state": "0d31fb2f27de9c8602b7360d35f16f563df3006cc8246a9550151ffd95a11652"
+        },
+        {
+          "command": "load:kororo",
+          "state": "b86d1abad185b93786a0716cfad0918adcf536dcc36b2ce2969682fd719f5ad6"
+        },
+        {
+          "command": "load:norma",
+          "state": "4d5c58da71811aad1b54b2a9b72c023ca4be746442fc291c84321ad3208c7f71"
+        },
+        {
+          "command": "end-turn:layer-cleared",
+          "state": "c52522b73b2a789c948c88e77ba1915177848be3937cc229c25026cce6fa3fca"
+        },
+        {
+          "command": "go-deeper",
+          "state": "5dd82644bc6a222cb96274c4cb2af87f42afcccb4e84f33819866572e5b3c3a8"
+        },
+        {
+          "command": "roll",
+          "state": "3a279013a4cce617b218f3105493d110166ed7db45d3e0f95ac658fb2c830635"
+        },
+        {
+          "command": "load:kael",
+          "state": "87f3d6553ccfa063bb5b4438e5d0f9b92fe8e02ba45b8213bac4d903b0e80f0e"
+        },
+        {
+          "command": "load:eustice",
+          "state": "e79e73ee0abab81a4705367143514969e081ecc2416356e2de77d1dafbd0ecb9"
+        },
+        {
+          "command": "act:eustice:attack:enemy-3",
+          "state": "27783cb180542d7e1aba4c4d6e9f7985f6f4e66858f8c539e2c971f3a8021d69"
+        },
+        {
+          "command": "load:elora",
+          "state": "1f287c99f6a6f31f0b8847158ec8718477de86cabc6a14f03295f60c3d5e9f89"
+        },
+        {
+          "command": "load:kororo",
+          "state": "c2c24d60efb5477c475fded23e9d50138df97fa70b5d6944d61620e4587b53e1"
+        },
+        {
+          "command": "load:norma",
+          "state": "71fec3842bc7c216ab9405daa29535ec78a21e70a378db3ce3c9f8e29fe925fd"
+        },
+        {
+          "command": "act:norma:guard:enemy-3",
+          "state": "dfa0fdea7b967b84576c0c776872ee60505b164a8b1579bd8323f6b057217d10"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "1b63e9729f839e5d78c1a99dd4cbc733df3e483caf7dc85a4b7cf188e3160d5e"
+        },
+        {
+          "command": "next-round",
+          "state": "729fc1f71acdcdcc9ccddd0e6e8307a772bddae2c0e5c3ddee738a04c2fe2ce8"
+        },
+        {
+          "command": "roll",
+          "state": "6afeb086a40b32a49305a636fb742b79f3ba85a49234905f4e3228fcb5a890a7"
+        },
+        {
+          "command": "load:kael",
+          "state": "47394572b8f2b550e4d44fcd8b683a64ec201697b63020ab90ef3b587e970a9b"
+        },
+        {
+          "command": "act:kael:wild:enemy-3",
+          "state": "a7d2997f5a4186d5b1a876c74366f54c1aae723242432527e06fdb36494a1f49"
+        },
+        {
+          "command": "load:eustice",
+          "state": "cffc9164ac1fef3cc935748f560f8011dca5a690790a839f55bab50dd7df6fe1"
+        },
+        {
+          "command": "load:kororo",
+          "state": "b9fdb5e2704ef3c4b806a994f4790b69dcb0b2c01c7d0603a0a6c987bcc2ca79"
+        },
+        {
+          "command": "load:norma",
+          "state": "ef0b426ef8d71986269dbb82cfcf69a5afe1bcf78e2504c2deb7e06627fbca53"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "1036dcf39e7f770405ff3c05f8e3de5d52e1770b3bd2206a8d0273574b1ecfe6"
+        },
+        {
+          "command": "next-round",
+          "state": "02d3c565bcbcbee67949002247f9a2ea12f629ba4860ef52958a333fffbd01ec"
+        },
+        {
+          "command": "roll",
+          "state": "60422717176b95c6ed47674732609caaaa6f8df157c86a5f1e706c58b46194f2"
+        },
+        {
+          "command": "load:kael",
+          "state": "fe829386d12e63fa2e6a2bcf1ad38b9ebce31242155943abf16b3d096aebc6d2"
+        },
+        {
+          "command": "load:eustice",
+          "state": "bc66f169d147d3e535c7396f55279ec030b6d08a8fb8198c5b8b352973def7a8"
+        },
+        {
+          "command": "load:kororo",
+          "state": "f6047731b57b54611f5f83b413093fdf3c911cfb75a3a2623948e863965b922a"
+        },
+        {
+          "command": "act:kororo:attack:enemy-4",
+          "state": "a538f1f80acfba7a02a084fc6d5e113b81ede745b84f6ea0278ac54d8868d458"
+        },
+        {
+          "command": "load:norma",
+          "state": "fdb9eac688c617bfe0c8892ab2e84f4585bd09739c1e61ffa8e374e74fb0ed9e"
+        },
+        {
+          "command": "end-turn:layer-cleared",
+          "state": "5f5336daaf9b1a9a08d9f123f5cba8f3d210d9d9389023ec403eb9f1b7a381a0"
+        },
+        {
+          "command": "go-deeper",
+          "state": "b4bbac373532fe4e9322c76563921bc4508c73a2d53522626b4178a0409933a8"
+        },
+        {
+          "command": "roll",
+          "state": "4bde34838d5c5ef2d5839c579c4c069a5401adcf184df84f594c19e9f1aab326"
+        },
+        {
+          "command": "load:kael",
+          "state": "0cccabb8dd352ea1b3b3753786bbf9c8687c32f753387abeabaab239cd010675"
+        },
+        {
+          "command": "act:kael:attack:enemy-5",
+          "state": "e28045be640ec8dec40f619464f35498e203831f7aaea875475da0dd9150a97f"
+        },
+        {
+          "command": "load:eustice",
+          "state": "3fa18a0255883c8860d4e0473770615843766f88371e4aabb19fd2f405e4d9e2"
+        },
+        {
+          "command": "act:eustice:attack:enemy-5",
+          "state": "b71e3779ea44c865534d44cf3d1a87ee559f60951203393ca8a883fcb6709ef7"
+        },
+        {
+          "command": "load:elora",
+          "state": "ab5e88ee7ecea6239783a8083f19e5d11e2b95137a6bece13d2c4ee3b0bf4400"
+        },
+        {
+          "command": "load:kororo",
+          "state": "313c53823f78f3163f13e7bc65eeb539f5b7b2f49cd2a0bc143b24cea11ea74d"
+        },
+        {
+          "command": "act:kororo:attack:enemy-6",
+          "state": "fc2aa05aba66d55b6a1e61bd0fb91bce76620d0ef2bb2ad60edfbe5e1a3f3b7e"
+        },
+        {
+          "command": "load:norma",
+          "state": "de8015683a6491741ac09df715336acf3e0c58f590df5a18f287edc8a5050ce4"
+        },
+        {
+          "command": "act:norma:coin:enemy-7",
+          "state": "42b7aea30b184c9a16d903ce80ab21aab68e98f6f78b60ea5d50fcd5380633ee"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "e844a9144571d479b2776aff299bfecf381e7df029e1db51c6449f448a23a5f6"
+        },
+        {
+          "command": "next-round",
+          "state": "a875d5e85f2a628b4480ae1f9b80afdfa7facc6a97899b82445caf49e88ed95e"
+        },
+        {
+          "command": "roll",
+          "state": "6fbb5a7731f47ffdb909ce20c5b63a5aab2df259df5ff65f9e43be9de8e9a822"
+        },
+        {
+          "command": "load:eustice",
+          "state": "624491d14910104957fbfe49cb6b15aad1b8fe8764350f0abb1890b03a58a8af"
+        },
+        {
+          "command": "act:eustice:attack:enemy-7",
+          "state": "cab10fa3683a800b2bceb376c9f902899c4924a4a875c4cfccfe5b56ce9ed88d"
+        },
+        {
+          "command": "load:elora",
+          "state": "2914e77aa35340b1f273617e40158e49ce1cfb709136257d3f6ec3fa818d71c9"
+        },
+        {
+          "command": "load:kororo",
+          "state": "21a7c53d98fceac6adc238b6b3565b47c39f83877d548563c43e4f038afaa728"
+        },
+        {
+          "command": "load:norma",
+          "state": "5953ac618cee01ef4690743be8052ec65bc5b88a94e1ea085a7fa69ecb519c47"
+        },
+        {
+          "command": "end-turn:layer-cleared",
+          "state": "a77cb594b26d04b62fe3d323bbb2f9b30c9857957984e86a4da7814ae74a4947"
+        },
+        {
+          "command": "go-deeper",
+          "state": "c2919fdb09a7c3267614c5f1de767f598cffb1c383a81fbe657e802689e4439f"
+        },
+        {
+          "command": "roll",
+          "state": "7bbda757f3eb3d551a14f27f94cd6113163690a33adb9511e5f4ae0c01dc6482"
+        },
+        {
+          "command": "load:kael",
+          "state": "84c77364a8bfbc0d4876a3a8ecfb50121881fa3f888eef4e2846a551bbe20b0a"
+        },
+        {
+          "command": "act:kael:guard:enemy-10",
+          "state": "e0d5a05992daa3b61a1f984c26970295d92eb4c51fada57d5351cf198434310e"
+        },
+        {
+          "command": "load:eustice",
+          "state": "b10b90dd8a493092be148d274f51e3471aec8e67da9b19e2bf381daa65ed6db0"
+        },
+        {
+          "command": "act:eustice:guard:enemy-10",
+          "state": "e8758e5f63e2b07949fb1443915480b14f6524d53b062220b6a8a51a3624ade2"
+        },
+        {
+          "command": "load:elora",
+          "state": "085f09d024b8558992ae6dc82b573a45cdbfdec004f63dd6ee172e38586757a2"
+        },
+        {
+          "command": "act:elora:guard:enemy-10",
+          "state": "f64bb53a09628a294310c90b7e2ede7e5db11a0ce1687a870d65f0c77fabdc73"
+        },
+        {
+          "command": "load:kororo",
+          "state": "ba03cc1a3422d1d9d8d9713e09bd0bf2f33b6ebd2b9df9a14d6d4cf8169fad68"
+        },
+        {
+          "command": "act:kororo:attack:enemy-8",
+          "state": "343d525629742b8935280eab340101a801534bcf8bb79a9c5bd26e2f69845407"
+        },
+        {
+          "command": "load:norma",
+          "state": "2046ead5c8609ccab802b1d753314a12dda81ad0c6d2bae0991423ec90e99e0e"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "cce5c2e3a81fa56a1a9a6539ccee478b37a200301e7a3bc1ea8b0a441cd51c7e"
+        },
+        {
+          "command": "next-round",
+          "state": "a25d6e0e00fbf9581c41f6d13afcadbd6da5ec74b9581a7324250aa58c663bd9"
+        },
+        {
+          "command": "roll",
+          "state": "21210c05ba3213c5b822574431ee7671a377a9619fd9cfecb7a5d34a57370fda"
+        },
+        {
+          "command": "load:kael",
+          "state": "3a2c65f4f13fabfb61b1de77a718ae1c8bcbec91ef1604594d0d01bab9b50da4"
+        },
+        {
+          "command": "act:kael:guard:enemy-10",
+          "state": "bd881acea84e5f11d3d3400524aac3f40fc4c44395657b5217640226c4512fce"
+        },
+        {
+          "command": "load:eustice",
+          "state": "f0bc6714e6a31f54362227f2d756a10c7e4684bbd402bcf2441e0ae569ccb08c"
+        },
+        {
+          "command": "act:eustice:attack:enemy-9",
+          "state": "b00e90464a350e8b7a1378dd920a4f5f72c058ad280bcd42e78ef20e7683378f"
+        },
+        {
+          "command": "load:elora",
+          "state": "74a2c341c2dc78e9a0966b2ee947debac758eeabb6e4c27aa3b330119daae404"
+        },
+        {
+          "command": "load:kororo",
+          "state": "b3bc00a8fb1514c87016446a940232b06a5087d5e12d36ac588ea6cf6d9343fc"
+        },
+        {
+          "command": "load:norma",
+          "state": "eae103c5d5f71182cf7659b546eead64e48b44dfbdf4753a78c8ddf1c0e3ff45"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "a3a8eb28258f55ffd2400e579fc1efbb4175ca988def39deba16a1f737186167"
+        },
+        {
+          "command": "next-round",
+          "state": "8c3ee03b5fb428db81eb0c580f47e3ea53644dcfe6630ffa9c11a90ec8415b44"
+        },
+        {
+          "command": "roll",
+          "state": "df3c3d01700416aff0d4e704766517e4b4d5ff3559a1b85837d83dbd8182b28e"
+        },
+        {
+          "command": "load:kael",
+          "state": "90b73cc82ad15f7b67d5c1adbcbf461127a7193813cd50900a3b87e6a863f48b"
+        },
+        {
+          "command": "act:kael:attack:enemy-9",
+          "state": "827a180d0a46d638d462d29ba950b8e2bfd67490aa3270c61e2fe3e63e408ce7"
+        },
+        {
+          "command": "load:eustice",
+          "state": "e1bdc89260961ffe7c1a4790b43aef1bd61edb4baf8cd0c5406ffd0231bb0792"
+        },
+        {
+          "command": "act:eustice:attack:enemy-10",
+          "state": "ec364d3c9bd12e574a410283c105853f5ac07644d5dad5c0b47e81855037969b"
+        },
+        {
+          "command": "load:elora",
+          "state": "303379fa2c73e74f8734c7afbaf2bc32d964d9bf3548172b8263d41f154a80e8"
+        },
+        {
+          "command": "act:elora:heal:kael",
+          "state": "53a966ac03ca74cb7c623e0ae3c0cb3b9122bff8a9bc81b377f9bfedb212832e"
+        },
+        {
+          "command": "load:kororo",
+          "state": "d19b79b6aa707a38805a059131ce5310ce355ae619df09cb9752da76cc4956d5"
+        },
+        {
+          "command": "load:norma",
+          "state": "0a1da4617b39e9978488e39470f63d1acac72d0db05362a4b2b5abca17fefb53"
+        },
+        {
+          "command": "act:norma:guard:enemy-10",
+          "state": "90d458275e203e0f225520310a152d5cc1612bd66c98b7f78ffaf86115cd1012"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "af5a58fdc678e06432b3ad07d70eabca06d8cc1daa157c3e1e5b087f3f4f652f"
+        },
+        {
+          "command": "next-round",
+          "state": "a10294c087a24ee22a9b908df1112c20560a0bc6dd77821e401ad09372393c20"
+        },
+        {
+          "command": "roll",
+          "state": "7a294f87480965ae4112dd4b1fb9653e80f1d0589815900547fdb467b248cf53"
+        },
+        {
+          "command": "load:kael",
+          "state": "af018e1d3ea38dc4c8d340fbac8842aa5023ffd68471c0fb65a31057e649d9d4"
+        },
+        {
+          "command": "act:kael:attack:enemy-10",
+          "state": "d531f1a91560706638e0155317e05771a3dfcca75f8d2c3193fc3ae2fdcab8b9"
+        },
+        {
+          "command": "load:eustice",
+          "state": "1ca4521c98c2786a69b32ebaecc63ffa41927c6dd2b5e6601e523101a8fd6999"
+        },
+        {
+          "command": "load:elora",
+          "state": "7a0f17d28dadbf577a13cbc13735c146685c36e307d5949bd8af7fd63a546b1a"
+        },
+        {
+          "command": "act:elora:heal:eustice",
+          "state": "e7697c048e6dbf378f6403918c765f83997f5b94aa25d183d63335064f872033"
+        },
+        {
+          "command": "load:kororo",
+          "state": "b9c97c391962fe32a51ce2da279b13d11458fddbf59f00eeb29fd2694815d5d7"
+        },
+        {
+          "command": "load:norma",
+          "state": "2f43342edfad3ee52ae28a04e2a0957e3927e11ddb38634b83f9ef8f51738cac"
+        },
+        {
+          "command": "act:norma:guard:enemy-11",
+          "state": "610f2f33e6050560773ec7796125b14533ec4470c68ad394d7532eeeb51578e9"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "89831d465a9c65b68ae9fbf03323231c3eea6ebc6645e1f1d996010729c6047c"
+        },
+        {
+          "command": "next-round",
+          "state": "af2327bab15dc7a323c9f5b0b15d62534f8cca26ce3d439816405eba9f1c3e8d"
+        },
+        {
+          "command": "roll",
+          "state": "a3aa28a046f3d09356523957c1c93f29fe26a730de7795dadd44176a4b95310e"
+        },
+        {
+          "command": "load:kael",
+          "state": "40e9bb2559c255dfc30877b3cebd854808c276d061bb6c9cc06d6798359bb55d"
+        },
+        {
+          "command": "act:kael:attack:enemy-11",
+          "state": "804459c01d5dae229546560a23c23dcf90c46e3e6c6bd309410ef50f4b0992ef"
+        },
+        {
+          "command": "load:eustice",
+          "state": "5aa5b7c095a3928405be6c93cfcb8c5fe6db3fb1a197c72b3a6a7c2a6ee15d63"
+        },
+        {
+          "command": "act:eustice:attack:enemy-11",
+          "state": "2dfa87a3f29de2c4d5a672a0fb405ded25f8f6030cdd3582cc65593aad85958c"
+        },
+        {
+          "command": "load:elora",
+          "state": "892d61bd9893014476add9547cf4c4e71d811a92a0f9c098dc96da1517807db1"
+        },
+        {
+          "command": "act:elora:guard:enemy-12",
+          "state": "4a4547a1bd2809f9e088008cb8163765de0128363c134a0ecfcecbc3596a9705"
+        },
+        {
+          "command": "load:kororo",
+          "state": "b7673d5acf372297f58ae04d194924d96e103a7892cdd7041bbe271085231d8f"
+        },
+        {
+          "command": "act:kororo:attack:enemy-12",
+          "state": "487927641a116728d5435157965cb8cbdb8a23ee821524a3881964cca52a86ae"
+        },
+        {
+          "command": "load:norma",
+          "state": "65bcfd6df85e30d16a9926478d9fefef9b10963aacfc215f06dba962f6f86779"
+        },
+        {
+          "command": "end-turn:layer-cleared",
+          "state": "9fdb9e8174382481a1325af40854d09abae226c1ef239c968839618ba37c977a"
+        },
+        {
+          "command": "go-deeper",
+          "state": "64a00b1037fe787bf8c7f62eb963916fc3191a1ba43c764097b5e4f62c50afa2"
+        },
+        {
+          "command": "roll",
+          "state": "a27c8be53a87dfdad4a0bf65f4392ed1cfa32111b35862ecfc4e17266ad150be"
+        },
+        {
+          "command": "load:kael",
+          "state": "389b8d58a945ee5571d9e06f2e9236768c9e74b8c1fccbb8b1cab9a5bbf2aa6d"
+        },
+        {
+          "command": "act:kael:attack:enemy-13",
+          "state": "7a977f9742a13c48fd4eb9ad00c9e87284be9bf55e63c1e8aef36cc90c05655f"
+        },
+        {
+          "command": "load:eustice",
+          "state": "4eec7e9e97ebdc4614776a5ee27ff7cdd8518b2c8d66cee2da9a3be8fbb0a3bb"
+        },
+        {
+          "command": "act:eustice:attack:enemy-13",
+          "state": "8e0baac8e9bedc821330b589627165095e537b59491fa4040cc98a4a3fcf1299"
+        },
+        {
+          "command": "load:elora",
+          "state": "13140c3d0f885e8bfb6a8faa6a24cbcc829936a590850d19fb14c26258e8f22c"
+        },
+        {
+          "command": "load:kororo",
+          "state": "8fb5c2db20928a6b8cb73c65ab0241009aced9001bb9277fc927f6aee5df318c"
+        },
+        {
+          "command": "act:kororo:attack:enemy-13",
+          "state": "82d273cc0ed38efa5988e41a9a38ccd6e4d9620f8542b03326b7102865bff056"
+        },
+        {
+          "command": "load:norma",
+          "state": "b57546372b7528d42242d37b659f6b461eb5e0dbf9ebfeede7160338cae85195"
+        },
+        {
+          "command": "act:norma:attack:enemy-14",
+          "state": "6fdbd2a6d4aabd723c02d5d98ba686a7ed22578895579bee1d881bdd0e77abd2"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "e4ccb3b0df54f6bea9a30eacfbd5887e7d0e79ba2fe00e771bbc219539c4c959"
+        },
+        {
+          "command": "next-round",
+          "state": "78039cbe2ee099f9646da994129fcd0d4e6b83d49e30d49ac209aed89ca7df0a"
+        },
+        {
+          "command": "roll",
+          "state": "2cf367353a37a911eb7874b7d1fdabc69e1624ba677025875418ea22cb2f425d"
+        },
+        {
+          "command": "load:kael",
+          "state": "ab081cfdecea36da4780fd1f56ee8ce8cecf994b46d886109fffb2c3fb223029"
+        },
+        {
+          "command": "act:kael:heal:eustice",
+          "state": "1f29b8ba54cec793550c630aa96f7c39120d5cecfa6c8d0f43bcaefe22fd52dc"
+        },
+        {
+          "command": "load:elora",
+          "state": "38f73b85862e98774c9359546cd9e6d4ea25f1a3ad5977025cd5f1dbb0ed3971"
+        },
+        {
+          "command": "act:elora:heal:elora",
+          "state": "14709b6a7e22bee512f8fd209aa40e62db2b1c521d61f2c9be57d9c623cba0a7"
+        },
+        {
+          "command": "load:kororo",
+          "state": "6d29ae873356bff6d4061dbab8412e873b393f99505707a5f02d543172bada3d"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "252b3cdf50ad97181f9b53fce818d5476b60e382324e1ec608b487201f39c69f"
+        },
+        {
+          "command": "next-round",
+          "state": "b9ea9f52a2d19e1b681975af5b5b3b1ea099b491650be537549d7461045aac82"
+        },
+        {
+          "command": "roll",
+          "state": "27c4a24e23dfef2c2bf0af68d56bf1bf7f31065435c1ac9b7abce43ea17243d4"
+        },
+        {
+          "command": "load:kael",
+          "state": "4da789cb6803bdd9084621a58e7a051881fc2db18cd1cde82273209ff5731ee9"
+        },
+        {
+          "command": "act:kael:heal:kororo",
+          "state": "c26111540fd490d6da6db30530fbc3bd1526a2be30708423dabd2a0c59b6e2e0"
+        },
+        {
+          "command": "load:elora",
+          "state": "1d45c263d4a39737a48e6c64f43a1cf89e90b73afedc4a4faba5627e8713e35a"
+        },
+        {
+          "command": "load:kororo",
+          "state": "75095aa1cb33b3e246226a1f7a6469c560fa8e26386d509223e62a854cf88644"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "0fb1b7e46637d5d928cbf47a827ff625bbea34154f81adb39a5e5f88ea77bf79"
+        },
+        {
+          "command": "next-round",
+          "state": "dbfe36b90c05ad6fc64072bdd9651f5b06c3dff9eb4e4a93cd3ff28c6c47cbf9"
+        },
+        {
+          "command": "roll",
+          "state": "c7cfe14c85209c895b39572ca64cb24f3e28cdc3751fea5af24618540a13f3a0"
+        },
+        {
+          "command": "load:eustice",
+          "state": "7d98da990452508179112c345e790043729000dd7a067ade9aed6af222186619"
+        },
+        {
+          "command": "act:eustice:attack:enemy-14",
+          "state": "d6b1508fedfd8acd59a0364ffc5815ea998e63c22fa1a984f2f1339ecd566906"
+        },
+        {
+          "command": "load:elora",
+          "state": "b18632622676bb4d0e804d24e8f885095f4bb361c6b6bf31792881e162924215"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "d83c546dc0a8e8627460c7a3791a94ab27b99c2901fe6a2a17e3dadfee5d5108"
+        },
+        {
+          "command": "next-round",
+          "state": "8c7ee2b212199567bf1b24d2a22c3e4c3bdc1736777bcffb607c869694a58033"
+        },
+        {
+          "command": "roll",
+          "state": "ff849d6a8c76d5403a197639ab257c8aa0e54d3f2fd03695a52caed6bc101a76"
+        },
+        {
+          "command": "load:eustice",
+          "state": "6865865ef607c59ca73a063f5af7cf7e1ba913809966b4e1f14e439e7165bfaa"
+        },
+        {
+          "command": "act:eustice:guard:enemy-14",
+          "state": "6e2beb190f5330f08e0acc9abee75e717b73ba0945795ecd519a2cc041e1b870"
+        },
+        {
+          "command": "load:elora",
+          "state": "2e22154165d3f4cdda3f045d64ee61bf8c17207550bbf9a441cd1add72c804cb"
+        },
+        {
+          "command": "act:elora:guard:enemy-14",
+          "state": "6b152d33538f74fe553e1bd665614bf8c1dab7d391c301fac2ee278ab87d1226"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "a9ffc1af26f2d50a2901ddeb2236243c9e7b3e2ccb28fe83132d94f76bbc2364"
+        },
+        {
+          "command": "next-round",
+          "state": "8af49bd04ce45fad733fbb63fcb0e4ac6f08745c9545dd0c7bcb3bb4c95b1496"
+        },
+        {
+          "command": "roll",
+          "state": "9938dbb11938f731ff59d1d3cf50640be136c9e785ca497de98ecd4bc1617faa"
+        },
+        {
+          "command": "load:eustice",
+          "state": "1598cc8ed49a3aec25f3c62cbc022fa2eb99ced07e3ca6770d96651f463bf238"
+        },
+        {
+          "command": "act:eustice:attack:enemy-14",
+          "state": "d5b12d69a1fd1f3c46afcd7260ae1357644c0b1e62a5cadeb837d66a05cec1db"
+        },
+        {
+          "command": "load:elora",
+          "state": "247f16b5ce0c7ef934b94885f9639d72833a3d4ecdf7969e17b85d7f38a8cdc7"
+        },
+        {
+          "command": "act:elora:heal:eustice",
+          "state": "52044fbd06f695b8ca2a2df4f1e286cccce3189117a2940f3f79a532e0d9acd7"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "1dd1eabd00f666666ac74c230598e072f5e556ff9ad623328f4f12c14f2cb57c"
+        },
+        {
+          "command": "next-round",
+          "state": "df4874820511f84a74503e9686d49461b72cd69619514f3bc15fdd5183078529"
+        },
+        {
+          "command": "roll",
+          "state": "f930b4b9e25130101512527de0f80c5d9a0f7265b332a7e640717f79bdb76fbc"
+        },
+        {
+          "command": "load:eustice",
+          "state": "9ad14e8a06eacfcf1687e9cf7c7fee9a40b51ea9724fdc03658518bd9914d45d"
+        },
+        {
+          "command": "load:elora",
+          "state": "29c9bfb347e0bc652444898373d45022b281ebe667bedff027d4205904cbb206"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "21cc4fc0390eb7202ec9453dbf01b167ff8403efd61b12c9a57059ee4f29aa58"
+        },
+        {
+          "command": "next-round",
+          "state": "751e3084a4ad918f566a4e16ccaba39f9f27f610b6d50735ebd36918b20b2a90"
+        },
+        {
+          "command": "roll",
+          "state": "d5cf56ccb07bb24d5199548a4152cdc3e19c3db3dfbd30cfd758b5fe8adce91d"
+        },
+        {
+          "command": "load:eustice",
+          "state": "f9173a984ec5af4ad436b39bc81c51b5d9a9c535a7a4f2e5e46cd5569838543f"
+        },
+        {
+          "command": "load:elora",
+          "state": "3f415557a834e304d71cafcf025821504bc0f43655719c429a4b5cbae64f0095"
+        },
+        {
+          "command": "end-turn:layer-cleared",
+          "state": "119650955586245e7a715bf11c66dbd341056cd350ca0d647c39375815843edb"
+        }
+      ],
+      "terminalSave": "3bedfea0c2c7c370ec8a3ccf3b1f0eb325043a16dadcc0b99908a2d8f892a52a"
+    },
+    {
+      "seed": 83,
+      "steps": [
+        {
+          "command": "create",
+          "state": "0d69c5127f00ae16afd28ef664fcecec05858f0e561584c0f792074f4bdc5bc6"
+        },
+        {
+          "command": "roll",
+          "state": "1414a8de2cee590135abb2555831fba7366c7f4de38166fd67308fa39a1b44ef"
+        },
+        {
+          "command": "load:kael",
+          "state": "819487bb7d04ffd010a74338ac663462e3b511128be91eb20fa60558ebe9dd34"
+        },
+        {
+          "command": "act:kael:guard:enemy-1",
+          "state": "dd60e043eb6705301c367efdbcc6af9bfea52dc5605fc8d48a858b23496e9493"
+        },
+        {
+          "command": "load:eustice",
+          "state": "3774008c0c4217f9f8598877bac900796a252eeefeb4e5ae703aa55662390dbf"
+        },
+        {
+          "command": "act:eustice:attack:enemy-1",
+          "state": "b2aee75eb5c42d3d2b23664029d5a292a7dd5a084952819c0685626c8b70b999"
+        },
+        {
+          "command": "load:elora",
+          "state": "a53768a155572b952d7020789a0089e10f618dce225b23e23372014a15812cfa"
+        },
+        {
+          "command": "load:kororo",
+          "state": "99fc76e8ac50e8980c24b86fe1b510fe2f81d578904955b0bfcac4d2d517803e"
+        },
+        {
+          "command": "act:kororo:attack:enemy-2",
+          "state": "0b43a8da3bf3d4ffd518fe74565145433f4331850ec9f9fe09031e28e68fba4d"
+        },
+        {
+          "command": "load:norma",
+          "state": "12cde45a731279975392975e80a8a8d9f70e51d5e5f715986e5f162ff54582be"
+        },
+        {
+          "command": "end-turn:layer-cleared",
+          "state": "990f00668659315b39f66b2550c4ba23298291da37a7a3ba82b1b48c83bf45af"
+        },
+        {
+          "command": "go-deeper",
+          "state": "7ad8b4ffb3e644767901f05e7a15d471709c98462c1d9c8f5f560beef695140f"
+        },
+        {
+          "command": "roll",
+          "state": "284a8117e35372b7c69b0b8f8ff59a18df98cedc80cb767ccdbde7dc093cefbb"
+        },
+        {
+          "command": "load:kael",
+          "state": "994ea4bbce44cdec83fc31b050cda6caa7579b57962f395d9275dea61cb23853"
+        },
+        {
+          "command": "act:kael:guard:enemy-3",
+          "state": "a5eb404471ea2be5236b6a04949d34b5409b949665909fc138b19706da664cf1"
+        },
+        {
+          "command": "load:eustice",
+          "state": "8616f56861ccba457363c39c0e6fc803530d370c716cb94288ce6731044b9b9a"
+        },
+        {
+          "command": "load:elora",
+          "state": "d1c6d183492ce81f15d82c049e39cfd4c8221238ec410a4d2af8e1817b391c1b"
+        },
+        {
+          "command": "load:kororo",
+          "state": "48c50c5bbbfdd32d947d0747c6a18bd0bb9059cdd28602f8b35f758c75e45112"
+        },
+        {
+          "command": "act:kororo:attack:enemy-3",
+          "state": "6c91804cec0b09da594b90f003f2b73a48409c40621d237f913eec90cd05c590"
+        },
+        {
+          "command": "load:norma",
+          "state": "057ac98cb37630b1006f9594e2c56da35db7f8c8f4fde1cd2e7f5d4e0f537684"
+        },
+        {
+          "command": "act:norma:coin:enemy-4",
+          "state": "c3b4b5e3eb2ca873110c4d0d041502c3c37f5329f4d65d022b3784b5c645b174"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "49765dbb85bb6a08786789fac65b06c5bdd7358cbc381e18a6c945ad08007244"
+        },
+        {
+          "command": "next-round",
+          "state": "a6eda24265afeea033c59e388b2cf814ade92109b95b4034adef7f1af130c373"
+        },
+        {
+          "command": "roll",
+          "state": "58e183d24fa3fb6739b223a9c74a829e264335c4ee94a4e2a928e083ba8f291c"
+        },
+        {
+          "command": "load:kael",
+          "state": "d64cf79259540fd8842ca07e21df3353730d2aee6ef8722789ab924599440c51"
+        },
+        {
+          "command": "load:eustice",
+          "state": "718c1d91fb81315299fc0c0d337e83cfbf4639a218b2b835c40efba6c17104d2"
+        },
+        {
+          "command": "act:eustice:attack:enemy-4",
+          "state": "5b36bfe9f6a8351b18911c0f77ab6b1c6933b326be7a0844adc5bd3e9c8beace"
+        },
+        {
+          "command": "load:elora",
+          "state": "f49e51f82a9d5237c05ec1ae38b6d60f255a035bd246145ab3cd423f814c6e0e"
+        },
+        {
+          "command": "load:kororo",
+          "state": "8ad8d464c79fa6dae2b03a32ce615665a7fae639cb4928e80b3bd737fad6ccff"
+        },
+        {
+          "command": "end-turn:layer-cleared",
+          "state": "b9bfb71e4693c7eda50c56a2b4801ba1c89db7ae4209596d5f72454cb88ceffb"
+        },
+        {
+          "command": "go-deeper",
+          "state": "baf81cfbc1537c9e487a5480d2b113ff3556dbd344fc03b70907243d64a5a9b6"
+        },
+        {
+          "command": "roll",
+          "state": "1dc491618dcf8172fa8fb1ea9546586241f04edb9a56164ead3eb44108817153"
+        },
+        {
+          "command": "load:kael",
+          "state": "a8efa76037530eb858c285ca1e271a0751b527bdf26590e495b4663d79733423"
+        },
+        {
+          "command": "act:kael:attack:enemy-5",
+          "state": "4ea70bcb5c6a59580d0af78e2d54a088d334c29f8791daa00708d100a1ace825"
+        },
+        {
+          "command": "load:eustice",
+          "state": "780aaeae1cb95e7dea9fd2ad1a14e604b4bac8e4026e9a12e9dbe55c0de2d513"
+        },
+        {
+          "command": "act:eustice:attack:enemy-5",
+          "state": "279b4d5be08039c44c8a5f5dc408052d8e5ab0e68aac6163d92e077c98caeb08"
+        },
+        {
+          "command": "load:elora",
+          "state": "bb1eea0f53211170926412b578ca62c8d3ba3fcf04f705a340b097afaf5d9e00"
+        },
+        {
+          "command": "load:kororo",
+          "state": "ee5e2341cb5133bafae643041a6986559d2453319164dcf498c64a503d94c490"
+        },
+        {
+          "command": "act:kororo:attack:enemy-6",
+          "state": "7c56ede1302a6e595eafa2fe58fa208fff2c5d4d18b1f511875fa5205f1b77d0"
+        },
+        {
+          "command": "load:norma",
+          "state": "2a1229c04936e2fe0b34f898f4c45c75265ef01f1b5d7f67b024fd0314f40ecf"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "d8ace165eb617a2d92f5643f823983516cce4e9f521013a8a446a44ce3a588b9"
+        },
+        {
+          "command": "next-round",
+          "state": "c6939cf501ccc0c576a5fed971b73b2d641ce972359bd617b4886b22d3905e9c"
+        },
+        {
+          "command": "roll",
+          "state": "1bc641000e74c295392f3f27699a363733db0dea7d739112520c4548235be179"
+        },
+        {
+          "command": "load:kael",
+          "state": "285748fe27f2558a5151879c573102141739176e2c6738e697ee0c3f1eec7bbe"
+        },
+        {
+          "command": "load:eustice",
+          "state": "f554d8de56dff8646b366a2caebb2bc93610a4017e21b1ce34d157107cb4fcf6"
+        },
+        {
+          "command": "load:elora",
+          "state": "d231bb95900db1179c6eb72031c0833be5f9d63b9aff2f98db6b73e7f84b98fa"
+        },
+        {
+          "command": "load:kororo",
+          "state": "b03a511199bc5c13d1840e483ee7f3159c0d77d8c784c5c1a98a1135ffc918cf"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "92b25376d0faf8049fbfb34c7850ef24252efd8e406020d501d4a6ea84fd8ba5"
+        },
+        {
+          "command": "next-round",
+          "state": "6e744442c6126441d7e5eb125022d5a5cb6f5ab4ac275cd20df88e806949bf2c"
+        },
+        {
+          "command": "roll",
+          "state": "01fddc3125e9aa7f446d7c40316183fbd10a056e6b09798067dff3db0a6d9af8"
+        },
+        {
+          "command": "load:kael",
+          "state": "47ecad03d677297d879d27ade07e3ca6d69004b9e3eecb0b88d768ed4d539a0c"
+        },
+        {
+          "command": "act:kael:attack:enemy-7",
+          "state": "83b7b727cbc5472d211d39439bd998b5ae0c6bf1cb4fd497ac02c03b33e3ab21"
+        },
+        {
+          "command": "load:eustice",
+          "state": "6374874a86492844e26d2a7e5bea4d294f4d84388bfdeba623bfd3dc8c95a762"
+        },
+        {
+          "command": "load:elora",
+          "state": "bd1c8bc757a4152161b6d1c389702160465d485eabc86ea559087adb9a29b636"
+        },
+        {
+          "command": "load:kororo",
+          "state": "19a023921d64117ba78bce8702cebca967946916e67c924eb4a7559cf7ec8e46"
+        },
+        {
+          "command": "act:kororo:attack:enemy-7",
+          "state": "596d1acd22b0c08907c1f3359c1699cb133b0d4471d34e321897e57be84eac48"
+        },
+        {
+          "command": "end-turn:layer-cleared",
+          "state": "702774c92e53b003493b1b46549bf97dea42393d23066d5b80bd8aaf69a9a455"
+        },
+        {
+          "command": "go-deeper",
+          "state": "13f189c93d85759bab3cd14dec575a4aac46d922a4e973249a7ecf81c1b149fe"
+        },
+        {
+          "command": "roll",
+          "state": "46663c0b2f0cfb0f1c41271e84aa085e284109a01bf6d808450f7413f5a2b777"
+        },
+        {
+          "command": "load:kael",
+          "state": "c8b4aa0fe9a98190d9a696d44c8225a74eb52c9383292496e849646b42cf8a33"
+        },
+        {
+          "command": "act:kael:guard:enemy-10",
+          "state": "cf2eb8c850b6f52bb35e77dc56c5e52a5f6a6c42003887872c3c27660bda8939"
+        },
+        {
+          "command": "load:eustice",
+          "state": "6fa9882c3d6d38d592e0803954dbfb6e7dcb90abf6d7eafeb793d5c195b01e95"
+        },
+        {
+          "command": "act:eustice:attack:enemy-8",
+          "state": "c6057daa58f26da5a5b676c5126de7cba3fae720a572ef2922d6c09d15bf4995"
+        },
+        {
+          "command": "load:elora",
+          "state": "58cb832300483048daa57c587357981048d94de923288140dc8f666710b6fe4c"
+        },
+        {
+          "command": "load:kororo",
+          "state": "9d159987cde2dedde2160264e0d2469f8606bcbc3f8bc40124ab7a45bb89df31"
+        },
+        {
+          "command": "act:kororo:attack:enemy-8",
+          "state": "bc62d2bcff4f1d30d8736aae7a11e69f9a9e70ab7737e832c216b5260fd4c8b1"
+        },
+        {
+          "command": "load:norma",
+          "state": "e42c8ca85f9db6757009e2653ee22b5a49ec5bc421abc7e972affd1faca54ab7"
+        },
+        {
+          "command": "act:norma:coin:enemy-9",
+          "state": "20a01e28af9cb65dfdbff5d900a15526daf57daf94f0764d15a0852e2b74b355"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "e482def480109e5231fe5f5ae98f930055ac38728f61cfd55bc7005621cd40ff"
+        },
+        {
+          "command": "next-round",
+          "state": "e185c1b6bd99fd0502caa921651e5a224c0aeb6cd9aedf97f852bf21049c2811"
+        },
+        {
+          "command": "roll",
+          "state": "aeb53cb9134fe8af1bbccc41a27654e02350132c4fcadb17037ebd6b880e07b7"
+        },
+        {
+          "command": "load:kael",
+          "state": "e452019592bea1cc8e3f805dc52df204d90a19d53255aaf27c23eb3c10a9d379"
+        },
+        {
+          "command": "act:kael:heal:norma",
+          "state": "3e529eba27d2149ebc4c8117d1329c024e2290526edb08571b72dc893cf4f056"
+        },
+        {
+          "command": "load:eustice",
+          "state": "22f7db4a5c55d0ca2892059cc8e5f05491f1309f936bc360e7f0e87a298568c2"
+        },
+        {
+          "command": "act:eustice:attack:enemy-9",
+          "state": "07dd0cdab29c3a83d3eff1f098c15777f293502f822d1939ac44c27c5073a0d1"
+        },
+        {
+          "command": "load:elora",
+          "state": "0a7ca01b9b8c5711346613133769fb1b0d087390b7d4fff25ad22b5a403b42f1"
+        },
+        {
+          "command": "load:kororo",
+          "state": "eccfe22fe36405dcb5cfd455b892ba3d6f507b59748a85639a194d80baa07058"
+        },
+        {
+          "command": "load:norma",
+          "state": "ba8b16b609c27be180c7136727a2165c3d8f8c3963b685675a3ab4d215e8981a"
+        },
+        {
+          "command": "act:norma:coin:enemy-9",
+          "state": "fcf31fdaa045ee798ba46f7a20b1a38accdba22f14d7cd7c3af8792682ad27c6"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "840b9301bf6dfcc7dab3c2419b3464423c5c81c77acba0a51651a7e12b49f217"
+        },
+        {
+          "command": "next-round",
+          "state": "2292036e0d17a1d477b668869d8c83537cfc38d539184cd61f76d4dd243c285b"
+        },
+        {
+          "command": "roll",
+          "state": "827b30bb20d2b168ac274ce97d7c03b9e694aa0c7b42e8f680f698d1bc6fb52f"
+        },
+        {
+          "command": "load:kael",
+          "state": "d7b7f90bd9871d924dc184d041dbd4861dd29ec884009fcde0554927c1463ef9"
+        },
+        {
+          "command": "act:kael:guard:enemy-10",
+          "state": "fdcbdb5e47c856616df3b22e7587a2c9fb59174d7347b8452f5113ddbea9a98d"
+        },
+        {
+          "command": "load:eustice",
+          "state": "c22ba20c745e3b4925fc4c7c3690a5db63eaacd601a1bf59558e68aa0cd1694b"
+        },
+        {
+          "command": "act:eustice:attack:enemy-9",
+          "state": "501a81c42849662987ebe9ba867d0d2280c150ebb63396616e9bcb2fdb4eba5e"
+        },
+        {
+          "command": "load:elora",
+          "state": "37e17e1da2b56b1c14756e3e12c2bf94e9ec71a8b3457da5f489ee834473258d"
+        },
+        {
+          "command": "act:elora:heal:norma",
+          "state": "20c2632073b3fba3f1784b88743b668cf5c124a8288edabf9a4ad01d48b3d741"
+        },
+        {
+          "command": "load:kororo",
+          "state": "eb1bfd25be85915d44e8ae2c29e0080174e5efe1055fcc9f82ec48d052407afc"
+        },
+        {
+          "command": "act:kororo:attack:enemy-10",
+          "state": "aa57993172b1a3993eee25c41ff5cefaf54ae3b76d1832ccea750161a4751f85"
+        },
+        {
+          "command": "load:norma",
+          "state": "ff52ea90d61e463cc70ddb42399a2562f1821d3da84cac5ac2af63e4e390e8ba"
+        },
+        {
+          "command": "act:norma:coin:enemy-11",
+          "state": "8d8e9ea4d8e7c4b2032ae3eea67f1db3ca4f4ded7785e4468b60371e02b75da5"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "184cf8de4fd404dc2b35f0ba33d5ac53df968fb0556ffdc39bc201e48c298b68"
+        },
+        {
+          "command": "next-round",
+          "state": "72b69748ac0c0d70204d1b8e472cd86543b1137828d6f91008d0934e428ac2b9"
+        },
+        {
+          "command": "roll",
+          "state": "0966d76a7f37a421d35e946a35b3dda04e80b59231a5c6233251865a272d0c73"
+        },
+        {
+          "command": "load:kael",
+          "state": "fe9e7216fe019ed8e1dd55619407c51f2f1a5cb38fc156ff79da1b353a03ed73"
+        },
+        {
+          "command": "act:kael:attack:enemy-11",
+          "state": "5f792eca6f7fd3945fbc8e8dfd7ad45bc126b967d59edb0fcedbb4cf055f479e"
+        },
+        {
+          "command": "load:eustice",
+          "state": "20a1f69dfc7141e07ffffd53573c1926a98523e6e8f3210d5a00313db537f96a"
+        },
+        {
+          "command": "act:eustice:attack:enemy-11",
+          "state": "72473cc51aa93c5c112d1e466566c08a0c0d3cc21ce87ac72d86e756f8a076dc"
+        },
+        {
+          "command": "load:elora",
+          "state": "9a27d930c1864f0af489f1900178e6fc47d592be7d5e2bce419ce7144bce8753"
+        },
+        {
+          "command": "act:elora:heal:kael",
+          "state": "51ec07239047fe1847b22cc217b28ac5da31f494d143355ed5986dd4a95ff19a"
+        },
+        {
+          "command": "load:kororo",
+          "state": "53a797589d303cf9b5122a6d331adadf1a73df64efc4c3a51a32ea252cc29acd"
+        },
+        {
+          "command": "load:norma",
+          "state": "7557f0690ccffa9acd62c029420567de2f37978ee15767cf60b0747115abf626"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "7abb1c0dfe3799c40c102aac2b34d5b03f30017b2d5012a626e0de0cf4cf51b1"
+        },
+        {
+          "command": "next-round",
+          "state": "9ff079b93cbf1718bbd45ef3825a69078b5a18d40262f4745c9f0364bcf4d9b0"
+        },
+        {
+          "command": "roll",
+          "state": "4037e187008006f044b38e0b47db3e0f4a5ee12dde30b3aa8bb25d6e513ba984"
+        },
+        {
+          "command": "load:kael",
+          "state": "44337995f1929299fabf2ed0e41c44beac1c39cc81992195611e2287bdc1d07a"
+        },
+        {
+          "command": "act:kael:heal:eustice",
+          "state": "9f45125a93dc0c84f1c1029d433f522c1cdfbc15e62352ac3757173888106246"
+        },
+        {
+          "command": "load:eustice",
+          "state": "284ae616d22e0256d7e19a97df8e0e134cb094b35cdedf3053e08d0fc7eb60a2"
+        },
+        {
+          "command": "load:elora",
+          "state": "1ac3e904efeddb2a2737e4cfb1a11482f15075514c409cd7a6a2332b0799a3e3"
+        },
+        {
+          "command": "act:elora:guard:enemy-12",
+          "state": "55d83d24eb9393c77387afcadc80dc88e248cb8a428b0139d7959095bd80cf36"
+        },
+        {
+          "command": "load:kororo",
+          "state": "d79efc3232269eeba3ef62b681e959706abafc2a45ec65d2257349e604112bcb"
+        },
+        {
+          "command": "act:kororo:attack:enemy-12",
+          "state": "01b5ebf762d138cb1046f4234cd22f7d52b46902de3daf7eac7aa7cc4ae9193b"
+        },
+        {
+          "command": "load:norma",
+          "state": "c4a03a89d4adb0e6fb1d6964c5e1fd65e18590b3798932a7b1991cea4b9d46fd"
+        },
+        {
+          "command": "end-turn:layer-cleared",
+          "state": "4a35337d8fb9a06e077e6ef1972232b43c7268d076148f64afb03cefab84d23e"
+        },
+        {
+          "command": "go-deeper",
+          "state": "f166f73e3b2f74e2786f01d0de51752efb2458de283ffec4e000e7fa90b3a54e"
+        },
+        {
+          "command": "roll",
+          "state": "33108682cf75d3c64d9b8f86a685fa8c60961d119ccdc2ff986ae275bcc56f1e"
+        },
+        {
+          "command": "load:kael",
+          "state": "90777255b53ad3be49a7882fceb7c007aaa11d73755c4dcd25583bb58341f956"
+        },
+        {
+          "command": "act:kael:attack:enemy-13",
+          "state": "4ad141955d9e83e89504fe11c6fbefe76839552a9f4e786c22e1e8982d42c2c3"
+        },
+        {
+          "command": "load:eustice",
+          "state": "6508ea93667a730dfba9d03d8b476c613ecb249cf5929bf12f155ba2a0e512f4"
+        },
+        {
+          "command": "act:eustice:attack:enemy-13",
+          "state": "a4dc94d9b0dac39e1f3db4a4656ef44dfed088232cf57f6c69bcdf8d1662853f"
+        },
+        {
+          "command": "load:elora",
+          "state": "e8d08364d43060a9e9842a3cef35745c2b14d1e142a7c89982f2ba277343741b"
+        },
+        {
+          "command": "act:elora:heal:elora",
+          "state": "dc8491f5d8517fe9a484848adbefb72c177e6e007982e59db8ad3b8a78854e46"
+        },
+        {
+          "command": "load:kororo",
+          "state": "fb01d969df041cb62bac53125d78cf98e6d0dfe27c9878a67832381c068b0633"
+        },
+        {
+          "command": "act:kororo:attack:enemy-13",
+          "state": "96b19fd93422feecce17833567a8f02aaf6ba2815530d9ef6ad4c2866206acb3"
+        },
+        {
+          "command": "load:norma",
+          "state": "0a5089f2ab2e02b2e66518d76678eca9b96885fbdbb3cc21ae6e3e308fce6a1c"
+        },
+        {
+          "command": "act:norma:guard:enemy-14",
+          "state": "b2343ec4a227e32845eba7973370412251a2e00d78aeb9ce4767b44faa1d559a"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "0c559fb0e200baeeafa3e959fd36f675afae472e9c1fae76b62a57e65627f214"
+        },
+        {
+          "command": "next-round",
+          "state": "54a18089e5f239c24d714db9d6ae58743c28e7f2e3899366ac62e2eefcccdcdd"
+        },
+        {
+          "command": "roll",
+          "state": "25d2d9338fa91dfae4394f6344787908f0be96565dc41cfbdae95fbb89b55bb6"
+        },
+        {
+          "command": "load:kael",
+          "state": "894051d09ead295791ee513d9fece1a51d10fe0f7a65256ccd8a7e8cdea06bf3"
+        },
+        {
+          "command": "load:eustice",
+          "state": "685db945da7f0d58d47e117f50d2326de63407b777ef1a53c10f7bb6efa003dc"
+        },
+        {
+          "command": "load:elora",
+          "state": "29e3b2c61c291199b9c3dc0eafc88f3de2cb1a9b957986e4cb7aaf653569ed2d"
+        },
+        {
+          "command": "act:elora:heal:norma",
+          "state": "b49dca0c69c64e96208bbfa2260cc6123950a7c35158154da1199a66a08216ed"
+        },
+        {
+          "command": "load:norma",
+          "state": "19f85fca5488dc8ef444ad4640bbea2383e7719065eb643b42f20d2f3e45b892"
+        },
+        {
+          "command": "act:norma:coin:enemy-14",
+          "state": "b57a161ccff96fd8e7fe404edb4fbe7956816856b050a47e28062deb09d4559f"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "21a6e5d39b0f57d64ef3ef2280c506b43cb08e93c18cc3df5e3825c7d747993a"
+        },
+        {
+          "command": "next-round",
+          "state": "fb31b7e9751f098dd769e2b40a63cde8d4e5842744c7b1b3e39bf9d902f4e559"
+        },
+        {
+          "command": "roll",
+          "state": "81369f90481694d2de8d072062cf6c32cc20232c66913bd2fb44fc88f4f55800"
+        },
+        {
+          "command": "load:kael",
+          "state": "e29e5664db44195c6a5ddfbfe523f520345b85c7408980b53edba5c357b3d828"
+        },
+        {
+          "command": "act:kael:guard:enemy-14",
+          "state": "9370f74428b2db62bf6ebcdee04cc2cb7a839289206dbe4453b1f6eb31a3ca81"
+        },
+        {
+          "command": "load:eustice",
+          "state": "c53539af4e36589ac7f8d7d87cf78fa1de91882b930b753a6f1f8e5b456b23dd"
+        },
+        {
+          "command": "act:eustice:attack:enemy-14",
+          "state": "268682108cf5ad1d1283bb2fedecb673131c32a1bb92bf544856eca4d49338d7"
+        },
+        {
+          "command": "load:elora",
+          "state": "bd7e2f4ef6a221b8c2e196953c234bc4d0a645c7622122017f2a5c8448e1b2c8"
+        },
+        {
+          "command": "act:elora:heal:kororo",
+          "state": "66adf2ed08d76389f287b8fef1bd93f4f809040281d9f54ffa7039e16b17332d"
+        },
+        {
+          "command": "load:norma",
+          "state": "95dd97eddab5cbdf66b6d368fa6c6ded7e1a5458c511cde78374f2e61137024d"
+        },
+        {
+          "command": "act:norma:attack:enemy-14",
+          "state": "bfa7f1a638c36d7b76979348c85f977ed9b7db47b5de1534ab3e10224c450486"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "a64e05246373353ca26678f6825257766278c180c9dce7366222db74543d1a7f"
+        },
+        {
+          "command": "next-round",
+          "state": "68ff4d61a652b113e3b4e2564d81b32d6fafcff14b99b04098fdd686cfa6d4e8"
+        },
+        {
+          "command": "roll",
+          "state": "7648bf74d55239453b1a92b9abd18a25305ea8048ca7b2ee7e749df072a0a11e"
+        },
+        {
+          "command": "load:eustice",
+          "state": "6020fd0e1c68f0a4c4d6f35dc1c037a0871149143787eda0c1ad7dc14fd6b8b0"
+        },
+        {
+          "command": "load:elora",
+          "state": "362d38cd67e7d9eeab99a92b054fd463cfe2da3a17e519d9ea07c28d5c86d8ed"
+        },
+        {
+          "command": "load:kororo",
+          "state": "84e589923250234ea412488e75dece8f17f32e80478a37bd61b18cf1b06aed1e"
+        },
+        {
+          "command": "load:norma",
+          "state": "76d71560ed9320634b4fe1e06a9c13dda054e3606261275a8e24b927d7aaeb66"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "137ac22fb1a0e2e06913c24b69ed6c22d20702244135ec4b45dc47015885c020"
+        },
+        {
+          "command": "next-round",
+          "state": "f7fc84ff46ee4b12840dbcb9ee089b35e68f8ae535d0399da3e7d65e492f9c85"
+        },
+        {
+          "command": "roll",
+          "state": "f7d5042a9cefb0424bc590e47c78e965f33ac375136293735345973c7abc1667"
+        },
+        {
+          "command": "load:kael",
+          "state": "28449a524700fd58021ebcc15c48843477e25f00b09cb02e919d71dd52c7f788"
+        },
+        {
+          "command": "act:kael:attack:enemy-15",
+          "state": "3cc0a556efa2d265caea2ba9c8028f50d59aabbfd51cd619817358bb8d658c0f"
+        },
+        {
+          "command": "load:eustice",
+          "state": "682f1296def0c72fdd1794c6e63e16bba87c401385d9c6fd7a4b963219bbf30d"
+        },
+        {
+          "command": "act:eustice:attack:enemy-15",
+          "state": "f34c80c88b48edc0a92f111200a06551f36c490df0e5424b5115ed9a6f89073f"
+        },
+        {
+          "command": "load:elora",
+          "state": "b53a8b289ad0829ef585e4ad7530d81b30ae5eb1455562b2a6208e512d4a122b"
+        },
+        {
+          "command": "load:kororo",
+          "state": "21a77247ce1687eb6af5df87c121de94210c6e06ce85ffa9dc113661e7267ed3"
+        },
+        {
+          "command": "act:kororo:attack:enemy-15",
+          "state": "2e7e7b923ffc35c9595f4fd14a433f599236122aed8eef7de5d20492c8eac5ba"
+        },
+        {
+          "command": "end-turn:layer-cleared",
+          "state": "495ce8f47c616153a69e146fa28b541864e4d4102815ef451f71494972c6e039"
+        }
+      ],
+      "terminalSave": "7945a8baf9808a3624a9969c75a7f6db4cdc1096a00515202bd32f5d8527145e"
+    },
+    {
+      "seed": 131,
+      "steps": [
+        {
+          "command": "create",
+          "state": "9214dac5ecf77e403e1c2022b15c74a4e65425b103c4f4507f78456f8882e749"
+        },
+        {
+          "command": "roll",
+          "state": "c88278a939545cc14bb0dfb241864e9a2a5b63999ff2999df1838b1ab563e568"
+        },
+        {
+          "command": "load:kael",
+          "state": "f5a1422785a4ceb9dd4cce484c9a3065f588c1281adf354e8543ca444e9d642f"
+        },
+        {
+          "command": "act:kael:attack:enemy-1",
+          "state": "2bca17f64e5be22c72b8eb0de2c8a00bf9169f80979b41990dc061caaee445df"
+        },
+        {
+          "command": "load:eustice",
+          "state": "633ed7dde052b0900cf353bff16ef4b756672dde401f39cda634cabb8339602c"
+        },
+        {
+          "command": "act:eustice:attack:enemy-1",
+          "state": "32b8c454bb22e6d1b61913e8e3b364e7b047a2079e13c3b44178d56a58ed5925"
+        },
+        {
+          "command": "load:elora",
+          "state": "9b12d2a93da298a8d9f7e81c2c570ed703e2afcdf053b7721a507e9470c973f5"
+        },
+        {
+          "command": "act:elora:guard:enemy-2",
+          "state": "5261a5902eb452f92f367bf12766635945f8c0dac1f3e0f1907bde4057819d2d"
+        },
+        {
+          "command": "load:kororo",
+          "state": "3458fa33d4370297bba6cbfad34bd4155b3b0b0c1acf23c90afee7201e1c0097"
+        },
+        {
+          "command": "load:norma",
+          "state": "d9d56fa1679e580e82a8ecba7be3968407971aff083537f027b3a2f60d8ca10e"
+        },
+        {
+          "command": "act:norma:coin:enemy-2",
+          "state": "67610187354a88b5d24a03ec49d19cc81d5293a3e09ee41562ff9f1737f17ccf"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "3efde89298b31ee5b22e5a24fc19eb5be535edb251288a04259b98e3a3f3a7bb"
+        },
+        {
+          "command": "next-round",
+          "state": "4d0bd185fd08ee97a161fc27e46e5a441f504d44bb22e8ce85f941da8aa4ecde"
+        },
+        {
+          "command": "roll",
+          "state": "8a02aaa0626ee5228a443a869e471d45d851b5af7376580e6791e3da7ffdbbcd"
+        },
+        {
+          "command": "load:kael",
+          "state": "300306cdac0422f2e8a8cb213bb728e7dc6110a289affdf377bc92727aa2159c"
+        },
+        {
+          "command": "act:kael:heal:norma",
+          "state": "1086470345a91557bfeaaf4d54173e8ec59e8bf50b71bc190252e303c9db193b"
+        },
+        {
+          "command": "load:eustice",
+          "state": "931c1db3aa18222a90ac9050dd3a0366dbafb195f847f56168ce89806e80a586"
+        },
+        {
+          "command": "act:eustice:attack:enemy-2",
+          "state": "0eca251f18d5bb399f0576f964ad39caf882ce1fc92ab444c3e6d3be3cafd110"
+        },
+        {
+          "command": "load:elora",
+          "state": "ccd1351b3ef684f6e7f63b30ea7295a1415dfc78dbdbda20459cc6a17a2e652b"
+        },
+        {
+          "command": "load:kororo",
+          "state": "954f138ef4346867a1e42fdfef70c40f60362794aa4c6564ed37945b39056096"
+        },
+        {
+          "command": "load:norma",
+          "state": "cdcecd53d2474faf8e14196b428b6ec565705238f961ffae7b4e62ad4941cf57"
+        },
+        {
+          "command": "act:norma:attack:enemy-2",
+          "state": "a918aa9745a6b9f1c30690d9e3827f1b5b6a9d635b8d181ee2fa58cd596181c7"
+        },
+        {
+          "command": "end-turn:layer-cleared",
+          "state": "393acf043e5669c99fab91a6b1322ddeaf72e224e0d319a0d3e72251e0b74444"
+        },
+        {
+          "command": "go-deeper",
+          "state": "bf90e5042fad9dce1cc83a799ff46f9bfa61ecb89358fdf6cbac6cbb1352308a"
+        },
+        {
+          "command": "roll",
+          "state": "4b9d91ab95782a52c8008042f51ac00cc346fba4bcef9e910b2697626a6794d3"
+        },
+        {
+          "command": "load:kael",
+          "state": "adb250b07f7e22582f2cc8ae47566379320744a8410e5ba1c7765e6334c38a80"
+        },
+        {
+          "command": "act:kael:attack:enemy-3",
+          "state": "6ac5a13368e9c0cdd85b9ec9fc0a8893671659302ce6587b80bb74facb323fe3"
+        },
+        {
+          "command": "load:eustice",
+          "state": "94c2267745c62f5c0b3d4738368142d0b722b4c39942d886584d6d7267a7a82d"
+        },
+        {
+          "command": "act:eustice:attack:enemy-3",
+          "state": "fd1074ba122ae9fa6677d66dcb9bf7fe399846c8a1ad448a3c29349fd76f19e3"
+        },
+        {
+          "command": "load:elora",
+          "state": "6f7eab2d0d9e93c9c39d30ba18e0e2ebe21d29ff0a3bc91ddd62fe8b16299ef7"
+        },
+        {
+          "command": "load:kororo",
+          "state": "e36f2b204df8b322fd922afd29d0bf3621eb41fd38923808a055ab557b3bed42"
+        },
+        {
+          "command": "load:norma",
+          "state": "768876ea889a54b5561eb7c642eff9a77219c8cb6a3368345c59b0f95ae89a66"
+        },
+        {
+          "command": "act:norma:coin:enemy-4",
+          "state": "40c10b2f10ce1b758fd1826c20a5b64bd8c6f9da3031c82a85f665ef082c6ad1"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "db16608e9fe4e41222f2e914679b3a259f926f6fe6add5351c05c6a6ba2114c0"
+        },
+        {
+          "command": "next-round",
+          "state": "a67e69a44740388ec6ea32c621bf41a6123e306630b7b7b7b8b8e86326b6c9e0"
+        },
+        {
+          "command": "roll",
+          "state": "5f8dfda80cc5b29d2e4b169d1e0094a2abb8532b930ea8f53588c4f5f131fd53"
+        },
+        {
+          "command": "load:kael",
+          "state": "ffce3193a58feb9f4f5bbb966ce27548b18107c19c5ab83cdfb3a1bfd178f88f"
+        },
+        {
+          "command": "load:eustice",
+          "state": "11613642d200c0634cdb55fff274bce5a82270c048fdd74aa3f72fed7f9bf7ed"
+        },
+        {
+          "command": "act:eustice:attack:enemy-4",
+          "state": "fb7737f5840075a57c035c304dbd12d3d1ffef3a1a78112eedb11cba18ed0af2"
+        },
+        {
+          "command": "load:elora",
+          "state": "a27f1441f6bbfec2b3e0abfb4e490ba7634578cf59225bb9f1f151aee0abfa52"
+        },
+        {
+          "command": "load:kororo",
+          "state": "45622616ed909637219cbc7209b5663b5f6de443f9d023716448bc09da6850b5"
+        },
+        {
+          "command": "load:norma",
+          "state": "99b6e649b2b689a708f8ed84935620648f67336aa8abeb3b931ff8f6160328db"
+        },
+        {
+          "command": "act:norma:coin:enemy-4",
+          "state": "56bbb390a48403fe3b560ede05059f7b3b48c4aa27bd61d4390c5ff3f2c35b9e"
+        },
+        {
+          "command": "end-turn:layer-cleared",
+          "state": "6e900cba396775ea57e730e90a03d0ff00250bf68be2a87ccce90e52e0c8a181"
+        },
+        {
+          "command": "go-deeper",
+          "state": "17695e446a6eefc10a858202550992a3591ee079c93fb7dbaded1e2d0fc8aeb7"
+        },
+        {
+          "command": "roll",
+          "state": "d2c1244ccfca865145fa0fa726addf9ef684c55c6a3c24f4f76aab0f309ed61c"
+        },
+        {
+          "command": "load:kael",
+          "state": "a7d3e6e20307b669dcb728b6e1a5a731c48e1a248c30f5a410b767ef6ce51150"
+        },
+        {
+          "command": "load:eustice",
+          "state": "2be2244ffcc51335dccbfddd5dbafd9b72336fa64ca14dbac21188a1cc4e59ee"
+        },
+        {
+          "command": "act:eustice:guard:enemy-5",
+          "state": "f538bb4ac019fc07f59520242b14deb9eae874ac5d446771f6e350160951d190"
+        },
+        {
+          "command": "load:elora",
+          "state": "ba01f8e261281f6206dee75ac41bf71052b753575b76a95f54dfc05b389d0238"
+        },
+        {
+          "command": "load:kororo",
+          "state": "73e5da96864467cbbb2032c723bb405f5283364d8959a4103cb18769bda217bb"
+        },
+        {
+          "command": "load:norma",
+          "state": "163ee843f3229c32b713e34d70eaa2fa87efd57e3a6341f7c69191943555eafa"
+        },
+        {
+          "command": "act:norma:coin:enemy-5",
+          "state": "79976220575d8de89984ed322f59e5ef5b36815befeb53b15f919ccbd5fce7a8"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "b11b662affb7533f6ed7d0e8234b37cfb538c2e4440c7c54ff2ddfc753d3fb45"
+        },
+        {
+          "command": "next-round",
+          "state": "b9b5f23561a89387ef57755d92fd16287ec12fc26eab9bcb24ed4906fe019df4"
+        },
+        {
+          "command": "roll",
+          "state": "e079b290f8d56fb375ff21a44d2aa79af6aa809572d7f26ecef7774799934c44"
+        },
+        {
+          "command": "load:kael",
+          "state": "75f195c7c838fb704465173f629761811a47dcbe544442136209b62c310c4fb7"
+        },
+        {
+          "command": "act:kael:guard:enemy-5",
+          "state": "912920707e62ee2c32678e93ab6bd150f8cd6518ba5722ee9c3e180e53bc403a"
+        },
+        {
+          "command": "load:eustice",
+          "state": "0f936aba8bdbd3f8478b8157b142e06e6121342918f5fa651de73135a57412e4"
+        },
+        {
+          "command": "act:eustice:guard:enemy-5",
+          "state": "89cd7e3e6d9b386aea88cf5f1d15db305703da37782749883ef378d1e0e83e35"
+        },
+        {
+          "command": "load:elora",
+          "state": "912c07e895a5a06fbc8f7d56e964801b9e671e42c3b86e0f336d8feda4f35f3d"
+        },
+        {
+          "command": "load:kororo",
+          "state": "7e3dc43a0af484969590da2a6564d216d3520c8b032c9efa2075ffea5d834a2e"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "bce62f11826f4a8a4055637681ae43b973bb0d2b73b8b2020c8d22043fde4c16"
+        },
+        {
+          "command": "next-round",
+          "state": "1563e0298731cb565c946aa15557d0b26aeaf4e116780b8b5f90696f60bd9e3b"
+        },
+        {
+          "command": "roll",
+          "state": "b678040ca66eb7830de0a1cf817c6749c6d1e63619c9c46552e7016b31793abc"
+        },
+        {
+          "command": "load:kael",
+          "state": "af0206b178cd852ad634189787a06794c31d26c2eb0eea85752e93a9a33e6059"
+        },
+        {
+          "command": "act:kael:attack:enemy-5",
+          "state": "e09556055ecf9e5c87165a073a3fe52b4e9151511707b9a4afde97aee9dc2769"
+        },
+        {
+          "command": "load:eustice",
+          "state": "afa25af57df3ea1b660c212c6caf0edeed737e5d37a9a0473f98dfd04dbfe3b3"
+        },
+        {
+          "command": "act:eustice:attack:enemy-5",
+          "state": "ad60690614458de2b2637fad82e97ffd5af5ed8c25b5a59534d25a702d969899"
+        },
+        {
+          "command": "load:kororo",
+          "state": "f3be19d126fe9173f4487821e7360946f09b180685d668e13fcfadefddbc2686"
+        },
+        {
+          "command": "act:kororo:attack:enemy-6",
+          "state": "cfbcb587108d6ec7dd484cb9bc87d9e755ae464f3210981cc59a008f14b19de0"
+        },
+        {
+          "command": "load:norma",
+          "state": "2274bc547a248ab24e58e12680fad3144663a2172d92f65f373eb5d23c31b76e"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "094c485791e6db93152ae9b274b2eddc6e0dcabd56322bba02ef5b2e664efcc3"
+        },
+        {
+          "command": "next-round",
+          "state": "2d33bfe391049cbcbb9b56e16155fd831b20571c0a221c216d66ee91a05e31e4"
+        },
+        {
+          "command": "roll",
+          "state": "597e54a7f016b5d21f8c7845161e2212f1bbb3c881108fd0beace811a94cb1c7"
+        },
+        {
+          "command": "load:kael",
+          "state": "25491043adca58f763f547eefe6a23cc848d48ef653137eb01043e90af01e8b4"
+        },
+        {
+          "command": "act:kael:heal:kael",
+          "state": "1a97b8cfe9b32ea6c9f0c5bc6f171deabd20ef0d23b420068c1b0dfbae98c90d"
+        },
+        {
+          "command": "load:elora",
+          "state": "b4ab0869649c0722991bcb201aeac29a9dc7e852e88cf6b599e51596717b7f27"
+        },
+        {
+          "command": "act:elora:heal:elora",
+          "state": "6afb19395b916e2d241e0ba58456230d1bb6f8f0f2e92b6e3931b707de40b1ac"
+        },
+        {
+          "command": "load:kororo",
+          "state": "cdd25ec6616802a28b6259f8ee22dc7a60e5fb3ea2dc7045d46f6a660e1ddafc"
+        },
+        {
+          "command": "load:norma",
+          "state": "2080d42a940123dd29e26aa82e9b8f08ee8195a5b975f4173a4f9ea5a2562c7f"
+        },
+        {
+          "command": "act:norma:coin:enemy-7",
+          "state": "1893cddf1cbd52ca88d450d63fc5297f911471f55d1f437abab45e8476d2af2c"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "7cefec10890eb179174b53d61b48ff880b49dbc77dff1ce137360d94629add29"
+        },
+        {
+          "command": "next-round",
+          "state": "60e145f1ef11070464d2e7c2da214a566441743febcadce23e638fa6529a0735"
+        },
+        {
+          "command": "roll",
+          "state": "26af7bf154227f2be000fc78fa36d57771f14e0c9ca83733303e4944b1508ca4"
+        },
+        {
+          "command": "load:eustice",
+          "state": "c87808faea99a606893c70c99af04d83cee7022b9cd95ebf27a54a681a24508a"
+        },
+        {
+          "command": "act:eustice:attack:enemy-7",
+          "state": "2a8f1fc4bcef859948dfe9690b290069e62da1f51de56c53a8aac62f1e3b75e8"
+        },
+        {
+          "command": "load:elora",
+          "state": "2691a53c5daad91d587925f4296ef8a2eeb46267ff2b77001d3e7c85fc0c4576"
+        },
+        {
+          "command": "act:elora:heal:eustice",
+          "state": "813bc8ae6dba466ce5a10db57c89f809e743f51c03a581c84fdcd42877c6af3f"
+        },
+        {
+          "command": "load:kororo",
+          "state": "7991cfee49321113c5cdd6916477b140fd6335dbeaeb6cd3a0fe877f3a25d082"
+        },
+        {
+          "command": "act:kororo:attack:enemy-8",
+          "state": "bcee21aedc2eab3d41b4213e58f7e29da59a70994ad09c72177c0958254a5ce8"
+        },
+        {
+          "command": "load:norma",
+          "state": "dcf3d4a5015e50a798c87053a8f5b1572645f602295c89d771b64c35bdbec71a"
+        },
+        {
+          "command": "act:norma:guard:enemy-9",
+          "state": "6476cee522f35c90598a00fb31bdc4edc32e217a9229d7e97e9b35c63727f998"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "bd4157d84028bd033f18bb8d260a2419c4fef81e13eee3e1aa8305bfb5b64ee2"
+        },
+        {
+          "command": "next-round",
+          "state": "0a26ecdc89c3108a3edf06819340b554b64dd463769fbd2caf44a944fcf2e7cc"
+        },
+        {
+          "command": "roll",
+          "state": "2768025e80e65cc515a2cc39d4bbe8133b156198992845aeb070696faf0719e6"
+        },
+        {
+          "command": "load:kael",
+          "state": "f2964c5d3135ee51498b355143f26dd2c43d07b5ec9e270b76874e3020d14887"
+        },
+        {
+          "command": "act:kael:heal:kororo",
+          "state": "a6352cfe0c82c8e1d9673d862ab07c5d6ba74262d991f622ae6c8ef1b441a90a"
+        },
+        {
+          "command": "load:eustice",
+          "state": "60d7680486383aa27fb72feca6996fe7c4b65e6f185697bc655e6c6308d7d165"
+        },
+        {
+          "command": "act:eustice:attack:enemy-9",
+          "state": "56f678507141b3517d5d66e56cd65043cee47cf2f15ed3447719d60c064c0fa0"
+        },
+        {
+          "command": "load:elora",
+          "state": "818456d53fa7dacc61431f12dcb89b29efdd0e260a986c0189482ca845231e93"
+        },
+        {
+          "command": "load:kororo",
+          "state": "bf16c057a8c99cb405b95e03b7244c01c048cf71302ef22a393b65ebc9c89fd3"
+        },
+        {
+          "command": "load:norma",
+          "state": "20b086dbd2bdf5576a7bd2fbfc0bb07d9c6561b5caf8a2ac317fcd18ee72babd"
+        },
+        {
+          "command": "end-turn:layer-cleared",
+          "state": "985920a2ecbd252514e716ee75813fa09ce9c3643ffd96a5af69dee50d0c9e19"
+        },
+        {
+          "command": "go-deeper",
+          "state": "ec275043b0fa7262a4f7e142797ff29f80cda4a75233b93f75048de8077261b4"
+        },
+        {
+          "command": "roll",
+          "state": "2e236f268ffa7a3b57c917ee43a2ad529075523dd0074db078364a1af1a2fa88"
+        },
+        {
+          "command": "load:kael",
+          "state": "b9512fa5cbf5fb540436583ca4575029e2695117f4a97464ae357154fcc939bd"
+        },
+        {
+          "command": "act:kael:heal:norma",
+          "state": "b3506f5039feb3f6bce274250d4a8bee5b70d6a0fc2f65d160ffff0538441cd5"
+        },
+        {
+          "command": "load:eustice",
+          "state": "29bb24e0e46976535e36af2635340e936d1f60ea3972d122c758bda84fa00639"
+        },
+        {
+          "command": "act:eustice:attack:enemy-10",
+          "state": "e1dc8dd31876230852fceddd1a229e6bea185ec651e32640b89437af74a845ba"
+        },
+        {
+          "command": "load:elora",
+          "state": "4741ef3bb23d0f3bdb9a2e4b51e1e8c0a72e78c817d7ff0fc706ed2adb47507d"
+        },
+        {
+          "command": "load:kororo",
+          "state": "0b67409b4999a2bc4051f945701a7a1a5e6d24a874d8d765b893003fd8181aa5"
+        },
+        {
+          "command": "load:norma",
+          "state": "dba566b4edc0411e4b678c81b25bfed60144fd3718aee031368170737460c27a"
+        },
+        {
+          "command": "act:norma:guard:enemy-12",
+          "state": "eff75e0543b8fbe81ce55ed71b9922ecd4bcd9ecb69ae8c3febca176c4414c7d"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "68df2be0eee1303edb35acdb976826d57fce6587dff0764bee87cd6773617f9c"
+        },
+        {
+          "command": "next-round",
+          "state": "d6b11ac034a9f3b26c775a47c7aeebfeb0dc65003f730602412ee453334ed307"
+        },
+        {
+          "command": "roll",
+          "state": "223dafeaafaf34418b232f8f015b0b95ff1c205d9ebbbffd1092da36ec714b57"
+        },
+        {
+          "command": "load:kael",
+          "state": "8f831a3ebd0626fb9f3feeb2857680d184ee4397cd84d6c24a7ce9ab0b78c1fe"
+        },
+        {
+          "command": "act:kael:guard:enemy-10",
+          "state": "d31317291b46040b758d1ed5a549758f78db76ce6bebf28b0992ad500819c565"
+        },
+        {
+          "command": "load:eustice",
+          "state": "df68f41b5a912e69a53dd8c64e940fe5ea6d2412b466847b84fd2397e4c62837"
+        },
+        {
+          "command": "act:eustice:attack:enemy-10",
+          "state": "5c2bb7777e58c88ae39816fbab733938a44cd048f83b746d579afdc0b9aeaf38"
+        },
+        {
+          "command": "load:elora",
+          "state": "e58015adb7845e5dc37b2f5b5e5380c96e26c20654a1c4f9895d08022a2419f2"
+        },
+        {
+          "command": "load:kororo",
+          "state": "182c98ff139b385c0bb3b1242c248b7635c60f53c5d54b8ecab85b2dfa256953"
+        },
+        {
+          "command": "load:norma",
+          "state": "0f99d0182d7c59a454f8002ad994cb9def346baab97a58aefa01c249bb1a6e34"
+        },
+        {
+          "command": "act:norma:coin:enemy-10",
+          "state": "f61951ddb6c81d4e9e27f9195da43cac22529447e3d41f065911f3df99f2eaec"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "6a2bad69f2b772cd1793f19fddd6990e01989c55becd477cc57d36ad8e276422"
+        },
+        {
+          "command": "next-round",
+          "state": "e8135f6e5509eec74b923ef11e78ba9584051de06b24e0a1e93e3a826f02876a"
+        },
+        {
+          "command": "roll",
+          "state": "e652e28a296b3b1f76714916df8bcb80e0b60d7a7ce76ca7dd59449f8cda047d"
+        },
+        {
+          "command": "load:eustice",
+          "state": "8abf14b0ae47a3cc8724865c127787d7f88ecd74dd50baf66f9600070fa43923"
+        },
+        {
+          "command": "act:eustice:attack:enemy-10",
+          "state": "ac15d1aeb64cbd0e5b4fbda7a9afe8c7b490aa8d2d876422c7d03345aea59edb"
+        },
+        {
+          "command": "load:elora",
+          "state": "661fa3bd842ac918f402be2f4792b8d8ef028eb3f8082693c4e389769115a803"
+        },
+        {
+          "command": "act:elora:heal:eustice",
+          "state": "c24dc9c84193e04f8e96d229fdc68b95c6771f56c737cc177636d8934799ee57"
+        },
+        {
+          "command": "load:kororo",
+          "state": "65004ad0744fffc92fce7fb2f7c8492dbc9b6096f0924f409935640e42dd4276"
+        },
+        {
+          "command": "act:kororo:attack:enemy-11",
+          "state": "101182e0cdbade913ecde9b03cacf5a91124a81d8edc2015d00267ca92ae4da8"
+        },
+        {
+          "command": "load:norma",
+          "state": "8386d02c637c888f23b238e06fc96ab8d462e87c425471fde99c83abea291ae0"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "a0332a5a5b0673aae6588328bc60a937764c85c275341319201020108231df7c"
+        },
+        {
+          "command": "next-round",
+          "state": "d950ce0f4221b78b72e9992a3fb0c9f632e277048f25fbb222517b1c2b14a927"
+        },
+        {
+          "command": "roll",
+          "state": "00a6114ff52ca1eef6089a8b5de096c80852349c5310c748529f69fd249a919e"
+        },
+        {
+          "command": "load:eustice",
+          "state": "94a87b089b9543a4780136a8d2c77eb7fcaf6531b2383ba86191db3ba85a1570"
+        },
+        {
+          "command": "act:eustice:guard:enemy-12",
+          "state": "8392653f60b88a50e48dc37296d862e9a56931517f1e02ae4d452dce46643ede"
+        },
+        {
+          "command": "load:elora",
+          "state": "74e4e2578e4aa570f918a69ca3fecf04e803b02b1d20c786a81dbf311bba7ab4"
+        },
+        {
+          "command": "act:elora:heal:eustice",
+          "state": "d7b5b1bc7e43c99d57df5fafba079281a15baef64eadf099a38e53be39509ce3"
+        },
+        {
+          "command": "load:kororo",
+          "state": "c9d657c9a4960bafbb55e09cc2261676cae913e8468eb5f9b2ca2d01ad8c9520"
+        },
+        {
+          "command": "act:kororo:attack:enemy-12",
+          "state": "e54c1104dd73447f65f1929f99dae0a6eac3baacfe0df2be23b087731b046552"
+        },
+        {
+          "command": "load:norma",
+          "state": "781a4e4eea14fa74ce93b56e3937907c97328348cf6e814b852ef91249a62d76"
+        },
+        {
+          "command": "act:norma:coin:enemy-13",
+          "state": "df9c2a50f339951b2f0f85bfe56b6126ca92eeeb337463c781f9e657df0d57de"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "77a826aa34ab989fa340db9afabf148c0efe581ba57eaa208269801a80bc7085"
+        },
+        {
+          "command": "next-round",
+          "state": "3494b14fc6cf09976fd3ceba5624ac047e7bf6e79c74459a92f8bd7f55c3fe4b"
+        },
+        {
+          "command": "roll",
+          "state": "d80486359733f2d4265cd76c367efe84774d1e95f8ddda5ac4ae2a08e53c9624"
+        },
+        {
+          "command": "load:eustice",
+          "state": "d2032e6b572338025f49c2f1042a79968ee904cc2b1d817cb50b248c976071ed"
+        },
+        {
+          "command": "act:eustice:guard:enemy-13",
+          "state": "f777bae5df81b63f7425be15b05d0c00bb5aa20f389224f50d1e23fd5ebf9681"
+        },
+        {
+          "command": "load:elora",
+          "state": "713d985aeae275fff1e8c6798dac64fd69c4ee571f3ac3306569caaa375a17b4"
+        },
+        {
+          "command": "act:elora:heal:elora",
+          "state": "e2bcd69ccae011dabb6fc9b6d8f507d2d87774bc1173ba411e3139930698162f"
+        },
+        {
+          "command": "load:kororo",
+          "state": "abb39d58209492fdfc2a22fa6ee10aeed4a9293597da63d14bee7083d4bcb552"
+        },
+        {
+          "command": "load:norma",
+          "state": "4345e42741e559f270d9fb1fd3e302a1042437302f670f4094e53aa96bdd8163"
+        },
+        {
+          "command": "act:norma:coin:enemy-13",
+          "state": "b8c56aa2dfeac0dfb9ec704c3d94916191d0bccedbddc74977861749e822d106"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "1b21298f8458a0ab6047a17d5c6f11e9abf99469f4a3bda23352c1db8b247222"
+        },
+        {
+          "command": "next-round",
+          "state": "863072e4df2b5542ea958d3b01e0bdaad5fdca92f82ce57ae0f708b45a1388e5"
+        },
+        {
+          "command": "roll",
+          "state": "ac3a23cb30a697fcf9d25d82ac10589a7fc91d76ab7cf134c1d629de45b5f1f8"
+        },
+        {
+          "command": "load:eustice",
+          "state": "91e60a931241caeab6002d14071a82843a90fcaf45acfdb0bb3a3d2a2d27aac7"
+        },
+        {
+          "command": "act:eustice:attack:enemy-13",
+          "state": "873ffb67552e226e76a8c708ed34e5c976a98b8c25a50022b7b064c20955b1e2"
+        },
+        {
+          "command": "load:elora",
+          "state": "46d0f9a0c29b6faef93c29564264a07f1aa84d97f42be001b5c337d40acaf4be"
+        },
+        {
+          "command": "act:elora:guard:enemy-14",
+          "state": "699c5ad35cb168543dad9aef5a036c445f2da3dc556fee3a0501e092d080dae0"
+        },
+        {
+          "command": "load:kororo",
+          "state": "15e48c5efb6d2cc0518c78b9f22cde6863bd97a3a05c58ebb201d7c4aff71232"
+        },
+        {
+          "command": "act:kororo:attack:enemy-14",
+          "state": "a7cca1e3ecc46a219d633a7e995fa239a92af25848b53371aa6a2ff4260b6bd2"
+        },
+        {
+          "command": "load:norma",
+          "state": "2fcaea2dea95c338f16f8947a9f8dd6a06d63816375c3db25ff0a6515c022921"
+        },
+        {
+          "command": "end-turn:layer-cleared",
+          "state": "063eb38d92e98f2cad6c0446812f493e23ecf09ec49343ab244feb66f040c509"
+        },
+        {
+          "command": "go-deeper",
+          "state": "c2ee9d0addeca7370eb250ce30751807011f6944eee290cabd35e18f5a9d3c78"
+        },
+        {
+          "command": "roll",
+          "state": "104c6cd028c1a5ea1457d35cdfc62de1157dea6251e87f5161d046768073eaf1"
+        },
+        {
+          "command": "load:kael",
+          "state": "2b07b6d9c7b3335f655116ca71c9f75a27c6754f01aac55e24ddda9300a3f778"
+        },
+        {
+          "command": "act:kael:heal:kael",
+          "state": "08df1b31edfb7b45690eac8aeea747df3bd98d131477e95505d1057e61ed3052"
+        },
+        {
+          "command": "load:eustice",
+          "state": "e89b06c5a8f7dc98e59c1ec0a12a678cca7bc332ccbdc362c5aba9a3a1793332"
+        },
+        {
+          "command": "act:eustice:attack:enemy-15",
+          "state": "7684aa1e25d07daaedc016d4ab73945f0a2cb4928365a9639057274bf67c7d96"
+        },
+        {
+          "command": "load:elora",
+          "state": "a41cad5241ee64c989165249ffa83d469c681d43f4a80e04f0fc2932789b5645"
+        },
+        {
+          "command": "act:elora:heal:kororo",
+          "state": "8d77046813a129da902e34c3177abaaaceb4b31a1f95e588233eef10ccf3b7df"
+        },
+        {
+          "command": "load:kororo",
+          "state": "2290d0ce436e2c0340c85e6f1b82bfbf9f64d25306cc2d525916a5b16669f959"
+        },
+        {
+          "command": "act:kororo:attack:enemy-15",
+          "state": "99615f62570153add94d6d23c16ce2a822d8aa33f80d52bc157d622837f4e541"
+        },
+        {
+          "command": "load:norma",
+          "state": "8606d93173d5559a5e45b56354473a29d9f79e14720713d5c6b5b15b6b822990"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "4a0924b0a1eff5c96c76766e2b0511257489f2618f9151beeb9111f15ba8f9ea"
+        },
+        {
+          "command": "next-round",
+          "state": "01f61c9a46ba3acd09099755098b594e2f4b8ac54baae890242c7fa9db0a087e"
+        },
+        {
+          "command": "roll",
+          "state": "884a6346fcb750d87408fc42e88e77b5970039d8adb61d7bbcde23ae4d9615a9"
+        },
+        {
+          "command": "load:eustice",
+          "state": "c2727ac85971f3441cd0200eb9266d2e467aac04a8a4a6276a3632de2a60b214"
+        },
+        {
+          "command": "load:elora",
+          "state": "81907a038d6f61170218cb81ce1f40fc3b3d4a8b0fc359a1a23b065833de747d"
+        },
+        {
+          "command": "act:elora:heal:norma",
+          "state": "09e94264d7e7c773718b8803d5ef1fd8a91450c66f4261807ccdce72270d40fa"
+        },
+        {
+          "command": "load:norma",
+          "state": "07b8b2ca244f1454befa582ea7f83dfdc44d6559121701163108f6a99a658414"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "c063204caa48c5da0ca788154853c73db7e7f8bbab671131e886d79fbb28c88c"
+        },
+        {
+          "command": "next-round",
+          "state": "90d061d13d47386a1841ca14a8842db7e7e3e1b14ee2a401d9dd7e42052d2ae1"
+        },
+        {
+          "command": "roll",
+          "state": "2d6662badb9bf5c570e79eeb606fe2ec3324dac9f67fe990d60412a517b05ab6"
+        },
+        {
+          "command": "load:eustice",
+          "state": "c3d335466a08524ec3271b3b0b3e3b325f72ba30f4569d4634086384191e298b"
+        },
+        {
+          "command": "load:elora",
+          "state": "f69b6af360d09acb3af5c6060f1632445f941aa112cf6d53b447b6e8d52bfaba"
+        },
+        {
+          "command": "act:elora:guard:enemy-15",
+          "state": "ac0196408f3f39055fd468a79475e42521cff7825b8b68a23fd036086842842f"
+        },
+        {
+          "command": "load:kororo",
+          "state": "cc704cbcc52a5055c0de26628f278e41aa6649b93ae050008dd74d0903c7557e"
+        },
+        {
+          "command": "act:kororo:attack:enemy-15",
+          "state": "902f5238ef712565ae163de64bc9d33267982d76d9ae90f3944942a4a449aca0"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "2117fe3a07bea77ca8a7a38605c0a377ad28f977c11914f528c1a1fb9f04e159"
+        },
+        {
+          "command": "next-round",
+          "state": "3b4d7503726ad9532f1e2c42e1ca64baf14a44912f943ecdf4253976040172d8"
+        },
+        {
+          "command": "roll",
+          "state": "d3639e14b2a8978cca6640eee334962bc89a9b394b47ffaf8bf64ea265b707b4"
+        },
+        {
+          "command": "load:eustice",
+          "state": "6016529ec9f2ce44c89a581b94790eac98b7718c45c9568ac9df8263a56c0fef"
+        },
+        {
+          "command": "act:eustice:attack:enemy-16",
+          "state": "7dbfa6c5199824e678c2e335807133190c6186f635ba99be09fe2cb728e23aaa"
+        },
+        {
+          "command": "load:elora",
+          "state": "4891a84ad3b185ba3a43e99421b909912cd9383c11eced39bb0b8b31c5a2b147"
+        },
+        {
+          "command": "act:elora:heal:eustice",
+          "state": "4a249bcb1515da50a10658365b653b44018f7d50b86fead7b018b3f5bc97d371"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "6781ecb4e5b99d246f513518280fd1c2abc49ac7e7dfaaef1bfac2e8ad89cb8b"
+        },
+        {
+          "command": "next-round",
+          "state": "084d5ce5574afb6b4e055c2e89b005ea1aadc034f186f978e4121c4e9586a348"
+        },
+        {
+          "command": "roll",
+          "state": "391f3d8ccd2589dbdae454ce90e0a31a2cecd3fbf2d7c9ab20e61e34dc2d7e5b"
+        },
+        {
+          "command": "load:eustice",
+          "state": "29e17c921b554f5f170b0601c1696227317b5b3193ec6c070624fef06b37f8a9"
+        },
+        {
+          "command": "act:eustice:attack:enemy-16",
+          "state": "b61278543ff67231284783d8424b6c39bbe8a1e42e4f8ca950e709aca56c7c2f"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "a8c514cb634e055177c05060d2603002bf36556dd8a73c481da085cf13dd1d0b"
+        },
+        {
+          "command": "next-round",
+          "state": "d211ab8253e710e23110fe7e8e0408323620a3b8ce11bfd7e2b224dbdfb83563"
+        },
+        {
+          "command": "roll",
+          "state": "436f7b5506ff68a47f0c30257cc3787a903cf170457b27c55750bd1f5ad77958"
+        },
+        {
+          "command": "load:elora",
+          "state": "90d06c29da8780899927a918c8a6bb8170ebe56fa2f2f93cf65b221e8c0aaf2c"
+        },
+        {
+          "command": "end-turn:continue",
+          "state": "5dd1f35f96c3290573958243e99833fd4732b9654f1e520175ad20b920e53d6b"
+        },
+        {
+          "command": "next-round",
+          "state": "009b97387c22b6b0d7e5d60c688471ce1a9617d51351acbfd3908aba0ef1fdc1"
+        },
+        {
+          "command": "roll",
+          "state": "27428af67f491ebc138f69c2a714b8cff5e8bdc7d5db7382f3b61dfd158d3527"
+        },
+        {
+          "command": "load:elora",
+          "state": "d335fd38cc3028e643f0cfe98e47c98876a422ec4f44e8cfb012110b5cd51a99"
+        },
+        {
+          "command": "end-turn:layer-cleared",
+          "state": "0deabc7f33603c7cc62b8d4ca792147a3906cf224bc1e2252eb104fdecd29eaa"
+        }
+      ],
+      "terminalSave": "73d35686a2929bd943d97021f666b8e8e604750449b65c67934159ca0e9b8c07"
+    }
+  ],
+  "opening": [
+    {
+      "command": {
+        "type": "roll-dice"
+      },
+      "sameInput": false,
+      "transition": "132257cb58445928c4f83a62cc3a54412049d336973a857e8fd28325585f1caf"
+    },
+    {
+      "command": {
+        "type": "begin-enemy-turn"
+      },
+      "sameInput": false,
+      "transition": "86564d01e3e99c1f7d7e40ebfb26ed07236322f8e2902361acb59f2701196d81"
+    },
+    {
+      "command": {
+        "type": "resolve-next-enemy"
+      },
+      "sameInput": false,
+      "transition": "31aed64c90547f16f0f933b22f32c2f204dc6b87c94c0fd8cd517cb641f0095a"
+    }
+  ],
+  "interruptedSave": "{\"schemaVersion\":4,\"rulesVersion\":1,\"contentVersion\":1,\"state\":{\"location\":\"混沌领域\",\"layer\":1,\"deepestLayer\":1,\"round\":1,\"layerStartEnemies\":2,\"lastTossed\":[\"kael\",\"eustice\",\"elora\",\"kororo\",\"norma\"],\"stalledRounds\":0,\"lastEnemyHp\":5,\"gold\":0,\"bagGold\":0,\"handMultiplier\":0.1,\"lastLayerSettlement\":null,\"mode\":{\"type\":\"enemy-turn\",\"enemyOrder\":[\"enemy-1\",\"enemy-2\"],\"cursor\":1,\"closingHand\":{\"name\":\"一对\",\"bonus\":0.1,\"used\":[1,1],\"adjustedBonus\":0.1,\"qualityModifier\":0,\"pips\":[3,6,1,5,1],\"contributors\":[\"elora\",\"norma\"]},\"outcome\":null},\"rerollsRemaining\":2,\"enemySequence\":2,\"party\":[{\"id\":\"kael\",\"hp\":3,\"shield\":0,\"downed\":false,\"rustLevel\":0,\"sealedNext\":false},{\"id\":\"eustice\",\"hp\":2,\"shield\":0,\"downed\":false,\"rustLevel\":0,\"sealedNext\":false},{\"id\":\"elora\",\"hp\":3,\"shield\":0,\"downed\":false,\"rustLevel\":0,\"sealedNext\":false},{\"id\":\"kororo\",\"hp\":3,\"shield\":0,\"downed\":false,\"rustLevel\":0,\"sealedNext\":false},{\"id\":\"norma\",\"hp\":3,\"shield\":0,\"downed\":false,\"rustLevel\":0,\"sealedNext\":false}],\"dice\":[{\"ownerId\":\"kael\",\"faceIndex\":2,\"sealed\":false,\"loaded\":false,\"spent\":false},{\"ownerId\":\"eustice\",\"faceIndex\":5,\"sealed\":false,\"loaded\":false,\"spent\":false},{\"ownerId\":\"elora\",\"faceIndex\":0,\"sealed\":false,\"loaded\":false,\"spent\":false},{\"ownerId\":\"kororo\",\"faceIndex\":4,\"sealed\":false,\"loaded\":false,\"spent\":false},{\"ownerId\":\"norma\",\"faceIndex\":0,\"sealed\":false,\"loaded\":false,\"spent\":false}],\"enemies\":[{\"id\":\"enemy-1\",\"kind\":\"brute\",\"name\":\"畸变魔物\",\"art\":\"amalgam\",\"hp\":2,\"maxHp\":2,\"attack\":1,\"chargeReady\":false,\"countdown\":2,\"intent\":null,\"blocked\":0},{\"id\":\"enemy-2\",\"kind\":\"brute\",\"name\":\"裂隙爪兽\",\"art\":\"sentinel\",\"hp\":3,\"maxHp\":3,\"attack\":2,\"chargeReady\":false,\"countdown\":2,\"intent\":{\"type\":\"attack\",\"targetId\":\"kororo\",\"value\":2,\"title\":\"攻击\",\"description\":\"造成 2 点伤害\"},\"blocked\":0}],\"rng\":{\"combat\":{\"algorithm\":\"mulberry32\",\"seed\":401,\"cursor\":7},\"loot\":{\"algorithm\":\"mulberry32\",\"seed\":60592335,\"cursor\":0},\"flavor\":{\"algorithm\":\"mulberry32\",\"seed\":3392829299,\"cursor\":0}},\"pendingEffects\":[],\"pendingReactions\":[],\"statuses\":[],\"encounterRules\":[],\"loadoutAtStart\":{\"items\":[],\"equipment\":[],\"traits\":[]},\"loadout\":{\"items\":[],\"equipment\":[],\"traits\":[]},\"eventSequence\":16,\"undoStack\":[],\"log\":[{\"round\":0,\"layer\":1,\"tone\":\"gold\",\"text\":\"进入第 1 层，收益倍率 ×1。\"},{\"round\":1,\"layer\":1,\"tone\":\"purple\",\"text\":\"点数构成【一对】，倍率 +0.1，当前累计 ×1.10。\"},{\"round\":1,\"layer\":1,\"tone\":\"bad\",\"text\":\"尤斯缇丝受到 1 点伤害。\"}],\"facts\":[],\"result\":null}}",
+  "resumed": [
+    {
+      "command": {
+        "type": "resolve-next-enemy"
+      },
+      "sameInput": false,
+      "transition": "8306076b7d97d9a4dff4032b8bc9297595fe372e87ec5abc19df1c269ac6893f"
+    },
+    {
+      "command": {
+        "type": "finish-enemy-turn"
+      },
+      "sameInput": false,
+      "transition": "83b9190df1138b6decd506454317a524f2d862c77c74bb9e1b85a1b2237dd8cb"
+    }
+  ],
+  "stealSave": "{\"schemaVersion\":4,\"rulesVersion\":1,\"contentVersion\":1,\"state\":{\"location\":\"混沌领域\",\"layer\":1,\"deepestLayer\":1,\"round\":1,\"layerStartEnemies\":2,\"lastTossed\":[\"kael\",\"eustice\",\"elora\",\"kororo\",\"norma\"],\"stalledRounds\":0,\"lastEnemyHp\":0,\"gold\":0,\"bagGold\":0,\"handMultiplier\":0,\"lastLayerSettlement\":null,\"mode\":{\"type\":\"player-turn\"},\"rerollsRemaining\":2,\"enemySequence\":2,\"party\":[{\"id\":\"kael\",\"hp\":3,\"shield\":0,\"downed\":false,\"rustLevel\":0,\"sealedNext\":false},{\"id\":\"eustice\",\"hp\":3,\"shield\":0,\"downed\":false,\"rustLevel\":0,\"sealedNext\":false},{\"id\":\"elora\",\"hp\":3,\"shield\":0,\"downed\":false,\"rustLevel\":0,\"sealedNext\":false},{\"id\":\"kororo\",\"hp\":3,\"shield\":0,\"downed\":false,\"rustLevel\":0,\"sealedNext\":false},{\"id\":\"norma\",\"hp\":3,\"shield\":0,\"downed\":false,\"rustLevel\":0,\"sealedNext\":false}],\"dice\":[{\"ownerId\":\"kael\",\"faceIndex\":4,\"sealed\":false,\"loaded\":false,\"spent\":false},{\"ownerId\":\"eustice\",\"faceIndex\":5,\"sealed\":false,\"loaded\":false,\"spent\":false},{\"ownerId\":\"elora\",\"faceIndex\":0,\"sealed\":false,\"loaded\":false,\"spent\":false},{\"ownerId\":\"kororo\",\"faceIndex\":0,\"sealed\":false,\"loaded\":false,\"spent\":false},{\"ownerId\":\"norma\",\"faceIndex\":0,\"sealed\":false,\"loaded\":true,\"spent\":false}],\"enemies\":[{\"id\":\"enemy-1\",\"kind\":\"brute\",\"name\":\"畸变魔物\",\"art\":\"amalgam\",\"hp\":2,\"maxHp\":2,\"attack\":1,\"chargeReady\":false,\"countdown\":2,\"intent\":{\"type\":\"attack\",\"targetId\":\"eustice\",\"value\":1,\"title\":\"攻击\",\"description\":\"造成 1 点伤害\"},\"blocked\":0},{\"id\":\"enemy-2\",\"kind\":\"brute\",\"name\":\"裂隙爪兽\",\"art\":\"sentinel\",\"hp\":3,\"maxHp\":3,\"attack\":2,\"chargeReady\":false,\"countdown\":2,\"intent\":{\"type\":\"attack\",\"targetId\":\"kororo\",\"value\":2,\"title\":\"攻击\",\"description\":\"造成 2 点伤害\"},\"blocked\":0}],\"rng\":{\"combat\":{\"algorithm\":\"mulberry32\",\"seed\":419,\"cursor\":7},\"loot\":{\"algorithm\":\"mulberry32\",\"seed\":4284460031,\"cursor\":0},\"flavor\":{\"algorithm\":\"mulberry32\",\"seed\":1808291415,\"cursor\":0}},\"pendingEffects\":[],\"pendingReactions\":[],\"statuses\":[],\"encounterRules\":[],\"loadoutAtStart\":{\"items\":[],\"equipment\":[],\"traits\":[]},\"loadout\":{\"items\":[],\"equipment\":[],\"traits\":[]},\"eventSequence\":0,\"undoStack\":[{\"action\":\"装载诺玛的骰子\",\"state\":{\"location\":\"混沌领域\",\"layer\":1,\"deepestLayer\":1,\"round\":1,\"layerStartEnemies\":2,\"lastTossed\":[\"kael\",\"eustice\",\"elora\",\"kororo\",\"norma\"],\"stalledRounds\":0,\"lastEnemyHp\":0,\"gold\":0,\"bagGold\":0,\"handMultiplier\":0,\"lastLayerSettlement\":null,\"mode\":{\"type\":\"player-turn\"},\"rerollsRemaining\":2,\"enemySequence\":2,\"party\":[{\"id\":\"kael\",\"hp\":3,\"shield\":0,\"downed\":false,\"rustLevel\":0,\"sealedNext\":false},{\"id\":\"eustice\",\"hp\":3,\"shield\":0,\"downed\":false,\"rustLevel\":0,\"sealedNext\":false},{\"id\":\"elora\",\"hp\":3,\"shield\":0,\"downed\":false,\"rustLevel\":0,\"sealedNext\":false},{\"id\":\"kororo\",\"hp\":3,\"shield\":0,\"downed\":false,\"rustLevel\":0,\"sealedNext\":false},{\"id\":\"norma\",\"hp\":3,\"shield\":0,\"downed\":false,\"rustLevel\":0,\"sealedNext\":false}],\"dice\":[{\"ownerId\":\"kael\",\"faceIndex\":4,\"sealed\":false,\"loaded\":false,\"spent\":false},{\"ownerId\":\"eustice\",\"faceIndex\":5,\"sealed\":false,\"loaded\":false,\"spent\":false},{\"ownerId\":\"elora\",\"faceIndex\":0,\"sealed\":false,\"loaded\":false,\"spent\":false},{\"ownerId\":\"kororo\",\"faceIndex\":0,\"sealed\":false,\"loaded\":false,\"spent\":false},{\"ownerId\":\"norma\",\"faceIndex\":0,\"sealed\":false,\"loaded\":false,\"spent\":false}],\"enemies\":[{\"id\":\"enemy-1\",\"kind\":\"brute\",\"name\":\"畸变魔物\",\"art\":\"amalgam\",\"hp\":2,\"maxHp\":2,\"attack\":1,\"chargeReady\":false,\"countdown\":2,\"intent\":{\"type\":\"attack\",\"targetId\":\"eustice\",\"value\":1,\"title\":\"攻击\",\"description\":\"造成 1 点伤害\"},\"blocked\":0},{\"id\":\"enemy-2\",\"kind\":\"brute\",\"name\":\"裂隙爪兽\",\"art\":\"sentinel\",\"hp\":3,\"maxHp\":3,\"attack\":2,\"chargeReady\":false,\"countdown\":2,\"intent\":{\"type\":\"attack\",\"targetId\":\"kororo\",\"value\":2,\"title\":\"攻击\",\"description\":\"造成 2 点伤害\"},\"blocked\":0}],\"rng\":{\"combat\":{\"algorithm\":\"mulberry32\",\"seed\":419,\"cursor\":7},\"loot\":{\"algorithm\":\"mulberry32\",\"seed\":4284460031,\"cursor\":0},\"flavor\":{\"algorithm\":\"mulberry32\",\"seed\":1808291415,\"cursor\":0}},\"pendingEffects\":[],\"pendingReactions\":[],\"statuses\":[],\"encounterRules\":[],\"loadoutAtStart\":{\"items\":[],\"equipment\":[],\"traits\":[]},\"loadout\":{\"items\":[],\"equipment\":[],\"traits\":[]},\"eventSequence\":0,\"log\":[{\"round\":0,\"layer\":1,\"tone\":\"gold\",\"text\":\"进入第 1 层，收益倍率 ×1。\"}],\"facts\":[],\"result\":null}}],\"log\":[{\"round\":0,\"layer\":1,\"tone\":\"gold\",\"text\":\"进入第 1 层，收益倍率 ×1。\"}],\"facts\":[],\"result\":null}}",
+  "stealUndoRedo": [
+    {
+      "command": {
+        "type": "steal-from",
+        "actorId": "norma",
+        "enemyId": "enemy-1"
+      },
+      "sameInput": false,
+      "transition": "42b7a0f1a8111e2dc77cdf39ea935471da5aef7c71b1d108f3ca39e587059379"
+    },
+    {
+      "command": {
+        "type": "undo"
+      },
+      "sameInput": false,
+      "transition": "9739160e45c20b47772e50ddb4c11dc0f4c23a2e94081a1c2f8e835fda5ab762"
+    },
+    {
+      "command": {
+        "type": "steal-from",
+        "actorId": "norma",
+        "enemyId": "enemy-1"
+      },
+      "sameInput": false,
+      "transition": "583884812e8cc32cbf3aabb16eaf11ab72b8d75a2b0d4fee11d59e08ea7dc289"
+    }
+  ],
+  "rejected": [
+    {
+      "command": {
+        "type": "next-round"
+      },
+      "sameInput": true,
+      "transition": "e07f4f13a48ba1196f6558c4cd4bb068e8d9c41c25fc84154f54bce6f4561bab"
+    },
+    {
+      "command": {
+        "type": "toggle-load",
+        "dieIndex": -1
+      },
+      "sameInput": true,
+      "transition": "e07f4f13a48ba1196f6558c4cd4bb068e8d9c41c25fc84154f54bce6f4561bab"
+    }
+  ],
+  "initialization": {
+    "seeded": {
+      "location": "混沌领域",
+      "layer": 1,
+      "deepestLayer": 1,
+      "round": 1,
+      "layerStartEnemies": 2,
+      "lastTossed": [],
+      "stalledRounds": 0,
+      "lastEnemyHp": 0,
+      "gold": 0,
+      "bagGold": 0,
+      "handMultiplier": 0,
+      "lastLayerSettlement": null,
+      "mode": {
+        "type": "awaiting-roll"
+      },
+      "rerollsRemaining": 2,
+      "enemySequence": 2,
+      "party": [
+        {
+          "id": "kael",
+          "hp": 3,
+          "shield": 0,
+          "downed": false,
+          "rustLevel": 0,
+          "sealedNext": false
+        },
+        {
+          "id": "eustice",
+          "hp": 3,
+          "shield": 0,
+          "downed": false,
+          "rustLevel": 0,
+          "sealedNext": false
+        },
+        {
+          "id": "elora",
+          "hp": 3,
+          "shield": 0,
+          "downed": false,
+          "rustLevel": 0,
+          "sealedNext": false
+        },
+        {
+          "id": "kororo",
+          "hp": 3,
+          "shield": 0,
+          "downed": false,
+          "rustLevel": 0,
+          "sealedNext": false
+        },
+        {
+          "id": "norma",
+          "hp": 3,
+          "shield": 0,
+          "downed": false,
+          "rustLevel": 0,
+          "sealedNext": false
+        }
+      ],
+      "dice": [
+        {
+          "ownerId": "kael",
+          "faceIndex": null,
+          "sealed": false,
+          "loaded": false,
+          "spent": false
+        },
+        {
+          "ownerId": "eustice",
+          "faceIndex": null,
+          "sealed": false,
+          "loaded": false,
+          "spent": false
+        },
+        {
+          "ownerId": "elora",
+          "faceIndex": null,
+          "sealed": false,
+          "loaded": false,
+          "spent": false
+        },
+        {
+          "ownerId": "kororo",
+          "faceIndex": null,
+          "sealed": false,
+          "loaded": false,
+          "spent": false
+        },
+        {
+          "ownerId": "norma",
+          "faceIndex": null,
+          "sealed": false,
+          "loaded": false,
+          "spent": false
+        }
+      ],
+      "enemies": [
+        {
+          "id": "enemy-1",
+          "kind": "brute",
+          "name": "畸变魔物",
+          "art": "amalgam",
+          "hp": 2,
+          "maxHp": 2,
+          "attack": 1,
+          "chargeReady": false,
+          "countdown": 2,
+          "intent": {
+            "type": "attack",
+            "targetId": "kael",
+            "value": 1,
+            "title": "攻击",
+            "description": "造成 1 点伤害"
+          },
+          "blocked": 0
+        },
+        {
+          "id": "enemy-2",
+          "kind": "brute",
+          "name": "裂隙爪兽",
+          "art": "sentinel",
+          "hp": 3,
+          "maxHp": 3,
+          "attack": 2,
+          "chargeReady": false,
+          "countdown": 2,
+          "intent": {
+            "type": "attack",
+            "targetId": "eustice",
+            "value": 2,
+            "title": "攻击",
+            "description": "造成 2 点伤害"
+          },
+          "blocked": 0
+        }
+      ],
+      "rng": {
+        "combat": {
+          "algorithm": "mulberry32",
+          "seed": 19,
+          "cursor": 2
+        },
+        "loot": {
+          "algorithm": "mulberry32",
+          "seed": 3270494612,
+          "cursor": 0
+        },
+        "flavor": {
+          "algorithm": "mulberry32",
+          "seed": 1597378679,
+          "cursor": 0
+        }
+      },
+      "pendingEffects": [],
+      "pendingReactions": [],
+      "statuses": [],
+      "encounterRules": [],
+      "loadoutAtStart": {
+        "items": [],
+        "equipment": [],
+        "traits": []
+      },
+      "loadout": {
+        "items": [],
+        "equipment": [],
+        "traits": []
+      },
+      "eventSequence": 0,
+      "undoStack": [],
+      "log": [
+        {
+          "round": 0,
+          "layer": 1,
+          "tone": "gold",
+          "text": "进入第 1 层，收益倍率 ×1。"
+        }
+      ],
+      "facts": [],
+      "result": null
+    },
+    "raw": {
+      "location": "混沌领域",
+      "layer": 1,
+      "deepestLayer": 1,
+      "round": 1,
+      "layerStartEnemies": 2,
+      "lastTossed": [],
+      "stalledRounds": 0,
+      "lastEnemyHp": 0,
+      "gold": 0,
+      "bagGold": 0,
+      "handMultiplier": 0,
+      "lastLayerSettlement": null,
+      "mode": {
+        "type": "awaiting-roll"
+      },
+      "rerollsRemaining": 2,
+      "enemySequence": 2,
+      "party": [
+        {
+          "id": "kael",
+          "hp": 3,
+          "shield": 0,
+          "downed": false,
+          "rustLevel": 0,
+          "sealedNext": false
+        },
+        {
+          "id": "eustice",
+          "hp": 3,
+          "shield": 0,
+          "downed": false,
+          "rustLevel": 0,
+          "sealedNext": false
+        },
+        {
+          "id": "elora",
+          "hp": 3,
+          "shield": 0,
+          "downed": false,
+          "rustLevel": 0,
+          "sealedNext": false
+        },
+        {
+          "id": "kororo",
+          "hp": 3,
+          "shield": 0,
+          "downed": false,
+          "rustLevel": 0,
+          "sealedNext": false
+        },
+        {
+          "id": "norma",
+          "hp": 3,
+          "shield": 0,
+          "downed": false,
+          "rustLevel": 0,
+          "sealedNext": false
+        }
+      ],
+      "dice": [
+        {
+          "ownerId": "kael",
+          "faceIndex": null,
+          "sealed": false,
+          "loaded": false,
+          "spent": false
+        },
+        {
+          "ownerId": "eustice",
+          "faceIndex": null,
+          "sealed": false,
+          "loaded": false,
+          "spent": false
+        },
+        {
+          "ownerId": "elora",
+          "faceIndex": null,
+          "sealed": false,
+          "loaded": false,
+          "spent": false
+        },
+        {
+          "ownerId": "kororo",
+          "faceIndex": null,
+          "sealed": false,
+          "loaded": false,
+          "spent": false
+        },
+        {
+          "ownerId": "norma",
+          "faceIndex": null,
+          "sealed": false,
+          "loaded": false,
+          "spent": false
+        }
+      ],
+      "enemies": [
+        {
+          "id": "enemy-1",
+          "kind": "brute",
+          "name": "畸变魔物",
+          "art": "amalgam",
+          "hp": 2,
+          "maxHp": 2,
+          "attack": 1,
+          "chargeReady": false,
+          "countdown": 2,
+          "intent": {
+            "type": "attack",
+            "targetId": "kael",
+            "value": 1,
+            "title": "攻击",
+            "description": "造成 1 点伤害"
+          },
+          "blocked": 0
+        },
+        {
+          "id": "enemy-2",
+          "kind": "brute",
+          "name": "裂隙爪兽",
+          "art": "sentinel",
+          "hp": 3,
+          "maxHp": 3,
+          "attack": 2,
+          "chargeReady": false,
+          "countdown": 2,
+          "intent": {
+            "type": "attack",
+            "targetId": "eustice",
+            "value": 2,
+            "title": "攻击",
+            "description": "造成 2 点伤害"
+          },
+          "blocked": 0
+        }
+      ],
+      "rng": {
+        "combat": {
+          "algorithm": "mulberry32",
+          "seed": 0,
+          "cursor": 0
+        },
+        "loot": {
+          "algorithm": "mulberry32",
+          "seed": 2258784160,
+          "cursor": 0
+        },
+        "flavor": {
+          "algorithm": "mulberry32",
+          "seed": 2093264047,
+          "cursor": 0
+        }
+      },
+      "pendingEffects": [],
+      "pendingReactions": [],
+      "statuses": [],
+      "encounterRules": [],
+      "loadoutAtStart": {
+        "items": [],
+        "equipment": [],
+        "traits": []
+      },
+      "loadout": {
+        "items": [],
+        "equipment": [],
+        "traits": []
+      },
+      "eventSequence": 0,
+      "undoStack": [],
+      "log": [
+        {
+          "round": 0,
+          "layer": 1,
+          "tone": "gold",
+          "text": "进入第 1 层，收益倍率 ×1。"
+        }
+      ],
+      "facts": [],
+      "result": null
+    },
+    "seededRoll": "42fe320fefed74baf693932c04da6a7782b1355e54c0f74e2520759fe13cc3dc",
+    "rawRoll": "6649e969267b20f5d9fb849e11d6c88cf267e8c30fa0b5803a0119b6e478d55e",
+    "legacyRoll": "1ebed8f926b82a94dcc8716ea84ec51c881ac30e925394d82001cc5beeacf3d1"
+  },
+  "migrations": [
+    {
+      "input": {
+        "schemaVersion": 1,
+        "rulesVersion": 1,
+        "contentVersion": 1,
+        "state": {
+          "location": "混沌领域",
+          "layer": 1,
+          "deepestLayer": 1,
+          "round": 1,
+          "layerStartEnemies": 2,
+          "lastTossed": [
+            "kael",
+            "eustice",
+            "elora",
+            "kororo",
+            "norma"
+          ],
+          "stalledRounds": 0,
+          "lastEnemyHp": 0,
+          "gold": 0,
+          "bagGold": 0,
+          "handMultiplier": 0,
+          "lastLayerSettlement": null,
+          "rerollsRemaining": 2,
+          "enemySequence": 2,
+          "party": [
+            {
+              "id": "kael",
+              "hp": 3,
+              "shield": 0,
+              "downed": false,
+              "rustLevel": 0,
+              "sealedNext": false
+            },
+            {
+              "id": "eustice",
+              "hp": 3,
+              "shield": 0,
+              "downed": false,
+              "rustLevel": 0,
+              "sealedNext": false
+            },
+            {
+              "id": "elora",
+              "hp": 3,
+              "shield": 0,
+              "downed": false,
+              "rustLevel": 0,
+              "sealedNext": false
+            },
+            {
+              "id": "kororo",
+              "hp": 3,
+              "shield": 0,
+              "downed": false,
+              "rustLevel": 0,
+              "sealedNext": false
+            },
+            {
+              "id": "norma",
+              "hp": 3,
+              "shield": 0,
+              "downed": false,
+              "rustLevel": 0,
+              "sealedNext": false
+            }
+          ],
+          "dice": [
+            {
+              "ownerId": "kael",
+              "faceIndex": 4,
+              "sealed": false,
+              "loaded": false,
+              "spent": false
+            },
+            {
+              "ownerId": "eustice",
+              "faceIndex": 5,
+              "sealed": false,
+              "loaded": false,
+              "spent": false
+            },
+            {
+              "ownerId": "elora",
+              "faceIndex": 0,
+              "sealed": false,
+              "loaded": false,
+              "spent": false
+            },
+            {
+              "ownerId": "kororo",
+              "faceIndex": 4,
+              "sealed": false,
+              "loaded": false,
+              "spent": false
+            },
+            {
+              "ownerId": "norma",
+              "faceIndex": 3,
+              "sealed": false,
+              "loaded": false,
+              "spent": false
+            }
+          ],
+          "enemies": [
+            {
+              "id": "enemy-1",
+              "kind": "brute",
+              "name": "畸变魔物",
+              "art": "amalgam",
+              "hp": 2,
+              "maxHp": 2,
+              "attack": 1,
+              "chargeReady": false,
+              "countdown": 2,
+              "intent": {
+                "type": "attack",
+                "targetId": "norma",
+                "value": 1,
+                "title": "攻击",
+                "description": "造成 1 点伤害"
+              },
+              "blocked": 0
+            },
+            {
+              "id": "enemy-2",
+              "kind": "brute",
+              "name": "裂隙爪兽",
+              "art": "sentinel",
+              "hp": 3,
+              "maxHp": 3,
+              "attack": 2,
+              "chargeReady": false,
+              "countdown": 2,
+              "intent": {
+                "type": "attack",
+                "targetId": "elora",
+                "value": 2,
+                "title": "攻击",
+                "description": "造成 2 点伤害"
+              },
+              "blocked": 0
+            }
+          ],
+          "statuses": [],
+          "encounterRules": [],
+          "loadoutAtStart": {
+            "items": [],
+            "equipment": [],
+            "traits": []
+          },
+          "loadout": {
+            "items": [],
+            "equipment": [],
+            "traits": []
+          },
+          "undoStack": [
+            {
+              "action": "partial-v1-entry"
+            }
+          ],
+          "log": [
+            {
+              "round": 0,
+              "layer": 1,
+              "tone": "gold",
+              "text": "进入第 1 层，收益倍率 ×1。"
+            }
+          ],
+          "facts": [],
+          "result": null,
+          "phase": "act",
+          "status": "active",
+          "lastOutcome": null
+        }
+      },
+      "migrated": "8ee8bd13b8e04e029c6422a276f19904e4c010b411e587fc3f07ea55b323b09c"
+    },
+    {
+      "input": {
+        "schemaVersion": 2,
+        "rulesVersion": 1,
+        "contentVersion": 1,
+        "state": {
+          "location": "混沌领域",
+          "layer": 1,
+          "deepestLayer": 1,
+          "round": 1,
+          "layerStartEnemies": 2,
+          "lastTossed": [],
+          "stalledRounds": 0,
+          "lastEnemyHp": 0,
+          "gold": 0,
+          "bagGold": 0,
+          "handMultiplier": 0,
+          "lastLayerSettlement": null,
+          "mode": {
+            "type": "awaiting-roll"
+          },
+          "rerollsRemaining": 2,
+          "enemySequence": 2,
+          "party": [
+            {
+              "id": "kael",
+              "hp": 3,
+              "shield": 0,
+              "downed": false,
+              "rustLevel": 0,
+              "sealedNext": false
+            },
+            {
+              "id": "eustice",
+              "hp": 3,
+              "shield": 0,
+              "downed": false,
+              "rustLevel": 0,
+              "sealedNext": false
+            },
+            {
+              "id": "elora",
+              "hp": 3,
+              "shield": 0,
+              "downed": false,
+              "rustLevel": 0,
+              "sealedNext": false
+            },
+            {
+              "id": "kororo",
+              "hp": 3,
+              "shield": 0,
+              "downed": false,
+              "rustLevel": 0,
+              "sealedNext": false
+            },
+            {
+              "id": "norma",
+              "hp": 3,
+              "shield": 0,
+              "downed": false,
+              "rustLevel": 0,
+              "sealedNext": false
+            }
+          ],
+          "dice": [
+            {
+              "ownerId": "kael",
+              "faceIndex": null,
+              "sealed": false,
+              "loaded": false,
+              "spent": false
+            },
+            {
+              "ownerId": "eustice",
+              "faceIndex": null,
+              "sealed": false,
+              "loaded": false,
+              "spent": false
+            },
+            {
+              "ownerId": "elora",
+              "faceIndex": null,
+              "sealed": false,
+              "loaded": false,
+              "spent": false
+            },
+            {
+              "ownerId": "kororo",
+              "faceIndex": null,
+              "sealed": false,
+              "loaded": false,
+              "spent": false
+            },
+            {
+              "ownerId": "norma",
+              "faceIndex": null,
+              "sealed": false,
+              "loaded": false,
+              "spent": false
+            }
+          ],
+          "enemies": [
+            {
+              "id": "enemy-1",
+              "kind": "brute",
+              "name": "畸变魔物",
+              "art": "amalgam",
+              "hp": 2,
+              "maxHp": 2,
+              "attack": 1,
+              "chargeReady": false,
+              "countdown": 2,
+              "intent": {
+                "type": "attack",
+                "targetId": "kael",
+                "value": 1,
+                "title": "攻击",
+                "description": "造成 1 点伤害"
+              },
+              "blocked": 0
+            },
+            {
+              "id": "enemy-2",
+              "kind": "brute",
+              "name": "裂隙爪兽",
+              "art": "sentinel",
+              "hp": 3,
+              "maxHp": 3,
+              "attack": 2,
+              "chargeReady": false,
+              "countdown": 2,
+              "intent": {
+                "type": "attack",
+                "targetId": "elora",
+                "value": 2,
+                "title": "攻击",
+                "description": "造成 2 点伤害"
+              },
+              "blocked": 0
+            }
+          ],
+          "rng": {
+            "combat": {
+              "algorithm": "mulberry32",
+              "seed": 433,
+              "cursor": 2
+            },
+            "loot": {
+              "algorithm": "mulberry32",
+              "seed": 2209786347,
+              "cursor": 0
+            },
+            "flavor": {
+              "algorithm": "mulberry32",
+              "seed": 1448301904,
+              "cursor": 0
+            }
+          },
+          "pendingEffects": [],
+          "pendingReactions": [],
+          "statuses": [],
+          "encounterRules": [],
+          "eventSequence": 0,
+          "undoStack": [],
+          "log": [
+            {
+              "round": 0,
+              "layer": 1,
+              "tone": "gold",
+              "text": "进入第 1 层，收益倍率 ×1。"
+            }
+          ],
+          "facts": [],
+          "result": null
+        }
+      },
+      "migrated": "d19b14f624086bb77fb89de29f18d46cebdc5eb724cc5c66174b0975078458f1"
+    },
+    {
+      "input": {
+        "schemaVersion": 3,
+        "rulesVersion": 1,
+        "contentVersion": 1,
+        "state": {
+          "location": "混沌领域",
+          "layer": 1,
+          "deepestLayer": 1,
+          "round": 1,
+          "layerStartEnemies": 2,
+          "lastTossed": [
+            "kael",
+            "eustice",
+            "elora",
+            "kororo",
+            "norma"
+          ],
+          "stalledRounds": 0,
+          "lastEnemyHp": 0,
+          "gold": 0,
+          "bagGold": 0,
+          "handMultiplier": 0,
+          "lastLayerSettlement": null,
+          "mode": {
+            "type": "player-turn"
+          },
+          "rerollsRemaining": 2,
+          "enemySequence": 2,
+          "party": [
+            {
+              "id": "kael",
+              "hp": 3,
+              "shield": 0,
+              "downed": false,
+              "rustLevel": 0,
+              "sealedNext": false
+            },
+            {
+              "id": "eustice",
+              "hp": 3,
+              "shield": 0,
+              "downed": false,
+              "rustLevel": 0,
+              "sealedNext": false
+            },
+            {
+              "id": "elora",
+              "hp": 3,
+              "shield": 0,
+              "downed": false,
+              "rustLevel": 0,
+              "sealedNext": false
+            },
+            {
+              "id": "kororo",
+              "hp": 3,
+              "shield": 0,
+              "downed": false,
+              "rustLevel": 0,
+              "sealedNext": false
+            },
+            {
+              "id": "norma",
+              "hp": 3,
+              "shield": 0,
+              "downed": false,
+              "rustLevel": 0,
+              "sealedNext": false
+            }
+          ],
+          "dice": [
+            {
+              "ownerId": "kael",
+              "faceIndex": 5,
+              "sealed": false,
+              "loaded": true,
+              "spent": false,
+              "downed": false,
+              "rustLevel": 0
+            },
+            {
+              "ownerId": "eustice",
+              "faceIndex": 3,
+              "sealed": false,
+              "loaded": false,
+              "spent": false,
+              "downed": false,
+              "rustLevel": 0
+            },
+            {
+              "ownerId": "elora",
+              "faceIndex": 3,
+              "sealed": false,
+              "loaded": false,
+              "spent": false,
+              "downed": false,
+              "rustLevel": 0
+            },
+            {
+              "ownerId": "kororo",
+              "faceIndex": 0,
+              "sealed": false,
+              "loaded": false,
+              "spent": false,
+              "downed": false,
+              "rustLevel": 0
+            },
+            {
+              "ownerId": "norma",
+              "faceIndex": 4,
+              "sealed": false,
+              "loaded": false,
+              "spent": false,
+              "downed": false,
+              "rustLevel": 0
+            }
+          ],
+          "enemies": [
+            {
+              "id": "enemy-1",
+              "kind": "brute",
+              "name": "畸变魔物",
+              "art": "amalgam",
+              "hp": 2,
+              "maxHp": 2,
+              "attack": 1,
+              "chargeReady": false,
+              "countdown": 2,
+              "intent": null,
+              "blocked": 0,
+              "dead": true
+            },
+            {
+              "id": "enemy-2",
+              "kind": "brute",
+              "name": "裂隙爪兽",
+              "art": "sentinel",
+              "hp": 3,
+              "maxHp": 3,
+              "attack": 2,
+              "chargeReady": false,
+              "countdown": 2,
+              "intent": {
+                "type": "attack",
+                "targetId": "kael",
+                "value": 2,
+                "title": "攻击",
+                "description": "造成 2 点伤害"
+              },
+              "blocked": 0,
+              "dead": false
+            }
+          ],
+          "rng": {
+            "combat": {
+              "algorithm": "mulberry32",
+              "seed": 439,
+              "cursor": 7
+            },
+            "loot": {
+              "algorithm": "mulberry32",
+              "seed": 1280526279,
+              "cursor": 0
+            },
+            "flavor": {
+              "algorithm": "mulberry32",
+              "seed": 2117332445,
+              "cursor": 0
+            }
+          },
+          "pendingEffects": [],
+          "pendingReactions": [],
+          "statuses": [],
+          "encounterRules": [],
+          "loadoutAtStart": {
+            "items": [],
+            "equipment": [],
+            "traits": []
+          },
+          "loadout": {
+            "items": [],
+            "equipment": [],
+            "traits": []
+          },
+          "eventSequence": 4,
+          "undoStack": [
+            {
+              "action": "装载凯尔的骰子",
+              "state": {
+                "location": "混沌领域",
+                "layer": 1,
+                "deepestLayer": 1,
+                "round": 1,
+                "layerStartEnemies": 2,
+                "lastTossed": [
+                  "kael",
+                  "eustice",
+                  "elora",
+                  "kororo",
+                  "norma"
+                ],
+                "stalledRounds": 0,
+                "lastEnemyHp": 0,
+                "gold": 0,
+                "bagGold": 0,
+                "handMultiplier": 0,
+                "lastLayerSettlement": null,
+                "mode": {
+                  "type": "player-turn"
+                },
+                "rerollsRemaining": 2,
+                "enemySequence": 2,
+                "party": [
+                  {
+                    "id": "kael",
+                    "hp": 3,
+                    "shield": 0,
+                    "downed": false,
+                    "rustLevel": 0,
+                    "sealedNext": false
+                  },
+                  {
+                    "id": "eustice",
+                    "hp": 3,
+                    "shield": 0,
+                    "downed": false,
+                    "rustLevel": 0,
+                    "sealedNext": false
+                  },
+                  {
+                    "id": "elora",
+                    "hp": 3,
+                    "shield": 0,
+                    "downed": false,
+                    "rustLevel": 0,
+                    "sealedNext": false
+                  },
+                  {
+                    "id": "kororo",
+                    "hp": 3,
+                    "shield": 0,
+                    "downed": false,
+                    "rustLevel": 0,
+                    "sealedNext": false
+                  },
+                  {
+                    "id": "norma",
+                    "hp": 3,
+                    "shield": 0,
+                    "downed": false,
+                    "rustLevel": 0,
+                    "sealedNext": false
+                  }
+                ],
+                "dice": [
+                  {
+                    "ownerId": "kael",
+                    "faceIndex": 5,
+                    "sealed": false,
+                    "loaded": false,
+                    "spent": false,
+                    "downed": false,
+                    "rustLevel": 0
+                  },
+                  {
+                    "ownerId": "eustice",
+                    "faceIndex": 3,
+                    "sealed": false,
+                    "loaded": false,
+                    "spent": false,
+                    "downed": false,
+                    "rustLevel": 0
+                  },
+                  {
+                    "ownerId": "elora",
+                    "faceIndex": 3,
+                    "sealed": false,
+                    "loaded": false,
+                    "spent": false,
+                    "downed": false,
+                    "rustLevel": 0
+                  },
+                  {
+                    "ownerId": "kororo",
+                    "faceIndex": 0,
+                    "sealed": false,
+                    "loaded": false,
+                    "spent": false,
+                    "downed": false,
+                    "rustLevel": 0
+                  },
+                  {
+                    "ownerId": "norma",
+                    "faceIndex": 4,
+                    "sealed": false,
+                    "loaded": false,
+                    "spent": false,
+                    "downed": false,
+                    "rustLevel": 0
+                  }
+                ],
+                "enemies": [
+                  {
+                    "id": "enemy-1",
+                    "kind": "brute",
+                    "name": "畸变魔物",
+                    "art": "amalgam",
+                    "hp": 2,
+                    "maxHp": 2,
+                    "attack": 1,
+                    "chargeReady": false,
+                    "countdown": 2,
+                    "intent": {
+                      "type": "attack",
+                      "targetId": "kororo",
+                      "value": 1,
+                      "title": "攻击",
+                      "description": "造成 1 点伤害"
+                    },
+                    "blocked": 0,
+                    "dead": false
+                  },
+                  {
+                    "id": "enemy-2",
+                    "kind": "brute",
+                    "name": "裂隙爪兽",
+                    "art": "sentinel",
+                    "hp": 3,
+                    "maxHp": 3,
+                    "attack": 2,
+                    "chargeReady": false,
+                    "countdown": 2,
+                    "intent": {
+                      "type": "attack",
+                      "targetId": "kael",
+                      "value": 2,
+                      "title": "攻击",
+                      "description": "造成 2 点伤害"
+                    },
+                    "blocked": 0,
+                    "dead": false
+                  }
+                ],
+                "rng": {
+                  "combat": {
+                    "algorithm": "mulberry32",
+                    "seed": 439,
+                    "cursor": 7
+                  },
+                  "loot": {
+                    "algorithm": "mulberry32",
+                    "seed": 1280526279,
+                    "cursor": 0
+                  },
+                  "flavor": {
+                    "algorithm": "mulberry32",
+                    "seed": 2117332445,
+                    "cursor": 0
+                  }
+                },
+                "pendingEffects": [],
+                "pendingReactions": [],
+                "statuses": [],
+                "encounterRules": [],
+                "loadoutAtStart": {
+                  "items": [],
+                  "equipment": [],
+                  "traits": []
+                },
+                "loadout": {
+                  "items": [],
+                  "equipment": [],
+                  "traits": []
+                },
+                "eventSequence": 2,
+                "log": [
+                  {
+                    "round": 0,
+                    "layer": 1,
+                    "tone": "gold",
+                    "text": "进入第 1 层，收益倍率 ×1。"
+                  }
+                ],
+                "facts": [],
+                "result": null,
+                "phase": "act",
+                "status": "active",
+                "lastOutcome": null
+              }
+            }
+          ],
+          "log": [
+            {
+              "round": 0,
+              "layer": 1,
+              "tone": "gold",
+              "text": "进入第 1 层，收益倍率 ×1。"
+            }
+          ],
+          "facts": [],
+          "result": null,
+          "phase": "act",
+          "status": "active",
+          "lastOutcome": null
+        }
+      },
+      "migrated": "c7faf37995c281750428e5be1d2aa61d2b60d605b1ff109b6dcd808c8791ead8"
+    }
+  ]
+}

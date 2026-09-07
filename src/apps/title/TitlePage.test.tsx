@@ -1,6 +1,12 @@
-import { cleanup, render, screen } from "@testing-library/react";
+import { clientFixture } from "../../game-client/testing/helpers";
+let fixture: Awaited<ReturnType<typeof clientFixture>>;
+vi.mock("../../game-runtime/browser", () => ({ createBrowserGameRuntime: () => fixture.runtime }));
+beforeEach(async () => { fixture = await clientFixture({ start: false }); localStorage.clear(); });
+afterEach(() => fixture.session.dispose());
+async function mountTitle() { let view!: ReturnType<typeof render>; await act(async () => { view = render(<TitlePage />); }); return view; }
+import { act, cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { TitlePage } from "./TitlePage";
 import { TITLE_CG_FRAMES } from "./titleCg";
 import { TITLE_COMMANDS } from "./titleCommands";
@@ -12,8 +18,8 @@ afterEach(() => {
 });
 
 describe("TitlePage", () => {
-  it("mounts the emblem without the opaque plate that would hide the backdrop", () => {
-    const { container } = render(<TitlePage />);
+  it("mounts the emblem without the opaque plate that would hide the backdrop", async () => {
+    const { container } = await mountTitle();
     const emblem = container.querySelector(".abyssa-logo")!;
 
     // 这两个属性是本屏能成立的前提:默认底板会盖掉整个背景场。
@@ -25,10 +31,10 @@ describe("TitlePage", () => {
     expect(container.querySelector(".title-backdrop")).toBeInTheDocument();
   });
 
-  it("wraps the screen in AbyssaProvider so reduced-motion applies", () => {
+  it("wraps the screen in AbyssaProvider so reduced-motion applies", async () => {
     // tokens.css 的 prefers-reduced-motion 规则挂在 `.abyssa-theme` 上。
     // 少了它,背景场的无限自转会无视系统设置 —— 这是无障碍问题,不是样式偏好。
-    const { container } = render(<TitlePage />);
+    const { container } = await mountTitle();
     const theme = container.querySelector(".abyssa-theme");
 
     expect(theme).toBeInTheDocument();
@@ -36,8 +42,8 @@ describe("TitlePage", () => {
     expect(theme!.querySelector(".title-backdrop")).toBeInTheDocument();
   });
 
-  it("shares the logo-centred field origin through the common ancestor", () => {
-    const { container } = render(<TitlePage />);
+  it("shares the logo-centred field origin through the common ancestor", async () => {
+    const { container } = await mountTitle();
     const app = container.querySelector<HTMLElement>(".title-app")!;
 
     // SVG 法阵与它下方的透光层都是这个节点的后代,继承同一个 Logo 中心原点。
@@ -46,10 +52,10 @@ describe("TitlePage", () => {
     );
   });
 
-  it("keeps rotation shells free of a transform attribute", () => {
+  it("keeps rotation shells free of a transform attribute", async () => {
     // SVG 的 transform 属性就是 CSS transform 属性:壳上若已有 translate,
     // keyframe 会把它覆盖掉,图案整体飞走。壳必须是干净的。
-    const { container } = render(<TitlePage />);
+    const { container } = await mountTitle();
     const shells = container.querySelectorAll(".title-backdrop__spin");
 
     expect(shells.length).toBeGreaterThan(0);
@@ -58,9 +64,9 @@ describe("TitlePage", () => {
     }
   });
 
-  it("does not rotate the mask or the wash", () => {
+  it("does not rotate the mask or the wash", async () => {
     // 径向衰减一转就会露出 mask 的矩形边界。
-    const { container } = render(<TitlePage />);
+    const { container } = await mountTitle();
 
     expect(container.querySelector(".title-backdrop__wash")).not.toHaveClass("title-backdrop__spin");
     const field = container.querySelector(".title-backdrop__field")!;
@@ -68,8 +74,8 @@ describe("TitlePage", () => {
     expect(field.getAttribute("mask")).toMatch(/^url\(#title-field-mask-/);
   });
 
-  it("mounts one CG carousel per side, desynced and mirrored", () => {
-    const { container } = render(<TitlePage />);
+  it("mounts one CG carousel per side, desynced and mirrored", async () => {
+    const { container } = await mountTitle();
     const panels = container.querySelectorAll(".title-cg");
 
     expect(panels).toHaveLength(2);
@@ -82,9 +88,9 @@ describe("TitlePage", () => {
     }
   });
 
-  it("keeps all CG frames mounted so the crossfade has something to fade to", () => {
+  it("keeps all CG frames mounted so the crossfade has something to fade to", async () => {
     // 换 src 会先闪空白;交叉淡入要求两张同时在场。
-    const { container } = render(<TitlePage />);
+    const { container } = await mountTitle();
     const left = container.querySelector('.title-cg[data-side="left"]')!;
     const frames = left.querySelectorAll(".title-cg__frame");
 
@@ -98,8 +104,8 @@ describe("TitlePage", () => {
     }
   });
 
-  it("starts the two sides on different frames", () => {
-    const { container } = render(<TitlePage />);
+  it("starts the two sides on different frames", async () => {
+    const { container } = await mountTitle();
     const activeSrc = (side: string) =>
       container
         .querySelector(`.title-cg[data-side="${side}"] .title-cg__frame[data-active]`)
@@ -108,15 +114,15 @@ describe("TitlePage", () => {
     expect(activeSrc("left")).not.toBe(activeSrc("right"));
   });
 
-  it("defaults to the crimson skin that matches the CG art", () => {
-    const { container } = render(<TitlePage />);
+  it("defaults to the crimson skin that matches the CG art", async () => {
+    const { container } = await mountTitle();
 
     expect(container.querySelector(".title-app")).toHaveAttribute("data-theme", "crimson");
   });
 
   it("switches skins without touching the geometry", async () => {
     const user = userEvent.setup();
-    const { container } = render(<TitlePage />);
+    const { container } = await mountTitle();
     const app = container.querySelector(".title-app")!;
     const emblem = container.querySelector(".title-emblem")!;
     const before = emblem.className;
@@ -133,7 +139,7 @@ describe("TitlePage", () => {
 
   it("marks the active skin for assistive tech", async () => {
     const user = userEvent.setup();
-    render(<TitlePage />);
+    await mountTitle();
 
     const crimson = screen.getByRole("button", { name: "猩红" });
     expect(crimson).toHaveAttribute("aria-pressed", "true");
@@ -143,10 +149,10 @@ describe("TitlePage", () => {
     expect(screen.getByRole("button", { name: "青幽" })).toHaveAttribute("aria-pressed", "true");
   });
 
-  it("keeps the footer text out of the centred stack", () => {
+  it("keeps the footer text out of the centred stack", async () => {
     // 提示行必须在 .title-footer 里,不能是 .title-stack 的兄弟绝对定位元素 ——
     // 那正是它压在第四个键上的原因。
-    const { container } = render(<TitlePage />);
+    const { container } = await mountTitle();
     const footer = container.querySelector(".title-footer")!;
     const stack = container.querySelector(".title-stack")!;
 
@@ -156,8 +162,8 @@ describe("TitlePage", () => {
     expect(stack.querySelector(".title-hint")).toBeNull();
   });
 
-  it("renders every command as a real button", () => {
-    render(<TitlePage />);
+  it("renders every command as a real button", async () => {
+    await mountTitle();
 
     for (const command of TITLE_COMMANDS) {
       expect(screen.getByRole("button", { name: command.label })).toBeEnabled();
@@ -166,7 +172,7 @@ describe("TitlePage", () => {
 
   it("explains unwired entries instead of silently doing nothing", async () => {
     const user = userEvent.setup();
-    render(<TitlePage />);
+    await mountTitle();
 
     await user.click(screen.getByRole("button", { name: "设定" }));
 
@@ -175,7 +181,7 @@ describe("TitlePage", () => {
 
   it("hands off to the hub through the shared blackout rather than a raw href", async () => {
     const user = userEvent.setup();
-    render(<TitlePage />);
+    await mountTitle();
 
     await user.click(screen.getByRole("button", { name: "继续游戏" }));
 
@@ -186,32 +192,30 @@ describe("TitlePage", () => {
     }
   });
 
-  it("keeps the wired targets same-origin and relative", () => {
-    // 仓库没有 Router,跨页只能靠同源相对 URL。绝对地址会绕过接力。
-    const wired = TITLE_COMMANDS.filter((command) => command.target);
-
-    expect(wired.length).toBeGreaterThan(0);
-    for (const command of wired) {
-      expect(command.target!.href).toMatch(/^\.\/[a-z-]+\.html$/);
-    }
+  it("opens the archive with a valid saved campaign", async () => {
+    const user = userEvent.setup(); await mountTitle();
+    await user.click(screen.getByRole("button", { name: "记录" }));
+    expect(screen.getByRole("dialog", { name: "游戏档案" })).toHaveTextContent("档案 save");
+    expect(screen.getByRole("button", { name: "导出存档" })).toBeEnabled();
   });
+
 });
 
 describe("title command wiring", () => {
-  it("marks exactly one command as the accent", () => {
+  it("marks exactly one command as the accent", async () => {
     // 强调项多于一个就等于没有强调。
     const accents = TITLE_COMMANDS.filter((command) => command.variant === "teal");
     expect(accents).toHaveLength(1);
     expect(accents[0].id).toBe("begin");
   });
 
-  it("gives every unwired command a pending explanation", () => {
+  it("gives every unwired command a pending explanation", async () => {
     for (const command of TITLE_COMMANDS) {
       expect(command.pending.length).toBeGreaterThan(0);
     }
   });
 
-  it("uses unique ids and labels", () => {
+  it("uses unique ids and labels", async () => {
     expect(new Set(TITLE_COMMANDS.map((c) => c.id)).size).toBe(TITLE_COMMANDS.length);
     expect(new Set(TITLE_COMMANDS.map((c) => c.label)).size).toBe(TITLE_COMMANDS.length);
   });
@@ -220,9 +224,9 @@ describe("title command wiring", () => {
 // jsdom 不实现布局,所以构图正确性由 titleGeometry.test.ts 的算术断言守。
 
 describe("title shade layer", () => {
-  it("sits between the CG and the backdrop", () => {
+  it("sits between the CG and the backdrop", async () => {
     // 层序错了会把描边图案一起糊掉:黑幕必须在 CG 之上、背景场之下。
-    const { container } = render(<TitlePage />);
+    const { container } = await mountTitle();
     const app = container.querySelector(".title-app")!;
     const children = Array.from(app.children);
 
@@ -239,8 +243,8 @@ describe("title shade layer", () => {
     expect(backdrop).toBeGreaterThan(shade);
   });
 
-  it("is decorative only", () => {
-    const { container } = render(<TitlePage />);
+  it("is decorative only", async () => {
+    const { container } = await mountTitle();
     expect(container.querySelector(".title-shade")).toHaveAttribute("aria-hidden", "true");
   });
 });

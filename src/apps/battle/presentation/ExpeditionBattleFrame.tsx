@@ -11,14 +11,18 @@ import { BattleFrameCorners, FrameRails } from "./ExpeditionBattleChrome";
 
 export type ExpeditionBattleFrameProps = {
   skin: BattleUiSkin;
+  title?: string;
   onCycleSkin: () => void;
   children: ReactNode;
+  accessories?: ReactNode;
 };
 
 export function ExpeditionBattleFrame({
   skin,
+  title = "裂隙远征",
   onCycleSkin,
-  children
+  children,
+  accessories,
 }: ExpeditionBattleFrameProps) {
   const definition = resolveBattleUiSkin(skin);
   const skinIndex = BATTLE_UI_SKINS.findIndex((candidate) => candidate.id === skin);
@@ -26,6 +30,16 @@ export function ExpeditionBattleFrame({
 
   return (
     <div className="abyssa-expedition-frame abyssa-scene-panel">
+      {definition.frameOverlayUrl && (
+        <img
+          key={`${skin}-frame-overlay`}
+          className="abyssa-expedition-frame__overlay"
+          src={definition.frameOverlayUrl}
+          alt=""
+          aria-hidden="true"
+          draggable={false}
+        />
+      )}
       <button
         type="button"
         className="abyssa-expedition-skin-switch"
@@ -57,7 +71,7 @@ export function ExpeditionBattleFrame({
             draggable={false}
           />
         )}
-        <RpgHeader label="裂隙远征" variant="dark" />
+        <RpgHeader label={title} variant="dark" />
         <span>ABYSSAL EXPEDITION</span>
         {definition.topOrnamentUrl && (
           <img
@@ -71,15 +85,14 @@ export function ExpeditionBattleFrame({
         )}
       </header>
 
+      {accessories}
       <div className="abyssa-expedition-frame__shell">
         <FrameRails />
+        {definition.edgeWeave && (
+          <FrameEdgeWeave namespace="abyssa-expedition-frame" />
+        )}
         {definition.cornerOrnamentUrl && (
-          <>
-            {definition.edgeWeave && (
-              <FrameEdgeWeave namespace="abyssa-expedition-frame" />
-            )}
-            <BattleFrameCorners imageUrl={definition.cornerOrnamentUrl} skin={skin} />
-          </>
+          <BattleFrameCorners imageUrl={definition.cornerOrnamentUrl} skin={skin} />
         )}
         <div className="abyssa-expedition-frame__brass">
           <div className="abyssa-expedition-frame__board">

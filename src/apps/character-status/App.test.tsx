@@ -1,160 +1,203 @@
-import { cleanup, render, screen } from "@testing-library/react";
+import {
+  cleanup,
+  render,
+  screen,
+  within,
+  fireEvent,
+  act,
+} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach, describe, expect, it } from "vitest";
-import { App } from "./App";
+import { afterEach, describe, it, expect } from "vitest";
+import { App, CharacterPage } from "./App";
+import {
+  ReadGameGate,
+  ReadSessionScope,
+  ReadGameProvider,
+} from "../../game-client/read-react";
+import { ReadGameSession } from "../../game-client/read-session";
+import { archiveFixture } from "../../game-runtime/testing/archive-fixture";
+import { presentCharacterArchive } from "../../game-client/character-presentation";
+import { DiceLoadoutPanel } from "../../shared/ui/patterns/DiceLoadoutPanel";
+import { LEGACY_VALIDATED_CATALOG } from "../../game-runtime/legacy-context";
+afterEach(() => {
+  cleanup();
+  window.history.replaceState(null, "", "/");
+});
+async function mount(options: Parameters<typeof archiveFixture>[0] = {}) {
+  const f = await archiveFixture(options);
+  const session = new ReadGameSession(f.reader, {
+    saveId: "demo",
+    epoch: "demo-epoch",
+  });
+  await session.refresh();
+  const rendered = render(
+    <ReadSessionScope session={session}>
+      <ReadGameGate>
+        <CharacterPage />
+      </ReadGameGate>
+    </ReadSessionScope>,
+  );
+  return { ...f, session, ...rendered };
+}
+describe("live character archive", () => {
+  it("keeps Marietta's memory entrance above the chronicle without a transition provider", async()=>{
+    window.history.replaceState(null,"","/?character=marietta&tab=archive");
+    await mount();
+    const entry=screen.getByRole("region",{name:"玛丽埃塔回忆战"});
+    expect(entry).toBeVisible();
+    expect(within(entry).getByRole("button")).toBeDisabled();
+  });
 
-afterEach(cleanup);
-
-describe("character status app", () => {
-  it("exposes three archive tabs", () => {
-    render(<App />);
-
-    const tablist = screen.getByRole("tablist", { name: "角色档案分类" });
-    expect(tablist.querySelectorAll('[role="tab"]')).toHaveLength(3);
-    for (const label of ["概要", "骰装", "记事"]) {
-      expect(screen.getByRole("tab", { name: label })).toBeInTheDocument();
-    }
-    expect(screen.getByRole("tab", { name: "概要" })).toHaveAttribute(
-      "aria-selected",
-      "true"
+  it("keeps the original relationship panels when legacy or dossier progress is unrecorded", async () => {
+    const f = await archiveFixture();
+    const created = await f.runtime.create({
+      contentRef: LEGACY_VALIDATED_CATALOG.ref,
+      request: {
+        protocolVersion: 1,
+        saveId: "legacy",
+        epoch: "legacy-epoch",
+        clientRequestId: "create",
+      },
+    });
+    expect(created.ok).toBe(true);
+    const session = new ReadGameSession(f.reader, {
+      saveId: "legacy",
+      epoch: "legacy-epoch",
+    });
+    await session.refresh();
+    const { container } = render(
+      <ReadSessionScope session={session}>
+        <ReadGameGate>
+          <CharacterPage />
+        </ReadGameGate>
+      </ReadSessionScope>,
     );
-  });
-
-  it("only mounts the edge weave for themes that display it", async () => {
-    const user = userEvent.setup();
-    const { container } = render(<App />);
-
-    expect(container.querySelector(".abyssa-character-screen__edge-weave")).not.toBeNull();
-
-    await user.click(screen.getByRole("button", { name: /尤斯缇丝/ }));
-    expect(container.querySelector(".abyssa-character-screen__edge-weave")).toBeNull();
-
-    await user.click(screen.getByRole("button", { name: /艾比希斯/ }));
-    expect(container.querySelector(".abyssa-character-screen__edge-weave")).not.toBeNull();
-  });
-
-  /* 六维评级已删除:它不参战也不叙事。档案不得把它加回来。 */
-  it("no longer renders the six parameter ranks", () => {
-    const { container } = render(<App />);
-
-    expect(container.querySelector(".abyssa-status-panel__parameters")).toBeNull();
-    expect(screen.queryByLabelText("参数")).not.toBeInTheDocument();
-    expect(screen.queryByText("PARAMETERS")).not.toBeInTheDocument();
-    for (const axis of ["LIFE", "POWER", "AGILITY", "MANA", "CONTROL", "TACTICS"]) {
-      expect(screen.queryByText(axis)).not.toBeInTheDocument();
+    for (const name of [/尤斯缇丝/, /蕾诺尔/]) {
+      await userEvent.click(screen.getByRole("button", { name }));
+      expect(screen.getByText("BOND 羁绊")).toBeInTheDocument();
+      expect(screen.getByText("未记录", { exact: true })).toBeInTheDocument();
+      expect(
+        container.querySelectorAll(".abyssa-status-panel__bond-node"),
+      ).toHaveLength(5);
+      expect(
+        container.querySelectorAll(".abyssa-status-panel__pact-stage-inset"),
+      ).toHaveLength(3);
+      expect(
+        container.querySelector(
+          '.abyssa-status-panel__pact-glyph[data-pact-icon="skill"]',
+        ),
+      ).not.toBeNull();
+      expect(screen.queryByText(/0\/100|62\/100|Lv\.0/)).toBeNull();
     }
-    expect(screen.getByText("BIOGRAPHY")).toBeInTheDocument();
-    expect(screen.getByText(/PACT 能力/)).toBeInTheDocument();
-    expect(screen.queryByText("INHERENT TRAITS")).not.toBeInTheDocument();
   });
-
-  it("renders the bond, live status, pact, and biography skeleton", () => {
-    const { container } = render(<App />);
-
-    expect(screen.getByLabelText("羁绊与当前状态")).toBeInTheDocument();
-    expect(screen.queryByText("【默认的默契】")).not.toBeInTheDocument();
-    expect(screen.getByText("62/100")).toBeInTheDocument();
-    expect(screen.getByText("轻伤休养")).toBeInTheDocument();
-    expect(screen.getByText("· 2天")).toBeInTheDocument();
-    expect(screen.getByText("闭门阅卷中")).toBeInTheDocument();
-    expect(container.querySelector(".abyssa-status-panel__bond-main")).not.toBeNull();
-    expect(container.querySelector(".abyssa-status-panel__status")).not.toBeNull();
-    expect(container.querySelector('[data-icon="wound"]')).not.toBeNull();
-    expect(container.querySelector('[data-icon="book"]')).not.toBeNull();
-    expect(container.querySelectorAll('.abyssa-status-panel__bond-node[data-state="complete"]')).toHaveLength(3);
-    expect(container.querySelectorAll('.abyssa-status-panel__bond-node[data-state="current"]')).toHaveLength(1);
-    expect(container.querySelectorAll('.abyssa-status-panel__bond-node[data-state="locked"]')).toHaveLength(1);
-    expect(container.querySelector('.abyssa-bond-crystal[data-state="current"]')).toHaveAttribute("data-highlight", "false");
-    expect(container.querySelector('.abyssa-bond-crystal[data-state="current"]')).toHaveAttribute("data-progress", "62");
+  it("requires a save instead of silently opening the sample", () => {
+    render(<App />);
+    expect(screen.getByRole("link", { name: "选择档案" })).toBeInTheDocument();
+    expect(screen.queryByText("62/100")).toBeNull();
+  });
+  it("shows Kael and three live tabs without invented progress; locked Marietta remains inspectable", async () => {
+    const { container } = await mount({ locked: true });
+    const user = userEvent.setup();
+    expect(screen.getByText("静谧之楔")).toBeInTheDocument();
     expect(
-      [...container.querySelectorAll(".abyssa-bond-crystal__stage-mark")].map((node) => node.textContent)
-    ).toEqual(["I", "II", "III", "V"]);
-    expect(
-      container.querySelector('.abyssa-bond-crystal[data-state="current"] .abyssa-bond-crystal__stage-mark')
+      container.querySelector(".abyssa-status-panel__bond-main"),
     ).toBeNull();
-    expect(container.querySelector<HTMLElement>(".abyssa-status-panel__bond-track")?.style.getPropertyValue("--abyssa-bond-track-progress")).toBe("72.4%");
-    expect(container.querySelectorAll('.abyssa-status-panel__bond-scale i[data-state="complete"]')).toHaveLength(3);
-    expect(container.querySelectorAll('.abyssa-status-panel__bond-scale i[data-state="current"]')).toHaveLength(1);
-
-    expect(screen.getByText("两对成型时")).toBeInTheDocument();
-    expect(container.querySelector("del")).toBeNull();
-    expect(container.querySelector('[data-pact-icon="skill"]')).not.toBeNull();
-    expect(container.querySelector('[data-pact-icon="trigger"]')).not.toBeNull();
-    expect(container.querySelector('[data-pact-icon="authority"]')).not.toBeNull();
-    expect(screen.queryByText("旧约已封存")).not.toBeInTheDocument();
-    expect(screen.queryByText("随机抽取目标强制捆缚")).not.toBeInTheDocument();
-    expect(screen.queryByText(/阶段 III 重签/)).not.toBeInTheDocument();
-    expect(screen.getByText(/捆住一枚敌方意图延迟一回合/)).toBeInTheDocument();
-    expect(screen.getByText("BIOGRAPHY")).toBeInTheDocument();
-    /* 语录已整体移除(太占地方,概要页空间紧张):契约字段、9 条内容、
-       样式令牌全部清掉。这条守着它别再回来。 */
-    expect(container.querySelector(".abyssa-status-panel__quote")).toBeNull();
-  });
-
-  /* 页签过去只改 aria-selected 不换内容(四页渲染同一个面板)。
-     这条钉住「真的分流了」。 */
-  it("swaps panel content between the three tabs", async () => {
-    const user = userEvent.setup();
-    const { container } = render(<App />);
-
-    expect(container.querySelector(".abyssa-status-panel")).not.toBeNull();
-
-    await user.click(screen.getByRole("tab", { name: "骰装" }));
-    expect(container.querySelector(".abyssa-status-panel")).toBeNull();
-    expect(container.querySelector(".abyssa-dice")).not.toBeNull();
-
-    await user.click(screen.getByRole("tab", { name: "记事" }));
-    expect(container.querySelector(".abyssa-dice")).toBeNull();
-    expect(container.querySelector(".abyssa-chronicle")).not.toBeNull();
-
-    await user.click(screen.getByRole("tab", { name: "概要" }));
-    expect(container.querySelector(".abyssa-status-panel")).not.toBeNull();
-  });
-
-  /* 记事页:样稿三人有时间线,其余为占位。
-     摘要读数由 App 给成字符串(面板不推导),所以在这里验。 */
-  it("renders the chronicle timeline with derived summary readings", async () => {
-    const user = userEvent.setup();
-    const { container } = render(<App />);
-
-    await user.click(screen.getByRole("tab", { name: "记事" }));
-
-    /* 蕾诺尔:羁绊 Lv.3、私约 II(取自 profiles.ts)。
-       只在摘要区里找 —— 条目徽标上也会出现 "Lv.3",全局查会撞车。 */
-    expect(container.querySelector(".abyssa-chronicle__list")).not.toBeNull();
-    const summary = container.querySelector(".abyssa-chronicle__summary")!;
-    expect(summary.textContent).toContain("Lv.3");
-    expect(summary.textContent).toContain("II");
-    expect(container.querySelector('[data-placeholder="true"]')).toBeNull();
+    await user.click(screen.getByRole("button", { name: /尤斯缇丝/ }));
+    expect(screen.getByText("BOND 羁绊 · Lv.1")).toBeInTheDocument();
+    expect(screen.queryByText(/0\/100|62\/100|2天/)).toBeNull();
     expect(
-      container.querySelectorAll(".abyssa-chronicle__chapter").length
-    ).toBeGreaterThan(0);
-
-    // 未录入记事的角色落到占位,而不是渲染一条假年表。
-    await user.click(screen.getByRole("button", { name: /诺玛/ }));
-    expect(container.querySelector('[data-placeholder="true"]')).not.toBeNull();
-    expect(container.querySelector(".abyssa-chronicle__entry")).toBeNull();
-  });
-
-  /* 默认落在蕾诺尔 —— 本期两副完整骰装之一。 */
-  it("renders the authored die on the dice tab and a placeholder otherwise", async () => {
-    const user = userEvent.setup();
-    const { container } = render(<App />);
-
+      container.querySelectorAll(".abyssa-status-panel__pact-stage-inset"),
+    ).toHaveLength(3);
+    await user.click(screen.getByRole("button", { name: /玛丽埃塔/ }));
+    expect(screen.getByText("亲征未开放")).toBeInTheDocument();
     await user.click(screen.getByRole("tab", { name: "骰装" }));
-    expect(screen.getByLabelText("命骰六面")).toBeInTheDocument();
-    expect(container.querySelector('[data-placeholder="true"]')).toBeNull();
-    for (const die of container.querySelectorAll<HTMLElement>(
-      ".expedition-flat-die-frame"
-    )) {
-      expect(die.style.getPropertyValue("--expedition-die-theme-color")).toBe(
-        "var(--abyssa-teal)"
-      );
-    }
-
-    // 尤斯缇丝已有骰装,改用尚未编入远征的诺玛验证占位态。
-    await user.click(screen.getByRole("button", { name: /诺玛/ }));
-    expect(container.querySelector('[data-placeholder="true"]')).not.toBeNull();
-    expect(screen.getByText("未编入远征")).toBeInTheDocument();
+    expect(container.querySelectorAll(".abyssa-dice__column")).toHaveLength(6);
+    await user.click(
+      container.querySelector('.abyssa-dice__column[data-face="6"]')!,
+    );
+    const inspector = within(
+      container.querySelector(".abyssa-dice__inspector") as HTMLElement,
+    );
+    expect(inspector.getByText("绞杀红线")).toBeInTheDocument();
+    expect(inspector.getByText("4")).toBeInTheDocument();
+    expect(inspector.getByText("沉眠 · 不参与成牌")).toBeInTheDocument();
+  });
+  it("distinguishes wild points, permanent rust, equipment and resets inspection on character switch", async () => {
+    const { container, session, open } = await mount({ equipment: true });
+    const user = userEvent.setup(),
+      before = await open();
+    await user.click(screen.getByRole("tab", { name: "骰装" }));
+    await user.click(
+      container.querySelector('.abyssa-dice__column[data-face="6"]')!,
+    );
+    expect(screen.getByText("万能 · 无原生点数")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /柯萝萝/ }));
+    expect(screen.queryByText("万能 · 无原生点数")).toBeNull();
+    await user.click(
+      container.querySelector('.abyssa-dice__column[data-face="1"]')!,
+    );
+    expect(screen.getByText(/备用短刃：空面→攻击 1/)).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /玛丽埃塔/ }));
+    await user.click(
+      container.querySelector('.abyssa-dice__column[data-face="1"]')!,
+    );
+    expect(screen.getByText("永久锈 · 不能清理")).toBeInTheDocument();
+    await act(() => session.refresh());
+    expect(await open()).toEqual(before);
+  });
+  it("uses the latest face object after a same-character configuration update", async () => {
+    const a = await archiveFixture(),
+      b = await archiveFixture({ level: 2 });
+    const first = presentCharacterArchive(
+      a.runtime.queries.archive(await a.open()),
+    ).find((x) => x.profile.id === "eustice")!;
+    const next = presentCharacterArchive(
+      b.runtime.queries.archive(await b.open()),
+    ).find((x) => x.profile.id === "eustice")!;
+    const { container, rerender } = render(
+      <DiceLoadoutPanel loadout={first.dice} />,
+    );
+    fireEvent.click(
+      container.querySelector('.abyssa-dice__column[data-face="6"]')!,
+    );
+    expect(screen.getByText("沉眠 · 不参与成牌")).toBeInTheDocument();
+    rerender(<DiceLoadoutPanel loadout={next.dice} />);
+    expect(screen.queryByText("沉眠 · 不参与成牌")).toBeNull();
+    expect(screen.getByText("可参与成牌")).toBeInTheDocument();
+  });
+  it("falls back on a broken portrait and does not leak it to the next character", async () => {
+    const { container } = await mount();
+    const image = container.querySelector(
+      ".abyssa-character-screen__portrait img",
+    )!;
+    fireEvent.error(image);
+    expect(
+      screen.getByRole("img", { name: "凯尔暂无立绘" }),
+    ).toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: /诺玛/ }));
+    expect(
+      container.querySelector(".abyssa-character-screen__portrait img"),
+    ).not.toBeNull();
+  });
+  it("replaces the reader on an epoch switch and never shows the prior record", async () => {
+    const f = await archiveFixture();
+    window.history.replaceState(null, "", "/?save=demo&epoch=demo-epoch");
+    const factory = () => f.reader;
+    render(
+      <ReadGameProvider factory={factory}>
+        <ReadGameGate>
+          <CharacterPage />
+        </ReadGameGate>
+      </ReadGameProvider>,
+    );
+    await screen.findByText("静谧之楔");
+    await act(async () => {
+      window.history.replaceState(null, "", "/?save=demo&epoch=other");
+      window.dispatchEvent(new PopStateEvent("popstate"));
+    });
+    expect(screen.queryByText("静谧之楔")).toBeNull();
+    expect(
+      await screen.findByRole("link", { name: "选择档案" }),
+    ).toBeInTheDocument();
   });
 });

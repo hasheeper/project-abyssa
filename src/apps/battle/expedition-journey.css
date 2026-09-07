@@ -1,0 +1,164 @@
+/* The CG alone walks; atmosphere, hit areas and the battle frame stay anchored. */
+.abyssa-expedition-scene-clip {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  z-index: 0;
+  pointer-events: none;
+}
+.abyssa-expedition-scene {
+  --encounter-final-transform: scale(1.62) rotate(-1.2deg);
+  position: absolute;
+  inset: -5px 0;
+  background-position: center 53%;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+.abyssa-expedition[data-journey-motion="walking"] .abyssa-expedition-scene {
+  animation: manor-walk var(--journey-walk-ms) ease-in-out both;
+}
+@keyframes manor-walk {
+  0%, 100% { transform: translateY(0); }
+  24% { transform: translateY(3px); }
+  52% { transform: translateY(-2px); }
+  78% { transform: translateY(2px); }
+}
+/* A broad push, a gentle arcing recoil, then a deeper push into the double flash.
+   Only the CG moves; the frame, mist and party stay anchored. */
+.abyssa-expedition[data-journey-motion="encounter"] .abyssa-expedition-scene {
+  transform-origin: 50% 54%;
+  animation: manor-encounter-zoom var(--journey-encounter-ms) cubic-bezier(.42, 0, .32, 1) both;
+  will-change: transform;
+}
+@keyframes manor-encounter-zoom {
+  0% { transform: scale(1) rotate(0deg); }
+  45% { transform: scale(1.42) rotate(-.9deg); }
+  72% { transform: scale(1.10) rotate(.35deg); }
+  100% { transform: var(--encounter-final-transform); }
+}
+/* The dark beat between flashes keeps the final camera pose. */
+.abyssa-expedition[data-journey-motion="flash"] .abyssa-expedition-scene {
+  transform-origin: 50% 54%;
+  transform: var(--encounter-final-transform);
+}
+.abyssa-expedition-encounter-flash {
+  position: absolute;
+  inset: 0;
+  z-index: 14;
+  background: #fff;
+  pointer-events: none;
+}
+.abyssa-expedition[data-journey-motion="flash"] .abyssa-expedition-encounter-flash {
+  animation: manor-encounter-double-flash var(--journey-flash-ms) steps(1, end) both;
+}
+@keyframes manor-encounter-double-flash {
+  0% { opacity: 1; }
+  25% { opacity: 0; }
+  50%, 100% { opacity: 1; }
+}
+.abyssa-expedition[data-journey-motion="revealing"] .abyssa-expedition-encounter-flash {
+  animation: manor-encounter-reveal var(--journey-reveal-ms) cubic-bezier(.2, .65, .35, 1) both;
+}
+@keyframes manor-encounter-reveal { from { opacity: 1; } to { opacity: 0; } }
+.abyssa-expedition-journey-content {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: grid;
+  align-items: center;
+  background: linear-gradient(90deg, rgb(5 9 9 / 87%), rgb(8 12 11 / 65%) 58%, rgb(8 12 11 / 8%));
+}
+.abyssa-expedition[data-journey-motion="walking"] .abyssa-expedition-journey-content {
+  animation: manor-depart 220ms ease-out both;
+  pointer-events: none;
+}
+.abyssa-expedition[data-journey-motion="arriving"] .abyssa-expedition-journey-content {
+  animation: manor-arrive var(--journey-arrive-ms) ease-out both;
+}
+.abyssa-expedition:is([data-journey-motion="encounter"], [data-journey-motion="flash"]) .abyssa-expedition-journey-content {
+  visibility: hidden;
+  pointer-events: none;
+}
+@keyframes manor-depart { to { opacity: 0; } }
+@keyframes manor-arrive { from { opacity: 0; } to { opacity: 1; } }
+.manor-journey {
+  display: flex;
+  align-items: center;
+  gap: 38px;
+  min-width: 0;
+  max-height: 100%;
+  padding: 24px 44px;
+  color: var(--battle-detail-copy, #b8b5a4);
+}
+.manor-journey__reading { min-width: 0; flex: 1; }
+.manor-journey__heading { display: flex; align-items: center; gap: 18px; margin-bottom: 18px; }
+.manor-journey__heading > i {
+  width: 48px;
+  height: 48px;
+  flex: 0 0 48px;
+  background: var(--battle-skin-accent-soft, #92968b);
+  mask: center / contain no-repeat;
+}
+.manor-journey small {
+  color: var(--battle-skin-muted, #92968b);
+  font-size: 12px;
+  letter-spacing: 2px;
+}
+.manor-journey h2 {
+  margin: 7px 0 0;
+  color: var(--manor-linen, #cec6ad);
+  font-family: var(--abyssa-font-display);
+  font-size: 28px;
+  font-weight: 500;
+  letter-spacing: 3px;
+  line-height: 1.3;
+}
+.manor-journey__text { max-height: 188px; overflow-y: auto; padding-right: 12px; scrollbar-width: thin; }
+.manor-journey p { margin: 0; font-size: 18px; line-height: 1.8; }
+.manor-journey p + p { margin-top: 10px; }
+.manor-journey__cost { color: var(--battle-skin-muted, #92968b); }
+.manor-journey b { color: var(--manor-linen, #cec6ad); font-weight: 500; }
+.manor-journey .manor-journey__revelation { font-size: 13px; color: var(--battle-skin-muted, #92968b); }
+.manor-journey__detail {
+  flex: 0 0 204px;
+  padding: 12px 0 12px 28px;
+  border-left: 1px solid var(--battle-structure-line, #494333);
+}
+.manor-journey__detail strong { display: block; margin: 10px 0 12px; font-size: 22px; font-family: var(--abyssa-font-display); font-weight: 500; color: var(--manor-linen, #cec6ad); }
+.manor-journey__detail p { font-size: 13px; }
+.manor-journey__detail [data-outcome="failed"] { color: #bf8582; }
+.manor-journey__verdict {
+  display: block;
+  margin: 8px 0 14px;
+  font-family: var(--abyssa-font-display);
+  color: var(--manor-linen, #cec6ad);
+  font-size: 28px;
+  letter-spacing: 2px;
+}
+.manor-journey__checks { display: grid; gap: 8px; margin-bottom: 10px; font-size: 13px; }
+.manor-journey__checks > span { display: flex; justify-content: space-between; gap: 12px; color: var(--battle-skin-muted, #92968b); }
+.manor-journey__checking { color: var(--battle-skin-muted, #92968b); }
+.manor-journey__faces { display: flex; gap: 7px; margin: 16px 0; }
+.manor-journey__faces i { width: 9px; height: 9px; border: 1px solid var(--battle-skin-muted, #92968b); transform: rotate(45deg); }
+.manor-journey__faces i[data-ready] { background: var(--battle-skin-accent-soft, #92968b); }
+.abyssa-expedition-party-card[data-event-selectable="true"] { cursor: pointer; }
+.abyssa-expedition-party-card[data-event-selected="true"] {
+  outline: 1px solid var(--battle-skin-accent-soft, #92968b);
+  outline-offset: 4px;
+}
+.abyssa-expedition-party-card[data-event-selectable="true"]:focus-visible { outline: 2px solid var(--battle-skin-accent-bright, #cec6ad); outline-offset: 4px; }
+.manor-journey-actions {
+  display: grid;
+  width: 100%;
+  grid-template-columns: var(--expedition-action-button-w) calc(var(--expedition-action-reroll-w) + var(--expedition-action-gap) + var(--expedition-action-hand-w)) var(--expedition-action-button-w);
+  justify-content: center;
+  align-items: center;
+  gap: var(--expedition-action-gap);
+}
+.manor-journey-actions > span { min-width: 0; color: var(--battle-skin-muted, #92968b); font-size: 15px; line-height: 1.35; text-align: center; letter-spacing: 1px; }
+@media (prefers-reduced-motion: reduce) {
+  .abyssa-expedition-scene,
+  .abyssa-expedition-journey-content { animation: none !important; }
+  .abyssa-expedition-scene { transform: none !important; }
+  .abyssa-expedition-encounter-flash { display: none; }
+}

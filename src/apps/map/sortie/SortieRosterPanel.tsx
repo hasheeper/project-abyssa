@@ -44,6 +44,7 @@ export interface SortieRosterPanelProps {
   party: SortieParty;
   onToggleMember: (memberId: string) => void;
   onClose: () => void;
+  inspectHref?: (id: string) => string;
 }
 
 /* 六面摊成一排，不再折成 4x3 十字。
@@ -123,12 +124,16 @@ function ConfirmPartyIcon() {
   );
 }
 
-/** 六面一排。沉眠面按 seal="none" 渲染，与骰装页同一套骰面件。 */
+/** 六面一排。沉眠面按 seal="none" 渲染，与骰装页同一套骰面件。
+ *  live 档案带品质（锈/金）与花色可知性：旧版规则不提供花色时不冒充
+ *  （与 DiceLoadoutPanel 同一处理——花色角标退回中性底板，标题不报花色）。 */
 function FaceStrip({ faces, themeColor }: { faces: readonly DieFace[]; themeColor: string }) {
   return (
     <div className="abyssa-sortie__strip">
       {faces.slice(0, 6).map((face) => {
         const awake = fateEntersHand(face.fate);
+        const suitKnown = !face.live || face.live.suitKnown;
+        const label = face.live?.actionLabel ?? DIE_FACE_ACTION_LABELS[face.action];
         return (
           <span
             className="abyssa-sortie__strip-cell"
@@ -136,7 +141,7 @@ function FaceStrip({ faces, themeColor }: { faces: readonly DieFace[]; themeColo
             data-fate={face.fate}
             title={
               awake
-                ? `第 ${face.face} 面 · ${DIE_FACE_ACTION_LABELS[face.action]} ${face.power} · 命数 ${face.pip} · ${DIE_SUIT_LABELS[face.suit]}`
+                ? `第 ${face.face} 面 · ${label} ${face.power} · 命数 ${face.wildPip ? "万能" : face.pip}${suitKnown ? ` · ${DIE_SUIT_LABELS[face.suit]}` : ""}`
                 : `第 ${face.face} 面 · 沉眠`
             }
           >
@@ -144,8 +149,8 @@ function FaceStrip({ faces, themeColor }: { faces: readonly DieFace[]; themeColo
               action={face.action}
               fate={face.pip}
               power={face.power}
-              seal={awake ? "plain" : "none"}
-              suitShape={DIE_SUIT_SHAPES[face.suit]}
+              seal={face.live?.quality ?? (awake ? "plain" : "none")}
+              suitShape={suitKnown ? DIE_SUIT_SHAPES[face.suit] : undefined}
               themeColor={themeColor}
               wildPip={face.wildPip}
               scoring={awake}
@@ -157,6 +162,11 @@ function FaceStrip({ faces, themeColor }: { faces: readonly DieFace[]; themeColo
       })}
     </div>
   );
+}
+
+/** live 花色未知（旧版规则）时，花色构成与同花提示都不该出现。 */
+function suitsKnown(faces: readonly DieFace[]): boolean {
+  return faces.every((face) => !face.live || face.live.suitKnown);
 }
 
 /* 立绘取景沿用 RP 那套已经调好的逐角色校准（spriteCalibration），
@@ -192,8 +202,10 @@ export function SortieRosterPanel({
   leader,
   party,
   onToggleMember,
+  inspectHref,
   onClose
 }: SortieRosterPanelProps) {
+  const [lastInspected, setLastInspected] = useState<string | null>(null);
   const [inspected, setInspected] = useState<string | null>(null);
 
   const inParty = (id: string) => party.memberIds.includes(id);
@@ -220,6 +232,11 @@ export function SortieRosterPanel({
   const focusComposition = focus
     ? composeParty([{ faces: focus.faces, primarySuit: focus.primarySuit, faction: focus.faction }])
     : null;
+  /* 旧版档案不提供花色：构成表照常给战面/命数，但花色行不冒充。 */
+  const focusSuitsKnown = focus ? suitsKnown(focus.faces) : true;
+  const partySuitsKnown =
+    partyMembers.every((member) => suitsKnown(member.faces)) && suitsKnown(leader.faces);
+  const shownSuitsKnown = focus ? focusSuitsKnown : partySuitsKnown;
 
   return (
     /* 外框走 RpgFrame，不自己画 border —— 抽屉是浮在地图上的实体面板，
@@ -252,13 +269,14 @@ export function SortieRosterPanel({
               key={member.id}
               type="button"
               data-ready={ready || undefined}
+              data-member={member.id}
               data-chosen={chosen || undefined}
               data-faction={member.faction}
               aria-pressed={chosen}
               aria-label={member.name}
               onClick={() => onToggleMember(member.id)}
-              onMouseEnter={() => setInspected(member.id)}
-              onFocus={() => setInspected(member.id)}
+              onMouseEnter={() => { setInspected(member.id); setLastInspected(member.id); }}
+              onFocus={() => { setInspected(member.id); setLastInspected(member.id); }}
             >
               <span className="abyssa-sortie-poster__clip">
                 <span className="abyssa-sortie-poster__art">
@@ -296,6 +314,7 @@ export function SortieRosterPanel({
                 : `${composition.diceCount} 骰 · ${SORTIE_COMMAND_LABELS[party.command]}`}
             </em>
           </span>
+          {inspectHref && <a className="abyssa-sortie-inspect-link" href={inspectHref(lastInspected ?? leader.id)}>查看{roster.find(m => m.id === lastInspected)?.shortName ?? leader.shortName}档案</a>}
           <IconButton
             className="abyssa-sortie-roster__done"
             label="完成编队"
@@ -376,13 +395,22 @@ export function SortieRosterPanel({
           <div>
             <dt>花色</dt>
             <dd>
-              <SuitTally composition={focus ? focusComposition! : composition} />
+              {shownSuitsKnown ? (
+                <SuitTally composition={focus ? focusComposition! : composition} />
+              ) : (
+                <span className="abyssa-sortie__muted">此版本未提供</span>
+              )}
             </dd>
           </div>
           <div>
             <dt>{focus ? "私约" : "赌法"}</dt>
             <dd className="abyssa-sortie-info__note">
-              {focus ? focus.pact ?? "尚无私约" : describeGamble(composition)}
+              {focus
+                ? focus.pact ?? "尚无私约"
+                : describeGamble(
+                    /* 花色未知时不给同花提示：旧版占位花色不该被拿去许诺同花。 */
+                    partySuitsKnown ? composition : { ...composition, dominantSuit: null }
+                  )}
             </dd>
           </div>
         </dl>

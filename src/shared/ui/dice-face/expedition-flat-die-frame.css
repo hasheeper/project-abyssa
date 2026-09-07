@@ -154,6 +154,14 @@
   filter: drop-shadow(0 0 2px rgb(255 224 146 / 76%));
 }
 
+/* 沉眠不是一个可用的点数；在原命数角标内标明，不再只把数字压暗。 */
+.expedition-flat-die-frame[data-asleep] .expedition-flat-die-frame__fate {
+  fill: #c3bcb1;
+  font-family: var(--abyssa-font-serif, "Songti SC", "Noto Serif SC", serif);
+  font-size: 29px;
+  font-weight: 600;
+}
+
 .expedition-flat-die-frame__seal {
   --seal: #c9ab68;
   display: block;

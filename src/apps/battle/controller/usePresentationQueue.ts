@@ -3,12 +3,12 @@ import { useCallback, useEffect, useRef, useState } from "react";
 export function usePresentationQueue() {
   const runRef = useRef(0);
   const busyRef = useRef(false);
-  const timersRef = useRef<number[]>([]);
+  const timersRef = useRef(new Map<number, (value: boolean) => void>());
   const [busy, setBusy] = useState(false);
 
   const clearTimers = useCallback(() => {
-    for (const timer of timersRef.current) window.clearTimeout(timer);
-    timersRef.current = [];
+    for (const [timer, resolve] of timersRef.current) { window.clearTimeout(timer); resolve(false); }
+    timersRef.current.clear();
   }, []);
 
   const begin = useCallback((): number | null => {
@@ -22,12 +22,10 @@ export function usePresentationQueue() {
   const wait = useCallback((duration: number, runId: number) =>
     new Promise<boolean>((resolve) => {
       const timer = window.setTimeout(() => {
-        timersRef.current = timersRef.current.filter(
-          (activeTimer) => activeTimer !== timer
-        );
+        timersRef.current.delete(timer);
         resolve(runRef.current === runId);
       }, duration);
-      timersRef.current.push(timer);
+      timersRef.current.set(timer, resolve);
     }), []);
 
   const complete = useCallback((runId: number) => {

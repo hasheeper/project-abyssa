@@ -258,18 +258,33 @@
   translate: 0 4px;
 }
 
+/* 自动装载的最后一投也先落回骰盘，再抬起锁定。 */
+.abyssa-expedition-die-slot .expedition-die[data-rolling] {
+  translate: 0 4px;
+}
+
 /* 已装载：抬起并锁定（不参与重掷） */
-.abyssa-expedition-die-slot[data-loaded] .expedition-die {
+.abyssa-expedition-die-slot[data-loaded] .expedition-die:not([data-rolling]) {
   opacity: 1;
   translate: 0 -3px;
 }
 
-/* 已消耗：本回合该角色行动完毕 */
+/* 已使用仅耗尽行动：命数角标仍参与成牌，不能连同骰子一起压暗。 */
 .abyssa-expedition-die-slot[data-spent] .expedition-die {
   cursor: default;
-  filter: grayscale(.85) brightness(.6);
-  opacity: .42;
   translate: 0 2px;
+}
+
+.abyssa-expedition-die-slot[data-spent] .expedition-flat-die-frame__main-stamp {
+  opacity: .25;
+}
+
+.abyssa-expedition-die-slot[data-spent] .expedition-flat-die-frame__power {
+  opacity: .3;
+}
+
+.abyssa-expedition-die-slot[data-spent] .expedition-die__selection {
+  opacity: .25;
 }
 
 .abyssa-expedition-die-slot[data-sealed] .expedition-die {
@@ -288,40 +303,25 @@
   animation: none;
 }
 
-/* ---------- 行动条布局（5 列） ---------- */
-
-/* REROLL / 重掷读数 / 牌型读数 / END TURN / 菱形撤回。
-   撤回按钮对齐面板右端，牌型占据中段留出的空间。 */
-.abyssa-expedition-action-controls {
-  /* 沿用原始基准：按钮 150px、读数槽 110px，均定宽不挤压 */
-  grid-template-columns: 150px 96px 150px 150px;
-  gap: 18px;
-  justify-content: center;
-}
-
-.abyssa-expedition-action-controls .dice-action-button {
-  width: 100%;
-  min-width: 0;
-}
-
 /* ---------- 菱形撤回：紧挨操作栏左侧，不占内部栅格 ---------- */
 
-.abyssa-expedition-undo.abyssa-icon-button {
+.abyssa-expedition-undo.abyssa-icon-button,
+.abyssa-expedition .action-dock__switch.abyssa-icon-button {
   --abyssa-icon-fill: #24180d;
   --abyssa-icon-middle: #72572f;
   --abyssa-icon-ornament: #8d7040;
   --abyssa-icon-ink: #e9dcc5;
   --abyssa-icon-pattern-dark: rgb(215 187 124 / 5%);
   --abyssa-icon-pattern-light: rgb(255 244 214 / 2%);
+}
+
+.abyssa-expedition-undo.abyssa-icon-button {
   position: absolute;
   z-index: 4;
-  /* 纵向：以 dock 上边框线为中心，按钮上下各跨一半（64/2 = 32px）。
-     横向：右边缘贴齐 dock 左沿，不进入内容区、不压 REROLL。 */
-  bottom: 100%;
-  right: 100%;
-  width: 64px;
-  height: 64px;
-  margin-bottom: -32px;
+  top: calc(50% - var(--action-dock-edge-size) / 2 + var(--expedition-action-content-drop, 0px));
+  right: calc(100% - var(--action-dock-pad-inline));
+  width: var(--action-dock-edge-size);
+  height: var(--action-dock-edge-size);
 }
 
 .abyssa-expedition-undo .abyssa-icon-button__custom > svg {
@@ -330,7 +330,8 @@
   transform: scaleX(-1);
 }
 
-.abyssa-expedition-undo:not(:disabled):hover {
+.abyssa-expedition-undo:not(:disabled):hover,
+.action-dock__switch:not(:disabled):hover {
   --abyssa-icon-ink: #fff3d2;
   --abyssa-icon-middle: #a67f43;
 }
@@ -339,6 +340,16 @@
   cursor: not-allowed;
   filter: grayscale(.7) brightness(.62);
   opacity: .5;
+}
+
+/* Keyboard focus follows the existing diamond instead of drawing a square. */
+.abyssa-expedition .action-dock > .abyssa-icon-button:focus-visible {
+  outline: none;
+}
+.abyssa-expedition .action-dock > .abyssa-icon-button:focus-visible .abyssa-icon-button__art {
+  filter: drop-shadow(0 0 2px var(--battle-skin-accent-bright));
+  --abyssa-icon-middle: var(--battle-skin-accent-bright);
+  --abyssa-icon-ornament: var(--battle-skin-accent-bright);
 }
 
 /* ---------- 牌型读数凹槽 ---------- */

@@ -1,8 +1,8 @@
 
 /* ============================================================
-   编队界面皮肤
+   战斗界面皮肤
 
-   这里只改「谁在指挥这场战斗」的外壳：画框、结构线、顶饰与底板。
+   编队或场所只决定表现外壳：画框、结构线、顶饰与底板。
    生命、攻击、格挡、骰面品质等战斗语义色不得跟随皮肤漂移。
 ============================================================ */
 
@@ -314,7 +314,7 @@
   width: 184px;
   height: 52px;
   padding: 7px 11px 7px 10px;
-  grid-template-columns: 31px minmax(0, 1fr) auto;
+  grid-template-columns: 37px minmax(0, 1fr) auto;
   align-items: center;
   gap: 8px;
   border: 1px solid var(--battle-frame-deep);
@@ -377,7 +377,8 @@
 .abyssa-expedition[data-ui-skin="timber"] .abyssa-expedition-skin-switch__sigil i[data-skin="timber"],
 .abyssa-expedition[data-ui-skin="hero-party"] .abyssa-expedition-skin-switch__sigil i[data-skin="hero-party"],
 .abyssa-expedition[data-ui-skin="demon-cadre"] .abyssa-expedition-skin-switch__sigil i[data-skin="demon-cadre"],
-.abyssa-expedition[data-ui-skin="demon-lord"] .abyssa-expedition-skin-switch__sigil i[data-skin="demon-lord"] {
+.abyssa-expedition[data-ui-skin="demon-lord"] .abyssa-expedition-skin-switch__sigil i[data-skin="demon-lord"],
+.abyssa-expedition[data-ui-skin="old-manor"] .abyssa-expedition-skin-switch__sigil i[data-skin="old-manor"] {
   background: var(--battle-skin-accent-bright);
   box-shadow: 0 0 7px color-mix(in srgb, var(--battle-skin-accent-bright) 58%, transparent);
 }
@@ -698,7 +699,8 @@
   --abyssa-shape-ornament: var(--battle-skin-accent-bright);
 }
 
-.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-undo.abyssa-icon-button {
+.abyssa-expedition[data-ui-ornamented] .abyssa-expedition-undo.abyssa-icon-button,
+.abyssa-expedition[data-ui-ornamented] .action-dock__switch.abyssa-icon-button {
   --abyssa-icon-fill: var(--battle-frame-surface);
   --abyssa-icon-middle: var(--battle-skin-accent);
   --abyssa-icon-ornament: var(--battle-skin-accent-soft);

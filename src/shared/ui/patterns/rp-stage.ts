@@ -40,8 +40,8 @@ export interface RpStageState {
  * Replays the append-only transcript into two actor seats. Existing actors
  * keep their seat; a third actor replaces the least-recently-speaking seat.
  */
-export function deriveRpStage(messages: readonly RpMessage[]): RpStageState {
-  const slots: Record<RpSeat, string | null> = { left: null, right: null };
+export function deriveRpStage(messages: readonly RpMessage[], initialSlots?: Partial<Record<RpSeat, string>>): RpStageState {
+  const slots: Record<RpSeat, string | null> = { left: initialSlots?.left ?? null, right: initialSlots?.right ?? null };
   const lastSpoke: Record<RpSeat, number> = { left: -1, right: -1 };
   const sideByMessage = new Map<string, RpSeat>();
   let tick = 0;

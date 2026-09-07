@@ -1,3 +1,11 @@
+import { clientFixture } from "../../game-client/testing/helpers";
+let fixture: Awaited<ReturnType<typeof clientFixture>>;
+vi.mock("../../game-client/react", async importOriginal => {
+  const original = await importOriginal<typeof import("../../game-client/react")>();
+  return { ...original, GameProvider: ({ children }: { children: React.ReactNode }) => <original.GameSessionScope session={fixture.session}>{children}</original.GameSessionScope> };
+});
+beforeEach(async () => { fixture = await clientFixture({ start: false, initial: undefined }); });
+afterEach(() => fixture.session.dispose());
 import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -85,7 +93,7 @@ describe("map sortie", () => {
     /* 浮层展开时地图不再响应点击，否则点面板会穿透到地图上换节点。 */
     expect(mocks.setInteractive).toHaveBeenLastCalledWith(false);
 
-    for (const name of ["尤斯缇丝·格里芬", "艾比希斯·贝尔泽兰", "艾洛拉·亚金特", "柯萝萝·拉普拉斯"]) {
+    for (const name of ["尤斯缇丝·格里芬", "诺玛·洛克", "艾洛拉·亚金特", "柯萝萝·拉普拉斯"]) {
       await user.click(screen.getByRole("button", { name }));
     }
     await user.click(screen.getByRole("button", { name: "完成编队" }));
@@ -98,29 +106,16 @@ describe("map sortie", () => {
   });
 
   /* 九人都可编入以预览 Q 版立绘；资料不完整时只禁用最后出发。 */
-  it("lets injured and dieless members switch into the preview party", async () => {
-    const user = userEvent.setup();
-    render(<MapPage />);
-    await openTeam(user);
-
-    const injured = screen.getByRole("button", { name: "蕾诺尔·伏尼契" });
-    const dieless = screen.getByRole("button", { name: "艾洛拉·亚金特" });
-    expect(injured).toBeEnabled();
-    expect(dieless).toBeEnabled();
-
-    await user.click(injured);
-    await user.click(dieless);
-    expect(screen.getByText("已选 2 / 4")).toBeInTheDocument();
-
-    await user.click(screen.getByRole("button", { name: "完成编队" }));
-    mocks.select?.({ id: "cave" });
-    const quest = await screen.findByRole("complementary", { name: "潮声溶洞 委托" });
-    expect(within(quest).getByRole("button", { name: "出发" })).toBeDisabled();
-    expect(within(quest).getByText(/现在出不了门/)).toBeInTheDocument();
+  it("offers only the four implemented campaign companions", async () => {
+    const user = userEvent.setup(); render(<MapPage />); await openTeam(user);
+    const roster = screen.getByRole("region", { name: "出战名单" });
+    expect(roster.querySelectorAll('button[data-ready="true"]')).toHaveLength(4);
+    expect(screen.queryByRole("button", { name: "蕾诺尔·伏尼契" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "艾比希斯·贝尔泽兰" })).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "艾洛拉·亚金特" }));
+    expect(screen.getByText("已选 1 / 4")).toBeInTheDocument();
   });
 
-  /* 出征的人排最前：那是这一屏的答案（「我这趟带了谁」），
-     不该混在候选中间等玩家横着扫一遍去找。 */
   it("moves enlisted members to the head of the roster", async () => {
     const user = userEvent.setup();
     const { container } = render(<MapPage />);
@@ -132,10 +127,10 @@ describe("map sortie", () => {
       );
 
     /* 艾比希斯初始排在尤斯缇丝之后。 */
-    expect(names().indexOf("艾比希斯")).toBeGreaterThan(0);
+    expect(names().indexOf("诺玛")).toBeGreaterThan(0);
 
-    await user.click(screen.getByRole("button", { name: "艾比希斯·贝尔泽兰" }));
-    expect(names()[0]).toBe("艾比希斯");
+    await user.click(screen.getByRole("button", { name: "诺玛·洛克" }));
+    expect(names()[0]).toBe("诺玛");
   });
 
   it("enlists an available member and numbers the slot", async () => {
@@ -154,8 +149,8 @@ describe("map sortie", () => {
 
     /* 地标是 WebGL 纸片，HTML 遮罩盖不住 canvas 内部 ——
        所以选中态必须下发到 Three 侧，不能只靠 CSS。 */
-    mocks.select?.({ id: "tower" });
-    expect(await screen.findByRole("complementary", { name: "废弃哨塔 委托" })).toBeInTheDocument();
+    act(() => mocks.select?.({ id: "tower" }));
+    expect(await screen.findByRole("complementary", { name: "裂隙远征 委托" })).toBeInTheDocument();
     expect(mocks.setSelected).toHaveBeenLastCalledWith("tower", "right");
   });
 
@@ -186,7 +181,7 @@ describe("map sortie", () => {
     expect(partyStage(container)).toBe(stage);
 
     act(() => mocks.select?.({ id: "tower" }));
-    const tower = await screen.findByRole("complementary", { name: "废弃哨塔 委托" });
+    const tower = await screen.findByRole("complementary", { name: "裂隙远征 委托" });
     const towerStage = partyStage(container);
     expect(tower).toHaveAttribute("data-side", "right");
     expect(towerStage).toBe(stage);
@@ -220,12 +215,12 @@ describe("map sortie", () => {
     expect(stage).toHaveAttribute("data-quest-side", "left");
   });
 
-  it("blocks departure until someone is aboard, then writes the order and leaves", async () => {
+  it("blocks departure until someone is aboard, then commits the actual party before navigating", async () => {
     const user = userEvent.setup();
     render(<MapPage />);
 
-    mocks.select?.({ id: "cave" });
-    const quest = await screen.findByRole("complementary", { name: "潮声溶洞 委托" });
+    act(() => mocks.select?.({ id: "tower" }));
+    const quest = await screen.findByRole("complementary", { name: "裂隙远征 委托" });
     const depart = within(quest).getByRole("button", { name: "出发" });
     expect(depart).toBeDisabled();
     expect(within(quest).getByText("至少要带一个人。")).toBeInTheDocument();
@@ -239,57 +234,41 @@ describe("map sortie", () => {
     /* 从委托进的配队，编完要回到那份委托，而不是掉回裸地图。 */
     await user.click(screen.getByRole("button", { name: "完成编队" }));
 
-    const reopened = await screen.findByRole("complementary", { name: "潮声溶洞 委托" });
+    const reopened = await screen.findByRole("complementary", { name: "裂隙远征 委托" });
     await user.click(within(reopened).getByRole("button", { name: "出发" }));
 
-    const order = JSON.parse(sessionStorage.getItem(SORTIE_ORDER_STORAGE_KEY)!);
-    expect(order).toMatchObject({
-      version: 1,
-      nodeId: "cave",
-      memberIds: ["eustice"],
-      command: "personal",
-      diceCount: 2
-    });
+    expect(sessionStorage.getItem(SORTIE_ORDER_STORAGE_KEY)).toBeNull();
+    const record = fixture.session.getSnapshot().record!;
+    if (record.schemaVersion !== 1) throw new Error("legacy fixture required");
+    expect(record.snapshot.expedition?.party.map(member => member.id)).toEqual(["kael", "eustice"]);
     expect(mocks.navigate).toHaveBeenCalledWith(
-      "./battle.html",
-      expect.objectContaining({ destination: "潮声溶洞" })
+      expect.stringMatching(/^\.\/battle.html\?save=save&epoch=epoch&expedition=/),
+      expect.objectContaining({ destination: "裂隙遠征" })
     );
   });
 
-  it("toggles the fifth die by putting the leader on or off the roster", async () => {
-    const user = userEvent.setup();
-    render(<MapPage />);
-    await openTeam(user);
-
+  it("keeps the leader enlisted and disables delegated sorties", async () => {
+    const user = userEvent.setup(); render(<MapPage />); await openTeam(user);
     const leader = screen.getByRole("button", { name: /凯尔亲征/ });
-    expect(leader).toHaveAttribute("aria-pressed", "true");
-
+    expect(leader).toBeDisabled();
     await user.click(leader);
-    expect(screen.getByRole("button", { name: /凯尔留守/ })).toHaveAttribute(
-      "aria-pressed",
-      "false"
-    );
+    expect(leader).toHaveAttribute("aria-pressed", "true");
   });
 
-  /* 骨架稿用 ⚔🛡⚕💰○ 当图标。图标必须是 mask 过的 SVG，
-     否则字体缺字时会退化成豆腐块，也无法被令牌色着色。 */
-  it("draws tallies with masked svg icons, never with text glyphs", async () => {
-    const user = userEvent.setup();
-    const { container } = render(<MapPage />);
-    await openTeam(user);
-
-    const icons = container.querySelectorAll(".abyssa-sortie__tally-icon");
-    expect(icons.length).toBeGreaterThan(0);
-    icons.forEach((icon) => {
-      expect((icon as HTMLElement).style.maskImage || (icon as HTMLElement).style.webkitMaskImage).toContain("url(");
-    });
-
+  /* 骰面必须以共享骰面件呈现，不许退化成纯文字段落；
+     但旧版规则不提供花色，花色行与角标不得冒充（与骰装页同一口径）。 */
+  it("renders live archive faces as shared die frames without advertising unknown suits", async () => {
+    const user = userEvent.setup(); const { container } = render(<MapPage />); await openTeam(user);
+    await user.hover(screen.getByRole("button", { name: "艾洛拉·亚金特" }));
     const drawer = screen.getByRole("region", { name: "出战名单" });
-    expect(drawer.textContent ?? "").not.toMatch(/[⚔🛡⚕💰○☀▣▲☾✕]/u);
+    expect(drawer.querySelectorAll(".abyssa-sortie__strip-cell .expedition-flat-die-frame")).toHaveLength(6);
+    /* 战面构成表仍是 mask 过的 SVG 图标，不是文字符号。 */
+    expect(container.querySelectorAll(".abyssa-sortie__tally-icon").length).toBeGreaterThan(0);
+    /* 旧版档案没有花色：不显示同花统计，也不在骰面标题里报花色。 */
+    expect(drawer).toHaveTextContent("此版本未提供");
+    expect(drawer.textContent ?? "").not.toMatch(/圣辉|渊影|彼岸/);
   });
 
-  /* 浮层外框必须来自 RpgFrame，不许自己画一圈 border ——
-     抽屉与侧板是浮在地图上的实体面板，边框语汇要与商店 / 档案同源。 */
   it("frames both overlays with RpgFrame rather than a bare border", async () => {
     const user = userEvent.setup();
     render(<MapPage />);
@@ -301,7 +280,7 @@ describe("map sortie", () => {
     expect(drawer.querySelector(":scope > .abyssa-frame__ornaments")).not.toBeNull();
 
     await user.click(screen.getByRole("button", { name: "关闭当前面板" }));
-    mocks.select?.({ id: "cave" });
+    act(() => mocks.select?.({ id: "cave" }));
     const quest = await screen.findByRole("complementary", { name: "潮声溶洞 委托" });
     expect(quest).toHaveClass("abyssa-frame");
     expect(quest.querySelector(":scope > .abyssa-frame__content")).not.toBeNull();
@@ -310,49 +289,28 @@ describe("map sortie", () => {
   /* 点进副本至少要有简报。三块全是空虚线框等于没做。
      但简报里不许出现难度星级 / 推荐等级 / 胜率 / 金币数额 ——
      「编队即难度」，用数字替玩家把牌读完就废了这条设计护栏。 */
-  it("briefs the quest without handing out difficulty or payout numbers", async () => {
-    render(<MapPage />);
-    mocks.select?.({ id: "cave" });
-    const quest = await screen.findByRole("complementary", { name: "潮声溶洞 委托" });
-
-    expect(within(quest).getByRole("heading", { name: "威胁" })).toBeInTheDocument();
-    expect(within(quest).getByRole("heading", { name: "收益" })).toBeInTheDocument();
-    /* 威胁写的是敌人做什么，不是属性克制。 */
-    expect(within(quest).getAllByRole("listitem").length).toBeGreaterThan(3);
-
-    const text = quest.textContent ?? "";
-    expect(text).not.toMatch(/难度|推荐等级|胜率|星级/);
-    /* 出发前不存在确定数额：结算是「金币 x 累计倍率」。 */
-    expect(text).not.toMatch(/\d+\s*(金币|里拉|晶石)/);
-    expect(text).not.toMatch(/[★☆]/);
+  it("briefs the implemented rift and explicitly closes other destinations", async () => {
+    render(<MapPage />); act(() => mocks.select?.({ id: "tower" }));
+    let quest = await screen.findByRole("complementary", { name: "裂隙远征 委托" });
+    expect(quest).toHaveTextContent("敌人会公开下一步意图");
+    expect(quest).toHaveTextContent("各层独立入袋");
+    act(() => mocks.select?.({ id: "cave" }));
+    quest = await screen.findByRole("complementary", { name: "潮声溶洞 委托" });
+    expect(within(quest).getByRole("button", { name: "出发" })).toBeDisabled();
+    expect(quest).toHaveTextContent("此处暂未开放远征");
   });
 
-  /* 金币与晶石必须用全仓库统一的货币形制（.abyssa-currency-amount），
-     不能另找一个 game-icons 图标 —— 同一种货币在商店、枢纽顶栏与这里
-     长相不一致，玩家会当成两种东西。素材没有货币形制，走 mask 图标。 */
-  it("draws currency yields with the shared currency glyph", async () => {
-    render(<MapPage />);
-    mocks.select?.({ id: "cave" });
-    const quest = await screen.findByRole("complementary", { name: "潮声溶洞 委托" });
-
-    const coin = quest.querySelector('[data-spoil="coin"] .abyssa-currency-amount');
-    const crystal = quest.querySelector('[data-spoil="crystal"] .abyssa-currency-amount');
-    expect(coin).toHaveAttribute("data-currency", "lira");
-    expect(crystal).toHaveAttribute("data-currency", "crystal");
-    /* 样式挂在 `.abyssa-currency-amount i` 上，这层包裹不能省。 */
-    expect(coin!.querySelector("i")).not.toBeNull();
-
-    const material = quest.querySelector('[data-spoil="material"] .abyssa-sortie-quest__spoil');
-    expect((material as HTMLElement).style.maskImage).toContain("url(");
+  it("does not promise prototype items or currency yields before departure", async () => {
+    render(<MapPage />); act(() => mocks.select?.({ id: "tower" }));
+    const quest = await screen.findByRole("complementary", { name: "裂隙远征 委托" });
+    expect(quest.querySelectorAll('[data-spoil]')).toHaveLength(0);
+    expect(quest.textContent).not.toMatch(/\d+\s*(金币|里拉|晶石)/);
   });
 
-  /* 只给读屏器的文本必须真的收起来。绝对定位要有定位祖先，
-     否则会脱到外层去，在别处占位并显示出来 —— 委托侧板曾渲染出
-     「收益薄」这样的重复文字。 */
   it("does not leak screen-reader text into the visible copy", async () => {
     const user = userEvent.setup();
     render(<MapPage />);
-    mocks.select?.({ id: "cave" });
+    act(() => mocks.select?.({ id: "cave" }));
     const quest = await screen.findByRole("complementary", { name: "潮声溶洞 委托" });
     expect(quest.textContent ?? "").not.toMatch(/收益[薄中厚]/);
 
@@ -398,7 +356,7 @@ describe("map sortie", () => {
 
     await user.click(done);
 
-    mocks.select?.({ id: "cave" });
+    act(() => mocks.select?.({ id: "cave" }));
     const quest = await screen.findByRole("complementary", { name: "潮声溶洞 委托" });
 
     /* 头像框是共享件（切角六边形），不是自己画的圆或圆角矩形。 */

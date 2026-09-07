@@ -198,7 +198,9 @@ export function CharacterPortraitSelector({
                       {item.thumbnailUrl && (
                         <img
                           className="abyssa-character-portrait-selector__image"
+                          key={item.thumbnailUrl}
                           src={item.thumbnailUrl}
+                          onError={event => { event.currentTarget.style.visibility = "hidden"; }}
                           alt={item.thumbnailAlt ?? ""}
                         />
                       )}

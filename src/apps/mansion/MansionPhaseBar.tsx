@@ -54,6 +54,7 @@ const FIRST_X = (BAR_W - TRACK_W) / 2;
 const DAY_PLATE = "M8 3 H54 L59 8 V58 L54 63 H8 L3 58 V8 Z";
 
 export interface MansionPhaseBarProps {
+  readOnly?: boolean;
   phases: MansionPhase[];
   value: MansionPhaseId;
   /** 第几天。四相位走完一轮才 +1。 */
@@ -125,6 +126,7 @@ function Facet({ state }: { state: "current" | "elapsed" | "coming" }) {
 }
 
 export function MansionPhaseBar({
+  readOnly = false,
   phases,
   value,
   day,
@@ -214,6 +216,7 @@ export function MansionPhaseBar({
               style={{ left: `${(slotCenter(index) / BAR_W) * 100}%` }}
               aria-label={phase.label}
               aria-pressed={phase.id === value}
+              disabled={readOnly}
               onClick={() => onSelect(phase.id)}
             >
               <Facet state={state} />
@@ -258,6 +261,7 @@ export function MansionPhaseBar({
       <button
         type="button"
         className="mansion-phasebar__advance"
+        disabled={readOnly}
         onClick={onAdvance}
         aria-label="推进相位"
       >

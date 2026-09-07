@@ -27,7 +27,7 @@
 - 构建：`npm run build:party-figure-studio`
 - 预览：先构建，再运行 `npm run preview:party-figure-studio`
 - 默认开发地址：`http://127.0.0.1:5187/party-figure-studio.html`
-- 构建目录：`party-figure-studio-dist`
+- 构建目录：`dist/entries/party-figure-studio`
 
 工作台提供：
 

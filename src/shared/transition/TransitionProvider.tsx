@@ -32,6 +32,7 @@ interface SceneTransitionContextValue {
   phase: SceneTransitionPhase;
   isTransitioning: boolean;
   navigate: (target: string, options?: SceneNavigationOptions) => boolean;
+  holdReady: () => () => void;
 }
 
 const SceneTransitionContext = createContext<SceneTransitionContextValue | null>(null);
@@ -130,6 +131,21 @@ export function SceneTransitionProvider({
   const [copy, setCopy] = useState<SceneTransitionCopy>(() => incomingRef.current ?? {});
   const phaseRef = useRef(phase);
   const navigationTimerRef = useRef<number | null>(null);
+  const readiness = useMemo(() => {
+    const holds = new Set<symbol>();
+    const waiting = new Set<() => void>();
+    return {
+      hold: () => {
+        const token = Symbol();
+        holds.add(token);
+        return () => {
+          holds.delete(token);
+          if (!holds.size) { waiting.forEach(resolve => resolve()); waiting.clear(); }
+        };
+      },
+      wait: () => holds.size ? new Promise<void>(resolve => waiting.add(resolve)) : Promise.resolve(),
+    };
+  }, []);
 
   /*
    * 根节点属性必须在首帧绘制前写入。否则目标文档已经 mount、普通 effect
@@ -173,6 +189,13 @@ export function SceneTransitionProvider({
     const startedAt = performance.now();
 
     void (async () => {
+      // Data holds must settle before the visual timeout starts. Timing out
+      // images must never reveal an unhydrated loading placeholder.
+      await nextPaint();
+      await readiness.wait();
+      await nextPaint();
+      await readiness.wait();
+      if (cancelled) return;
       const visualReady = defaultSceneReady();
       const appReady = ready ? ready() : Promise.resolve();
       await Promise.race([
@@ -198,7 +221,7 @@ export function SceneTransitionProvider({
       cancelled = true;
       if (openTimer !== null) window.clearTimeout(openTimer);
     };
-  }, [maximumReadyWaitMs, minimumBlackoutMs, ready, reveal]);
+  }, [maximumReadyWaitMs, minimumBlackoutMs, ready, readiness, reveal]);
 
   useEffect(
     () => () => {
@@ -247,8 +270,8 @@ export function SceneTransitionProvider({
   }, []);
 
   const value = useMemo<SceneTransitionContextValue>(
-    () => ({ phase, isTransitioning: phase !== "idle", navigate }),
-    [navigate, phase]
+    () => ({ phase, isTransitioning: phase !== "idle", navigate, holdReady: readiness.hold }),
+    [navigate, phase, readiness]
   );
 
   return (
@@ -257,6 +280,14 @@ export function SceneTransitionProvider({
       <SceneTransition phase={phase} {...copy} />
     </SceneTransitionContext.Provider>
   );
+}
+
+/** Optional for standalone screens. Returns whether an existing scene curtain covers loading. */
+export function useSceneReady(ready: boolean) {
+  const context = useContext(SceneTransitionContext);
+  const hold = context?.holdReady;
+  useLayoutEffect(() => ready ? undefined : hold?.(), [hold, ready]);
+  return context?.isTransitioning ?? false;
 }
 
 export function useSceneTransition() {

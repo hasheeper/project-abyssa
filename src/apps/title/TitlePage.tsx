@@ -25,6 +25,8 @@ import {
   resolveTitleTheme
 } from "./titleThemes";
 import type { TitleThemeId } from "./titleThemes";
+import { RpgModal } from "../../shared/ui/primitives/RpgModal";
+import { useTitleArchive } from "./useTitleArchive";
 
 /* ============ 标题画面 ============
  *
@@ -39,7 +41,6 @@ import type { TitleThemeId } from "./titleThemes";
  * 主题(黑金/猩红/青幽)只改 CSS 变量,不碰任何尺寸。
  */
 
-const IDLE_HINT = "尚未有存档。";
 const TITLE_COMMAND_INTRO_GAP_MS = 130;
 const TITLE_COMMAND_INTRO_START_MS = ABYSSA_LOGO_INTRO_TOTAL_MS + 160;
 
@@ -60,24 +61,22 @@ export function TitlePage() {
 
 function TitlePageContent() {
   const { navigate, isTransitioning } = useSceneTransition();
-  const [hint, setHint] = useState(IDLE_HINT);
+  const [hint, setHint] = useState("");
+  const archive = useTitleArchive(href => { navigate(href, { destination: "守望者之崖", channel: "正在载入" }); });
+  const [importFormat, setImportFormat] = useState<"application" | "legacy">("application");
   const [themeId, setThemeId] = useState<TitleThemeId>(DEFAULT_TITLE_THEME);
 
   const theme = resolveTitleTheme(themeId);
 
   function activate(id: TitleCommandId) {
+    setHint("");
+    if (id === "begin") { void archive.newGame(); return; }
+    if (id === "continue") { void archive.continueGame(); return; }
+    if (id === "archive") { archive.setOpen(true); return; }
     const command = TITLE_COMMANDS.find((item) => item.id === id);
     if (!command) return;
 
-    if (!command.target) {
-      setHint(`${command.label}——${command.pending}`);
-      return;
-    }
-
-    navigate(command.target.href, {
-      destination: command.target.destination,
-      channel: command.target.channel
-    });
+    setHint(`${command.label}——${command.pending}`);
   }
 
   return (
@@ -139,7 +138,7 @@ function TitlePageContent() {
                 style={{
                   animationDelay: `${TITLE_COMMAND_INTRO_START_MS + index * TITLE_COMMAND_INTRO_GAP_MS}ms`
                 }}
-                disabled={isTransitioning}
+                disabled={isTransitioning || archive.busy}
                 onClick={() => activate(command.id)}
               >
                 {command.label}
@@ -148,11 +147,23 @@ function TitlePageContent() {
           </nav>
         </main>
 
+        <RpgModal open={archive.open} onClose={() => archive.setOpen(false)} title="游戏档案" panelClassName="title-archive game-client-panel">
+          <div className="title-archive__list">{archive.saves.map(save => <article key={save.saveId}>
+            <p>档案 {save.saveId.slice(0, 8)} · {save.status === "ready" ? `第 ${save.clock.day} 天 · ${save.summary.activeExpeditionId ? "远征中" : "在洋馆"}` : "暂不可读取"}</p>
+            {save.status === "ready" && <><button disabled={archive.busy} onClick={() => void archive.choose({ saveId: save.saveId, epoch: save.summary.head.epoch })}>载入档案 {save.saveId.slice(0, 8)}</button><button disabled={archive.busy} onClick={() => void archive.exportGame(save.saveId)}>导出存档</button>{save.summary.continuation?.upgrade && <button disabled={archive.busy || !!save.summary.activeExpeditionId} onClick={()=>void archive.continueSave(save,"upgrade")}>复制并续接新内容</button>}{save.summary.continuation?.cycle && <button disabled={archive.busy || !!save.summary.activeExpeditionId} onClick={()=>void archive.continueSave(save,"cycle")}>新周目（仅继承回忆）</button>}</>}
+            <button disabled={archive.busy} onClick={() => void archive.exportGame(save.saveId, true)}>导出诊断</button>
+          </article>)}</div>
+          {!archive.saves.length && <p>没有档案，可以创建或导入。</p>}
+          <label>导入格式 <select value={importFormat} onChange={e => setImportFormat(e.target.value as "application" | "legacy")}><option value="application">Abyssa 档案</option><option value="legacy">旧版战斗存档</option></select></label>
+          <label>导入存档<input type="file" accept=".json,application/json" disabled={archive.busy} onChange={e => { const file = e.target.files?.[0]; if (file) void archive.importGame(file, importFormat); e.target.value = ""; }} /></label>
+          <button disabled={archive.busy} onClick={() => void archive.refresh()}>重新读取档案</button><button onClick={() => archive.setOpen(false)}>关闭档案</button>
+        </RpgModal>
+
         {/* 底部信息带与中轴是相邻关系:中轴的 inset-block-end 正好让开这条带子,
             两者不再叠加(上一版提示行压在第四个键上,重叠 36.93px)。 */}
         <footer className="title-footer">
-          <p className="title-hint" role="status">{hint}</p>
-          <p className="title-imprint">视觉原型 · PROTOTYPE</p>
+          <p className="title-hint" role="status">{hint || archive.message}</p>
+          <p className="title-imprint">裂隙远征 · 本机存档</p>
         </footer>
 
         {/* 皮肤切换。视觉原型阶段是显式控件,将来应并入设定界面。 */}

@@ -1,31 +1,7 @@
-import { resolve } from "node:path";
-import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
+import { createTargetConfig } from "./config/vite/create-config.mjs";
 
-export default defineConfig({
-  base: "./",
-  plugins: [react()],
-  build: {
-    copyPublicDir: false,
-    lib: {
-      entry: {
-        index: resolve(import.meta.dirname, "src/index.ts"),
-        branding: resolve(import.meta.dirname, "src/branding.ts"),
-        patterns: resolve(import.meta.dirname, "src/patterns.ts"),
-        primitives: resolve(import.meta.dirname, "src/primitives.ts")
-      },
-      formats: ["es"],
-      fileName: (_format, entryName) => `${entryName}.js`,
-      cssFileName: "abyssa-ui"
-    },
-    rollupOptions: {
-      external: ["react", "react-dom", "react/jsx-runtime"],
-      output: {
-        globals: {
-          react: "React",
-          "react-dom": "ReactDOM"
-        }
-      }
-    }
-  }
-});
+// Direct Vite remains supported; npm scripts use the same target factory.
+export default defineConfig(({ command }) =>
+  createTargetConfig(command === "build" ? "ui" : "entry:catalog")
+);

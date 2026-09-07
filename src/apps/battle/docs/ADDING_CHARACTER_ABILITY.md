@@ -4,7 +4,7 @@
 
 ## 只使用现有动作
 
-若目标规则、结算方式与既有 verb 相同，只修改 `content/characters.ts` 的数据：
+若目标规则、结算方式与既有 verb 相同，只修改 `src/content/gameplay/legacy-v1/catalog.ts（characters）` 的数据：
 
 ```ts
 {
@@ -35,7 +35,7 @@
 }
 ```
 
-对应 definition 位于 `content/effect-definitions.ts`，`rules/action-effects.ts` 把它展开为 `modify-resource`、`append-log` 和 `append-fact` 原子效果。治疗、材料消耗、日志与掷骰消耗在同一 command 中提交和撤回。
+对应 definition 位于 `src/content/gameplay/legacy-v1/catalog.ts（effects/actionEffects）`，`rules/action-effects.ts` 把它展开为 `modify-resource`、`append-log` 和 `append-fact` 原子效果。治疗、材料消耗、日志与掷骰消耗在同一 command 中提交和撤回。
 
 新增同类能力时：
 

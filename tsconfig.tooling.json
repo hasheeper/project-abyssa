@@ -1,0 +1,35 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": true,
+    "types": [
+      "node"
+    ],
+    "lib": [
+      "ES2022",
+      "DOM"
+    ]
+  },
+  "include": [
+    "config/**/*",
+    "vite.config.ts",
+    "vitest.config.ts",
+    "scripts/run-target.mjs",
+    "scripts/check-entries.mjs",
+    "scripts/check-build-output.mjs",
+    "scripts/check-package-release.mjs",
+    "scripts/build-static-preview.mjs",
+    "scripts/check-entry-builds.mjs",
+    "scripts/check-auxiliary.mjs",
+    "scripts/serve-built.mjs",
+    "scripts/lib/files.mjs",
+    "scripts/lib/source-ast.mjs",
+    "scripts/lib/build-target.mjs",
+    "tests/build/**/*.mjs",
+    "tests/smoke/**/*.ts",
+    "scripts/check-module-boundaries.mjs",
+    "scripts/lib/module-boundaries.mjs",
+    "scripts/check-core-import.mjs"
+  ]
+}

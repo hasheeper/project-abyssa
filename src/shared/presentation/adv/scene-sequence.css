@@ -1,0 +1,47 @@
+/* Local scene changes; no document navigation, cover modal, or second live game. */
+.scene-sequence { position: relative; width: 1600px; height: 900px; isolation: isolate; overflow: hidden; background: #080808; }
+.scene-sequence[data-phase="prepare"] .scene-sequence__frame {opacity: 0;}
+.scene-sequence__frame { position: absolute; inset: 0; }
+.scene-sequence[data-phase="out"][data-scene="battle"] .scene-sequence__frame {
+  animation: scene-battle-out 520ms cubic-bezier(.42,0,.68,1) both;
+}
+.scene-sequence[data-phase="in"][data-scene="battle"] .scene-sequence__frame {
+  animation: scene-battle-in 760ms cubic-bezier(.18,.78,.25,1) both;
+}
+@keyframes scene-battle-out {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(-100px); }
+}
+@keyframes scene-battle-in {
+  0% { opacity: 0; transform: translateY(-110px); }
+  72% { opacity: 1; transform: translateY(4px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.scene-sequence[data-scene="adv"][data-phase="in"] .scene-sequence__frame { animation: scene-wash-in 500ms ease-out both; }
+.scene-sequence[data-scene="adv"][data-phase="out"] .scene-sequence__frame { animation: scene-wash-out 460ms ease-in both; }
+/* Override only scene motion. Actor placement, crop, expression and dialogue skin stay shared. */
+.scene-sequence[data-scene="adv"][data-phase="in"] .rp-adv__actor[data-phase="enter"] .rp-adv__actor-body {
+  animation: scene-cast-in 800ms cubic-bezier(.16,.84,.3,1) both;
+}
+.scene-sequence[data-scene="adv"][data-phase="out"] .rp-adv__actor .rp-adv__actor-body {
+  animation: scene-cast-out 460ms cubic-bezier(.4,0,.7,.5) both;
+}
+.scene-sequence[data-scene="adv"][data-phase="in"] .rp-adv__dialogue,
+.scene-sequence[data-scene="adv"][data-phase="in"] .rp-app__bar { animation: scene-dialogue-in 680ms 60ms cubic-bezier(.22,.65,.3,1) both; }
+.scene-sequence[data-scene="adv"][data-phase="out"] .rp-adv__dialogue,
+.scene-sequence[data-scene="adv"][data-phase="out"] .rp-app__bar { animation: scene-dialogue-out 360ms ease-in both; }
+@keyframes scene-cast-in {
+  0% {opacity: 0; transform: translateX(calc(var(--rp-adv-from) * 28%));}
+  70% {opacity: 1; transform: translateX(calc(var(--rp-adv-from) * -1%));}
+  100% {opacity: 1; transform: translateX(0);}
+}
+@keyframes scene-cast-out {from {opacity: 1; transform: translateX(0);} to {opacity: 0; transform: translateX(calc(var(--rp-adv-from) * 22%));}}
+/* Dialogue transform owns horizontal centering. Animate independent translate;
+   replacing transform sends this 980px frame sideways until the animation ends. */
+@keyframes scene-dialogue-in {from {opacity: 0; translate: 0 12px;} to {opacity: 1; translate: 0 0;}}
+@keyframes scene-dialogue-out {from {opacity: 1; translate: 0 0;} to {opacity: 0; translate: 0 10px;}}
+@keyframes scene-wash-in {from {opacity: 0;} to {opacity: 1;}}
+@keyframes scene-wash-out {from {opacity: 1;} to {opacity: 0;}}
+@media (prefers-reduced-motion: reduce) {
+  .scene-sequence *, .scene-sequence *::before, .scene-sequence *::after {animation-duration: .01ms !important; animation-delay: 0ms !important; transition-duration: .01ms !important;}
+}

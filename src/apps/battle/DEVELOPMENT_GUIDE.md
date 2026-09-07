@@ -1,12 +1,16 @@
 # Battle 开发手册
 
-> 当前版本：schema v4 / rules v1 / content v1
-> 适用目录：`src/apps/battle/`
+> 版本适用说明（2026-09-07）：当前默认为应用／规则4、内容3。正式页面使用game-client与应用事务，权威命令先提交，impact只更新视觉副本。下文保留的BattleCommand、AtomicEffect、三条RNG及独立BattleSaveDto主要是**规则1兼容API**，不能直接套到D5；UI演出原则仍有效。入口、取消与恢复见 [Battle README](README.md#s3-演出合同) 和 [客户端说明](../../game-client/README.md)。
+
+> 旧独立Battle格式：schema v4 / rules v1 / content v1；它与应用v4存档不同。
+> 适用目录：`src/apps/battle/` 与 `src/game-core/battle/`
 > 文档目标：让后续开发者能快速定位接口、沿正确边界新增功能，并完成必要验证。
 
-本文描述当前已经落地的实现。文件定位使用“路径 + 导出符号”，不绑定容易漂移的行号；可用 `rg "符号名" src/apps/battle` 精确查找。
+本文保留实际存在的接口参考，并区分当前路径与兼容实现。文件定位使用“路径 + 导出符号”，不绑定行号；可用 `rg "符号名" src/apps/battle src/game-core/battle` 查找。完整现行机制见[总览](../../../docs/GAME_SYSTEMS_AND_CONTENT_SPEC.md)。
 
-产品理念和长期设计讨论请参考 [`DESIGN_REFERENCE_LOG.md`](DESIGN_REFERENCE_LOG.md)。它用于解释设计动机，不代表其中所有内容已经实现。
+当前生产定位：`ManorBattleBinding`／`useManorBattlePresentation`负责页面与演出；`createD5Application`负责事务；`createD5ExpeditionEngine`负责普通远征；`createD5BattleEngine`／`createD5MemoryEngine`负责战斗。`rules/v2`、`v3`、`v4`按版本复用，内容由`game-runtime/loop-context.ts`绑定。
+
+产品理念和长期设计讨论请参考 [`DESIGN_REFERENCE_LOG.md`](../../../docs/archive/battle/DESIGN_REFERENCE_LOG.md)。它用于解释设计动机，不代表其中所有内容已经实现。
 
 ## 1. 快速开始
 
@@ -16,39 +20,39 @@ Battle 页面入口：
 - React 启动：`src/apps/battle/main.tsx`
 - 页面壳：`src/apps/battle/App.tsx`
 - 主战斗界面：`src/apps/battle/ExpeditionBattleScreen.tsx`
-- 稳定公共门面：`src/apps/battle/engine.ts`
+- 正式庄园／回忆接线：`src/apps/battle/ManorBattleBinding.tsx`
+- 旧兼容门面：`src/apps/battle/engine.ts`，正式入口禁止依赖
 
 本地运行与验证：
 
 ```sh
 npm run dev:battle
 npm run typecheck
-npx vitest run src/apps/battle
+npm run test:core
+npm exec vitest -- run --project app src/apps/battle
 npm run build:battle
-npx vitest bench src/apps/battle/engine.bench.ts --run
+npm exec vitest -- bench --project core --run
 ```
 
-Battle 外部模块优先从 `engine.ts` 导入。`src/apps/battle/` 内部实现应直接导入所属模块，避免通过门面形成循环依赖。
+正式UI从game-client → runtime/application提交事务；旧兼容测试可使用`engine.ts`。`createBattleEngine(validatedCatalog, routeId)`仅绑定规则1；当前规则4使用上方D5入口。内核不得回到app facade。
 
-最小规则调用：
+本指南的 domain/rules/selectors/persistence 路径以 `src/game-core/battle` 为基准；testing 在 `src/game-runtime/testing/battle`，content 在 `src/content/gameplay/legacy-v1`。controller/presentation/engine.ts 仍以 `src/apps/battle` 为基准。S2 已参数化 Catalog 和应用事务。以下扩展说明以旧规则为例；新内容须独立版本，生产 Catalog 暂不接受未注册 reactions。
+
+最小规则1兼容调用（catalog由装配层校验并传入）：
 
 ```ts
-import {
-  createExpeditionFromSeed,
-  dispatchBattleCommand,
-  type ExpeditionState
-} from "./engine";
-
-let state: ExpeditionState = createExpeditionFromSeed(42);
-const rolled = dispatchBattleCommand(state, { type: "roll-dice" });
-
-if (!rolled.error) {
-  state = rolled.state;
-  // rolled.events 是此次命令已经发生的结构化事实。
-}
+import { createBattleEngine } from "../../game-core/battle";
+const engine = createBattleEngine(catalog, catalog.data.defaultRouteId);
+let state = engine.create({ seed: 42, partyIds: [...catalog.data.defaultParty] });
+const rolled = engine.dispatch(state, { type: "roll-dice" });
+if (!rolled.error) state = rolled.state;
 ```
 
+该调用只计算规则。正式存档、请求回执、Fact 和页面接线见 [应用层说明](/Users/liuhang/Documents/project-abyssa/src/game-application/README.md)。
+
 ## 2. 架构与依赖方向
+
+下图为旧规则1内部的效果解析结构；正式页面外层还有应用事务，完整数据流见[Battle README](README.md#数据流)。
 
 ```text
 content definitions
@@ -66,16 +70,19 @@ UI → controller → BattleCommand → dispatcher → rule planner
                                          └→ persistence
 ```
 
-依赖方向固定为：
+当前依赖方向与旧兼容路径：
 
 ```text
-domain ← content ← rules ← selectors/controller ← React UI
-   ↑                    ↘ persistence
+正式UI / controller → game-client → runtime/application → 对应版本core
+旧兼容测试 → app engine facade → game-runtime legacy-battle → 规则1实现
+内容由runtime显式绑定，core不反向依赖app
 ```
 
 `domain/` 不依赖 React、DOM 或表现代码。UI 不得导入内部 resolver 并直接写规则状态。
 
 ### 2.1 目录地图
+
+本表列出规则1兼容实现；当前D5另见文首路径。
 
 | 位置 | 核心符号 | 职责 |
 | --- | --- | --- |
@@ -86,11 +93,11 @@ domain ← content ← rules ← selectors/controller ← React UI
 | `domain/targets.ts` | `TargetRef`、`EffectSourceRef` | 命令、效果、事件共用的可序列化引用。 |
 | `domain/invariants.ts` | `collectExpeditionInvariantViolations` | 生产存档和测试共用的一致性校验。 |
 | `domain/versions.ts` | 三个 `BATTLE_*_VERSION` | schema、规则与内容版本。 |
-| `content/balance.ts` | HP、层数、重掷、狂暴等常量 | 当前玩法数值。 |
-| `content/characters.ts` | `CHARACTERS`、`PARTY_ORDER` | 角色与六面骰数据。 |
-| `content/enemies.ts` | `makeEnemy`、`createLayerEnemies` | 敌人实例与每层遭遇。 |
-| `content/effect-definitions.ts` | effect/action definition registries | 可序列化 definition 与代码 handler 的连接点。 |
-| `rules/dispatcher.ts` | `dispatchBattleCommand` | 唯一正式命令入口、RNG stream 选择。 |
+| `src/content/gameplay/legacy-v1/catalog.ts（balance）` | HP、层数、重掷、狂暴等常量 | 旧裂隙玩法数值。 |
+| `src/content/gameplay/legacy-v1/catalog.ts（characters）` | characters/defaultParty | 角色与六面骰数据。 |
+| `src/content/gameplay/legacy-v1/catalog.ts（enemies/encounters/routes）` | 敌人模板与遭遇表 | 通用工厂在 core 的 `rules/enemies.ts`。 |
+| `src/content/gameplay/legacy-v1/catalog.ts（effects/actionEffects）` | effect/action definition registries | 可序列化 definition 与代码 handler 的连接点。 |
+| `rules/dispatcher.ts` | `dispatchBattleCommand` | 规则1命令入口、RNG stream选择。 |
 | `rules/actions.ts` | `performAttack/Block/Heal/Steal` | 玩家动作合法性与效果规划。 |
 | `rules/dice-actions.ts` | roll/reroll/load transitions | 骰子动作。 |
 | `rules/turns.ts` | 敌方阶段准备、狂暴、下一回合 | 回合生命周期与意图公开。 |
@@ -112,12 +119,12 @@ domain ← content ← rules ← selectors/controller ← React UI
 | 位置 | 内容 |
 | --- | --- |
 | `App.tsx` | 受控 `uiSkin` 所有者；同步 Stage 背景主题、区域抵达标题与内部战斗框。 |
-| `battleUiSkins.ts` | `timber` / `hero-party` / `demon-cadre` / `demon-lord` 的文案与装饰资产登记。 |
+| `battleUiSkins.ts` | `timber` / `hero-party` / `demon-cadre` / `demon-lord` / `old-manor` 的文案与装饰资产登记。 |
 | `ExpeditionBattleScreen.tsx` | 交互路由、演出阶段、命中帧提交、敌人逐只 runner、主布局。 |
 | `ExpeditionDie3D.tsx` | 3D 骰子、骰面与旋转。 |
 | `ExpeditionGlyph.tsx` | Battle 图标映射。 |
 | `ExpeditionReels.tsx` | 数值转轮与包裹金币。 |
-| `expedition.css` | Battle 主视觉、四套主题 token、背景滤镜、框体层级、布局合同、动画和区域裁剪。 |
+| `expedition.css` | Battle 主视觉、五套主题 token、背景滤镜、框体层级、布局合同、动画和区域裁剪。 |
 | `app.css` | Battle 页面壳样式。 |
 | `../../shared/transition/` | 跨 HTML 黑幕、区域标题与 `panel-drop`；不持有 Battle 状态。 |
 | `controller/presentation-events.ts` | 领域事件到攻击/支援/敌方演出 cue。 |
@@ -125,9 +132,11 @@ domain ← content ← rules ← selectors/controller ← React UI
 
 攻击特效必须保留在敌方 formation 的裁剪区域内；跨区意图线使用独立层，不能因为裁剪攻击特效而截断。相关契约已有 UI 测试。
 
-主题切换属于纯表现状态，不允许写入 `BattleState`、checkpoint、save DTO 或 event。修改皮肤 token、装饰层或 Battle 专属 content bleed 前，先阅读 [`UI_PRESENTATION_BASELINE.md`](UI_PRESENTATION_BASELINE.md)，并同时检查四套主题；外层 Stage 和内部 frame 必须消费同一个受控 `uiSkin`。
+主题切换属于纯表现状态，不允许写入 `BattleState`、checkpoint、save DTO 或 event。修改皮肤 token、装饰层或 Battle 专属 content bleed 前，先阅读 [`UI_PRESENTATION_BASELINE.md`](UI_PRESENTATION_BASELINE.md)，并同时检查五套主题；外层 Stage 和内部 frame 必须消费同一个受控 `uiSkin`。
 
 ## 3. 核心接口
+
+本节接口均为旧规则1技术参考；当前D5命令和存档按对应版本合同执行。
 
 ### 3.1 `BattleCommand`
 
@@ -181,7 +190,7 @@ type BattleTransition = {
 
 - `error === null`：可以提交 `state`，并按 `events` 驱动演出。
 - `error !== null`：不得提交结果状态，也不得播放成功演出。
-- Controller 的 `commitTransition` 已执行该检查。
+- 应用层在事务提交前执行该检查，Controller 只接收已提交回执。
 - 规则函数不得修改输入对象；测试应保留一份输入快照验证。
 
 玩家动作错误包括：`not-act-phase`、`die-not-loaded`、`die-spent`、`die-sealed`、`wrong-face`、`invalid-target`、`target-full-hp`、`no-attack-intent`。流程不允许时返回 `command-not-available`。
@@ -428,8 +437,9 @@ type BattleSaveDto = {
 
 | 稳定级别 | 入口 | 约定 |
 | --- | --- | --- |
-| Battle 外部稳定入口 | `engine.ts` | 兼容当前页面、测试和未来上层系统。 |
-| 新规则正式入口 | `dispatchBattleCommand` | 所有生产 command 从这里进入。 |
+| 旧测试兼容入口 | `src/apps/battle/engine.ts` | 转发game-core legacy，正式页面禁止依赖。 |
+| 新内部入口 | `src/game-core/battle/index.ts` | 状态内 RNG、typed 命令与 Battle 存档；外部 JSON 仍需应用层验证。 |
+| 规则1命令入口 | `dispatchBattleCommand` | 只适用于规则1，当前v4通过D5引擎。 |
 | 规则内部接口 | `rules/*Transition`、resolver | 供 Battle 内部组合与测试，不应由 React 直接调用。 |
 | 旧调用兼容 | `rules/compatibility.ts` | 只做代理；不要继续加入核心实现。 |
 | 表现接口 | Controller、selectors、presentation cues | 只读状态/事件，不拥有规则真相。 |
@@ -443,7 +453,7 @@ type BattleSaveDto = {
 | `createExpeditionStateFromInput(rng, input)` | `rules/expedition.ts` | 带 loadout 的领域构造 helper。 |
 | `createExpeditionTransition(...)` | `rules/expedition.ts` | 需要创建事件的内部流程。 |
 
-新生产入口应传可追踪 seed，而不是长期持有 `Math.random`。若后续正式 UI 需要注入 loadout，建议增加一个明确的“seed + `BattleStartInput`”门面，再由 Controller 使用；不要把不可追踪 RNG 传入可保存流程。
+本表是旧规则1创建方式。当前正式出征已通过版本化命令传入seed、队伍和补给，并冻结配置；不要再新增绕过事务的UI创建门面，也不要把不可追踪RNG传入存档流程。
 
 ### 4.2 读取状态
 
@@ -482,7 +492,7 @@ const restored = deserializeBattleState(json);
 | `deserializeBattleState` | JSON → 当前 canonical state。 |
 | `createBattleRngState/createRngCursor` | 状态 RNG 基础设施。 |
 
-当前 schema v1→v2→v3→v4 迁移链和升级规则见 `persistence/README.md`。
+旧独立Battle的schema v1→v2→v3→v4迁移链见core中的`persistence/README.md`；当前应用导入与复制升级另由应用服务负责。
 
 ### 4.4 Controller 接口
 
@@ -492,18 +502,15 @@ Hook 返回：
 
 | 字段/方法 | 用途 |
 | --- | --- |
-| `state` | 当前 React 可见 canonical state。 |
-| `getState()` | async runner 中读取最新状态，避免闭包过期。 |
-| `transition(command, input?)` | 计算但不提交；需要延迟到 impact 的动画使用。 |
-| `commitTransition(result)` | 成功时提交 transition 并识别待确认清层。 |
-| `dispatch(command)` | 计算并立即提交；无延迟表现的操作使用。 |
-| `targetingMode/heldActor` | 当前 UI 选择。 |
-| `holdActor/targetItem/targetAbility/cancelTargeting` | 修改 UI targeting，不改规则。 |
-| `pendingLayerClearId` | 最后一击后等待退场完成的清层 event。 |
-| `acknowledgeLayerClear()` | 退场后执行清层结算。 |
-| `restart()` | 重建远征并清除 targeting。 |
+| `state/getState()` | 当前视觉副本；不是可写存档。 |
+| `submit(command)` | 提交会话命令，等待持久批次与必要收尾。 |
+| `show(state)` | 安装回执事件的视觉投影。 |
+| `finish()` | 结束演出并安装最新已验证存档。 |
+| `current(batch)` | 检查批次仍匹配当前 head。 |
+| `heldActor/holdActor` | UI 目标选择。 |
+| `ready/presenting/generation` | 输入锁与外部失效代次。 |
 
-`commit(next)` 只允许提交已验证/已迁移状态或成功 transition 的 state；不要用它绕过 dispatcher 拼状态。
+挂载必须已有匹配的存档和 expeditionId。新远征只由 Map 的 start-expedition 创建；终局由 settle-expedition 入账后返回洋馆。完整协议见 [controller README](controller/README.md)。
 
 ### 4.5 演出 Cue
 
@@ -520,43 +527,20 @@ UI 不比较前后 HP、盾牌或金币来猜动作类型。
 
 ### 5.1 玩家动作与命中帧
 
-1. UI 用 selector 判断是否可点击，并构造 command。
-2. `controller.transition(command)` 计算完整结果但暂不提交。
-3. 从 `result.events` 读取攻击或支援 cue。
-4. `usePresentationQueue.begin()` 获得 runId，播放 anticipate/release 等阶段。
-5. 到 impact 时 `commitTransition(result)`。
-6. 播放 recover/settle，最后 `complete(runId)`。
+1. 只读 selector 判断交互，UI 构造 command。
+2. controller.submit 经 GameSession 提交完整请求，在 IndexedDB 事务完成后返回。
+3. 会话从持久态驱动必要收尾并再次读取，核对回执和 head。
+4. 从已提交 events 提取 cue，播放 anticipate/release 等阶段。
+5. impact 仅将 hpAfter/shieldAfter 等观察值应用到视觉副本。
+6. 演出完成安装最新持久状态；刷新/换 head 取消旧队列。
 
-规则计算仍是同步完整的；只有 React 可见状态提交被对齐到命中帧。
+### 5.2 敌方逐只呈现
 
-### 5.2 敌方严格逐只行动
-
-生产 UI 不直接使用同步 `end-turn` 一股脑播放，而是：
-
-```text
-begin-enemy-turn
-  → commit prepared state
-  → while cursor < enemyOrder.length
-      resolve-next-enemy
-      → 播放这一只的完整 anticipate/lunge/hitstop/impact/recover
-      → impact 提交
-  → finish-enemy-turn
-  → outcome=continue 时 next-round
-```
-
-`enemyOrder/cursor` 位于 `mode.enemy-turn`，因此每只行动之间都可以保存恢复。不要在组件局部数组中维护第二份 cursor。
+一次公共 end-turn 执行完整敌方规则批次；outcome=continue 时会话再提交 next-round。动画按 enemy-intent-resolved 拆成顺序小组，逐只播放，但不调用 begin/resolve-next/finish 等内部命令。导入旧 enemy-turn/outcome=null 时，resumeEnemyTurn 从持久 cursor 继续，已经发生的行动不重放规则。
 
 ### 5.3 最后一击与自动清层
 
-玩家击败最后一只敌人时，resolver 立即发出 `layer-cleared`，其中 `settlement` 暂为空：
-
-1. Controller 记录 event id。
-2. END TURN 禁用，敌人节点留在 DOM 完成斩杀退场。
-3. 固定延迟后 `acknowledgeLayerClear()` 发送 `end-turn`。
-4. Settlement 把本层散金和最后回合倍率计入包裹。
-5. 状态进入 `greed`，弹出深入/离场选择。
-
-不要让 UI 自己计算 payout 或直接切换 `mode`。
+最后击杀提交后，若持久态仍是 player-turn 且所有敌人死亡，会话调用既有 end-turn 将本层散金与最后牌型计入包裹。此步骤在演出前完成；斩杀退场与结算弹窗之间可以保留视觉延迟。刷新时由同一恢复协议完成，不等待动画 ack。
 
 ### 5.4 力竭与下一层复归
 
@@ -566,16 +550,16 @@ HP 降至 0 时，resolver 统一设置力竭、清盾、卸载骰子并增加�
 
 | 需求 | 首要修改位置 | 通常还需检查 |
 | --- | --- | --- |
-| 调整 HP、重掷、层倍率、狂暴数值 | `content/balance.ts` | economy/turn tests、golden trace、UI 文案。 |
-| 修改角色骰面 | `content/characters.ts` | dice/hand/action tests。 |
-| 给现有骰面增加资源副作用 | `content/effect-definitions.ts`、`rules/action-effects.ts` | `actions.ts` 组合点、event 测试。 |
+| 调整 HP、重掷、层倍率、狂暴数值 | `src/content/gameplay/legacy-v1/catalog.ts（balance）` | economy/turn tests、golden trace、UI 文案。 |
+| 修改角色骰面 | `src/content/gameplay/legacy-v1/catalog.ts（characters）` | dice/hand/action tests。 |
+| 给现有骰面增加资源副作用 | `src/content/gameplay/legacy-v1/catalog.ts（effects/actionEffects）`、`rules/action-effects.ts` | `actions.ts` 组合点、event 测试。 |
 | 增加玩家命令 | `domain/commands.ts`、`rules/dispatcher.ts` | 新规则 planner、Controller 路由、穷尽检查。 |
 | 增加原子效果 | `domain/effects.ts`、`rules/resolver.ts` | effect target、事件、预算测试。 |
 | 增加领域事件 | `domain/events.ts` | resolver emitter、reaction、presentation cue。 |
-| 增加敌人/层配置 | `content/enemies.ts` | `EnemyKind`、意图生成、素材映射。 |
+| 增加敌人/层配置 | `src/content/gameplay/legacy-v1/catalog.ts（enemies/encounters/routes）` | `EnemyKind`、意图生成、素材映射。 |
 | 增加敌人意图 | `domain/state.ts`、`rules/turns.ts`、`rules/enemy-intents.ts` | UI glyph/cue、串行行动测试。 |
 | 增加状态 | effect definition、应用它的 planner | lifecycle boundary、清除/免疫/死亡测试。 |
-| 增加被动装备/词条 | `content/effect-definitions.ts` | modifier/reaction registry、loadout 测试。 |
+| 增加被动装备/词条 | `src/content/gameplay/legacy-v1/catalog.ts（effects/actionEffects）` | modifier/reaction registry、loadout 测试。 |
 | 增加主动道具 | 新 `use-item` command 与通用处理器 | `TargetingMode.item`、消耗/undo/演出。 |
 | 增加 selector | `selectors/*-selectors.ts`、`selectors/index.ts` | module boundary test、UI 调用。 |
 | 增加 canonical state 字段 | `domain/state.ts`、`domain/invariants.ts` | schema 版本、迁移、checkpoint、golden。 |
@@ -637,13 +621,15 @@ HP 降至 0 时，resolver 统一设置力竭、清盾、卸载骰子并增加�
 1. 先确认规则已发出足够 event。
 2. 在 cue helper 抽出展示所需的最小只读数据。
 3. 复用统一 presentation queue，不另建独立全局 busy/timer 系统。
-4. 规则 state 在既定 impact 帧一次提交。
+4. 规则先持久提交，impact 只更新可丢弃的视觉副本。
 5. 提供 reduced-motion 时长路径和 runId 取消。
 6. 检查敌方区域裁剪、DOM 留存退场、FLIP 补位和交互锁定。
 
 动画 phase 不进入存档，也不进入 undo。
 
 ## 8. RNG、Undo 与确定性
+
+下文三条RNG与checkpoint细节对应规则1；当前v4还有事件／回忆边界，且掷骰／重掷清除此前撤回栈，不能沿用旧版撤回许可。
 
 ### 8.1 RNG stream
 
@@ -661,12 +647,12 @@ HP 降至 0 时，resolver 统一设置力竭、清盾、卸载骰子并增加�
 
 `BattleCheckpoint` 保存完整命令前核心状态，但不递归包含 undo 栈。一条玩家命令、它的副作用、reaction、道具消耗和耐久变化必须共用一个 checkpoint。
 
-以下当前产品行为保持不变：
+以下是规则1兼容行为；当前v4以对应规则及前述撤回边界为准：
 
 - 装载/卸载和角色行动可撤回。
 - 首次掷骰与重掷不建立动作 checkpoint。
 - 重掷会清理此前不可继续使用的撤回历史。
-- 演出进行中 UI 禁用 undo；命中提交后按规则开放。
+- 演出进行中UI禁用undo；持久命令先于演出提交，演出结束后按规则开放。
 
 ## 9. 测试位置与职责
 
@@ -698,7 +684,8 @@ HP 降至 0 时，resolver 统一设置力竭、清盾、卸载骰子并增加�
 只有确认是有意规则变化并审查首个差异后，才可运行：
 
 ```sh
-UPDATE_BATTLE_BASELINE=1 npx vitest run src/apps/battle/engine.baseline.test.ts
+UPDATE_BATTLE_BASELINE=1 npm run test:core
+npm exec vitest -- run --project app src/apps/battle/engine.baseline.test.ts
 ```
 
 不能为了让测试变绿直接批量更新 golden。
@@ -718,8 +705,8 @@ UPDATE_BATTLE_BASELINE=1 npx vitest run src/apps/battle/engine.baseline.test.ts
 
 以下能力已有底座，但不是完整成品，开发时不要误判：
 
-- `TargetingMode.item/ability` 已存在，但领域尚无通用 `use-item/use-ability` command。
-- 道具次数、装备耐久及离场结算已实现，但正式道具目录/背包 UI 尚未接入。
+- 核心可描述 item/ability 目标，但正式页面尚无通用 `use-item/use-ability` command。
+- 道具次数、装备耐久及离场结算底座已实现，Map/洋馆已接真实库存；冻结 Catalog 尚无 item/equipment 定义，真实可用内容另行版本化。
 - 通用 status duration helper 已实现，但每种期限仍必须在正确 canonical transition 显式推进。
 - 手工词条可由 modifier/reaction 表达，但没有随机前后缀、词条池或独立 `AffixInstance`。
 - `pendingEffects/pendingReactions` 是可序列化槽位，但当前 resolver 不暴露暂停帧并会同步清空；不要手工写入非空队列，也不要依赖“保存一半触发链”续跑。
@@ -739,7 +726,7 @@ UPDATE_BATTLE_BASELINE=1 npx vitest run src/apps/battle/engine.baseline.test.ts
 - [ ] 敌方行动仍逐只演出。
 - [ ] 动画支持取消、reduced-motion 和交互锁定。
 - [ ] 攻击特效没有越出敌方容器，意图线未被错误裁剪。
-- [ ] 表现层改动已按 `UI_PRESENTATION_BASELINE.md` 检查四套主题、装饰压接、语义色和场景入场。
+- [ ] 表现层改动已按 `UI_PRESENTATION_BASELINE.md` 检查五套主题、装饰压接、语义色和场景入场。
 - [ ] 类型检查、全部 Battle 测试、Battle 构建通过。
 - [ ] 有性能敏感改动时运行同机 10 样本基准并记录真实数据。
 

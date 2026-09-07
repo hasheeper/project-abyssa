@@ -27,7 +27,7 @@
   padding-inline: 34px;
   align-items: stretch;
   gap: 0;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(var(--party-size, 5), minmax(0, 1fr));
   justify-items: center;
 }
 
@@ -125,6 +125,9 @@
   height: calc(100% - 6.5px);
   /* 严格截断菱形一端的圆角描边与光晕，避免丝线穿进骰面。 */
   overflow: hidden;
+  /* The changing paths must repaint only this small connector, not the board. */
+  contain: paint;
+  transform: translateZ(0);
 }
 
 .abyssa-expedition-party-link::after {
@@ -425,3 +428,6 @@
 .abyssa-expedition-party-card__skills [data-icon="split-cross"] { mask-image: url("../../assets/icons/6-0-split-cross.svg"); }
 .abyssa-expedition-party-card__skills [data-icon="fast-arrow"] { mask-image: url("../../assets/icons/6-1-fast-arrow.svg"); }
 .abyssa-expedition-party-card__skills [data-icon="heart"] { mask-image: url("../../assets/icons/8-1-heart-drop.svg"); }
+
+.abyssa-expedition-party-nameplate a { color: inherit; text-decoration: none; }
+.abyssa-expedition-party-nameplate a:focus-visible { outline: 1px solid currentColor; outline-offset: 4px; }

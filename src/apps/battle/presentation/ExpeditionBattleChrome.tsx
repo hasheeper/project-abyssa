@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { HandEvaluation, LayerSettlement } from "../engine";
+import type { HandEvaluation, LayerSettlement } from "../view";
 import type { BattleUiSkin } from "../battleUiSkins";
 
 const PARTY_LINK_SEGMENTS = 36;
@@ -50,7 +50,7 @@ function getAnimatedPartyLinkPath(
   return path;
 }
 
-export function AnimatedPartyLink({ active }: { active: boolean }) {
+export function AnimatedPartyLink({ active, paused = false }: { active: boolean; paused?: boolean }) {
   const auraRef = useRef<SVGPathElement>(null);
   const mainRef = useRef<SVGPathElement>(null);
   const highRef = useRef<SVGPathElement>(null);
@@ -71,6 +71,9 @@ export function AnimatedPartyLink({ active }: { active: boolean }) {
       resetToStatic();
       return;
     }
+    // Keep the existing curve while a foreground action plays; do not redraw
+    // three SVG paths per link alongside the dice or impact animation.
+    if (paused) return;
 
     let frame = 0;
     let lastDraw = -PARTY_LINK_FRAME_INTERVAL;
@@ -85,7 +88,7 @@ export function AnimatedPartyLink({ active }: { active: boolean }) {
     };
     frame = requestAnimationFrame(draw);
     return () => cancelAnimationFrame(frame);
-  }, [active, samples]);
+  }, [active, paused, samples]);
 
   return (
     <span className="abyssa-expedition-party-link" aria-hidden="true">
@@ -132,10 +135,11 @@ export function BattleFrameCorners({
   );
 }
 
-export function ExpeditionHandReadout({ hand }: { hand: HandEvaluation | null }) {
+export function ExpeditionHandReadout({ hand, explanation }: { hand: HandEvaluation | null; explanation?: string }) {
   const name = hand?.name ?? null;
   const bonus = hand?.adjustedBonus ?? 0;
-  const scoring = Boolean(name) && name !== "散牌" && bonus > 0;
+  const formed = Boolean(name) && name !== "散牌";
+  const scoring = formed && bonus > 0;
   const [pulseKey, setPulseKey] = useState(0);
   const previousRef = useRef<string | null>(null);
 
@@ -150,14 +154,16 @@ export function ExpeditionHandReadout({ hand }: { hand: HandEvaluation | null })
       className="abyssa-expedition-hand"
       data-scoring={scoring || undefined}
       data-idle={!scoring || undefined}
-      aria-label={scoring ? `当前牌型 ${name}，倍率 +${bonus}` : "当前无成牌"}
+      aria-label={formed ? `当前牌型 ${name}，倍率加成 +${bonus}` : "当前无成牌"}
+      aria-description={explanation}
+      title={explanation}
     >
       <span className="abyssa-expedition-hand__body" key={pulseKey}>
         <strong className="abyssa-expedition-hand__name">{name ?? "—"}</strong>
         <i className="abyssa-expedition-hand__rule" aria-hidden="true" />
         <span className="abyssa-expedition-hand__bonus">
-          <i aria-hidden="true">×</i>
-          <b>{scoring ? bonus.toFixed(1) : "—"}</b>
+          <i aria-hidden="true">+</i>
+          <b>{formed ? bonus.toFixed(1) : "—"}</b>
         </span>
       </span>
       <span className="abyssa-expedition-hand__glow" aria-hidden="true" />
@@ -165,8 +171,9 @@ export function ExpeditionHandReadout({ hand }: { hand: HandEvaluation | null })
   );
 }
 
-export function LayerSettlementBreakdown({ settlement }: { settlement: LayerSettlement }) {
-  const closingBonus = settlement.closingHandBonus;
+export type LayerSettlementSummary = Omit<LayerSettlement, "round" | "closingHandName" | "closingHandBonus"> & Partial<Pick<LayerSettlement, "closingHandName" | "closingHandBonus">>;
+export function LayerSettlementBreakdown({ settlement, earthFactor = 1 }: { settlement: LayerSettlementSummary; earthFactor?: number }) {
+  const closingBonus = settlement.closingHandBonus ?? 0;
 
   return (
     <section
@@ -174,7 +181,7 @@ export function LayerSettlementBreakdown({ settlement }: { settlement: LayerSett
       role="region"
       aria-label={
         `第 ${settlement.layer} 层结算：本层散金 ${settlement.baseGold} 金币，` +
-        `乘牌型倍率 ${settlement.handFactor.toFixed(2)}，乘层倍率 ${settlement.layerFactor}，` +
+        `乘牌型倍率 ${settlement.handFactor.toFixed(2)}，乘层倍率 ${settlement.layerFactor}，${earthFactor !== 1 ? `乘大地倍率 ${earthFactor}，` : ""}` +
         `本层入袋 ${settlement.payout} 金币`
       }
     >
@@ -193,17 +200,18 @@ export function LayerSettlementBreakdown({ settlement }: { settlement: LayerSett
           <small>层倍率</small>
           <strong>{settlement.layerFactor}</strong>
         </span>
+        {earthFactor !== 1 && <><i aria-hidden="true">×</i><span><small>大地共鸣</small><strong>{earthFactor}</strong></span></>}
         <i aria-hidden="true">＝</i>
         <span data-currency="gold" data-result>
           <small>本层入袋</small>
           <strong>＋{settlement.payout.toLocaleString()}G</strong>
         </span>
       </div>
-      <p data-counted={closingBonus > 0 || undefined}>
+      {settlement.closingHandBonus !== undefined && <p data-counted={closingBonus > 0 || undefined}>
         {closingBonus > 0
           ? `最后回合【${settlement.closingHandName}】倍率 +${closingBonus.toFixed(2)}，已计入最终牌型倍率`
           : "最后回合没有新增牌型倍率"}
-      </p>
+      </p>}
       <footer>
         <span>包裹 {settlement.bagBefore.toLocaleString()}G</span>
         <i aria-hidden="true">→</i>

@@ -1,6 +1,9 @@
 /* Shared Dice action dock: the component, frame SVG and button skin stay
    together so every game surface uses the exact same geometry. */
 .action-dock {
+  --action-dock-pad-top: 13px;
+  --action-dock-pad-inline: 24px;
+  --action-dock-edge-size: 64px;
   position: relative;
   z-index: 3;
   display: grid;
@@ -12,8 +15,25 @@
           var(--dice-content-rise)
       ) / var(--dice-layout-k) * -1
   );
-  padding: 13px 24px 23px;
+  padding: var(--action-dock-pad-top) var(--action-dock-pad-inline) 23px;
   isolation: isolate;
+}
+
+/* Mirrors the undo control anchored at the content's left edge. */
+.action-dock__switch.abyssa-icon-button {
+  position: absolute;
+  z-index: 4;
+  top: calc(var(--action-dock-pad-top) - var(--action-dock-edge-size) / 2);
+  left: calc(100% - var(--action-dock-pad-inline));
+  width: var(--action-dock-edge-size);
+  height: var(--action-dock-edge-size);
+}
+.action-dock__switch-icon {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: currentColor;
+  mask: no-repeat center / contain;
 }
 
 .action-dock__surface {

@@ -11,8 +11,8 @@ idle → closing → closed / real loading → opening → idle
 - `closing`：旧场景安静淡出，黑幕锁住输入；
 - `closed`：页面已全黑，此时才执行导航；
 - 新文档用 `sessionStorage` 接住 handoff，首帧仍是同一闭合黑幕；
-- 字体、当前文档图片与可选业务 `ready()` 全部完成后进入 `opening`；
-- 最慢等待有 6 秒保险，但界面不伪造百分比，只显示六面旋转体。
+- 业务数据就绪、实际场景挂载后，再收集并等待字体、图片与可选 `ready()`，最后进入 `opening`；
+- 图片等视觉资源的等待有 6 秒保险，存档初始化不被这个超时跳过。界面不伪造百分比，只显示六面旋转体。
 
 ## 揭幕模式与顺序
 
@@ -72,6 +72,10 @@ navigate("./mansion.html", {
   <App />
 </SceneTransitionProvider>
 ```
+
+游戏存档采用子组件就绪信号：`GameLoading` 通过 `useSceneReady(false)` 保持现有黑幕，读取成功或显示明确错误时卸载并释放。揭幕前会重新收集真正场景的图片，避免只检查读档占位页。角色页也接入同一 Provider。直接打开 URL 时，快速读取不闪加载文字；等待超过 250ms 才复用现有切场提示。
+
+`GameProvider` 和 `ReadGameProvider` 只初始化一次有效会话，开发模式 StrictMode 的废弃 setup 不启动读取。初始 `pageshow` 不额外刷新；从后台或 bfcache 返回的通知会合并，同一存档版本的校验不会重置战斗演出。跨页面仍从 IndexedDB 读取并校验正式存档。
 
 ## 组件与视觉约束
 

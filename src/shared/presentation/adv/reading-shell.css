@@ -1,0 +1,102 @@
+/* ===== 跑团 / AI RP 主界面 =====
+   与 shop / dice / character-status 的关键区别:那三个是**弹入弹出的独立
+   功能面板**,所以套画框(rails + brass + board);rp 是**主要交互场所**,
+   常驻在场,不做边框化 —— 内容直接铺在画布上。
+
+   几何:
+     外层  仍是共享的 16:9 画布 1600x900(Stage 基底不变)
+     中间  内容区锁 3:2 且**高度全占满** —— 900 高 -> 1350 宽,
+           画布左右各余 125,那部分留给画布底纹。
+
+   ============ 设计语言的裁决 ============
+   rp 的主体是**阅读**,消息流自己的语言是轻的:细边、半透明墨底、
+   小字距、1px accent 渐变线(见 rp.css 的气泡/jump/roll)。
+   重 RPG 部件(招牌/名牌/多层描边钮)只出现在**内容**上(立绘框、
+   席位名牌、气泡头像框)—— 它们是「舞台上的东西」。
+   chrome(操作壳)必须服从阅读:一条底部单栏,元素全部用消息流的
+   chip 语言,与「▼ 回到最新」同宗。顶部不设 chrome —— 章节名以
+   chapter 条目的身份在消息流里,不在壳上重复。
+
+   交互模型(AVG 三段式,P2/P3 逐步接全):
+     演出中 点击/空格 -> 快进到终态(P2)
+     演完   点击/空格 -> 推进下一条(已接:整个舞台是热区)
+     幕终   底坞升起选项/输入(P3;翻页器已占位)
+ */
+
+/* 其他应用第一行都有,rp 从第一版就漏了。后果:Nameplate 等
+   「width:100% + padding」层层外溢,名牌右缘的亮色中层被内层盖住,
+   看起来就是「右半边边框消失」。组件库本来就是在 border-box 下开发的。 */
+* { box-sizing: border-box; }
+
+/* 画布外一律纯黑(stage.css 的 .abyssa-stage-root 负责),
+   底纹挂进画布内,随界面缩放并止于画布边界。 */
+:root {
+  --abyssa-rp-backdrop:
+    radial-gradient(circle at 50% 30%, rgb(74 102 100 / 12%), transparent 60%),
+    #101616;
+}
+
+/* 中间内容区:3:2、高度铺满画布,水平居中。
+   高度用 100% 而非 100vh —— 画布已给定高度,vh 会与画布缩放叠加
+   (见 stage/README.md 铁律 1)。 */
+.rp-app {
+  width: calc(900px * 3 / 2);
+  height: 100%;
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  background: #101616;
+  color: var(--abyssa-text);
+  font-family: var(--abyssa-font-body);
+  overflow: hidden;
+}
+
+/* ============ 立绘框 → 竖幅海报 ============
+   立绘宽度由高度驱动(knee 取景 704:1178),框变窄不缩小人物,
+   而是**裁掉两侧空气** —— 这正是海报构图。
+     seat-w 330.75 -> 276:框比例从 ~1:2 收到 ~1:2.6
+     seat-my 67.5 -> 44:框拉高,立绘随框高整体放大 ~8%
+   释放的宽度给中栏消息流(气泡行宽 580px 不变,可读性变好)。 */
+.rp-app .abyssa-rp {
+  --abyssa-rp-seat-w: 276px;
+  --abyssa-rp-seat-my: 44px;
+}
+
+/* 海报底部渐隐:立绘下缘沉进阴影,名牌浮在其上更清晰(署名区)。
+   放在席位框内、立绘之上、名牌之下(名牌 z-index 3,立绘上台 2)。 */
+.rp-app .abyssa-rp__seat::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 2;
+  height: 120px;
+  background: linear-gradient(180deg, transparent, rgb(7 11 11 / 62%) 78%);
+  pointer-events: none;
+}
+
+/* ============ 舞台 ============ */
+.rp-app__stage {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  /* 整个舞台是推进热区(AVG 标准)。 */
+  cursor: pointer;
+}
+
+.rp-app[data-state="ended"] .rp-app__stage,
+.rp-app[data-state="reading"] .rp-app__stage { cursor: default; }
+
+.rp-app__stage .abyssa-rp {
+  position: absolute;
+  inset: 0;
+  height: auto;
+  min-height: 0;
+}
+
+/* ============ 底部单栏 ============
+   三段:左翻页器 / 中推进指引 / 右工具钮。52px,一条 1px 渐变线与
+   舞台分界(与消息流当前条的分隔线同语),无面板无切角。
+   右侧是视觉小说底栏的标准形态:无框图标 + 图标下小字标签(LOG/AUTO/
+   SKIP),质感靠图形与状态光,不靠边框 —— 文字 chip 是廉价感的来源。 */

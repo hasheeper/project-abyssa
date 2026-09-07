@@ -80,6 +80,7 @@ export type ExpeditionFlatDieFrameProps = {
   suitShape?: ExpeditionDieSuitShape;
   themeColor?: string;
   wildPip?: boolean;
+  asleep?: boolean;
   scoring?: boolean;
   layout?: ExpeditionDieStampLayout;
   textureRotation?: number;
@@ -196,6 +197,7 @@ export function ExpeditionFlatDieFrame({
   suitShape = "diamond",
   themeColor = "#bda260",
   wildPip = false,
+  asleep = false,
   scoring = false,
   layout = DEFAULT_EXPEDITION_DIE_STAMP_LAYOUT,
   textureRotation = 0,
@@ -242,6 +244,7 @@ export function ExpeditionFlatDieFrame({
       data-action={action}
       data-guides={showGuides || undefined}
       data-scoring={scoring || undefined}
+      data-asleep={asleep || undefined}
       role="img"
       aria-label={label}
       style={rootStyle}
@@ -444,11 +447,12 @@ export function ExpeditionFlatDieFrame({
                   data-shape={suitShape}
                   data-digits={fateDigits}
                 >
+                  {asleep && <title>命数沉眠：{displayedFate} 点不参与成牌</title>}
                   {suitShape === "diamond" && <path d="M30 5L55 30L30 55L5 30Z" />}
                   {suitShape === "triangle" && <path d="M29 4L51 47H7Z" />}
                   {suitShape === "square" && <path d="M9 9H49V49H9Z" />}
                   {suitShape === "circle" && <circle cx="30" cy="30" r="24" />}
-                  {wildPip ? (
+                  {wildPip && !asleep ? (
                     <g className="expedition-flat-die-frame__wild-pip">
                       <path d="M30 15L45 30L30 45L15 30Z" />
                       <path d="M30 20.5L39.5 30L30 39.5L20.5 30Z" />
@@ -463,7 +467,7 @@ export function ExpeditionFlatDieFrame({
                       textLength={fateDigits === "multi" ? (suitShape === "triangle" ? 25 : 30) : undefined}
                       lengthAdjust="spacingAndGlyphs"
                     >
-                      {displayedFate}
+                      {asleep ? "眠" : displayedFate}
                     </text>
                   )}
                 </g>

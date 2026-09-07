@@ -1,0 +1,5 @@
+{
+  "extends": "./tsconfig.game-core.json",
+  "include": ["src/game-core/**/*.ts", "src/game-application/**/*.ts"],
+  "exclude": ["src/**/*.test.ts", "src/**/*.bench.ts", "src/**/testing/**"]
+}

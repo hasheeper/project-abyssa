@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { dispatchBattleCommand } from "../rules/dispatcher";
-import { actScenario } from "../testing/scenario";
+import { dispatchBattleCommand } from "../../../game-runtime/legacy-battle";
+import { actScenario } from "../../../game-runtime/testing/battle/testing/scenario";
 import {
   getEnemyTurnCue,
   getPlayerAttackCue,

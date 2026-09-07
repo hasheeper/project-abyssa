@@ -3,7 +3,12 @@
 .abyssa-expedition-dice-panel {
   --dice-size: 116px;
   --dice-half: 58px;
-  height: 217px;
+  --expedition-action-button-w: 180px;
+  --expedition-action-reroll-w: 104px;
+  --expedition-action-hand-w: 154px;
+  --expedition-action-gap: 16px;
+  /* 骰盘与铭面计数净空固定；底部只占当前行动栏或道具栏的实际高度。 */
+  height: var(--expedition-dice-panel-h);
   padding: 4px 18px 13px;
   align-self: end;
   grid-column: 1;
@@ -67,7 +72,7 @@
   display: grid;
   width: 100%;
   align-items: center;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(var(--party-size, 5), minmax(0, 1fr));
   justify-items: center;
 }
 
@@ -93,7 +98,20 @@
   z-index: 2;
   inset: 0;
   transform-style: preserve-3d;
-  transition: transform var(--expedition-die-roll-duration, .9s) cubic-bezier(.2, .75, .3, 1);
+}
+
+/* Give the return a gentle start and stop, including the small held-die drop. */
+.abyssa-expedition-die-slot[data-unrolled] .expedition-die:not([data-rolling]) {
+  transition: translate 560ms ease-in-out, filter 160ms ease, opacity 160ms ease;
+}
+
+.abyssa-expedition-die-slot[data-unrolled] .expedition-die:not([data-rolling]) .expedition-die__cube {
+  transition: transform 560ms ease-in-out;
+}
+
+/* Restoring, locking or spending a die must never start an implicit spin. */
+.expedition-die[data-rolling] .expedition-die__cube {
+  transition: transform var(--expedition-die-roll-duration) cubic-bezier(.2, .75, .3, 1);
   will-change: transform;
 }
 
@@ -102,6 +120,8 @@
   inset: 0;
   overflow: visible;
   backface-visibility: hidden;
+  /* Composite each detailed SVG surface as a plane before rotating the cube. */
+  contain: paint;
 }
 
 .expedition-die__face[data-face="1"] { transform: translateZ(var(--dice-half)); }
@@ -270,31 +290,80 @@
 @media (prefers-reduced-motion: reduce) {
   .expedition-die,
   .expedition-die__cube,
-  .expedition-die__face { animation: none; transition: none; }
+  .expedition-die__face,
+  .expedition-die__shadow,
+  .expedition-die__selection { animation: none !important; transition: none !important; }
 }
 
 .abyssa-expedition-dice-panel > .action-dock {
+  --action-dock-pad-top: 12px;
+  --action-dock-edge-size: 70px;
+  --expedition-action-content-drop: 6px;
   position: absolute;
   right: auto;
-  bottom: var(--expedition-action-dock-bottom);
+  bottom: 0;
   left: 50%;
   z-index: 9;
-  width: 660px;
+  width: 760px;
+  height: var(--expedition-action-dock-h);
   margin: 0;
   /* 菱形撤回悬在左外沿，不能被裁 */
   overflow: visible;
   transform: translateX(-50%);
 }
 
+.abyssa-expedition-dice-panel .action-dock__primary {
+  position: absolute;
+  top: calc(50% - var(--expedition-action-primary-h) / 2);
+  right: 0;
+  left: 0;
+  display: grid;
+  align-items: center;
+  height: var(--expedition-action-primary-h);
+  padding: var(--action-dock-pad-top) var(--action-dock-pad-inline);
+}
+.abyssa-expedition-dice-panel .action-dock__upper-frame { height: 100%; }
+
+/* Lower the whole control row within the existing frame, without resizing it. */
+.abyssa-expedition-dice-panel .action-dock__content {
+  top: var(--expedition-action-content-drop);
+}
+.abyssa-expedition-dice-panel .action-dock[data-alternate] {
+  --expedition-action-content-drop: 0px;
+}
+
+/* 道具展开时参与布局分配，不再向上覆盖骰子与铭面计数。 */
+.abyssa-expedition-dice-panel .action-dock__alternate { inset: 0; }
+.abyssa-expedition-dice-panel .action-dock__switch.abyssa-icon-button {
+  top: calc(50% - var(--action-dock-edge-size) / 2 + var(--expedition-action-content-drop));
+}
+.abyssa-expedition-dice-panel .item-dock { height: 100%; }
+.abyssa-expedition-dice-panel .item-dock__target-list { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+
 .abyssa-expedition-action-controls {
   display: grid;
   align-items: center;
-  gap: 18px;
-  grid-template-columns: 150px 110px 150px;
+  gap: var(--expedition-action-gap);
+  grid-template-columns: var(--expedition-action-button-w) var(--expedition-action-reroll-w) var(--expedition-action-hand-w) var(--expedition-action-button-w);
   justify-content: center;
 }
 
-.abyssa-expedition-action-controls .dice-action-button {
-  width: 150px;
+/* Battle and journey actions share the same end columns and centerline. */
+.abyssa-expedition-dice-panel .action-dock__primary .dice-action-button {
+  width: var(--expedition-action-button-w);
   min-width: 0;
 }
+.abyssa-expedition-dice-panel .action-dock__primary .dice-action-button__copy strong {
+  font-size: 15px;
+}
+.abyssa-expedition-action-controls .action-dock__slot,
+.abyssa-expedition-action-controls .abyssa-expedition-hand {
+  height: 44px;
+}
+.abyssa-expedition-action-controls .action-dock__slot > span { font-size: 11px; }
+.abyssa-expedition-action-controls .action-dock__slot > strong { font-size: 17px; }
+
+/* 3D faces can project outside their button even when visually back-facing.
+   Hit testing belongs to the owner's button, never a neighbouring cube face. */
+.expedition-die__cube,
+.expedition-die__cube * { pointer-events: none; }

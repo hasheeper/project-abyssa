@@ -143,6 +143,7 @@ export function CharacterStatusScreen({
     defaultValue: defaultInterfaceTone,
     onChange: onInterfaceToneChange
   });
+  const [failedPortrait, setFailedPortrait] = useState<string | null>(null);
   const [outfitSelections, setOutfitSelections] = useState<Record<string, string>>({});
   const tabUid = useId().replaceAll(":", "");
   const currentCharacter =
@@ -273,9 +274,11 @@ export function CharacterStatusScreen({
 
             <div className="abyssa-character-screen__portrait-column">
               <RpgFrame className="abyssa-character-screen__portrait" padding="none">
-                {currentPortraitUrl ? (
+                {currentPortraitUrl && failedPortrait !== currentPortraitUrl ? (
                   <img
+                    key={currentPortraitUrl}
                     src={currentPortraitUrl}
+                    onError={() => setFailedPortrait(currentPortraitUrl)}
                     alt={currentPortraitAlt}
                   />
                 ) : (

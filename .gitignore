@@ -1,7 +1,8 @@
 node_modules
 
-# 构建产物：库 dist + 各应用 <app>-dist（新增应用无需再改这里）
+# S0: UI、游戏、实验、工具、独立入口和检查报告统一输出到 dist。
 dist
+# 历史产物保护：旧命令/旧分支生成的缓存仍不进入版本控制。
 *-dist/
 storybook-static
 
@@ -9,4 +10,6 @@ storybook-static
 
 .DS_Store
 coverage
+playwright-report
+test-results
 *.log

@@ -9,9 +9,7 @@ import { Stage } from "../../shared/stage";
 import { AdvStage } from "../../shared/presentation/adv/AdvStage";
 import { SCENES } from "./transcript";
 
-const background = import.meta.env.DEV
-  ? "/src/assets/backgrounds/shop.png"
-  : "../src/assets/backgrounds/shop.png";
+import background from "../../assets/backgrounds/shop.png";
 
 /** 自动播放时每条停留多久。 */
 const AUTO_MS = 2200;

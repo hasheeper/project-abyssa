@@ -14,8 +14,11 @@ function ruleOf(selector: string) {
 }
 
 describe("title CG carousel", () => {
-  it("ships all five CG frames as WebP, not the multi-megabyte PNGs", () => {
-    expect(TITLE_CG_FRAMES).toHaveLength(5);
+  it("ships all eleven CG frames as WebP in numeric order", () => {
+    expect(TITLE_CG_FRAMES).toHaveLength(11);
+    expect(TITLE_CG_FRAMES.map((frame) => frame.label)).toEqual(
+      Array.from({ length: 11 }, (_, index) => `cg-b-${index + 1}`)
+    );
     for (const frame of TITLE_CG_FRAMES) {
       expect(frame.src).toMatch(/\.webp($|\?)/);
     }

@@ -1,0 +1,157 @@
+/* 旧庄园配色预适配：黑木承托、旧白布读数、细红线缝边。
+   场景仅作美术预览，副本内容与回合规则不由皮肤决定。 */
+.abyssa-expedition[data-ui-skin="old-manor"] {
+  --manor-thread: #963447;
+  --manor-linen: #cec9bb;
+  --manor-name-ink: #c6c7b7;
+  --manor-cloth-surface:
+    repeating-linear-gradient(0deg, transparent 0 2px, rgb(17 23 18 / 8%) 2px 3px),
+    repeating-linear-gradient(90deg, transparent 0 3px, rgb(194 201 177 / 3%) 3px 4px),
+    linear-gradient(110deg, #303831, #424b3e 38%, #343d34);
+  --battle-skin-accent: #656962;
+  --battle-skin-accent-bright: var(--manor-linen);
+  --battle-skin-accent-soft: #92968b;
+  --battle-skin-muted: #8e938b;
+  --battle-frame-deep: #090b0b;
+  --battle-frame-surface: #171b1b;
+  --battle-frame-ring: #2a312f;
+  --battle-rail-surface: #1c2120;
+  --battle-rail-sheen: rgb(216 217 200 / 3%);
+  --battle-metal-hair: #141918;
+  --battle-metal-gradient: linear-gradient(135deg, #151918, #343b39 18%, #202623 46%, #454b48 73%, #151918);
+  --battle-board-border: #323a37;
+  --battle-board-background:
+    radial-gradient(ellipse at 50% -8%, rgb(204 208 192 / 4%), transparent 46%),
+    repeating-linear-gradient(2deg, transparent 0 11px, rgb(208 211 197 / 1.5%) 12px, transparent 14px),
+    linear-gradient(180deg, #191e1d, #101413);
+  --battle-board-ring: rgb(184 193 176 / 12%);
+  --battle-structure-line: #39413e;
+  --battle-structure-inner: rgb(203 210 194 / 8%);
+  --battle-structure-surface: rgb(8 12 11 / 28%);
+  --battle-sidebar-surface:
+    linear-gradient(180deg, rgb(212 219 208 / 6%), transparent 28%, rgb(0 0 0 / 34%)),
+    repeating-linear-gradient(2deg, transparent 0 8px, rgb(204 214 209 / 2%) 9px, transparent 11px),
+    #1b211f;
+  --battle-sidebar-inner:
+    linear-gradient(90deg, rgb(0 0 0 / 20%), transparent 18% 82%, rgb(0 0 0 / 24%)),
+    repeating-linear-gradient(2deg, transparent 0 7px, rgb(207 215 206 / 2%) 8px, transparent 10px),
+    #131918;
+  --battle-plaque-surface: linear-gradient(180deg, rgb(210 217 198 / 4%), transparent 35%), #1d2421;
+  --battle-dice-tray:
+    linear-gradient(180deg, rgb(212 220 211 / 7%), transparent 24%, rgb(0 0 0 / 28%) 80%),
+    radial-gradient(ellipse at 50% 40%, #1c2421, #111815 70%, #0c110f);
+  --battle-dock-surface: #151b18;
+  --battle-die-wood-base: #303637;
+  --battle-die-wood-mid: #1e2426;
+  --battle-die-wood-dark: #0c1113;
+  --battle-die-wood-fiber-light: #515a59;
+  --battle-die-wood-fiber-dark: #14191b;
+  --battle-die-icon: #c9c7bb;
+  --battle-die-icon-edge: #292f30;
+  --battle-detail-copy: #c5cbc5;
+  --battle-detail-copy-strong: #e3e2d7;
+  --battle-detail-copy-muted: #9ba49f;
+  --battle-detail-glow: rgb(202 211 202 / 16%);
+  --battle-scene-tint: linear-gradient(135deg, rgb(11 18 23 / 14%), rgb(12 17 20 / 5%));
+  --battle-scene-curtain: linear-gradient(180deg, rgb(5 9 12 / 18%), transparent 30% 68%, rgb(3 6 8 / 45%));
+  --battle-scene-filter: brightness(.74) saturate(.62) contrast(1.02);
+  --battle-frame-overlay-outset: 62px;
+  color: var(--battle-detail-copy);
+}
+
+/* 使用仓库门厅原图；外层 Stage 与内场随同一个 uiSkin 切换。 */
+.abyssa-battle-stage--old-manor {
+  --battle-backdrop-filter: saturate(.58) brightness(.56) contrast(1.02);
+  --battle-backdrop-tone: linear-gradient(135deg, rgb(10 19 26 / 18%), rgb(3 7 11 / 12%));
+  --battle-backdrop-vignette:
+    radial-gradient(ellipse at 50% 47%, transparent 18%, rgb(6 12 16 / 22%) 56%, rgb(0 3 5 / 86%) 100%),
+    linear-gradient(180deg, rgb(3 7 10 / 48%), transparent 27% 68%, rgb(1 4 6 / 70%));
+  --battle-backdrop-shadow: inset 0 0 96px rgb(2 6 9 / 54%);
+}
+
+.abyssa-battle-stage--old-manor::before {
+  background-image: url("../../assets/backgrounds/old-manor/welcoming-hall.jpg");
+  background-position: center 48%;
+}
+
+.abyssa-expedition[data-ui-skin="old-manor"] .abyssa-expedition-enemies {
+  background:
+    var(--battle-scene-tint),
+    var(--battle-scene-curtain),
+    var(--battle-frame-deep) url("../../assets/backgrounds/old-manor/welcoming-hall.jpg") center 53% / cover no-repeat;
+}
+
+.abyssa-expedition[data-ui-skin="old-manor"] .abyssa-expedition-frame__header .abyssa-rpg-header {
+  --abyssa-header-fill: #1e2522;
+  --abyssa-header-text: var(--manor-linen);
+  --abyssa-header-ornament: #8e414b;
+  --abyssa-header-middle-frame: #493036;
+  --abyssa-header-pattern: rgb(202 208 189 / 4%);
+}
+
+.abyssa-expedition[data-ui-skin="old-manor"] .abyssa-expedition-frame__header > span {
+  color: #a1a79b;
+}
+
+.abyssa-expedition[data-ui-skin="old-manor"] .abyssa-expedition-sidebar__header {
+  border-bottom-color: #3b443c;
+  background:
+    repeating-linear-gradient(0deg, transparent 0 2px, rgb(210 213 197 / 2%) 2px 3px),
+    linear-gradient(110deg, #242c26, #343c31 38%, #282f28);
+}
+
+.abyssa-expedition[data-ui-skin="old-manor"] .abyssa-expedition-sidebar__header span {
+  color: var(--manor-linen);
+  text-shadow: none;
+}
+
+.abyssa-expedition[data-ui-skin="old-manor"] .abyssa-expedition-sidebar__header small {
+  color: #a6ae9f;
+}
+
+.abyssa-expedition[data-ui-skin="old-manor"] .abyssa-expedition-party-nameplate {
+  background: var(--manor-cloth-surface);
+  box-shadow: inset 0 0 0 1px rgb(194 201 177 / 13%), 0 2px 3px rgb(0 0 0 / 40%);
+}
+
+.abyssa-expedition[data-ui-skin="old-manor"] .abyssa-expedition-party-nameplate strong,
+.abyssa-expedition[data-ui-skin="old-manor"] .abyssa-expedition-party-column[data-active] .abyssa-expedition-party-nameplate strong {
+  color: var(--manor-name-ink);
+  text-shadow: 0 1px 1px #0e150f;
+}
+
+.abyssa-expedition[data-ui-skin="old-manor"] .abyssa-expedition-party-nameplate::before {
+  border-color: rgb(169 181 153 / 20%);
+  background: transparent;
+}
+
+/* 骰框仍保留角色色，但收敛象牙染色，让黑木与布白成为主色。 */
+.abyssa-expedition[data-ui-skin="old-manor"] .expedition-flat-die-frame {
+  --frame-ivory-light: color-mix(in srgb, var(--expedition-die-theme-color) 26%, #c6c7b6);
+  --frame-ivory-base: color-mix(in srgb, var(--expedition-die-theme-color) 38%, #999f90);
+  --frame-ivory-mid: color-mix(in srgb, var(--expedition-die-theme-color) 46%, #626d61);
+  --frame-ivory-shadow: color-mix(in srgb, var(--expedition-die-theme-color) 38%, #303931);
+  --frame-ivory-deep: color-mix(in srgb, var(--expedition-die-theme-color) 30%, #161e18);
+}
+
+.abyssa-expedition[data-ui-skin="old-manor"] .abyssa-expedition-dice-panel__pattern::before {
+  opacity: .35;
+}
+
+.abyssa-expedition[data-ui-skin="old-manor"] .abyssa-shape-button.dice-action-button[data-primary="true"] {
+  --abyssa-shape-fill: #42212b;
+  --abyssa-shape-middle: var(--manor-thread);
+  --abyssa-shape-ornament: #c4747a;
+  --abyssa-shape-text: #e8dfd5;
+}
+
+.abyssa-expedition[data-ui-skin="old-manor"] .abyssa-expedition-skin-switch::after {
+  background: linear-gradient(90deg, var(--manor-thread), transparent 85%);
+  opacity: 1;
+}
+
+.abyssa-expedition[data-ui-skin="old-manor"] .abyssa-expedition-skin-switch__sigil i[data-skin="old-manor"] {
+  background: var(--manor-thread);
+  border-color: #d58084;
+  box-shadow: none;
+}

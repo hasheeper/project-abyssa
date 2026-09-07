@@ -1,6 +1,8 @@
-import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { tmpdir } from "node:os";
 import { resolve } from "node:path";
-import { describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 /* ============ 层叠护栏 ============
  *
@@ -18,15 +20,22 @@ import { describe, expect, it } from "vitest";
  * 所以只能对构建产物做真正的权重算术：找出所有给
  * `.abyssa-frame__content` 设 padding 的规则，比 (权重, 位置)。 */
 
-const DIST = resolve(import.meta.dirname, "../../../../map-dist/assets");
+const projectRoot = resolve(import.meta.dirname, "../../../..");
+let outputDirectory = "";
+let CSS = "";
 
-function bundledCss(): string | null {
-  if (!existsSync(DIST)) return null;
-  const file = readdirSync(DIST).find((name) => name.endsWith(".css"));
-  return file ? readFileSync(resolve(DIST, file), "utf8") : null;
-}
+beforeAll(() => {
+  outputDirectory = mkdtempSync(resolve(tmpdir(), "abyssa-cascade-"));
+  execFileSync(process.execPath, [
+    resolve(projectRoot, "scripts/run-target.mjs"), "build", "entry:map", "--outDir", outputDirectory
+  ], { cwd: projectRoot, stdio: "pipe" });
+  const html = readFileSync(resolve(outputDirectory, "map.html"), "utf8");
+  const stylesheets = [...html.matchAll(/<link\b[^>]*rel="stylesheet"[^>]*href="([^"]+)"/g)];
+  expect(stylesheets.length).toBeGreaterThan(0);
+  CSS = stylesheets.map((match) => readFileSync(resolve(outputDirectory, match[1]), "utf8")).join("\n");
+}, 60_000);
 
-const CSS = bundledCss();
+afterAll(() => { if (outputDirectory) rmSync(outputDirectory, { recursive: true, force: true }); });
 
 /** 只数类 / 属性 / 伪类。这批选择器里没有 id，也没有内联样式。 */
 function specificity(selector: string): number {
@@ -76,10 +85,9 @@ function winner(rules: PaddingRule[], classNames: string[]): PaddingRule | undef
   ).at(-1);
 }
 
-const describeBundled = CSS ? describe : describe.skip;
-
-describeBundled("sortie frame cascade", () => {
-  const rules = paddingRules(CSS ?? "");
+describe("sortie frame cascade", () => {
+  let rules: PaddingRule[] = [];
+  beforeAll(() => { rules = paddingRules(CSS); });
 
   /* 先确认竞争规则确实在产物里 —— 否则下面的比较是在跟空气赛跑。 */
   it("ships the foundation padding reset it has to outrank", () => {

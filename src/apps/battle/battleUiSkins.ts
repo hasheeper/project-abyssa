@@ -4,8 +4,9 @@ import heroPartyCornerOrnament from "../../assets/ui/battle-frame-corner-gold.pn
 import demonCadreTopOrnament from "../../assets/ui/battle-frame-top.png";
 import demonLordTopOrnament from "../../assets/ui/battle-frame-top-red.png";
 import heroPartyTopOrnament from "../../assets/ui/battle-frame-top-gold.png";
+import oldManorFrameThreads from "../../assets/ui/old-manor/battle-frame-threads.svg";
 
-export type BattleUiSkin = "timber" | "hero-party" | "demon-cadre" | "demon-lord";
+export type BattleUiSkin = "timber" | "hero-party" | "demon-cadre" | "demon-lord" | "old-manor";
 
 export type BattleUiSkinDefinition = {
   id: BattleUiSkin;
@@ -13,11 +14,13 @@ export type BattleUiSkinDefinition = {
   secondaryLabel: string;
   topOrnamentUrl?: string;
   cornerOrnamentUrl?: string;
+  frameOverlayUrl?: string;
+  enemyAtmosphere?: "mist";
   edgeWeave?: boolean;
 };
 
 /**
- * 战斗皮肤描述的是整支出击编队的指挥体系，而不是某一张角色卡的阵营。
+ * 战斗皮肤描述整场战斗的编队或场所美术，而不是某一张角色卡的阵营。
  * 混编队伍也只在进入战斗时确定一次，不能随角色力竭而改变外框。
  */
 export const BATTLE_UI_SKINS: readonly BattleUiSkinDefinition[] = [
@@ -49,6 +52,13 @@ export const BATTLE_UI_SKINS: readonly BattleUiSkinDefinition[] = [
     topOrnamentUrl: demonLordTopOrnament,
     cornerOrnamentUrl: demonLordCornerOrnament,
     edgeWeave: true
+  },
+  {
+    id: "old-manor",
+    label: "克雷格旧庄园",
+    secondaryLabel: "OLD MANOR",
+    frameOverlayUrl: oldManorFrameThreads,
+    enemyAtmosphere: "mist"
   }
 ] as const;
 

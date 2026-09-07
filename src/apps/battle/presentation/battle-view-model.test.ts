@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { CHARACTERS, PARTY_ORDER } from "../engine";
-import { actScenario } from "../testing/scenario";
+import { actScenario } from "../../../game-runtime/testing/battle/testing/scenario";
 import {
   INTENT_VIEW_WIDTH,
   buildDieFaces,
@@ -24,7 +24,7 @@ describe("expedition battle view model", () => {
   it("uses stable intent and party anchors", () => {
     expect(enemyAnchorX(0, 2)).toBe(INTENT_VIEW_WIDTH / 4);
     expect(enemyAnchorX(1, 2)).toBe(INTENT_VIEW_WIDTH * 0.75);
-    const partyAnchors = PARTY_ORDER.map(partyAnchorX);
+    const partyAnchors = PARTY_ORDER.map(id => partyAnchorX(id));
     [146.4, 333.2, 520, 706.8, 893.6].forEach((anchor, index) => {
       expect(partyAnchors[index]).toBeCloseTo(anchor);
     });
@@ -32,6 +32,7 @@ describe("expedition battle view model", () => {
 
   it("projects healing and enemy attack faces into target commands", () => {
     const healing = actScenario(7).face("elora", { verb: "heal" }).build();
+    healing.party.find(member => member.id === "kael")!.hp = 2;
     expect(getMemberTargetCommand(healing, "elora", "kael")).toEqual({
       type: "heal-member",
       actorId: "elora",

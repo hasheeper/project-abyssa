@@ -1,0 +1,78 @@
+/* One shallow supply rail; the seven positions share its material and edge. */
+.action-dock__primary { transition: opacity 160ms ease, transform 220ms ease-in; }
+.action-dock[data-alternate] .action-dock__primary { opacity: 0; transform: translateY(12px); pointer-events: none; }
+.action-dock__alternate { position: absolute; inset: auto 0 29px; opacity: 0; visibility: hidden; transform: translateY(22px); transition: opacity 180ms ease, transform 280ms ease-in, visibility 280ms; }
+.action-dock[data-alternate] .action-dock__alternate { opacity: 1; visibility: visible; transform: translateY(0); transition: opacity 240ms 110ms ease, transform 440ms 70ms cubic-bezier(.16,.8,.28,1), visibility 0s; }
+
+.item-dock {
+  --item-metal: var(--battle-skin-accent, #88714c);
+  --item-ink: var(--battle-skin-accent-soft, #c3b393);
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 8px 28px;
+  color: var(--item-ink);
+  border: 1px solid var(--battle-structure-line, #3f301e);
+  border-bottom: 3px solid var(--battle-frame-deep, #16130e);
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 3%), transparent 18%, rgb(0 0 0 / 20%)),
+    repeating-linear-gradient(2deg, transparent 0 7px, rgb(255 255 255 / 1%) 8px, transparent 10px),
+    var(--battle-frame-surface, #21170e);
+  box-shadow: inset 0 1px var(--battle-structure-inner, #ffffff10), inset 0 -1px var(--battle-structure-inner, #ffffff10), 0 3px 6px rgb(0 0 0 / 55%);
+}
+.item-dock::before, .item-dock::after {
+  content: "";
+  position: absolute;
+  top: 9px;
+  bottom: 9px;
+  width: 2px;
+  background: var(--battle-structure-inner, #ffffff10);
+  box-shadow: 1px 0 rgb(0 0 0 / 60%);
+  pointer-events: none;
+}
+.item-dock::before { left: 8px; }
+.item-dock::after { right: 8px; }
+.item-dock button:focus-visible { outline: 1px solid var(--item-metal); outline-offset: -3px; }
+.item-dock__slots {
+  display: grid;
+  width: 100%;
+  height: 76px;
+  grid-template-columns: repeat(7, 80px);
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.item-dock__slots li { position: relative; height: 76px; }
+.item-dock__slots li + li::before {
+  content: "";
+  position: absolute;
+  left: -5px;
+  top: 13px;
+  bottom: 13px;
+  width: 1px;
+  background: linear-gradient(transparent, var(--battle-structure-line, #3f301e) 30% 70%, transparent);
+  box-shadow: 1px 0 rgb(0 0 0 / 40%);
+}
+.item-dock__slots button { display: grid; place-items: center; width: 100%; height: 100%; padding: 0; border: 0; background: none; color: var(--item-ink); cursor: pointer; }
+.item-dock__slots button:hover, .item-dock__slots button[aria-pressed="true"] { background: radial-gradient(ellipse, color-mix(in srgb,var(--item-metal) 12%,transparent), transparent 70%); }
+.item-dock__slots button[aria-disabled="true"] { color: color-mix(in srgb,var(--item-ink) 60%,#333); cursor: default; }
+.item-dock__slots button i { display: block; width: 56px; height: 56px; transform: translateY(-4px); mask: no-repeat center / contain; background: currentColor; filter: drop-shadow(0 2px 1px #000); }
+.item-dock__slots button strong { position: absolute; bottom: 2px; right: 4px; min-width: 17px; font: 600 16px/1 var(--font-display,serif); text-align: center; color: var(--item-ink); text-shadow: 0 1px 2px #000; }
+.item-dock__empty { display: grid; place-items: center; height: 100%; font-size: 12px; opacity: .22; }
+
+/* Target selection replaces the rail contents inside the same footprint. */
+.item-dock:has(.item-dock__targets) .item-dock__slots { visibility: hidden; }
+.item-dock__targets { position: absolute; inset: 0; padding: 8px 28px; background: var(--battle-frame-surface, #21170e); animation: item-target-arrive 200ms ease-out; }
+.item-dock__targets header { display: flex; align-items: center; gap: 10px; min-height: 26px; margin-bottom: 6px; padding-bottom: 6px; border-bottom: 1px solid #ffffff12; font: 14px var(--abyssa-font-body,serif); }
+.item-dock__targets header i { width: 22px; height: 22px; background: currentColor; mask: no-repeat center / contain; }
+.item-dock__targets header strong { flex: 1; }
+.item-dock__targets header button { border: 0; border-left: 1px solid #ffffff20; background: none; padding: 3px 0 3px 12px; color: inherit; font: inherit; font-size: 12px; cursor: pointer; }
+.item-dock__target-list { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 8px; max-height: 180px; overflow-y: auto; scrollbar-width: thin; }
+.item-dock__target-list .abyssa-shape-button.dice-action-button { width:100%; min-width:0; height:auto; min-height:0; }
+.item-dock__target-list .dice-action-button__copy strong { white-space: normal; font-size: 12px; line-height: 1.4; letter-spacing: .03em; }
+.item-dock__target-list p { grid-column: 1/-1; margin: 4px; font-size: 13px; }
+@keyframes item-target-arrive { from {opacity:0;transform:translateY(6px);} to {opacity:1;transform:none;} }
+@media(prefers-reduced-motion:reduce) { .action-dock__primary,.action-dock__alternate {transition:none!important;} .item-dock__targets{animation:none;} }

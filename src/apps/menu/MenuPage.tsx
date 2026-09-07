@@ -1,10 +1,13 @@
+import { activeRunId } from "../../game-client/session";
 import { useState } from "react";
+import { GameProvider, GameGate, useGameState } from "../../game-client/react";
+import { gameHref, recordLocator, type GamePage } from "../../game-client/navigation";
 import type { CSSProperties } from "react";
 import { AbyssaProvider } from "../../shared/ui/primitives/AbyssaProvider";
 import { RpgDialogue } from "../../shared/ui/primitives/RpgDialogue";
 import { Stage } from "../../shared/stage";
 import { SceneTransitionProvider, useSceneTransition } from "../../shared/transition";
-import { characterProfiles } from "../../content/characters/profiles";
+import { characterIdentities } from "../../content/characters/identities";
 import manorNightGallery from "../../assets/backgrounds/manor-night-gallery.jpg";
 import { MenuBackdrop } from "./MenuBackdrop";
 import { MenuCommandDial } from "./MenuCommandDial";
@@ -13,7 +16,6 @@ import { MenuSceneControls } from "./MenuSceneControls";
 import { MenuSidebar } from "./MenuSidebar";
 import type { MenuSectionId } from "./MenuSidebar";
 import { MenuTopBar } from "./MenuTopBar";
-import type { MenuPhaseId } from "./MenuTopBar";
 
 /* ============ 枢纽主界面 ============
  *
@@ -45,7 +47,7 @@ const SECTION_LINES: Record<MenuSectionId, string> = {
   settings: "要调什么？我等着。"
 };
 
-const MENU_HOSTS = characterProfiles.filter((profile) => profile.portraitUrl);
+const MENU_HOSTS = characterIdentities.filter((profile) => profile.portraitUrl);
 const DEFAULT_HOST_INDEX = Math.max(0, MENU_HOSTS.findIndex((profile) => profile.id === "abyssa"));
 
 const MENU_HOST_LINES: Record<string, string> = {
@@ -82,7 +84,7 @@ const COMMAND_DESTINATIONS: Partial<
     channel: "正在前往"
   },
   sortie: {
-    href: "./battle.html",
+    href: "./map.html",
     destination: "裂隙远征",
     channel: "正在进入"
   }
@@ -103,13 +105,15 @@ const SECTION_DESTINATIONS: Partial<
 export function MenuPage() {
   return (
     <SceneTransitionProvider>
-      <MenuPageContent />
+      <GameProvider><GameGate><MenuPageContent /></GameGate></GameProvider>
     </SceneTransitionProvider>
   );
 }
 
 function MenuPageContent() {
   const { navigate } = useSceneTransition();
+  const game = useGameState(), record = game.record!, locator = recordLocator(record);
+  const route = (href: string) => gameHref(href.replace(/^\.\//, "").replace(/\.html$/, "") as GamePage, locator);
   const [selectedCommand, setSelectedCommand] = useState<MenuCommandId>("estate");
   const [selectedSection, setSelectedSection] = useState<MenuSectionId | null>(null);
   const [line, setLine] = useState(IDLE_LINE);
@@ -117,10 +121,7 @@ function MenuPageContent() {
   const [hostIndex, setHostIndex] = useState(DEFAULT_HOST_INDEX);
   const [backgroundIndex, setBackgroundIndex] = useState(0);
 
-  // 视觉原型阶段:资源与时间是静态样本值,不接真实存档。
-  const [day] = useState(12);
-  const [phase] = useState<MenuPhaseId>("dusk");
-  const funds = { public: 12800, party: 1450, crystals: 8 };
+  const { clock: { day, phase }, funds } = record.snapshot.campaign;
 
   const host = MENU_HOSTS[hostIndex];
   const activeBackground = MENU_BACKGROUNDS[backgroundIndex];
@@ -186,7 +187,7 @@ function MenuPageContent() {
                  左栏没有 onActivate,所以在这里自己判重复点击。 */
               const target = SECTION_DESTINATIONS[id];
               if (target && id === selectedSection) {
-                navigate(target.href, {
+                navigate(route(target.href), {
                   destination: target.destination,
                   channel: target.channel
                 });
@@ -231,7 +232,7 @@ function MenuPageContent() {
                   say(`${COMMAND_LINES[id]}（仓库界面尚未接入）`);
                   return;
                 }
-                navigate(target.href, {
+                navigate(id === "sortie" && activeRunId(record) ? gameHref("battle", locator) : route(target.href), {
                   destination: target.destination,
                   channel: target.channel
                 });

@@ -1,0 +1,50 @@
+name: Engineering and game foundation baseline
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  baseline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm install --global npm@10.9.8
+      - run: npm ci
+      # Includes no-DOM core/application types, AST boundaries, Node tests and isolated imports.
+      - run: npm run check:baseline
+      - run: npm run build:all
+      - run: node scripts/check-package-release.mjs
+      - run: npm run check:output -- game && npm run check:output -- lab && npm run check:output -- tools
+      - run: npx playwright install --with-deps --only-shell chromium
+      # Includes the same store contract on native IndexedDB, abort/quota and version-change tests.
+      - run: npm run test:smoke
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: baseline-reports
+          path: dist/reports
+  compatibility:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm install --global npm@10.9.8
+      - run: npm ci
+      - run: npm run build:entries
+      - run: npm run check:auxiliary
+      - run: npm run build-storybook
+        env:
+          STORYBOOK_DISABLE_TELEMETRY: '1'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: compatibility-reports
+          path: dist/reports

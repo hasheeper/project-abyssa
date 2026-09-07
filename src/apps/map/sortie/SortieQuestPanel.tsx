@@ -6,7 +6,7 @@ import { RibbonButton } from "../../../shared/ui/primitives/RibbonButton";
 import { getCalibration } from "../../../shared/ui/patterns/spriteCalibration";
 import { SORTIE_ACTION_ICONS, SORTIE_SPOIL_ICONS, maskStyle } from "./sortie-icons";
 import { findQuestBrief } from "./sortie-quests";
-import type { QuestYieldGrade } from "./sortie-quests";
+import type { QuestYieldGrade, QuestBrief } from "./sortie-quests";
 import { SORTIE_COMMAND_LABELS, SORTIE_SLOT_COUNT, composeParty } from "./sortie-model";
 import type { SortieLeader, SortieMember, SortieParty } from "./sortie-model";
 import type { MapLocationConfig } from "../types";
@@ -21,6 +21,7 @@ import type { MapLocationConfig } from "../types";
  * 标明缺口，而不是编三段假文案冒充已定稿的设定。 */
 
 export interface SortieQuestPanelProps {
+  briefOverride?: QuestBrief;
   location: MapLocationConfig;
   side: "left" | "right";
   roster: readonly SortieMember[];
@@ -71,6 +72,7 @@ function PartyFormationIcon() {
 }
 
 export function SortieQuestPanel({
+  briefOverride,
   location,
   side,
   roster,
@@ -81,7 +83,7 @@ export function SortieQuestPanel({
   onDepart,
   onClose
 }: SortieQuestPanelProps) {
-  const brief = findQuestBrief(location.id);
+  const brief = briefOverride ?? findQuestBrief(location.id);
   const members = party.memberIds
     .map((id) => roster.find((member) => member.id === id))
     .filter((member): member is SortieMember => Boolean(member));

@@ -41,7 +41,10 @@ export interface CharacterArchiveTrait {
 }
 
 export interface CharacterArchiveBond {
-  level: number;
+  level: number | null;
+  discrete?: boolean;
+  /** Gameplay cap; the established five-crystal layout stays intact. */
+  maxLevel?: number;
   progress?: number;
   progressMax?: number;
   slots?: number;
@@ -58,7 +61,9 @@ export interface CharacterArchiveStatusChip {
 export interface CharacterArchivePact {
   name: string;
   iconUrl?: string;
-  currentStage?: 1 | 2 | 3;
+  currentStage?: 1 | 2 | 3 | null;
+  stageLabels?: string[];
+  stageLimit?: number;
   trigger: string;
   currentTerm: string;
   nextLevel?: number;

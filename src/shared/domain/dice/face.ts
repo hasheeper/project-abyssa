@@ -6,7 +6,7 @@
      不能从 src/apps/battle 取——app 之间禁止互相 import（同脚本 :60）。
 
    与战斗引擎的关系：
-     引擎自己的 `Verb` / `FaceQuality` 仍在 src/apps/battle/domain/state.ts:19-20。
+     引擎规则位于 src/game-core/battle，本文件不承担规则计算。
      本文件是**展示层契约**，两处词表必须同序同名。
      已知刻意差异：引擎 Verb 没有 "art"，所以 DieFaceAction 是它的超集。
 
@@ -15,12 +15,12 @@
      花色不参与任何战斗判定，唯一职能是同花材料与编队策略。 */
 
 /** 命数状态。沉眠面刻痕被岁月磨平，点数不参与牌型识别。
-    对应引擎的 FaceQuality：asleep ≈ none，awake ≈ plain。 */
+    live 数据中醒眠与品质独立：沉眠面仍保留动作，醒面也可为金或锈。 */
 export type DieFateState = "asleep" | "awake";
 
 export const DIE_FATE_STATE_LABELS: Record<DieFateState, string> = {
   asleep: "沉眠",
-  awake: "已醒"
+  awake: "已醒",
 };
 
 /** 沉眠面不进牌局。 */
@@ -35,26 +35,23 @@ export const DIE_SUIT_LABELS: Record<DieSuit, string> = {
   holy: "圣辉",
   earth: "尘世",
   abyss: "渊影",
-  beyond: "彼岸"
+  beyond: "彼岸",
 };
 
 /** 与 ExpeditionFlatDieFrame 的 suitShape 对齐（该组件只认这四种字形）。 */
-export const DIE_SUIT_SHAPES: Record<DieSuit, "diamond" | "square" | "triangle" | "circle"> = {
+export const DIE_SUIT_SHAPES: Record<
+  DieSuit,
+  "diamond" | "square" | "triangle" | "circle"
+> = {
   holy: "diamond",
   earth: "square",
   abyss: "triangle",
-  beyond: "circle"
+  beyond: "circle",
 };
 
 /** 骰面动作。引擎 Verb 的超集（多一个 art）。 */
 export type DieFaceAction =
-  | "attack"
-  | "guard"
-  | "heal"
-  | "coin"
-  | "art"
-  | "wild"
-  | "blank";
+  "attack" | "guard" | "heal" | "coin" | "art" | "wild" | "blank";
 
 export const DIE_FACE_ACTION_LABELS: Record<DieFaceAction, string> = {
   attack: "攻击",
@@ -63,10 +60,12 @@ export const DIE_FACE_ACTION_LABELS: Record<DieFaceAction, string> = {
   coin: "顺手牵羊",
   art: "术式",
   wild: "命数",
-  blank: "空面"
+  blank: "空面",
 };
 
 export interface DieFace {
+  /** Present only for real archive data; legacy visual samples omit it. */
+  live?: LiveFaceDetails;
   /** 骰面序号 1–6，同时是立方体的面位。 */
   face: 1 | 2 | 3 | 4 | 5 | 6;
   /** 命数点数 1–6，参与牌型识别。 */
@@ -91,7 +90,7 @@ export type CharmKind = "combat-face" | "fate";
 
 export const CHARM_KIND_LABELS: Record<CharmKind, string> = {
   "combat-face": "战面改写",
-  fate: "命数修正"
+  fate: "命数修正",
 };
 
 /** 挂坠位总数。空位也要显示，玩家得看见还有几个孔。 */
@@ -111,10 +110,16 @@ export interface DieCharm {
   lore?: string;
 }
 
-/** 一名角色的整套骰装。faces 为空即「未编入远征」占位态。 */
+/** 一名角色的整套骰装。faces 为空表示本版本没有可展示的骰面。 */
 export interface CharacterDiceLoadout {
+  live?: {
+    scope: string;
+    version: 1 | 2;
+    slots: ArchiveEquipmentSlot[];
+    growth: string;
+  };
   characterId: string;
-  /** 主色 4 面、副色 2 面。 */
+  /** 主、副花色仅用于样稿概览；live 花色按每面分别展示。 */
   primarySuit?: DieSuit;
   secondarySuit?: DieSuit;
   faces: DieFace[];
@@ -123,6 +128,33 @@ export interface CharacterDiceLoadout {
   pact?: string;
   /** 无骰面时展示的说明。 */
   placeholderNote?: string;
+  placeholderTitle?: string;
+}
+
+export type LiveFaceDetails = {
+  id: string;
+  quality: "none" | "rust" | "plain" | "gild";
+  baseQuality: "none" | "rust" | "plain" | "gild";
+  pip: { kind: "natural"; value: number } | { kind: "wild" };
+  suitKnown: boolean;
+  actionLabel: string;
+  description: string;
+  rust: "none" | "legacy" | "removable" | "permanent" | "temporary";
+  replacement?: string;
+};
+export type ArchiveEquipmentSlot = {
+  id: string;
+  label: string;
+  state: "unavailable" | "inapplicable" | "empty" | "equipped" | "legacy";
+  description: string;
+  name?: string;
+  instanceId?: string;
+  icon?: DieFaceAction;
+};
+/** Live callers must supply every semantic axis; numeric pip is geometry only for wild faces. */
+export interface LiveCharacterDiceLoadout extends CharacterDiceLoadout {
+  live: NonNullable<CharacterDiceLoadout["live"]>;
+  faces: (DieFace & { live: LiveFaceDetails })[];
 }
 
 /** 统计某花色占了几面，用于校验主色 4 / 副色 2。 */
