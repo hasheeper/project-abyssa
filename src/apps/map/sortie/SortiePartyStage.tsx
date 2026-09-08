@@ -18,7 +18,7 @@ import type { SortieLeader, SortieMember, SortieParty } from "./sortie-model";
  * 换组件会让 React 卸载重建，立绘闪一下，过渡就没了。
  * 姿态差异全部交给 CSS 的 [data-mode]。
  *
- * DOM 槽位恒为 SORTIE_SLOT_COUNT + 1（凯尔第五席），保证三态切换不重建。
+ * DOM 槽位恒为 SORTIE_SLOT_COUNT + 1（玩家第五席），保证三态切换不重建。
  * 配队态展示空槽；地图态与委托态只让真实成员参与连续站位，避免一人队伍
  * 和第五席之间被三个空槽撑开。 */
 
@@ -94,7 +94,7 @@ export function SortiePartyStage({
   const activeMemberCount = nextLineupIndex;
   const enlisted = party.command === "personal";
   /* 预备出征从队首向后排：无论实际出战人数是否满员，最前一人始终占
-     最前席。凯尔亲征时算在队伍人数内；地图态与编队态完全不受影响。 */
+     最前席。玩家亲征时算在队伍人数内；地图态与编队态完全不受影响。 */
   const popLineupStart = pop
     ? SORTIE_SLOT_COUNT + 1 - activeMemberCount - (enlisted ? 1 : 0)
     : 0;
@@ -178,7 +178,7 @@ export function SortiePartyStage({
           </li>
         ))}
 
-        {/* 凯尔第五席：不占四个可选槽，托管时人还在台上但退到暗处。 */}
+        {/* 玩家第五席：不占四个可选槽，托管时仍在台上但退到暗处。 */}
         <li
           className="abyssa-sortie-stage__slot"
           data-leader="true"

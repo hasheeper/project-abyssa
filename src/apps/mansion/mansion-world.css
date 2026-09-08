@@ -443,7 +443,7 @@
   /* 素材是方图且人物居中偏上,略上移让脸落在圆心。 */
   object-position: 50% 12%;
 }
-/* kael / tibby 无素材时降级为姓氏首字 —— 不用几何小人,那正是上一版的病。 */
+/* 缺素材的驻在角色降级为姓氏首字，不使用几何小人。 */
 .mansion-character__disc b {
   color: #f2e8d4;
   font: 600 43px/1 var(--abyssa-font-body, "Noto Serif SC", serif);

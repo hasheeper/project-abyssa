@@ -172,7 +172,7 @@ describe("live character archive", () => {
     )!;
     fireEvent.error(image);
     expect(
-      screen.getByRole("img", { name: "凯尔暂无立绘" }),
+      screen.getByRole("img", { name: "你暂无立绘" }),
     ).toBeInTheDocument();
     await userEvent.click(screen.getByRole("button", { name: /诺玛/ }));
     expect(

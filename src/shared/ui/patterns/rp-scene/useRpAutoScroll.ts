@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { RpMessage } from "../rp-stage";
 
 const STICK_THRESHOLD = 48;
@@ -7,6 +7,11 @@ const STICK_THRESHOLD = 48;
 export function useRpAutoScroll(messages: readonly RpMessage[]) {
   const logRef = useRef<HTMLDivElement>(null);
   const [stick, setStick] = useState(true);
+  useLayoutEffect(() => {
+    const log=logRef.current;
+    // Restoring RP must land on the current line before paint, not scroll through the whole script.
+    if(log) log.scrollTop=log.scrollHeight;
+  }, []);
 
   const onScroll = useCallback(() => {
     const log = logRef.current;

@@ -11,11 +11,13 @@ import { applicationError } from "../service";
 export function deriveD5Baseline(catalog: ValidatedD5Catalog, source: AnyGameRecord, kind: "copy" | "upgrade" | "cycle"): D5Baseline {
   if (source.schemaVersion !== 3 && source.schemaVersion !== 4) v.invalid("source", "Only full manor saves can continue into D5", "content-unavailable");
   const old = source.snapshot.campaign;
+  const extendingOpening = kind === "upgrade" && source.schemaVersion === 4 && source.contentRef.contentVersion === 5 && catalog.ref.contentVersion === 6 && source.snapshot.campaign.opening?.status !== "skipped" && !!source.snapshot.campaign.opening;
   if (kind === "copy" && (source.schemaVersion !== 4 || v.canonicalJson(source.contentRef) !== v.canonicalJson(catalog.ref))) v.invalid("source", "Copy must retain its exact Catalog", "content-mismatch");
   if (kind !== "copy" && (old.activeRunRef || old.manor?.story?.status === "pending" || source.schemaVersion === 4 && (source.snapshot.campaign.activeStoryId || source.snapshot.campaign.memory && source.snapshot.campaign.memory.node !== "completed"))) v.invalid("source", "Finish the current expedition, memory and return story before continuing", "run-active");
-  if (kind === "upgrade" && (catalog.ref.contentVersion !== 3 || source.schemaVersion === 4 && source.contentRef.contentVersion !== 2)) v.invalid("source", "Unsupported upgrade path", "content-unavailable");
+  if (kind !== "copy" && !extendingOpening && source.schemaVersion === 4 && (source.snapshot.campaign.prologue?.status === "playing" || source.snapshot.campaign.opening?.status === "playing")) v.invalid("source", "Finish or skip the prologue first", "run-active");
+  if (kind === "upgrade" && (catalog.ref.contentVersion < 3 || source.schemaVersion === 4 && source.contentRef.contentVersion >= catalog.ref.contentVersion)) v.invalid("source", "Unsupported upgrade path", "content-unavailable");
   if (kind === "cycle") {
-    if (catalog.ref.contentVersion !== 3 || source.schemaVersion !== 4 || !source.snapshot.campaign.chapterClaim || !source.snapshot.campaign.chapterCompletion) v.invalid("source", "Complete the memory and present-day conclusion first", "command-not-available");
+    if (catalog.ref.contentVersion < 3 || source.schemaVersion !== 4 || !source.snapshot.campaign.chapterClaim || !source.snapshot.campaign.chapterCompletion) v.invalid("source", "Complete the memory and present-day conclusion first", "command-not-available");
     const campaign = initialD5Projection(catalog);
     campaign.inheritedChapter = {completionId:source.snapshot.campaign.chapterCompletion.id,terminalId:source.snapshot.campaign.chapterCompletion.terminalId};
     return {campaign,run:null,departures:[],anchors:[]};
@@ -45,6 +47,13 @@ export function deriveD5Baseline(catalog: ValidatedD5Catalog, source: AnyGameRec
   if (campaign.chapterCompletion) campaign.chapterCompletion.revision-=offset;
   if (campaign.chapterClaim) campaign.chapterClaim.revision-=offset;
   if (kind === "upgrade") {
+    if (extendingOpening) {
+      // S1 is an identical prefix. Preserve its choices and resume after its old final page.
+      if (campaign.opening?.status === "viewed") campaign.opening = {...campaign.opening,step:67,status:"playing"};
+    } else {
+      if (catalog.data.opening) campaign.opening = {step:catalog.data.opening.lastStep,status:"skipped",choices:[]};
+      if (catalog.data.prologue) campaign.prologue = {shotId: catalog.data.prologue.shotIds.at(-1)!, status: "skipped"};
+    }
     // Previously free tactical leftovers become finite carried stock, never a refill or sale grant.
     campaign.supplies.forEach(s=>{if(catalog.data.economy!.prices[s.definitionId] !== undefined) s.source="supply.demo.shop";});
   }

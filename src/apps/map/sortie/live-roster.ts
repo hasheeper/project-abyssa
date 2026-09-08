@@ -4,6 +4,7 @@ import { archiveIdentities } from "../../../content/characters/identities";
 import { partyFigureCatalogById } from "../../../assets/map/party-figures/catalog";
 import type { PartyFigureId } from "../../../content/characters/partyFigureCalibration";
 import type { SortieMember, SortieLeader } from "./sortie-model";
+import { isPlayerActor, playerDisplayName } from "../../../shared/domain/player-identity";
 
 /** Real archive dice drive the roster. Legacy faces keep `live.suitKnown: false`
  *  so the panel can render the shared die frames without advertising suits
@@ -17,9 +18,9 @@ export function liveParty(view: CharacterArchiveView): {
       dice = presentDice(ch, view.leaderId);
     return {
       id: ch.id,
-      name: art?.name ?? ch.name,
-      shortName: art?.selectorLabel ?? ch.name,
-      secondaryName: art?.secondaryName,
+      name: isPlayerActor(ch.id) ? playerDisplayName() : art?.name ?? ch.name,
+      shortName: isPlayerActor(ch.id) ? playerDisplayName() : art?.selectorLabel ?? ch.name,
+      secondaryName: isPlayerActor(ch.id) ? "USER" : art?.secondaryName,
       title: art?.status.title ?? "远征伙伴",
       faction: art?.status.affiliation?.tone ?? "hero-party",
       factionLabel: art?.status.affiliation?.label ?? "勇者小队",
@@ -40,7 +41,7 @@ export function liveParty(view: CharacterArchiveView): {
     leader: {
       ...leader,
       id: "kael",
-      secondaryName: leader.secondaryName ?? "KAEL",
+      secondaryName: leader.secondaryName ?? "USER",
       stayLine: "",
     },
   };

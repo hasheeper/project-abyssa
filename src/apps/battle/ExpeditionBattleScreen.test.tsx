@@ -515,7 +515,7 @@ describe("ExpeditionBattleScreen", () => {
   it("五张队员卡与敌方意图均已渲染", async () => {
     await mount();
 
-    for (const name of ["凯尔", "尤斯缇丝", "艾洛拉", "柯萝萝", "诺玛"]) {
+    for (const name of ["你", "尤斯缇丝", "艾洛拉", "柯萝萝", "诺玛"]) {
       expect(screen.getByRole("article", { name: new RegExp(name) })).toBeInTheDocument();
     }
     expect(
@@ -1116,7 +1116,7 @@ describe("ExpeditionBattleScreen", () => {
 
     expect(board()).toHaveAttribute("data-support-kind", "heal");
     expect(target).toHaveAttribute("data-support-phase", "anticipate");
-    const healFx = screen.getByLabelText("凯尔恢复 1 点生命");
+    const healFx = screen.getByLabelText("你恢复 1 点生命");
     expect(healFx).toHaveAttribute("data-kind", "heal");
     expect(
       healFx.querySelectorAll(".abyssa-expedition-support-fx__particle")

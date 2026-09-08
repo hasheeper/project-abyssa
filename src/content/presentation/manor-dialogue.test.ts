@@ -13,7 +13,7 @@ it("keeps memory checkpoint lengths and stable IDs while revising the prose", ()
 it("keeps absent expedition companions out of the ending without moving saved checkpoints", () => {
   const lines = manorConclusionForParty(["kael", "norma"]);
   expect(lines.map(step => step.map(line => line.id))).toEqual(manorConclusionDialogue.map(step => step.map(line => line.id)));
-  expect(new Set(lines.flat().flatMap(line => line.characterId ? [line.characterId] : []))).toEqual(new Set(["kael", "marietta"]));
+  expect(new Set(lines.flat().flatMap(line => line.characterId ? [line.characterId] : []))).toEqual(new Set(["marietta"]));
   expect(manorConclusionForParty(["kael", "eustice", "elora"])).toEqual(manorConclusionDialogue);
 });
 it("party substitutions use the present actor's authored voice, including the real event participant", () => {
@@ -30,4 +30,10 @@ it("party substitutions use the present actor's authored voice, including the re
   const kororo=manorJourneyDialogue("register-intro",["kael","kororo"],null,true)[1];
   expect(norma.text).not.toBe(kororo.text);
   expect(manorJourneyDialogue("relic-kept",["kael","norma"],"kael",true)[2].characterId).toBeUndefined();
+});
+
+it("keeps the player compatibility id out of automatic manor dialogue", () => {
+  const scripts=[...Object.values(clockworkMemoryScript).flat(),...manorConclusionDialogue.flat()];
+  expect(scripts.some(line=>line.characterId==="kael")).toBe(false);
+  expect(JSON.stringify(scripts)).not.toContain("凯尔");
 });

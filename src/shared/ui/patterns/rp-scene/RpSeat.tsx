@@ -5,6 +5,8 @@ import type { RpActor, RpSeat } from "../rp-stage";
 import { SeatActor } from "./SeatActor";
 import type { DepartingRpActor } from "./useRpSeatLifecycle";
 import type { RpCrop } from "./types";
+import type { ActorPerformances } from "../ActorPerformance";
+import type { ResolvedEmotion } from "../emotion-cues";
 
 interface RpSeatViewProps {
   seat: RpSeat;
@@ -13,6 +15,10 @@ interface RpSeatViewProps {
   departing: DepartingRpActor | null;
   activeActorId?: string;
   expressionByActor: ReadonlyMap<string, ExpressionId>;
+  emotions: ReadonlyMap<string, ResolvedEmotion>;
+  hydratedIds: ReadonlySet<string>;
+  replay: boolean;
+  performances?: ActorPerformances;
   crop: RpCrop;
   onActorExited: (seat: RpSeat, token: number) => void;
 }
@@ -24,6 +30,10 @@ export function RpSeatView({
   departing,
   activeActorId,
   expressionByActor,
+  emotions,
+  hydratedIds,
+  replay,
+  performances,
   crop,
   onActorExited
 }: RpSeatViewProps) {
@@ -51,6 +61,8 @@ export function RpSeatView({
           active={false}
           expression={expressionByActor.get(leavingActor.id) ?? leavingActor.expression ?? "a"}
           crop={crop}
+          cue={emotions.get(leavingActor.id)}
+          replay
           onExited={() => onActorExited(seat, departing.token)}
         />
       )}
@@ -60,9 +72,13 @@ export function RpSeatView({
           actor={actor}
           seat={seat}
           phase="enter"
-          active={actor.id === activeActorId}
-          expression={expressionByActor.get(actor.id) ?? actor.expression ?? "a"}
+          active={actor.id === activeActorId || !!performances?.[actor.id]}
+          performance={performances?.[actor.id]}
+          expression={emotions.get(actor.id)?.expression ?? expressionByActor.get(actor.id) ?? actor.expression ?? "a"}
           crop={crop}
+          cue={emotions.get(actor.id)}
+          hydrate={hydratedIds.has(emotions.get(actor.id)?.key ?? "")}
+          replay={replay}
         />
       )}
       <Nameplate

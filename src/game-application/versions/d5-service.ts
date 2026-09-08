@@ -58,7 +58,13 @@ export function createD5Application(catalog: ValidatedD5Catalog, store: D5Store,
         // A left attempt has no active run; retry must still match its exact saved attempt.
         if (!(command.type === "retry-memory" && campaign.memory?.node === "left" && same(command.runRef, { kind: "memory", id: campaign.memory.id, attempt: campaign.memory.attempt }))) v.invalid("runRef", "Stale or foreign run/attempt", "no-expedition");
       }
-      if (command.type === "purchase-supply") {
+      if (command.type === "advance-opening") {
+        event = {...command,type:"opening-advanced"};
+      } else if (command.type === "advance-prologue") {
+        event = {type: "prologue-advanced", shotId: command.shotId};
+      } else if (command.type === "complete-prologue") {
+        event = {type: "prologue-completed", shotId: command.shotId, choice: command.choice};
+      } else if (command.type === "purchase-supply") {
         event = {...command, type: "supply-purchased"};
       } else if (command.type === "inherit-memory") {
         event = {type: "memory-inherited", runId: `memory:${token.slice(0,32)}`, chapterId: command.chapterId};

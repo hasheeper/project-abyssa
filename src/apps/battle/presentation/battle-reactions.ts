@@ -2,6 +2,7 @@ import { useCallback, useState } from "react";
 import type { BattleEvent } from "../view";
 import type { DemoEvent } from "../../../game-core/battle";
 import { BATTLE_REACTIONS, type BattleReactionKind } from "../../../content/presentation/battle-reactions";
+import { isPlayerActor } from "../../../shared/domain/player-identity";
 
 export type BattleReaction = { key: string; actorId: string; kind: BattleReactionKind; text: string };
 const kinds: Record<string, BattleReactionKind> = {
@@ -9,6 +10,8 @@ const kinds: Record<string, BattleReactionKind> = {
   heal: "heal", bind: "bind", blank: "blank", art: "special", steal: "special",
 };
 export function makeBattleReaction(key: string, actorId: string, kind: BattleReactionKind): BattleReaction | null {
+  // Deterministic battle presentation must not invent dialogue for the player.
+  if (isPlayerActor(actorId)) return null;
   const lines = BATTLE_REACTIONS[actorId]?.[kind];
   if (!lines) return null;
   // Stable per committed event: rendering/retries never draw from either game or UI RNG.

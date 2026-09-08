@@ -69,6 +69,13 @@ describe("D5-B isolated content and progression evidence", () => {
     s.add({ type: "story-started", sessionId: "one", eventId: "event.growth.elora.lv2", basisId: t.id });
     expect(s.state().stories[0]).toMatchObject({ id: "one", step: 1, deferred: false });
   });
+  it("persists authored player attitude choices without changing the story cursor contract", () => {
+    const s=d5Scenario(); s.depart("choice"); const terminal=s.settle();
+    s.add({type:"story-started",sessionId:"choice-scene",eventId:"event.growth.elora.lv2",basisId:terminal.id});
+    for(let step=0;step<3;step++) s.add({type:"story-advanced",sessionId:"choice-scene",step,choice:"continue"});
+    s.add({type:"story-advanced",sessionId:"choice-scene",step:3,choice:"seasoned"});
+    expect(s.state().stories[0]).toMatchObject({step:4,choices:[{step:3,tone:"seasoned"}]});
+  });
   it("creates only two owned equipment instances and returns reservations with unchanged identities", () => {
     const s = d5Scenario(); s.depart("early"); const t = s.settle();
     const grant = s.claim("event.demo.preparation-gift", t.id), inventory = s.state().inventory;

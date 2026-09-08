@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { AdvStage } from "../shared/presentation/adv/AdvStage";
 import { useSceneSequenceBusy } from "../shared/presentation/adv/SceneSequence";
-import type { AuthoredLine } from "../content/presentation/marietta-memory";
+import type { AuthoredLine } from "../content/presentation/authored-story";
 import { storyActors, storyMessages, storySlots } from "./story-actors";
 import forwardIcon from "../assets/icons/fast-forward-button.svg";
 import "../shared/ui/styles/dialogue.css";
@@ -9,9 +9,9 @@ import "../shared/ui/styles/paper-doll.css";
 import "../shared/presentation/adv/reading-shell.css";
 import "../shared/presentation/adv/reading-controls.css";
 
-type Props = {title: string; location: string; background: string; lines: AuthoredLine[]; cursor: number; busy?: boolean; finalLabel?: string; onNext: () => void; onSkip: () => void};
+type Props = {title: string; location: string; background: string; lines: AuthoredLine[]; cursor: number; busy?: boolean; replay?: boolean; finalLabel?: string; onNext: () => void; onSkip: () => void};
 /** The same full ADV and reading rail as memory; no additional story modal or card. */
-export function StoryReading({title, location, background, lines, cursor, busy = false, finalLabel = "继续", onNext, onSkip}: Props) {
+export function StoryReading({title, location, background, lines, cursor, busy = false, replay = false, finalLabel = "继续", onNext, onSkip}: Props) {
   const transitioning = useSceneSequenceBusy();
   const locked = busy || transitioning;
   const [revealed, setRevealed] = useState<string | null>(null), [settled, setSettled] = useState<string | null>(null);
@@ -24,7 +24,7 @@ export function StoryReading({title, location, background, lines, cursor, busy =
     <section className="rp-app__stage" aria-label="ADV 对话" ref={stage} tabIndex={0} onClick={next} onKeyDown={e => {
       if (e.target === e.currentTarget && [" ","Enter","ArrowRight"].includes(e.key)) {e.preventDefault(); next();}
     }}>
-      <AdvStage actors={storyActors(lines)} messages={storyMessages(lines.slice(0,cursor+1))} initialSlots={storySlots(lines)} background={background} typing={typing} hydrate onTypingEnd={() => setSettled(line.id)}/>
+      <AdvStage actors={storyActors(lines)} messages={storyMessages(lines.slice(0,cursor+1))} initialSlots={storySlots(lines)} background={background} typing={typing} hydrate replay={replay} onTypingEnd={() => setSettled(line.id)}/>
     </section>
     <footer className="rp-app__bar">
       <div className="rp-app__pager"><span className="rp-app__cell"><span className="rp-app__cell-main">{location}</span><span className="rp-app__cell-label">STORY</span></span></div>

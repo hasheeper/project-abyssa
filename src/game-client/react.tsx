@@ -37,9 +37,16 @@ export function GameProvider({ children, factory = createBrowserGameRuntime }: {
   if (!session) return <GameLoading/>;
   return <Context.Provider value={session}>{children}</Context.Provider>;
 }
-export function GameGate({ children }: { children: ReactNode }) {
+export function GameGate({ children, allowPrologue = false, allowOpening = false }: { children: ReactNode; allowPrologue?: boolean; allowOpening?: boolean }) {
   const session = useGameSession(), state = useGameState();
   const entered = useRef(false);
+  const needsPrologue = !allowPrologue && state.record?.schemaVersion === 4 && state.record.snapshot.campaign.prologue?.status === "playing";
+  const needsOpening = !allowOpening && !allowPrologue && !needsPrologue && state.record?.schemaVersion === 4 && state.record.snapshot.campaign.opening?.status === "playing";
+  useEffect(() => {
+    if (needsPrologue) window.location.replace(gameHref("prologue", session.locator));
+    else if (needsOpening) window.location.replace(gameHref("mansion", session.locator));
+  }, [needsPrologue, needsOpening, session]);
+  if (needsPrologue || needsOpening) return <GameLoading/>;
   if (state.record && state.status === "ready") entered.current = true;
   if (!state.record && !state.error || !entered.current && ["loading", "recovering"].includes(state.status)) return <GameLoading/>;
   if (!state.record) return <div className="game-client-gate" role="alert">

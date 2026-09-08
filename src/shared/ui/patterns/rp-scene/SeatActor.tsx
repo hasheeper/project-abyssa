@@ -3,6 +3,9 @@ import { PaperDoll } from "../PaperDoll";
 import type { ExpressionId } from "../expressions";
 import type { RpActor, RpSeat } from "../rp-stage";
 import type { RpCrop } from "./types";
+import { EmotionActor } from "../EmotionActor";
+import { ActorPerformance, type ActorPerformanceCue } from "../ActorPerformance";
+import type { ResolvedEmotion } from "../emotion-cues";
 
 const ENTER_MS = 680;
 const LEAVE_MS = 420;
@@ -20,6 +23,10 @@ interface SeatActorProps {
   active: boolean;
   expression: ExpressionId;
   crop: RpCrop;
+  cue?: ResolvedEmotion;
+  hydrate?: boolean;
+  replay?: boolean;
+  performance?: ActorPerformanceCue;
   onExited?: () => void;
 }
 
@@ -27,7 +34,7 @@ interface SeatActorProps {
  * 一个在台上的立绘。进退场动画仅作用于定位层，内层 CSS 仍可独立控制
  * 说话者上浮、明暗和角色动作。
  */
-export function SeatActor({ actor, seat, phase, active, expression, crop, onExited }: SeatActorProps) {
+export function SeatActor({ actor, seat, phase, active, expression, crop, cue, hydrate, replay, performance, onExited }: SeatActorProps) {
   const hostRef = useRef<HTMLDivElement>(null);
   const exitedRef = useRef(onExited);
   exitedRef.current = onExited;
@@ -42,6 +49,8 @@ export function SeatActor({ actor, seat, phase, active, expression, crop, onExit
     // 不在 cleanup 里 cancel():StrictMode 下 effect 会 mount→unmount→mount，
     // cancel 会把刚起步的动画掐掉重放。元素卸载时动画会自然终止。
     if (phase === "enter") {
+      // A layout switch restores an already-present actor, not a new entrance.
+      if (hydrate) return;
       host.animate(
         reduce
           ? [{ opacity: 0 }, { opacity: 1 }]
@@ -92,13 +101,19 @@ export function SeatActor({ actor, seat, phase, active, expression, crop, onExit
       <div className="abyssa-rp__actor-body">
         <div className="abyssa-rp__actor-idle">
           <div className="abyssa-rp__actor-beat">
+            <ActorPerformance cue={performance} replay={replay}>
+            <EmotionActor characterId={actor.id} cue={cue} active={active && !performance} hydrate={hydrate} replay={replay}
+              placement={cue?.emote ? actor.emotePlacements?.[cue.emote] : undefined} delay={700}>
             <PaperDoll
               characterId={actor.id}
               expression={expression}
               crop={crop}
               alt={actor.name}
               spriteBaseUrl={actor.spriteBaseUrl}
+              calibration={actor.spriteCalibration}
             />
+            </EmotionActor>
+            </ActorPerformance>
           </div>
         </div>
       </div>

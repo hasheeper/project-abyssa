@@ -1,0 +1,58 @@
+.prologue-stage { background: #000; }
+.prologue { position:absolute; inset:0; overflow:hidden; background:#000; color:#e3dac6; font-family:var(--font-serif, "Noto Serif SC", "Songti SC", serif); }
+.prologue-picture,.prologue-picture canvas,.prologue-fallback,.prologue-transition { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; }
+.prologue-fallback { object-fit:cover; }
+.prologue-transition { z-index:3; }
+.prologue-memory-finish { position:absolute; inset:0; z-index:3; pointer-events:none; background:url("../../assets/cg/prologue/finish/record-grain.webp") repeat; background-size:512px 512px; mix-blend-mode:soft-light; opacity:.22; }
+.prologue[data-act="1"] .prologue-memory-finish { opacity:.32; }
+.prologue[data-shot="sound-bridge"] .prologue-memory-finish { visibility:hidden; }
+.prologue-advance-area { position:absolute; inset:0; width:100%; height:100%; border:0; padding:0; background:transparent; cursor:default; z-index:4; }
+.prologue-advance-area:focus-visible { outline:1px solid #c6b69c; outline-offset:-12px; }
+.prologue-matte { position:absolute; inset:0; z-index:5; pointer-events:none; background:linear-gradient(180deg,rgba(0,0,0,.50),transparent 17%,transparent 57%,rgba(3,5,7,.28) 71%,rgba(3,5,7,.88) 91%,#030507); }
+.prologue-matte[data-clear="true"] { background:transparent; }
+.prologue-intertitle { position:absolute; inset:0; z-index:6; display:grid; place-items:center; padding:0 120px 24px; color:#d8ccb6; font-size:32px; font-weight:400; line-height:1.8; letter-spacing:5px; text-align:center; pointer-events:none; opacity:0; transition:opacity var(--intertitle-fade,600ms) ease; }
+.prologue-intertitle[data-visible="true"] { opacity:1; }
+.prologue-ui { position:absolute; inset:0; z-index:6; pointer-events:none; opacity:0; transition:opacity .35s ease; }
+.prologue-ui[data-visible="true"] { opacity:1; }
+.prologue button,.prologue a { -webkit-tap-highlight-color:transparent; font:inherit; }
+.prologue-ui button { pointer-events:auto; border:0; border-radius:0; background:none; color:inherit; cursor:pointer; }
+.prologue-ui button:focus-visible,.prologue-history button:focus-visible { outline:1px solid #c6b69c; outline-offset:6px; }
+.prologue-act { position:absolute; left:68px; top:38px; display:flex; align-items:center; gap:17px; font-size:14px; letter-spacing:5px; color:#d1c2a5; opacity:.75; text-shadow:0 1px 8px #000; }
+.prologue-act>span { font-family:"Cinzel","Times New Roman",serif; font-size:20px; letter-spacing:0; }
+.prologue-act>i { width:30px; height:1px; background:linear-gradient(90deg,#b4a286,transparent); }
+.prologue-subtitles { position:absolute; left:185px; right:185px; bottom:108px; min-height:94px; display:flex; flex-direction:column; align-items:center; justify-content:center; opacity:1; transition:opacity .22s ease; }
+.prologue-subtitles[data-fading="true"] { opacity:0; }
+.prologue-subtitles p { margin:0; font-size:26px; font-weight:500; line-height:1.78; letter-spacing:1.2px; text-align:center; white-space:pre-wrap; text-shadow:0 2px 8px #000,0 0 24px #0009; }
+.prologue-speaker { margin-bottom:13px; color:#bbaa8b; font-size:17px; line-height:1.4; letter-spacing:5px; }
+.prologue-char { opacity:0; animation:prologue-character .22s ease forwards; animation-delay:var(--char-delay); }
+.prologue-subtitles[data-full="true"] .prologue-char { opacity:1; animation:none; }
+.prologue-controls { position:absolute; left:68px; bottom:34px; display:flex; align-items:center; gap:22px; color:#a69d8b; }
+.prologue-controls button { position:relative; padding:10px 2px; min-height:42px; font-size:14px; letter-spacing:2px; transition:color .2s; }
+.prologue-controls button:hover { color:#e5d6b9; }
+.prologue-controls button[aria-pressed="true"] { color:#dbc28e; }
+.prologue-controls button>span:not(:empty) { margin-left:8px; font-size:10px; opacity:.7; }
+.prologue-controls>i { height:11px; width:1px; background:#a3977345; margin:0 3px; }
+.prologue-skip>span { position:absolute; left:0; right:0; bottom:3px; height:1px; background:#b3a081; transform:scaleX(0); transform-origin:left; }
+.prologue-skip[data-holding="true"]>span { animation:prologue-hold .95s linear forwards; }
+.prologue-next { position:absolute; right:70px; bottom:35px; min-width:46px; min-height:46px; display:flex; align-items:center; justify-content:center; gap:18px; color:#bfaf8f!important; font-size:22px!important; opacity:.8; }
+.prologue-next>span:first-child:not(:last-child) { font-size:16px; letter-spacing:3px; }
+.prologue-next:disabled { opacity:0; pointer-events:none; }
+.prologue-title { position:absolute; z-index:5; top:156px; left:470px; width:660px; pointer-events:none; opacity:0; animation:prologue-title-in 1.2s .2s ease forwards; }
+.prologue-title::before { content:""; position:absolute; inset:-70px -170px; z-index:0; background:radial-gradient(ellipse at 50% 49%,rgba(3,4,6,.9) 0%,rgba(3,4,6,.83) 24%,rgba(3,4,6,.62) 42%,rgba(3,4,6,.27) 59%,rgba(3,4,6,.06) 72%,transparent 83%); }
+.prologue-title .abyssa-logo { position:relative; z-index:1; width:100%; height:auto; }
+.prologue-history-shade { position:absolute; inset:0; z-index:10; background:#03050870; }
+.prologue-history { position:absolute; top:0; bottom:0; right:0; width:620px; padding:45px 58px; box-sizing:border-box; display:flex; flex-direction:column; background:linear-gradient(110deg,#111417fa,#080c11fa); border-left:1px solid #a3916d59; box-shadow:-25px 0 80px #0007; animation:prologue-history-in .28s ease both; }
+.prologue-history header { display:flex; align-items:center; justify-content:space-between; padding-bottom:22px; border-bottom:1px solid #b09a6c3b; font-size:20px; letter-spacing:4px; }
+.prologue-history button { border:0; background:none; color:#c2b79e; font-size:30px; cursor:pointer; width:44px; height:44px; }
+.prologue-history__lines { overflow-y:auto; overscroll-behavior:contain; padding:4px 20px 30px 0; scrollbar-width:thin; scrollbar-color:#76694b #0000; }
+.prologue-history h2 { font-size:16px; font-weight:400; letter-spacing:6px; color:#af9b71; margin:34px 0 18px; }
+.prologue-history small { font-size:15px; color:#b59d76; }
+.prologue-history p { white-space:pre-line; line-height:2; font-size:19px; color:#cec5b3; margin:15px 0 28px; }
+.prologue-load-error { position:absolute; inset:0; z-index:12; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:18px; background:#07090eeb; font-size:21px; }
+.prologue-load-error button,.prologue-load-error a { border:0; border-bottom:1px solid #92815b; padding:10px 20px; background:none; color:#c7b999; text-decoration:none; cursor:pointer; }
+.prologue-sr { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; }
+@keyframes prologue-character { from{opacity:0} to{opacity:1} }
+@keyframes prologue-hold { to{transform:scaleX(1)} }
+@keyframes prologue-title-in { from{opacity:0} to{opacity:1} }
+@keyframes prologue-history-in { from{opacity:0;transform:translateX(18px)} to{opacity:1;transform:translateX(0)} }
+@media(prefers-reduced-motion:reduce) { .prologue-char { opacity:1; animation:none; } .prologue-title { animation:none; opacity:1; } .prologue-history { animation:none; } }

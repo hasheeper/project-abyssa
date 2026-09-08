@@ -5,9 +5,22 @@ import type { D5Catalog, D5CatalogRef, ValidatedD5Catalog } from "./d5";
 
 export function validateD5Catalog(raw: unknown, expected?: D5CatalogRef): ValidatedD5Catalog {
   v.assertJson(raw);
-  const c = v.record(raw, "catalog"), { progression, combat, economy, ...common } = c;
+  const c = v.record(raw, "catalog"), { progression, combat, economy, prologue, opening, ...common } = c;
   v.choice(c.rulesVersion, [4], "rulesVersion");
-  const version = v.choice(c.contentVersion, [2, 3], "contentVersion"), clockwork = version === 3;
+  const version = v.choice(c.contentVersion, [2, 3, 4, 5, 6], "contentVersion"), clockwork = version >= 3;
+  if (version >= 4) {
+    const opening = v.record(prologue, "prologue", ["id", "shotIds"]);
+    v.choice(opening.id, ["prologue.first-morning"], "prologue.id");
+    const shots = v.ids(opening.shotIds, "prologue.shotIds", 32);
+    if (shots.length !== 17 || shots[0] !== "A1-01" || shots.at(-1) !== "title-card") v.invalid("prologue.shotIds", "A complete ordered prologue is required");
+  } else if (prologue !== undefined) v.invalid("prologue", "Published earlier catalogs have no prologue");
+  if (version >= 5) {
+    const intro = v.record(opening, "opening", version === 5 ? ["id", "lastStep", "choiceSteps"] : ["id", "lastStep", "choiceSteps", "choiceOptions"]);
+    v.choice(intro.id, ["opening.first-morning"], "opening.id");
+    v.choice(intro.lastStep, [version === 5 ? 66 : 119], "opening.lastStep");
+    if (v.canonicalJson(intro.choiceSteps) !== (version === 5 ? "[6,24,42,58]" : "[6,24,42,58,96]")) v.invalid("opening.choiceSteps", "Authored decision cursors differ");
+    if (version === 6 && v.canonicalJson(intro.choiceOptions) !== v.canonicalJson({"6":["A","B","C"],"24":["A","B","C"],"42":["A","B","C"],"58":["A","B","C"],"96":["A","B"]})) v.invalid("opening.choiceOptions", "Authored decision options differ");
+  } else if (opening !== undefined) v.invalid("opening", "Earlier catalogs have no first-morning scene");
   v.choice(c.catalogId, ["abyssa.demo"], "catalogId");
   // Reuse the frozen reader only for the common definition schema. The persisted ref stays v4.
   const routes = { ...v.record(common.routes, "routes") }, journey = v.record(common.journey, "journey"), rooms = { ...v.record(journey.rooms, "rooms") };

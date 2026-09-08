@@ -28,7 +28,7 @@ export function validateMemoryEncounter(catalog: RuleContext, state: RuleCheckpo
     if (e.disposition !== disposition || e.disposition !== "active" && (e.intent || e.threaded || e.boundRound !== null)) v.invalid("memory.disposition", "Historical retirement differs");
     if (e.intent) {
       if (e.intent.id !== `${e.id}:intent:${enc.round}` || e.intent.formula) v.invalid("memory.intent", "Foreign intent or ordinary formula");
-      if (catalog.data.contentVersion === 3) {
+      if (catalog.data.contentVersion >= 3) {
         if (e.intent.operation !== undefined || !["attack", "charge"].includes(e.intent.kind) || e.intent.value !== (e.intent.kind === "attack" ? rules.judgmentPower : 0) || e.intent.kind === "charge" && (e.intent.targetId !== null || e.intent.blocked !== 0)) v.invalid("memory.intent", "Clockwork intent differs");
         const executed = enc.enemyOrder.slice(0, enc.cursor).includes(e.id) && e.boundRound !== enc.round;
         if (enc.phase !== "complete" && e.chargeReady !== (executed ? e.intent.kind === "charge" : e.intent.kind === "attack")) v.invalid("memory.loop", "Clockwork charge cursor differs");

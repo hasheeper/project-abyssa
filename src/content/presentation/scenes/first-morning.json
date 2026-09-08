@@ -1,0 +1,2518 @@
+{
+  "$schema": "../../../../schemas/avg-story.schema.json",
+  "schemaVersion": 1,
+  "id": "opening.first-morning",
+  "title": "洋馆的第一个清晨",
+  "locale": "zh-CN",
+  "presentation": {
+    "stagePreset": "mansion-morning",
+    "backgroundId": "mansion.first-morning",
+    "defaultMode": "adv",
+    "allowRp": true,
+    "initialSlots": {
+      "left": "abyssa"
+    },
+    "arrival": {
+      "eyebrow": "序章 · 守望者之崖",
+      "title": "洋馆的第一个清晨"
+    }
+  },
+  "player": {
+    "actorId": "kael",
+    "nameToken": "{{user}}",
+    "authoredSpeech": true
+  },
+  "cast": [
+    "kael",
+    "abyssa",
+    "marietta",
+    "eustice",
+    "kororo",
+    "elora",
+    "norma"
+  ],
+  "sections": [
+    {
+      "id": "morning.section.1",
+      "title": "拖猫工程"
+    },
+    {
+      "id": "morning.section.2",
+      "title": "女仆长的晨巡"
+    },
+    {
+      "id": "morning.section.3",
+      "title": "晨练归来的牢骚"
+    },
+    {
+      "id": "morning.section.4",
+      "title": "定位置的攻防"
+    },
+    {
+      "id": "morning.section.5",
+      "title": "账本与小确幸"
+    },
+    {
+      "id": "morning.section.6",
+      "title": "满员的餐桌"
+    },
+    {
+      "id": "morning.section.7",
+      "title": "断裂的平静"
+    },
+    {
+      "id": "morning.section.8",
+      "title": "破窗与落地"
+    },
+    {
+      "id": "morning.section.9",
+      "title": "情报的截断"
+    },
+    {
+      "id": "morning.section.10",
+      "title": "死寂的沉降"
+    },
+    {
+      "id": "morning.section.11",
+      "title": "整备"
+    },
+    {
+      "id": "morning.section.12",
+      "title": "出门仪式"
+    },
+    {
+      "id": "morning.section.13",
+      "title": "雾滩·退潮岩窟"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "morning.1.0",
+      "cursor": 0,
+      "sectionId": "morning.section.1",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.1.0",
+          "kind": "direction",
+          "waitMs": 550,
+          "sound": "cloth"
+        }
+      ]
+    },
+    {
+      "id": "morning.1.1",
+      "cursor": 1,
+      "sectionId": "morning.section.1",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.1.1",
+          "kind": "narration",
+          "text": "毛毯里没有任何抵抗的迹象。",
+          "stage": [
+            {
+              "actorId": "abyssa",
+              "emotion": "closed",
+              "still": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "morning.1.2",
+      "cursor": 2,
+      "sectionId": "morning.section.1",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.1.2",
+          "kind": "dialogue",
+          "actorId": "abyssa",
+          "text": "……（呼啊~）……唔。世界还很吵……。勇者，要把我搬去哪。",
+          "emotion": "closed"
+        }
+      ]
+    },
+    {
+      "id": "morning.1.3",
+      "cursor": 3,
+      "sectionId": "morning.section.1",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.1.3",
+          "kind": "narration",
+          "text": "煎蛋和香肠散发着油脂的热气。",
+          "stage": [
+            {
+              "actorId": "abyssa",
+              "emotion": "closed",
+              "still": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "morning.1.4",
+      "cursor": 4,
+      "sectionId": "morning.section.1",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.1.4",
+          "kind": "dialogue",
+          "actorId": "abyssa",
+          "text": "……我的手，可不是为了握这种铁棒才长出来的。……不想动。",
+          "emotion": "displeased"
+        }
+      ]
+    },
+    {
+      "id": "morning.1.5",
+      "cursor": 5,
+      "sectionId": "morning.section.1",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.1.5",
+          "kind": "narration",
+          "text": "黑泥触手探向香肠。木叉一敲，它缩了回去。",
+          "sound": "wood",
+          "stage": [
+            {
+              "actorId": "abyssa",
+              "emotion": "displeased",
+              "still": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "morning.choice.breakfast",
+      "cursor": 6,
+      "sectionId": "morning.section.1",
+      "kind": "choice",
+      "prompt": "餐盘还冒着热气。",
+      "options": [
+        {
+          "id": "A",
+          "label": "把银叉端正地塞进她手里合拢"
+        },
+        {
+          "id": "B",
+          "label": "直接把盛着香肠的盘子往回拉开"
+        },
+        {
+          "id": "C",
+          "label": "换成圆头汤匙，切下一块递到她嘴边"
+        }
+      ]
+    },
+    {
+      "id": "morning.choice.breakfast.reaction.0",
+      "cursor": 7,
+      "sectionId": "morning.section.1",
+      "kind": "branch",
+      "choiceId": "morning.choice.breakfast",
+      "variants": {
+        "A": [
+          {
+            "id": "morning.choice.breakfast.reaction.0.A",
+            "kind": "narration",
+            "text": "{{user}}拿起叉子塞进她软绵绵的手心里。"
+          }
+        ],
+        "B": [
+          {
+            "id": "morning.choice.breakfast.reaction.0.B",
+            "kind": "narration",
+            "text": "{{user}}扣住盘沿，向后拽开半尺。"
+          }
+        ],
+        "C": [
+          {
+            "id": "morning.choice.breakfast.reaction.0.C",
+            "kind": "narration",
+            "text": "{{user}}换了把勺子切下小块煎蛋，递到她唇边。"
+          }
+        ]
+      }
+    },
+    {
+      "id": "morning.choice.breakfast.reaction.1",
+      "cursor": 8,
+      "sectionId": "morning.section.1",
+      "kind": "branch",
+      "choiceId": "morning.choice.breakfast",
+      "variants": {
+        "A": [
+          {
+            "id": "morning.choice.breakfast.reaction.1.A",
+            "kind": "dialogue",
+            "actorId": "kael",
+            "text": "多少用用工具。你长着手吧。"
+          }
+        ],
+        "B": [
+          {
+            "id": "morning.choice.breakfast.reaction.1.B",
+            "kind": "dialogue",
+            "actorId": "kael",
+            "text": "不想吃的话，我就收走了。"
+          }
+        ],
+        "C": [
+          {
+            "id": "morning.choice.breakfast.reaction.1.C",
+            "kind": "dialogue",
+            "actorId": "kael",
+            "text": "来，张嘴。"
+          }
+        ]
+      }
+    },
+    {
+      "id": "morning.choice.breakfast.reaction.2",
+      "cursor": 9,
+      "sectionId": "morning.section.1",
+      "kind": "branch",
+      "choiceId": "morning.choice.breakfast",
+      "variants": {
+        "A": [
+          {
+            "id": "morning.choice.breakfast.reaction.2.A",
+            "kind": "dialogue",
+            "actorId": "abyssa",
+            "text": "……勇者，打以前起就这么粗鲁。……放凉了就不好吃了。",
+            "emotion": "wry"
+          }
+        ],
+        "B": [
+          {
+            "id": "morning.choice.breakfast.reaction.2.B",
+            "kind": "dialogue",
+            "actorId": "abyssa",
+            "text": "……等等。我吃，把盘子推回来。",
+            "emotion": "surprised"
+          }
+        ],
+        "C": [
+          {
+            "id": "morning.choice.breakfast.reaction.2.C",
+            "kind": "dialogue",
+            "actorId": "abyssa",
+            "text": "……嗯。好吃。……明明从一开始，这么做不就好了。",
+            "emotion": "joy"
+          }
+        ]
+      }
+    },
+    {
+      "id": "morning.choice.breakfast.reaction.3",
+      "cursor": 10,
+      "sectionId": "morning.section.1",
+      "kind": "branch",
+      "choiceId": "morning.choice.breakfast",
+      "variants": {
+        "A": [
+          {
+            "id": "morning.choice.breakfast.reaction.3.A",
+            "kind": "direction",
+            "waitMs": 250,
+            "stage": [
+              {
+                "actorId": "abyssa",
+                "emotion": "wry",
+                "still": true
+              }
+            ]
+          }
+        ],
+        "B": [
+          {
+            "id": "morning.choice.breakfast.reaction.3.B",
+            "kind": "direction",
+            "waitMs": 250,
+            "stage": [
+              {
+                "actorId": "abyssa",
+                "emotion": "serious",
+                "still": true
+              }
+            ]
+          }
+        ],
+        "C": [
+          {
+            "id": "morning.choice.breakfast.reaction.3.C",
+            "kind": "direction",
+            "waitMs": 250,
+            "stage": [
+              {
+                "actorId": "abyssa",
+                "emotion": "joy",
+                "still": true
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "morning.2.11",
+      "cursor": 11,
+      "sectionId": "morning.section.2",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.2.11",
+          "kind": "narration",
+          "text": "红茶的蒸汽带着柑橘的冷香。",
+          "stage": [
+            {
+              "actorId": "marietta",
+              "emotion": "smile",
+              "still": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "morning.2.12",
+      "cursor": 12,
+      "sectionId": "morning.section.2",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.2.12",
+          "kind": "dialogue",
+          "actorId": "marietta",
+          "text": "早安，{{user}}大人。今晨您依旧醒得很准时。",
+          "emotion": "smile"
+        }
+      ]
+    },
+    {
+      "id": "morning.2.13",
+      "cursor": 13,
+      "sectionId": "morning.section.2",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.2.13",
+          "kind": "dialogue",
+          "actorId": "kael",
+          "text": "多谢。外围结界情况如何。"
+        }
+      ]
+    },
+    {
+      "id": "morning.2.14",
+      "cursor": 14,
+      "sectionId": "morning.section.2",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.2.14",
+          "kind": "dialogue",
+          "actorId": "marietta",
+          "text": "运转平稳。只是王都运送物资的班车延误了两天。修补结界用的秘银线，下次采购的单价预计要上涨一些。",
+          "emotion": "serious"
+        }
+      ]
+    },
+    {
+      "id": "morning.2.15",
+      "cursor": 15,
+      "sectionId": "morning.section.2",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.2.15",
+          "kind": "narration",
+          "text": "白色的餐巾先一步按在了魔王的唇角。"
+        }
+      ]
+    },
+    {
+      "id": "morning.2.16",
+      "cursor": 16,
+      "sectionId": "morning.section.2",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.2.16",
+          "kind": "dialogue",
+          "actorId": "marietta",
+          "text": "阁下，不可用衣袖擦拭。",
+          "emotion": "neutral"
+        }
+      ]
+    },
+    {
+      "id": "morning.2.17",
+      "cursor": 17,
+      "sectionId": "morning.section.2",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.2.17",
+          "kind": "dialogue",
+          "actorId": "abyssa",
+          "text": "……玛丽埃塔，总是管这么细。",
+          "emotion": "displeased"
+        }
+      ]
+    },
+    {
+      "id": "morning.2.18",
+      "cursor": 18,
+      "sectionId": "morning.section.2",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.2.18",
+          "kind": "dialogue",
+          "actorId": "marietta",
+          "text": "另外{{user}}大人。沙发上的旧毛毯破损显眼，已随早班车送往外围工坊。修整完毕后，会随傍晚的班车送回。",
+          "emotion": "neutral"
+        }
+      ]
+    },
+    {
+      "id": "morning.2.19",
+      "cursor": 19,
+      "sectionId": "morning.section.2",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.2.19",
+          "kind": "direction",
+          "waitMs": 950,
+          "stage": [
+            {
+              "actorId": "marietta",
+              "emotion": "neutral",
+              "motion": "nod"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "morning.3.20",
+      "cursor": 20,
+      "sectionId": "morning.section.3",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.3.20",
+          "kind": "direction",
+          "waitMs": 850,
+          "sound": "wood",
+          "stage": [
+            {
+              "actorId": "eustice",
+              "emotion": "angry",
+              "still": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "morning.3.21",
+      "cursor": 21,
+      "sectionId": "morning.section.3",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.3.21",
+          "kind": "dialogue",
+          "actorId": "eustice",
+          "text": "第三哨所又在偷懒拖延换岗了。王都那帮少爷兵，总不至于被海风吹风化的石头吓破胆了吧。",
+          "emotion": "angry"
+        }
+      ]
+    },
+    {
+      "id": "morning.3.22",
+      "cursor": 22,
+      "sectionId": "morning.section.3",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.3.22",
+          "kind": "narration",
+          "text": "椅背的黄铜挂钩，早就被她磨得发亮。",
+          "sound": "metal",
+          "stage": [
+            {
+              "actorId": "eustice",
+              "emotion": "serious",
+              "still": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "morning.3.23",
+      "cursor": 23,
+      "sectionId": "morning.section.3",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.3.23",
+          "kind": "dialogue",
+          "actorId": "eustice",
+          "text": "下午我亲自去收拾那帮人。……真让那帮废物折腾结界，早晚得把大门拱手让给贼。",
+          "emotion": "serious"
+        }
+      ]
+    },
+    {
+      "id": "morning.choice.training",
+      "cursor": 24,
+      "sectionId": "morning.section.3",
+      "kind": "choice",
+      "prompt": "她把毛巾搭在椅背上。",
+      "options": [
+        {
+          "id": "A",
+          "label": "倒出一杯常温的红茶推到她面前"
+        },
+        {
+          "id": "B",
+          "label": "指出她军靴上带进来的泥斑"
+        },
+        {
+          "id": "C",
+          "label": "从吧台拿出备用磨刀石放在桌角"
+        }
+      ]
+    },
+    {
+      "id": "morning.choice.training.reaction.0",
+      "cursor": 25,
+      "sectionId": "morning.section.3",
+      "kind": "branch",
+      "choiceId": "morning.choice.training",
+      "variants": {
+        "A": [
+          {
+            "id": "morning.choice.training.reaction.0.A",
+            "kind": "narration",
+            "text": "{{user}}顺势推过去一杯常温的红茶。"
+          }
+        ],
+        "B": [
+          {
+            "id": "morning.choice.training.reaction.0.B",
+            "kind": "narration",
+            "text": "{{user}}指了指门垫。"
+          }
+        ],
+        "C": [
+          {
+            "id": "morning.choice.training.reaction.0.C",
+            "kind": "narration",
+            "text": "{{user}}推过去一块防潮油石。"
+          }
+        ]
+      }
+    },
+    {
+      "id": "morning.choice.training.reaction.1",
+      "cursor": 26,
+      "sectionId": "morning.section.3",
+      "kind": "branch",
+      "choiceId": "morning.choice.training",
+      "variants": {
+        "A": [
+          {
+            "id": "morning.choice.training.reaction.1.A",
+            "kind": "dialogue",
+            "actorId": "kael",
+            "text": "晾温了。喝吧。"
+          }
+        ],
+        "B": [
+          {
+            "id": "morning.choice.training.reaction.1.B",
+            "kind": "dialogue",
+            "actorId": "kael",
+            "text": "靴子上的泥，蹭干净再进来。"
+          }
+        ],
+        "C": [
+          {
+            "id": "morning.choice.training.reaction.1.C",
+            "kind": "dialogue",
+            "actorId": "kael",
+            "text": "防潮润滑油。下午拿去用。"
+          }
+        ]
+      }
+    },
+    {
+      "id": "morning.choice.training.reaction.2",
+      "cursor": 27,
+      "sectionId": "morning.section.3",
+      "kind": "branch",
+      "choiceId": "morning.choice.training",
+      "variants": {
+        "A": [
+          {
+            "id": "morning.choice.training.reaction.2.A",
+            "kind": "dialogue",
+            "actorId": "eustice",
+            "text": "……哼。准备得倒是挺麻利。姑且夸你一句。",
+            "emotion": "flustered"
+          }
+        ],
+        "B": [
+          {
+            "id": "morning.choice.training.reaction.2.B",
+            "kind": "dialogue",
+            "actorId": "eustice",
+            "text": "我知道啦。待会儿大不了陪你一起擦地板就是了。",
+            "emotion": "wry"
+          }
+        ],
+        "C": [
+          {
+            "id": "morning.choice.training.reaction.2.C",
+            "kind": "dialogue",
+            "actorId": "eustice",
+            "text": "挺有眼力见的嘛。……下午的排查看来能早点收工了。",
+            "emotion": "confident"
+          }
+        ]
+      }
+    },
+    {
+      "id": "morning.choice.training.reaction.3",
+      "cursor": 28,
+      "sectionId": "morning.section.3",
+      "kind": "branch",
+      "choiceId": "morning.choice.training",
+      "variants": {
+        "A": [
+          {
+            "id": "morning.choice.training.reaction.3.A",
+            "kind": "direction",
+            "waitMs": 250,
+            "stage": [
+              {
+                "actorId": "eustice",
+                "emotion": "flustered",
+                "still": true
+              }
+            ]
+          }
+        ],
+        "B": [
+          {
+            "id": "morning.choice.training.reaction.3.B",
+            "kind": "direction",
+            "waitMs": 250,
+            "stage": [
+              {
+                "actorId": "eustice",
+                "emotion": "wry",
+                "still": true
+              }
+            ]
+          }
+        ],
+        "C": [
+          {
+            "id": "morning.choice.training.reaction.3.C",
+            "kind": "direction",
+            "waitMs": 250,
+            "stage": [
+              {
+                "actorId": "eustice",
+                "emotion": "confident",
+                "still": true
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "morning.4.29",
+      "cursor": 29,
+      "sectionId": "morning.section.4",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.4.29",
+          "kind": "narration",
+          "text": "楼梯口传来拖沓的脚步声。",
+          "stage": [
+            {
+              "actorId": "kororo",
+              "emotion": "closed",
+              "still": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "morning.4.30",
+      "cursor": 30,
+      "sectionId": "morning.section.4",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.4.30",
+          "kind": "dialogue",
+          "actorId": "kororo",
+          "text": "……呼啊……。今天的阳光，波长刺得人发疼……。队长，把遮光帘拉下来……",
+          "emotion": "closed"
+        }
+      ]
+    },
+    {
+      "id": "morning.4.31",
+      "cursor": 31,
+      "sectionId": "morning.section.4",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.4.31",
+          "kind": "narration",
+          "text": "沙发上的黑泥精鼓起来，顶住了柯萝萝的额头。",
+          "stage": [
+            {
+              "actorId": "kororo",
+              "emotion": "confused",
+              "motion": "shakeLight"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "morning.4.32",
+      "cursor": 32,
+      "sectionId": "morning.section.4",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.4.32",
+          "kind": "dialogue",
+          "actorId": "kororo",
+          "text": "……啊。又有泥巴。那里，是柯萝萝的专属位……",
+          "emotion": "confused"
+        }
+      ]
+    },
+    {
+      "id": "morning.4.33",
+      "cursor": 33,
+      "sectionId": "morning.section.4",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.4.33",
+          "kind": "narration",
+          "text": "柯萝萝把黑泥拎到茶几上。它又弹回了沙发。"
+        }
+      ]
+    },
+    {
+      "id": "morning.4.34",
+      "cursor": 34,
+      "sectionId": "morning.section.4",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.4.34",
+          "kind": "dialogue",
+          "actorId": "kororo",
+          "text": "……队长，泥巴不肯挪窝。蓄意的领空侵犯……",
+          "emotion": "displeased"
+        }
+      ]
+    },
+    {
+      "id": "morning.4.35",
+      "cursor": 35,
+      "sectionId": "morning.section.4",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.4.35",
+          "kind": "dialogue",
+          "actorId": "abyssa",
+          "text": "……那里是我的影子。有意见的话，冲太阳说去。",
+          "emotion": "neutral"
+        }
+      ]
+    },
+    {
+      "id": "morning.4.36",
+      "cursor": 36,
+      "sectionId": "morning.section.4",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.4.36",
+          "kind": "dialogue",
+          "actorId": "kororo",
+          "text": "……（呼啊）……书，还没到啊。",
+          "emotion": "closed"
+        }
+      ]
+    },
+    {
+      "id": "morning.5.37",
+      "cursor": 37,
+      "sectionId": "morning.section.5",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.5.37",
+          "kind": "direction",
+          "waitMs": 850,
+          "stage": [
+            {
+              "actorId": "elora",
+              "emotion": "joy",
+              "still": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "morning.5.38",
+      "cursor": 38,
+      "sectionId": "morning.section.5",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.5.38",
+          "kind": "dialogue",
+          "actorId": "elora",
+          "text": "大家，早安！{{user}}先生，锅里的高汤煮得好香呀！",
+          "emotion": "joy"
+        }
+      ]
+    },
+    {
+      "id": "morning.5.39",
+      "cursor": 39,
+      "sectionId": "morning.section.5",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.5.39",
+          "kind": "narration",
+          "text": "账册底下，多出了一行整整齐齐的小字。"
+        }
+      ]
+    },
+    {
+      "id": "morning.5.40",
+      "cursor": 40,
+      "sectionId": "morning.section.5",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.5.40",
+          "kind": "dialogue",
+          "actorId": "elora",
+          "text": "上周的止血药剂，因为改从药师公会的巡回商队采购，超出了三十个铜板。",
+          "emotion": "flustered"
+        }
+      ]
+    },
+    {
+      "id": "morning.5.41",
+      "cursor": 41,
+      "sectionId": "morning.section.5",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.5.41",
+          "kind": "dialogue",
+          "actorId": "elora",
+          "text": "……但是，纯度相对提升了两成！这不是该省下的开支！",
+          "emotion": "serious"
+        }
+      ]
+    },
+    {
+      "id": "morning.choice.ledger",
+      "cursor": 42,
+      "sectionId": "morning.section.5",
+      "kind": "choice",
+      "prompt": "账册摊在桌角。",
+      "options": [
+        {
+          "id": "A",
+          "label": "拿笔在公账杂项那一栏直接画勾核销"
+        },
+        {
+          "id": "B",
+          "label": "曲指敲了敲她腰侧轻晃的空竹筐"
+        },
+        {
+          "id": "C",
+          "label": "从暗袋摸出两枚零碎的铜币递过去"
+        }
+      ]
+    },
+    {
+      "id": "morning.choice.ledger.reaction.0",
+      "cursor": 43,
+      "sectionId": "morning.section.5",
+      "kind": "branch",
+      "choiceId": "morning.choice.ledger",
+      "variants": {
+        "A": [
+          {
+            "id": "morning.choice.ledger.reaction.0.A",
+            "kind": "narration",
+            "text": "{{user}}拿笔直接盖了印。"
+          }
+        ],
+        "B": [
+          {
+            "id": "morning.choice.ledger.reaction.0.B",
+            "kind": "narration",
+            "text": "{{user}}敲了敲她的空药筐。"
+          }
+        ],
+        "C": [
+          {
+            "id": "morning.choice.ledger.reaction.0.C",
+            "kind": "narration",
+            "text": "{{user}}放了两枚铜板在桌角。"
+          }
+        ]
+      }
+    },
+    {
+      "id": "morning.choice.ledger.reaction.1",
+      "cursor": 44,
+      "sectionId": "morning.section.5",
+      "kind": "branch",
+      "choiceId": "morning.choice.ledger",
+      "variants": {
+        "A": [
+          {
+            "id": "morning.choice.ledger.reaction.1.A",
+            "kind": "dialogue",
+            "actorId": "kael",
+            "text": "这是安全成本。走公账报销。"
+          }
+        ],
+        "B": [
+          {
+            "id": "morning.choice.ledger.reaction.1.B",
+            "kind": "dialogue",
+            "actorId": "kael",
+            "text": "今天送来的货是？"
+          }
+        ],
+        "C": [
+          {
+            "id": "morning.choice.ledger.reaction.1.C",
+            "kind": "dialogue",
+            "actorId": "kael",
+            "text": "喝茶的钱。偶尔也买点甜的。"
+          }
+        ]
+      }
+    },
+    {
+      "id": "morning.choice.ledger.reaction.2",
+      "cursor": 45,
+      "sectionId": "morning.section.5",
+      "kind": "branch",
+      "choiceId": "morning.choice.ledger",
+      "variants": {
+        "A": [
+          {
+            "id": "morning.choice.ledger.reaction.2.A",
+            "kind": "dialogue",
+            "actorId": "elora",
+            "text": "太好了！这样就能为大家制作高品质的膏药了！",
+            "emotion": "smile"
+          }
+        ],
+        "B": [
+          {
+            "id": "morning.choice.ledger.reaction.2.B",
+            "kind": "dialogue",
+            "actorId": "elora",
+            "text": "用存了半年的私房钱，把批发店的一整箱受潮草药全买下来了！",
+            "emotion": "joy"
+          }
+        ],
+        "C": [
+          {
+            "id": "morning.choice.ledger.reaction.2.C",
+            "kind": "dialogue",
+            "actorId": "elora",
+            "text": "不、不行的！公私分明可是原则呀！",
+            "emotion": "flustered"
+          }
+        ]
+      }
+    },
+    {
+      "id": "morning.choice.ledger.reaction.3",
+      "cursor": 46,
+      "sectionId": "morning.section.5",
+      "kind": "branch",
+      "choiceId": "morning.choice.ledger",
+      "variants": {
+        "A": [
+          {
+            "id": "morning.choice.ledger.reaction.3.A",
+            "kind": "direction",
+            "waitMs": 250,
+            "stage": [
+              {
+                "actorId": "elora",
+                "emotion": "smile",
+                "still": true
+              }
+            ]
+          }
+        ],
+        "B": [
+          {
+            "id": "morning.choice.ledger.reaction.3.B",
+            "kind": "dialogue",
+            "actorId": "elora",
+            "text": "虽然稍微有点受潮，但品质可是一级品呢！等货一到我就立刻拿到后院去风干！"
+          }
+        ],
+        "C": [
+          {
+            "id": "morning.choice.ledger.reaction.3.C",
+            "kind": "narration",
+            "text": "铜币被推了回来。",
+            "stage": [
+              {
+                "actorId": "elora",
+                "emotion": "flustered",
+                "still": true
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "morning.6.47",
+      "cursor": 47,
+      "sectionId": "morning.section.6",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.6.47",
+          "kind": "narration",
+          "text": "众人各自落座。靠走廊最外侧的一角，唯独空着一个位置，盘子上扣着粗陶碗保温。"
+        }
+      ]
+    },
+    {
+      "id": "morning.6.48",
+      "cursor": 48,
+      "sectionId": "morning.section.6",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.6.48",
+          "kind": "dialogue",
+          "actorId": "eustice",
+          "text": "诺玛呢？她不会又打破门禁了吧。",
+          "emotion": "confused"
+        }
+      ]
+    },
+    {
+      "id": "morning.6.49",
+      "cursor": 49,
+      "sectionId": "morning.section.6",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.6.49",
+          "kind": "dialogue",
+          "actorId": "kael",
+          "text": "她去探查只有退潮时才能走的暗道了。肚子饿了自然会回来。"
+        }
+      ]
+    },
+    {
+      "id": "morning.6.50",
+      "cursor": 50,
+      "sectionId": "morning.section.6",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.6.50",
+          "kind": "narration",
+          "text": "艾比希斯离席了。方向是沙发。",
+          "stage": [
+            {
+              "actorId": "abyssa",
+              "emotion": "neutral",
+              "still": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "morning.7.51",
+      "cursor": 51,
+      "sectionId": "morning.section.7",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.7.51",
+          "kind": "narration",
+          "text": "那领满是旧皮革与油烟气味的羊毛毯不见了。换上的深蓝厚毯，散发着刺鼻的防蛀草药味与生羊毛腥味。"
+        }
+      ]
+    },
+    {
+      "id": "morning.7.52",
+      "cursor": 52,
+      "sectionId": "morning.section.7",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.7.52",
+          "kind": "dialogue",
+          "actorId": "abyssa",
+          "text": "…………。",
+          "emotion": "neutral"
+        }
+      ]
+    },
+    {
+      "id": "morning.7.53",
+      "cursor": 53,
+      "sectionId": "morning.section.7",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.7.53",
+          "kind": "direction",
+          "waitMs": 650,
+          "stage": [
+            {
+              "actorId": "abyssa",
+              "emotion": "neutral",
+              "aside": "（くんくん）",
+              "motion": "nod"
+            }
+          ]
+        },
+        {
+          "id": "morning.7.53.page.1",
+          "kind": "direction",
+          "waitMs": 200,
+          "stage": [
+            {
+              "actorId": "abyssa",
+              "emotion": "serious",
+              "still": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "morning.7.54",
+      "cursor": 54,
+      "sectionId": "morning.section.7",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.7.54",
+          "kind": "dialogue",
+          "actorId": "abyssa",
+          "text": "……不对。这个，又硬又凉。……也没有，勇者的味道。",
+          "emotion": "serious"
+        }
+      ]
+    },
+    {
+      "id": "morning.7.55",
+      "cursor": 55,
+      "sectionId": "morning.section.7",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.7.55",
+          "kind": "dialogue",
+          "actorId": "marietta",
+          "text": "方才向您汇报过了。旧毛毯已送去修缮。在傍晚的班车送回之前，请暂且使用这一领。",
+          "emotion": "neutral"
+        }
+      ]
+    },
+    {
+      "id": "morning.7.56",
+      "cursor": 56,
+      "sectionId": "morning.section.7",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.7.56",
+          "kind": "dialogue",
+          "actorId": "abyssa",
+          "text": "……没有自己的窝，就睡不着。……我说勇者，把这片悬崖沉进海里好不好？",
+          "emotion": "serious"
+        }
+      ]
+    },
+    {
+      "id": "morning.7.57",
+      "cursor": 57,
+      "sectionId": "morning.section.7",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.7.57",
+          "kind": "dialogue",
+          "actorId": "eustice",
+          "text": "…………！",
+          "emotion": "serious",
+          "effect": "pressure",
+          "sound": "metal",
+          "stage": [
+            {
+              "actorId": "eustice",
+              "emotion": "serious",
+              "still": true
+            }
+          ]
+        },
+        {
+          "id": "morning.7.57.page.1",
+          "kind": "dialogue",
+          "actorId": "elora",
+          "text": "噫……！",
+          "emotion": "panicked",
+          "stage": [
+            {
+              "actorId": "elora",
+              "emotion": "panicked",
+              "motion": "shakeLight"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "morning.choice.blanket",
+      "cursor": 58,
+      "sectionId": "morning.section.7",
+      "kind": "choice",
+      "prompt": "银器的共鸣还没有停。",
+      "options": [
+        {
+          "id": "A",
+          "label": "把旧铁杯“笃”地砸在桌上，打破共鸣"
+        },
+        {
+          "id": "B",
+          "label": "走上前，抬手揉了揉她冰凉的黑角"
+        },
+        {
+          "id": "C",
+          "label": "把浸满油烟气的粗布围裙递过去"
+        }
+      ]
+    },
+    {
+      "id": "morning.choice.blanket.reaction.0",
+      "cursor": 59,
+      "sectionId": "morning.section.7",
+      "kind": "branch",
+      "choiceId": "morning.choice.blanket",
+      "variants": {
+        "A": [
+          {
+            "id": "morning.choice.blanket.reaction.0.A",
+            "kind": "narration",
+            "text": "{{user}}将手中的旧铁杯重重顿在桌上。一声沉闷实响，震碎了魔力的共振。"
+          }
+        ],
+        "B": [
+          {
+            "id": "morning.choice.blanket.reaction.0.B",
+            "kind": "narration",
+            "text": "{{user}}直接走上前，大手按在她石质的黑角上，用力揉了揉。"
+          }
+        ],
+        "C": [
+          {
+            "id": "morning.choice.blanket.reaction.0.C",
+            "kind": "narration",
+            "text": "{{user}}拿起刚才解下的围裙，一把罩在她头上。"
+          }
+        ]
+      }
+    },
+    {
+      "id": "morning.choice.blanket.reaction.1",
+      "cursor": 60,
+      "sectionId": "morning.section.7",
+      "kind": "branch",
+      "choiceId": "morning.choice.blanket",
+      "variants": {
+        "A": [
+          {
+            "id": "morning.choice.blanket.reaction.1.A",
+            "kind": "dialogue",
+            "actorId": "kael",
+            "text": "别沉。中午给你做布丁，老实等到那时候。"
+          }
+        ],
+        "B": [
+          {
+            "id": "morning.choice.blanket.reaction.1.B",
+            "kind": "dialogue",
+            "actorId": "kael",
+            "text": "睡到中午去。毛毯傍晚就送到了。"
+          }
+        ],
+        "C": [
+          {
+            "id": "morning.choice.blanket.reaction.1.C",
+            "kind": "dialogue",
+            "actorId": "kael",
+            "text": "裹着这个睡吧。味道总算有了吧。"
+          }
+        ]
+      }
+    },
+    {
+      "id": "morning.choice.blanket.reaction.2",
+      "cursor": 61,
+      "sectionId": "morning.section.7",
+      "kind": "branch",
+      "choiceId": "morning.choice.blanket",
+      "variants": {
+        "A": [
+          {
+            "id": "morning.choice.blanket.reaction.2.A",
+            "kind": "dialogue",
+            "actorId": "abyssa",
+            "text": "……布丁。……那，勉强行吧。",
+            "emotion": "smile"
+          }
+        ],
+        "B": [
+          {
+            "id": "morning.choice.blanket.reaction.2.B",
+            "kind": "dialogue",
+            "actorId": "abyssa",
+            "text": "……被摸了。",
+            "emotion": "flustered"
+          }
+        ],
+        "C": [
+          {
+            "id": "morning.choice.blanket.reaction.2.C",
+            "kind": "dialogue",
+            "actorId": "abyssa",
+            "text": "……有点，油烟味。……不过，凑合吧。",
+            "emotion": "closed"
+          }
+        ]
+      }
+    },
+    {
+      "id": "morning.choice.blanket.reaction.3",
+      "cursor": 62,
+      "sectionId": "morning.section.7",
+      "kind": "branch",
+      "choiceId": "morning.choice.blanket",
+      "variants": {
+        "A": [
+          {
+            "id": "morning.choice.blanket.reaction.3.A",
+            "kind": "direction",
+            "waitMs": 1100,
+            "effect": "release",
+            "stage": [
+              {
+                "actorId": "abyssa",
+                "emotion": "smile",
+                "still": true
+              }
+            ]
+          }
+        ],
+        "B": [
+          {
+            "id": "morning.choice.blanket.reaction.3.B",
+            "kind": "direction",
+            "waitMs": 1100,
+            "effect": "release",
+            "stage": [
+              {
+                "actorId": "abyssa",
+                "emotion": "flustered",
+                "still": true
+              }
+            ]
+          }
+        ],
+        "C": [
+          {
+            "id": "morning.choice.blanket.reaction.3.C",
+            "kind": "narration",
+            "text": "围裙里还留着油烟的气味。",
+            "effect": "release",
+            "stage": [
+              {
+                "actorId": "abyssa",
+                "emotion": "closed",
+                "still": true
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "morning.7.63",
+      "cursor": 63,
+      "sectionId": "morning.section.7",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.7.63",
+          "kind": "narration",
+          "text": "窗外的海浪重新恢复了平缓的拍击声。"
+        }
+      ]
+    },
+    {
+      "id": "morning.7.64",
+      "cursor": 64,
+      "sectionId": "morning.section.7",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.7.64",
+          "kind": "dialogue",
+          "actorId": "kael",
+          "text": "（……真行。今天也和平常一个德性。）"
+        }
+      ]
+    },
+    {
+      "id": "morning.7.65",
+      "cursor": 65,
+      "sectionId": "morning.section.7",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.7.65",
+          "kind": "direction",
+          "waitMs": 950,
+          "effect": "break",
+          "sound": "glass"
+        }
+      ]
+    },
+    {
+      "id": "morning.7.66",
+      "cursor": 66,
+      "sectionId": "morning.section.7",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.7.66",
+          "kind": "narration",
+          "text": "咸湿的海风灌进了餐厅。"
+        }
+      ]
+    },
+    {
+      "id": "morning.8.67",
+      "cursor": 67,
+      "sectionId": "morning.section.8",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.8.67",
+          "kind": "narration",
+          "text": "短靴边缘挂着海蚀滩的灰黑死泥。她的手还死死卡在短刀柄上。",
+          "stage": [
+            {
+              "actorId": "norma",
+              "emotion": "displeased",
+              "still": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "morning.8.68",
+      "cursor": 68,
+      "sectionId": "morning.section.8",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.8.68",
+          "kind": "direction",
+          "waitMs": 250,
+          "stage": [
+            {
+              "actorId": "norma",
+              "emotion": "displeased",
+              "still": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "morning.8.69",
+      "cursor": 69,
+      "sectionId": "morning.section.8",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.8.69",
+          "kind": "dialogue",
+          "actorId": "norma",
+          "text": "……哈啊、哈啊……呼。{{user}}，水。",
+          "emotion": "displeased"
+        }
+      ]
+    },
+    {
+      "id": "morning.8.70",
+      "cursor": 70,
+      "sectionId": "morning.section.8",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.8.70",
+          "kind": "narration",
+          "text": "麦茶还是温的。杯底朝了天。",
+          "sound": "ceramic",
+          "stage": [
+            {
+              "actorId": "norma",
+              "emotion": "closed",
+              "still": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "morning.8.71",
+      "cursor": 71,
+      "sectionId": "morning.section.8",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.8.71",
+          "kind": "narration",
+          "text": "断裂的车轴铁销上，留着扭曲的齿痕与海腥黑泥。",
+          "sound": "metal",
+          "stage": [
+            {
+              "actorId": "norma",
+              "emotion": "serious",
+              "still": true
+            }
+          ],
+          "itemId": "story.broken-axle-pin"
+        }
+      ]
+    },
+    {
+      "id": "morning.8.72",
+      "cursor": 72,
+      "sectionId": "morning.section.8",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.8.72",
+          "kind": "dialogue",
+          "actorId": "norma",
+          "text": "浅滩暗道。……缇比的马车翻了。是老手强盗，算准了退潮动的手。",
+          "emotion": "serious"
+        }
+      ]
+    },
+    {
+      "id": "morning.8.73",
+      "cursor": 73,
+      "sectionId": "morning.section.8",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.8.73",
+          "kind": "direction",
+          "waitMs": 700,
+          "sound": "metal",
+          "stage": [
+            {
+              "actorId": "eustice",
+              "emotion": "serious",
+              "still": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "morning.8.74",
+      "cursor": 74,
+      "sectionId": "morning.section.8",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.8.74",
+          "kind": "dialogue",
+          "actorId": "eustice",
+          "text": "不是魔物吧。人数和装备呢。",
+          "emotion": "serious"
+        }
+      ]
+    },
+    {
+      "id": "morning.8.75",
+      "cursor": 75,
+      "sectionId": "morning.section.8",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.8.75",
+          "kind": "dialogue",
+          "actorId": "norma",
+          "text": "是人类强盗，十人上下。带着十字弩。完全摸透了哨所巡逻的死角。"
+        }
+      ]
+    },
+    {
+      "id": "morning.9.76",
+      "cursor": 76,
+      "sectionId": "morning.section.9",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.9.76",
+          "kind": "direction",
+          "waitMs": 700,
+          "stage": [
+            {
+              "actorId": "elora",
+              "emotion": "panicked",
+              "still": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "morning.9.77",
+      "cursor": 77,
+      "sectionId": "morning.section.9",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.9.77",
+          "kind": "dialogue",
+          "actorId": "elora",
+          "text": "那个，诺玛小姐……货物呢？今天的木箱还好吗……？",
+          "emotion": "panicked"
+        }
+      ]
+    },
+    {
+      "id": "morning.9.78",
+      "cursor": 78,
+      "sectionId": "morning.section.9",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.9.78",
+          "kind": "narration",
+          "text": "诺玛的视线移向了地板上的泥泞。",
+          "stage": [
+            {
+              "actorId": "norma",
+              "emotion": "sad",
+              "still": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "morning.9.79",
+      "cursor": 79,
+      "sectionId": "morning.section.9",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.9.79",
+          "kind": "dialogue",
+          "actorId": "norma",
+          "text": "……抱歉了，小丫头。整箱草药，全被搬进海蚀洞里了。",
+          "emotion": "serious"
+        }
+      ]
+    },
+    {
+      "id": "morning.9.80",
+      "cursor": 80,
+      "sectionId": "morning.section.9",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.9.80",
+          "kind": "dialogue",
+          "actorId": "elora",
+          "text": "…………！",
+          "emotion": "sad",
+          "stage": [
+            {
+              "actorId": "elora",
+              "emotion": "sad",
+              "motion": "shakeLight"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "morning.9.81",
+      "cursor": 81,
+      "sectionId": "morning.section.9",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.9.81",
+          "kind": "direction",
+          "waitMs": 250,
+          "stage": [
+            {
+              "actorId": "elora",
+              "emotion": "sad",
+              "still": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "morning.9.82",
+      "cursor": 82,
+      "sectionId": "morning.section.9",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.9.82",
+          "kind": "direction",
+          "waitMs": 850,
+          "stage": [
+            {
+              "actorId": "kororo",
+              "emotion": "serious",
+              "still": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "morning.9.83",
+      "cursor": 83,
+      "sectionId": "morning.section.9",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.9.83",
+          "kind": "dialogue",
+          "actorId": "kororo",
+          "text": "……帝都送来的，木箱。",
+          "emotion": "serious"
+        }
+      ]
+    },
+    {
+      "id": "morning.9.84",
+      "cursor": 84,
+      "sectionId": "morning.section.9",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.9.84",
+          "kind": "dialogue",
+          "actorId": "norma",
+          "text": "……啊啊。车厢里的箱子，全被他们一股脑拖走了。"
+        }
+      ]
+    },
+    {
+      "id": "morning.9.85",
+      "cursor": 85,
+      "sectionId": "morning.section.9",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.9.85",
+          "kind": "direction",
+          "waitMs": 500,
+          "stage": [
+            {
+              "actorId": "norma",
+              "emotion": "serious",
+              "still": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "morning.9.86",
+      "cursor": 86,
+      "sectionId": "morning.section.9",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.9.86",
+          "kind": "dialogue",
+          "actorId": "norma",
+          "text": "……玛丽埃塔。原本要送去工坊的，那个包袱也在里面。"
+        }
+      ]
+    },
+    {
+      "id": "morning.10.87",
+      "cursor": 87,
+      "sectionId": "morning.section.10",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.10.87",
+          "kind": "direction",
+          "waitMs": 650,
+          "effect": "pressure"
+        }
+      ]
+    },
+    {
+      "id": "morning.10.88",
+      "cursor": 88,
+      "sectionId": "morning.section.10",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.10.88",
+          "kind": "direction",
+          "waitMs": 700,
+          "stage": [
+            {
+              "actorId": "abyssa",
+              "emotion": "serious",
+              "still": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "morning.10.89",
+      "cursor": 89,
+      "sectionId": "morning.section.10",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.10.89",
+          "kind": "direction",
+          "waitMs": 500,
+          "stage": [
+            {
+              "actorId": "abyssa",
+              "emotion": "serious",
+              "still": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "morning.10.90",
+      "cursor": 90,
+      "sectionId": "morning.section.10",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.10.90",
+          "kind": "dialogue",
+          "actorId": "abyssa",
+          "text": "……被偷了。",
+          "emotion": "serious"
+        }
+      ]
+    },
+    {
+      "id": "morning.10.91",
+      "cursor": 91,
+      "sectionId": "morning.section.10",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.10.91",
+          "kind": "narration",
+          "text": "咔。茶几的一角，无声地化成了灰。地板下的木梁发出沉闷的咯吱声。",
+          "effect": "crack",
+          "sound": "wood"
+        }
+      ]
+    },
+    {
+      "id": "morning.10.92",
+      "cursor": 92,
+      "sectionId": "morning.section.10",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.10.92",
+          "kind": "direction",
+          "waitMs": 1,
+          "stage": [
+            {
+              "actorId": "marietta",
+              "emotion": "serious",
+              "still": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "morning.10.93",
+      "cursor": 93,
+      "sectionId": "morning.section.10",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.10.93",
+          "kind": "dialogue",
+          "actorId": "marietta",
+          "text": "阁下，请收敛脚步。……{{user}}大人，我会压低炉火强撑住结界。时限为一个时辰。",
+          "emotion": "serious"
+        }
+      ]
+    },
+    {
+      "id": "morning.10.94",
+      "cursor": 94,
+      "sectionId": "morning.section.10",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.10.94",
+          "kind": "direction",
+          "waitMs": 500,
+          "stage": [
+            {
+              "actorId": "abyssa",
+              "emotion": "serious",
+              "still": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "morning.10.95",
+      "cursor": 95,
+      "sectionId": "morning.section.10",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.10.95",
+          "kind": "dialogue",
+          "actorId": "abyssa",
+          "text": "……勇者。……去拿回来吗？"
+        }
+      ]
+    },
+    {
+      "id": "morning.choice.departure",
+      "cursor": 96,
+      "sectionId": "morning.section.10",
+      "kind": "choice",
+      "prompt": "……去拿回来吗？",
+      "options": [
+        {
+          "id": "A",
+          "label": "大步上前，按住腰间的佩剑"
+        },
+        {
+          "id": "B",
+          "label": "直接越过红线，按住她的发顶"
+        }
+      ]
+    },
+    {
+      "id": "morning.choice.departure.reaction.0",
+      "cursor": 97,
+      "sectionId": "morning.section.10",
+      "kind": "branch",
+      "choiceId": "morning.choice.departure",
+      "variants": {
+        "A": [
+          {
+            "id": "morning.choice.departure.reaction.0.A",
+            "kind": "direction",
+            "waitMs": 650,
+            "effect": "equip",
+            "sound": "metal"
+          }
+        ],
+        "B": [
+          {
+            "id": "morning.choice.departure.reaction.0.B",
+            "kind": "narration",
+            "text": "掌心下的额发，凉得沁人。",
+            "stage": [
+              {
+                "actorId": "abyssa",
+                "emotion": "serious",
+                "still": true
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "morning.choice.departure.reaction.1",
+      "cursor": 98,
+      "sectionId": "morning.section.10",
+      "kind": "branch",
+      "choiceId": "morning.choice.departure",
+      "variants": {
+        "A": [
+          {
+            "id": "morning.choice.departure.reaction.1.A",
+            "kind": "dialogue",
+            "actorId": "kael",
+            "text": "去。在这等着。"
+          }
+        ],
+        "B": [
+          {
+            "id": "morning.choice.departure.reaction.1.B",
+            "kind": "dialogue",
+            "actorId": "kael",
+            "text": "涨潮前回来。老实待着。"
+          }
+        ]
+      }
+    },
+    {
+      "id": "morning.choice.departure.reaction.2",
+      "cursor": 99,
+      "sectionId": "morning.section.10",
+      "kind": "branch",
+      "choiceId": "morning.choice.departure",
+      "variants": {
+        "A": [
+          {
+            "id": "morning.choice.departure.reaction.2.A",
+            "kind": "direction",
+            "waitMs": 250,
+            "effect": "release",
+            "stage": [
+              {
+                "actorId": "abyssa",
+                "emotion": "neutral",
+                "still": true
+              }
+            ]
+          }
+        ],
+        "B": [
+          {
+            "id": "morning.choice.departure.reaction.2.B",
+            "kind": "direction",
+            "waitMs": 700,
+            "effect": "release",
+            "stage": [
+              {
+                "actorId": "abyssa",
+                "emotion": "closed",
+                "motion": "nod"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "morning.choice.departure.reaction.3",
+      "cursor": 100,
+      "sectionId": "morning.section.10",
+      "kind": "branch",
+      "choiceId": "morning.choice.departure",
+      "variants": {
+        "A": [
+          {
+            "id": "morning.choice.departure.reaction.3.A",
+            "kind": "dialogue",
+            "actorId": "abyssa",
+            "text": "……嗯。……要是弄坏了，就修不好了。",
+            "emotion": "neutral"
+          }
+        ],
+        "B": [
+          {
+            "id": "morning.choice.departure.reaction.3.B",
+            "kind": "dialogue",
+            "actorId": "abyssa",
+            "text": "……日落之前。……凉了，我会生气的。",
+            "emotion": "closed"
+          }
+        ]
+      }
+    },
+    {
+      "id": "morning.11.101",
+      "cursor": 101,
+      "sectionId": "morning.section.11",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.11.101",
+          "kind": "direction",
+          "waitMs": 850,
+          "effect": "equip",
+          "sound": "metal"
+        }
+      ]
+    },
+    {
+      "id": "morning.11.102",
+      "cursor": 102,
+      "sectionId": "morning.section.11",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.11.102",
+          "kind": "dialogue",
+          "actorId": "kael",
+          "text": "玛丽埃塔，留守交给你了。"
+        }
+      ]
+    },
+    {
+      "id": "morning.11.103",
+      "cursor": 103,
+      "sectionId": "morning.section.11",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.11.103",
+          "kind": "direction",
+          "waitMs": 950,
+          "stage": [
+            {
+              "actorId": "marietta",
+              "emotion": "neutral",
+              "motion": "nod"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "morning.11.104",
+      "cursor": 104,
+      "sectionId": "morning.section.11",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.11.104",
+          "kind": "dialogue",
+          "actorId": "marietta",
+          "text": "明白了。……诸位的椅子，我会按原样留着。",
+          "emotion": "neutral"
+        }
+      ]
+    },
+    {
+      "id": "morning.11.105",
+      "cursor": 105,
+      "sectionId": "morning.section.11",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.11.105",
+          "kind": "direction",
+          "waitMs": 700,
+          "sound": "metal",
+          "stage": [
+            {
+              "actorId": "eustice",
+              "emotion": "serious",
+              "still": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "morning.11.106",
+      "cursor": 106,
+      "sectionId": "morning.section.11",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.11.106",
+          "kind": "dialogue",
+          "actorId": "eustice",
+          "text": "潮汐岩窟是吧。……在涨潮前去把退路掐死。",
+          "emotion": "serious"
+        }
+      ]
+    },
+    {
+      "id": "morning.11.107",
+      "cursor": 107,
+      "sectionId": "morning.section.11",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.11.107",
+          "kind": "narration",
+          "text": "吧台后传来利落的收拾声。",
+          "sound": "ceramic"
+        }
+      ]
+    },
+    {
+      "id": "morning.11.108",
+      "cursor": 108,
+      "sectionId": "morning.section.11",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.11.108",
+          "kind": "dialogue",
+          "actorId": "elora",
+          "text": "{{user}}先生，止血带拿好了。……可以出发了。",
+          "emotion": "serious"
+        }
+      ]
+    },
+    {
+      "id": "morning.11.109",
+      "cursor": 109,
+      "sectionId": "morning.section.11",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.11.109",
+          "kind": "direction",
+          "waitMs": 750,
+          "stage": [
+            {
+              "actorId": "kororo",
+              "emotion": "serious",
+              "still": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "morning.11.110",
+      "cursor": 110,
+      "sectionId": "morning.section.11",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.11.110",
+          "kind": "dialogue",
+          "actorId": "kororo",
+          "text": "……海风会吹坏纸张。……动作快点。",
+          "emotion": "serious"
+        }
+      ]
+    },
+    {
+      "id": "morning.11.111",
+      "cursor": 111,
+      "sectionId": "morning.section.11",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.11.111",
+          "kind": "direction",
+          "waitMs": 650,
+          "sound": "metal",
+          "stage": [
+            {
+              "actorId": "norma",
+              "emotion": "serious",
+              "still": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "morning.11.112",
+      "cursor": 112,
+      "sectionId": "morning.section.11",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.11.112",
+          "kind": "dialogue",
+          "actorId": "norma",
+          "text": "离涨潮还有不到四个小时。……认得后门的只有老娘，跟紧点。",
+          "emotion": "serious"
+        }
+      ]
+    },
+    {
+      "id": "morning.12.113",
+      "cursor": 113,
+      "sectionId": "morning.section.12",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.12.113",
+          "kind": "direction",
+          "waitMs": 1,
+          "stage": [
+            {
+              "actorId": "marietta",
+              "emotion": "serious",
+              "still": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "morning.12.114",
+      "cursor": 114,
+      "sectionId": "morning.section.12",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.12.114",
+          "kind": "dialogue",
+          "actorId": "marietta",
+          "text": "『归还之线』已系好。离海崖太远便会扯断。……请务必平安。",
+          "emotion": "serious"
+        }
+      ]
+    },
+    {
+      "id": "morning.12.115",
+      "cursor": 115,
+      "sectionId": "morning.section.12",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.12.115",
+          "kind": "narration",
+          "text": "一小团黑泥钻进了{{user}}腰间的皮囊，化作一小团沉静的微温。"
+        }
+      ]
+    },
+    {
+      "id": "morning.12.116",
+      "cursor": 116,
+      "sectionId": "morning.section.12",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.12.116",
+          "kind": "narration",
+          "text": "深蓝色的新毯子下，没再传来声音。",
+          "stage": [
+            {
+              "actorId": "abyssa",
+              "emotion": "closed",
+              "still": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "morning.12.117",
+      "cursor": 117,
+      "sectionId": "morning.section.12",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.12.117",
+          "kind": "direction",
+          "waitMs": 650,
+          "sound": "cloth"
+        }
+      ]
+    },
+    {
+      "id": "morning.12.118",
+      "cursor": 118,
+      "sectionId": "morning.section.12",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.12.118",
+          "kind": "dialogue",
+          "actorId": "kael",
+          "text": "走了。"
+        }
+      ]
+    },
+    {
+      "id": "morning.13.119",
+      "cursor": 119,
+      "sectionId": "morning.section.13",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "morning.13.119",
+          "kind": "chapter",
+          "text": "第一章：雾滩·退潮岩窟",
+          "effect": "handoff"
+        }
+      ]
+    }
+  ]
+}

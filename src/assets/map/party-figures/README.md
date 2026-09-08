@@ -63,7 +63,7 @@
 
 - `SortieMember.figureUrl` 与 `SortieLeader.figureUrl` 只供 `SortiePartyStage` 使用；
 - `SortieRosterPanel` 海报继续读取角色档案的 `portraitUrl`；
-- `SortieRosterPanel` 的“当前队伍”摘要与 `SortieQuestPanel` 的四个成员小槽统一读取 `thumbnailUrl`，并复用同一个 `AvatarFrame` 木金切角框；凯尔第五席仍读取旧 `portraitUrl`，不使用 Q 版图；
+- `SortieRosterPanel` 的“当前队伍”摘要与 `SortieQuestPanel` 的四个成员小槽统一读取 `thumbnailUrl`，并复用同一个 `AvatarFrame` 木金切角框；玩家第五席仍读取旧 `portraitUrl`，不使用 Q 版图；
 - 方形透明画布由舞台的 `data-art="figure"` 高度驱动规则渲染，不要改回纵长海报的 `object-fit: contain`；运行时在这层叠加共享脚底中心校准。
 
 原始 JPG 与 ToonOut 的 mask / 中间输出不进入仓库；如重新处理，应从原始批次生成，不要在这些成品 PNG 上反复压缩。

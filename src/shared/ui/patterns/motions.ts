@@ -136,33 +136,28 @@ export function waver(amp = 8): MotionSpec {
  * 之前 0.975 / 1.015 的形变在 825px 立绘上是 ±20px 的身高伸缩,
  * 读起来像橡皮球 —— 这是卡通语汇,与这套写实立绘不搭。
  *
- * 所以这次两个方向反着调:
- *   幅度  22 → 36px   跳得更高,离地感更实
- *   形变  ±1.5% → ±0.6%   去掉橡皮感,改为「人在跳」而不是「球在弹」
- * 下蹲与落地的**位移**幅度也一并收窄(0.45→0.30 / 0.27→0.16),
- * 那两处的大幅下沉同样是弹性的来源之一。
- *
- * 时长 470 → 560ms:跳得更高,滞空自然更久。保持原时长会让上升段
- * 的速度突然变快,读起来像被弹射出去而不是自己跳起来。
+ * 基准行程72px、时长680ms：在1600画布缩至1280时仍有约58px腾空。
+ * 沿用原起跳／回落曲线与小幅形变；增加位移，不靠拉伸立绘冒充跳跃。
+ * 时长随行程略增，让最高点可读，不把增大的行程压成突然弹射。
  *
  * 下蹲预备(anticipation)一定要保留 —— 它是「起跳」这个动作能被读懂的
  * 关键,删掉之后人会像凭空浮起来。但它只需要读得出来,不需要很深。
  *
  * 向下是完全安全的:立绘下缘本就沉出席位 9%(约 69px)。
  */
-export function jump(amp = 36): MotionSpec {
+export function jump(amp = 72): MotionSpec {
   return {
     keyframes: [
       { offset: 0, transform: NEUTRAL, easing: "cubic-bezier(0.4, 0, 0.7, 1)" },
-      // 下蹲预备(150ms / 560ms)
+      // 下蹲预备
       { offset: 0.268, transform: frame(0, amp * 0.3, 0, 0.994), easing: "cubic-bezier(0.2, 0.6, 0.4, 1)" },
-      // 腾空最高点(310ms)
+      // 腾空最高点
       { offset: 0.554, transform: frame(0, -amp, 0, 1.006), easing: "cubic-bezier(0.6, 0, 0.9, 0.7)" },
-      // 落地压缩(420ms)—— 保留,但幅度收窄,只留「触地」的一下
+      // 落地压缩，只留「触地」的一下
       { offset: 0.75, transform: frame(0, amp * 0.16, 0, 0.99), easing: "cubic-bezier(0.2, 0.7, 0.3, 1)" },
       { offset: 1, transform: NEUTRAL }
     ],
-    options: { duration: 560, fill: "none" }
+    options: { duration: 680, fill: "none" }
   };
 }
 
@@ -172,10 +167,10 @@ export function jump(amp = 36): MotionSpec {
  * 仅 X 轴,**不加旋转**:825px 高的立绘上,小幅旋转读作「晃」而不是「抖」
  * (1.2° 就能让顶部横移 17px)。高频小幅才是「抖」。
  */
-export function shakeLight(amp = 3): MotionSpec {
+export function shakeLight(amp = 12): MotionSpec {
   return {
     keyframes: oscillate({ x: amp, swings: 8 }),
-    options: { duration: 340, easing: "linear", fill: "none" }
+    options: { duration: 440, easing: "linear", fill: "none" }
   };
 }
 
@@ -189,18 +184,15 @@ export function shakeLight(amp = 3): MotionSpec {
  * Y 位移同样有问题:上下晃在扁平立绘上会被读成「跳」,与跳跃动作撞车。
  *
  * 冲击力应该由**幅度和频率**给,不是由额外的轴给。所以现在:
- *   只保留 X,幅度 10 → 15px,摆次 12 → 14
+ *   只保留 X,基准幅度28px,摆次14
  * 更宽、更密的纯水平往复,与轻抖是同一种运动的强化版,语义连贯。
  *
- * 与轻抖(±3px / 8 次 / 340ms)的关系:同轴同性质,只差量级。
- *
- * 一句实话:它单独用会偏弱。视觉小说里这个动作几乎总是配合镜头摇晃,
- * 那是舞台级效果(抖 .abyssa-rp),不在本模块范围内。
+ * 与轻抖(±12px / 8 次 / 440ms)保持同轴同性质，幅度与摆次数拉开量级。
  */
-export function shakeHeavy(amp = 15): MotionSpec {
+export function shakeHeavy(amp = 28): MotionSpec {
   return {
     keyframes: oscillate({ x: amp, swings: 14 }),
-    options: { duration: 560, easing: "linear", fill: "none" }
+    options: { duration: 640, easing: "linear", fill: "none" }
   };
 }
 

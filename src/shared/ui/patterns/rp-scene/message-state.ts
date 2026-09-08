@@ -56,7 +56,7 @@ export function deriveLitAux(messages: readonly RpMessage[]) {
 export function deriveExpressionByActor(messages: readonly RpMessage[]) {
   const expressionByActor = new Map<string, ExpressionId>();
   for (const message of messages) {
-    if (message.kind === "say" && message.expression) {
+    if ((message.kind === "say" || message.kind === "stage") && message.expression) {
       expressionByActor.set(message.actorId, message.expression);
     }
   }

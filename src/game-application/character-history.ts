@@ -30,7 +30,7 @@ export function projectCharacterHistory(
           if (e.actorId !== characterId || !["healing-applied", "enemy-defeated", "unit-downed", "covenant-triggered"].includes(e.type)) continue;
           const p = e.payload as Record<string, unknown>, previous = grouped.get(e.type);
           if (previous) { previous.count++; previous.amount += Number(p.applied ?? 0); }
-          else grouped.set(e.type, {id:`${f.id}:${e.type}`, sourceFactIds:[f.id], runId:f.runRef?.id ?? null, encounterId:null, worldTime:f.worldTime, kind:e.type, origin:f.origin, memoryTemplate:record.contentRef.contentVersion === 3 ? "clockwork" : "marietta", count:1, amount:Number(p.applied ?? 0)});
+          else grouped.set(e.type, {id:`${f.id}:${e.type}`, sourceFactIds:[f.id], runId:f.runRef?.id ?? null, encounterId:null, worldTime:f.worldTime, kind:e.type, origin:f.origin, memoryTemplate:record.contentRef.contentVersion >= 3 ? "clockwork" : "marietta", count:1, amount:Number(p.applied ?? 0)});
         }
         return [...grouped.values()];
       }
@@ -48,7 +48,7 @@ export function projectCharacterHistory(
       if(e.type === "story-completed") {
         const growth = record.snapshot.campaign.growthGrants.find(g=>g.id===f.id);
         const entries: CharacterHistoryEntry[] = [];
-        const base = {sourceFactIds:[f.id],runId:null,encounterId:null,worldTime:f.worldTime,origin:f.origin,memoryTemplate:record.contentRef.contentVersion === 3 ? "clockwork" : "marietta",count:1,amount:0};
+        const base = {sourceFactIds:[f.id],runId:null,encounterId:null,worldTime:f.worldTime,origin:f.origin,memoryTemplate:record.contentRef.contentVersion >= 3 ? "clockwork" : "marietta",count:1,amount:0};
         if(growth && (growth.growthId.startsWith(`growth.${characterId}.`) || characterId === "kael")) entries.push({...base,id:f.id,kind:"growth-completed",eventId:`event.${growth.growthId}`});
         if(record.snapshot.campaign.giftGrantId===f.id && ["kael","marietta"].includes(characterId)) entries.push({...base,id:f.id,kind:"preparation-gift",eventId:"event.demo.preparation-gift"});
         if(record.snapshot.campaign.teamMilestone?.sourceGrantId===f.id && characterId==="kael") entries.push({...base,id:`${f.id}:team-milestone`,kind:"team-milestone",eventId:"story.kael.team-lv3-guard"});
@@ -56,7 +56,7 @@ export function projectCharacterHistory(
       }
       const kind = e.type === "memory-ended" && e.terminal.finalBattle.run.party.some(p => p.id === characterId) && e.terminal.finalBattle.encounter.outcome === "victory" ? "memory-completed"
         : e.type === "story-completed" && f.id === record.snapshot.campaign.chapterClaim?.id && characterId === "marietta" ? "marietta-sortie-unlocked" : null;
-      return kind ? [{id:f.id,sourceFactIds:[f.id],runId:f.runRef?.id??null,encounterId:null,worldTime:f.worldTime,kind,origin:f.origin,memoryTemplate:record.contentRef.contentVersion === 3 ? "clockwork" : "marietta",count:1,amount:0}] : [];
+      return kind ? [{id:f.id,sourceFactIds:[f.id],runId:f.runRef?.id??null,encounterId:null,worldTime:f.worldTime,kind,origin:f.origin,memoryTemplate:record.contentRef.contentVersion >= 3 ? "clockwork" : "marietta",count:1,amount:0}] : [];
     });
     const previous = record.originRef && record.originRef.kind !== "cycle" ? projectCharacterHistory(record.originRef.source,characterId).filter(e=>!e.sourceFactIds.some(id=>record.retractedFactIds.includes(id))) : [];
     return [...previous,...current];

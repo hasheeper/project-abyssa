@@ -2,17 +2,6 @@
 export type BattleReactionKind = "ready" | "attack" | "guard" | "heal" | "bind" | "blank" | "special" | "success" | "failure";
 type Lines = Record<BattleReactionKind, readonly [string, string]>;
 export const BATTLE_REACTIONS: Record<string, Lines> = {
-  kael: {
-    ready: ["人都在。那就继续往前。", "慢一点也没关系，我们一起走。"],
-    attack: ["这边交给我。", "跟紧，别被隔开。"],
-    guard: ["到我身后来。", "我挡着，你们继续。"],
-    heal: ["还能走吗？我陪你。", "别逞强，先缓口气。"],
-    bind: ["就是现在，抓住这个空隙。", "先留住它，别急。"],
-    blank: ["……好吧，再想个办法。", "手气差点，人还在。"],
-    special: ["看准了，跟上。", "有办法了。"],
-    success: ["收好了，带回去。", "还好，来得及。"],
-    failure: ["没事，人没受伤就好。", "先记下来，别硬来。"],
-  },
   eustice: {
     ready: ["别离队。前面的路，我来开。", "确认位置。所有人，都要一起回去。"],
     attack: ["破绽在这里。", "让开。下一剑就到。"],

@@ -34,9 +34,9 @@ export interface PaperDollProps extends HTMLAttributes<HTMLDivElement> {
   /** 立绘 alt 文本前缀。 */
   alt?: string;
   /**
-   * 取景:full 整张全身(默认);upper 上半身(约 68%,切在大腿中部);
-   * knee 保留 4/5(切在膝下,去掉脚与小腿)。
-   * 三者都锚定立绘**顶部**,裁的是容器下缘,动效不会露馅。
+   * 取景定位盒:full 全身比例(默认);upper 约 68%;knee 约 4/5。
+   * 三者都锚定立绘顶部，只调整布局比例，始终渲染完整原图。
+   * 组件本身不裁切；调用方由固定舞台边界遮挡，避免切线跟随动作移动。
    */
   crop?: "full" | "upper" | "knee";
   /** 覆盖逐角色校准(scale/x/y);不传则用 spriteCalibration 表里的值。 */

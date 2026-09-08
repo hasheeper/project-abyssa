@@ -1,3 +1,4 @@
+import { advanceOpening, validateOpeningChoice } from "./opening-progress";
 import * as v from "../contracts/validation";
 import { sha256 } from "../contracts/sha256";
 import type { ValidatedD5Catalog } from "../contracts/d5";
@@ -15,6 +16,8 @@ import { memorySupplyId as d5MemorySupplyId } from "../battle/rules/v4/memory";
 export { d5MemorySupplyId };
 export function initialD5Projection(catalog: ValidatedD5Catalog): D5Projection {
   return {
+    ...(catalog.data.opening ? {opening: {step:0,status:"playing" as const,choices:[]}} : {}),
+    ...(catalog.data.prologue ? {prologue: {shotId: catalog.data.prologue.shotIds[0], status: "playing" as const}} : {}),
     clock: { day: 1, phase: "dawn" }, funds: { public: 0, party: 0, crystals: 0 }, supplies: [], settlements: [],
     manor: { takeover: null, story: null }, progress: { appliedGrowthIds: [], equipment: [] }, inventory: [],
     availableCharacterIds: [...catalog.data.initialParty], activeRunRef: null, memory: null, stories: [], activeStoryId: null,
@@ -59,7 +62,12 @@ function memoryVictory(catalog: ValidatedD5Catalog, battle: D5MemoryBattleState)
 /** Content-aware validation for receipts that do not carry the previous campaign snapshot. */
 export function validateD5EvidenceContent(catalog: ValidatedD5Catalog, entry: D5ProgressEntry, readers: D5RunReaders = {}): void {
   const e = entry.event, spec = catalog.data.progression;
-  if (e.type === "supply-purchased") {
+  if (e.type === "opening-advanced") {
+    if (!catalog.data.opening) v.invalid("opening", "Opening is not in this catalog");
+    validateOpeningChoice(catalog.data.opening,e);
+  } else if (e.type === "prologue-advanced" || e.type === "prologue-completed") {
+    if (!catalog.data.prologue?.shotIds.includes(e.shotId)) v.invalid("prologue", "Unknown prologue shot");
+  } else if (e.type === "supply-purchased") {
     const economy=catalog.data.economy;
     if(!economy || e.shopId!==economy.shopId || e.quoteVersion!==economy.quoteVersion || !economy.prices[e.definitionId]) v.invalid("purchase", "Unknown supply quote");
     v.number(e.quantity,"quantity",1,catalog.data.journey!.items[e.definitionId].capacity);
@@ -142,7 +150,25 @@ export function projectD5Progress(catalog: ValidatedD5Catalog, raw: unknown, rea
     if (seen.has(entry.id) || entry.revision <= revision) v.invalid("progression", "Duplicate evidence or nonchronological transaction");
     seen.add(entry.id); revision = entry.revision;
     const e = entry.event;
-    if (e.type === "supply-purchased") {
+    const openingEvent = e.type === "prologue-advanced" || e.type === "prologue-completed";
+    if (state.prologue?.status === "playing" && !openingEvent) v.invalid("prologue", "Finish or skip the prologue before playing", "command-not-available");
+    if (state.opening?.status === "playing" && !openingEvent && e.type !== "opening-advanced") v.invalid("opening", "Finish the first morning before playing", "command-not-available");
+    if (openingEvent) {
+      const opening = state.prologue, shots = catalog.data.prologue?.shotIds;
+      if (!opening || !shots || opening.status !== "playing" || opening.shotId !== e.shotId || state.activeRunRef || state.activeStoryId) v.invalid("prologue", "Stale or completed prologue cursor", "command-not-available");
+      const at = shots.indexOf(e.shotId);
+      if (at < 0) v.invalid("shotId", "Unknown prologue shot");
+      if (e.type === "prologue-advanced") {
+        if (at === shots.length - 1) v.invalid("shotId", "The final shot requires completion");
+        opening.shotId = shots[at + 1];
+      } else {
+        if (e.choice === "continue" && at !== shots.length - 1) v.invalid("shotId", "Cannot complete an unfinished prologue");
+        opening.status = e.choice === "skip" ? "skipped" : "viewed";
+      }
+    } else if (e.type === "opening-advanced") {
+      noRun();
+      advanceOpening(catalog.data.opening, state.opening, e);
+    } else if (e.type === "supply-purchased") {
       const {total, stored} = supplyQuote(catalog, state, e);
       state.funds.party -= total;
       if (stored) stored.charges += e.quantity;
@@ -207,6 +233,7 @@ export function projectD5Progress(catalog: ValidatedD5Catalog, raw: unknown, rea
     } else if (e.type === "memory-read") {
       const m = memoryRef(e.runRef);
       if (m.node !== e.node || m.step !== e.step || e.step >= spec.memoryLastSteps[e.node]) v.invalid("memory.step", "Stale or exhausted dialogue cursor");
+      if (e.choice) (m.choices ??= []).push({node:e.node,step:e.step,tone:e.choice});
       m.step++;
     } else if (e.type === "memory-ended") {
       const t = v.record(e.terminal, "memory.terminal", ["id", "runRef", "chapterId", "templateId", "finalBattle"]);
@@ -247,7 +274,10 @@ export function projectD5Progress(catalog: ValidatedD5Catalog, raw: unknown, rea
         if (s.step !== e.step) v.invalid("story.step", "Stale story cursor");
         if (e.choice === "later") { s.deferred = true; state.activeStoryId = null; }
         else if (e.choice === "skip") s.step = s.lastStep;
-        else if (s.step < s.lastStep) s.step++;
+        else if (s.step < s.lastStep) {
+          if (["iron","seasoned","pragmatic"].includes(e.choice)) (s.choices ??= []).push({step:e.step,tone:e.choice as "iron" | "seasoned" | "pragmatic"});
+          s.step++;
+        }
         else v.invalid("story.step", "Complete the event at the final node");
       } else {
         availableEvent(s.eventId, s.basisId, revision);

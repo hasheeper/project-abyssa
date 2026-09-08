@@ -59,6 +59,7 @@ it("仅已提交动作/事件判定产生反应，AOE命中不重复发声", () 
   expect(demoBattleReaction([{...action,type:"event-resolved",payload:{method:"failed"}}], "request-2")).toMatchObject({kind:"failure"});
   const legacy = {id:"legacy-1",type:"action-resolved",payload:{actorId:"kororo",verb:"blank"}} as BattleEvent;
   expect(legacyBattleReaction([legacy],"request-3")).toMatchObject({actorId:"kororo",kind:"blank"});
+  expect(makeBattleReaction("player-action","kael","attack")).toBeNull();
 });
 it("同一回执重放和空结果不刷新反应；清空不写入存档", () => {
   const {result} = renderHook(useBattleReaction);

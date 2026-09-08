@@ -13,6 +13,6 @@ describe("party figure catalog", () => {
       expect(entry.url).toMatch(/\.png(?:\?.*)?$/);
       expect(partyFigureCatalogById[entry.id]).toBe(entry);
     }
-    expect(partyFigureCatalogById.kael.name).toBe("凯尔");
+    expect(partyFigureCatalogById.kael.name).toBe("你");
   });
 });

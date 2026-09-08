@@ -10,7 +10,7 @@ export type ExpeditionDieFace = {
   verb: ExpeditionDieVerb;
   power: number;
   quality: ExpeditionDieQuality;
-  /** 命数为万能点数（凯尔·静谧之楔）：角标渲染为宝石而非数字 */
+  /** 命数为玩家位的万能点数（静谧之楔）：角标渲染为宝石而非数字 */
   wildPip?: boolean;
   pip?: number;
   suit?: ExpeditionDieSuit;

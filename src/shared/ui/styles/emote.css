@@ -15,12 +15,8 @@
 
 .abyssa-emote {
   position: absolute;
-  /* 原点 = 立绘盒子的顶部中心。x/y/size 三者都以立绘盒子**宽度**为基准,
-     所以这里的 left/top 也必须用宽度百分比:
-     top 用百分比时 CSS 的参照是父级高度,那会让 y 与 x 基准不一致 ——
-     竖长方形容器下两者差 1.67 倍,调好的值换取景就散了。
-     故 top 固定 0,纵向位移全部交给 translate(它的百分比参照自身,
-     而自身是正方形,与 size 同基准)。 */
+  /* 沿用已校准的工作台坐标：size 参照立绘宽；x/y 参照漫符边长。
+     不改用 top/left 百分比或头部锚点，否则既有用户校准会全部偏位。 */
   left: 50%;
   top: 0;
   width: var(--abyssa-emote-size);

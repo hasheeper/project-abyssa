@@ -1,9 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { EMOTES } from "../../shared/ui/patterns/emotes";
+import { EMOTES, EMOTE_ADJUST, resolveEmotePlacement } from "../../shared/ui/patterns/emotes";
 import { ROSTER } from "./characters";
 import {
   buildDefaults,
   buildEmoteDefaults,
+  mergeEmote,
   formatCalibrationTs,
   formatEmotesTs,
   formatJson,
@@ -18,6 +19,24 @@ import {
 } from "./params";
 
 describe("sprite studio parameters", () => {
+  it("starts from the published user calibration and merges exactly like the production renderer", () => {
+    const state = buildEmoteDefaults();
+    for (const actor of ROSTER) for (const emote of EMOTES)
+      expect(mergeEmote(state,actor.id,emote.id)).toEqual(resolveEmotePlacement(actor.id,emote.id));
+    expect(mergeEmote(state,"eustice","anger")).toEqual({x:-55.5,y:16.5,size:34});
+    expect(mergeEmote(state,"marietta","ellipsis")).toEqual({x:-44,y:23,size:32.5});
+    state.adjust.abyssa.blush.y = 999;
+    expect(EMOTE_ADJUST.abyssa.blush.y).toBe(6);
+  });
+  it("replaces only untouched legacy placeholder caches, never a user's edited snapshot", () => {
+    const defaults=buildEmoteDefaults();
+    const old={emotes:{base:Object.fromEntries(EMOTES.map(e=>[e.id,{x:0,y:-26,size:34}])),adjust:{}}};
+    expect(parseEmotes(JSON.stringify(old),defaults)).toEqual(defaults);
+    old.emotes.base.anger.x=1;
+    expect(parseEmotes(JSON.stringify(old),defaults).base.anger.x).toBe(1);
+    expect(parseEmotes(JSON.stringify(old),defaults).adjust).toEqual({});
+    expect(parseEmotes('{}',defaults)).toEqual(defaults);
+  });
   it("builds independent defaults for the complete roster", () => {
     const first = buildDefaults();
     const second = buildDefaults();

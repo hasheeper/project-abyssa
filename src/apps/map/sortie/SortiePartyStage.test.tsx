@@ -24,7 +24,7 @@ describe("SortiePartyStage", () => {
       screen.getByRole("button", { name }).closest(".abyssa-sortie-stage__slot") as HTMLElement;
     const eustice = slotOf("尤斯缇丝·格里芬");
     const alvitr = slotOf("阿尔薇特·塞维琳");
-    const leader = slotOf("凯尔");
+    const leader = slotOf("你");
 
     expect(container.querySelector(".abyssa-sortie-stage")).toHaveAttribute("data-party-size", "2");
     expect(eustice).toHaveAttribute("data-lineup-index", "0");
@@ -42,7 +42,7 @@ describe("SortiePartyStage", () => {
         party={{ memberIds: [], command: "personal" }}
       />
     );
-    const soloLeader = slotOf("凯尔");
+    const soloLeader = slotOf("你");
     expect(soloLeader).toHaveAttribute("data-lineup-index", "0");
     expect(soloLeader.style.getPropertyValue("--sortie-map-left")).toBe("22px");
 
@@ -87,7 +87,7 @@ describe("SortiePartyStage", () => {
       .getByRole("button", { name: "尤斯缇丝·格里芬，点击调整队伍" })
       .closest(".abyssa-sortie-stage__slot") as HTMLElement;
     const frontLeader = screen
-      .getByRole("button", { name: "凯尔，点击调整队伍" })
+      .getByRole("button", { name: "你，点击调整队伍" })
       .closest(".abyssa-sortie-stage__slot") as HTMLElement;
     expect(twoPersonMember.style.getPropertyValue("--sortie-pop-left")).toBe("307px");
     expect(frontLeader.style.getPropertyValue("--sortie-pop-left")).toBe("571px");
@@ -117,7 +117,7 @@ describe("SortiePartyStage", () => {
       .getByRole("button", { name: "阿尔薇特·塞维琳" })
       .querySelector("img") as HTMLImageElement;
     const leader = within(container)
-      .getByRole("button", { name: "凯尔" })
+      .getByRole("button", { name: "你" })
       .querySelector("img") as HTMLImageElement;
 
     const calibration = (image: HTMLImageElement) => ({
@@ -139,7 +139,7 @@ describe("SortiePartyStage", () => {
         .getByRole("button", { name: "阿尔薇特·塞维琳，点击调整队伍" })
         .querySelector("img") as HTMLImageElement;
       const currentLeader = within(container)
-        .getByRole("button", { name: "凯尔，点击调整队伍" })
+        .getByRole("button", { name: "你，点击调整队伍" })
         .querySelector("img") as HTMLImageElement;
 
       expect(currentStage).toBe(stageElement);

@@ -24,9 +24,8 @@
   --abyssa-rp-doll-x: 0%;                          /* 水平偏移,正 = 右移。相对立绘自身宽度 */
   --abyssa-rp-doll-y: 0%;                          /* 垂直偏移,正 = 下移。相对立绘自身高度 */
 
-  /* 底部预留:立绘下缘沉到框底之外多少,由框的 overflow 裁掉。
-     knee 的切口就藏在这段里,说话者上浮时切口跟着上移也仍在框外。
-     必须大于最大垂直位移(静止 1.5% → 上浮 -2%,合计 3.5%),留足余量。 */
+  /* 底部定位余量：取景盒下沉，完整原图继续延伸至盒外。
+     固定席位框是唯一的裁切边界，不把取景盒的下缘当作图片切线。 */
   --abyssa-rp-doll-bleed: 9%;
   --abyssa-rp-accent: var(--abyssa-teal);
 
@@ -63,8 +62,6 @@
    ::before 的 inset 6px 装饰内线、四角括号,全部由 components.css 提供。
    这里只覆盖底色——舞台的背景图要透上来,不能用面板的实色。 */
 .abyssa-rp__seat {
-  /* 组件库默认 #242929 实色,会把 ::before 内线框住的区域整片糊死 */
-  --abyssa-frame-surface: transparent;
   z-index: 1;
   /* 上下边距吃掉栏高,框就矮下来了——不用给显式高度,栏高变化时自动跟随 */
   margin: var(--abyssa-rp-seat-my) var(--abyssa-rp-seat-gap);
@@ -75,6 +72,9 @@
 /* 保留三层描边,只把 .abyssa-frame 的实色面板换成半透明压暗:
    立绘需要从背景里浮出来,同时背景图还得看得见。 */
 .abyssa-rp__seat.abyssa-frame {
+  /* Must outrank .abyssa-frame regardless of stylesheet import order.
+     Its ::before otherwise restores the opaque #242929 panel inside this translucent frame. */
+  --abyssa-frame-surface: transparent;
   background:
     linear-gradient(180deg, rgb(255 255 255 / 3.5%), transparent 26%, rgb(0 0 0 / 12%) 64%, rgb(0 0 0 / 26%)),
     rgb(10 15 15 / 34%);
@@ -106,8 +106,8 @@
    关键帧定义见 src/shared/ui/patterns/motions.ts。 */
 .abyssa-rp__actor {
   position: absolute;
-  /* 下缘沉到框底之外(负 bottom),knee 的切口落在框外,由 seat 的 overflow 裁掉。
-     这就是「预留」——不这么做的话,上浮 2% 会把那条切口拽进可视区,露出平切的小腿。 */
+  /* 保持原取景定位：盒子下缘沉出席位，完整图片在盒外仍然可绘制。
+     上浮、跳跃只移动立绘，外层 seat 的可视边界固定不动。 */
   inset: var(--abyssa-rp-seat-pad) var(--abyssa-rp-seat-pad)
          calc(-1 * var(--abyssa-rp-doll-bleed)) var(--abyssa-rp-seat-pad);
   display: flex;

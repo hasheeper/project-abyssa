@@ -1,3 +1,4 @@
+import type { OpeningProgress, OpeningAdvance } from "./opening-progress";
 import type { D5CatalogRef, ValidatedD5Catalog } from "../contracts/d5";
 import type { DemoProgress } from "../contracts/demo";
 import type { DemoBattleState, DemoCheckpoint, DemoSupply } from "../battle/domain/demo-state";
@@ -5,6 +6,8 @@ import type { DemoExpeditionState, DemoTerminal } from "./demo-expedition";
 import type { ManorProgression } from "./manor-progression";
 
 export type D5RunRef = { kind: "expedition"; id: string } | { kind: "memory"; id: string; attempt: number };
+export type D5UserChoiceTone = "iron" | "seasoned" | "pragmatic";
+export type D5StoryAdvanceChoice = "continue" | "skip" | "later" | D5UserChoiceTone;
 export type D5Checkpoint = Omit<DemoCheckpoint, "run"> & {
   run: Omit<DemoCheckpoint["run"], "contentRef"> & { contentRef: D5CatalogRef };
 };
@@ -25,6 +28,9 @@ export type D5MemoryTerminal = {
 
 /** Semantic evidence produced by accepted application transitions; never a player command. */
 export type D5ProgressEvent =
+  | OpeningAdvance
+  | { type: "prologue-advanced"; shotId: string }
+  | { type: "prologue-completed"; shotId: string; choice: "continue" | "skip" }
   | { type: "supply-purchased"; shopId: string; definitionId: string; quantity: number; quoteVersion: number }
   | { type: "memory-inherited"; runId: string; chapterId: string }
   | { type: "expedition-started"; runId: string; routeId: string; partyIds: string[]; itemIds: string[]; progress: DemoProgress }
@@ -32,12 +38,12 @@ export type D5ProgressEvent =
   | { type: "manor-story"; terminalId: string; step: number; choice: "continue" | "skip" }
   | { type: "memory-started"; runId: string; chapterId: string; templateId: string; seed: number }
   | { type: "memory-advanced"; runRef: Extract<D5RunRef, { kind: "memory" }>; node: "history-opening" | "teaching" | "battle" | "return-pending" }
-  | { type: "memory-read"; runRef: Extract<D5RunRef, { kind: "memory" }>; node: "present-intro" | "history-opening" | "teaching" | "history-complete"; step: number }
+  | { type: "memory-read"; runRef: Extract<D5RunRef, { kind: "memory" }>; node: "present-intro" | "history-opening" | "teaching" | "history-complete"; step: number; choice?: D5UserChoiceTone }
   | { type: "memory-ended"; terminal: D5MemoryTerminal }
   | { type: "memory-retried"; runId: string; previousAttempt: number }
   | { type: "memory-left"; runRef: Extract<D5RunRef, { kind: "memory" }> }
   | { type: "story-started"; sessionId: string; eventId: string; basisId: string }
-  | { type: "story-advanced"; sessionId: string; step: number; choice: "continue" | "skip" | "later" }
+  | { type: "story-advanced"; sessionId: string; step: number; choice: D5StoryAdvanceChoice }
   | { type: "story-completed"; sessionId: string }
   | { type: "equipment-moved"; instanceId: string; fromOwnerId: string | null; toOwnerId: string | null };
 
@@ -55,12 +61,16 @@ export type D5EquipmentInstance = {
 };
 export type D5StorySession = {
   id: string; eventId: string; basisId: string; step: number; lastStep: number; deferred: boolean;
+  choices?: { step: number; tone: D5UserChoiceTone }[];
 };
 export type D5MemorySession = {
   id: string; chapterId: string; templateId: string; seed: number; attempt: number; step: number;
+  choices?: { node: "present-intro" | "history-opening" | "teaching" | "history-complete"; step: number; tone: D5UserChoiceTone }[];
   node: "present-intro" | "history-opening" | "teaching" | "battle" | "failed" | "history-complete" | "return-pending" | "left" | "completed";
 };
 export type D5Projection = {
+  opening?: OpeningProgress;
+  prologue?: { shotId: string; status: "playing" | "viewed" | "skipped" };
   inheritedChapter?: {completionId: string; terminalId: string};
   clock: { day: number; phase: "dawn" | "day" | "dusk" | "night" };
   funds: { public: number; party: number; crystals: number };

@@ -1,0 +1,26 @@
+/* 动效减弱:只留亮度与不透明度的交叉淡入淡出,不做任何缩放与位移。
+   诉求是别晃,不是别过渡 —— 所以时长保持,曲线保持。 */
+@media (prefers-reduced-motion: reduce) {
+  .rp-adv__actor[data-phase="enter"] .rp-adv__actor-body,
+  .rp-adv__actor[data-phase="leave"] .rp-adv__actor-body {
+    animation-name: rp-morph-reduced-fade;
+  }
+
+  .rp-app[data-morph] .rp-app__stage,
+  .rp-app[data-morph] .abyssa-rp__seat,
+  .rp-app[data-morph] .abyssa-rp__log,
+  .rp-app[data-morph] .rp-adv__dialogue {
+    animation-name: rp-morph-reduced-out;
+  }
+
+  .rp-app[data-morph][data-phase="in"] .rp-app__stage,
+  .rp-app[data-morph][data-phase="in"] .abyssa-rp__seat,
+  .rp-app[data-morph][data-phase="in"] .abyssa-rp__log,
+  .rp-app[data-morph][data-phase="in"] .rp-adv__dialogue {
+    animation-name: rp-morph-reduced-in;
+  }
+}
+
+@keyframes rp-morph-reduced-fade { from { opacity: 0; } }
+@keyframes rp-morph-reduced-out { to { opacity: 0.14; } }
+@keyframes rp-morph-reduced-in { from { opacity: 0.14; } }

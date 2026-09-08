@@ -74,6 +74,13 @@
   transition: opacity 150ms linear, transform 220ms ease-out;
 }
 
+.scene-transition[data-cinematic] .scene-transition__veil { background:#000; }
+.scene-transition__still { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; background:#000; opacity:0; transition:opacity 420ms ease; }
+.scene-transition[data-phase="closing"] .scene-transition__still,
+.scene-transition[data-phase="closed"] .scene-transition__still { opacity:1; }
+.scene-transition[data-phase="opening"] .scene-transition__still { opacity:0; transition:opacity 520ms 70ms ease; }
+.scene-transition[data-cinematic]:has(.scene-transition__still) .scene-transition__veil { background:transparent; }
+
 .scene-transition[data-phase="closing"] .scene-transition__content {
   opacity: 1;
   transform: translate(-50%, -50%);

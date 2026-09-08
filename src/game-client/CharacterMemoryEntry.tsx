@@ -13,7 +13,7 @@ export function CharacterMemoryEntry({writer}: {writer: GameSession | null}) {
   const view = reader.runtime.queries.memory(record);
   const campaign = record.schemaVersion === 4 ? record.snapshot.campaign : null;
   const state = writer?.getSnapshot(), busy = status !== "ready" || !writer || state?.status !== "ready";
-  const clockwork = record.contentRef.rulesVersion === 4 && record.contentRef.contentVersion === 3;
+  const clockwork = record.contentRef.rulesVersion === 4 && record.contentRef.contentVersion >= 3;
   const home = recordLocator(record);
   const occupied = !!view?.runRef && view.runRef.kind !== "memory";
   const needsStory = campaign?.manor.story?.status === "pending";

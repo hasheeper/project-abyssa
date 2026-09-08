@@ -10,6 +10,7 @@ import mariettaPortrait from "../../../assets/characters/portraits/marietta.png"
 import blightedSentinel from "../../../assets/battle/enemy-blighted-sentinel.png";
 import crystallineChoir from "../../../assets/battle/enemy-crystalline-choir.png";
 import miasmaAmalgam from "../../../assets/battle/enemy-miasma-amalgam.png";
+import { DEFAULT_PLAYER_NAME } from "../../../shared/domain/player-identity";
 
 export interface PartyVisual {
   id: CharacterId;
@@ -29,8 +30,8 @@ export const PARTY_VISUALS: Record<CharacterId | "marietta", Omit<PartyVisual, "
   },
   kael: {
     id: "kael",
-    name: "凯尔",
-    nameplate: "KAEL",
+    name: DEFAULT_PLAYER_NAME,
+    nameplate: "USER",
     portrait: kaelPortrait,
     tone: "steel",
     skills: ["all-for-one", "sword", "split-cross"],

@@ -9,6 +9,9 @@ export function parseD5RunRef(raw: unknown): D5RunRef {
   return kind === "memory" ? { kind, id, attempt: v.number(r.attempt, "attempt", 1, 10000) } : { kind, id };
 }
 export const D5_EVENT_FIELDS: Record<D5ProgressEvent["type"], readonly string[]> = {
+  "opening-advanced": ["step", "choice"],
+  "prologue-advanced": ["shotId"],
+  "prologue-completed": ["shotId", "choice"],
   "supply-purchased": ["shopId", "definitionId", "quantity", "quoteVersion"],
   "memory-inherited": ["runId", "chapterId"],
   "expedition-started": ["runId", "routeId", "partyIds", "itemIds", "progress"],
@@ -34,9 +37,9 @@ export function parseD5ProgressEntry(raw: unknown): D5ProgressEntry {
   v.id(e.id, "entry.id"); v.number(e.revision, "entry.revision", 1);
   const event = v.record(e.event, "event");
   const type = v.choice(event.type, Object.keys(D5_EVENT_FIELDS) as D5ProgressEvent["type"][], "event.type");
-  v.record(event, "event", ["type", ...D5_EVENT_FIELDS[type]]);
+  v.record(event, "event", ["type", ...D5_EVENT_FIELDS[type]], type === "memory-read" ? ["choice"] : []);
   v.choice(e.origin, [d5EventOrigin(type)], "entry.origin");
-  for (const key of ["runId", "routeId", "terminalId", "chapterId", "templateId", "sessionId", "eventId", "basisId", "instanceId"])
+  for (const key of ["runId", "routeId", "terminalId", "chapterId", "templateId", "sessionId", "eventId", "basisId", "instanceId", "shotId"])
     if (key in event) v.id(event[key], key);
   for (const key of ["fromOwnerId", "toOwnerId"])
     if (key in event && event[key] !== null) v.id(event[key], key);
@@ -48,8 +51,11 @@ export function parseD5ProgressEntry(raw: unknown): D5ProgressEntry {
     v.number(event.quantity, "quantity", 1, 4); v.number(event.quoteVersion, "quoteVersion", 1);
   }
   if ("previousAttempt" in event) v.number(event.previousAttempt, "previousAttempt", 1, 9999);
-  if ("step" in event) v.number(event.step, "step", 0, 100);
-  if ("choice" in event) v.choice(event.choice, type === "manor-story" ? ["continue", "skip"] : ["continue", "skip", "later"], "choice");
+  if ("step" in event) v.number(event.step, "step", 0, type === "opening-advanced" ? 512 : 100);
+  if ("choice" in event) v.choice(event.choice,
+    type === "opening-advanced" ? ["continue", "A", "B", "C"] : type === "manor-story" || type === "prologue-completed" ? ["continue", "skip"]
+      : type === "memory-read" ? ["iron", "seasoned", "pragmatic"]
+      : ["continue", "skip", "later", "iron", "seasoned", "pragmatic"], "choice");
   if ("runRef" in event && parseD5RunRef(event.runRef).kind !== "memory") v.invalid("runRef", "Memory event needs a memory reference");
   if (type === "memory-read") v.choice(event.node, ["present-intro", "history-opening", "teaching", "history-complete"], "node");
   if (type === "memory-advanced") v.choice(event.node, ["history-opening", "teaching", "battle", "return-pending"], "node");

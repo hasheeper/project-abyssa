@@ -1,0 +1,23 @@
+/* Reuse the standard dark RpgFrame; only the compact story placement is scene-specific. */
+.story-item-display {
+  position:absolute;
+  z-index:10;
+  left:50%;
+  top:39%;
+  width:224px;
+  height:224px;
+  box-sizing:border-box;
+  transform:translate(-50%,-50%);
+  pointer-events:none;
+  opacity:1;
+  transition:opacity 180ms ease;
+  animation:story-item-appear 180ms ease;
+  --abyssa-shadow:0 14px 24px #0008;
+}
+.story-item-display[data-visible="false"] {opacity:0;}
+.story-item-display .abyssa-frame__content {height:100%;}
+.story-item-display figure {height:100%;margin:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;}
+.story-item-display img {width:152px;height:152px;object-fit:contain;}
+.story-item-display figcaption {color:var(--abyssa-text-soft);font-size:16px;line-height:1.5;letter-spacing:.08em;}
+@keyframes story-item-appear {from{opacity:0}to{opacity:1}}
+@media(prefers-reduced-motion:reduce){.story-item-display {animation:none;transition:none;}}

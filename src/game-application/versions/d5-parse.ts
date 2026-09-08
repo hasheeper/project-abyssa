@@ -5,6 +5,7 @@ import { parseDemoItemTarget } from "../../game-core/session";
 import { parseHead } from "../parse";
 import { parseDemoRequest } from "./demo-parse";
 import type { D5Command, D5Request } from "./d5-contracts";
+import type { D5StoryAdvanceChoice, D5UserChoiceTone } from "../../game-core/session";
 
 export function parseD5Request(raw: unknown, internal = false): D5Request {
   v.assertJson(raw);
@@ -16,7 +17,7 @@ export function parseD5Request(raw: unknown, internal = false): D5Request {
   if (internal && type !== "resume-run" || !internal && type === "resume-run") v.invalid("command.type", "Internal continuation boundary");
   let command: D5Command;
   if (["battle-command", "undo", "resume-run", "retry-memory", "leave-memory", "advance-memory", "read-memory", "use-item"].includes(type)) {
-    v.record(c, "command", ["type", "runRef", ...(type === "battle-command" ? ["command"] : type === "use-item" ? ["instanceId", "target"] : type === "advance-memory" ? ["node", "choice"] : type === "read-memory" ? ["node", "step"] : [])]);
+    v.record(c, "command", ["type", "runRef", ...(type === "battle-command" ? ["command"] : type === "use-item" ? ["instanceId", "target"] : type === "advance-memory" ? ["node", "choice"] : type === "read-memory" ? ["node", "step"] : [])], type === "read-memory" ? ["choice"] : []);
     const runRef = parseD5RunRef(c.runRef);
     if (type === "battle-command") {
       const battle = parseDemoBattleCommand(c.command);
@@ -26,7 +27,7 @@ export function parseD5Request(raw: unknown, internal = false): D5Request {
       command = { type, runRef, instanceId: v.id(c.instanceId, "instanceId"), target: parseDemoItemTarget(c.target) };
     } else if (type === "read-memory") {
       if (runRef.kind !== "memory") v.invalid("runRef", "Expected memory attempt");
-      command = { type, runRef, node: v.choice(c.node, ["present-intro", "history-opening", "teaching", "history-complete"], "node"), step: v.number(c.step, "step", 0, 100) };
+      command = { type, runRef, node: v.choice(c.node, ["present-intro", "history-opening", "teaching", "history-complete"], "node"), step: v.number(c.step, "step", 0, 100), ...(c.choice === undefined ? {} : {choice: v.choice(c.choice, ["iron", "seasoned", "pragmatic"], "choice") as D5UserChoiceTone}) };
     } else if (type === "advance-memory") {
       if (runRef.kind !== "memory") v.invalid("runRef", "Expected memory attempt");
       command = { type, runRef, node: v.choice(c.node, ["history-opening", "teaching", "battle", "return-pending"], "node"), choice: v.choice(c.choice, ["continue", "skip"], "choice") };
@@ -34,6 +35,13 @@ export function parseD5Request(raw: unknown, internal = false): D5Request {
       if (runRef.kind !== "memory") v.invalid("runRef", "Expected memory attempt");
       command = { type, runRef };
     } else command = { type: type as "undo" | "resume-run", runRef };
+  } else if (type === "advance-opening") {
+    v.record(c, "command", ["type", "step", "choice"]);
+    command = {type, step:v.number(c.step,"step",0,512), choice:v.choice(c.choice,["continue","A","B","C"],"choice")};
+  } else if (type === "advance-prologue" || type === "complete-prologue") {
+    v.record(c, "command", ["type", "shotId", ...(type === "complete-prologue" ? ["choice"] : [])]);
+    const shotId = v.id(c.shotId, "shotId");
+    command = type === "advance-prologue" ? {type, shotId} : {type, shotId, choice: v.choice(c.choice, ["continue", "skip"], "choice")};
   } else if (type === "purchase-supply") {
     v.record(c, "command", ["type", "shopId", "definitionId", "quantity", "quoteVersion"]);
     command = {type, shopId: v.id(c.shopId, "shopId"), definitionId: v.id(c.definitionId, "definitionId"), quantity: v.number(c.quantity, "quantity", 1, 4), quoteVersion: v.number(c.quoteVersion, "quoteVersion", 1)};
@@ -46,7 +54,7 @@ export function parseD5Request(raw: unknown, internal = false): D5Request {
   } else if (type === "advance-story" || type === "complete-story") {
     v.record(c, "command", ["type", "sessionId", ...(type === "advance-story" ? ["step", "choice"] : [])]);
     const sessionId = v.id(c.sessionId, "sessionId");
-    command = type === "complete-story" ? { type, sessionId } : { type, sessionId, step: v.number(c.step, "step", 0, 100), choice: v.choice(c.choice, ["continue", "skip", "later"], "choice") };
+    command = type === "complete-story" ? { type, sessionId } : { type, sessionId, step: v.number(c.step, "step", 0, 100), choice: v.choice(c.choice, ["continue", "skip", "later", "iron", "seasoned", "pragmatic"], "choice") as D5StoryAdvanceChoice };
   } else if (type === "equip-equipment" || type === "unequip-equipment") {
     v.record(c, "command", ["type", "instanceId", "ownerId"]);
     command = { type, instanceId: v.id(c.instanceId, "instanceId"), ownerId: v.id(c.ownerId, "ownerId") };

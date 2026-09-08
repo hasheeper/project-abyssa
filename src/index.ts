@@ -287,3 +287,8 @@ export {
 } from "./shared/ui/primitives/VerticalIndicator";
 export type { VerticalIndicatorProps } from "./shared/ui/primitives/VerticalIndicator";
 export type { AbyssaSize, AbyssaVariant, PanelVariant } from "./shared/ui/types";
+
+export { EMOTION_LABELS, EXPRESSION_EMOTIONS, normalizeEmotion } from "./shared/domain/presentation/emotion";
+export type { EmotionId, EmotionCue, CharacterEmotionProfile, EmotionEmoteId, EmotionMotionId } from "./shared/domain/presentation/emotion";
+export { resolveEmotionCue, deriveActorEmotions } from "./shared/ui/patterns/emotion-cues";
+export type { ResolvedEmotion } from "./shared/ui/patterns/emotion-cues";

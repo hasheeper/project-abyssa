@@ -2,14 +2,17 @@
 
 Abyssa 的复古 RPG React 组件库与交互场景仓库。项目从静态视觉原型中提取可复用组件，并用角色状态、战斗、骰局、地图、视觉小说、跑团、商店、洋馆、设置页和制作工具等独立入口验证组合效果。
 
-组件使用原生语义元素、TypeScript 类型和命名空间化 CSS 变量；组件包本身不依赖业务后端。仓库内共有 **18 个 Vite 入口**：1 个组件目录、12 个场景／实验入口和 5 个制作工具。
+组件使用原生语义元素、TypeScript 类型和命名空间化 CSS 变量；组件包本身不依赖业务后端。仓库内共有 **19 个 Vite 入口**：1 个组件目录、13 个场景／实验入口和 5 个制作工具。
 
-当前游戏已经接通同档案的角色、地图出征、庄园初战／维护／回忆、成长装备、基础商店与结算恢复；默认使用规则4／内容3。新档目前仍直接进入菜单，当前先制作CG开场、洋馆介绍和基础教学副本。庄园难度与剧作仍需返工。
+当前游戏已经接通同档案的角色、地图出征、庄园初战／维护／回忆、成长装备、基础商店与结算恢复；默认使用规则4／内容6。新档先播放四幕15图CG，再进入「洋馆的第一个清晨」，早餐至出门合为一幕，默认AVG、可切RP；首晨由JSON主控，120个节点与五组选项可保存和恢复。章节交接后暂回现有洋馆，岩窟教学、回馆兑现和正式音频待补。庄园难度与既有剧作仍需返工。
 
 - [文档统一入口](docs/README.md)
 - [当前机制与完整游戏闭环](docs/GAME_SYSTEMS_AND_CONTENT_SPEC.md)
 - [定稿、完成度与下一步](docs/DESIGN_DECISIONS_AND_CURRENT_STATUS.md)
 - [初章与引导计划](docs/plans/DEMO_PROLOGUE_AND_ONBOARDING_PLAN.md)
+- [序幕CG实施与素材缺口](docs/design/PROLOGUE_CG_IMPLEMENTATION.md)
+- [首晨AVG／RP实施与交接](docs/design/FIRST_MORNING_IMPLEMENTATION.md)
+- [本轮序幕与首晨基线收口](docs/archive/audits/2026-09-09-opening-avg-closeout.md)
 - [运行／构建与工程配置](config/README.md)
 - [历史计划与验收档案](docs/archive/README.md)
 
@@ -101,7 +104,7 @@ Storybook 默认运行在 `http://127.0.0.1:6006/`。
 
 ### 应用预览
 
-仓库共有 18 个 Vite 入口。Title、Menu、Map、Battle、Mansion、Shop 通过 save/epoch 定位同一 IndexedDB 档案；从标题新建或继续即可进入完整远征循环。裸场景链接会引导选择档案。骰局、演出实验和制作工具保持独立用途。
+仓库共有19个Vite入口。Title、Prologue、Menu、Map、Battle、Mansion、Shop通过save/epoch定位同一IndexedDB档案；新建先看序幕，未完成时继续恢复当前镜头。裸场景链接会引导选择档案。骰局、演出实验和制作工具保持独立用途。
 
 | 命令 | 入口 | 当前功能 |
 | --- | --- | --- |
@@ -110,6 +113,7 @@ Storybook 默认运行在 `http://127.0.0.1:6006/`。
 | `npm run dev:dice` | 明暗骰 | 五骰牌型、固定注额下注、公开/私有锁骰、重掷、庄家轮换、筹码结算、3D 骰子和本地对手逻辑 |
 | `npm run dev:map` | 副本地图 | Three.js + GSAP 地图、选点镜头聚焦、凯尔加 1–4 名伙伴、真实库存领用；裂隙远征提交成功后进入 Battle，托管暂未开放 |
 | `npm run dev:title` | 标题画面 | 新建/继续、多档列表、导入/导出与坏档诊断；字标、CG 轮播、三套主题及黑幕转场保留，固定端口 5182 |
+| `node scripts/run-target.mjs dev entry:prologue` | CG序幕 | 四幕15图，逐镜存档；从标题新建进入，独立端口5189 |
 | `npm run dev:menu` | 枢纽主界面 | 四角命令盘（府邸/出征/仓库/商店）、破窗立绘与吐槽、档案侧栏、资源与相位顶栏 |
 | `npm run dev:loading` | 场景交接实验室 | 骰子六面体黑幕、区域抵达标题、真实资源等待，以及淡入与实体面板落入的切换演示 |
 | `npm run dev:mansion` | 洋馆基地 | 剖面图房间交互、角色 ADV、真实资金/库存/远征经历与本地反应；建设、生产和相位推进暂未开放 |
@@ -185,7 +189,7 @@ npm run build:all        # ui / game / lab / tools，输出互相隔离
 npm run preview:game
 npm run release:check:ui
 npm run release:check:game
-npm run build:entries    # 18 个兼容入口的临时构建与产物验证
+npm run build:entries    # 19 个兼容入口的临时构建与产物验证
 npm run check:auxiliary  # 脚本语法及静态分享预览的隔离验证
 ```
 
@@ -308,11 +312,12 @@ export function StatusPage() {
 
 ```text
 src/
-  apps/           catalog + 12 个相互独立的场景／实验入口
+  apps/           catalog + 13 个场景／实验入口
     battle/       裂隙远征规则、表现层与四套 UI 皮肤
     loading/      场景交接视觉实验页
     menu/         守望者之崖枢纽主界面
     title/        标题画面：字标徽记 + 档案层命令 + 双侧 CG 轮播 + 三套主题
+    prologue/     四幕CG序幕：运镜、字幕、阅读、特效与逐镜恢复
     mansion/      洋馆房间、角色 ADV、修缮与设施收益
   tools/          5 个内容制作、标注与参数校准工具
   content/        角色资料、洋馆默认区域等项目实例数据
@@ -330,7 +335,7 @@ dist/             ui / game / lab / tools / entries / storybook / reports
 static-preview/   无构建工具依赖的组件目录预览
 ```
 
-视觉原型统一归档在 `references/`，不参与组件库生产构建。根目录的 18 个 HTML 保留为兼容入口，在 `config/entries.mjs` 登记，由公共工厂构建。旧 `vite --config vite.<name>.config.ts` 调用改用对应 npm 命令；默认 `vite.config.ts` 仍兼容直接运行 Vite。
+视觉原型统一归档在 `references/`，不参与组件库生产构建。根目录的19个HTML在 `config/entries.mjs` 登记，由公共工厂构建。旧 `vite --config vite.<name>.config.ts` 调用改用对应npm命令；默认 `vite.config.ts` 仍兼容直接运行Vite。
 
 ## 素材说明
 

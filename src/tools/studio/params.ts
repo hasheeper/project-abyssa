@@ -1,4 +1,4 @@
-import { EMOTES, EMOTE_PLACEMENT } from "../../shared/ui/patterns/emotes";
+import { EMOTES, EMOTE_PLACEMENT, EMOTE_ADJUST } from "../../shared/ui/patterns/emotes";
 import type { EmoteAdjustTable, EmotePlacement } from "../../shared/ui/patterns/emotes";
 import { CHARACTER_CALIBRATION } from "../../shared/ui/patterns/spriteCalibration";
 import type { SpriteCalibration } from "../../shared/ui/patterns/spriteCalibration";
@@ -57,12 +57,9 @@ export const RANGES = {
 /**
  * 漫符控件范围。
  *
- * 三者都以立绘盒子**宽度**为基准(理由见 emotes.ts 顶部的坐标系说明),
- * 所以数值之间可以直接比较:size 34 配 y -26,意思是「上移约 3/4 个自身高度」。
- *
- * 偏移(adjust)的范围刻意比基准窄一半:它是角色差异的微调量,
- * 给到与基准同宽的话,就可能在偏移里把整个位置重做一遍 ——
- * 那正是两级分开要防的事(见 emotes.ts:「改错了层会有明确后果」)。
+ * size 是立绘宽度百分比；x/y 是漫符自身边长百分比。
+ * 与现行 emote.css 一致；只调整控件范围不会改变已校准数值的解释。
+ * 基准与逐角色偏移保留为独立两级。
  */
 export const EMOTE_RANGES = {
   base: { x: { min: -60, max: 60, step: 0.5 }, y: { min: -80, max: 40, step: 0.5 }, size: { min: 10, max: 80, step: 0.5 } },
@@ -78,8 +75,17 @@ export interface EmoteState {
 export function buildEmoteDefaults(): EmoteState {
   const base: Record<string, EmotePlacement> = {};
   for (const { id } of EMOTES) base[id] = { ...EMOTE_PLACEMENT[id] };
-  // adjust 起始为空对象 —— 稀疏结构,空 = 没调过(见 emotes.ts)。
-  return { base, adjust: {} };
+  // 已回填的逐角色偏移也是默认值，不能在下次打开工作台时丢掉。
+  const adjust = Object.fromEntries(Object.entries(EMOTE_ADJUST).map(([id, entries]) =>
+    [id, Object.fromEntries(Object.entries(entries).map(([emote, value]) => [emote, {...value}]))]));
+  return { base, adjust };
+}
+
+/** Same merged snapshot for calibration controls and emotion preview. */
+export function mergeEmote(emotes: EmoteState, characterId: string, emoteId: string): EmotePlacement {
+  const base = emotes.base[emoteId];
+  const adj = getAdjust(emotes.adjust, characterId, emoteId);
+  return {x: base.x + adj.x, y: base.y + adj.y, size: base.size + adj.size};
 }
 
 /** 某角色 × 漫符是否有非零偏移。空对象与全零都算「没调过」。 */
@@ -277,6 +283,14 @@ export function formatJson(params: ParamMap, emotes?: EmoteState): string {
 /** 解析快照里的漫符块。与 parseSnapshot 同样逐字段校验,理由见那里。 */
 export function parseEmotes(text: string, defaults: EmoteState): EmoteState {
   const raw = JSON.parse(text) as { emotes?: { base?: Record<string, unknown>; adjust?: unknown } };
+  // Old automatically saved, never-calibrated placeholders must not hide the published table.
+  // Any authored base/adjustment makes the snapshot authoritative and is preserved intact.
+  const oldBase = raw?.emotes?.base;
+  const untouched = oldBase && EMOTES.every(({id}) => {
+    const b = oldBase[id] as Partial<EmotePlacement> | undefined;
+    return b?.x === 0 && b.y === -26 && b.size === 34;
+  }) && Object.keys(raw?.emotes?.adjust ?? {}).length === 0;
+  if (!raw?.emotes || untouched) return JSON.parse(JSON.stringify(defaults)) as EmoteState;
   const srcBase = (raw?.emotes?.base ?? {}) as Record<string, Record<string, unknown>>;
   const pick = (v: unknown, fallback: number) => (typeof v === "number" && Number.isFinite(v) ? v : fallback);
 

@@ -10,6 +10,9 @@ export type SceneTransitionPhase = "idle" | "closing" | "closed" | "opening";
 export type SceneRevealMode = "fade" | "panel-drop";
 
 export interface SceneTransitionCopy {
+  /** Narrative handoff: hide loading furniture and optionally carry a local still. */
+  cinematic?: boolean;
+  still?: string;
   /** 目标场景名。只在黑幕期间显示，不承担真实进度。 */
   destination?: string;
   /** 很短的系统分区名，例如 MANOR NETWORK。 */

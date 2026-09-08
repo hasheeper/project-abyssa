@@ -10,7 +10,7 @@ import type { MapLocationId } from "../types";
  * 生成一句手账批注。**不产出难度等级、胜率或期望值** —— 那是设计护栏
  * (「编队即难度」必须让玩家自己从阵容里读出来，不能用数字替他读)。 */
 
-/** 亲征 = 凯尔亲自带队，第五骰锁定；托管 = 四骰出门，凯尔留守。 */
+/** 亲征 = 玩家亲自带队，第五骰锁定；托管 = 四骰出门，玩家留守。 */
 export type SortieCommandMode = "personal" | "delegate";
 
 export const SORTIE_COMMAND_LABELS: Record<SortieCommandMode, string> = {
@@ -18,7 +18,7 @@ export const SORTIE_COMMAND_LABELS: Record<SortieCommandMode, string> = {
   delegate: "托管"
 };
 
-/** 可选槽位数。凯尔的第五席不在其中，由 command 决定有无。 */
+/** 可选槽位数。玩家位的第五席不在其中，由 command 决定有无。 */
 export const SORTIE_SLOT_COUNT = 4;
 
 export type SortieFaction = "hero-party" | "demon-cadre" | "demon-lord";
@@ -64,7 +64,7 @@ export interface SortieMember {
   placeholderNote?: string;
 }
 
-/** 凯尔不占四个可选槽，是第五席的常驻者。 */
+/** 玩家位不占四个可选槽，是第五席的常驻者。 */
 export interface SortieLeader {
   id: "kael";
   name: string;

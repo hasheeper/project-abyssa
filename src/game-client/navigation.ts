@@ -1,7 +1,7 @@
 import type { AnyGameRecord } from "../game-application";
 export type SaveLocator = { saveId: string; epoch: string; expeditionId?: string; memory?: { id: string; attempt: number } };
 // Literal route table is also audited by the entry closure checker.
-export const gamePages = { title: "title.html", menu: "menu.html", map: "map.html", battle: "battle.html", mansion: "mansion.html", shop: "shop.html", "character-status": "character-status.html" } as const;
+export const gamePages = { title: "title.html", prologue: "prologue.html", menu: "menu.html", map: "map.html", battle: "battle.html", mansion: "mansion.html", shop: "shop.html", "character-status": "character-status.html" } as const;
 export type GamePage = keyof typeof gamePages;
 const validId = (value: string | null): value is string => value !== null && /^[A-Za-z0-9][A-Za-z0-9._:/-]{0,191}$/.test(value);
 export function parseLocator(search: string): SaveLocator | null {

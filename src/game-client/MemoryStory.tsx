@@ -8,6 +8,8 @@ import { mariettaMemoryScript } from "../content/presentation/marietta-memory";
 import { clockworkMemoryScript } from "../content/presentation/clockwork-memory";
 import { manorEnemyArt, manorScenes } from "../content/presentation/old-manor";
 import { storyActors, storyMessages, storySlots } from "./story-actors";
+import { choicesByStep, isUserChoice, type UserChoiceTone } from "../content/presentation/authored-story";
+import { StoryChoicePanel } from "./StoryChoicePanel";
 import type { AnyGameRecord } from "../game-application";
 import { useSceneSequenceBusy } from "../shared/presentation/adv/SceneSequence";
 import manorHome from "../assets/backgrounds/manor-night-gallery.jpg";
@@ -59,7 +61,7 @@ export function MemoryStory({record: snapshot}: {record?: AnyGameRecord} = {}) {
   const goHome = () => navigate(gameHref("mansion", {saveId:record.head.saveId,epoch:record.head.epoch}));
   const replay = (node:StoryNode) => {setRecap({node,step:0});setMenu(false);};
   const retry = () => void send({type:"retry-memory",runRef:ref}).then(batch => {if(batch) navigate(gameHref("battle",recordLocator(batch.after)));});
-  const advance = (skip = false) => {
+  const advance = (skip = false, tone?: UserChoiceTone) => {
     if (!script || busy) return;
     if (recap) {
       if(skip || step === script.length-1) setRecap(null);
@@ -67,25 +69,29 @@ export function MemoryStory({record: snapshot}: {record?: AnyGameRecord} = {}) {
     } else if (node === "return-pending") {
       if (!story) {void send({type:"begin-story",eventId:"story.marietta.return",basisId:view.completion!.id});return;}
       if (step === script.length-1) void send({type:"complete-story",sessionId:story.id}).then(batch => {if(batch) goHome();});
-      else void send({type:"advance-story",sessionId:story.id,step,choice:skip ? "skip" : "continue"});
+      else void send({type:"advance-story",sessionId:story.id,step,choice:skip ? "skip" : tone ?? "continue"});
     } else if (node in nextNodes) {
       const current = node as keyof typeof nextNodes;
       if(skip || step === script.length-1) void send({type:"advance-memory",runRef:ref,node:nextNodes[current],choice:skip ? "skip" : "continue"});
-      else void send({type:"read-memory",runRef:ref,node:current,step});
+      else void send({type:"read-memory",runRef:ref,node:current,step,...(tone ? {choice:tone} : {})});
     }
   };
   const historical = ["history-opening","teaching","history-complete"].includes(node);
   const actors = storyActors(script ?? scripts["return-pending"]).map(actor => historical && !clockwork && actor.id === "marietta"
     ? {...actor, portrait: manorEnemyArt["memory.marietta"].url} : actor);
   const terminalText = memory.node === "completed" ? "玛丽埃塔可以加入亲征队伍。" : memory.node === "failed" ? clockwork ? "钟声尚未停下。可以重新挑战刻仪兽；当下物资与时间没有变化。" : "未能突破防线。可以从本尊战起点重新挑战；当下的物资与时间没有变化。" : "回忆暂歇。再次进入时从教学与战斗起点重试。";
-  const messages: RpMessage[] = script ? storyMessages(script.slice(0,step+1)) : [{id:`memory.${memory.node}`,kind:"narration",text:terminalText}];
+  const savedChoices = node === "return-pending" ? story?.choices ?? [] : (memory.choices ?? []).filter(item=>item.node===node).map(({step,tone})=>({step,tone}));
+  const decisions = choicesByStep(savedChoices);
+  if(recap && script) script.forEach((line,index)=>{if(isUserChoice(line) && !decisions.has(index)) (decisions as Map<number,UserChoiceTone>).set(index,"pragmatic");});
+  const current = script?.[step], choice = isUserChoice(current) ? current : null;
+  const messages: RpMessage[] = script ? storyMessages(script.slice(0,step+1),decisions) : [{id:`memory.${memory.node}`,kind:"narration",text:terminalText}];
   const lineKey = `${memory.id}:${memory.attempt}:${node}:${!!recap}:${step}`;
-  const typing = !!script && !recap && revealedLine !== lineKey;
+  const typing = !!script && !choice && !recap && revealedLine !== lineKey;
   const settled = !typing || settledLine === lineKey;
   const needsStory = node === "return-pending" && !story && !recap;
-  const nextLabel = !script ? view.canRetry ? "重新挑战" : "回顾当下对话" : needsStory ? "继续当下对话" : !settled ? "显示全文" : recap && step === script.length-1 ? "结束回顾" : node === "return-pending" && step === script.length-1 ? "确认同行" : step === script.length-1 ? node === "teaching" ? clockwork ? "迎战刻仪兽" : "迎战提线魔女" : "继续" : "下一句";
+  const nextLabel = !script ? view.canRetry ? "重新挑战" : "回顾当下对话" : choice && !recap ? "选择行动" : needsStory ? "继续当下对话" : !settled ? "显示全文" : recap && step === script.length-1 ? "结束回顾" : node === "return-pending" && step === script.length-1 ? "确认同行" : step === script.length-1 ? node === "teaching" ? clockwork ? "迎战刻仪兽" : "迎战提线魔女" : "继续" : "下一句";
   const onGesture = () => {
-    if(busy || menu || rules) return;
+    if(busy || menu || rules || choice && !recap) return;
     if(!script) {if(view.canRetry) retry();else if(view.claim) replay("return-pending");return;}
     if(needsStory) {advance();return;}
     if(!settled) {setRevealedLine(lineKey);return;}
@@ -97,11 +103,12 @@ export function MemoryStory({record: snapshot}: {record?: AnyGameRecord} = {}) {
       if([" ","Enter","ArrowRight"].includes(event.key)) {event.preventDefault();onGesture();}
       if(event.key === "Escape") {event.preventDefault();setMenu(true);}
     }} inert={menu || rules || undefined}>
-      <AdvStage key={`${memory.id}:${memory.attempt}:${node}:${!!recap}`} actors={actors} messages={messages} typing={typing} hydrate initialSlots={storySlots(script ?? scripts["return-pending"])} background={historical ? manorScenes["old-manor.service-corridor"] : manorHome} onTypingEnd={() => setSettledLine(lineKey)}/>
+      <AdvStage key={`${memory.id}:${memory.attempt}:${node}:${!!recap}`} actors={actors} messages={messages} typing={typing} hydrate replay={!!recap} initialSlots={storySlots(script ?? scripts["return-pending"])} background={historical ? manorScenes["old-manor.service-corridor"] : manorHome} onTypingEnd={() => setSettledLine(lineKey)}/>
+      {choice && !recap && <StoryChoicePanel choice={choice} disabled={busy} onChoose={tone=>advance(false,tone)}/>}
     </section>
     <footer className="rp-app__bar" inert={menu || rules || undefined}>
       <div className="rp-app__pager"><span className="rp-app__cell"><span className="rp-app__cell-main">{historical ? clockwork ? "过去 · 钟廊" : "过去 · 魔王城礼仪回廊" : "当下 · 洋馆"}</span><span className="rp-app__cell-label">{recap ? "RECAP" : "MEMORY"}</span></span></div>
-      <button type="button" className="rp-app__cell rp-app__cue" disabled={busy} onClick={onGesture} aria-label={nextLabel}>
+      <button type="button" className="rp-app__cell rp-app__cue" disabled={busy || !!choice && !recap} onClick={onGesture} aria-label={nextLabel}>
         <span className="rp-app__cue-line"><span className="rp-app__cue-word">{Array.from(nextLabel).map((char,index)=><span key={index}>{char}</span>)}</span></span>
       </button>
       <nav className="rp-app__tools" aria-label="演出控制">

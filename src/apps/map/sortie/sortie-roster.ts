@@ -4,6 +4,7 @@ import type { PartyFigureId } from "../../../content/characters/partyFigureCalib
 import { characterProfiles } from "../../../content/characters/profiles";
 import { findDiceLoadout } from "../../../content/characters/diceLoadouts";
 import type { SortieAbsence, SortieFaction, SortieLeader, SortieMember } from "./sortie-model";
+import { DEFAULT_PLAYER_NAME } from "../../../shared/domain/player-identity";
 
 /* ============ 名单适配器 ============
  *
@@ -70,18 +71,18 @@ export const sortieRoster: SortieMember[] = characterProfiles.map((profile) => {
   };
 });
 
-/* 凯尔不在 characterProfiles 里：他是玩家位，没有可供检视的角色档案。
+/* 玩家位不在 characterProfiles 里：没有可供检视的固定角色档案。
    这里只给出击面板需要的最小信息，不构成一份新档案。
    六面骰同样缺席 —— 第五骰的构成表要等他的骰装落进 content 才有。 */
 export const sortieLeader: SortieLeader = {
   id: "kael",
-  name: "凯尔",
-  secondaryName: "KAEL",
-  shortName: "凯尔",
+  name: DEFAULT_PLAYER_NAME,
+  secondaryName: "USER",
+  shortName: DEFAULT_PLAYER_NAME,
   title: "无铭之勇者",
   portraitUrl: kaelPortrait,
   figureUrl: readPartyFigureUrl("kael"),
   faces: [],
   boardingLine: "",
-  stayLine: "这趟我不去，家里留个人。"
+  stayLine: ""
 };

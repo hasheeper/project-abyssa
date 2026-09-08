@@ -281,3 +281,41 @@
 /* ---- 中央推进指引 ----
    无边框纯文字 + ▼ caret:它不是控件,是状态回声(舞台整个是热区,
    这里只是提示语落点)。可点只是顺手。 */
+/* User decision beats stay inside the ADV stage instead of opening a web modal. */
+.story-choice {
+  position: absolute;
+  z-index: 20;
+  left: 50%;
+  bottom: clamp(150px, 18vh, 220px);
+  width: min(820px, calc(100% - 96px));
+  padding: 14px 16px 16px;
+  transform: translateX(-50%);
+  color: #e9e1d1;
+  background: linear-gradient(180deg, rgba(25, 24, 25, .94), rgba(10, 11, 13, .97));
+  border: 1px solid rgba(183, 164, 128, .52);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, .55), inset 0 0 0 1px rgba(255, 255, 255, .035);
+}
+.story-choice::before,
+.story-choice::after { content:""; position:absolute; top:8px; bottom:8px; width:1px; background:rgba(141, 45, 42, .62); }
+.story-choice::before { left:7px; }
+.story-choice::after { right:7px; }
+.story-choice__prompt { margin:0 0 10px; color:#b9ad98; font-size:13px; letter-spacing:.16em; text-align:center; }
+.story-choice__options { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:8px; }
+.story-choice__options button {
+  min-height:58px;
+  padding:9px 12px;
+  color:#ded5c5;
+  text-align:left;
+  background:linear-gradient(180deg, rgba(61, 58, 55, .72), rgba(27, 27, 29, .88));
+  border:1px solid rgba(168, 151, 122, .32);
+  cursor:pointer;
+}
+.story-choice__options button:hover:not(:disabled),
+.story-choice__options button:focus-visible { border-color:rgba(194, 171, 127, .82); background:linear-gradient(180deg, rgba(82, 72, 64, .84), rgba(35, 31, 32, .94)); outline:none; }
+.story-choice__options button:disabled { opacity:.45; cursor:default; }
+.story-choice__options small { display:block; margin-bottom:4px; color:#9d8770; font-size:10px; letter-spacing:.18em; }
+.story-choice__options strong { display:block; font-size:15px; font-weight:500; line-height:1.45; }
+@media (max-width: 760px) {
+  .story-choice { bottom:132px; width:calc(100% - 28px); }
+  .story-choice__options { grid-template-columns:1fr; }
+}

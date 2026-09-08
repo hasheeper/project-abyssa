@@ -34,7 +34,7 @@ export interface SortieQuestPanelProps {
   onClose: () => void;
 }
 
-/* 凯尔没有头像素材（src/assets/characters/avatars/ 只有九人，缺他），
+/* 玩家位没有头像素材（src/assets/characters/avatars/ 只有九名固定角色），
    所以这一格退回立绘，靠 RP 那套逐角色校准取景。
    只取 scale 与 x：校准表的 y 是为「站地」设计的（origin 在脚底），
    这里锚定顶部，套用会把头切掉。 */
@@ -215,7 +215,7 @@ export function SortieQuestPanel({
         </div>
 
         {/* 四个可选槽恒定画出，空位也要占地 —— 玩家得看见还剩几个孔。
-            第五席是凯尔，托管时仍在位但压暗，不是消失。 */}
+            第五席是玩家位，托管时仍在位但压暗，不是消失。 */}
         <ul className="abyssa-sortie-quest__mini">
           {Array.from({ length: SORTIE_SLOT_COUNT }, (_, index) => {
             const member = members[index];
@@ -250,7 +250,7 @@ export function SortieQuestPanel({
             data-leader="true"
             data-enlisted={party.command === "personal" || undefined}
           >
-            {/* 凯尔缺 avatar 素材（src/assets/characters/avatars/ 只有九人），
+            {/* 玩家位缺 avatar 素材（src/assets/characters/avatars/ 只有九名固定角色），
                 所以照片区放立绘并自己取景。框还是同一个 —— 形制统一，
                 只是里面那张图的来源不同。 */}
             <AvatarFrame className="abyssa-sortie-slot__art" data-kind="portrait">

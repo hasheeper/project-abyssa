@@ -119,3 +119,8 @@ export type {
   StatusStat,
   StatusTrait
 } from "./shared/ui/patterns/StatusPanel";
+
+export { EMOTION_LABELS, EXPRESSION_EMOTIONS, normalizeEmotion } from "./shared/domain/presentation/emotion";
+export type { EmotionId, EmotionCue, CharacterEmotionProfile, EmotionEmoteId, EmotionMotionId } from "./shared/domain/presentation/emotion";
+export { resolveEmotionCue, deriveActorEmotions } from "./shared/ui/patterns/emotion-cues";
+export type { ResolvedEmotion } from "./shared/ui/patterns/emotion-cues";

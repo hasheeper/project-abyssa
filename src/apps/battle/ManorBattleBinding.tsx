@@ -52,7 +52,7 @@ export function ManorBattleBinding({reviewing = false, ...props}: ExpeditionBatt
     };
     frame = {assets:storyAssets(manorConclusionDialogue.flat(),atHome ? manorHome : manorScenes["old-manor.banquet-hall"]),id:`ending:${atHome ? "home" : "banquet"}`,kind:"adv",content:<StoryReading
       title="家宴落幕" location={atHome ? "洋馆 · 餐桌" : "克雷格旧庄园 · 宴会厅"} background={atHome ? manorHome : manorScenes["old-manor.banquet-hall"]}
-      lines={lines} cursor={prefix.length+line} busy={game.status !== "ready"} finalLabel={step === 4 ? "完成阅读" : "继续"}
+      lines={lines} replay={!!review} cursor={prefix.length+line} busy={game.status !== "ready"} finalLabel={step === 4 ? "完成阅读" : "继续"}
       onNext={() => {if (line === manorConclusionDialogue[step].length-1) finishStep(false); else if (review) setReview({...review,line:line+1}); else progress.write(stepKey,line+1);}}
       onSkip={() => finishStep(true)}/>};
   } else if (event && reading && !p.busy) {

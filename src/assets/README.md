@@ -11,6 +11,10 @@
 - `emote/`：漫符动画
 - `cg/`：剧情 CG
 
+序幕15图及原PNG／运行WebP映射见 [`cg/prologue/README.md`](cg/prologue/README.md)，对应四幕世界介绍，全部随仓库提供。
+
+首场洋馆背景为 [`backgrounds/mansion-first-morning.webp`](backgrounds/mansion-first-morning.webp)：2026-09-09 用户提供的 `01a081bd-c92e-735e-a782-efc503332f4d.png`，原尺寸2752×1536（接近16:9）。按用户约2MB的要求，Pillow Lanczos等比缩至2048×1143，再以 `cwebp -near_lossless 85 -m 6 -mt -metadata icc` 编码为2,051,550字节（2.05MB）。未裁切、拉伸或加模糊；ICC保留，编码后相对缩图的每色彩通道最大偏差为1/255，窗框／木纹实图对照通过。替代此前4.35MB原尺寸无损版，解码像素数同时减少44.62%。AVG／RP及过场预加载共用此资源；旧1239×848的JPG已由本图替换。
+
 地图角色立绘的原图映射和处理说明见 [`map/party-figures/README.md`](map/party-figures/README.md)。
 
 角色页背景直接复用主菜单的 [`backgrounds/manor-night-gallery.jpg`](backgrounds/manor-night-gallery.jpg)（月下长廊）及其明暗处理。使用场景原图，不包含菜单截图、菜单 DOM 或运行时模糊。

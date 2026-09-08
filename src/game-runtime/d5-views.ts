@@ -71,7 +71,7 @@ export function committedDemoEvents(receipt: AnyReceipt): DemoEvent[] {
 
 /** Authored M04 cues are read-only projections of the first matching committed event per attempt. */
 export function withMemoryDialogue(record: D5GameRecord, events: ReturnType<typeof d5VisibleEvents>) {
-  if (record.contentRef.contentVersion === 3) return events;
+  if (record.contentRef.contentVersion >= 3) return events;
   const run = record.snapshot.run;
   if (run?.kind !== "memory" || !run.battle) return events;
   const enc = run.battle.encounter, boss = enc.memory!.bossId;
@@ -90,7 +90,7 @@ export function withMemoryDialogue(record: D5GameRecord, events: ReturnType<type
     if (event.kind === "damage-applied" && p.targetKind === "enemy" && p.hpAfter === 0) {
       const before = protection(formation);
       formation = formation.filter(id => id !== p.targetId);
-      if (p.targetId !== boss && before > 0 && protection(formation) === 0 && !ending.has(event.id)) {key = "exposed"; text = "凯尔：这次，前面没有侍偶了。";}
+      if (p.targetId !== boss && before > 0 && protection(formation) === 0 && !ending.has(event.id)) {key = "exposed"; text = "前方已失去侍偶护域。";}
     }
     if (!key || seen.has(key)) return [event];
     seen.add(key);

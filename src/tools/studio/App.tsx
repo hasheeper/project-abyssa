@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties, RefObject } from "react";
 import { Emote } from "../../shared/ui/patterns/Emote";
-import { PaperDoll } from "../../shared/ui/patterns/PaperDoll";
 import type { EmotePlacement } from "../../shared/ui/patterns/emotes";
+import { PaperDoll } from "../../shared/ui/patterns/PaperDoll";
 import { NAME_BY_ID } from "./characters";
 import {
   STORAGE_KEY,
@@ -12,7 +12,7 @@ import {
   formatEmotesTs,
   formatJson,
   formatStageCss,
-  getAdjust,
+  mergeEmote,
   isDirty,
   num,
   parseEmotes,
@@ -21,22 +21,11 @@ import {
 } from "./params";
 import type { CharacterParams, EmoteState, ParamMap } from "./params";
 import { StudioSeatPanel } from "./StudioSeatPanel";
+import { EmotionPreview } from "./EmotionPreview";
 import { STUDIO_CROP_LABELS } from "./studio-types";
 import type { StudioCrop, StudioExportTab, StudioSeat, StudioSeatState } from "./studio-types";
-/**
- * 基准 + 偏移,取面板上的实时值。
- *
- * 与 emotes.ts 的 resolveEmotePlacement 算法相同但数据源不同:
- * 那个读源文件里的表(回填后的值),这个读 state(正在调的值)。
- * 预览必须用后者,否则滑块拖动看不到反应。
- */
-function mergeEmote(emotes: EmoteState, characterId: string, emoteId: string): EmotePlacement {
-  const base = emotes.base[emoteId];
-  const adj = getAdjust(emotes.adjust, characterId, emoteId);
-  return { x: base.x + adj.x, y: base.y + adj.y, size: base.size + adj.size };
-}
-
 export function App() {
+  const [emotionPreview, setEmotionPreview] = useState(() => new URLSearchParams(window.location.search).get("mode") === "emotion");
   const defaults = useMemo(buildDefaults, []);
   const [params, setParams] = useState<ParamMap>(() => {
     // localStorage 优先:调半小时的参数不该因为一次刷新丢掉。
@@ -237,6 +226,8 @@ export function App() {
     );
   };
 
+  if (emotionPreview) return <EmotionPreview params={params} emotes={emotes} onClose={() => setEmotionPreview(false)}/>;
+
   return (
     <div className="studio" data-freeze={freeze || undefined}>
       <header className="studio-bar">
@@ -246,6 +237,7 @@ export function App() {
         </div>
 
         <div className="studio-bar__actions">
+          <button type="button" className="studio-btn" onClick={() => setEmotionPreview(true)}>情绪联动</button>
           {/* 取景距离。默认中距离(knee),与 rp 一致。
               近距离/全身用于对照 —— 换取景后 doll-h 的观感会变,
               所以调参数时要在**目标取景**下调,不是随手切着看。 */}

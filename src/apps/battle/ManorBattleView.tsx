@@ -45,7 +45,7 @@ export function ManorBattleView({presentation: p, ...props}: ExpeditionBattleScr
   ], p.busy);
   if (!expedition || !run) return null;
   const memory = !!battle?.encounter.memory;
-  const clockwork = v.contentRef.contentVersion === 3 && v.contentRef.rulesVersion === 4;
+  const clockwork = v.contentRef.contentVersion >= 3 && v.contentRef.rulesVersion === 4;
   const runRef = memory && p.memory?.memory ? {kind: "memory" as const, id: run.id, attempt: p.memory.memory.attempt} : {kind: "expedition" as const, id: run.id};
   const ordinaryRef = {kind: "expedition" as const, id: run.id};
   const eventActorId = v.party.some((m) => m.id === actorId && m.hp > 0)

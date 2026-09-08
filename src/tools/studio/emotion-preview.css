@@ -1,0 +1,12 @@
+.emotion-preview { position: fixed; inset: 0; height: auto; }
+.emotion-preview__stage { position: relative; flex: 1; min-height: 0; }
+.emotion-preview .studio-bar__actions > span { font-size: 12px; color: var(--abyssa-text-muted); }
+.emotion-preview__controls { display: grid; grid-template-columns: 1fr 1fr; flex: none; border-top: 1px solid #3a4444; }
+.emotion-preview__controls section { padding: 12px 22px; min-width: 0; }
+.emotion-preview__controls section + section { border-left: 1px solid #3a4444; }
+.emotion-preview__controls header { display: flex; justify-content: space-between; gap: 12px; }
+.emotion-preview__controls select { font: inherit; font-size: 14px; color: var(--abyssa-text); background: #1d2121; border: 1px solid #3a4444; padding: 5px 10px; }
+.emotion-preview__controls p { color: var(--abyssa-text-muted); font-size: 12px; margin: 8px 0; }
+.emotion-preview__triggers { display: flex; flex-wrap: wrap; gap: 5px; }
+.emotion-preview__triggers button { padding: 5px 10px; letter-spacing: 0; }
+.emotion-preview__controls output { display: block; font-size: 12px; color: var(--abyssa-teal); margin-top: 10px; }

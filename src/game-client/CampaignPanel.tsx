@@ -76,13 +76,13 @@ export function CampaignPanel({report = false, onReviewGrowth}: {report?: boolea
       {last ? <><p>最近远征：第 {last.deepestLayer} 层 · {last.outcome === "wipe" ? "队伍力竭撤回" : last.outcome === "cleared" ? last.routeId === "old-manor.first-clear" ? "家宴落幕，庄园已接管" : "维护委托完成" : "从撤离点返回"} · 已入账 {last.totalGold} 金币</p><p>损失散金 {last.lostLooseGold}G · 损失入袋 {last.lostBankedGold}G</p>{journey?.returnFeedback.map((line,i)=><p key={i}>{line}</p>)}</> : <p>还没有完成的远征。</p>}
       {journey?.takeover && <p>首次接管奖励 {journey.takeover.gold}G 已入账。<a href={gameHref("battle", {saveId: locator.saveId, epoch: locator.epoch, expeditionId: journey.takeover.runId})}>{journey.story?.status === "pending" ? "继续家宴落幕" : "回顾家宴落幕"}</a></p>}
       {onReviewGrowth && <GrowthEvents onReview={onReviewGrowth}/>}
-      {memory && <section aria-label="玛丽埃塔回忆"><h3>{record.contentRef.contentVersion === 3 ? "停下来的钟声" : "王座前的提线魔女"}</h3><p>{memory.claim ? "玛丽埃塔已可加入亲征队伍。" : memory.available ? "从玛丽埃塔的记事进入回忆，完成当下对话后开放亲征。" : "完成庄园首通及家宴落幕后开放。"}</p>
+      {memory && <section aria-label="玛丽埃塔回忆"><h3>{record.contentRef.contentVersion >= 3 ? "停下来的钟声" : "王座前的提线魔女"}</h3><p>{memory.claim ? "玛丽埃塔已可加入亲征队伍。" : memory.available ? "从玛丽埃塔的记事进入回忆，完成当下对话后开放亲征。" : "完成庄园首通及家宴落幕后开放。"}</p>
         {memory.canBegin && <DiceActionButton label={memory.claim ? "重新挑战回忆" : "谈起旧日回廊"} disabled={session.getSnapshot().status !== "ready"} onClick={() => void session.dispatch({type: "begin-memory", chapterId: memory.chapterId}).then(batch => {if (batch) window.location.assign(gameHref("battle", recordLocator(batch.after)));})}/>}
         {memory.memory?.node === "left" && memory.canRetry && <DiceActionButton label="重新进入回忆" onClick={() => void session.dispatch({type: "retry-memory", runRef: {kind: "memory", id: memory.memory!.id, attempt: memory.memory!.attempt}}).then(batch => {if (batch) window.location.assign(gameHref("battle", recordLocator(batch.after)));})}/>}
         {memory.claim && memory.memory?.node === "completed" && <a href={gameHref("battle", {...locator, memory: {id:memory.memory.id, attempt:memory.memory.attempt}})}>回顾回忆与同行</a>}
         {memory.runRef?.kind === "memory" && <a href={gameHref("battle", locator)}>继续回忆</a>}
       </section>}
-      <details><summary>营地配给（{c.supplies.length}/7）</summary>{c.supplies.map(i => <p key={i.instanceId}>{journey?.items.find(d => d.id === i.definitionId)?.name ?? i.definitionId} ×{i.charges}</p>)}<p>{record.schemaVersion === 4 && record.contentRef.contentVersion === 3 ? "食物与药水出发时补满；战术补给按实际余量携带，最多选四种。" : "出发时，所选四种补齐到配给上限。"}</p></details>
+      <details><summary>营地配给（{c.supplies.length}/7）</summary>{c.supplies.map(i => <p key={i.instanceId}>{journey?.items.find(d => d.id === i.definitionId)?.name ?? i.definitionId} ×{i.charges}</p>)}<p>{record.schemaVersion === 4 && record.contentRef.contentVersion >= 3 ? "食物与药水出发时补满；战术补给按实际余量携带，最多选四种。" : "出发时，所选四种补齐到配给上限。"}</p></details>
     </aside>}
   </>;
 }

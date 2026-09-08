@@ -129,6 +129,7 @@ export function RpMessageView({
   mode,
   settled
 }: RpMessageViewProps) {
+  if (message.kind === "stage") return null;
   if (message.kind === "say") {
     const actor = actorById.get(message.actorId);
     const seat = sideByMessage.get(message.id) ?? "left";

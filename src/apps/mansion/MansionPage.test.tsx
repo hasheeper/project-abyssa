@@ -85,20 +85,21 @@ describe("MansionPage", () => {
   it("de-emphasizes only the residents of a hovered room", () => {
     const { container } = render(<MansionPage />);
 
-    const kitchen = screen.getByRole("button", { name: "查看厨房" });
-    const kael = screen.getByRole("button", { name: "与凯尔交谈" });
+    const kitchen = screen.getByRole("button", { name: /查看女仆工作间/ });
+    const marietta = screen.getByRole("button", { name: "与玛丽埃塔交谈" });
     const abyssa = screen.getByRole("button", { name: "与艾比希斯交谈" });
     const worldPan = container.querySelector<HTMLElement>(".mansion-world-pan");
     const initialTransform = worldPan?.style.transform;
 
-    expect(kael).toHaveAttribute("data-room", "kitchen");
+    expect(marietta).toHaveAttribute("data-room", "maid");
     fireEvent.pointerEnter(kitchen);
-    expect(kael).toHaveClass("is-room-muted");
+    expect(marietta).toHaveClass("is-room-muted");
     expect(abyssa).not.toHaveClass("is-room-muted");
     expect(worldPan?.style.transform).toBe(initialTransform);
 
     fireEvent.pointerLeave(kitchen);
-    expect(kael).not.toHaveClass("is-room-muted");
+    expect(marietta).not.toHaveClass("is-room-muted");
+    expect(screen.queryByRole("button", {name:/与凯尔交谈/})).not.toBeInTheDocument();
   });
 
   it("opens the shared ADV presentation and advances it without any gift UI", async () => {

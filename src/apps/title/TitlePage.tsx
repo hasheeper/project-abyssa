@@ -62,7 +62,7 @@ export function TitlePage() {
 function TitlePageContent() {
   const { navigate, isTransitioning } = useSceneTransition();
   const [hint, setHint] = useState("");
-  const archive = useTitleArchive(href => { navigate(href, { destination: "守望者之崖", channel: "正在载入" }); });
+  const archive = useTitleArchive(href => { const opening = new URL(href, window.location.href).pathname.endsWith("/prologue.html"); navigate(href, { destination: opening ? "序幕" : "守望者之崖", channel: "正在载入", cinematic: opening }); });
   const [importFormat, setImportFormat] = useState<"application" | "legacy">("application");
   const [themeId, setThemeId] = useState<TitleThemeId>(DEFAULT_TITLE_THEME);
 
@@ -148,8 +148,10 @@ function TitlePageContent() {
         </main>
 
         <RpgModal open={archive.open} onClose={() => archive.setOpen(false)} title="游戏档案" panelClassName="title-archive game-client-panel">
+          <div><button disabled={archive.busy} onClick={() => void archive.cleanup()}>整理已续接旧档</button>{archive.archivedIds.size > 0 && <button disabled={archive.busy} onClick={() => archive.setShowArchived(!archive.showArchived)}>{archive.showArchived ? "收起已归档" : `已归档（${archive.archivedIds.size}）`}</button>}</div>
           <div className="title-archive__list">{archive.saves.map(save => <article key={save.saveId}>
-            <p>档案 {save.saveId.slice(0, 8)} · {save.status === "ready" ? `第 ${save.clock.day} 天 · ${save.summary.activeExpeditionId ? "远征中" : "在洋馆"}` : "暂不可读取"}</p>
+            <p>{archive.archivedIds.has(save.saveId) ? "已归档 · " : ""}档案 {save.saveId.slice(0, 8)} · {save.status === "ready" ? `第 ${save.clock.day} 天 · ${save.summary.activeExpeditionId ? "远征中" : "在洋馆"}` : "暂不可读取"}</p>
+            {archive.archivedIds.has(save.saveId) && <button disabled={archive.busy} onClick={() => void archive.restore(save.saveId)}>恢复档案 {save.saveId.slice(0, 8)}</button>}
             {save.status === "ready" && <><button disabled={archive.busy} onClick={() => void archive.choose({ saveId: save.saveId, epoch: save.summary.head.epoch })}>载入档案 {save.saveId.slice(0, 8)}</button><button disabled={archive.busy} onClick={() => void archive.exportGame(save.saveId)}>导出存档</button>{save.summary.continuation?.upgrade && <button disabled={archive.busy || !!save.summary.activeExpeditionId} onClick={()=>void archive.continueSave(save,"upgrade")}>复制并续接新内容</button>}{save.summary.continuation?.cycle && <button disabled={archive.busy || !!save.summary.activeExpeditionId} onClick={()=>void archive.continueSave(save,"cycle")}>新周目（仅继承回忆）</button>}</>}
             <button disabled={archive.busy} onClick={() => void archive.exportGame(save.saveId, true)}>导出诊断</button>
           </article>)}</div>

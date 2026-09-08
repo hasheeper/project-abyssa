@@ -113,6 +113,9 @@ describe("D5-B v4 record, archive and durable foundation", () => {
     const memory = { kind: "memory", id: "m", attempt: 1 };
     expect(parseD5Request({ ...base, command: { type: "battle-command", runRef: memory, command: { type: "roll" } } }).command).toMatchObject({ runRef: memory });
     expect(parseD5Request({ ...base, command: { type: "use-item", runRef: memory, instanceId: "memory-supply:potion", target: { kind: "member", id: "kael" } } }).command).toMatchObject({ runRef: memory });
+    expect(parseD5Request({ ...base, command: { type: "read-memory", runRef: memory, node: "present-intro", step: 2, choice: "pragmatic" } }).command).toMatchObject({ choice: "pragmatic" });
+    expect(parseD5Request({ ...base, command: { type: "advance-story", sessionId: "story", step: 3, choice: "seasoned" } }).command).toMatchObject({ choice: "seasoned" });
+    expect(() => parseD5Request({ ...base, command: { type: "advance-story", sessionId: "story", step: 3, choice: "sarcastic" } })).toThrow();
     expect(() => parseD5Request({ ...base, command: { type: "retry-memory", runRef: { kind: "expedition", id: "m" } } })).toThrow();
     expect(() => parseD5Request({ ...base, command: { type: "battle-command", runRef: { kind: "memory", id: "m" }, command: { type: "roll" } } })).toThrow();
     expect(() => parseD5Request({ ...base, command: { type: "resume-run", runRef: memory } })).toThrow();

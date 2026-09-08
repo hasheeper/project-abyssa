@@ -7,7 +7,7 @@
 | 命令 | 页面／用途 | 输出 |
 | --- | --- | --- |
 | `npm run dev` | 组件目录，5173 | — |
-| `npm run dev:game` | 九个游戏页面，5190，标题首页 | `npm run build:game` → `dist/game` |
+| `npm run dev:game` | 十个游戏页面，5190，标题首页 | `npm run build:game` → `dist/game` |
 | `npm run dev:lab` | catalog／loading／novel／rp，5191 | `npm run build:lab` → `dist/lab` |
 | `npm run dev:tools` | 五个制作工具，5192 | `npm run build:tools` → `dist/tools` |
 | `npm run build` | UI 包及类型声明 | `dist/ui` |

@@ -1,5 +1,7 @@
 import { act, cleanup, render, screen } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
+import { StrictMode } from "react";
+import { AdvStage } from "./AdvStage";
 import { SceneSequence, SCENE_SEQUENCE_MS as ms } from "./SceneSequence";
 const advance = async (time:number) => act(async () => {await vi.advanceTimersByTimeAsync(time);});
 afterEach(() => {cleanup(); vi.useRealTimers(); vi.restoreAllMocks();});
@@ -41,4 +43,45 @@ it("waits for the combat presentation queue, and hiding the tab releases both ph
   await advance(1);
   expect(screen.getByText("战后对话")).toBeInTheDocument();
   expect(container.firstChild).toHaveAttribute("data-phase","idle");
+});
+
+it("establishes the background and shared arrival title before mounting the dialogue, after the document curtain", async () => {
+  vi.useFakeTimers();
+  const frame = {id:"morning",kind:"adv" as const,arrival:{background:"arrival-test.webp",eyebrow:"序章 · 守望者之崖",title:"洋馆的第一个清晨"},content:<p>第一句</p>};
+  const {container,rerender}=render(<SceneSequence frame={frame} openingBlocked/>);
+  await advance(5000);
+  expect(container.firstChild).toHaveAttribute("data-phase","prepare");
+  expect(screen.queryByText("第一句")).toBeNull();
+  rerender(<SceneSequence frame={frame}/>);
+  await advance(3001);
+  expect(container.firstChild).toHaveAttribute("data-phase","arrival");
+  expect(container.querySelector(".scene-arrival__title")).toHaveTextContent("洋馆的第一个清晨");
+  expect(screen.queryByText("第一句")).toBeNull();
+  await advance(ms.arrival);
+  expect(container.firstChild).toHaveAttribute("data-phase","in");
+  expect(screen.getByText("第一句")).toBeInTheDocument();
+  await advance(ms.advIn);
+  expect(container.querySelector(".scene-sequence__arrival")).toBeNull();
+  rerender(<SceneSequence frame={{...frame,content:<p>破窗与落地</p>}}/>);
+  expect(container.firstChild).toHaveAttribute("data-phase","idle");
+  expect(screen.getByText("破窗与落地")).toBeInTheDocument();
+});
+
+it("keeps the scene's initial actor settled after its entrance, but permits later re-entry", async () => {
+  vi.useFakeTimers();
+  const actors=[{id:"abyssa",name:"艾比希斯",portrait:"abyssa.png"},{id:"elora",name:"艾洛拉",portrait:"elora.png"}];
+  const frame=(id:string)=>({id:"morning",kind:"adv" as const,content:<AdvStage actors={actors} initialSlots={{left:id}} messages={[]} typing={false}/>});
+  const {container,rerender}=render(<StrictMode><SceneSequence frame={frame("abyssa")}/></StrictMode>);
+  const first=container.querySelector('[data-character="abyssa"]')!;
+  expect(first).toHaveAttribute("data-settled");
+  await advance(0);
+  expect(container.firstChild).toHaveAttribute("data-phase","in");
+  await advance(ms.advIn);
+  expect(container.querySelector('[data-character="abyssa"]')).toBe(first);
+  expect(first).toHaveAttribute("data-settled");
+  rerender(<StrictMode><SceneSequence frame={frame("elora")}/></StrictMode>);
+  expect(container.querySelector('[data-character="elora"]')).not.toHaveAttribute("data-settled");
+  await advance(450);
+  rerender(<StrictMode><SceneSequence frame={frame("abyssa")}/></StrictMode>);
+  expect(container.querySelector('[data-character="abyssa"][data-phase="enter"]')).not.toHaveAttribute("data-settled");
 });

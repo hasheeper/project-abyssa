@@ -120,7 +120,7 @@ export const MANSION_ROOM_DETAILS: Record<string, MansionRoomDetail> = {
   bath: room(
     "BATH",
     "驻在：—",
-    "公用大浴池。魔王的「投放作业」需要凯尔与女仆长联手执行。",
+    "公用大浴池。魔王的「投放作业」至少需要两人配合，免得黑泥趁人不注意溜进排水口。",
     "最边上一条纯黑毛巾没绣字——给那位从不自己洗、但总有人替她准备好的主人。",
     { fund: "public", upgradeCost: 800 }
   ),
@@ -134,14 +134,14 @@ export const MANSION_ROOM_DETAILS: Record<string, MansionRoomDetail> = {
   hall: room(
     "GRAND HALL",
     "驻在：—",
-    "宅邸中庭，壁炉全年不熄。小队白天在这里集合，晚上回村舍——这是凯尔定的规矩：「家里得有个人间烟火的样子」。",
-    "沙发停火线由三个抱枕划定：左归魔王，右归柯萝萝，中间留给凯尔。",
+    "宅邸中庭，壁炉全年不熄。白天的集合与晚间的闲谈大多发生在这里。",
+    "沙发停火线由三个抱枕划定：左归魔王，右归柯萝萝，中间那只谁先坐下算谁的。",
     { level: 2, fund: "public", upgradeCost: 960 }
   ),
   kitchen: room(
     "KITCHEN",
-    "驻在：凯尔（烹饪中）",
-    "凯尔每天从村舍走五分钟过来生火。炊烟一起，全村就知道：开饭时间到了。",
+    "驻在：灶火未熄",
+    "主宅最早醒来的房间。炊烟一起，村舍与主宅便都知道快到开饭时间了。",
     "今日菜单：炖菜、烤饼、草莓布丁×2（一份是柯萝萝的例贡）。",
     {
       level: 2,
@@ -155,14 +155,14 @@ export const MANSION_ROOM_DETAILS: Record<string, MansionRoomDetail> = {
         icon: "meal",
         category: "provisions",
         rarity: "silver",
-        description: "凯尔生火做的炖菜与烤饼。趁热吃，凉了他会念叨一整个相位。"
+        description: "刚出锅的炖菜与烤饼。封进食盒后仍能保温一段路。"
       }
     }
   ),
   dining: room(
     "DINING",
     "驻在：—",
-    "长桌每天坐得满满当当。魔王主位挨着凯尔，柯萝萝离布丁最近。",
+    "长桌每天坐得满满当当。魔王习惯主位，柯萝萝总能找到离布丁最近的椅子。",
     "尤斯缇丝曾提议按礼制重排座次，被全票否决——包括她自己那张弃权票。",
     { fund: "public", upgradeCost: 720 }
   ),
@@ -320,16 +320,16 @@ export const MANSION_ROOM_DETAILS: Record<string, MansionRoomDetail> = {
     }
   ),
   kaelHut: room(
-    "KAEL'S HUT",
-    "驻在：—（本人在主宅厨房）",
-    "老兵自己挑的地皮，亲手盖的石屋。离主宅厨房五分钟，离魔王也是五分钟——都是他算好的。",
-    "屋里最值钱的是那套修补了无数次的厨具。墙上挂着尤斯缇丝重缝的旧斗篷。"
+    "WATCHER'S COTTAGE",
+    "驻在：—",
+    "主宅与村舍之间的旧石屋。到厨房和崖边警戒线都只需五分钟。",
+    "屋里最值钱的是一套修补了无数次的厨具。墙上还挂着尤斯缇丝重缝的旧斗篷。"
   ),
   plaza: room(
     "PLAZA",
     "驻在：尤斯缇丝（生火中）",
     "村子的中心：一堆篝火，一口水井。晚饭后的固定节目是围着火堆听诺玛吹牛，顺便清算今天的开销。",
-    "分工明确：尤斯缇丝生火，柯萝萝取暖，艾洛拉烤棉花糖，凯尔收拾。魔王偶尔会飘过来，把棉花糖全拿走。"
+    "尤斯缇丝负责生火，柯萝萝负责取暖，艾洛拉负责烤棉花糖。至于收拾残局，每晚都得重新抽签。魔王偶尔会飘过来，把棉花糖全拿走。"
   ),
   eustice: room(
     "EUSTICE'S ROOM",
@@ -384,7 +384,7 @@ export interface MansionCharacter {
 }
 
 /**
- * “昼”复现 v8 定稿中的 11 人驻在快照；其余三档是产品演示排布，
+ * “昼”复现 v8 定稿中的驻在快照；其余三档是产品演示排布，
  * 仅在 v8 已确认的家/职掌/公共生活场景之间移动，不作为世界观作息表。
  */
 export const MANSION_CHARACTERS: MansionCharacter[] = [
@@ -456,20 +456,6 @@ export const MANSION_CHARACTERS: MansionCharacter[] = [
       day: "连续四次蔬菜炖肉？这笔餐饮预算，我批了。",
       dusk: "银餐具不是浪费，是行宫应有的体面。",
       night: "今日外务已经结束。"
-    }
-  },
-  {
-    id: "kael",
-    name: "凯尔",
-    secondaryName: "KAEL",
-    role: "静谧之楔 · 勇者",
-    faction: "party",
-    schedule: { dawn: "kitchen", day: "kitchen", dusk: "plaza", night: "kaelHut" },
-    lines: {
-      dawn: "灶火正好。等炊烟升起来，大家就知道该吃饭了。",
-      day: "炖菜还差最后一点盐。",
-      dusk: "火堆交给尤斯缇丝，我来收拾剩下的。",
-      night: "门外安静。今天也算平安过去了。"
     }
   },
   {

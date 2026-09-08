@@ -1,9 +1,12 @@
+import type { AuthoredLine } from "./authored-story";
+import { PLAYER_NAME_TOKEN } from "../../shared/domain/player-identity";
+
 /** Five committed checkpoints remain unchanged. Sub-lines only stage the existing ending. */
-export const manorConclusionDialogue: import("./marietta-memory").AuthoredLine[][] = [
+export const manorConclusionDialogue: AuthoredLine[][] = [
   [
     {id:"manor.end.0.0",text:"一路拆下的红线再也没有接回来。桌边的白布垂落不动，只有末席的少女还悬在半空。"},
-    {id:"manor.end.0.1",characterId:"eustice",expression:"g",text:"凯尔，去吧。门口我守着……别再让她吊在那里了。"},
-    {id:"manor.end.0.2",characterId:"kael",text:"好。玛丽埃塔，过来接她。我来断线。"},
+    {id:"manor.end.0.1",characterId:"eustice",expression:"g",text:"队长，去吧。门口我守着……别再让她吊在那里了。"},
+    {id:"manor.end.0.2",kind:"action",text:`${PLAYER_NAME_TOKEN}放低剑身，示意玛丽埃塔上前接住少女。`},
   ],
   [
     {id:"manor.end.1.0",text:"红线一根根断开。裙边的银餐刀碎成细灰，少女被扯开的双臂终于垂了下来。"},
@@ -20,7 +23,7 @@ export const manorConclusionDialogue: import("./marietta-memory").AuthoredLine[]
   ],
   [
     {id:"manor.end.4.0",text:"回到洋馆，玛丽埃塔先洗净双手，又把布丁和茶端上了桌。轮到她自己时，椅子却还推在桌下。"},
-    {id:"manor.end.4.1",characterId:"kael",text:"你的茶呢？坐下，我去拿。"},
+    {id:"manor.end.4.1",kind:"action",text:`${PLAYER_NAME_TOKEN}拉开她的椅子，又从茶具旁取来一只空杯。`},
     {id:"manor.end.4.2",characterId:"marietta",expression:"a",text:"已经备好了。勇者大人，请替我拉一下椅子。"},
   ],
 ];
@@ -28,8 +31,8 @@ export const manorConclusionDialogue: import("./marietta-memory").AuthoredLine[]
 /** Marietta arrives in the authored ending; expedition companions must actually have come along. */
 export function manorConclusionForParty(partyIds: readonly string[]) {
   return manorConclusionDialogue.map(lines => lines.map(line => {
-    if (line.characterId === "eustice" && !partyIds.includes("eustice")) return {id:line.id,text:"凯尔回头看了一眼。来时的门没有再合上，他这才走向桌边。"};
-    if (line.characterId === "elora" && !partyIds.includes("elora")) return {id:line.id,text:"少女垂着头，长发遮住了脸。凯尔放低剑尖，没有再碰她。"};
+    if ("characterId" in line && line.characterId === "eustice" && !partyIds.includes("eustice")) return {id:line.id,text:`${PLAYER_NAME_TOKEN}回头确认来时的门没有再合上，这才走向桌边。`};
+    if ("characterId" in line && line.characterId === "elora" && !partyIds.includes("elora")) return {id:line.id,text:`少女垂着头，长发遮住了脸。${PLAYER_NAME_TOKEN}放低剑尖，没有再碰她。`};
     return line;
   }));
 }

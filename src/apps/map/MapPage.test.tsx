@@ -200,7 +200,7 @@ describe("map sortie", () => {
     const stage = partyStage(container);
 
     await user.click(
-      within(stage).getByRole("button", { name: "凯尔，点击调整队伍" })
+      within(stage).getByRole("button", { name: "你，点击调整队伍" })
     );
     expect(viewport(container)).toHaveAttribute("data-mode", "team");
     expect(screen.getByRole("region", { name: "出战名单" })).toBeInTheDocument();
@@ -249,7 +249,7 @@ describe("map sortie", () => {
 
   it("keeps the leader enlisted and disables delegated sorties", async () => {
     const user = userEvent.setup(); render(<MapPage />); await openTeam(user);
-    const leader = screen.getByRole("button", { name: /凯尔亲征/ });
+    const leader = screen.getByRole("button", { name: /你亲征/ });
     expect(leader).toBeDisabled();
     await user.click(leader);
     expect(leader).toHaveAttribute("aria-pressed", "true");

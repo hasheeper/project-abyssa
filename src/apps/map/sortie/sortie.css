@@ -67,7 +67,7 @@
   /* 出战名册的槽位。5*68 + 4*8 = 372 < 侧板内容宽 380。
      高 72 而不是 80：头像素材是 1:1，格子越接近方形裁得越少
      （1:1.06 每侧只裁 2.8%，1:1.18 要裁 7.5%）。
-     zoom 只作用于凯尔那一格（他缺 avatar，退回立绘）。 */
+     zoom 只作用于玩家位那一格（缺 avatar，退回立绘）。 */
   --sortie-slot-w: 68px;
   --sortie-slot-h: 72px;
   --sortie-slot-zoom: 2;
@@ -255,7 +255,7 @@
 }
 
 /* 地图态尺寸保留层次，横坐标则由真实出战顺序计算。空槽不参与队形，
-   所以一人 + 凯尔会占第 0/1 位，而不是物理槽 0/4。 */
+   所以一人 + 玩家位会占第 0/1 位，而不是物理槽 0/4。 */
 .abyssa-sortie-stage[data-mode="map"] .abyssa-sortie-stage__slot[data-lineup-index] {
   left: var(--sortie-map-left);
 }
@@ -267,7 +267,7 @@
 .abyssa-sortie-stage[data-mode="map"] .abyssa-sortie-stage__slot:nth-child(5) { z-index: 2; width: 132px; height: 206px; }
 
 /* 配队态站位：人物放大后收紧为一组，命中盒最多只叠 5px；中间靠前，
-   凯尔略高略远，保留清楚的队伍层次。 */
+   玩家位略高略远，保留清楚的队伍层次。 */
 .abyssa-sortie-stage[data-mode="team"] .abyssa-sortie-stage__slot:nth-child(1) { left: 20px; z-index: 3; width: 170px; height: 285px; }
 .abyssa-sortie-stage[data-mode="team"] .abyssa-sortie-stage__slot:nth-child(2) { left: 185px; z-index: 4; width: 170px; height: 305px; }
 .abyssa-sortie-stage[data-mode="team"] .abyssa-sortie-stage__slot:nth-child(3) { left: 350px; z-index: 5; width: 180px; height: 320px; }
@@ -291,7 +291,7 @@
   pointer-events: none;
 }
 
-/* 普通地图态仍在左边缘露一点凯尔，提示当前由他留守。 */
+/* 普通地图态仍在左边缘露一点玩家位，提示当前由玩家留守。 */
 .abyssa-sortie-stage[data-mode="map"]
   .abyssa-sortie-stage__slot[data-leader][data-stowed] {
   left: -88px;
@@ -300,7 +300,7 @@
 }
 
 /* 预备出征只展示实际上阵的人。必须同时停掉 muster-in：它的最终关键帧
-   会把普通规则里的 opacity:0 动画回 1，这正是灰色凯尔仍在前台的原因。 */
+   会把普通规则里的 opacity:0 动画回 1，这正是灰色玩家位仍在前台的原因。 */
 .abyssa-sortie-stage[data-mode="pop"]
   .abyssa-sortie-stage__slot[data-leader][data-stowed] {
   visibility: hidden;
@@ -417,7 +417,7 @@
   opacity: 0.55;
 }
 
-/* 托管：凯尔还在台上，但退到暗处 —— 他没走，只是不上车。 */
+/* 托管：玩家位还在台上，但退到暗处，只是不出征。 */
 .abyssa-sortie-figure[data-leader="true"]:not([data-enlisted]) .abyssa-sortie-figure__art {
   filter: grayscale(0.85) brightness(0.5);
 }
@@ -546,10 +546,9 @@
 .abyssa-sortie-roster > .abyssa-frame__ornaments [data-corner="bl"]::after { bottom: 4px; left: 4px; border-width: 0 0 1px 1px; }
 .abyssa-sortie-roster > .abyssa-frame__ornaments [data-corner="br"]::after { right: 4px; bottom: 4px; border-width: 0 1px 1px 0; }
 
-/* 选择器必须带上 [data-padding]：foundation 的
-   `.abyssa-frame[data-padding="none"] > .abyssa-frame__content { padding: 0 }`
-   是 0-3-0，不带属性选择器的 0-2-0 会被它压掉 —— padding 静默失效。 */
-.abyssa-sortie-roster[data-padding] > .abyssa-frame__content {
+/* 同时带上组件类和 [data-padding]，权重0-4-0高于foundation的0-3-0。
+   跨页共享CSS可能后加载，不能依赖相同权重下的文件顺序保住间距。 */
+.abyssa-frame.abyssa-sortie-roster[data-padding] > .abyssa-frame__content {
   display: grid;
   height: 100%;
   padding: var(--sortie-roster-pad-top) var(--sortie-roster-pad-x) var(--sortie-roster-pad-bottom);
@@ -1249,7 +1248,7 @@
   width: var(--sortie-quest-w);
 }
 
-.abyssa-sortie-quest[data-padding] > .abyssa-frame__content {
+.abyssa-frame.abyssa-sortie-quest[data-padding] > .abyssa-frame__content {
   display: flex;
   height: 100%;
   padding: var(--sortie-pad);
@@ -1589,7 +1588,7 @@
   gap: 10px;
 }
 
-/* 点位副本面板的出战名册。五个槽恒定画出（四个可选 + 凯尔第五席），
+/* 点位副本面板的出战名册。五个槽恒定画出（四个可选 + 玩家第五席），
    空位也占地 —— 玩家得看见还剩几个孔，这与骰装页「挂坠空位也显示」同理。
    5*68 + 4*8 = 372，落在侧板内容宽 380 之内。 */
 .abyssa-sortie-quest__mini {
@@ -1625,7 +1624,7 @@
 
 .abyssa-sortie-slot__art .abyssa-avatar__photo { background: #100b07; }
 
-/* 凯尔那格放的是全身立绘，自己取景（width/transform 行内注入）。 */
+/* 玩家位放的是全身立绘，单独取景（width/transform 行内注入）。 */
 .abyssa-sortie-slot__art[data-kind="portrait"] .abyssa-avatar__photo img {
   position: absolute;
   top: -10px;
@@ -1698,7 +1697,7 @@
   --abyssa-avatar-ornament: rgb(181 160 129 / 52%);
 }
 
-/* 托管：凯尔留守，压暗但仍在位。 */
+/* 托管：玩家留守，压暗但仍在位。 */
 .abyssa-sortie-slot[data-leader="true"]:not([data-enlisted]) .abyssa-avatar__photo img {
   filter: grayscale(0.85) brightness(0.46);
 }

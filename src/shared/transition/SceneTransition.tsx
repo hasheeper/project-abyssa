@@ -19,6 +19,8 @@ export function SceneTransition({
   phase,
   destination = "守望者之崖",
   channel = "正在前往",
+  cinematic = false,
+  still,
   className
 }: SceneTransitionProps) {
   const active = phase !== "idle";
@@ -29,11 +31,13 @@ export function SceneTransition({
       <div
         className={rootClass}
         data-phase={phase}
+        data-cinematic={cinematic || undefined}
         data-active={active || undefined}
         aria-hidden="true"
       >
         <div className="scene-transition__veil" />
-        <div className="scene-transition__content">
+        {cinematic && still && <img className="scene-transition__still" src={still} alt=""/>}
+        {!cinematic && <div className="scene-transition__content">
           <RpgFrame
             className="scene-transition__plaque"
             variant="dark"
@@ -75,7 +79,7 @@ export function SceneTransition({
               </div>
             </div>
           </RpgFrame>
-        </div>
+        </div>}
       </div>
 
       {active && (

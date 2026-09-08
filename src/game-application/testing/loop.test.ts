@@ -2,6 +2,7 @@ import { setImmediate } from "node:timers/promises";
 import { beforeAll, expect, it } from "vitest";
 import { mkdirSync, writeFileSync, readFileSync } from "node:fs";
 import { LOOP_CATALOG } from "../../game-runtime/loop-context";
+import { FIRST_MORNING_CATALOG } from "../../game-runtime/first-morning-context";
 import { createPlayerRuntime } from "../../game-runtime/player-runtime";
 import { MemoryGameDatabase, MemoryGameStore } from "../../game-infrastructure/storage/memory";
 import { createD5Application } from "../versions/d5-service";
@@ -189,6 +190,7 @@ it("creates a fresh cycle with only memory proof; fresh v3 upgrades retain their
   expect((await f.runtime.application.create({protocolVersion:3,saveId:"old",epoch:"old-epoch",clientRequestId:"old",profileId:catalog.data.journey!.defaultProfileId})).ok).toBe(true);
   const old=await f.runtime.application.open("old");if(!old.ok)throw Error("old");
   expect((await f.runtime.application.continueSave({sourceSaveId:"old",expectedSourceHead:old.record.head,saveId:"upgrade",epoch:"upgrade-epoch",clientRequestId:"upgrade",kind:"upgrade"})).ok).toBe(true);
-  expect((await f.read("upgrade")).contentRef).toEqual(catalog.ref);
+  expect((await f.read("upgrade")).contentRef).toEqual(FIRST_MORNING_CATALOG.ref);
+  expect((await f.read("upgrade")).snapshot.campaign.prologue?.status).toBe("skipped");
   expect((await f.runtime.application.open("old"))).toMatchObject({ok:true,record:{schemaVersion:3}});
 },60000);

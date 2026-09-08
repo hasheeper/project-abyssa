@@ -30,10 +30,12 @@ export type D5Definitions = {
 };
 export type D5Catalog = Omit<DemoCatalog, "rulesVersion" | "contentVersion"> & {
   rulesVersion: 4;
-  contentVersion: 2 | 3;
+  contentVersion: 2 | 3 | 4 | 5 | 6;
   progression: D5Definitions;
   combat: D5CombatDefinitions;
   economy?: { shopId: "shop.mansion"; quoteVersion: 1; freeItemIds: string[]; prices: Record<string, number> };
+  opening?: {id: "opening.first-morning"; lastStep: number; choiceSteps: number[]; choiceOptions?: Record<string, ("A"|"B"|"C")[]>};
+  prologue?: { id: "prologue.first-morning"; shotIds: string[] };
 };
 export type D5CombatDefinitions = {
   mariettaCovenant: { id: "covenant.marietta"; pattern: "broad-full-house"; budgets: [1, 2] };
@@ -41,7 +43,7 @@ export type D5CombatDefinitions = {
 };
 export type D5CatalogRef = Omit<DemoCatalogRef, "rulesVersion" | "contentVersion"> & {
   rulesVersion: 4;
-  contentVersion: 2 | 3;
+  contentVersion: 2 | 3 | 4 | 5 | 6;
 };
 export type ValidatedD5Catalog = {
   readonly data: D5Catalog;

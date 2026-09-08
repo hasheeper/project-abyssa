@@ -7,6 +7,7 @@ import mariettaAvatar from "../../assets/characters/avatars/marietta.png";
 import normaAvatar from "../../assets/characters/avatars/norma.png";
 import vivienneAvatar from "../../assets/characters/avatars/vivienne.png";
 import type { RpActor, RpMessage } from "../../shared/ui/patterns/RpScene";
+import { CHARACTER_EMOTION_PROFILES } from "../../content/presentation/character-emotions";
 
 /** 一幕:自带名册的一段演出。
     名册跟着幕走 —— 第二幕在魔王城,登场的是另一批人。 */
@@ -323,6 +324,6 @@ const ACT_TWO_MESSAGES: RpMessage[] = [
 
 /** 全部幕。幕序即数组序。 */
 export const SCENES: RpSceneData[] = [
-  { id: "act-1", title: "月末的长桌", actors: ACT_ONE_ACTORS, messages: ACT_ONE_MESSAGES },
-  { id: "act-2", title: "申时的厨房动线", actors: ACT_TWO_ACTORS, messages: ACT_TWO_MESSAGES }
+  { id: "act-1", title: "月末的长桌", actors: ACT_ONE_ACTORS.map(actor => ({...actor, emotionProfile: CHARACTER_EMOTION_PROFILES[actor.id]})), messages: ACT_ONE_MESSAGES },
+  { id: "act-2", title: "申时的厨房动线", actors: ACT_TWO_ACTORS.map(actor => ({...actor, emotionProfile: CHARACTER_EMOTION_PROFILES[actor.id]})), messages: ACT_TWO_MESSAGES }
 ];

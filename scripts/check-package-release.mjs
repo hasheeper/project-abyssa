@@ -9,9 +9,10 @@ const packageJson = JSON.parse(
 );
 
 const entrypoints = {
-  index: 103,
+  // Includes the five shared emotion-cue exports added to index and patterns.
+  index: 108,
   branding: 14,
-  patterns: 32,
+  patterns: 37,
   primitives: 57
 };
 const requiredAssets = [

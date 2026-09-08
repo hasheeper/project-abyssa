@@ -21,17 +21,11 @@
  * 会让其余九人一起歪;把漫符构图问题补在偏移上,就得给十个角色各补一遍。
  * 这与 spriteCalibration(画布级)/ rp.css(舞台级)的分工是同一个道理。
  *
- * ============ 坐标系 ============
- * 原点是**立绘盒子的顶部中心**,不是席位框 —— 立绘盒子的宽高由取景比例
- * 决定、与席位尺寸解耦,所以同一组数值换取景、换视口都成立。
- *   x     水平偏移,正 = 右移。相对立绘盒子宽度。
- *   y     垂直偏移,正 = 下移。相对立绘盒子宽度(**不是高度**,见下)。
- *   size  漫符边长,相对立绘盒子宽度。
- *
- * y 也用宽度作基准,是因为立绘盒子是竖长方形(knee 取景 704:1178)。
- * 若 y 用高度、size 用宽度,那么「把漫符往上挪一个自身高度」在两个取景下
- * 得到的像素量不同 —— 调好的值换取景就散了。统一用宽度,x/y/size
- * 三者同基准,数值之间可以直接加减。
+ * ============ 坐标系（沿用工作台现行 CSS，不重解释既有校准） ============
+ * 原点为立绘盒子的顶部中心。size 是立绘宽度百分比；x/y 是漫符
+ * 自身边长百分比（CSS translate 的参照），不是立绘宽度百分比。
+ * 最终边长 S = 立绘宽 × size/100；左上角 = (立绘宽/2 + S×(x-50)/100, S×y/100)。
+ * 基准与角色增量先相加，再交给 Emote 渲染。左右席位不翻转或另加偏移。
  */
 
 export interface EmotePlacement {
@@ -49,7 +43,7 @@ export interface EmoteDef {
 }
 
 /**
- * 十三个漫符。顺序按语义分组(情绪 → 状态 → 符号),不是字母序 ——
+ * 十五个漫符。顺序按语义分组(情绪 → 状态 → 符号),不是字母序 ——
  * 面板上是一排按钮,相近的情绪挨着放才好找。
  */
 export const EMOTES: EmoteDef[] = [
@@ -78,39 +72,25 @@ export const EMOTE_LABELS: Record<string, string> = Object.fromEntries(
   EMOTES.map((e) => [e.id, e.label])
 );
 
-/**
- * 逐漫符基准位置。
- *
- * ============ 当前全部是同一组起始值,尚未逐个校准 ============
- * 这十三个数值现在是统一的 { x: 0, y: -26, size: 34 },意思是
- * 「边长 34% 立绘宽、悬在头顶上方」。它是一个**能显示出来的起点**,
- * 不是校准结果 —— 各漫符画布内的构图差异还没有反映进来。
- *
- * 之所以不预先猜出十三组不同的值:那会是凭空编造的精度。
- * 一组明显统一的数值能让人一眼看出「这里还没调」,
- * 十三组似是而非的数值反而会让人以为已经调过了。
- *
- * 校准方式:npm run dev:studio,选角色 → 选漫符 → 拖三个滑块,
- * 面板会分列「基准」与「逐角色偏移」两组,调完从导出弹窗取表体回填。
- */
+/** 用户于 2026-09-08 从工作台重新校准并提供；基准与偏移必须一起更新。 */
 const START: EmotePlacement = { x: 0, y: -26, size: 34 };
 
 export const EMOTE_PLACEMENT: Record<string, EmotePlacement> = {
-  blush: { ...START },
-  heart: { ...START },
-  glitter: { ...START },
-  sparkle: { ...START },
-  note: { ...START },
-  sweat: { ...START },
-  sweatdrop: { ...START },
-  anger: { ...START },
-  gloom: { ...START },
-  sleepy: { ...START },
-  dizzy: { ...START },
-  exclaim: { ...START },
-  question: { ...START },
-  idea: { ...START },
-  ellipsis: { ...START }
+  blush:      { x: -24.5,   y: 39,      size: 31.5 },   // 害羞
+  heart:      { x: 57,      y: 18.5,    size: 35.5 },   // 爱心
+  glitter:    { x: -18,     y: 38.5,    size: 33.5 },   // 闪耀
+  sparkle:    { x: -45,     y: 40,      size: 20 },   // 星光
+  note:       { x: 14.5,    y: -16,     size: 61.5 },   // 音符
+  sweat:      { x: 22,      y: 40,      size: 33 },   // 冷汗
+  sweatdrop:  { x: 42,      y: 31,      size: 34 },   // 流汗
+  anger:      { x: -40.5,   y: 30.5,    size: 34 },   // 愤怒
+  gloom:      { x: 32,      y: 37,      size: 34 },   // 沮丧
+  sleepy:     { x: -22.5,   y: 16,      size: 59.5 },   // 困倦
+  dizzy:      { x: -54,     y: 40,      size: 23.5 },   // 晕眩
+  exclaim:    { x: 60,      y: 40,      size: 24 },   // 惊讶
+  question:   { x: 60,      y: 22.5,    size: 25 },   // 疑问
+  idea:       { x: 48.5,    y: 1.5,     size: 31.5 },   // 灵光
+  ellipsis:   { x: -42,     y: 40,      size: 32.5 },   // 无言
 };
 
 /**
@@ -121,12 +101,158 @@ export const EMOTE_PLACEMENT: Record<string, EmotePlacement> = {
  *   ② 之后调整某个漫符的基准(比如整体抬高),十个角色的偏移仍然有效,
  *      不需要逐个跟着改。存最终值的话基准就成了死数据。
  *
- * 稀疏结构:只写调过的组合。10 × 13 = 130 个组合全列出来的话,
- * 表会有 130 行而其中大部分是零,真正调过的那几行反而找不到。
+ * 稀疏结构:只写调过的组合。10 × 15 = 150 个组合全列出来的话,
+ * 表会有 150 行而其中大部分是零,真正调过的那几行反而找不到。
  */
 export type EmoteAdjustTable = Record<string, Record<string, Partial<EmotePlacement>>>;
 
-export const EMOTE_ADJUST: EmoteAdjustTable = {};
+export const EMOTE_ADJUST: EmoteAdjustTable = {
+  abyssa: {
+    blush:      { x: 0.5, y: 6, size: 3.5 },
+    sparkle:    { x: -20.5, y: 30 },
+    sweat:      { y: 20 },
+    sweatdrop:  { y: 1 },
+    anger:      { y: 16.5 },
+    dizzy:      { y: 30 },
+    exclaim:    { x: 20.5, y: 16 },
+    question:   { x: 10, y: 30 },
+    idea:       { x: 9, y: 30 },
+    ellipsis:   { y: 14 }
+  },
+  alvitr: {
+    blush:      { x: -9, y: 13.5 },
+    glitter:    { x: -16, y: 4, size: -3 },
+    sparkle:    { x: -26.5, y: 26.5 },
+    note:       { y: 9.5 },
+    sweatdrop:  { y: -3.5 },
+    gloom:      { y: -17 },
+    dizzy:      { y: 6 },
+    question:   { y: 14.5 }
+  },
+  elora: {
+    blush:      { x: -2, y: 30 },
+    heart:      { y: 27.5 },
+    glitter:    { x: -10.5, y: 18 },
+    sparkle:    { x: -24.5, y: 30 },
+    note:       { y: 23 },
+    sweat:      { y: 30 },
+    sweatdrop:  { y: 25 },
+    anger:      { x: 3.5, y: 30 },
+    gloom:      { y: 17 },
+    sleepy:     { y: 13 },
+    dizzy:      { x: -6, y: 30 },
+    exclaim:    { x: 20, y: 30 },
+    question:   { x: 13, y: 30 },
+    idea:       { x: 9, y: 30 },
+    ellipsis:   { x: -5, y: 30 }
+  },
+  eustice: {
+    blush:      { x: -14.5 },
+    heart:      { y: -15.5 },
+    glitter:    { x: -17, y: -18 },
+    sparkle:    { x: -30, y: -1.5 },
+    sweat:      { y: -16 },
+    sweatdrop:  { y: -23 },
+    anger:      { x: -15, y: -14 },
+    gloom:      { x: -5.5, y: -30 },
+    sleepy:     { y: -27.5 },
+    dizzy:      { x: -9, y: -17 },
+    exclaim:    { y: -24 },
+    question:   { x: -5.5, y: -6.5 },
+    idea:       { x: -3.5, y: -10.5 },
+    ellipsis:   { x: -6.5, y: -14.5 }
+  },
+  kororo: {
+    blush:      { x: -4, y: 30 },
+    heart:      { y: 30 },
+    glitter:    { x: -11.5, y: 21.5 },
+    sparkle:    { x: -27.5, y: 30 },
+    note:       { y: 22 },
+    sweat:      { y: 30 },
+    sweatdrop:  { y: 25.5 },
+    anger:      { x: -2, y: 28 },
+    gloom:      { x: 4.5, y: 11.5 },
+    sleepy:     { y: -3 },
+    dizzy:      { x: -5.5, y: 30 },
+    exclaim:    { x: 18.5, y: 30 },
+    question:   { x: 30, y: 30 },
+    idea:       { x: 13.5, y: 30 },
+    ellipsis:   { y: 30 }
+  },
+  lenore: {
+    blush:      { x: -17, y: 20 },
+    heart:      { y: 10 },
+    glitter:    { x: -24.5, y: 14.5 },
+    sparkle:    { x: -25, y: 30 },
+    note:       { y: 20.5 },
+    sweat:      { y: 15 },
+    sweatdrop:  { y: 20 },
+    anger:      { x: -11.5, y: 17 },
+    gloom:      { y: -11.5 },
+    sleepy:     { y: -6.5 },
+    dizzy:      { x: -17.5, y: 30 },
+    question:   { x: 16.5, y: 19.5 },
+    idea:       { x: -8.5, y: 13.5 },
+    ellipsis:   { x: -12, y: 1 }
+  },
+  marietta: {
+    blush:      { x: -14 },
+    glitter:    { x: -14, y: -22 },
+    sparkle:    { x: -30, y: 1.5 },
+    anger:      { y: -5.5 },
+    gloom:      { y: -29.5 },
+    sleepy:     { y: -24 },
+    dizzy:      { x: -5, y: -8.5 },
+    exclaim:    { y: -21 },
+    question:   { x: 13, y: 4 },
+    idea:       { x: 8, y: -11 },
+    ellipsis:   { x: -2, y: -17 }
+  },
+  norma: {
+    blush:      { x: -16, y: 30 },
+    heart:      { y: 19 },
+    glitter:    { x: -27, y: 23.5, size: -3.5 },
+    sparkle:    { x: -30, y: 30 },
+    note:       { y: 22 },
+    sweat:      { y: 15.5 },
+    sweatdrop:  { y: 18.5 },
+    anger:      { x: -7.5, y: 23 },
+    gloom:      { y: -7.5 },
+    sleepy:     { y: -9 },
+    dizzy:      { x: -5, y: 30 },
+    exclaim:    { y: 13.5 },
+    question:   { x: 21, y: 21 },
+    idea:       { x: -6.5, y: 18 },
+    ellipsis:   { x: -8.5, y: 15 }
+  },
+  tibby: {
+    blush:      { x: -3, y: 16.5 },
+    heart:      { y: 11.5 },
+    glitter:    { x: -5, y: 6.5, size: -2.5 },
+    sparkle:    { x: -25, y: 30 },
+    note:       { y: 7 },
+    sweat:      { y: 15.5 },
+    sweatdrop:  { y: 13.5 },
+    anger:      { y: 8 },
+    gloom:      { y: -8.5 },
+    sleepy:     { y: -16.5 },
+    dizzy:      { x: -1, y: 14.5 },
+    exclaim:    { y: 14 },
+    question:   { x: 14, y: 16.5 },
+    idea:       { x: 2.5, y: 19 }
+  },
+  vivienne: {
+    blush:      { x: -20, y: 7.5 },
+    heart:      { x: -11.5, y: 8 },
+    glitter:    { x: -26.5, y: -19 },
+    sparkle:    { x: -30, y: 30 },
+    sweat:      { y: 5.5 },
+    anger:      { x: -11.5, y: -3 },
+    gloom:      { x: -13.5, y: -30 },
+    dizzy:      { x: -16.5, y: 13 },
+    ellipsis:   { x: -10.5, y: -7.5 }
+  }
+};
 
 /** 基准 + 偏移。渲染与 studio 预览都走这一个函数,避免两处算法漂移。 */
 export function resolveEmotePlacement(characterId: string, emoteId: string): EmotePlacement {

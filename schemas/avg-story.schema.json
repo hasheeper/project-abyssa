@@ -1,0 +1,804 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ABYSSA AVG story v1",
+  "$comment": "parseAvgStory also validates cast membership, stable cursors, unique identities, earlier choice references, canonical page IDs and complete branch variants.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "id",
+    "title",
+    "locale",
+    "presentation",
+    "player",
+    "cast",
+    "sections",
+    "nodes"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "schemaVersion": {
+      "const": 1
+    },
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 192,
+      "pattern": "^[\\w.:-]+$"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100
+    },
+    "locale": {
+      "const": "zh-CN"
+    },
+    "presentation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "stagePreset",
+        "backgroundId",
+        "defaultMode",
+        "allowRp",
+        "initialSlots"
+      ],
+      "properties": {
+        "stagePreset": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 192,
+          "pattern": "^[\\w.:-]+$"
+        },
+        "backgroundId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 192,
+          "pattern": "^[\\w.:-]+$"
+        },
+        "defaultMode": {
+          "enum": [
+            "adv",
+            "nvl"
+          ]
+        },
+        "allowRp": {
+          "type": "boolean"
+        },
+        "initialSlots": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [],
+          "properties": {
+            "left": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 192,
+              "pattern": "^[\\w.:-]+$"
+            },
+            "right": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 192,
+              "pattern": "^[\\w.:-]+$"
+            }
+          }
+        },
+        "arrival": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "eyebrow",
+            "title"
+          ],
+          "properties": {
+            "eyebrow": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100
+            }
+          }
+        }
+      }
+    },
+    "player": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "actorId",
+        "nameToken",
+        "authoredSpeech"
+      ],
+      "properties": {
+        "actorId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 192,
+          "pattern": "^[\\w.:-]+$"
+        },
+        "nameToken": {
+          "const": "{{user}}"
+        },
+        "authoredSpeech": {
+          "type": "boolean"
+        }
+      }
+    },
+    "cast": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 32,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 192,
+        "pattern": "^[\\w.:-]+$"
+      },
+      "uniqueItems": true
+    },
+    "sections": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 200,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "title"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 192,
+            "pattern": "^[\\w.:-]+$"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          }
+        }
+      }
+    },
+    "nodes": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 2000,
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "cursor",
+              "sectionId",
+              "kind",
+              "frames"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 192,
+                "pattern": "^[\\w.:-]+$"
+              },
+              "cursor": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "sectionId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 192,
+                "pattern": "^[\\w.:-]+$"
+              },
+              "kind": {
+                "const": "beat"
+              },
+              "frames": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 16,
+                "items": {
+                  "$ref": "#/$defs/frame"
+                }
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "cursor",
+              "sectionId",
+              "kind",
+              "prompt",
+              "options"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 192,
+                "pattern": "^[\\w.:-]+$"
+              },
+              "cursor": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "sectionId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 192,
+                "pattern": "^[\\w.:-]+$"
+              },
+              "kind": {
+                "const": "choice"
+              },
+              "prompt": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 500
+              },
+              "options": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 3,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "label"
+                  ],
+                  "properties": {
+                    "id": {
+                      "enum": [
+                        "A",
+                        "B",
+                        "C"
+                      ]
+                    },
+                    "label": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 200
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "cursor",
+              "sectionId",
+              "kind",
+              "choiceId",
+              "variants"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 192,
+                "pattern": "^[\\w.:-]+$"
+              },
+              "cursor": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "sectionId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 192,
+                "pattern": "^[\\w.:-]+$"
+              },
+              "kind": {
+                "const": "branch"
+              },
+              "choiceId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 192,
+                "pattern": "^[\\w.:-]+$"
+              },
+              "variants": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "A",
+                  "B"
+                ],
+                "properties": {
+                  "A": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 16,
+                    "items": {
+                      "$ref": "#/$defs/frame"
+                    }
+                  },
+                  "B": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 16,
+                    "items": {
+                      "$ref": "#/$defs/frame"
+                    }
+                  },
+                  "C": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 16,
+                    "items": {
+                      "$ref": "#/$defs/frame"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "$defs": {
+    "frame": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "kind",
+            "actorId",
+            "text"
+          ],
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 192,
+              "pattern": "^[\\w.:-]+$"
+            },
+            "effect": {
+              "enum": [
+                "pressure",
+                "release",
+                "break",
+                "crack",
+                "equip"
+              ]
+            },
+            "sound": {
+              "enum": [
+                "wood",
+                "metal",
+                "glass",
+                "cloth",
+                "ceramic"
+              ]
+            },
+            "stage": {
+              "type": "array",
+              "minItems": 0,
+              "maxItems": 8,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "actorId"
+                ],
+                "properties": {
+                  "actorId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 192,
+                    "pattern": "^[\\w.:-]+$"
+                  },
+                  "emotion": {
+                    "enum": [
+                      "neutral",
+                      "smile",
+                      "joy",
+                      "sad",
+                      "angry",
+                      "surprised",
+                      "serious",
+                      "closed",
+                      "wry",
+                      "flustered",
+                      "displeased",
+                      "confident",
+                      "confused",
+                      "panicked"
+                    ]
+                  },
+                  "motion": {
+                    "enum": [
+                      "nod",
+                      "waver",
+                      "jump",
+                      "shakeLight",
+                      "shakeHeavy"
+                    ]
+                  },
+                  "aside": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100
+                  },
+                  "still": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            },
+            "kind": {
+              "const": "dialogue"
+            },
+            "actorId": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 192,
+              "pattern": "^[\\w.:-]+$"
+            },
+            "text": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2000
+            },
+            "emotion": {
+              "enum": [
+                "neutral",
+                "smile",
+                "joy",
+                "sad",
+                "angry",
+                "surprised",
+                "serious",
+                "closed",
+                "wry",
+                "flustered",
+                "displeased",
+                "confident",
+                "confused",
+                "panicked"
+              ]
+            },
+            "itemId": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 192,
+              "pattern": "^[\\w.:-]+$"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "kind",
+            "text"
+          ],
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 192,
+              "pattern": "^[\\w.:-]+$"
+            },
+            "effect": {
+              "enum": [
+                "pressure",
+                "release",
+                "break",
+                "crack",
+                "equip"
+              ]
+            },
+            "sound": {
+              "enum": [
+                "wood",
+                "metal",
+                "glass",
+                "cloth",
+                "ceramic"
+              ]
+            },
+            "stage": {
+              "type": "array",
+              "minItems": 0,
+              "maxItems": 8,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "actorId"
+                ],
+                "properties": {
+                  "actorId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 192,
+                    "pattern": "^[\\w.:-]+$"
+                  },
+                  "emotion": {
+                    "enum": [
+                      "neutral",
+                      "smile",
+                      "joy",
+                      "sad",
+                      "angry",
+                      "surprised",
+                      "serious",
+                      "closed",
+                      "wry",
+                      "flustered",
+                      "displeased",
+                      "confident",
+                      "confused",
+                      "panicked"
+                    ]
+                  },
+                  "motion": {
+                    "enum": [
+                      "nod",
+                      "waver",
+                      "jump",
+                      "shakeLight",
+                      "shakeHeavy"
+                    ]
+                  },
+                  "aside": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100
+                  },
+                  "still": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            },
+            "kind": {
+              "const": "narration"
+            },
+            "text": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2000
+            },
+            "itemId": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 192,
+              "pattern": "^[\\w.:-]+$"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "kind",
+            "waitMs"
+          ],
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 192,
+              "pattern": "^[\\w.:-]+$"
+            },
+            "effect": {
+              "enum": [
+                "pressure",
+                "release",
+                "break",
+                "crack",
+                "equip"
+              ]
+            },
+            "sound": {
+              "enum": [
+                "wood",
+                "metal",
+                "glass",
+                "cloth",
+                "ceramic"
+              ]
+            },
+            "stage": {
+              "type": "array",
+              "minItems": 0,
+              "maxItems": 8,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "actorId"
+                ],
+                "properties": {
+                  "actorId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 192,
+                    "pattern": "^[\\w.:-]+$"
+                  },
+                  "emotion": {
+                    "enum": [
+                      "neutral",
+                      "smile",
+                      "joy",
+                      "sad",
+                      "angry",
+                      "surprised",
+                      "serious",
+                      "closed",
+                      "wry",
+                      "flustered",
+                      "displeased",
+                      "confident",
+                      "confused",
+                      "panicked"
+                    ]
+                  },
+                  "motion": {
+                    "enum": [
+                      "nod",
+                      "waver",
+                      "jump",
+                      "shakeLight",
+                      "shakeHeavy"
+                    ]
+                  },
+                  "aside": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100
+                  },
+                  "still": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            },
+            "kind": {
+              "const": "direction"
+            },
+            "waitMs": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10000
+            },
+            "itemId": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 192,
+              "pattern": "^[\\w.:-]+$"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "kind",
+            "text"
+          ],
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 192,
+              "pattern": "^[\\w.:-]+$"
+            },
+            "effect": {
+              "const": "handoff"
+            },
+            "sound": {
+              "enum": [
+                "wood",
+                "metal",
+                "glass",
+                "cloth",
+                "ceramic"
+              ]
+            },
+            "stage": {
+              "type": "array",
+              "minItems": 0,
+              "maxItems": 8,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "actorId"
+                ],
+                "properties": {
+                  "actorId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 192,
+                    "pattern": "^[\\w.:-]+$"
+                  },
+                  "emotion": {
+                    "enum": [
+                      "neutral",
+                      "smile",
+                      "joy",
+                      "sad",
+                      "angry",
+                      "surprised",
+                      "serious",
+                      "closed",
+                      "wry",
+                      "flustered",
+                      "displeased",
+                      "confident",
+                      "confused",
+                      "panicked"
+                    ]
+                  },
+                  "motion": {
+                    "enum": [
+                      "nod",
+                      "waver",
+                      "jump",
+                      "shakeLight",
+                      "shakeHeavy"
+                    ]
+                  },
+                  "aside": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100
+                  },
+                  "still": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            },
+            "kind": {
+              "const": "chapter"
+            },
+            "text": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2000
+            },
+            "itemId": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 192,
+              "pattern": "^[\\w.:-]+$"
+            }
+          }
+        }
+      ]
+    }
+  }
+}

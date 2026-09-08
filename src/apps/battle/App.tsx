@@ -50,7 +50,7 @@ function BattleRoute() {
     >
       {!memoryReading && <SceneArrivalTitle
         eyebrow={record.schemaVersion !== 1 ? "ABYSSAL EXPEDITION · OLD MANOR" : "ABYSSAL EXPEDITION · RIFT 01"}
-        title={memoryMatches ? record.contentRef.contentVersion === 3 ? "停下来的钟声" : "王座前的提线魔女" : record.schemaVersion !== 1 ? "克雷格旧庄园" : "混沌领域"}
+        title={memoryMatches ? record.contentRef.contentVersion >= 3 ? "停下来的钟声" : "王座前的提线魔女" : record.schemaVersion !== 1 ? "克雷格旧庄园" : "混沌领域"}
         tone="gold"
       />}
       <CampaignMenuScope>

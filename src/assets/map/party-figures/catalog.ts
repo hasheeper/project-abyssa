@@ -21,7 +21,7 @@ export const partyFigureCatalog = [
   { id: "alvitr", name: "阿尔薇特·塞维琳", url: alvitrUrl },
   { id: "elora", name: "艾洛拉·亚金特", url: eloraUrl },
   { id: "eustice", name: "尤斯缇丝·格里芬", url: eusticeUrl },
-  { id: "kael", name: "凯尔", url: kaelUrl },
+  { id: "kael", name: "你", url: kaelUrl },
   { id: "kororo", name: "柯萝萝·拉普拉斯", url: kororoUrl },
   { id: "lenore", name: "蕾诺尔·伏尼契", url: lenoreUrl },
   { id: "marietta", name: "玛丽埃塔·克雷格", url: mariettaUrl },

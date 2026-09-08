@@ -145,10 +145,12 @@ export function createVersionedGameRuntime(
                   saveId,
                   head: record.head,
                   contentRef: record.contentRef,
+                  supersedes: record.schemaVersion === 4 && record.originRef?.kind === "upgrade" ? record.originRef.source.head : undefined,
                   clock: record.snapshot.campaign.clock,
                   continuation: record.schemaVersion === 3 || record.schemaVersion === 4 ? (()=>{
-                    const c=record.snapshot.campaign, eligible=!c.activeRunRef && c.manor?.story?.status!=="pending" && (record.schemaVersion!==4 || !record.snapshot.campaign.activeStoryId && (!record.snapshot.campaign.memory || record.snapshot.campaign.memory.node==="completed"));
-                    return {upgrade:eligible && (record.schemaVersion===3 || record.contentRef.contentVersion===2),cycle:eligible && record.schemaVersion===4 && !!record.snapshot.campaign.chapterClaim};
+                    const c=record.snapshot.campaign, eligible=!c.activeRunRef && c.manor?.story?.status!=="pending" && (record.schemaVersion!==4 || record.snapshot.campaign.prologue?.status!=="playing" && record.snapshot.campaign.opening?.status!=="playing" && !record.snapshot.campaign.activeStoryId && (!record.snapshot.campaign.memory || record.snapshot.campaign.memory.node==="completed"));
+                    const newer = registrations.some(e => e.version === 4 && e.catalog.ref.contentVersion >= 3 && (record.schemaVersion === 3 || e.catalog.ref.contentVersion > record.contentRef.contentVersion));
+                    return {upgrade:eligible && newer,cycle:eligible && record.schemaVersion===4 && !!record.snapshot.campaign.chapterClaim};
                   })() : {upgrade:false,cycle:false},
                   activeRunId: record.schemaVersion !== 1 ? record.snapshot.campaign.activeRunRef?.id ?? null : record.snapshot.campaign.activeExpeditionId,
                 };

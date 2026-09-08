@@ -1,4 +1,7 @@
 import type { ExpressionId } from "./expressions";
+import type { EmotePlacement } from "./emotes";
+import type { SpriteCalibration } from "./spriteCalibration";
+import type { CharacterEmotionProfile } from "../../domain/presentation/emotion";
 
 export type RpSeat = "left" | "right";
 
@@ -14,10 +17,17 @@ export interface RpActor {
   spriteBaseUrl?: string;
   accent?: string;
   expression?: ExpressionId;
+  /** Injected by content adapters. Shared UI never imports a game's character roster. */
+  emotionProfile?: CharacterEmotionProfile;
+  /** Optional authored/tool calibration; never supplied per LLM line. */
+  spriteCalibration?: SpriteCalibration;
+  emotePlacements?: Readonly<Record<string, Partial<EmotePlacement>>>;
 }
 
 export type RpMessage =
-  | { id: string; kind: "say"; actorId: string; text: string; expression?: ExpressionId }
+  | { id: string; kind: "say"; actorId: string; text: string; emotion?: string; expression?: ExpressionId; offstage?: boolean }
+  /** Authored silent blocking. Updates the cast/face, never the dialogue or RP log. */
+  | { id: string; kind: "stage"; actorId: string; text: ""; emotion?: string; expression?: ExpressionId }
   | { id: string; kind: "narration"; text: string }
   | { id: string; kind: "chapter"; text: string }
   | { id: string; kind: "system"; text: string }
@@ -47,7 +57,7 @@ export function deriveRpStage(messages: readonly RpMessage[], initialSlots?: Par
   let tick = 0;
 
   for (const message of messages) {
-    if (message.kind !== "say") continue;
+    if (message.kind !== "stage" && (message.kind !== "say" || message.offstage)) continue;
     let side: RpSeat;
     if (slots.left === message.actorId) side = "left";
     else if (slots.right === message.actorId) side = "right";

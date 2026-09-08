@@ -8,7 +8,6 @@ import { AbyssaProvider } from "../../shared/ui/primitives/AbyssaProvider";
 import { IconButton } from "../../shared/ui/primitives/IconButton";
 import { Nameplate } from "../../shared/ui/primitives/Nameplate";
 import type { RpActor, RpMessage } from "../../shared/ui/patterns/RpScene";
-import kaelPortrait from "../../assets/characters/portraits/kael.png";
 import {
   DEFAULT_MANSION_RECTANGLES,
   DEFAULT_MANSION_REGIONS
@@ -23,6 +22,8 @@ import type { RoomLight } from "./lighting";
 import { InventoryDialog } from "../../shared/ui/patterns/InventoryDialog";
 import { MansionPhaseBar } from "./MansionPhaseBar";
 import { AdvStage } from "../../shared/presentation/adv/AdvStage";
+import { CHARACTER_EMOTION_PROFILES } from "../../content/presentation/character-emotions";
+import { MANSION_EMOTIONS } from "../../content/presentation/mansion-emotions";
 import {
   fallbackRoomDetail,
   MANSION_CHARACTERS,
@@ -52,6 +53,7 @@ import { GameProvider, GameGate, useGameState } from "../../game-client/react";
 import { gameHref, recordLocator } from "../../game-client/navigation";
 import { CampaignPanel } from "../../game-client/CampaignPanel";
 import { GrowthStory } from "../../game-client/GrowthStory";
+import { FirstMorningStory } from "../../game-client/FirstMorningStory";
 import { growthStories, teamMilestoneStory } from "../../content/presentation/growth-stories";
 import {
   MAX_FACILITY_LEVEL,
@@ -70,7 +72,13 @@ const MANSION_SPRITE_BASE = import.meta.env.DEV
   : `${import.meta.env.BASE_URL}character-art/`;
 
 export function MansionPage() {
-  return <GameProvider><GameGate><MansionScene /></GameGate></GameProvider>;
+  return <GameProvider><GameGate allowOpening><MansionEntry /></GameGate></GameProvider>;
+}
+function MansionEntry() {
+  const {record}=useGameState();
+  // Keep the outgoing opening mounted while its cinematic handoff completes.
+  const opening=useRef(record?.schemaVersion===4 && record.snapshot.campaign.opening?.status==="playing");
+  return opening.current ? <FirstMorningStory/> : <MansionScene/>;
 }
 function MansionScene() {
   const game = useGameState();
@@ -220,14 +228,14 @@ function MansionScene() {
     name: activeCharacter.name,
     secondaryName: activeCharacter.secondaryName,
     expression: "a",
-    portrait: activeCharacter.id === "kael" ? kaelPortrait : undefined,
-    spriteBaseUrl: activeCharacter.id === "kael" ? undefined : MANSION_SPRITE_BASE
+    emotionProfile: CHARACTER_EMOTION_PROFILES[activeCharacter.id],
+    spriteBaseUrl: MANSION_SPRITE_BASE
   }] : [], [activeCharacter]);
   const activeDialogueMessages = useMemo<RpMessage[]>(() => activeCharacter ? [{
     id: `${activeCharacter.id}-${phase}`,
     kind: "say",
     actorId: activeCharacter.id,
-    expression: "a",
+    emotion: MANSION_EMOTIONS[activeCharacter.id]?.[phase] ?? "neutral",
     text: activeCharacter.lines[phase]
   }] : [], [activeCharacter, phase]);
   /** 对话开启时,世界与四角挂件一律退出可交互与无障碍树。

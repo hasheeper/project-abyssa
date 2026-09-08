@@ -1,6 +1,7 @@
 import { growthStories, teamMilestoneStory } from "../content/presentation/growth-stories";
 import type { CharacterHistoryEntry } from "../game-application";
 import type { CharacterChronicle, ChronicleEntry } from "../shared/domain/characters/chronicle";
+import { resolvePlayerText } from "../shared/domain/player-identity";
 
 /** The character journal keeps milestones; combat telemetry stays in the source history. */
 export function presentCharacterChronicle(characterId: string, history: readonly CharacterHistoryEntry[]): CharacterChronicle {
@@ -14,7 +15,7 @@ export function presentCharacterChronicle(characterId: string, history: readonly
     if (story) {
       key = story.eventId;
       content = {
-        title: story.title, body: story.chronicleText, categories: ["bond"],
+        title: story.title, body: resolvePlayerText(story.chronicleText), categories: ["bond"],
         marker: event.kind === "team-milestone" ? "milestone" : "node",
         tone: event.kind === "team-milestone" ? "accent" : "default",
       };

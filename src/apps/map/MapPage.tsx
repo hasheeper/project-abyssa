@@ -187,7 +187,7 @@ function MapPageBody() {
           </section>
         </MapWoodFrame>
         {record.schemaVersion !== 1 && manor ? <details className="map-loadout game-client-panel"><summary>携带配给（{itemIds.length}/4）</summary>
-          <p>{record.contentRef.rulesVersion === 4 && record.contentRef.contentVersion === 3 ? "食物和药水出发时补足；战术补给按库存携带，最多四种。" : "出发前将所选配给免费补足，最多携带四种。"}</p>
+          <p>{record.contentRef.rulesVersion === 4 && record.contentRef.contentVersion >= 3 ? "食物和药水出发时补足；战术补给按库存携带，最多四种。" : "出发前将所选配给免费补足，最多携带四种。"}</p>
           {manor.items.map(item => <label key={item.id}><input type="checkbox" checked={itemIds.includes(item.id)}
             disabled={game.status !== "ready" || !!activeRunId(record) || !itemIds.includes(item.id) && (itemIds.length >= 4 || !item.availableCharges)}
             onChange={e => setItemIds(ids => e.target.checked ? [...ids,item.id] : ids.filter(id => id !== item.id))} />{item.name} ×{item.availableCharges}{item.free ? " · 配给" : " · 库存"}</label>)}

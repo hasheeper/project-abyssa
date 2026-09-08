@@ -83,7 +83,7 @@ export const DEFAULT_MANSION_RECTANGLES: MansionRectangle[] = [
   rectangle("array", "结界核心室", "room", 0.427154 * CANVAS_WIDTH, 1645, 0.069982 * CANVAS_WIDTH, 265),
   rectangle("seal", "封印之门", "room", 0.500909 * CANVAS_WIDTH, 1645, 0.069103 * CANVAS_WIDTH, 265),
 
-  rectangle("kaelHut", "凯尔的小屋", "building", 0.70436 * CANVAS_WIDTH, 0.54811 * CANVAS_HEIGHT, 0.056144 * CANVAS_WIDTH, 0.09103 * CANVAS_HEIGHT),
+  rectangle("kaelHut", "守望小屋", "building", 0.70436 * CANVAS_WIDTH, 0.54811 * CANVAS_HEIGHT, 0.056144 * CANVAS_WIDTH, 0.09103 * CANVAS_HEIGHT),
   rectangle("plaza", "小广场", "building", 0.778432 * CANVAS_WIDTH, 0.573166 * CANVAS_HEIGHT, 0.04583 * CANVAS_WIDTH, 0.078112 * CANVAS_HEIGHT),
 
   // 女子宿舍二层与一层分别统一。

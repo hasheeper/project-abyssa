@@ -213,7 +213,7 @@ export function SortieRosterPanel({
     .map((member, index) => ({ member, index, group: groupOf(member, inParty(member.id)) }))
     .sort((a, b) => (a.group === b.group ? a.index - b.index : a.group - b.group));
 
-  /* 构成表的骰源：入队成员 + 亲征时的凯尔。凯尔目前没有骰面数据，
+  /* 构成表的骰源：入队成员 + 亲征时的玩家位。玩家位目前没有骰面数据，
      所以第五骰对构成表的贡献是零 —— 这不是 bug，是他的骰装尚未落进 content。 */
   const partyMembers = party.memberIds
     .map((id) => roster.find((member) => member.id === id))

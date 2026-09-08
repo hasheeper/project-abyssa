@@ -1,0 +1,4 @@
+.actor-performance { position:relative; height:100%; width:fit-content; line-height:0; transform-origin:50% 78%; }
+.actor-performance__aside { position:absolute; top:23%; right:-12px; white-space:nowrap; color:#e1d8c2; font-size:17px; line-height:1.5; letter-spacing:.08em; text-shadow:0 2px 5px #000,0 0 12px #090e11; pointer-events:none; animation:actor-aside-in 280ms ease both; }
+@keyframes actor-aside-in {from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.actor-performance__aside{animation:none}}

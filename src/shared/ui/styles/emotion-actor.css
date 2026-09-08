@@ -1,0 +1,16 @@
+.emotion-actor {
+  position: relative;
+  height: 100%;
+  width: fit-content;
+  line-height: 0;
+  transform-origin: 50% 100%;
+}
+.emotion-actor__bubble { animation: emotion-bubble-life 2300ms ease both; }
+@keyframes emotion-bubble-life {
+  0% { opacity: 0; }
+  8%, 86% { opacity: 1; }
+  100% { opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .emotion-actor__bubble { animation: none; }
+}

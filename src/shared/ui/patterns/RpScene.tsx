@@ -12,6 +12,7 @@ import { RpSeatView } from "./rp-scene/RpSeat";
 import type { RpSceneProps } from "./rp-scene/types";
 import { useRpAutoScroll } from "./rp-scene/useRpAutoScroll";
 import { useRpSeatLifecycle } from "./rp-scene/useRpSeatLifecycle";
+import { deriveActorEmotions } from "./emotion-cues";
 
 export { deriveRpStage } from "./rp-stage";
 export type { RpActor, RpMessage, RpSeat } from "./rp-stage";
@@ -24,13 +25,13 @@ export type { RpSceneProps } from "./rp-scene/types";
  * 替换更久未发言的一侧。历史对白保留发生时的席位。
  */
 export const RpScene = forwardRef<HTMLDivElement, RpSceneProps>(function RpScene(
-  { actors, messages, background, crop = "knee", header, mode = "play", hydrate = false, className, ...props },
+  { actors, messages, background, initialSlots, crop = "knee", header, performances, mode = "play", hydrate = false, className, ...props },
   ref
 ) {
   // 挂载时已经存在的消息是一份不再更新的“出生证明”。
   const hydratedIds = useRef<Set<string> | null>(null);
   if (hydratedIds.current === null) {
-    hydratedIds.current = hydrate ? new Set(messages.map((message) => message.id)) : new Set();
+    hydratedIds.current = hydrate ? new Set([...messages.map((message) => message.id), ...actors.map(actor => `initial:${actor.id}`)]) : new Set();
   }
 
   const actorById = useMemo(() => {
@@ -39,11 +40,12 @@ export const RpScene = forwardRef<HTMLDivElement, RpSceneProps>(function RpScene
     return map;
   }, [actors]);
 
-  const { slots, sideByMessage } = useMemo(() => deriveRpStage(messages), [messages]);
+  const { slots, sideByMessage } = useMemo(() => deriveRpStage(messages, initialSlots), [messages, initialSlots?.left, initialSlots?.right]);
   const { departing, clearDeparting } = useRpSeatLifecycle(slots);
   const currentSay = useMemo(() => findCurrentSay(messages), [messages]);
   const litAux = useMemo(() => deriveLitAux(messages), [messages]);
   const expressionByActor = useMemo(() => deriveExpressionByActor(messages), [messages]);
+  const emotions = useMemo(() => deriveActorEmotions(actors, messages), [actors, messages]);
   const { logRef, stick, onScroll, jumpToLatest } = useRpAutoScroll(messages);
 
   const lastSpeakerId = currentSay?.actorId;
@@ -62,6 +64,10 @@ export const RpScene = forwardRef<HTMLDivElement, RpSceneProps>(function RpScene
         departing={departing.left}
         activeActorId={lastSpeakerId}
         expressionByActor={expressionByActor}
+        emotions={emotions}
+        performances={mode === "log" ? undefined : performances}
+        hydratedIds={hydratedIds.current}
+        replay={mode === "log" || messages.at(-1)?.kind !== "say"}
         crop={crop}
         onActorExited={clearDeparting}
       />
@@ -95,6 +101,10 @@ export const RpScene = forwardRef<HTMLDivElement, RpSceneProps>(function RpScene
         departing={departing.right}
         activeActorId={lastSpeakerId}
         expressionByActor={expressionByActor}
+        emotions={emotions}
+        performances={mode === "log" ? undefined : performances}
+        hydratedIds={hydratedIds.current}
+        replay={mode === "log" || messages.at(-1)?.kind !== "say"}
         crop={crop}
         onActorExited={clearDeparting}
       />

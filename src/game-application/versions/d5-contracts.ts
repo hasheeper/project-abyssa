@@ -1,6 +1,6 @@
 import type { D5JourneyEvidence, D5JourneyFactPayload } from "./d5-journey-evidence";
 import type { D5CatalogRef } from "../../game-core/contracts";
-import type { D5ProgressEntry, D5ProgressEvent, D5RunRef, D5Snapshot } from "../../game-core/session";
+import type { D5ProgressEntry, D5ProgressEvent, D5RunRef, D5Snapshot, D5StoryAdvanceChoice, D5UserChoiceTone } from "../../game-core/session";
 import type { DemoBattleCommand } from "../../game-core/battle";
 import type { DemoItemTarget } from "../../game-core/session";
 import type { CommandReceipt, GameCommit, GameStorePort, HeadRef } from "../contracts";
@@ -39,6 +39,9 @@ export type D5Receipt = Omit<CommandReceipt, "version" | "contentRef" | "events"
   journey?: D5JourneyEvidence;
 };
 export type D5Command =
+  | {type:"advance-opening";step:number;choice:"continue"|"A"|"B"|"C"}
+  | { type: "advance-prologue"; shotId: string }
+  | { type: "complete-prologue"; shotId: string; choice: "continue" | "skip" }
   | { type: "purchase-supply"; shopId: string; definitionId: string; quantity: number; quoteVersion: number }
   | { type: "inherit-memory"; chapterId: string }
   | Exclude<DemoCommand, { type: "battle-command" | "undo" | "resume-run" | "use-item" }>
@@ -47,10 +50,10 @@ export type D5Command =
   | { type: "use-item"; runRef: D5RunRef; instanceId: string; target: DemoItemTarget }
   | { type: "begin-memory"; chapterId: string }
   | { type: "advance-memory"; runRef: Extract<D5RunRef, { kind: "memory" }>; node: "history-opening" | "teaching" | "battle" | "return-pending"; choice: "continue" | "skip" }
-  | { type: "read-memory"; runRef: Extract<D5RunRef, { kind: "memory" }>; node: "present-intro" | "history-opening" | "teaching" | "history-complete"; step: number }
+  | { type: "read-memory"; runRef: Extract<D5RunRef, { kind: "memory" }>; node: "present-intro" | "history-opening" | "teaching" | "history-complete"; step: number; choice?: D5UserChoiceTone }
   | { type: "retry-memory" | "leave-memory"; runRef: Extract<D5RunRef, { kind: "memory" }> }
   | { type: "begin-story"; eventId: string; basisId: string }
-  | { type: "advance-story"; sessionId: string; step: number; choice: "continue" | "skip" | "later" }
+  | { type: "advance-story"; sessionId: string; step: number; choice: D5StoryAdvanceChoice }
   | { type: "complete-story"; sessionId: string }
   | { type: "equip-equipment"; instanceId: string; ownerId: string }
   | { type: "unequip-equipment"; instanceId: string; ownerId: string }

@@ -70,7 +70,7 @@ export interface DieFace {
   face: 1 | 2 | 3 | 4 | 5 | 6;
   /** 命数点数 1–6，参与牌型识别。 */
   pip: number;
-  /** 万能点数（凯尔·静谧之楔）：角标渲染为宝石而非数字。 */
+  /** 玩家位的万能点数（静谧之楔）：角标渲染为宝石而非数字。 */
   wildPip?: boolean;
   action: DieFaceAction;
   /** 战面数值：伤害 / 格挡 / 治疗量。空面为 0。 */

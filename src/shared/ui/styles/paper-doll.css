@@ -4,6 +4,8 @@
   display: inline-block;
   width: 100%;
   aspect-ratio: 704 / 1472;
+  /* This box moves with the actor. Only the fixed stage/seat may clip the artwork. */
+  overflow: visible;
   line-height: 0;
   user-select: none;
 }
@@ -39,22 +41,19 @@
   to { opacity: 1; }
 }
 
-/* 逐角色校准层:scale 以脚底为中心(站得稳),x/y 按比例平移 */
+/* 校准仍以原取景盒底部为缩放锚点；保留已发布的 x/y/scale 坐标语义。 */
 .abyssa-paper-doll__calibration {
   position: absolute;
   inset: 0;
   transform-origin: 50% 100%;
 }
 
-/* 取景:容器按裁切高度收窄,图层仍按完整比例渲染并锚定顶部。
-   upper 约 68%(裙摆下缘 / 大腿中部);knee 为 4/5,切在膝下——去掉脚与小腿。 */
+/* 取景只改变定位盒比例，图层始终按完整 704×1472 渲染并锚定顶部。
+   保持现有头部位置、大小和校准锚点；下半身继续画在定位盒之外。
+   这里不能 overflow:hidden：它会把膝部切线也带进动作层，上跳时露出断边。
+   可视边界由外层固定的 AVG 舞台 / RP 席位框负责。 */
 .abyssa-paper-doll[data-crop="upper"] { aspect-ratio: 704 / 1000; }
 .abyssa-paper-doll[data-crop="knee"] { aspect-ratio: 704 / 1178; }
-
-.abyssa-paper-doll[data-crop="upper"],
-.abyssa-paper-doll[data-crop="knee"] {
-  overflow: hidden;
-}
 
 .abyssa-paper-doll[data-crop="upper"] .abyssa-paper-doll__layer,
 .abyssa-paper-doll[data-crop="knee"] .abyssa-paper-doll__layer {

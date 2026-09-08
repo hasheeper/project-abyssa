@@ -3,7 +3,10 @@ import { RpgDialogue } from "../../ui/primitives/RpgDialogue";
 import { PaperDoll } from "../../ui/patterns/PaperDoll";
 import { deriveRpStage } from "../../ui/patterns/RpScene";
 import type { RpActor, RpMessage, RpSeat } from "../../ui/patterns/RpScene";
-import type { ExpressionId } from "../../ui/patterns/expressions";
+import { deriveActorEmotions } from "../../ui/patterns/emotion-cues";
+import { EmotionActor } from "../../ui/patterns/EmotionActor";
+import { ActorPerformance, type ActorPerformances } from "../../ui/patterns/ActorPerformance";
+import { useSceneSequenceEntrance } from "./SceneSequence";
 import "./adv-stage.css";
 
 /**
@@ -35,12 +38,17 @@ export interface AdvStageProps {
   initialSlots?: Partial<Record<RpSeat, string>>;
   /** 打字机是否运行;false = 直接呈现终态(切模式/回看时不重打)。 */
   typing: boolean;
+  /** Optional authored acting; dialogue skin and calibration remain unchanged. */
+  performances?: ActorPerformances;
+  silent?: boolean;
   /**
    * 挂载时已在场的立绘是否跳过进场演出。
    * 切版式时为真:人物在两个版式里是同一个,镜头切换后它不该
    * 再从侧面滑入一次 —— 那会读成"过场结束后又演了一遍"。
    */
   hydrate?: boolean;
+  /** Re-reading restores faces without replaying gesture/emote beats. */
+  replay?: boolean;
   /** 当前条打字机走完。 */
   onTypingEnd?: () => void;
 }
@@ -77,7 +85,8 @@ function resolveFrame(message: RpMessage | undefined, actorById: Map<string, RpA
   }
 }
 
-export function AdvStage({ actors, messages, background, initialSlots, typing, hydrate = false, onTypingEnd }: AdvStageProps) {
+export function AdvStage({ actors, messages, background, initialSlots, typing, hydrate = false, replay = false, performances, silent = false, onTypingEnd }: AdvStageProps) {
+  const sceneEntrance = useSceneSequenceEntrance();
   const actorById = useMemo(() => {
     const map = new Map<string, RpActor>();
     for (const actor of actors) map.set(actor.id, actor);
@@ -95,7 +104,7 @@ export function AdvStage({ actors, messages, background, initialSlots, typing, h
      若把框清掉,画面会先塌一块再弹浮窗,那是两次跳变。 */
   const frameSource = useMemo(() => {
     for (let i = messages.length - 1; i >= 0; i -= 1) {
-      if (!isOverlayKind(messages[i])) return messages[i];
+      if (messages[i].kind !== "stage" && !isOverlayKind(messages[i])) return messages[i];
     }
     return undefined;
   }, [messages]);
@@ -104,13 +113,7 @@ export function AdvStage({ actors, messages, background, initialSlots, typing, h
   const speakerId = frameSource?.kind === "say" ? frameSource.actorId : undefined;
 
   // 表情记忆:未说话者沿用其最近一次表情,而非回落默认。
-  const expressionByActor = useMemo(() => {
-    const map = new Map<string, ExpressionId>();
-    for (const message of messages) {
-      if (message.kind === "say" && message.expression) map.set(message.actorId, message.expression);
-    }
-    return map;
-  }, [messages]);
+  const emotions = useMemo(() => deriveActorEmotions(actors, messages), [actors, messages]);
 
   // —— 换人时旧立绘留在 DOM 里播完退场,与新人同帧并存 ——
   // 与分屏的 departing 同则。key 绑角色 id(而不是槽位),
@@ -144,7 +147,7 @@ export function AdvStage({ actors, messages, background, initialSlots, typing, h
      标记必须绑到**具体的挂载实例**(席位 + 角色),而不是角色本身;
      而且只对首帧有效 —— 首帧过后集合清空,后续所有上台都是真进场。 */
   const [hydratedKeys, setHydratedKeys] = useState<Set<string>>(() =>
-    hydrate
+    hydrate || sceneEntrance
       ? new Set(
           (["left", "right"] as RpSeat[])
             .filter((seat) => slots[seat])
@@ -179,7 +182,9 @@ export function AdvStage({ actors, messages, background, initialSlots, typing, h
   const renderDoll = (actorId: string, seat: RpSeat, phase: "enter" | "leave") => {
     const actor = actorById.get(actorId);
     if (!actor) return null;
-    const active = phase === "enter" && actorId === speakerId;
+    const performance=phase === "enter" ? performances?.[actorId] : undefined;
+    const active = phase === "enter" && (actorId === speakerId || !!performance);
+    const cue = emotions.get(actorId);
     return (
       <div
         className="rp-adv__actor"
@@ -190,11 +195,14 @@ export function AdvStage({ actors, messages, background, initialSlots, typing, h
         }
         data-active={active ? "true" : "false"}
         data-character={actorId}
-        data-expression={expressionByActor.get(actorId) ?? actor.expression ?? "a"}
+        data-expression={cue?.expression ?? actor.expression ?? "a"}
         key={`${phase}-${seat}-${actorId}`}
         aria-hidden={phase === "leave" || undefined}
       >
         <div className="rp-adv__actor-body">
+          <ActorPerformance cue={performance} replay={replay}>
+          <EmotionActor characterId={actorId} cue={cue} active={active && !overlay && !performance} placement={cue?.emote ? actor.emotePlacements?.[cue.emote] : undefined}
+            hydrate={hydratedKeys.has(`${seat}:${actorId}`)} replay={replay} delay={hydratedKeys.has(`${seat}:${actorId}`) ? 100 : 700}>
           {actor.portrait ? (
             <img
               className="rp-adv__portrait"
@@ -205,12 +213,15 @@ export function AdvStage({ actors, messages, background, initialSlots, typing, h
           ) : (
             <PaperDoll
               characterId={actorId}
-              expression={expressionByActor.get(actorId) ?? actor.expression ?? "a"}
+              expression={cue?.expression ?? actor.expression ?? "a"}
               crop="knee"
               alt={actor.name}
               spriteBaseUrl={actor.spriteBaseUrl}
+              calibration={actor.spriteCalibration}
             />
           )}
+          </EmotionActor>
+          </ActorPerformance>
         </div>
       </div>
     );
@@ -264,7 +275,7 @@ export function AdvStage({ actors, messages, background, initialSlots, typing, h
         <i data-corner="br" />
       </span>
 
-      {frame && (
+      {frame && !silent && (
         <div className="rp-adv__dialogue" data-kind={frameSource?.kind}>
           <RpgDialogue
             key={dialogueKey}

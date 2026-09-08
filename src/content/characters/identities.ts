@@ -19,6 +19,7 @@ import normaAvatar from "../../assets/characters/avatars/norma.png";
 import vivienneAvatar from "../../assets/characters/avatars/vivienne.png";
 import type { CharacterArchiveProfile } from "../../shared/domain/characters/archive";
 import kaelPortrait from "../../assets/characters/portraits/kael.png";
+import { DEFAULT_PLAYER_NAME } from "../../shared/domain/player-identity";
 
 /** Authored identity and art only. No sample campaign state or combat claims. */
 export const characterIdentities: CharacterArchiveProfile[] = [
@@ -112,7 +113,7 @@ export const characterIdentities: CharacterArchiveProfile[] = [
         { label: "身高", value: "154cm" },
       ],
       record:
-        "传统魔法世家的天才，为逃离高压期待而消极怠工，却在勇者小队选拔中随手打破纪录。凯尔给予的日常照料成了她最安心的归处，也令她开始和艾比希斯争夺沙发与注意力。",
+        "传统魔法世家的天才，为逃离高压期待而消极怠工，却在勇者小队选拔中随手打破纪录。勇者小队的日常照料成了她最安心的归处，也令她开始和艾比希斯争夺沙发与注意力。",
     },
   },
   {
@@ -321,12 +322,12 @@ export const characterIdentities: CharacterArchiveProfile[] = [
   },
 ];
 
-export const kaelIdentity: CharacterArchiveProfile = {
+export const playerIdentity: CharacterArchiveProfile = {
   id: "kael",
-  number: "K",
-  name: "凯尔",
-  secondaryName: "KAEL",
-  selectorLabel: "凯尔",
+  number: "U",
+  name: DEFAULT_PLAYER_NAME,
+  secondaryName: "USER",
+  selectorLabel: DEFAULT_PLAYER_NAME,
   portraitUrl: kaelPortrait,
   thumbnailUrl: kaelPortrait,
   appearanceLabel: "行旅的样子",
@@ -342,4 +343,4 @@ export const kaelIdentity: CharacterArchiveProfile = {
       "出身底层的退伍老兵，伪典试炼的生还者。他以生存经验与朴素的同理心保护同伴，珍视平静的日常，也擅长烹饪与修缮。",
   },
 };
-export const archiveIdentities = [kaelIdentity, ...characterIdentities];
+export const archiveIdentities = [playerIdentity, ...characterIdentities];

@@ -238,7 +238,9 @@ export function SceneTransitionProvider({
     const targetUrl = new URL(target, window.location.href);
     const nextCopy = {
       destination: options.destination,
-      channel: options.channel
+      channel: options.channel,
+      cinematic: options.cinematic,
+      still: options.still
     };
     phaseRef.current = "closing";
     setCopy(nextCopy);
@@ -254,7 +256,12 @@ export function SceneTransitionProvider({
           target: locationKey(targetUrl),
           issuedAt: Date.now()
         };
-        window.sessionStorage.setItem(HANDOFF_KEY, JSON.stringify(handoff));
+        try { window.sessionStorage.setItem(HANDOFF_KEY, JSON.stringify(handoff)); }
+        catch {
+          // A captured cinematic still is optional presentation data. Storage limits
+          // must never strand a player after their gameplay command has committed.
+          try { window.sessionStorage.setItem(HANDOFF_KEY, JSON.stringify({...handoff,still:undefined})); } catch { /* Navigate without the optional handoff. */ }
+        }
       }
 
       // 闭合态至少绘制一帧再卸载旧文档，避免慢设备在最后一刻露出旧场景。

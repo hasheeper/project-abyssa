@@ -5,9 +5,10 @@ import type { d5ProgressionView } from "../game-runtime/d5-views";
 import { archiveIdentities } from "../content/characters/identities";
 import { gameErrorText } from "./game-errors";
 import { equipmentNames } from "./character-presentation";
+import { isPlayerActor, playerDisplayName } from "../shared/domain/player-identity";
 
 type Props = {open:boolean; onClose:()=>void; ownerId:string; progression:ReturnType<typeof d5ProgressionView>; writer:GameSession|null; state:SessionState};
-const name = (id:string) => archiveIdentities.find(c=>c.id===id)?.selectorLabel ?? id;
+const name = (id:string) => isPlayerActor(id) ? playerDisplayName() : archiveIdentities.find(c=>c.id===id)?.selectorLabel ?? id;
 export function EquipmentEditor({open,onClose,ownerId,progression,writer,state}:Props) {
   const busy = state.status !== "ready", frozen = !progression.canMove;
   const equipped = progression.inventory.find(i=>i.location.kind !== "inventory" && i.location.ownerId===ownerId);

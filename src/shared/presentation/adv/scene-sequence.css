@@ -2,6 +2,16 @@
 .scene-sequence { position: relative; width: 1600px; height: 900px; isolation: isolate; overflow: hidden; background: #080808; }
 .scene-sequence[data-phase="prepare"] .scene-sequence__frame {opacity: 0;}
 .scene-sequence__frame { position: absolute; inset: 0; }
+/* Establish the location before mounting its actors. The existing arrival title owns the visual style. */
+.scene-sequence__arrival {position:absolute;inset:0;pointer-events:none;background:#101616;}
+.scene-sequence__arrival-bg {position:absolute;inset:0 0 52px;background-size:cover;background-position:center;filter:brightness(.5) saturate(.85);}
+.scene-sequence__arrival-bg::after {content:"";position:absolute;inset:0;background:radial-gradient(88% 88% at 50% 42%,transparent 48%,rgb(4 7 7 / 72%) 100%);}
+.scene-sequence__arrival .scene-arrival {top:64px;left:76px;}
+.scene-sequence__arrival .scene-arrival__title {font-size:32px;}
+.scene-sequence[data-phase="prepare"] .scene-sequence__arrival {opacity:0;}
+.scene-sequence[data-phase="arrival"] .scene-sequence__arrival {animation:scene-wash-in 900ms ease both;}
+.scene-sequence[data-phase="arrival"] .scene-arrival {animation:scene-wash-in 800ms 300ms ease both;}
+.scene-sequence[data-phase="in"] .scene-sequence__arrival .scene-arrival {animation:scene-wash-out 420ms ease both;}
 .scene-sequence[data-phase="out"][data-scene="battle"] .scene-sequence__frame {
   animation: scene-battle-out 520ms cubic-bezier(.42,0,.68,1) both;
 }
