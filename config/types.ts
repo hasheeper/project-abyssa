@@ -3,6 +3,7 @@ export type AssetProfile = "mansion" | "paper-dolls" | "emotes";
 export type Entry = {
   id: string;
   html: string;
+  sourceHtml?: string;
   kind: EntryKind;
   port: number;
   open?: boolean;

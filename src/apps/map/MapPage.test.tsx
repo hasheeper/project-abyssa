@@ -242,7 +242,7 @@ describe("map sortie", () => {
     if (record.schemaVersion !== 1) throw new Error("legacy fixture required");
     expect(record.snapshot.expedition?.party.map(member => member.id)).toEqual(["kael", "eustice"]);
     expect(mocks.navigate).toHaveBeenCalledWith(
-      expect.stringMatching(/^\.\/battle.html\?save=save&epoch=epoch&expedition=/),
+      expect.stringMatching(/^#\/battle\?save=save&epoch=epoch&expedition=/),
       expect.objectContaining({ destination: "裂隙遠征" })
     );
   });

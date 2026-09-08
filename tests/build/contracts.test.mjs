@@ -9,7 +9,7 @@ import { validateEntries } from '../../scripts/check-entries.mjs';
 import { createArtifactServer } from '../../scripts/serve-built.mjs';
 
 /** @param {string} id @param {string[]} navigationDependencies @returns {import('../../config/types.js').Entry} */
-const entry = (id, navigationDependencies) => ({ id, html: `${id}.html`, kind: 'game', port: 5173, navigationDependencies, assetProfiles: [] });
+const entry = (id, navigationDependencies) => ({ id, html: `${id}.html`, kind: 'lab', port: 5173, navigationDependencies, assetProfiles: [] });
 
 test('navigation closure terminates on real back links and rejects missing destinations', () => {
   const catalog = [entry('one', ['two']), entry('two', ['one'])];

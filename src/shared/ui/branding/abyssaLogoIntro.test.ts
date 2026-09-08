@@ -51,25 +51,20 @@ describe("logo intro sequence", () => {
     expect(ABYSSA_LOGO_INTRO_TOTAL_MS).toBeLessThan(4_600);
   });
 
-  it("uses short-long-short-long visible beats for the Chinese title", () => {
-    // “出现”看 opacity 到 1 的关键帧,而不是只看 animation-delay。
-    const arrivals = [
-      ABYSSA_LOGO_INTRO_PIECES.titleTopLead.delay
-        + ABYSSA_LOGO_INTRO_PIECES.titleTopLead.duration * 0.24,
-      ABYSSA_LOGO_INTRO_PIECES.titleTopAccent.delay
-        + ABYSSA_LOGO_INTRO_PIECES.titleTopAccent.duration * 0.16,
-      ABYSSA_LOGO_INTRO_PIECES.titleMiddleBridge.delay
-        + ABYSSA_LOGO_INTRO_PIECES.titleMiddleBridge.duration * 0.24,
-      ABYSSA_LOGO_INTRO_PIECES.titleBottomLead.delay
-        + ABYSSA_LOGO_INTRO_PIECES.titleBottomLead.duration * 0.24,
-      ABYSSA_LOGO_INTRO_PIECES.titleBottomTail.delay
-        + ABYSSA_LOGO_INTRO_PIECES.titleBottomTail.duration * 0.16
+  it("hands the Chinese reading order from a visible word to the next before settling", () => {
+    const pieces = [
+      ABYSSA_LOGO_INTRO_PIECES.titleTopLead,
+      ABYSSA_LOGO_INTRO_PIECES.titleTopAccent,
+      ABYSSA_LOGO_INTRO_PIECES.titleMiddleBridge,
+      ABYSSA_LOGO_INTRO_PIECES.titleBottomLead,
+      ABYSSA_LOGO_INTRO_PIECES.titleBottomTail
     ];
-    const gaps = arrivals.slice(1).map((arrival, index) => arrival - arrivals[index]);
-
-    expect(gaps).toEqual([280, 520, 240, 500]);
-    expect(gaps[0]).toBeLessThan(gaps[1]);
-    expect(gaps[2]).toBeLessThan(gaps[3]);
+    for (let i = 1; i < pieces.length; i++) {
+      const previous = pieces[i - 1];
+      // 前词显清楚后再接入；下一词不用等整段回弹结束。
+      expect(pieces[i].delay).toBeGreaterThan(previous.delay + previous.duration * 0.18);
+      expect(pieces[i].delay).toBeLessThan(previous.delay + previous.duration);
+    }
   });
 
   it("holds the wordmark until the divider gems have settled", () => {
@@ -78,15 +73,16 @@ describe("logo intro sequence", () => {
     expect(wordmark.delay).toBeGreaterThanOrEqual(2_640);
   });
 
-  it("gives the closing question mark its own slower beat", () => {
-    // 问号是整句话的语气,不该和标题同速。
+  it("joins the question mark to the closing word while it is still in motion", () => {
     const question = getAbyssaLogoIntroStep("questionMark");
-    const titleBottom = getAbyssaLogoIntroStep("titleBottom");
+    const tail = ABYSSA_LOGO_INTRO_PIECES.titleBottomTail;
 
-    expect(question.kind).toBe("accent");
-    expect(ABYSSA_LOGO_INTRO_DURATION.accent).toBeGreaterThan(
-      ABYSSA_LOGO_INTRO_DURATION[titleBottom.kind]
-    );
+    expect(question.kind).toBe("composite");
+    expect(ABYSSA_LOGO_INTRO_PIECES.questionHook.delay).toBe(question.delay);
+    expect(ABYSSA_LOGO_INTRO_PIECES.questionDot.delay).toBeGreaterThan(question.delay);
+    expect(ABYSSA_LOGO_INTRO_PIECES.questionDot.delay).toBeLessThan(question.delay + ABYSSA_LOGO_INTRO_PIECES.questionHook.duration);
+    expect(question.delay).toBeGreaterThan(tail.delay + tail.duration * 0.18);
+    expect(question.delay).toBeLessThan(tail.delay + tail.duration);
   });
 
   it("expands the divider from the centre instead of fading it", () => {
@@ -198,6 +194,9 @@ describe("logo intro stylesheet contract", () => {
       if (/translate\s*:/.test(frame)) {
         expect(to, `translate not reset:\n${frame}`).toMatch(/translate:\s*0 0\s*;/);
       }
+      if (/rotate\s*:/.test(frame)) {
+        expect(to, `rotation not reset:\n${frame}`).toMatch(/rotate:\s*0deg\s*;/);
+      }
     }
   });
 
@@ -228,18 +227,14 @@ describe("logo intro stylesheet contract", () => {
   });
 
 
-  it("never sets transform-box on the divider's inner pieces", () => {
-    // 内部零件在 <g transform="translate(123 466.5)"> 之内,坐标是局部的。
-    // 设成 view-box 会把 origin 挪到外层用户空间,而 keyframe 里的数值仍是
-    // 局部值 —— 局部数被当作用户空间偏移,构图立刻崩。默认 fill-box 才对。
+  it("anchors each divider piece to its own bounds instead of the default SVG view box", () => {
+    // SVG 实测默认是 view-box；必须显式设为 fill-box，避免缩放夹带位移。
     const pieceRules = introBlock.match(
       /\.abyssa-logo\[data-intro\][^{]*\[data-divider-piece[^{]*\{[^}]*\}/g
     ) ?? [];
     expect(pieceRules.length).toBeGreaterThanOrEqual(2);
-    for (const rule of pieceRules) {
-      expect(rule, `inner piece must not set transform-box:\n${rule}`).not.toMatch(
-        /transform-box/
-      );
+    for (const rule of pieceRules.filter(rule => /transform-origin:/.test(rule))) {
+      expect(rule, `inner piece must scale around itself:\n${rule}`).toMatch(/transform-box:\s*fill-box/);
     }
   });
 

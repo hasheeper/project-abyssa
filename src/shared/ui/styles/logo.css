@@ -106,26 +106,68 @@
   opacity: var(--abyssa-logo-part-opacity, 1);
 }
 
-/* 中文内部片段:伺候、魔王、拯救世界、吗分别落定。
-   fill-box 让每个 tspan 围绕自己的字面中心弹出,不触碰大部件的布局矩阵。 */
+/* 中文内部片段围绕自己的字面中心弹出，不触碰大部件的布局矩阵。
+   显字与弹性运动分开：字先清楚，随后完整走过上冲、回弹和落定。 */
 .abyssa-logo[data-intro] [data-title-piece] {
+  --abyssa-logo-piece-start: 0.8;
+  --abyssa-logo-piece-crest: 1.105;
+  --abyssa-logo-piece-rebound: 0.975;
+  --abyssa-logo-piece-rise: 16px;
+  --abyssa-logo-piece-crest-y: -5px;
+  --abyssa-logo-piece-rebound-y: 1.5px;
   transform-box: fill-box;
   transform-origin: 50% 58%;
-  animation-name: abyssa-logo-title-piece-pop;
+  animation-name: abyssa-logo-title-spring, abyssa-logo-title-ink;
   animation-fill-mode: both;
-  /* 节奏写进关键帧:开头迅速落字,剩余时间只做收尾。 */
+  /* 运动每段自带曲线；显字用单独的短渐入，不干扰运动速度。 */
   animation-timing-function: linear;
 }
 
-/* 红色重音和句尾“吗”多一拍回弹,但不改变静态字号。 */
-.abyssa-logo[data-intro] [data-title-piece="top-accent"],
-.abyssa-logo[data-intro] [data-title-piece="bottom-tail"] {
-  animation-name: abyssa-logo-title-accent-pop;
+/* “魔王”先带着倾角停留，再慢慢旋正；下一句可以接着读。 */
+.abyssa-logo[data-intro] [data-title-piece="top-accent"] {
+  transform-origin: 45% 70%;
+  animation-name: abyssa-logo-demon-turn, abyssa-logo-title-ink;
 }
 
-/* “也算”是轻连接词,独立一拍,不能复用整组缓慢放大的部件动画。 */
+/* 连接词横向滑入，句尾向上挑，各自承担不同语气。 */
 .abyssa-logo[data-intro] [data-title-piece="middle-bridge"] {
-  animation-name: abyssa-logo-title-bridge-pop;
+  animation-name: abyssa-logo-bridge-glide, abyssa-logo-title-ink;
+}
+
+.abyssa-logo[data-intro] [data-title-piece="bottom-tail"] {
+  transform-origin: 25% 75%;
+  animation-name: abyssa-logo-tail-lift, abyssa-logo-title-ink;
+}
+
+/* 四字由左至右小幅展开，整词壳保持静止，不叠加一次整组弹入。 */
+.abyssa-logo[data-intro] [data-title-piece="bottom-lead"] {
+  animation: none;
+  opacity: 1;
+}
+
+.abyssa-logo[data-intro] [data-world-glyph] {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation-name: abyssa-logo-world-unfold, abyssa-logo-title-ink;
+  animation-timing-function: linear;
+  animation-fill-mode: both;
+}
+
+/* 问号和红点分别演出；外层只承载编辑器布局矩阵。 */
+.abyssa-logo[data-intro] [data-question-piece] {
+  transform-box: fill-box;
+  animation-timing-function: linear;
+  animation-fill-mode: both;
+}
+
+.abyssa-logo[data-intro] [data-question-piece="hook"] {
+  transform-origin: 50% 38%;
+  animation-name: abyssa-logo-question-swing, abyssa-logo-title-ink;
+}
+
+.abyssa-logo[data-intro] [data-question-piece="dot"] {
+  transform-origin: 50% 50%;
+  animation-name: abyssa-logo-question-dot, abyssa-logo-title-ink;
 }
 
 /* 分隔线:整组不自己动,交给内部四个零件各演各的。 */
@@ -137,13 +179,10 @@
 /* 横线:从中心向两侧拉开。线的语汇是「展开」,不是「弹出」。
    轴心是 divider 局部坐标的中点 389(= (29+749)/2),
    放在 translate(123 466.5) 之内,所以补偿量也用局部值。 */
-/* 内部零件用**默认的 fill-box**,绝不能设 view-box:
-   它们位于 <g transform="translate(123 466.5)"> 之内,坐标是局部的。
-   一旦改成 view-box,origin 会落到外层用户空间,而 keyframe 里的数值
-   仍是局部值 —— 局部数被当成用户空间偏移,构图立刻崩。
-   fill-box 让 origin relative 到零件自身的包围盒,再配百分比即可,
-   完全不需要知道任何坐标数字。 */
+/* SVG 默认是 view-box，内部零件必须显式使用 fill-box，
+   否则百分比轴心落在整张 SVG 上，菱形缩放会夹带远距离位移。 */
 .abyssa-logo[data-intro] [data-intro="sweep"] [data-divider-piece="rule"] {
+  transform-box: fill-box;
   transform-origin: 50% 50%;
   /* divider 自身的 delay 是 2180ms;横线与它同时开始。 */
   animation: abyssa-logo-rule-open 720ms cubic-bezier(0.16, 0.84, 0.24, 1) 2180ms both;
@@ -152,6 +191,7 @@
 /* 三颗菱形:逐个弹出,再归位对齐。
    延迟是在 divider 自身 delay 之上叠加的,所以用独立的 animation-delay。 */
 .abyssa-logo[data-intro] [data-divider-piece^="gem"] {
+  transform-box: fill-box;
   transform-origin: 50% 50%;
   animation: abyssa-logo-gem-pop 620ms cubic-bezier(0.26, 1.42, 0.4, 1) both;
 }
@@ -224,85 +264,136 @@
   }
 }
 
-@keyframes abyssa-logo-title-piece-pop {
+/* 上冲在峰值前减速至零；后两段从零速起步，再回到零速。
+   36% → 64% → 100% 连成一次可见的回弹，不在峰值处硬折向。 */
+@keyframes abyssa-logo-title-spring {
   from {
-    opacity: 0;
-    translate: 0 7px;
-    scale: 0.84;
+    translate: 0 var(--abyssa-logo-piece-rise);
+    scale: var(--abyssa-logo-piece-start);
+    animation-timing-function: cubic-bezier(0.3, 0, 0.25, 1);
   }
-  8% {
-    opacity: 0.62;
-    translate: 0 2.4px;
-    scale: 0.93;
+  36% {
+    translate: 0 var(--abyssa-logo-piece-crest-y);
+    scale: var(--abyssa-logo-piece-crest);
+    animation-timing-function: cubic-bezier(0.4, 0, 0.35, 1);
   }
-  24% {
-    opacity: 1;
-    translate: 0 -1.2px;
-    scale: 1.055;
+  64% {
+    translate: 0 var(--abyssa-logo-piece-rebound-y);
+    scale: var(--abyssa-logo-piece-rebound);
+    animation-timing-function: cubic-bezier(0.4, 0, 0.35, 1);
+  }
+  to {
+    translate: 0 0;
+    scale: 1;
+  }
+}
+
+/* 轻微倾斜先被看清，旋正时越过一点再收住，重音的动作比起句更从容。 */
+@keyframes abyssa-logo-demon-turn {
+  from {
+    translate: 10px -4px;
+    rotate: -12deg;
+    scale: 0.95;
+    animation-timing-function: cubic-bezier(0.25, 0.1, 0.35, 1);
+  }
+  28% {
+    translate: 6px -3px;
+    rotate: -9deg;
+    scale: 1;
+    animation-timing-function: cubic-bezier(0.4, 0, 0.25, 1);
+  }
+  72% {
+    translate: 2px 1px;
+    rotate: 2.2deg;
+    scale: 1;
+    animation-timing-function: cubic-bezier(0.4, 0, 0.35, 1);
+  }
+  to { translate: 0 0; rotate: 0deg; scale: 1; }
+}
+
+@keyframes abyssa-logo-bridge-glide {
+  from {
+    translate: -12px 0;
+    animation-timing-function: cubic-bezier(0.18, 0.55, 0.25, 1);
+  }
+  70% {
+    translate: 1px 0;
+    animation-timing-function: cubic-bezier(0.4, 0, 0.35, 1);
+  }
+  to { translate: 0 0; }
+}
+
+@keyframes abyssa-logo-world-unfold {
+  from {
+    translate: -10px 9px;
+    animation-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
+  }
+  65% {
+    translate: 0 -1.5px;
+    animation-timing-function: cubic-bezier(0.4, 0, 0.35, 1);
+  }
+  to { translate: 0 0; }
+}
+
+@keyframes abyssa-logo-tail-lift {
+  from {
+    translate: 0 9px;
+    rotate: -6deg;
+    scale: 0.96;
+    animation-timing-function: cubic-bezier(0.3, 0, 0.25, 1);
+  }
+  45% {
+    translate: 0 -4px;
+    rotate: 4deg;
+    scale: 1;
+    animation-timing-function: cubic-bezier(0.4, 0, 0.35, 1);
+  }
+  to { translate: 0 0; rotate: 0deg; scale: 1; }
+}
+
+/* 右上 → 左上 → 轻轻下落，放开摆幅，逐次收小后回正。 */
+@keyframes abyssa-logo-question-swing {
+  from {
+    translate: 30px -28px;
+    rotate: -28deg;
+    scale: 0.9;
+    animation-timing-function: cubic-bezier(0.3, 0.05, 0.28, 1);
+  }
+  42% {
+    translate: -5px -5px;
+    rotate: 12deg;
+    scale: 1.045;
+    animation-timing-function: cubic-bezier(0.4, 0, 0.35, 1);
+  }
+  70% {
+    translate: 2px 1.5px;
+    rotate: -4.5deg;
+    scale: 1;
+    animation-timing-function: cubic-bezier(0.4, 0, 0.35, 1);
+  }
+  to { translate: 0 0; rotate: 0deg; scale: 1; }
+}
+
+@keyframes abyssa-logo-question-dot {
+  from {
+    translate: 0 -30px;
+    rotate: 45deg;
+    scale: 0.4;
+    animation-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
   }
   55% {
-    translate: 0 0.4px;
-    scale: 0.992;
+    translate: 0 5px;
+    rotate: -12deg;
+    scale: 1.16;
+    animation-timing-function: cubic-bezier(0.4, 0, 0.35, 1);
   }
-  to {
-    opacity: 1;
-    translate: 0 0;
-    scale: 1;
-  }
+  to { translate: 0 0; rotate: 0deg; scale: 1; }
 }
 
-@keyframes abyssa-logo-title-accent-pop {
-  from {
-    opacity: 0;
-    translate: 0 9px;
-    scale: 0.76;
-  }
-  5% {
-    opacity: 0.68;
-    translate: 0 3px;
-    scale: 0.89;
-  }
-  16% {
-    opacity: 1;
-    translate: 0 -2px;
-    scale: 1.1;
-  }
-  48% {
-    translate: 0 0.7px;
-    scale: 0.98;
-  }
-  to {
-    opacity: 1;
-    translate: 0 0;
-    scale: 1;
-  }
-}
-
-@keyframes abyssa-logo-title-bridge-pop {
-  from {
-    opacity: 0;
-    translate: 0 4px;
-    scale: 0.92;
-  }
-  10% {
-    opacity: 0.7;
-    translate: 0 1.4px;
-    scale: 0.97;
-  }
-  24% {
-    opacity: 1;
-    translate: 0 -0.6px;
-    scale: 1.025;
-  }
-  60% {
-    translate: 0 0.2px;
-    scale: 0.995;
-  }
-  to {
-    opacity: 1;
-    translate: 0 0;
-    scale: 1;
-  }
+@keyframes abyssa-logo-title-ink {
+  from { opacity: 0; }
+  18% { opacity: 1; }
+  to { opacity: 1; }
 }
 
 /* 字标揭开:mask-size 宽度 0 → 1400px。
@@ -392,10 +483,13 @@
   .abyssa-logo[data-intro] [data-divider-piece],
   .abyssa-logo[data-intro] [data-title-piece],
   .abyssa-logo[data-intro] [data-wordmark-gem],
-  .abyssa-logo[data-intro] [data-wordmark-piece] {
+  .abyssa-logo[data-intro] [data-wordmark-piece],
+  .abyssa-logo[data-intro] [data-world-glyph],
+  .abyssa-logo[data-intro] [data-question-piece] {
     animation: none !important;
     opacity: var(--abyssa-logo-part-opacity, 1);
     translate: none;
+    rotate: none;
     scale: none;
   }
 

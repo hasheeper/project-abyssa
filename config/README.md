@@ -7,11 +7,11 @@
 | 命令 | 页面／用途 | 输出 |
 | --- | --- | --- |
 | `npm run dev` | 组件目录，5173 | — |
-| `npm run dev:game` | 十个游戏页面，5190，标题首页 | `npm run build:game` → `dist/game` |
+| `npm run dev:game` | 单入口＋十个懒加载路由，5190 | `npm run build:game` → `dist/game` |
 | `npm run dev:lab` | catalog／loading／novel／rp，5191 | `npm run build:lab` → `dist/lab` |
 | `npm run dev:tools` | 五个制作工具，5192 | `npm run build:tools` → `dist/tools` |
 | `npm run build` | UI 包及类型声明 | `dist/ui` |
-| 旧 `dev:<name>`／`build:<name>`／`preview:<name>` | 对应独立页面，保留已登记端口 | `dist/entries/<name>` |
+| 旧 `dev:<name>`／`build:<name>`／`preview:<name>` | 对应页面／默认路由，保留已登记端口 | `dist/entries/<name>` |
 
 `build:all` 构建 ui、game、lab、tools。目标只能清空自己的目录，UI 包 `files` 只包含 `dist/ui`；包导出键保持不变，旧 `dist/index.js` 物理路径已迁移。
 
@@ -20,7 +20,7 @@
 ## 新增与修改入口
 
 1. 在 `entries.mjs` 登记 ID、HTML、用途、开发端口、下游页面和动态资源需求。
-2. 页面源码继续位于 `src/apps/<id>` 或 `src/tools/<id>`；根 HTML 的 module script 指向相应 `main.tsx`。
+2. 游戏只有根 `index.html`，指向 `src/game-shell/main.tsx`。页面源码在 `src/apps/<id>`；`route.tsx` 导出页面组件、导入原样式，并在 `src/game-shell/routes.ts` 与共享 route 表登记懒加载入口。实验／工具 HTML 位于 `entries/lab`／`entries/tools`，用 `sourceHtml` 登记源码路径，仍以原扁平 URL 发行。
 3. 只有新增一种实际构建策略时才修改 `targets.mjs`／Vite 工厂，不复制整份配置。普通入口可通过运行器直接访问，无需增加配置文件。
 4. 执行 `npm run check:entries`、对应目标构建与 `check:output`，补充有必要的浏览器操作检查。
 
@@ -30,13 +30,13 @@ node scripts/run-target.mjs build entry:title
 node scripts/check-build-output.mjs entry:title
 ```
 
-入口的导航闭包自动纳入独立构建；往返链接合法，未知页面失败。group 归属表示发行用途，不意味着页面已经拥有完整玩法。Battle 纯规则已在 S1 迁出，统一存档与场景结算继续按 S2/S3 推进。
+游戏入口命令均构建同一完整路由壳，区别是默认落点。实验和工具仍按入口依赖构建；往返链接合法，未知页面失败。group 归属表示发行用途，不意味着页面已经拥有完整玩法。Battle 纯规则已在 S1 迁出，统一存档与场景结算继续按 S2/S3 推进。
 
 ## 输出与资源
 
 `paths.mjs` 限制清理范围，运行器不依赖当前 shell 工作目录。`--outDir` 允许目标自己的目录或显式外部临时目录；不允许覆盖其他目标、仓库根或源码。资源插件读取最终 outDir，骰局首页不会覆盖 game 标题首页。
 
-洋馆动态层图片、十名角色纸娃娃和 studio 漫符参与完整性检查。`paper-dolls`／`emotes` 资源策略按入口复制素材；应用构建向共享组件注入相对素材根路径，组件 props 与 UI 包原有默认值保持兼容。novel／rp 背景通过静态 import 打包；Storybook 也提供相同的素材目录。Vite manifest 用于核对 chunk、CSS 与导入资产。现有外链地图、立绘和 Google Fonts 仍按 README 说明加载；S0 不包含完整离线素材迁移。
+洋馆动态层图片、十名角色纸娃娃和 studio 漫符参与完整性检查。`paper-dolls`／`emotes` 资源策略按入口复制素材；应用构建向共享组件注入相对素材根路径，组件 props 与 UI 包原有默认值保持兼容。novel／rp 背景通过静态 import 打包；Storybook 也提供相同的素材目录。Vite manifest 用于核对 chunk、CSS 与导入资产。游戏启动插件另外生成完整资源清单与内容缓存Worker，字体已本地化；部署与缓存契约见[资源启动说明](../src/shared/loading/README.md)。实验和工具页保留各自的素材策略。
 
 每次目标构建生成 `dist/reports/<target>.json`，包含排序后的文件、字节数、SHA-256、Node、包管理器和 Git 来源。源码压缩包缺少 Git 时来源标为 null，仍允许构建。
 

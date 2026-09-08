@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import tibbyPortrait from "../../../assets/characters/portraits/tibby-shop.png";
 import { Nameplate } from "../../../shared/ui/primitives/Nameplate";
 import { RpgDialogue } from "../../../shared/ui/primitives/RpgDialogue";
 import { MOODS } from "../game";
@@ -29,7 +30,7 @@ export function TibbyStage({ dialogue, dialogueKey, moodKey }: TibbyStageProps) 
         <figure className="portrait-panel wood-panel" data-expression={expression}>
           <div className="portrait-panel__background"><div className="diamond-pattern" /><span className="portrait-panel__halo" aria-hidden="true" /></div>
           <div className="portrait-panel__image" key={dialogueKey}>
-            <img src="https://files.catbox.moe/0d7uzq.png" alt="缇比·奥雷利亚" />
+            <img src={tibbyPortrait} alt="缇比·奥雷利亚" />
           </div>
           <Nameplate className="portrait-panel__nameplate" name="缇比·奥雷利亚" secondaryName="TIBBY AURELIA" />
           <WoodCorners />

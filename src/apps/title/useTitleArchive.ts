@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import { createBrowserGameRuntime } from "../../game-runtime/browser";
+import type { createBrowserGameRuntime } from "../../game-runtime/browser";
 import type { PlayerSaveListEntry as SaveListEntry } from "../../game-runtime/player-runtime";
-import { activeRunId } from "../../game-client/session";
-import { gameHref, recentSave, rememberSave, recordLocator, type SaveLocator } from "../../game-client/navigation";
-import { downloadJson, gameErrorText } from "../../game-client/react";
+import { gameHref, recentSave, rememberSave, recordLocator, locatorHasRun, type SaveLocator } from "../../game-client/navigation";
+import { downloadJson, gameErrorText } from "../../game-client/game-errors";
+import { readTitleSaveList } from "../../game-client/title-save-list";
 import { archiveCandidates, isSaveArchived, readSaveArchive, writeSaveArchive, type ArchivedSave } from "../../game-client/save-archive";
 
 const creationKey = "abyssa:new-save:first-morning-v2";
@@ -19,6 +19,7 @@ function identity(runtime: ReturnType<typeof createBrowserGameRuntime>, key: str
 }
 export function useTitleArchive(navigate: (href: string) => void) {
   const runtime = useRef<ReturnType<typeof createBrowserGameRuntime> | null>(null);
+  const listing = useRef<AbortController | null>(null);
   const alive = useRef(false), locked = useRef(false), generation = useRef(0);
   const [saves, setSaves] = useState<SaveListEntry[]>([]);
   const [busy, setBusy] = useState(true), [message, setMessage] = useState("正在读取档案…");
@@ -26,23 +27,38 @@ export function useTitleArchive(navigate: (href: string) => void) {
   const [archived, setArchived] = useState<ArchivedSave[]>([]);
   const [showArchived, setShowArchived] = useState(false);
   async function list() {
-    const source = runtime.current;
-    const result = await source!.application.list();
-    if (!alive.current || runtime.current !== source) return;
-    if (result.ok) { setSaves(result.saves); setArchived(readSaveArchive(localStorage)); setMessage(result.saves.length ? "选择继续游戏，或开启新的档案。" : "尚未有存档。"); }
-    else setMessage(gameErrorText(result.error.code));
+    listing.current?.abort();
+    const controller = new AbortController(); listing.current = controller;
+    try {
+      const result = await readTitleSaveList(controller.signal);
+      if (!alive.current || controller.signal.aborted) return;
+      if (result.ok) { setSaves(result.saves); setArchived(readSaveArchive(localStorage)); setMessage(result.saves.length ? "选择继续游戏，或开启新的档案。" : "尚未有存档。"); }
+      else setMessage(gameErrorText(result.error.code));
+    } catch {
+      if (alive.current && !controller.signal.aborted) setMessage("本机存档暂不可用，请重新读取档案。");
+    } finally { if (listing.current === controller) listing.current = null; }
   }
   useEffect(() => {
     alive.current = true; const version = ++generation.current;
-    try { runtime.current = createBrowserGameRuntime(); void list().finally(() => { if (alive.current && version === generation.current) setBusy(false); }); }
-    catch { setMessage("本机存档暂不可用，请刷新后重试。"); setBusy(false); }
-    return () => { alive.current = false; runtime.current?.close(); runtime.current = null; };
+    // The discarded StrictMode setup must not start a second database scan.
+    queueMicrotask(() => {
+      if (alive.current && version === generation.current) void list().finally(() => { if (alive.current && version === generation.current) setBusy(false); });
+    });
+    return () => { alive.current = false; listing.current?.abort(); runtime.current?.close(); runtime.current = null; };
   }, []);
   async function operation(work: () => Promise<unknown>) {
-    if (!alive.current || locked.current || !runtime.current) return;
+    if (!alive.current || locked.current) return;
+    const version = generation.current;
     locked.current = true; setBusy(true);
-    try { await work(); } catch { if (alive.current) setMessage("档案操作未完成，请重试；原有档案已保留。"); }
-    finally { locked.current = false; if (alive.current) setBusy(false); }
+    try {
+      if (!runtime.current) {
+        const module = await import("../../game-runtime/browser");
+        if (!alive.current || version !== generation.current) return;
+        runtime.current = module.createBrowserGameRuntime();
+      }
+      await work();
+    } catch { if (alive.current && version === generation.current) setMessage("档案操作未完成，请重试；原有档案已保留。"); }
+    finally { locked.current = false; if (alive.current && version === generation.current) setBusy(false); }
   }
   async function enter(locator: SaveLocator) {
     let result = await runtime.current!.application.open(locator.saveId);
@@ -61,11 +77,11 @@ export function useTitleArchive(navigate: (href: string) => void) {
         if(!result.ok) {setMessage(gameErrorText(result.error.code));return;}
       }
     }
-    rememberSave(recordLocator(result.record));
-    const expeditionId = activeRunId(result.record);
+    const destination = recordLocator(result.record);
+    rememberSave(destination);
     const prologue = result.record.schemaVersion === 4 && result.record.snapshot.campaign.prologue?.status === "playing";
     const opening = result.record.schemaVersion === 4 && result.record.snapshot.campaign.opening?.status === "playing";
-    navigate(gameHref(prologue ? "prologue" : opening ? "mansion" : expeditionId ? "battle" : "menu", recordLocator(result.record)));
+    navigate(gameHref(prologue ? "prologue" : opening ? "mansion" : locatorHasRun(destination) ? "battle" : "menu", destination));
     return true;
   }
   const archivedIds = new Set(saves.filter(s => isSaveArchived(s, archived, saves, recentSave())).map(s => s.saveId));

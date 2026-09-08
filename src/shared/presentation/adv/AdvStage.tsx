@@ -202,7 +202,7 @@ export function AdvStage({ actors, messages, background, initialSlots, typing, h
         <div className="rp-adv__actor-body">
           <ActorPerformance cue={performance} replay={replay}>
           <EmotionActor characterId={actorId} cue={cue} active={active && !overlay && !performance} placement={cue?.emote ? actor.emotePlacements?.[cue.emote] : undefined}
-            hydrate={hydratedKeys.has(`${seat}:${actorId}`)} replay={replay} delay={hydratedKeys.has(`${seat}:${actorId}`) ? 100 : 700}>
+            hydrate={hydrate && hydratedKeys.has(`${seat}:${actorId}`)} replay={replay}>
           {actor.portrait ? (
             <img
               className="rp-adv__portrait"

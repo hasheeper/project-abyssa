@@ -5,6 +5,7 @@ const mocks = vi.hoisted(() => ({
     domElement: HTMLCanvasElement;
     scene?: import("three").Scene;
     dispose: ReturnType<typeof vi.fn>;
+    forceContextLoss: ReturnType<typeof vi.fn>;
   }>,
   rawTextures: [] as Array<import("three").Texture>,
   deferredLoads: [] as Array<() => void>,
@@ -33,6 +34,7 @@ vi.mock("three", async (importOriginal) => {
     outputEncoding = actual.LinearEncoding;
     toneMapping = actual.NoToneMapping;
     dispose = vi.fn();
+    forceContextLoss = vi.fn();
     scene?: import("three").Scene;
 
     constructor() {
@@ -183,6 +185,7 @@ describe("createMapScene", () => {
     controller.destroy();
     expect(mocks.disposeResources).toHaveBeenCalledOnce();
     expect(renderer.dispose).toHaveBeenCalledOnce();
+    expect(renderer.forceContextLoss).toHaveBeenCalledOnce();
     expect(container.querySelector("canvas")).toBeNull();
     expect(vi.getTimerCount()).toBe(0);
   });

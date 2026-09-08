@@ -6,6 +6,9 @@ import "./transition.css";
 export interface SceneTransitionProps extends SceneTransitionCopy {
   phase: SceneTransitionPhase;
   className?: string;
+  progress?: number;
+  error?: string;
+  onRetry?: () => void;
 }
 
 /**
@@ -21,7 +24,7 @@ export function SceneTransition({
   channel = "正在前往",
   cinematic = false,
   still,
-  className
+  className, progress, error, onRetry
 }: SceneTransitionProps) {
   const active = phase !== "idle";
   const rootClass = ["scene-transition", className].filter(Boolean).join(" ");
@@ -33,7 +36,7 @@ export function SceneTransition({
         data-phase={phase}
         data-cinematic={cinematic || undefined}
         data-active={active || undefined}
-        aria-hidden="true"
+        aria-hidden={!active || undefined}
       >
         <div className="scene-transition__veil" />
         {cinematic && still && <img className="scene-transition__still" src={still} alt=""/>}
@@ -73,9 +76,11 @@ export function SceneTransition({
               <div className="scene-transition__copy">
                 <span className="scene-transition__channel">{channel}</span>
                 <strong className="scene-transition__destination">{destination}</strong>
-                <span className="scene-transition__activity" aria-hidden="true">
+                {progress !== undefined && !error && <span className="scene-transition__progress" role="progressbar" aria-label="资源准备" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100}>{progress}%</span>}
+                {error && <><span className="scene-transition__error" role="alert">{error}</span><button className="scene-transition__retry" onClick={onRetry}>重试</button></>}
+                {progress === undefined && !error && <span className="scene-transition__activity" aria-hidden="true">
                   <i /><i /><i />
-                </span>
+                </span>}
               </div>
             </div>
           </RpgFrame>

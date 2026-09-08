@@ -41,6 +41,7 @@ function owner(path) {
   if (first === 'game-infrastructure') return { kind: 'adapter', name: second };
   if (first === 'game-runtime') return { kind: 'runtime', name: first };
   if (first === 'game-client') return { kind: 'client', name: first };
+  if (first === 'game-shell') return { kind: 'shell', name: first };
   if (first === 'apps') return { kind: 'app', name: second };
   if (first === 'tools') return { kind: 'tool', name: second };
   if (['shared', 'content', 'assets'].includes(first)) return { kind: first, name: first };
@@ -52,6 +53,10 @@ function owner(path) {
 /** @param {string} from @param {string} to */
 function ownershipViolation(from, to, typeOnly = false) {
   const a = owner(from), b = owner(to);
+  if (a.kind === 'shell') {
+    if (['shell', 'shared'].includes(b.kind) || b.kind === 'app' && /\/route\.tsx$/.test(to)) return null;
+    return 'game shell may only compose shared services and application route entries';
+  }
   const pureTest = isTestSupport(from) && ['core', 'application', 'runtime', 'adapter'].includes(a.kind);
   if (pureTest && ['core', 'application', 'runtime', 'adapter', 'content'].includes(b.kind)) return null;
   if (isTestSupport(from) && a.kind === 'client' && ['runtime', 'application', 'adapter', 'core'].includes(b.kind)) return null;
@@ -252,7 +257,8 @@ export function checkModuleBoundaries(root) {
     }
     inspect(entry);
   }
-  for (const entry of ['title', 'menu', 'map', 'battle', 'mansion', 'shop'].map(id => `src/apps/${id}/main.tsx`)) {
+  // Keep legacy roots for migration fixtures, and audit the real lazy route closure.
+  for (const entry of ['src/game-shell/main.tsx', ...['title', 'menu', 'map', 'battle', 'mansion', 'shop'].flatMap(id => [`src/apps/${id}/main.tsx`, `src/apps/${id}/route.tsx`])]) {
     const seen = new Set();
     /** @param {string} name */
     function inspect(name) {

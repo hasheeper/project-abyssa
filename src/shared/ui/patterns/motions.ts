@@ -72,33 +72,25 @@ function oscillate(opts: {
 }
 
 /**
- * 点头 —— 顿挫感来自**急停**,不是来自幅度。
- *
- * 三个手法叠加,缺一个都会变软:
- *   ① 下落用 ease-in(加速抵达),从最高速骤停为零 —— 这个速度差就是「撞到底」
- *   ② 底部顿住 45ms —— 动画原理里的 pose-to-hold,只有 3 帧但读得出来
- *   ③ 底部轻微压缩 scaleY .99 —— squash,低幅度下不显卡通,却能卖出冲击
- *
- * 下落段**刻意不过冲**(不越过底点再回来),那会把急停整个软化掉。
- * 过冲只留给回弹段。
+ * 点头 —— 稳稳下沉，短暂停住，再稍快抬起。
+ * 基准 30px / 820ms：410ms 下沉、82ms 停顿、246ms 抬起、82ms 收稳。
+ * 下沉两端都缓速，不再加速撞底；回程只越过原位 8%，不弹成跳跃。
+ * 使用纯位移，避免压缩身高把下沉读成弯折。
  *
  * 用位移而非旋转:扁平 PNG 立绘做旋转点头会让脚跟着甩,
  * 读起来是「歪头」不是「点头」。位移式还有个好处 —— 底部原点就够,
  * 不需要逐角色标注颈部位置。
  */
-export function nod(amp = 15): MotionSpec {
+export function nod(amp = 30): MotionSpec {
   return {
     keyframes: [
-      { offset: 0, transform: NEUTRAL, easing: "cubic-bezier(0.45, 0, 0.9, 0.6)" },
-      // 落底(150ms / 430ms = 0.349)
-      { offset: 0.349, transform: frame(0, amp, 0, 0.99), easing: "linear" },
-      // 顿住(至 195ms = 0.453)—— 这一段是「顿」的来源,别删
-      { offset: 0.453, transform: frame(0, amp, 0, 0.99), easing: "cubic-bezier(0.2, 0.7, 0.3, 1)" },
-      // 回弹过冲(至 330ms = 0.767)
-      { offset: 0.767, transform: frame(0, -amp * 0.33, 0, 1.004), easing: "cubic-bezier(0.3, 0, 0.4, 1)" },
+      { offset: 0, transform: NEUTRAL, easing: "cubic-bezier(0.32, 0, 0.48, 1)" },
+      { offset: 0.5, transform: frame(0, amp), easing: "linear" },
+      { offset: 0.6, transform: frame(0, amp), easing: "cubic-bezier(0.22, 0, 0.26, 1)" },
+      { offset: 0.9, transform: frame(0, -amp * 0.08), easing: "cubic-bezier(0.4, 0, 0.6, 1)" },
       { offset: 1, transform: NEUTRAL }
     ],
-    options: { duration: 430, fill: "none" }
+    options: { duration: 820, fill: "none" }
   };
 }
 

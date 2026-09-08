@@ -1,3 +1,4 @@
+import { routeSearch } from "../shared/routing/location";
 import {
   createContext,
   useContext,
@@ -40,7 +41,7 @@ export function ReadGameProvider({
   children: ReactNode;
   factory?: () => GameReader;
 }) {
-  const [search, setSearch] = useState(() => window.location.search);
+  const [search, setSearch] = useState(() => routeSearch());
   const [session, setSession] = useState<ReadGameSession | null>(null);
   const [error, setError] = useState("");
   const [attempt, setAttempt] = useState(0);
@@ -49,7 +50,7 @@ export function ReadGameProvider({
     ? JSON.stringify([locator.saveId, locator.epoch])
     : "";
   useEffect(() => {
-    const update = () => setSearch(window.location.search);
+    const update = () => setSearch(routeSearch());
     window.addEventListener("popstate", update);
     window.addEventListener("pageshow", update);
     return () => {
@@ -60,7 +61,7 @@ export function ReadGameProvider({
   useEffect(() => {
     setSession(null);
     setError("");
-    const current = parseLocator(window.location.search);
+    const current = parseLocator(routeSearch());
     if (!current) return;
     let active: ReadGameSession | undefined;
     let observer: ReturnType<typeof observeCommits> | undefined;

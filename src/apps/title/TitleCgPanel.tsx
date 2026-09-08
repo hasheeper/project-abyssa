@@ -1,88 +1,92 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import { TITLE_CG_FRAMES } from "./titleCg";
+import { loadImage } from "../../shared/loading/images";
 
 export interface TitleCgPanelProps {
   side: "left" | "right";
-  /** 停留时长。左右刻意不同,避免两侧同步闪切。 */
+  /** 左右使用不同停留、首切、淡化与步长，维持原本错拍节奏。 */
   dwellMs: number;
-  /** 起手帧下标,右侧错开一张。 */
   initialIndex?: number;
-  /** 首次换帧前的等待；它与常规停留分开,左右才能真正错拍。 */
   initialDelayMs: number;
-  /** 单次交叉淡化时长。 */
   fadeMs: number;
-  /** 每次跨过几帧；与帧数互质时仍会遍历全部图片。 */
   step: number;
 }
 
-/**
- * 单侧 CG 轮播。
- *
- * 所有帧都常驻 DOM,只切 opacity —— 交叉淡入必须两张同时在场,
- * 换 src 会先闪一下空白。十一张都已压成轻量 WebP,常驻的代价可控。
- *
- * 只做淡入淡出,**不做滑动**:背景场本身在缓慢自转,再加位移会两种运动打架。
- */
-export function TitleCgPanel({
-  side,
-  dwellMs,
-  initialIndex = 0,
-  initialDelayMs,
-  fadeMs,
-  step
-}: TitleCgPanelProps) {
-  const [index, setIndex] = useState(initialIndex % TITLE_CG_FRAMES.length);
+type Frame = { index: number; active: boolean };
+
+/** 首屏只解码当下的 CG；下一帧提前准备，解码成功后才交叉淡化。 */
+export function TitleCgPanel({ side, dwellMs, initialIndex = 0, initialDelayMs, fadeMs, step }: TitleCgPanelProps) {
+  const [frames, setFrames] = useState<Frame[]>([{ index: initialIndex % TITLE_CG_FRAMES.length, active: true }]);
+  const ready = useRef<(index: number, image: HTMLImageElement) => void>(() => {});
+  const failed = useRef<(index: number) => void>(() => {});
 
   useEffect(() => {
     if (TITLE_CG_FRAMES.length < 2) return;
-
-    // 尊重系统的降低动效设置:此时定格在首帧,不做轮播。
     const query = window.matchMedia?.("(prefers-reduced-motion: reduce)");
-    if (query?.matches) return;
-
-    let interval: number | undefined;
-    const advance = () => {
-      setIndex((current) => (current + step) % TITLE_CG_FRAMES.length);
+    let current = initialIndex % TITLE_CG_FRAMES.length;
+    let candidate = current;
+    let generation = 0;
+    const timers = new Set<number>();
+    const later = (callback: () => void, ms: number) => {
+      const id = window.setTimeout(() => { timers.delete(id); callback(); }, ms);
+      timers.add(id);
     };
-
-    const first = window.setTimeout(() => {
-      advance();
-      interval = window.setInterval(advance, dwellMs);
-    }, initialDelayMs);
-
+    const stop = () => {
+      generation++;
+      timers.forEach(window.clearTimeout); timers.clear();
+      ready.current = failed.current = () => {};
+    };
+    function schedule(delay: number) {
+      const version = generation, due = performance.now() + delay;
+      // 首切 6.2/7.6 秒，预备帧避开约 4 秒的 Logo 入场。
+      later(() => {
+        candidate = (candidate + step) % TITLE_CG_FRAMES.length;
+        const next = candidate;
+        ready.current = async (index, image) => {
+          if (index !== next) return;
+          ready.current = () => {};
+          try { await loadImage(TITLE_CG_FRAMES[index].src, image, true); }
+          catch { failed.current(next); return; }
+          if (version !== generation) return;
+          later(() => {
+            current = next;
+            setFrames(previous => previous.map(frame => ({ ...frame, active: frame.index === current })));
+            later(() => setFrames([{ index: current, active: true }]), fadeMs);
+            schedule(dwellMs);
+          }, Math.max(32, due - performance.now()));
+        };
+        failed.current = index => {
+          if (index !== next || version !== generation) return;
+          ready.current = failed.current = () => {};
+          setFrames([{ index: current, active: true }]);
+          schedule(dwellMs);
+        };
+        setFrames([{ index: current, active: true }, { index: next, active: false }]);
+      }, Math.max(0, delay - 1500));
+    }
+    const resume = () => {
+      stop();
+      setFrames([{ index: current, active: true }]);
+      if (!document.hidden && !query?.matches) schedule(initialDelayMs);
+    };
+    resume();
+    document.addEventListener("visibilitychange", resume);
+    query?.addEventListener("change", resume);
     return () => {
-      window.clearTimeout(first);
-      if (interval !== undefined) window.clearInterval(interval);
+      stop();
+      document.removeEventListener("visibilitychange", resume);
+      query?.removeEventListener("change", resume);
     };
-  }, [dwellMs, initialDelayMs, step]);
-
-  const playbackStyle = {
-    "--title-cg-fade-duration": `${fadeMs}ms`
-  } as CSSProperties;
+  }, [initialIndex, dwellMs, initialDelayMs, fadeMs, step]);
 
   return (
-    <div
-      className="title-cg"
-      data-side={side}
-      data-initial-delay={initialDelayMs}
-      data-playback-step={step}
-      style={playbackStyle}
-      aria-hidden="true"
-    >
-      {TITLE_CG_FRAMES.map((frame, frameIndex) => (
-        <img
-          key={frame.src}
-          className="title-cg__frame"
-          src={frame.src}
-          alt=""
-          data-active={frameIndex === index || undefined}
-          decoding="async"
-          /* 首帧要参与转场的资源等待(TransitionProvider 会等 document.images),
-             所以不能用 lazy —— 否则黑幕揭开时 CG 还是空的。 */
-          loading="eager"
-          draggable={false}
-        />
+    <div className="title-cg" data-side={side} data-initial-delay={initialDelayMs} data-playback-step={step}
+      style={{ "--title-cg-fade-duration": `${fadeMs}ms` } as CSSProperties} aria-hidden="true">
+      {frames.map(frame => (
+        <img key={frame.index} className="title-cg__frame" src={TITLE_CG_FRAMES[frame.index].src} alt=""
+          data-active={frame.active || undefined} decoding="async" loading="eager" draggable={false}
+          onLoad={event => ready.current(frame.index, event.currentTarget)} onError={() => failed.current(frame.index)} />
       ))}
     </div>
   );

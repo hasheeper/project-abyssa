@@ -1,7 +1,7 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { ABYSSA_LOGO_VIEW_BOXES, AbyssaLogo } from "./AbyssaLogo";
-import { ABYSSA_LOGO_INTRO_SEQUENCE } from "./abyssaLogoIntro";
+import { ABYSSA_LOGO_INTRO_PIECES, ABYSSA_LOGO_INTRO_SEQUENCE } from "./abyssaLogoIntro";
 
 afterEach(cleanup);
 
@@ -177,6 +177,21 @@ describe("AbyssaLogo intro", () => {
     expect(divider.style.cursor).toBe("pointer");
     fireEvent.click(divider);
     expect(onPartSelect).toHaveBeenCalledWith("divider");
+  });
+
+  it("unfolds all four world-title glyphs within the word's time window", () => {
+    const { container } = render(<AbyssaLogo intro />);
+    const word = container.querySelector('[data-title-piece="bottom-lead"]')!;
+    const glyphs = Array.from(word.querySelectorAll<SVGGElement>("[data-world-glyph]"));
+    expect(word.textContent).toBe("拯救世界");
+    expect(glyphs).toHaveLength(4);
+    const timing = ABYSSA_LOGO_INTRO_PIECES.titleBottomLead;
+    glyphs.forEach((glyph, index) => {
+      const delay = Number.parseFloat(glyph.style.animationDelay);
+      expect(delay).toBeGreaterThanOrEqual(timing.delay);
+      if (index) expect(delay).toBeGreaterThan(Number.parseFloat(glyphs[index - 1].style.animationDelay));
+      expect(delay + Number.parseFloat(glyph.style.animationDuration)).toBeLessThanOrEqual(timing.delay + timing.duration);
+    });
   });
 });
 

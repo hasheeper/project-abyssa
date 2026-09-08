@@ -8,18 +8,18 @@ export type { ActorPerformances, ActorPerformanceCue } from "../../domain/presen
 /** Local acting layer. Never changes the calibrated PaperDoll position or its crop. */
 export function ActorPerformance({cue, replay=false, children}: {cue?:ActorPerformanceCue;replay?:boolean;children:ReactNode}) {
   const ref=useRef<HTMLDivElement>(null);
-  const mountKey=useRef(cue?.key);
   const consumed=useRef<string|undefined>(undefined);
   useEffect(()=> {
     if(replay || document.hidden) {consumed.current=cue?.key;return;}
     if(!cue?.motion || consumed.current===cue.key || window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
     const spec={nod,waver,jump,shakeLight,shakeHeavy}[cue.motion]();
     let animation:Animation|undefined;
-    // A newly mounted actor finishes the normal seat entrance before reacting.
+    // Start with this dialogue beat, including during seat entrance. The zero-delay
+    // task only allows StrictMode cleanup; typing completion never schedules acting.
     const timer=setTimeout(()=> {
       consumed.current=cue.key;
       if(!document.hidden) animation=ref.current?.animate?.(spec.keyframes,spec.options);
-    },mountKey.current===cue.key?700:0);
+    },0);
     const hide=()=>{if(document.hidden){consumed.current=cue.key;clearTimeout(timer);animation?.cancel();}};
     document.addEventListener("visibilitychange",hide);
     return ()=>{clearTimeout(timer);animation?.cancel();document.removeEventListener("visibilitychange",hide);};

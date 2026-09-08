@@ -1,3 +1,4 @@
+import { navigateTo, routeSearch } from "../shared/routing/location";
 import { createContext, useContext, useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import { createBrowserGameRuntime } from "../game-runtime/browser";
 import { GameSession, type ClientRuntime } from "./session";
@@ -17,7 +18,7 @@ export function GameProvider({ children, factory = createBrowserGameRuntime }: {
   const [session, setSession] = useState<GameSession | null>(null);
   const [error, setError] = useState("");
   useEffect(() => {
-    const locator = parseLocator(window.location.search);
+    const locator = parseLocator(routeSearch());
     if (!locator) { setError("请先选择档案，再进入游戏。"); return; }
     let active: GameSession | undefined, observer: ReturnType<typeof observeCommits> | undefined;
     let cancelled = false;
@@ -43,8 +44,8 @@ export function GameGate({ children, allowPrologue = false, allowOpening = false
   const needsPrologue = !allowPrologue && state.record?.schemaVersion === 4 && state.record.snapshot.campaign.prologue?.status === "playing";
   const needsOpening = !allowOpening && !allowPrologue && !needsPrologue && state.record?.schemaVersion === 4 && state.record.snapshot.campaign.opening?.status === "playing";
   useEffect(() => {
-    if (needsPrologue) window.location.replace(gameHref("prologue", session.locator));
-    else if (needsOpening) window.location.replace(gameHref("mansion", session.locator));
+    if (needsPrologue) navigateTo(gameHref("prologue", session.locator), {replace:true,cinematic:true});
+    else if (needsOpening) navigateTo(gameHref("mansion", session.locator), {replace:true,cinematic:true});
   }, [needsPrologue, needsOpening, session]);
   if (needsPrologue || needsOpening) return <GameLoading/>;
   if (state.record && state.status === "ready") entered.current = true;

@@ -18,6 +18,21 @@ export async function validateBuildOutput(targetId, directory = resolveTarget(ta
   if (!existsSync(directory)) return [`Missing output directory: ${directory}`];
   for (const entry of target.entries) requireFile(entry.html, 'entry registry');
   if (target.profile !== 'ui') requireFile('index.html', 'target home');
+  if (target.entries.some(entry => entry.kind === 'game')) {
+    requireFile('game-assets.json', 'startup');
+    requireFile('game-cache.js', 'startup');
+    requireFile('licenses/fonts/OFL-Cinzel.txt', 'font license');
+    requireFile('licenses/fonts/OFL-NotoSerifSC.txt', 'font license');
+    if (existsSync(resolve(directory, 'game-assets.json'))) {
+      const manifest = JSON.parse(await readFile(resolve(directory, 'game-assets.json'), 'utf8'));
+      if (!Array.isArray(manifest.assets) || !manifest.assets.length) errors.push('Empty startup asset manifest');
+      else for (const asset of manifest.assets) {
+        requireFile(asset.url, 'startup manifest');
+        const file = resolve(directory, asset.url);
+        if (isWithin(directory, file) && existsSync(file) && await fileHash(file) !== asset.revision) errors.push(`startup manifest: incorrect revision ${asset.url}`);
+      }
+    }
+  }
   if (target.profile !== 'ui') {
     const manifestFile = resolve(directory, '.vite/manifest.json');
     requireFile('.vite/manifest.json', 'Vite manifest');
@@ -29,7 +44,7 @@ export async function validateBuildOutput(targetId, directory = resolveTarget(ta
       }
     }
   }
-  if (target.home !== 'tools-index' && target.home !== 'index.html' && existsSync(resolve(directory, 'index.html')) && existsSync(resolve(directory, target.home))) {
+  if (!target.entries.some(entry => entry.kind === 'game') && target.home !== 'tools-index' && target.home !== 'index.html' && existsSync(resolve(directory, 'index.html')) && existsSync(resolve(directory, target.home))) {
     if (await fileHash(resolve(directory, 'index.html')) !== await fileHash(resolve(directory, target.home))) errors.push(`index.html must match ${target.home}`);
   }
   for (const file of (await listFiles(directory)).filter(file => /\.(html|css)$/.test(file))) {

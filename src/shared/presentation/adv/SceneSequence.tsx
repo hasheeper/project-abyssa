@@ -2,6 +2,7 @@ import { createContext, useContext, useLayoutEffect, useRef, useState, type Reac
 import { SceneArrivalTitle } from "../../transition/SceneArrivalTitle";
 import "../../transition/transition.css";
 import "./scene-sequence.css";
+import { prepareImages } from "../../loading/images";
 
 export type SceneFrame = {id: string; kind: "battle" | "adv"; content: ReactNode; assets?: readonly string[];
   arrival?: {background: string; eyebrow: string; title: string}};
@@ -74,21 +75,7 @@ export function SceneSequence({frame, blocked = false, openingBlocked = false}: 
   </EntranceContext.Provider></Context.Provider>;
 }
 
-const assets = new Map<string, Promise<void>>();
 function preloadSceneAssets(urls: readonly string[] = []) {
-  return Promise.all(urls.map(url => {
-    let ready = assets.get(url);
-    if (!ready) {
-      ready = new Promise<void>(resolve => {
-        const image = new Image();
-        const timer = window.setTimeout(resolve, 3000);
-        const finish = () => {window.clearTimeout(timer); resolve();};
-        image.onload = () => {if (image.decode) void image.decode().catch(() => {}).then(finish); else finish();};
-        image.onerror = finish;
-        image.src = url;
-      });
-      assets.set(url, ready);
-    }
-    return ready;
-  }));
+  // Global download preparation owns the bytes; local preparation shares one bounded decode cache.
+  return Promise.race([prepareImages(urls).catch(() => undefined), new Promise<void>(resolve => setTimeout(resolve, 3000))]);
 }

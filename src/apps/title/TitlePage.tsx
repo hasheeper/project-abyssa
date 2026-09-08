@@ -1,3 +1,4 @@
+import { readRoute } from "../../shared/routing/location";
 import { useState } from "react";
 import type { CSSProperties } from "react";
 import { AbyssaLogo } from "../../shared/ui/branding/AbyssaLogo";
@@ -62,7 +63,7 @@ export function TitlePage() {
 function TitlePageContent() {
   const { navigate, isTransitioning } = useSceneTransition();
   const [hint, setHint] = useState("");
-  const archive = useTitleArchive(href => { const opening = new URL(href, window.location.href).pathname.endsWith("/prologue.html"); navigate(href, { destination: opening ? "序幕" : "守望者之崖", channel: "正在载入", cinematic: opening }); });
+  const archive = useTitleArchive(href => { const opening = readRoute(new URL(href, window.location.href))?.page === "prologue"; navigate(href, { destination: opening ? "序幕" : "守望者之崖", channel: "正在载入", cinematic: opening }); });
   const [importFormat, setImportFormat] = useState<"application" | "legacy">("application");
   const [themeId, setThemeId] = useState<TitleThemeId>(DEFAULT_TITLE_THEME);
 

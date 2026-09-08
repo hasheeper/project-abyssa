@@ -29,13 +29,13 @@ for (const prefix of ["/", "/abyssa/"])
     await page
       .getByRole("button", { name: "新的开始", exact: true })
       .dblclick();
-    await expect(page).toHaveURL(/menu.html/);
+    await expect(page).toHaveURL(/#\/menu/);
     await ready(page);
     const sortie = page.getByRole("button", { name: "出征 · 编队并进入副本", exact: true });
     await sortie.click();
     await expect(sortie).toHaveAttribute("aria-pressed", "true");
     await sortie.click();
-    await expect(page).toHaveURL(/map.html/, {timeout: 15_000});
+    await expect(page).toHaveURL(/#\/map/, {timeout: 15_000});
     await ready(page);
     await expect(page.locator(".abyssa-map-loading")).toHaveCount(0);
     const canvas = page.locator(".abyssa-map-scene canvas"),
@@ -44,7 +44,7 @@ for (const prefix of ["/", "/abyssa/"])
       position: { x: bounds.width * 0.48, y: bounds.height * 0.495 },
     });
     await page.getByRole("button", { name: "出发", exact: true }).click();
-    await expect(page).toHaveURL(/battle.html/);
+    await expect(page).toHaveURL(/#\/battle/);
     await ready(page);
     await expect(
       page.getByRole("main", { name: "克雷格旧庄园战斗界面" }),
@@ -82,7 +82,7 @@ for (const prefix of ["/", "/abyssa/"])
         await page.addScriptTag({ path: probe });
       return page.evaluate(() =>
         (window as any).ManorProbe.inspectManor(
-          new URL(location.href).searchParams.get("save"),
+          new URLSearchParams(location.hash.split("?")[1] ?? location.search).get("save"),
         ),
       );
     };

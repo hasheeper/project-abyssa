@@ -3,6 +3,8 @@ import react from '@vitejs/plugin-react';
 import { assertOutputDirectory, projectRoot } from '../paths.mjs';
 import { resolveTarget } from '../targets.mjs';
 import { minifyVendorOnly, targetAssets } from './plugins.mjs';
+import { gamePageStyles } from './game-page-styles.mjs';
+import { gameStartup } from './game-startup.mjs';
 
 /** @param {string} targetId @param {import('../types.js').TargetOptions} [options] @returns {import('vite').InlineConfig} */
 export function createTargetConfig(targetId, options = {}) {
@@ -14,7 +16,8 @@ export function createTargetConfig(targetId, options = {}) {
   const enableAi = options.enableAi ?? false;
   return {
     configFile: false, root: projectRoot, base: options.base ?? './',
-    plugins: [react(), ...(!ui ? [targetAssets(target)] : []), ...(readable ? [minifyVendorOnly()] : [])],
+    plugins: [react(), ...(!ui ? [targetAssets(target), gameStartup(target)] : []), ...(readable ? [minifyVendorOnly()] : [])],
+    css: { postcss: { plugins: target.entries.some(e => e.kind === 'game') ? [gamePageStyles()] : [] } },
     define: { 'import.meta.env.VITE_DICE_RUNTIME_ENABLED': JSON.stringify(String(enableAi)) },
     server: {
       host: options.host ?? '127.0.0.1', port: options.port ?? target.port, strictPort: true,
@@ -33,7 +36,7 @@ export function createTargetConfig(targetId, options = {}) {
         },
       } : {}),
       rollupOptions: ui ? { external: ['react', 'react-dom', 'react/jsx-runtime'] } : {
-        input: Object.fromEntries(target.entries.map(entry => [entry.id, resolve(projectRoot, entry.html)])),
+        input: target.entries.some(e => e.kind === 'game') ? { game: resolve(projectRoot, 'index.html') } : Object.fromEntries(target.entries.map(entry => [entry.id, resolve(projectRoot, entry.sourceHtml ?? entry.html)])),
         output: {
           ...(readable ? { entryFileNames: 'assets/[name].js', chunkFileNames: 'assets/[name].js', assetFileNames: 'assets/[name][extname]' } : {}),
           ...((hasMap || readable) ? { manualChunks(id) {

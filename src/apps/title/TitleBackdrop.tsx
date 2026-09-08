@@ -40,115 +40,112 @@ export function TitleBackdrop() {
   const maskGradientId = `title-field-mask-gradient-${uid}`;
 
   return (
-    <svg
-      className="title-backdrop"
-      viewBox="0 0 1600 900"
-      preserveAspectRatio="none"
-      aria-hidden="true"
-    >
-      <defs>
-        <radialGradient id={glowId} gradientUnits="userSpaceOnUse" cx={CENTER_X} cy={CENTER_Y} r="760">
-          {/* 底光跟随主题。SVG 的 stop-color 支持 CSS 变量,所以皮肤切换
-              不需要重建渐变节点。 */}
-          <stop offset="0" stopColor="var(--title-glow-core)" stopOpacity=".24" />
-          <stop offset=".36" stopColor="var(--title-glow-mid)" stopOpacity=".12" />
-          <stop offset=".7" stopColor="var(--title-glow-far)" stopOpacity=".04" />
-          <stop offset="1" stopColor="var(--title-canvas)" stopOpacity="0" />
-        </radialGradient>
-        <radialGradient id={maskGradientId} gradientUnits="userSpaceOnUse" cx={CENTER_X} cy={CENTER_Y} r="760">
-          <stop offset="0" stopColor="white" stopOpacity=".42" />
-          <stop offset=".3" stopColor="white" stopOpacity=".92" />
-          <stop offset=".6" stopColor="white" stopOpacity=".34" />
-          <stop offset="1" stopColor="black" />
-        </radialGradient>
-        <mask id={maskId} maskUnits="userSpaceOnUse" x="0" y="-400" width="1600" height="1700">
-          <rect x="0" y="-400" width="1600" height="1700" fill={`url(#${maskGradientId})`} />
-        </mask>
-      </defs>
+    <div className="title-backdrop" aria-hidden="true">
+      <svg className="title-backdrop__layer" viewBox="0 0 1600 900" preserveAspectRatio="none">
+        <defs>
+          <radialGradient id={glowId} gradientUnits="userSpaceOnUse" cx={CENTER_X} cy={CENTER_Y} r="760">
+            {/* 底光跟随主题。SVG 的 stop-color 支持 CSS 变量,所以皮肤切换
+                不需要重建渐变节点。 */}
+            <stop offset="0" stopColor="var(--title-glow-core)" stopOpacity=".24" />
+            <stop offset=".36" stopColor="var(--title-glow-mid)" stopOpacity=".12" />
+            <stop offset=".7" stopColor="var(--title-glow-far)" stopOpacity=".04" />
+            <stop offset="1" stopColor="var(--title-canvas)" stopOpacity="0" />
+          </radialGradient>
+          <radialGradient id={maskGradientId} gradientUnits="userSpaceOnUse" cx={CENTER_X} cy={CENTER_Y} r="760">
+            <stop offset="0" stopColor="white" stopOpacity=".42" />
+            <stop offset=".3" stopColor="white" stopOpacity=".92" />
+            <stop offset=".6" stopColor="white" stopOpacity=".34" />
+            <stop offset="1" stopColor="black" />
+          </radialGradient>
+          <mask id={maskId} maskUnits="userSpaceOnUse" x="0" y="-400" width="1600" height="1700">
+            <rect x="0" y="-400" width="1600" height="1700" fill={`url(#${maskGradientId})`} />
+          </mask>
+        </defs>
 
-      <rect className="title-backdrop__wash" width="1600" height="900" fill={`url(#${glowId})`} />
-
-      {/*
-        遮罩与底光**不参与自转** —— 径向衰减一转就会露出 mask 的矩形边界。
-        自转只施加在 `__spin` 空壳上:壳没有 transform 属性,内容组带
-        translate。SVG 的 transform 属性就是 CSS transform 属性,把动画直接
-        加在已有 translate 的组上会整个覆盖掉它,图案会飞到左上角。
-      */}
-      <g className="title-backdrop__field" mask={`url(#${maskId})`}>
-        <g className="title-backdrop__spin title-backdrop__spin--spokes">
-          <g transform={`translate(${CENTER_X} ${CENTER_Y})`}>
-            {SPOKES.map((angle, index) => (
-              <line
-                key={angle}
-                className={
-                  index % 4 === 0
-                    ? "title-backdrop__spoke title-backdrop__spoke--major"
-                    : "title-backdrop__spoke"
-                }
-                x1="0"
-                y1="-300"
-                x2="0"
-                y2="-742"
-                transform={`rotate(${angle})`}
-              />
-            ))}
-          </g>
-        </g>
+        <rect className="title-backdrop__wash" width="1600" height="900" fill={`url(#${glowId})`} />
+      </svg>
+      {/* 固定遮罩包住独立的 HTML 合成层；SVG 内部只保留静态图案。
+          这样转动不再每帧重绘整张带遮罩的 SVG，遮罩和底光也不会旋转。 */}
+      <div className="title-backdrop__field" style={{ mask: `url(#${maskId})` }}>
+        <div className="title-backdrop__spin title-backdrop__spin--spokes">
+          <svg className="title-backdrop__layer" viewBox="0 0 1600 900">
+            <g transform={`translate(${CENTER_X} ${CENTER_Y})`}>
+              {SPOKES.map((angle, index) => (
+                <line
+                  key={angle}
+                  className={
+                    index % 4 === 0
+                      ? "title-backdrop__spoke title-backdrop__spoke--major"
+                      : "title-backdrop__spoke"
+                  }
+                  x1="0"
+                  y1="-300"
+                  x2="0"
+                  y2="-742"
+                  transform={`rotate(${angle})`}
+                />
+              ))}
+            </g>
+          </svg>
+        </div>
 
         {/* 同心环不转:正圆转起来看不出变化,只会白耗合成层。 */}
-        <g className="title-backdrop__orbits">
-          <circle cx={CENTER_X} cy={CENTER_Y} r="322" />
-          <circle className="title-backdrop__orbit-dashed" cx={CENTER_X} cy={CENTER_Y} r="486" />
-          <circle className="title-backdrop__orbit-faint" cx={CENTER_X} cy={CENTER_Y} r="640" />
-        </g>
-
-        <g className="title-backdrop__spin title-backdrop__spin--diamonds">
-          <g className="title-backdrop__diamonds">
-            {DIAMONDS.map((radius, index) => (
-              <polygon
-                key={radius}
-                className={
-                  index === DIAMONDS.length - 1
-                    ? "title-backdrop__diamond title-backdrop__diamond--outer"
-                    : "title-backdrop__diamond"
-                }
-                points={diamondPoints(radius)}
-              />
-            ))}
+        <svg className="title-backdrop__layer" viewBox="0 0 1600 900">
+          <g className="title-backdrop__orbits">
+            <circle cx={CENTER_X} cy={CENTER_Y} r="322" />
+            <circle className="title-backdrop__orbit-dashed" cx={CENTER_X} cy={CENTER_Y} r="486" />
+            <circle className="title-backdrop__orbit-faint" cx={CENTER_X} cy={CENTER_Y} r="640" />
           </g>
-        </g>
+        </svg>
 
-        <g className="title-backdrop__spin title-backdrop__spin--ticks">
-          <g className="title-backdrop__ticks" transform={`translate(${CENTER_X} ${CENTER_Y})`}>
-            {TICKS.map((angle, index) => (
-              <line
-                key={angle}
-                x1="0"
-                y1={index % 4 === 0 ? -406 : -400}
-                x2="0"
-                y2="-416"
-                transform={`rotate(${angle})`}
-              />
-            ))}
-          </g>
-        </g>
+        <div className="title-backdrop__spin title-backdrop__spin--diamonds">
+          <svg className="title-backdrop__layer" viewBox="0 0 1600 900">
+            <g className="title-backdrop__diamonds">
+              {DIAMONDS.map((radius, index) => (
+                <polygon
+                  key={radius}
+                  className={
+                    index === DIAMONDS.length - 1
+                      ? "title-backdrop__diamond title-backdrop__diamond--outer"
+                      : "title-backdrop__diamond"
+                  }
+                  points={diamondPoints(radius)}
+                />
+              ))}
+            </g>
+          </svg>
+        </div>
 
-        {/* 节点跟随刻度层一起转,否则会与刻度错开。 */}
-        <g className="title-backdrop__spin title-backdrop__spin--ticks">
-          <g className="title-backdrop__nodes" transform={`translate(${CENTER_X} ${CENTER_Y})`}>
-            {SPOKES.filter((_, index) => index % 4 === 0).map((angle) => (
-              <rect
-                key={angle}
-                x="-6"
-                y="-458"
-                width="12"
-                height="12"
-                transform={`rotate(${angle}) rotate(45 0 -452)`}
-              />
-            ))}
-          </g>
-        </g>
-      </g>
-    </svg>
+        <div className="title-backdrop__spin title-backdrop__spin--ticks">
+          <svg className="title-backdrop__layer" viewBox="0 0 1600 900">
+            <g className="title-backdrop__ticks" transform={`translate(${CENTER_X} ${CENTER_Y})`}>
+              {TICKS.map((angle, index) => (
+                <line
+                  key={angle}
+                  x1="0"
+                  y1={index % 4 === 0 ? -406 : -400}
+                  x2="0"
+                  y2="-416"
+                  transform={`rotate(${angle})`}
+                />
+              ))}
+            </g>
+            {/* 节点与刻度共用一层，始终同步。 */}
+            <g className="title-backdrop__nodes" transform={`translate(${CENTER_X} ${CENTER_Y})`}>
+              {SPOKES.filter((_, index) => index % 4 === 0).map((angle) => (
+                <rect
+                  key={angle}
+                  x="-6"
+                  y="-458"
+                  width="12"
+                  height="12"
+                  transform={`rotate(${angle}) rotate(45 0 -452)`}
+                />
+              ))}
+            </g>
+          </svg>
+        </div>
+      </div>
+    </div>
   );
 }

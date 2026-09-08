@@ -18,17 +18,19 @@ export async function validateEntries(catalog = entries, root = projectRoot) {
     if (!/^[a-z][a-z0-9-]*\.html$/.test(entry.html) || htmls.has(entry.html)) errors.push(`Invalid/duplicate HTML: ${entry.html}`);
     ids.add(entry.id); htmls.add(entry.html);
   }
-  for (const html of (await readdir(root)).filter(file => file.endsWith('.html'))) if (!htmls.has(html)) errors.push(`Unregistered HTML: ${html}`);
+  for (const html of (await readdir(root)).filter(file => file.endsWith('.html'))) if (html !== 'index.html' && !htmls.has(html)) errors.push(`Unregistered HTML: ${html}`);
   for (const entry of catalog) {
     let closure;
     try { closure = entryClosure([entry.id], catalog); } catch (error) { errors.push(String(error)); continue; }
-    const html = resolve(root, entry.html);
+    const html = resolve(root, entry.kind === 'game' ? 'index.html' : entry.sourceHtml ?? entry.html);
     if (!existsSync(html)) { errors.push(`Missing HTML: ${entry.html}`); continue; }
     const source = await readFile(html, 'utf8');
     const modulePath = /<script\b[^>]*\btype="module"[^>]*\bsrc="([^\"]+)"/.exec(source)?.[1];
-    const expectedModule = `/src/${entry.kind === 'tool' ? 'tools' : 'apps'}/${entry.id}/main.tsx`;
+    const expectedModule = entry.kind === 'game' ? '/src/game-shell/main.tsx' : `/src/${entry.kind === 'tool' ? 'tools' : 'apps'}/${entry.id}/main.tsx`;
     if (modulePath !== expectedModule || !existsSync(resolve(root, `.${expectedModule}`))) { errors.push(`Invalid module for ${entry.html}: expected ${expectedModule}`); continue; }
-    const allowed = new Set(closure.map(item => item.html));
+    if (entry.kind === 'game' && !existsSync(resolve(root, `src/apps/${entry.id}/route.tsx`))) errors.push(`Missing game route: ${entry.id}`);
+    const allowed = new Set((entry.kind === 'game' ? catalog.filter(item => item.kind === 'game') : closure).map(item => item.html));
+    if (entry.kind === 'game') allowed.add('index.html');
     for (const file of await navigationSources(resolve(root, `.${expectedModule}`))) {
       visitSource(await readFile(file, 'utf8'), file, node => {
         if (node.type === 'StringLiteral' && typeof node.value === 'string') {

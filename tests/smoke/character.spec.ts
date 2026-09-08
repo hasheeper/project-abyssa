@@ -41,12 +41,14 @@ test.beforeAll(async () => {
   });
 });
 async function fixture(page: Page, level: 1 | 2 | 3) {
-  const html = (
-    await readFile(
-      resolve(projectRoot, "dist/game/character-status.html"),
-      "utf8",
-    )
-  ).replace(/<script\b[^>]*>[\s\S]*?<\/script>/g, "");
+  const manifest = JSON.parse(await readFile(resolve(projectRoot,"dist/game/.vite/manifest.json"),"utf8"));
+  const styles = new Set<string>();
+  function collect(key: string) {
+    for (const dependency of manifest[key].imports ?? []) collect(dependency);
+    for (const css of manifest[key].css ?? []) styles.add(css);
+  }
+  collect("index.html"); collect("src/apps/character-status/route.tsx");
+  const html = `<!doctype html><html class="abyssa-stage-root" data-game-page="character-status"><head>${[...styles].map(path=>`<link rel="stylesheet" href="/${path}">`).join("")}</head><body><div id="root"></div></body></html>`;
   await page.route("**/d2-test.html*", (route) =>
     route.fulfill({ contentType: "text/html", body: html }),
   );
@@ -81,7 +83,7 @@ test("character page uses the real archive and returns to menu/map/battle withou
   const original = (await inspectPage(page)).record;
   await page.getByRole("button", { name: "角色", exact: true }).click();
   await page.getByRole("button", { name: "角色", exact: true }).click();
-  await expect(page).toHaveURL(/character-status\.html\?save=/);
+  await expect(page).toHaveURL(/#\/character-status\?save=/);
   await ready(page);
   await expect(page.getByText("静谧之楔")).toBeVisible();
   await page.getByRole("button", { name: /尤斯缇丝/ }).click();
@@ -284,7 +286,9 @@ test("rules2 temporary rust refreshes the selected inspector; missing images and
   ).toBeVisible();
   await page.evaluate(() => {
     const url = new URL(location.href);
-    url.searchParams.set("expedition", "obsolete");
+    const params = new URLSearchParams(url.hash.split("?")[1] ?? url.search);
+    params.set("expedition", "obsolete");
+    if (url.hash.startsWith("#/")) url.hash = url.hash.split("?")[0] + "?" + params; else url.search = params.toString();
     history.pushState(null, "", url);
     dispatchEvent(new PopStateEvent("popstate"));
   });
@@ -300,9 +304,10 @@ test("invalid save/epoch and unavailable content show recovery without a sample 
   await startLegacy(page);
   const contentRef = (await inspectPage(page)).record.contentRef;
   const url = new URL(page.url());
-  url.pathname = "/character-status.html";
+  url.hash = url.hash.replace(/^#\/[^?]+/, "#/character-status");
   const validUrl = url.href;
-  url.searchParams.set("epoch", "obsolete");
+  const params = new URLSearchParams(url.hash.split("?")[1] ?? url.search);
+  params.set("epoch", "obsolete"); url.hash = url.hash.split("?")[0] + "?" + params;
   await page.goto(url.href);
   await expect(page.getByRole("alert")).toContainText("档案定位已失效");
   await expect(page.getByRole("link", { name: "选择档案" })).toBeVisible();
@@ -335,7 +340,7 @@ test("invalid save/epoch and unavailable content show recovery without a sample 
         });
         db.close();
       },
-      { saveId: url.searchParams.get("save")!, field, contentRef },
+      { saveId: new URLSearchParams(url.hash.split("?")[1] ?? url.search).get("save")!, field, contentRef },
     );
     await page.goto(validUrl);
     await expect(page.getByRole("alert")).toContainText("内容版本不可用");

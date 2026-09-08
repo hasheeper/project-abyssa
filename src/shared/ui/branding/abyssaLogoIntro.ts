@@ -24,7 +24,7 @@ export type AbyssaLogoIntroKind =
   | "pop"
   /** 从中心横向展开。分隔线专用 —— 线就该是「拉开」,不是「弹出」。 */
   | "sweep"
-  /** 收尾的一拍:更慢、更沉,给问号用。 */
+  /** 较沉的单部件重音；保留兼容，问号使用内部独立动画。 */
   | "accent"
   /** 从中心向两侧揭开。英文字标专用 —— 整块弹出太糊弄。 */
   | "reveal"
@@ -48,12 +48,12 @@ export const ABYSSA_LOGO_INTRO_SEQUENCE: readonly AbyssaLogoIntroStep[] = [
   { part: "stamp", delay: 0, kind: "ambient" },
   { part: "sideOrnaments", delay: 180, kind: "ambient" },
   { part: "titleTop", delay: 420, kind: "composite" },
-  { part: "titleMiddle", delay: 1_268, kind: "composite" },
-  { part: "titleBottom", delay: 1_460, kind: "composite" },
-  /* 分隔线在三行标题落定之后才拉开,它是「上下分界」的宣告。 */
+  { part: "titleMiddle", delay: 1_090, kind: "composite" },
+  { part: "titleBottom", delay: 1_280, kind: "composite" },
+  /* 问号接住“吗”的回弹，两者形成同一个句尾。 */
+  { part: "questionMark", delay: 2_040, kind: "composite" },
+  /* 中文收尾时展开分隔线，再接英文字标。 */
   { part: "divider", delay: 2_180, kind: "sweep" },
-  /* 问号单独一拍,而且更慢 —— 它是整句话的语气,不该和标题同速。 */
-  { part: "questionMark", delay: 2_450, kind: "accent" },
   /* 组内先保留原有的渐变揭开,再逐颗弹入装饰菱形。 */
   { part: "wordmark", delay: 2_920, kind: "composite" }
 ] as const;
@@ -63,27 +63,30 @@ export const ABYSSA_LOGO_INTRO_DURATION = {
   ambient: 1_000,
   pop: 540,
   sweep: 780,
-  /* 收尾一拍最慢,留出停顿感。 */
-  accent: 900,
+  /* 跟随句尾落定，不再单独拖出近一秒的尾巴。 */
+  accent: 680,
   /* 揭开是整段最长的动作,压轴要沉得住。 */
   reveal: 1_050,
   /* composite 的真实时长由下面的内部片段表决定。 */
   composite: 0
 } as const;
 
+/** 四字展开的错拍间隔；最后一字也在 titleBottomLead 的时段内落定。 */
+export const ABYSSA_LOGO_WORLD_STAGGER_MS = 42;
+
 /** 需要从八个可编辑大部件中再拆细的内部动画。 */
 export const ABYSSA_LOGO_INTRO_PIECES = {
-  /* 可见落点刻意排成短—长—短—长,不是把 delay 等距递增:
-       伺候 564ms → 魔王 844ms  (+280)
-       魔王 844ms → 也算 1364ms (+520)
-       也算 1364ms → 拯救世界 1604ms (+240)
-       拯救世界 1604ms → 吗 2104ms (+500)
-     duration 留给落点后的回弹,不会拖慢字真正出现的时刻。 */
-  titleTopLead: { delay: 420, duration: 600 },
-  titleTopAccent: { delay: 748, duration: 600 },
-  titleMiddleBridge: { delay: 1_268, duration: 400 },
-  titleBottomLead: { delay: 1_460, duration: 600 },
-  titleBottomTail: { delay: 2_024, duration: 500 },
+  /* 前词仍在收尾时接入下一词，按语气连成三段：
+     伺候魔王 → 也算拯救世界 → 吗？
+     起句弹入、魔王慢旋、连接词滑入、四字展开、句尾上挑与问号摆入。
+     后半段英文的时序不变，整场仍为 4020ms。 */
+  titleTopLead: { delay: 420, duration: 680 },
+  titleTopAccent: { delay: 680, duration: 1_020 },
+  titleMiddleBridge: { delay: 1_090, duration: 460 },
+  titleBottomLead: { delay: 1_280, duration: 720 },
+  titleBottomTail: { delay: 1_840, duration: 580 },
+  questionHook: { delay: 2_040, duration: 780 },
+  questionDot: { delay: 2_320, duration: 420 },
   /* 保留渐变揭开；三颗菱形在字标已清晰可见后介入,无需等遮罩完全收尾。 */
   wordmarkArt: { delay: 2_920, duration: 1_050 },
   wordmarkGemNear: { delay: 3_550, duration: 320 },

@@ -8,7 +8,7 @@ import { act, cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { TitlePage } from "./TitlePage";
-import { TITLE_CG_FRAMES } from "./titleCg";
+import { StrictMode } from "react";
 import { TITLE_COMMANDS } from "./titleCommands";
 import { TITLE_FIELD_CENTRE_X, TITLE_FIELD_CENTRE_Y } from "./titleGeometry";
 
@@ -71,7 +71,11 @@ describe("TitlePage", () => {
     expect(container.querySelector(".title-backdrop__wash")).not.toHaveClass("title-backdrop__spin");
     const field = container.querySelector(".title-backdrop__field")!;
     expect(field).not.toHaveClass("title-backdrop__spin");
-    expect(field.getAttribute("mask")).toMatch(/^url\(#title-field-mask-/);
+    expect((field as HTMLElement).style.mask).toMatch(/^url\(#title-field-mask-/);
+    for (const shell of field.querySelectorAll(".title-backdrop__spin")) {
+      expect(shell.tagName).toBe("DIV");
+      expect(shell.querySelector("svg")).toBeInTheDocument();
+    }
   });
 
   it("mounts one CG carousel per side, desynced and mirrored", async () => {
@@ -88,13 +92,12 @@ describe("TitlePage", () => {
     }
   });
 
-  it("keeps all CG frames mounted so the crossfade has something to fade to", async () => {
-    // 换 src 会先闪空白;交叉淡入要求两张同时在场。
+  it("only loads the current CG during the logo intro", async () => {
     const { container } = await mountTitle();
     const left = container.querySelector('.title-cg[data-side="left"]')!;
     const frames = left.querySelectorAll(".title-cg__frame");
 
-    expect(frames.length).toBe(TITLE_CG_FRAMES.length);
+    expect(frames.length).toBe(1);
     expect(left.querySelectorAll(".title-cg__frame[data-active]")).toHaveLength(1);
 
     for (const frame of frames) {
@@ -102,6 +105,15 @@ describe("TitlePage", () => {
       expect(frame).toHaveAttribute("loading", "eager");
       expect(frame).toHaveAttribute("alt", "");
     }
+  });
+
+  it("lists saves once under StrictMode and does not write a save on startup", async () => {
+    const list = vi.spyOn(fixture.runtime.application, "list");
+    const create = vi.spyOn(fixture.runtime.application, "create");
+    await act(async () => { render(<StrictMode><TitlePage /></StrictMode>); });
+    expect(list).toHaveBeenCalledTimes(1);
+    expect(create).not.toHaveBeenCalled();
+    expect(screen.getByRole("button", { name: "继续游戏" })).toBeEnabled();
   });
 
   it("starts the two sides on different frames", async () => {

@@ -12,6 +12,7 @@ import type {
 import {
   ABYSSA_LOGO_INTRO_DURATION,
   ABYSSA_LOGO_INTRO_PIECES,
+  ABYSSA_LOGO_WORLD_STAGGER_MS,
   getAbyssaLogoIntroStep
 } from "./abyssaLogoIntro";
 import type { AbyssaLogoIntroPieceId } from "./abyssaLogoIntro";
@@ -139,6 +140,15 @@ export function AbyssaLogo({
     return {
       animationDelay: `${timing.delay}ms`,
       animationDuration: `${timing.duration}ms`
+    };
+  }
+
+  function worldGlyphIntro(index: number): CSSProperties | undefined {
+    if (!intro) return undefined;
+    const timing = ABYSSA_LOGO_INTRO_PIECES.titleBottomLead;
+    return {
+      animationDelay: `${timing.delay + index * ABYSSA_LOGO_WORLD_STAGGER_MS}ms`,
+      animationDuration: `${timing.duration - 3 * ABYSSA_LOGO_WORLD_STAGGER_MS}ms`
     };
   }
 
@@ -328,8 +338,14 @@ export function AbyssaLogo({
         </g>
       </g>
       <g {...editable("titleBottom")} className="abyssa-logo__chinese">
-        <g data-title-piece="bottom-lead" style={introPiece("titleBottomLead")}>
-          <text x="498.25" y="468" textAnchor="middle" fill={`url(#${id("ivory")})`} stroke={`url(#${id("ivory-edge")})`} strokeWidth=".42" paintOrder="stroke fill" fontSize="62" letterSpacing="-1.1">拯救世界</text>
+        <g data-title-piece="bottom-lead">
+          {/* 保留原字号、字距和整词中心：全角字每步仍为 62 - 1.1。
+              每字只增加动画壳，最终位置与原四字整排一致。 */}
+          {Array.from("拯救世界").map((character, index) => (
+            <g key={character} data-world-glyph={index} style={worldGlyphIntro(index)}>
+              <text x={498.25 + (index - 1.5) * (62 - 1.1)} y="468" textAnchor="middle" fill={`url(#${id("ivory")})`} stroke={`url(#${id("ivory-edge")})`} strokeWidth=".42" paintOrder="stroke fill" fontSize="62" letterSpacing="-1.1">{character}</text>
+            </g>
+          ))}
         </g>
         <g data-title-piece="bottom-tail" style={introPiece("titleBottomTail")}>
           <text x="648.8" y="467" textAnchor="middle" fill={`url(#${id("ivory")})`} stroke={`url(#${id("ivory-edge")})`} strokeWidth=".42" paintOrder="stroke fill" fontSize="54" letterSpacing="-.5">吗</text>
@@ -338,26 +354,30 @@ export function AbyssaLogo({
 
       <g {...editable("questionMark")}>
         <g transform="translate(645 369) scale(.51)">
-          <g clipPath={`url(#${id("question-hook")})`}>
-            <text
-              className="abyssa-logo__question"
-              x="76"
-              y="172"
-              textAnchor="middle"
-              fontSize="154"
-              fill={`url(#${id("ivory")})`}
-              stroke="#8c622f"
-              strokeWidth=".7"
-              paintOrder="stroke fill"
-            >?</text>
+          <g data-question-piece="hook" style={introPiece("questionHook")}>
+            <g clipPath={`url(#${id("question-hook")})`}>
+              <text
+                className="abyssa-logo__question"
+                x="76"
+                y="172"
+                textAnchor="middle"
+                fontSize="154"
+                fill={`url(#${id("ivory")})`}
+                stroke="#8c622f"
+                strokeWidth=".7"
+                paintOrder="stroke fill"
+              >?</text>
+            </g>
           </g>
-          <path
-            d="M76.5 164 94.5 184 76.5 204 58.5 184Z"
-            transform="translate(-4 -16)"
-            fill={`url(#${id("crimson")})`}
-            stroke="#780015"
-            strokeWidth=".8"
-          />
+          <g data-question-piece="dot" style={introPiece("questionDot")}>
+            <path
+              d="M76.5 164 94.5 184 76.5 204 58.5 184Z"
+              transform="translate(-4 -16)"
+              fill={`url(#${id("crimson")})`}
+              stroke="#780015"
+              strokeWidth=".8"
+            />
+          </g>
         </g>
       </g>
 

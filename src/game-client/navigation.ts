@@ -1,3 +1,4 @@
+import { routeHref } from "../shared/routing/location";
 import type { AnyGameRecord } from "../game-application";
 export type SaveLocator = { saveId: string; epoch: string; expeditionId?: string; memory?: { id: string; attempt: number } };
 // Literal route table is also audited by the entry closure checker.
@@ -12,12 +13,12 @@ export function parseLocator(search: string): SaveLocator | null {
   return { saveId, epoch, ...(expeditionId ? { expeditionId } : {}), ...(memoryId ? {memory: {id: memoryId, attempt: Number(attempt)}} : {}) };
 }
 export function gameHref(page: GamePage, locator?: SaveLocator | null, archive?: CharacterLocation): string {
-  if (page === "title" || !locator) return `./${gamePages[page]}`;
+  if (page === "title" || !locator) return routeHref(page);
   const params = new URLSearchParams({ save: locator.saveId, epoch: locator.epoch });
   if ((page === "battle" || page === "character-status") && locator.expeditionId) params.set("expedition", locator.expeditionId);
   if ((page === "battle" || page === "character-status") && locator.memory) { params.delete("expedition"); params.set("memory", locator.memory.id); params.set("attempt", String(locator.memory.attempt)); }
   if (page === "character-status" && archive) { if (archive.characterId) params.set("character", archive.characterId); params.set("tab", archive.tab); params.set("from", archive.from); }
-  return `./${gamePages[page]}?${params}`;
+  return routeHref(page, `?${params}`);
 }
 export function recordLocator(record: AnyGameRecord): SaveLocator {
   if (record.schemaVersion === 4 && record.snapshot.campaign.activeRunRef?.kind === "memory") { const ref = record.snapshot.campaign.activeRunRef; return {saveId: record.head.saveId, epoch: record.head.epoch, memory: {id: ref.id, attempt: ref.attempt}}; }

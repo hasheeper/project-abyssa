@@ -17,6 +17,8 @@ import type {
   SceneRevealMode
 } from "./types";
 
+import { loadImage } from "../loading/images";
+
 const HANDOFF_KEY = "abyssa:scene-handoff:v1";
 const HANDOFF_TTL_MS = 15_000;
 const CLOSE_MS = 560;
@@ -28,14 +30,14 @@ interface HandoffRecord extends SceneTransitionCopy {
   issuedAt: number;
 }
 
-interface SceneTransitionContextValue {
+export interface SceneTransitionContextValue {
   phase: SceneTransitionPhase;
   isTransitioning: boolean;
   navigate: (target: string, options?: SceneNavigationOptions) => boolean;
   holdReady: () => () => void;
 }
 
-const SceneTransitionContext = createContext<SceneTransitionContextValue | null>(null);
+export const SceneTransitionContext = createContext<SceneTransitionContextValue | null>(null);
 
 function locationKey(url: URL) {
   return `${url.pathname}${url.search}`;
@@ -79,18 +81,8 @@ function waitForWindowLoad() {
 }
 
 async function waitForDocumentImages() {
-  const images = Array.from(document.images);
-  await Promise.all(
-    images.map(async (image) => {
-      if (!image.complete) {
-        await new Promise<void>((resolve) => {
-          image.addEventListener("load", () => resolve(), { once: true });
-          image.addEventListener("error", () => resolve(), { once: true });
-        });
-      }
-      if (typeof image.decode === "function") await image.decode().catch(() => undefined);
-    })
-  );
+  await Promise.all(Array.from(document.images).filter(image => image.currentSrc || image.src)
+    .map(image => loadImage(image.currentSrc || image.src, image).catch(() => undefined)));
 }
 
 async function defaultSceneReady() {
@@ -113,7 +105,13 @@ export interface SceneTransitionProviderProps {
   maximumReadyWaitMs?: number;
 }
 
-export function SceneTransitionProvider({
+/** The game shell owns one curtain; standalone labs can still own their provider. */
+export function SceneTransitionProvider(props: SceneTransitionProviderProps) {
+  const parent = useContext(SceneTransitionContext);
+  return parent ? <>{props.children}</> : <StandaloneTransitionProvider {...props}/>;
+}
+
+function StandaloneTransitionProvider({
   children,
   ready,
   reveal = "fade",

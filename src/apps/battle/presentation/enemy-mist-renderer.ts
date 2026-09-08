@@ -41,6 +41,11 @@ export function createEnemyMistRenderer(canvas: HTMLCanvasElement): EnemyMistRen
     gl.deleteShader(vertex);
     gl.deleteShader(fragment);
     gl.deleteProgram(program);
+    // SPA pages must give their GPU context back on departure. StrictMode reuses
+    // the same connected canvas during its effect check, so release only after removal.
+    queueMicrotask(() => {
+      if (!canvas.isConnected) gl.getExtension("WEBGL_lose_context")?.loseContext();
+    });
   };
   if (!program || !vertex || !fragment || !buffer || !texture) {
     dispose();

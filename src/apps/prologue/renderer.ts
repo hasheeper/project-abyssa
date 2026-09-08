@@ -1,3 +1,4 @@
+import { loadImage, releaseImage } from "../../shared/loading/images";
 import { STAGE_CANVAS_WIDTH as W, STAGE_CANVAS_HEIGHT as H } from "../../shared/stage";
 import { CONTACT_IMPACT_MS, CUE_DURATION_MS, type PrologueShot } from "./script";
 
@@ -5,22 +6,12 @@ export const clamp = (n: number, lo = 0, hi = 1) => Math.max(lo, Math.min(hi, n)
 const mix = (a: number, b: number, t: number) => a + (b - a) * t;
 const sine = (t: number) => (1 - Math.cos(Math.PI * clamp(t))) / 2;
 
-/** Bounded working set: the current CG, the decoded next CG and one outgoing frame. */
-const images = new Map<string, Promise<HTMLImageElement>>();
-export function loadCg(url: string): Promise<HTMLImageElement> {
-  let promise = images.get(url);
-  if (!promise) {
-    promise = new Promise<HTMLImageElement>((resolve, reject) => {
-      const image = new Image(); image.decoding = "async";
-      image.onload = () => image.decode().then(() => resolve(image), reject);
-      image.onerror = () => reject(new Error("CG 暂时未能载入")); image.src = url;
-    }).catch(error => { images.delete(url); throw error; });
-    images.set(url, promise);
-  }
-  return promise;
-}
+/** Current/next CGs use the same decode service as AVG and title artwork. */
+const retainedCgs = new Set<string>();
+export const loadCg = loadImage;
 export function retainCgs(urls: (string | undefined)[]) {
-  for (const key of images.keys()) if (!urls.includes(key)) images.delete(key);
+  for (const url of retainedCgs) if (!urls.includes(url)) { releaseImage(url); retainedCgs.delete(url); }
+  for (const url of urls) if (url) retainedCgs.add(url);
 }
 
 const contactImpactKeys = [

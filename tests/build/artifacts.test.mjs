@@ -21,7 +21,7 @@ test('mansion build closes navigation and detects missing pages, chunks and dyna
   const outDir = resolve(temporary, 'mansion output');
   const first = await buildTarget('entry:mansion', { outDir });
   assert.deepEqual(await validateBuildOutput('entry:mansion', outDir), []);
-  assert.equal(await fileHash(resolve(outDir, 'index.html')), await fileHash(resolve(outDir, 'mansion.html')));
+  assert.match(await readFile(resolve(outDir, 'mansion.html'), 'utf8'), /index\.html#\/mansion/);
   const second = await buildTarget('entry:mansion', { outDir });
   assert.deepEqual(second.report.files, first.report.files, 'same input must produce the same asset bytes');
   const manifest = JSON.parse(await readFile(resolve(outDir, 'mansion-map/manifest.json'), 'utf8'));
@@ -49,7 +49,7 @@ test('CLI works from another cwd and honors a custom dice output directory', asy
   const before = existsSync(defaultIndex) ? await fileHash(defaultIndex) : null;
   await execute(process.execPath, [resolve(projectRoot, 'scripts/run-target.mjs'), 'build', 'entry:dice', '--outDir', outDir], { cwd: root, maxBuffer: 10 * 1024 * 1024 });
   assert.deepEqual(await validateBuildOutput('entry:dice', outDir), []);
-  assert.equal(await fileHash(resolve(outDir, 'index.html')), await fileHash(resolve(outDir, 'dice.html')));
+  assert.match(await readFile(resolve(outDir, 'dice.html'), 'utf8'), /index\.html#\/dice/);
   assert.equal(existsSync(defaultIndex) ? await fileHash(defaultIndex) : null, before);
 });
 
@@ -85,6 +85,8 @@ test('independent dice dev root preserves query parameters', async t => {
   const address = server.httpServer?.address();
   assert(address && typeof address === 'object');
   const response = await fetch(`http://127.0.0.1:${address.port}/?fixture=1`, { redirect: 'manual' });
-  assert.equal(response.status, 302);
-  assert.equal(response.headers.get('location'), '/dice.html?fixture=1');
+  assert.equal(response.status, 200);
+  assert.match(await response.text(), /src\/game-shell\/main/);
+  const legacy = await fetch(`http://127.0.0.1:${address.port}/dice.html?fixture=1`, {redirect: 'manual'});
+  assert.equal(legacy.headers.get('location'), '/index.html#/dice?fixture=1');
 });

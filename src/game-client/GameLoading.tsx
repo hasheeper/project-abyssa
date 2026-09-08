@@ -1,3 +1,4 @@
+import { readRoute } from "../shared/routing/location";
 import { useEffect, useState } from "react";
 import { SceneTransition, useSceneReady } from "../shared/transition";
 
@@ -14,7 +15,7 @@ export function GameLoading() {
     const timer = window.setTimeout(() => setWaiting(true), 250);
     return () => window.clearTimeout(timer);
   }, []);
-  const destination = destinations[window.location.pathname.split("/").at(-1) ?? ""] ?? "守望者之崖";
+  const destination = destinations[`${readRoute()?.page}.html`] ?? "守望者之崖";
   return <div className="game-client-loading" aria-busy="true">
     {!covered && waiting && <SceneTransition phase="closed" channel="正在进入" destination={destination}/>}
   </div>;

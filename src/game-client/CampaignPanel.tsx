@@ -1,3 +1,4 @@
+import { navigateTo } from "../shared/routing/location";
 import { GameMenu } from "../shared/ui/patterns/game-menu/GameMenu";
 import { useCampaignMenuScene } from "./CampaignMenuScope";
 import { activeRunId } from "./session";
@@ -77,8 +78,8 @@ export function CampaignPanel({report = false, onReviewGrowth}: {report?: boolea
       {journey?.takeover && <p>首次接管奖励 {journey.takeover.gold}G 已入账。<a href={gameHref("battle", {saveId: locator.saveId, epoch: locator.epoch, expeditionId: journey.takeover.runId})}>{journey.story?.status === "pending" ? "继续家宴落幕" : "回顾家宴落幕"}</a></p>}
       {onReviewGrowth && <GrowthEvents onReview={onReviewGrowth}/>}
       {memory && <section aria-label="玛丽埃塔回忆"><h3>{record.contentRef.contentVersion >= 3 ? "停下来的钟声" : "王座前的提线魔女"}</h3><p>{memory.claim ? "玛丽埃塔已可加入亲征队伍。" : memory.available ? "从玛丽埃塔的记事进入回忆，完成当下对话后开放亲征。" : "完成庄园首通及家宴落幕后开放。"}</p>
-        {memory.canBegin && <DiceActionButton label={memory.claim ? "重新挑战回忆" : "谈起旧日回廊"} disabled={session.getSnapshot().status !== "ready"} onClick={() => void session.dispatch({type: "begin-memory", chapterId: memory.chapterId}).then(batch => {if (batch) window.location.assign(gameHref("battle", recordLocator(batch.after)));})}/>}
-        {memory.memory?.node === "left" && memory.canRetry && <DiceActionButton label="重新进入回忆" onClick={() => void session.dispatch({type: "retry-memory", runRef: {kind: "memory", id: memory.memory!.id, attempt: memory.memory!.attempt}}).then(batch => {if (batch) window.location.assign(gameHref("battle", recordLocator(batch.after)));})}/>}
+        {memory.canBegin && <DiceActionButton label={memory.claim ? "重新挑战回忆" : "谈起旧日回廊"} disabled={session.getSnapshot().status !== "ready"} onClick={() => void session.dispatch({type: "begin-memory", chapterId: memory.chapterId}).then(batch => {if (batch) navigateTo(gameHref("battle", recordLocator(batch.after)));})}/>}
+        {memory.memory?.node === "left" && memory.canRetry && <DiceActionButton label="重新进入回忆" onClick={() => void session.dispatch({type: "retry-memory", runRef: {kind: "memory", id: memory.memory!.id, attempt: memory.memory!.attempt}}).then(batch => {if (batch) navigateTo(gameHref("battle", recordLocator(batch.after)));})}/>}
         {memory.claim && memory.memory?.node === "completed" && <a href={gameHref("battle", {...locator, memory: {id:memory.memory.id, attempt:memory.memory.attempt}})}>回顾回忆与同行</a>}
         {memory.runRef?.kind === "memory" && <a href={gameHref("battle", locator)}>继续回忆</a>}
       </section>}

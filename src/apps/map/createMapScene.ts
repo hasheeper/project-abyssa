@@ -481,6 +481,7 @@ export function createMapScene(container: HTMLElement, options: MapSceneOptions)
       disposeMapObjectResources(scene);
       sceneObjects.clear();
       renderer.dispose();
+      renderer.forceContextLoss();
       renderer.domElement.remove();
     }
   });

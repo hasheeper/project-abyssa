@@ -17,7 +17,7 @@ for (const prefix of ['/', '/abyssa/']) {
     test.setTimeout(120_000);
     const failures = await observeArtifacts(page);
     await startLegacy(page, prefix);
-    const save = new URL(page.url()).searchParams.get('save');
+    const save = new URLSearchParams(new URL(page.url()).hash.split('?')[1]).get('save');
     await depart(page, 5);
     const firstUrl = page.url();
     await finishFirstLayer(page);
@@ -29,7 +29,7 @@ for (const prefix of ['/', '/abyssa/']) {
     expect(terminal.snapshot.campaign.appliedSettlements).toHaveLength(0);
     await page.reload(); await ready(page);
     await page.getByRole('button', { name: '结算并返回洋馆' }).dblclick();
-    await expect(page).toHaveURL(/mansion\.html\?/); await ready(page);
+    await expect(page).toHaveURL(/#\/mansion\?/); await ready(page);
     const home = (await inspectPage(page)).record;
     expect(home.head.saveId).toBe(save);
     expect(home.snapshot.campaign.appliedSettlements).toHaveLength(1);
@@ -48,7 +48,7 @@ for (const prefix of ['/', '/abyssa/']) {
     await page.screenshot({ path: info.outputPath('three-member-battle.png') });
     await page.getByRole('link', { name: '返回菜单', exact: true }).click();
     await page.getByRole('button', { name: /商店/ }).click(); await page.getByRole('button', { name: /商店/ }).click();
-    await expect(page).toHaveURL(/shop\.html\?/); await ready(page);
+    await expect(page).toHaveURL(/#\/shop\?/); await ready(page);
     await expect(page.getByTestId('shop-funds')).toContainText(`小队金币 ${home.snapshot.campaign.funds.party}`);
     await expect(page.getByRole('button', { name: '购买', exact: true })).toBeDisabled();
     await page.screenshot({ path: info.outputPath('shop.png') });
@@ -77,7 +77,7 @@ for (const kind of ['final-hit', 'wipe'] as const) test(`${kind} interruption sa
   if (outcome.type === 'finished') expect(outcome.result.wiped).toBe(kind === 'wipe');
   await page.screenshot({ path: info.outputPath(`${kind}-terminal.png`) });
   await page.getByRole('button', { name: '结算并返回洋馆' }).click();
-  await expect(page).toHaveURL(/mansion\.html\?/); await ready(page);
+  await expect(page).toHaveURL(/#\/mansion\?/); await ready(page);
   const after = (await inspectPage(page)).record;
   expect(after.snapshot.campaign.appliedSettlements).toHaveLength(1);
   expect(after.snapshot.campaign.funds.party).toBe(after.snapshot.campaign.appliedSettlements[0].result.totalGold);
@@ -118,7 +118,7 @@ test('blocked storage does not fake a successful new game', async ({ page }) => 
   await page.addInitScript(() => { Object.defineProperty(window, 'indexedDB', { get() { throw new DOMException('Unavailable', 'SecurityError'); } }); });
   await page.goto('/title.html');
   await page.getByRole('button', { name: '新的开始', exact: true }).click();
-  await expect(page).toHaveURL(/title\.html$/);
+  await expect(page).toHaveURL(/#\/title$/);
   await expect(page.getByRole('status')).toContainText('存档');
 });
 
@@ -148,7 +148,7 @@ test('archive lists corrupt slots separately and export/import creates a new ide
     await new Promise<void>((resolve, reject) => { const tx = db.transaction('saves', 'readwrite'); tx.objectStore('saves').put({ broken: true }, 'corrupt'); tx.oncomplete = () => resolve(); tx.onerror = () => reject(tx.error); }); db.close();
   });
   await page.goto('/title.html');
-  await expect(page).toHaveURL(/title\.html/);
+  await expect(page).toHaveURL(/#\/title/);
   await expect(page.locator('html')).not.toHaveAttribute('data-scene-transition', /.+/);
   await page.screenshot({ path: info.outputPath('title.png') });
   await page.getByRole('button', { name: '记录', exact: true }).click();
@@ -160,7 +160,7 @@ test('archive lists corrupt slots separately and export/import creates a new ide
   await dialog.getByRole('button', { name: '导出存档', exact: true }).click();
   const downloaded = await download; const path = (await downloaded.path())!;
   await page.getByLabel('导入存档', { exact: true }).setInputFiles(path);
-  await expect(page).toHaveURL(/menu\.html\?/); await ready(page);
+  await expect(page).toHaveURL(/#\/menu\?/); await ready(page);
   const imported = (await inspectPage(page)).record;
   expect(imported.head.saveId).not.toBe(original.head.saveId);
   expect(imported.head.epoch).not.toBe(original.head.epoch);

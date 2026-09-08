@@ -44,7 +44,7 @@ describe("shared style entry boundaries", () => {
     const entries = ["src/apps", "src/tools"].flatMap((directory) =>
       readdirSync(resolve(root, directory), { withFileTypes: true })
         .filter((entry) => entry.isDirectory())
-        .map((entry) => `${directory}/${entry.name}/main.tsx`)
+        .flatMap((entry) => ["main.tsx", "route.tsx"].map(file => `${directory}/${entry.name}/${file}`))
         .filter((entry) => existsSync(resolve(root, entry)))
     );
 
@@ -54,7 +54,7 @@ describe("shared style entry boundaries", () => {
       expect(source, entry).not.toContain("shared/ui/styles/index.css");
     }
 
-    const characterStatus = read("src/apps/character-status/main.tsx");
+    const characterStatus = read("src/apps/character-status/route.tsx");
     expect(characterStatus).toContain("shared/ui/styles/components-character-status.css");
     expect(characterStatus).toContain("shared/ui/styles/components-character-archive.css");
     expect(characterStatus).toContain("shared/ui/styles/items.css");

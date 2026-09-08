@@ -297,6 +297,11 @@
   margin-top: 15px;
 }
 
+.scene-transition__progress { margin-top: 10px; color: #789f9c; font: 12px/1.4 ui-monospace, monospace; letter-spacing: .14em; }
+.scene-transition__error { max-width: 220px; margin-top: 10px; color: #b6c5c0; font-size: 12px; line-height: 1.7; }
+.scene-transition__retry { margin-top: 10px; padding: 5px 22px; border: 1px solid #527370; background: #142625; color: #bdcbc8; font: inherit; font-size: 13px; cursor: pointer; }
+.scene-transition__retry:hover { background: #213d3a; }
+
 .scene-transition__activity i {
   display: block;
   width: 4px;

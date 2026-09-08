@@ -14,5 +14,5 @@ it('shows campaign funds and keeps prototype transactions disabled', () => {
   render(<SceneTransitionProvider><ShopPage /></SceneTransitionProvider>);
   expect(screen.getByTestId('shop-funds')).toHaveTextContent('小队金币 123 · 远古晶石 2');
   for (const name of ['购买','出售','鉴定']) expect(screen.getByRole('button', { name })).toBeDisabled();
-  expect(screen.getByRole('link', { name: '洋馆' })).toHaveAttribute('href', './mansion.html?save=save&epoch=epoch');
+  expect(screen.getByRole('link', { name: '洋馆' })).toHaveAttribute('href', '#/mansion?save=save&epoch=epoch');
 });

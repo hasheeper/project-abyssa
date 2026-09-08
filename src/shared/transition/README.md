@@ -1,6 +1,6 @@
 # 场景交接黑幕
 
-这层解决的是独立 HTML App 之间的视觉接力，不是某一页内部的加载 spinner，也不是全局路由或游戏状态容器。调用方提供目标 URL、短文案和可选 `ready()`；共享层只保证闭幕、等待与揭幕顺序一致。
+正式游戏由 `src/game-shell` 持有唯一黑幕，首次资源准备与内部路由共用本组件。页面提供短文案、`holdReady` 和原有入场样式，嵌套 Provider 自动复用外层，不再重复绘制。独立实验页面仍可使用原 Provider 完成跨文档 handoff；本组件不持有游戏规则或存档。
 
 ## 状态机
 
@@ -10,9 +10,9 @@ idle → closing → closed / real loading → opening → idle
 
 - `closing`：旧场景安静淡出，黑幕锁住输入；
 - `closed`：页面已全黑，此时才执行导航；
-- 新文档用 `sessionStorage` 接住 handoff，首帧仍是同一闭合黑幕；
+- 游戏在同一文档内卸载旧页、挂载目标路由；独立实验页才使用 sessionStorage 跨文档 handoff；
 - 业务数据就绪、实际场景挂载后，再收集并等待字体、图片与可选 `ready()`，最后进入 `opening`；
-- 图片等视觉资源的等待有 6 秒保险，存档初始化不被这个超时跳过。界面不伪造百分比，只显示六面旋转体。
+- 图片等视觉资源的等待有 6 秒保险，存档初始化不被这个超时跳过。首次启动按实际资源字节显示进度；切页只显示原六面旋转体。
 
 ## 揭幕模式与顺序
 
@@ -21,7 +21,7 @@ idle → closing → closed / real loading → opening → idle
 | `fade` | 洋馆这类铺满画布的世界场景；背景属于世界，不应像卡片一样下落 | `mansion` |
 | `panel-drop` | 战斗、商店等受限画布实体面板 | `battle`、`shop` |
 
-`panel-drop` 只在目标页读到有效的同源 handoff 时生效，顺序固定为：
+`panel-drop` 在路由抵达（或独立页面的有效 handoff）时生效，顺序固定为：
 
 ```text
 闭合黑幕 → 目标背景就位 → SceneArrivalTitle 显示区域名

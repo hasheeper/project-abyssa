@@ -1,3 +1,4 @@
+import { routeSearch } from "../../shared/routing/location";
 import { useEffect, useMemo, useState } from "react";
 import { AbyssaProvider } from "../../shared/ui/primitives/AbyssaProvider";
 import { CharacterStatusScreen } from "../../shared/ui/patterns/CharacterStatusScreen";
@@ -78,13 +79,13 @@ function ArchiveScreen({
   progression: ReturnType<typeof d5ProgressionView> | null;
 }) {
   const [equipmentOpen,setEquipmentOpen] = useState(false);
-  const [search, setSearch] = useState(() => window.location.search);
+  const [search, setSearch] = useState(() => routeSearch());
   const location = parseCharacterLocation(search);
   const requested = parseLocator(search), requestedRun = requested?.expeditionId;
   const [limit, setLimit] = useState(30);
   useEffect(() => {
     const update = () => {
-      setSearch(window.location.search);
+      setSearch(routeSearch());
       setLimit(30);
     };
     window.addEventListener("popstate", update);
@@ -112,7 +113,7 @@ function ArchiveScreen({
       "",
       gameHref("character-status", locator, next),
     );
-    setSearch(window.location.search);
+    setSearch(routeSearch());
   };
   if (requestedRun && (view.runRef?.kind === "memory" || requestedRun !== view.runId) || requested?.memory && (view.runRef?.kind !== "memory" || requested.memory.id !== view.runRef.id || requested.memory.attempt !== view.runRef.attempt))
     return (

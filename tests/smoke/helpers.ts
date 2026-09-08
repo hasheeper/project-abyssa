@@ -28,4 +28,9 @@ export async function expectMounted(page: Page) {
   await expect(page.locator('#root > *').first()).toBeAttached();
   await page.waitForLoadState('networkidle');
   await expect(page.locator('#root')).not.toBeEmpty();
+  // Game shell can mount its loading curtain before the route is actually ready.
+  if (page.url().includes('#/')) {
+    await expect(page.locator('html')).toHaveAttribute('data-game-page', /.+/, {timeout:30_000});
+    await expect(page.locator('html')).not.toHaveAttribute('data-scene-transition', /.+/, {timeout:30_000});
+  }
 }

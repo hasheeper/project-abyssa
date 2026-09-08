@@ -1,3 +1,4 @@
+import { navigateTo as navigateGame } from "../../shared/routing/location";
 import {
   useEffect,
   useMemo,
@@ -396,7 +397,7 @@ function MansionScene() {
 
   const navigateTo = (href: string) => {
     if (href.includes("dice")) return;
-    window.location.assign(gameHref(href.includes("shop") ? "shop" : "map", recordLocator(game.record!)));
+    navigateGame(gameHref(href.includes("shop") ? "shop" : "map", recordLocator(game.record!)));
   };
 
   const useCompositeFallback = manifestError || failedLayers.size > 0;

@@ -1,3 +1,4 @@
+import { navigateTo } from "../shared/routing/location";
 import bookIcon from "../assets/icons/items/open-book.svg";
 import mariettaBattlePortrait from "../assets/battle/old-manor/marietta-memory-boss.png";
 import { useReadSession, useReadState } from "./read-react";
@@ -8,7 +9,7 @@ import { gameErrorText } from "./game-errors";
 /** Visible before the chronicle list; opening a dossier never creates or advances a run. */
 export function CharacterMemoryEntry({writer}: {writer: GameSession | null}) {
   const reader = useReadSession(), {record, status} = useReadState();
-  const navigate = (href:string) => window.location.assign(href);
+  const navigate = (href:string) => navigateTo(href);
   if (!record) return null;
   const view = reader.runtime.queries.memory(record);
   const campaign = record.schemaVersion === 4 ? record.snapshot.campaign : null;

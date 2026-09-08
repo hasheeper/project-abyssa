@@ -28,7 +28,7 @@ Abyssa独立拥有游戏规则与存档，复杂LLM上下文／管线按需交�
 - `RpgDialogue`：支持主副姓名、逐字播放、可变高度、隐藏姓名牌和完成回调的对话面板
 - `Nameplate`：角色姓名牌
 - `DiamondWatermark`：可直接覆盖容器或嵌入 SVG pattern 的双层菱形底纹
-- `AbyssaLogo`：由八个可独立变换部件组成的项目标题 Logo，支持布局参数 JSON / TypeScript 序列化；默认自带近黑底板，叠加到场景上时须设 `background="none"`，`crop="tight"` 可收紧留白；`intro` 开启按阅读顺序逐部件弹入的入场动画（约 1.4s，尊重降低动效）
+- `AbyssaLogo`：由八个可独立变换部件组成的项目标题 Logo，支持布局参数 JSON / TypeScript 序列化；默认自带近黑底板，叠加到场景上时须设 `background="none"`，`crop="tight"` 可收紧留白；`intro` 开启按阅读顺序逐部件弹入的入场动画（约 4s，尊重降低动效）
 
 ### 操作控件
 
@@ -62,7 +62,7 @@ Abyssa独立拥有游戏规则与存档，复杂LLM上下文／管线按需交�
 - `Emote`：15 个统一规格的 APNG 头顶漫符，支持全局基准与逐角色微调
 - `expressions`、`spriteCalibration`：表情部件映射与角色画布校准数据
 - `motions`：立绘动作关键帧生成器（`playMotion` + `nod`/`waver`/`jump`/`shakeLight`/`shakeHeavy`）
-- `shared/transition`：独立 HTML 场景间的闭幕、真实资源等待、抵达标题与淡入／面板落入交接
+- `shared/transition`：首次准备与路由切换共用的六面骰黑幕、抵达标题与淡入／面板落入交接
 
 公共组件和类型统一从 `src/index.ts` 导出。为兼容早期接入，部分组件同时保留 `RetroRpg*` 别名。
 
@@ -94,7 +94,7 @@ npm run dev
 
 组件目录默认运行在 `http://127.0.0.1:5173/`。它以实际接入为主：左侧按功能分类，支持名称/能力搜索；基础组件和组合范例提供交互预览、常用属性说明和可复制的最小调用代码。战斗、视觉小说和跑团等大型场景由对应应用与 Storybook 展示。
 
-聚合开发入口：`npm run dev:game`（5190，标题首页）、`npm run dev:lab`（5191，组件目录与演出实验）、`npm run dev:tools`（5192，制作工具索引）。端口占用时明确报错；旧 `dev:<name>` 命令继续使用已登记的端口和页面。
+聚合开发入口：`npm run dev:game`（5190，加载完成后进入标题）、`npm run dev:lab`（5191，组件目录与演出实验）、`npm run dev:tools`（5192，制作工具索引）。端口占用时明确报错；旧 `dev:<name>` 命令继续使用已登记的端口和页面。
 
 ```bash
 npm run storybook
@@ -146,16 +146,20 @@ Storybook 默认运行在 `http://127.0.0.1:6006/`。
 
 ### 跨场景交接
 
-`src/shared/transition/` 负责独立 HTML App 之间的闭幕与接力：旧场景先闭合黑幕，再执行同源导航；目标页等待字体、图片与可选业务 `ready()` 后，先显示区域抵达标题，再以 `fade` 或 `panel-drop` 揭示内容。它只共享呈现协议，不持有具体路由、存档或全局游戏状态。`menu` 是当前发起方，`mansion` 使用全屏淡入，`battle` 与 `shop` 使用实体面板落入；`loading` 是该流程的独立视觉实验页。完整契约见 `src/shared/transition/README.md`。
+`src/game-shell/` 提供单入口 Hash 路由：首次准备全局资源与字体，只挂载当前页面；切页卸载旧页，再懒加载目标模块，保留存档、回忆战、角色标签等 URL 参数。`src/shared/transition/` 的六面骰黑幕统一承担首次进度、失败重试与切页等待；洋馆使用全屏淡入，战斗和商店保留实体面板落入。页面 CSS 自动按路由隔离，游戏页不再各自创建 React 根。完整契约见 `src/shared/loading/README.md`。
+
+### 全局启动与资源
+
+十个游戏入口统一先完成资源准备，再挂载页面。构建生成完整资源清单与跨页面缓存，加载页显示实际进度，失败可重试；字体本地化，AVG／CG共用有内存上限的图片解码服务。详见[资源加载契约](src/shared/loading/README.md)。
 
 ### 外部资源
 
 - 构建出的 `@abyssa/ui` 组件包不主动请求远程字体、图片或业务接口。
 - 地图底图、三个节点、委托背景与 Q 版队伍立绘均已归入 `src/assets/map/`，通过静态 import 随构建打包；目录和文件名见[地图素材说明](/Users/liuhang/Documents/project-abyssa/src/assets/map/README.md)。地图图片不再依赖外部图床。
-- 骰局和商店入口的缇比立绘仍从 `files.catbox.moe` 加载；骰局的可选 LLM Runtime 只有显式启用后才连接本机 8787 端口。
-- `loading`、`mansion`、`menu`、`shop` 与 `title` 的 HTML 入口通过 Google Fonts 加载 Cinzel 与 Noto Serif SC。
+- 骰局与商店使用本地缇比立绘；骰局的可选 LLM Runtime 只有显式启用后才连接本机 8787 端口。
+- 游戏入口的 Cinzel 与 Noto Serif SC 已随发行物提供，103个字体子集在启动时准备。`loading`等实验室页面仍保留原在线字体引用。
 
-需要完全离线部署这些 Demo 时，应先把上述图片和字体转为本地资产，并关闭或替换骰局 Runtime。
+游戏静态页面在成功准备资源后可复用浏览器缓存；可选 LLM Runtime 仍需要服务连接。实验／工具页不承诺离线运行。
 
 ### 素材管线
 
@@ -335,7 +339,7 @@ dist/             ui / game / lab / tools / entries / storybook / reports
 static-preview/   无构建工具依赖的组件目录预览
 ```
 
-视觉原型统一归档在 `references/`，不参与组件库生产构建。根目录的19个HTML在 `config/entries.mjs` 登记，由公共工厂构建。旧 `vite --config vite.<name>.config.ts` 调用改用对应npm命令；默认 `vite.config.ts` 仍兼容直接运行Vite。
+视觉原型统一归档在 `references/`，不参与组件库生产构建。根目录仅保留游戏 `index.html`。十个游戏页面在单入口下懒加载；其余实验／工具 HTML 收在 `entries/`，由 `config/entries.mjs` 和公共工厂构建。旧 `vite --config vite.<name>.config.ts` 调用改用对应npm命令；默认 `vite.config.ts` 仍兼容直接运行Vite。
 
 ## 素材说明
 

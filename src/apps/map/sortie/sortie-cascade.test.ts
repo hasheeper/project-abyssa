@@ -29,16 +29,22 @@ beforeAll(() => {
   execFileSync(process.execPath, [
     resolve(projectRoot, "scripts/run-target.mjs"), "build", "entry:map", "--outDir", outputDirectory
   ], { cwd: projectRoot, stdio: "pipe" });
-  const html = readFileSync(resolve(outputDirectory, "map.html"), "utf8");
-  const stylesheets = [...html.matchAll(/<link\b[^>]*rel="stylesheet"[^>]*href="([^"]+)"/g)];
-  expect(stylesheets.length).toBeGreaterThan(0);
-  CSS = stylesheets.map((match) => readFileSync(resolve(outputDirectory, match[1]), "utf8")).join("\n");
+  const manifest = JSON.parse(readFileSync(resolve(outputDirectory, ".vite/manifest.json"), "utf8"));
+  const sheets = new Set<string>();
+  function collect(key: string) {
+    for (const dependency of manifest[key].imports ?? []) collect(dependency);
+    for (const css of manifest[key].css ?? []) sheets.add(css);
+  }
+  collect("index.html"); collect("src/apps/map/route.tsx");
+  expect(sheets.size).toBeGreaterThan(0);
+  CSS = [...sheets].map(path => readFileSync(resolve(outputDirectory, path), "utf8")).join("\n");
 }, 60_000);
 
 afterAll(() => { if (outputDirectory) rmSync(outputDirectory, { recursive: true, force: true }); });
 
 /** 只数类 / 属性 / 伪类。这批选择器里没有 id，也没有内联样式。 */
 function specificity(selector: string): number {
+  selector = selector.replace(/:where\([^)]*\)/g, "");
   const classes = (selector.match(/\.[\w-]+/g) ?? []).length;
   const attributes = (selector.match(/\[[^\]]*\]/g) ?? []).length;
   const pseudoClasses = (selector.match(/:(?!:)[\w-]+/g) ?? []).length;

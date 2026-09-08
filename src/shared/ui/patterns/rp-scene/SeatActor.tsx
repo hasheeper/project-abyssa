@@ -103,7 +103,7 @@ export function SeatActor({ actor, seat, phase, active, expression, crop, cue, h
           <div className="abyssa-rp__actor-beat">
             <ActorPerformance cue={performance} replay={replay}>
             <EmotionActor characterId={actor.id} cue={cue} active={active && !performance} hydrate={hydrate} replay={replay}
-              placement={cue?.emote ? actor.emotePlacements?.[cue.emote] : undefined} delay={700}>
+              placement={cue?.emote ? actor.emotePlacements?.[cue.emote] : undefined}>
             <PaperDoll
               characterId={actor.id}
               expression={expression}

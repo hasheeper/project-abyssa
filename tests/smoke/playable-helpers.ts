@@ -9,7 +9,7 @@ export const probe = resolve(projectRoot, 'dist/reports/s3/browser/playable-prob
 export async function buildProbe() { await build({ absWorkingDir: projectRoot, entryPoints: ['src/game-runtime/testing/playable-browser.ts'], outfile: probe, bundle: true, format: 'iife', globalName: 'AbyssaPlayableTest', platform: 'browser', target: 'es2022' }); }
 export async function inspectPage(page: Page): Promise<Awaited<ReturnType<typeof inspect>>> {
   if (!await page.evaluate(() => Boolean((window as any).AbyssaPlayableTest))) await page.addScriptTag({ path: probe });
-  return page.evaluate(async () => (window as any).AbyssaPlayableTest.inspect(new URLSearchParams(location.search).get('save')));
+  return page.evaluate(async () => (window as any).AbyssaPlayableTest.inspect(new URLSearchParams(location.hash.split("?")[1] ?? location.search).get('save')));
 }
 export async function ready(page: Page) {
   await expect(page.locator('.game-client-status')).toHaveAttribute('data-status', 'ready');
@@ -25,11 +25,11 @@ export async function startLegacy(page: Page, prefix = '/') {
   await page.goto(prefix); await page.getByRole('button', { name: '记录', exact: true }).click();
   await page.getByLabel('导入格式').selectOption('application');
   await page.getByLabel('导入存档', {exact: true}).setInputFiles({name: 'legacy-campaign.json', mimeType: 'application/json', buffer: Buffer.from(await legacyCampaignArchive())});
-  await expect(page).toHaveURL(/menu\.html\?save=.+&epoch=.+/); await ready(page);
+  await expect(page).toHaveURL(/#\/menu\?save=.+&epoch=.+/); await ready(page);
 }
 export async function openSortie(page: Page) {
   // The menu uses the original select-then-activate dial; other scenes use the common menu.
-  if (new URL(page.url()).pathname.endsWith('/menu.html')) {
+  if (new URL(page.url()).hash.startsWith('#/menu?')) {
     const sortie = page.getByRole('button', { name: '出征 · 编队并进入副本', exact: true });
     await sortie.click(); await sortie.click();
   } else await page.getByRole('link', { name: '出征编队', exact: true }).click();
@@ -38,7 +38,7 @@ export async function depart(page: Page, count = 5) {
   await openSortie(page);
   // The outgoing page also has zero loading indicators. Wait for the destination
   // before checking map readiness, otherwise a fast click races the texture load.
-  await expect(page).toHaveURL(/map\.html\?save=.+&epoch=.+/); await ready(page);
+  await expect(page).toHaveURL(/#\/map\?save=.+&epoch=.+/); await ready(page);
   await expect(page.locator('.abyssa-map-loading')).toHaveCount(0, { timeout: 30_000 });
   await page.getByRole('button', { name: '查看出战队伍并编队' }).click();
   for (const id of ['eustice', 'kororo', 'elora', 'norma'].slice(0, count - 1)) {
@@ -54,7 +54,7 @@ export async function depart(page: Page, count = 5) {
   const point = new Vector3(-0.6, 1, 0.9).project(camera);
   await canvas.click({ position: { x: (point.x + 1) * bounds.width / 2, y: (1 - point.y) * bounds.height / 2 } });
   await page.getByRole('button', { name: '出发', exact: true }).click();
-  await expect(page).toHaveURL(/battle\.html\?save=.+&epoch=.+&expedition=.+/); await ready(page);
+  await expect(page).toHaveURL(/#\/battle\?save=.+&epoch=.+&expedition=.+/); await ready(page);
   await expect(page.locator('.abyssa-expedition-party-card')).toHaveCount(count);
 }
 export async function finishFirstLayer(page: Page) {
@@ -84,5 +84,5 @@ export async function importSample(page: Page, kind: Parameters<typeof interrupt
   await page.getByRole('button', { name: '记录', exact: true }).click();
   await page.getByLabel('导入格式').selectOption('legacy');
   await page.getByLabel('导入存档', { exact: true }).setInputFiles({ name: `${kind}.json`, mimeType: 'application/json', buffer: Buffer.from(interruptionArchive(kind)) });
-  await expect(page).toHaveURL(/battle\.html\?save=.+&epoch=.+&expedition=.+/); await ready(page);
+  await expect(page).toHaveURL(/#\/battle\?save=.+&epoch=.+&expedition=.+/); await ready(page);
 }

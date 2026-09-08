@@ -12,11 +12,10 @@ beforeEach(() => {
 });
 afterEach(()=>{cleanup();vi.useRealTimers();vi.restoreAllMocks();delete (HTMLElement.prototype as Partial<HTMLElement>).animate;});
 
-it("uses the existing motion after the seat entrance, once even in StrictMode",()=>{
+it("starts the motion with the beat without waiting for seat entrance, once even in StrictMode",()=>{
   const cue={key:"one",motion:"nod" as const};
   const view=render(<StrictMode><ActorPerformance cue={cue}>actor</ActorPerformance></StrictMode>);
-  act(()=>vi.advanceTimersByTime(699));expect(animate).not.toHaveBeenCalled();
-  act(()=>vi.advanceTimersByTime(1));expect(animate).toHaveBeenCalledExactlyOnceWith(nod().keyframes,nod().options);
+  act(()=>vi.advanceTimersByTime(0));expect(animate).toHaveBeenCalledExactlyOnceWith(nod().keyframes,nod().options);
   view.rerender(<StrictMode><ActorPerformance cue={{...cue}}>actor</ActorPerformance></StrictMode>);
   act(()=>vi.advanceTimersByTime(1000));expect(animate).toHaveBeenCalledTimes(1);
   view.rerender(<StrictMode><ActorPerformance cue={{key:"two",motion:"shakeLight"}}>actor</ActorPerformance></StrictMode>);

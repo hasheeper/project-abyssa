@@ -147,6 +147,7 @@
  */
 .title-cg {
   position: absolute;
+  transform: translateZ(0);
   top: 60px;
   width: 547.4px;
   height: 800px;
@@ -244,6 +245,8 @@
 
 .title-backdrop {
   position: absolute;
+  /* 与徽记独立合成，法阵转动不能连带重画带滤镜的字标。 */
+  transform: translateZ(0);
   inset: 0;
   width: 100%;
   height: 100%;
@@ -251,6 +254,18 @@
 }
 
 /* ---- 背景场 ---- */
+.title-backdrop__layer,
+.title-backdrop__field,
+.title-backdrop__spin {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* 图案超出画布的部分仍参与旋转，由固定外层裁切。 */
+.title-backdrop__layer { overflow: visible; }
+
 .title-backdrop__field {
   fill: none;
   stroke: var(--abyssa-ornament, #6b563a);
@@ -307,21 +322,11 @@
   opacity: 0.5;
 }
 
-/* ---- 背景场自转 ----
-   三层不同速、且相邻两层反向(226s 正 / 148s 逆 / 96s 正)。同向同速会读成
-   「整张图在转」,反向才有星盘咬合的机械感;周期都取得很长,避免抢字标的注意。
-
-   旋转施加在**专门的空壳 <g> 上**,那些壳没有 transform 属性 ——
-   SVG 的 transform 属性就是 CSS transform 属性,直接给已有 translate 的组
-   加动画会把 translate 整个覆盖掉,图案会飞到左上角。
-
-   转轴由 TitlePage 用 titleGeometry 的常量注入 --title-field-origin,
-   法阵、透光区与徽记因此只保留一个轴心来源。
-
-   只转描边图案,不转 wash 与 mask:径向衰减一转就会露出边界。 */
+/* 只在 HTML 合成层转动静态图案，固定遮罩与底光不参与动画。
+   转轴依然来自 titleGeometry，保持原本的半径、速度与呼吸幅度。 */
 .title-backdrop__spin {
-  transform-box: view-box;
   transform-origin: var(--title-field-origin);
+  will-change: transform;
 }
 
 .title-backdrop__spin--spokes {
@@ -360,6 +365,7 @@
 @media (prefers-reduced-motion: reduce) {
   .title-backdrop__spin {
     animation: none !important;
+    will-change: auto;
   }
 }
 
@@ -385,6 +391,7 @@
    墨迹在 tight 裁切里水平正中,所以居中即视觉居中,无需偏移修正。 */
 .title-emblem {
   position: relative;
+  transform: translateZ(0);
   /* = TITLE_EMBLEM_W / TITLE_EMBLEM_H */
   width: 560px;
   height: 459.2px;

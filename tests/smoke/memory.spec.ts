@@ -96,7 +96,7 @@ for (const [prefix,width,height] of [["/",1600,900],["/abyssa/",1280,720]] as co
     await expect(page.locator(".expedition-die[data-rolling]")).toHaveCount(0);
     await page.getByRole("button",{name:"回忆战记录与补给",exact:true}).click();
     await page.getByRole("button",{name:"暂离回忆",exact:true}).click();
-    await expect(page).toHaveURL(/mansion.html/,{timeout:20000});await ready(page);
+    await expect(page).toHaveURL(/#\/mansion/,{timeout:20000});await ready(page);
     expect((await inspect(page)).record.snapshot.campaign.funds).toEqual(records.memory.snapshot.campaign.funds);
 
     await install(page,records.failed,prefix);
@@ -109,7 +109,7 @@ for (const [prefix,width,height] of [["/",1600,900],["/abyssa/",1280,720]] as co
     await install(page,records.returnPending,prefix);
     await expectStoryInsideFrame(page, mariettaMemoryScript["return-pending"].at(-1)!.text);
     await page.screenshot({path:info.outputPath(`memory-return-${width}.png`)});
-    if (prefix === "/") {await page.getByRole("button",{name:"确认同行",exact:true}).click();await expect(page).toHaveURL(/mansion.html/,{timeout:20000});}
+    if (prefix === "/") {await page.getByRole("button",{name:"确认同行",exact:true}).click();await expect(page).toHaveURL(/#\/mansion/,{timeout:20000});}
     else {await loadProbe(page);await page.evaluate(() => (window as any).MemoryProbe.claimWithLostReceipt());await page.reload();}
     await ready(page);
     expect(await page.evaluate(()=>sessionStorage.getItem("abyssa:pending:v4:d5-d:epoch"))).toBeNull();

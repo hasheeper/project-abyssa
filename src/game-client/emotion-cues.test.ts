@@ -49,9 +49,14 @@ it("has a safe fallback without inventing player gestures or unsupported special
 it("keeps authored gestures readable at the original stage scale while preserving stillness",()=> {
   expect(resolveEmotionCue(actor("elora"),"joy").motion?.amplitude).toBe(64);
   expect(resolveEmotionCue(actor("norma"),"joy").motion?.amplitude).toBe(76);
-  expect(resolveEmotionCue(actor("eustice"),"angry").motion?.amplitude).toBe(22);
-  expect(resolveEmotionCue(actor("abyssa"),"joy").motion?.amplitude).toBe(10);
+  expect(resolveEmotionCue(actor("eustice"),"angry").motion?.amplitude).toBe(41);
+  expect(resolveEmotionCue(actor("abyssa"),"joy").motion?.amplitude).toBe(23);
   expect(resolveEmotionCue(actor("marietta"),"serious").motion).toBeNull();
+  for (const profile of Object.values(profiles)) for (const cue of [...Object.values(profile.cues), ...Object.values(profile.specials ?? {})]) {
+    if(cue.motion?.id !== "nod") continue;
+    expect(cue.motion.amplitude).toBeGreaterThanOrEqual(20);
+    expect(cue.motion.duration).toBeGreaterThanOrEqual(700);
+  }
 });
 it("retains emotion across untagged lines and does not replay repeated aliases", () => {
   const messages: RpMessage[] = [
