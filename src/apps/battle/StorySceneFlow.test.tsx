@@ -1,5 +1,6 @@
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
+vi.mock("../../shared/loading/images", () => ({prepareImages: vi.fn(async () => {})}));
 import { manorClientFixture } from "../../game-client/testing/manor";
 import { journeyOf, playToJourney } from "../../game-client/testing/journey-flow";
 import { GameSessionScope } from "../../game-client/react";
@@ -7,13 +8,17 @@ import { SceneTransitionProvider } from "../../shared/transition";
 import { ManorBattleBinding } from "./ManorBattleBinding";
 const fixtures: Awaited<ReturnType<typeof manorClientFixture>>[] = [];
 afterEach(() => {cleanup(); fixtures.splice(0).forEach(f=>f.session.dispose()); sessionStorage.clear(); vi.useRealTimers();});
-const flush = async () => {for (let i=0;i<8;i++) await act(async () => {await vi.runAllTimersAsync();});};
+const flush = async () => {for (let i=0;i<8;i++) {
+  await act(async () => {await vi.runAllTimersAsync();});
+  await act(async () => {await new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));});
+}};
 it("event story surrounds the real reading decision; dialogue never commits rewards and resumes across remount", async () => {
   const f=await manorClientFixture(19,2);fixtures.push(f);
   await playToJourney(f,v=>v.expedition?.node === "room-complete");
   vi.useFakeTimers({toFake:["setTimeout","clearTimeout"]});
   const mount=() => render(<GameSessionScope session={f.session}><SceneTransitionProvider><ManorBattleBinding onSettle={()=>{}} uiSkin="old-manor"/></SceneTransitionProvider></GameSessionScope>);
   let mounted=mount();
+  await flush();
   await act(async()=>{fireEvent.click(screen.getByRole("button",{name:"继续前进"}));});
   await flush();
   expect(screen.queryByRole("dialog")).toBeNull();

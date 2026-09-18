@@ -1,0 +1,51 @@
+/* Old manor only: stationary scenery, a slightly slower physical-board settle.
+   Preserve the 34px travel and existing die/attack transforms. */
+.battle-story-shell[data-manor-scene]::before {
+  background-image: var(--manor-scene-image);
+}
+.scene-sequence[data-battle-motion="board"][data-scene="battle"][data-phase] .scene-sequence__frame {
+  animation: none;
+  transform: none;
+  opacity: 1;
+}
+.scene-sequence[data-battle-motion="board"][data-phase="prepare"] .abyssa-expedition-frame {
+  /* Exactly zero lets the browser skip rasterizing this complex board until
+     the entrance is already running. This imperceptible alpha keeps it warm. */
+  opacity: .001;
+  translate: 0 -34px;
+}
+.scene-sequence[data-battle-motion="board"]:not([data-phase="idle"]) .abyssa-expedition-frame {
+  /* Reserve the compositing layer before movement; release it once settled. */
+  will-change: translate, opacity;
+}
+.scene-sequence[data-battle-motion="board"][data-phase="in"] .abyssa-expedition-frame {
+  /* Spread acceleration across the first third instead of rushing the drop. */
+  animation: manor-board-settle 960ms cubic-bezier(.38, .08, .34, 1) both,
+    manor-board-appear 320ms cubic-bezier(.3, 0, .5, 1) both;
+}
+.scene-sequence[data-battle-motion="board"][data-scene="battle"][data-phase="out"] .scene-sequence__frame {
+  animation: manor-board-appear 520ms ease-in reverse both;
+}
+.scene-sequence[data-battle-motion="board"][data-phase="out"] .abyssa-expedition-frame {
+  animation: manor-board-settle 520ms cubic-bezier(.42, 0, .68, 1) reverse both;
+}
+.battle-story-shell[data-manor-assets]:not([data-manor-assets="ready"]) .abyssa-expedition-frame { visibility: hidden; }
+@keyframes manor-board-settle { from { translate: 0 -34px; } to { translate: 0 0; } }
+@keyframes manor-board-appear { from { opacity: .001; } to { opacity: 1; } }
+.scene-sequence[data-battle-motion="board"][data-reduced] .abyssa-expedition-frame,
+.scene-sequence[data-battle-motion="board"][data-scene="battle"][data-phase][data-reduced] .scene-sequence__frame {
+  animation: none; translate: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .scene-sequence[data-battle-motion="board"] .abyssa-expedition-frame,
+  .scene-sequence[data-battle-motion="board"][data-scene="battle"][data-phase] .scene-sequence__frame { animation: none; translate: none; }
+}
+.battle-scene-preparation {
+  position: absolute; inset: 0; z-index: 20;
+  display: grid; place-items: center;
+  background: #100f0d; color: #d2c6ae;
+}
+.battle-scene-preparation > div { text-align: center; }
+.battle-scene-preparation h2 { font-size: 24px; font-weight: 500; }
+.battle-scene-preparation p { font-size: 16px; color: #a89a82; }
+.battle-scene-preparation button { margin-top: 12px; padding: 10px 24px; color: #e5d4ae; background: #33291f; border: 1px solid #776044; cursor: pointer; }

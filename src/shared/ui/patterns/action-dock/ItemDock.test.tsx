@@ -7,11 +7,14 @@ it("七槽含空位；选择不消耗，取消不提交，目标只提交一次"
   const use = vi.fn(); render(<ItemDock items={[make(use)]} busy={false}/>);
   expect(within(screen.getByRole("list",{name:"携带道具"})).getAllByRole("listitem")).toHaveLength(7);
   expect(screen.getByLabelText("空槽 7")).toBeVisible();
-  const slot = screen.getByRole("button",{name:"药水，剩余 2 次"});
-  fireEvent.click(slot); expect(use).not.toHaveBeenCalled();
-  fireEvent.keyDown(slot,{key:"Escape"}); expect(slot).toHaveFocus();
+  const slot = () => screen.getByRole("button",{name:"药水，剩余 2 次"});
+  fireEvent.click(slot()); expect(use).not.toHaveBeenCalled();
+  // Old hit targets must be absent, not merely visually hidden under the target.
+  expect(screen.queryByRole("button",{name:"药水，剩余 2 次",hidden:true})).toBeNull();
+  const target = screen.getByRole("button",{name:"凯尔"}); expect(target).toHaveFocus();
+  fireEvent.keyDown(target,{key:"Escape"}); expect(slot()).toHaveFocus();
   expect(screen.queryByRole("button",{name:"凯尔"})).toBeNull();
-  fireEvent.click(slot); fireEvent.click(screen.getByRole("button",{name:"凯尔"}));
+  fireEvent.click(slot()); fireEvent.click(screen.getByRole("button",{name:"凯尔"}));
   expect(use).toHaveBeenCalledTimes(1); expect(screen.queryByRole("button",{name:"凯尔"})).toBeNull();
 });
 it("已打开的目标受最新busy与查询约束；零次数保留槽位和原因", () => {

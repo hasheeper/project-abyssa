@@ -1,4 +1,7 @@
 import { gsap } from "gsap";
+import { cubicBezier } from "motion";
+import { MAP_FOCUS_EASE, MAP_FOCUS_MS } from "./map-motion";
+import { mapLandmarkPose } from "./map-landmark-intro";
 import {
   AmbientLight,
   BackSide,
@@ -41,6 +44,7 @@ import { createMapSceneRuntime } from "./map-scene-runtime";
 import type { MapSceneRuntime } from "./map-scene-runtime";
 
 interface MapSceneOptions {
+  intro?: boolean;
   locations: MapLocationConfig[];
   onReady?: () => void;
   onError?: (error: unknown) => void;
@@ -48,12 +52,13 @@ interface MapSceneOptions {
 }
 
 export interface MapSceneController {
-  replay: () => void;
   updateLocation: (id: MapLocationId, location: MapLocationConfig) => void;
   /** 高亮并聚焦地标；panelSide 用来把视觉中心让出给委托侧板。 */
   setSelected: (id: MapLocationId | null, panelSide?: "left" | "right") => void;
   /** 关掉拾取。UI 浮层展开时地图不再响应点击，但视差与渲染继续。 */
   setInteractive: (interactive: boolean) => void;
+  setReducedMotion: (reduced: boolean) => void;
+  setIntroState: (state: "waiting" | "playing" | "ready") => void;
   destroy: () => void;
 }
 
@@ -91,7 +96,6 @@ export function createMapScene(container: HTMLElement, options: MapSceneOptions)
     targetY: cameraBaseLookTarget.y,
     targetZ: cameraBaseLookTarget.z
   };
-  const cameraPitchAngle = Math.atan2(cameraBasePosition.y, cameraBasePosition.z);
   camera.position.copy(cameraBasePosition);
   camera.lookAt(cameraLookTarget);
 
@@ -134,6 +138,10 @@ export function createMapScene(container: HTMLElement, options: MapSceneOptions)
   let runtime: MapSceneRuntime;
   let pointerX = 0;
   let pointerY = 0;
+  let reducedMotion = !!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+  let smoothedX = 0, smoothedY = 0, previousFrame = performance.now();
+  let introState: "waiting" | "playing" | "ready" = options.intro ? "waiting" : "ready";
+  let introStartedAt = 0;
 
   function loadTexture(url: string) {
     return new Promise<Texture>((resolve, reject) => {
@@ -302,7 +310,8 @@ export function createMapScene(container: HTMLElement, options: MapSceneOptions)
     );
     plateMesh.position.set(0, location.plateY, 0.15);
     plateMesh.renderOrder = 20;
-    pivotGroup.add(plateMesh);
+    // The nameplate stays attached to the map. Only the paper cutout hinges up.
+    rootGroup.add(plateMesh);
     scene.add(rootGroup);
     sceneObjects.set(location.id, {
       location,
@@ -314,20 +323,6 @@ export function createMapScene(container: HTMLElement, options: MapSceneOptions)
       aspect: cutout.aspect,
       heightScale: cutout.heightScale,
       verticalShiftScale: cutout.verticalShiftScale
-    });
-  }
-
-  function replay() {
-    if (runtime.destroyed) return;
-    Array.from(sceneObjects.values()).forEach((object, index) => {
-      gsap.killTweensOf(object.pivotGroup.rotation);
-      gsap.killTweensOf(object.pivotGroup.scale);
-      object.pivotGroup.rotation.set(-cameraPitchAngle, 0, index % 2 === 0 ? -0.12 : 0.12);
-      object.pivotGroup.scale.set(0.15, 0.15, 0.15);
-      const delay = index * 0.15;
-      gsap.to(object.pivotGroup.scale, { x: 1, y: 1, z: 1, duration: 0.38, delay, ease: "back.out(2.0)" });
-      gsap.to(object.pivotGroup.rotation, { x: 0, duration: 1.25, delay, ease: "elastic.out(1.1, 0.45)" });
-      gsap.to(object.pivotGroup.rotation, { z: 0, duration: 1.35, delay: delay + 0.02, ease: "elastic.out(1.3, 0.38)" });
     });
   }
 
@@ -395,16 +390,19 @@ export function createMapScene(container: HTMLElement, options: MapSceneOptions)
       ndcY * halfViewHeight * cameraScreenUp.z;
 
     gsap.killTweensOf(cameraPose);
-    gsap.to(cameraPose, {
+    const nextPose = {
       positionX: targetX + cameraBaseOffset.x * scale,
       positionY: targetY + cameraBaseOffset.y * scale,
       positionZ: targetZ + cameraBaseOffset.z * scale,
       targetX,
       targetY,
-      targetZ,
-      duration: 0.78,
-      ease: "power3.inOut"
-    });
+      targetZ
+    };
+    if (reducedMotion || window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
+      Object.assign(cameraPose, nextPose);
+    } else {
+      gsap.to(cameraPose, { ...nextPose, duration: MAP_FOCUS_MS / 1000, ease: cubicBezier(...MAP_FOCUS_EASE) });
+    }
   }
 
   function setSelected(id: MapLocationId | null, panelSide?: "left" | "right") {
@@ -432,10 +430,6 @@ export function createMapScene(container: HTMLElement, options: MapSceneOptions)
     if (!hit) return;
     const selected = Array.from(sceneObjects.values()).find((object) => object.sceneMesh === hit.object || object.plateMesh === hit.object);
     if (!selected) return;
-    gsap.fromTo(selected.pivotGroup.rotation,
-      { x: -0.18, z: (Math.random() - 0.5) * 0.08 },
-      { x: 0, z: 0, duration: 0.85, ease: "elastic.out(1.4, 0.35)" }
-    );
     options.onLocationSelect?.(selected.location);
   }
 
@@ -453,15 +447,30 @@ export function createMapScene(container: HTMLElement, options: MapSceneOptions)
   }
 
   function renderFrame() {
-    const parallax = selectedId === null ? 1 : 0.28;
+    const now = performance.now(), smoothing = 1 - Math.exp(-Math.min(64, now - previousFrame) / 85);
+    previousFrame = now;
+    smoothedX += (pointerX - smoothedX) * smoothing;
+    smoothedY += (pointerY - smoothedY) * smoothing;
+    const parallax = reducedMotion ? 0 : selectedId === null ? 1 : 0.28;
     camera.position.set(
-      cameraPose.positionX + pointerX * 0.3 * parallax,
-      cameraPose.positionY + pointerY * 0.2 * parallax,
+      cameraPose.positionX + smoothedX * 0.3 * parallax,
+      cameraPose.positionY + smoothedY * 0.2 * parallax,
       cameraPose.positionZ
     );
     cameraLookTarget.set(cameraPose.targetX, cameraPose.targetY, cameraPose.targetZ);
     camera.lookAt(cameraLookTarget);
-    sceneObjects.forEach((object) => object.rootGroup.quaternion.copy(camera.quaternion));
+    sceneObjects.forEach((object, _id) => {
+      object.rootGroup.quaternion.copy(camera.quaternion);
+      const index = locations.findIndex(location => location.id === object.location.id);
+      const pose = mapLandmarkPose(now - introStartedAt, index);
+      const settled = introState === "ready" || reducedMotion;
+      object.rootGroup.visible = introState !== "waiting" && (settled || pose.visible);
+      object.pivotGroup.rotation.x = settled ? 0 : pose.rotation;
+      object.pivotGroup.scale.setScalar(settled ? 1 : pose.scale);
+      (object.sceneMesh.material as MeshLambertMaterial).opacity = settled ? 1 : pose.opacity;
+      (object.backMesh.material as MeshBasicMaterial).opacity = settled ? 1 : pose.opacity;
+      (object.plateMesh.material as MeshBasicMaterial).opacity = settled ? 1 : pose.labelOpacity;
+    });
     renderer.render(scene, camera);
   }
 
@@ -474,10 +483,6 @@ export function createMapScene(container: HTMLElement, options: MapSceneOptions)
     onDestroy() {
       disposePendingTextures();
       gsap.killTweensOf(cameraPose);
-      sceneObjects.forEach((object) => {
-        gsap.killTweensOf(object.pivotGroup.rotation);
-        gsap.killTweensOf(object.pivotGroup.scale);
-      });
       disposeMapObjectResources(scene);
       sceneObjects.clear();
       renderer.dispose();
@@ -499,18 +504,30 @@ export function createMapScene(container: HTMLElement, options: MapSceneOptions)
     locations.forEach((location, index) => createLocation(location, locationTextures[index]));
     /* 地标是异步建出来的：选中可能早于建成（例如恢复上次的选择）。 */
     applySelectionTint();
+    // Textures / geometry are ready before the curtain opens; the page owns when
+    // the optional paper entrance starts, so it never plays behind the blackout.
+    renderFrame();
     options.onReady?.();
-    runtime.scheduleReplay(replay, 200);
   }).catch((error: unknown) => {
     disposePendingTextures();
     if (!runtime.destroyed) options.onError?.(error);
   });
 
   return {
-    replay,
     updateLocation,
     setSelected,
     setInteractive,
+    setIntroState(state) {
+      if (runtime.destroyed || state === introState) return;
+      introState = state;
+      if (state === "playing") introStartedAt = performance.now();
+      renderFrame();
+    },
+    setReducedMotion(reduced) {
+      if (runtime.destroyed || reducedMotion === reduced) return;
+      reducedMotion = reduced;
+      if (reduced) { pointerX = pointerY = smoothedX = smoothedY = 0; animateCameraTo(selectedId, selectedPanelSide); }
+    },
     destroy: runtime.destroy
   };
 }

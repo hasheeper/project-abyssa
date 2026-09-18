@@ -1,3 +1,172 @@
+/* The curtain starts the clock; it does not own its lifetime. All distances are
+   design-canvas units. Independent translate/scale preserve the existing layout
+   transforms on the top bar, sidebar and dialogue. */
+.menu-entry { position: relative; isolation: isolate; width: 100%; height: 100%; --menu-intro-travel: 1; }
+.menu-entry[data-menu-intro="waiting"] { --menu-intro-play: paused; }
+.menu-entry[data-menu-intro="playing"] { --menu-intro-play: running; }
+
+.menu-entry:is([data-menu-intro="waiting"], [data-menu-intro="playing"]) :is(
+  .menu-scenery, .menu-backdrop, .menu-host__glow, .menu-host__figure,
+  .menu-topbar__hud-frame, .menu-topbar__time, .menu-topbar__funds dl > div,
+  .menu-sidebar, .menu-sidebar__item,
+  .menu-dial__rings, .menu-dial__jewel, .menu-dial__jewel-line,
+  .menu-dial__panel-entry, .menu-dial__content-entry,
+  .menu-dial__label-text, .menu-dial__label-rule, .menu-dial__icon,
+  .menu-dial__dialogue, .menu-dial__dialogue .abyssa-dialogue__name,
+  .menu-scene-controls
+) {
+  animation-name: var(--menu-enter-animation, menu-soft-in);
+  animation-duration: var(--menu-enter-duration, 240ms);
+  animation-delay: var(--menu-enter-delay, 0ms);
+  animation-timing-function: cubic-bezier(.18, .72, .24, 1);
+  animation-fill-mode: both;
+  animation-play-state: var(--menu-intro-play);
+}
+
+/* Scene -> resident -> frame -> four command plates -> dialogue.
+   These overlap, but the plates do not finish underneath the opening curtain.
+   Match the last 1300ms endpoint with useMenuIntro's 1360ms completion buffer. */
+.menu-scenery { --menu-enter-animation: menu-scene-in; --menu-enter-duration: 1320ms; }
+.menu-backdrop { --menu-enter-delay: 220ms; --menu-enter-duration: 780ms; }
+.menu-host__glow { --menu-enter-delay: 120ms; --menu-enter-duration: 650ms; }
+.menu-host__figure {
+  --menu-enter-animation: menu-portrait-in;
+  --menu-enter-delay: 160ms;
+  --menu-enter-duration: 800ms;
+  transform-origin: 50% 75%;
+}
+.menu-topbar__hud-frame {
+  --menu-enter-animation: menu-frame-in;
+  --menu-enter-delay: 340ms;
+  --menu-enter-duration: 480ms;
+  --menu-enter-x: -32px;
+}
+.menu-topbar__hud-frame--funds { --menu-enter-x: 32px; --menu-enter-delay: 380ms; }
+.menu-topbar__time { --menu-enter-animation: menu-soft-in; --menu-enter-delay: 500ms; --menu-enter-duration: 240ms; }
+.menu-topbar__funds dl > div { --menu-enter-animation: menu-soft-in; --menu-enter-delay: 520ms; --menu-enter-duration: 240ms; }
+.menu-topbar__funds dl > div:nth-child(2) { --menu-enter-delay: 580ms; }
+.menu-topbar__funds dl > div:nth-child(3) { --menu-enter-delay: 640ms; }
+.menu-sidebar {
+  --menu-enter-animation: menu-frame-in;
+  --menu-enter-x: -26px;
+  --menu-enter-delay: 400ms;
+  --menu-enter-duration: 480ms;
+}
+.menu-sidebar__item {
+  --menu-enter-animation: menu-text-in;
+  --menu-row-delay: 480ms;
+  --menu-enter-delay: var(--menu-row-delay);
+  --menu-enter-duration: 280ms;
+}
+.menu-sidebar__item:nth-child(2) { --menu-row-delay: 530ms; }
+.menu-sidebar__item:nth-child(3) { --menu-row-delay: 580ms; }
+.menu-sidebar__item:nth-child(4) { --menu-row-delay: 630ms; }
+.menu-sidebar__item:nth-child(5) { --menu-row-delay: 680ms; }
+.menu-sidebar__item:nth-child(6) { --menu-row-delay: 730ms; }
+.menu-dial__rings {
+  --menu-enter-animation: menu-rings-in;
+  --menu-enter-delay: 360ms;
+  --menu-enter-duration: 650ms;
+  transform-box: view-box;
+  transform-origin: center;
+}
+.menu-dial__jewel, .menu-dial__jewel-line { --menu-enter-delay: 480ms; --menu-enter-duration: 300ms; }
+
+/* One clock and one normalized origin for the SVG and HTML layers. SVG pixels
+   are 800-unit viewBox coordinates; the 700px HTML dial uses the .875 factor. */
+.menu-dial [data-command="estate"] {
+  --menu-command-delay: 540ms; --menu-command-x: 0; --menu-command-y: 28;
+  --menu-command-origin: 50% 30.5%;
+}
+.menu-dial [data-command="storage"] {
+  --menu-command-delay: 620ms; --menu-command-x: 32; --menu-command-y: 0;
+  --menu-command-origin: 23.875% 50%;
+}
+.menu-dial [data-command="shop"] {
+  --menu-command-delay: 700ms; --menu-command-x: -32; --menu-command-y: 0;
+  --menu-command-origin: 76.125% 50%;
+}
+.menu-dial [data-command="sortie"] {
+  --menu-command-delay: 780ms; --menu-command-x: 0; --menu-command-y: -28;
+  --menu-command-origin: 50% 69.4%;
+}
+.menu-dial__panel-entry, .menu-dial__content-entry {
+  --menu-enter-animation: menu-command-in;
+  --menu-enter-delay: var(--menu-command-delay);
+  --menu-enter-duration: 500ms;
+  --menu-command-unit: 1px;
+  transform-box: view-box;
+  transform-origin: var(--menu-command-origin);
+}
+.menu-dial__content-entry { --menu-command-unit: .875px; }
+.menu-dial__label-text {
+  --menu-enter-animation: menu-text-in;
+  --menu-enter-delay: calc(var(--menu-command-delay) + 170ms);
+  --menu-enter-duration: 260ms;
+}
+.menu-dial__label-rule {
+  --menu-enter-animation: menu-rule-in;
+  --menu-enter-delay: calc(var(--menu-command-delay) + 240ms);
+  --menu-enter-duration: 240ms;
+  transform-origin: center;
+}
+.menu-dial__icon {
+  --menu-enter-animation: menu-icon-in;
+  --menu-enter-delay: calc(var(--menu-command-delay) + 170ms);
+  --menu-enter-duration: 260ms;
+}
+.menu-dial__dialogue {
+  --menu-enter-animation: menu-dialogue-in;
+  --menu-enter-delay: 960ms;
+  --menu-enter-duration: 320ms;
+}
+.menu-dial__dialogue .abyssa-dialogue__name {
+  --menu-enter-animation: menu-text-in;
+  --menu-enter-delay: 1040ms;
+  --menu-enter-duration: 240ms;
+}
+.menu-scene-controls {
+  --menu-enter-animation: menu-text-in;
+  --menu-enter-delay: 1080ms;
+  --menu-enter-duration: 220ms;
+}
+
+@keyframes menu-soft-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes menu-scene-in { from { scale: 1.025; } to { scale: 1; } }
+@keyframes menu-rings-in { from { opacity: 0; scale: .9; } to { opacity: .58; scale: 1; } }
+@keyframes menu-frame-in {
+  0% { opacity: 0; translate: calc(var(--menu-enter-x) * var(--menu-intro-travel)) 0; }
+  100% { opacity: 1; translate: 0 0; }
+}
+@keyframes menu-portrait-in {
+  0% { opacity: 0; translate: calc(-32px * var(--menu-intro-travel)) calc(10px * var(--menu-intro-travel)); scale: calc(1 + .018 * var(--menu-intro-travel)); }
+  65% { opacity: 1; }
+  100% { opacity: 1; translate: 0 0; scale: 1; }
+}
+@keyframes menu-command-in {
+  0% {
+    opacity: 0;
+    translate: calc(var(--menu-command-x) * var(--menu-command-unit) * var(--menu-intro-travel)) calc(var(--menu-command-y) * var(--menu-command-unit) * var(--menu-intro-travel));
+    scale: calc(1 - .04 * var(--menu-intro-travel));
+  }
+  55% { opacity: 1; }
+  100% { opacity: 1; translate: 0 0; scale: 1; }
+}
+@keyframes menu-text-in {
+  from { opacity: 0; translate: 0 calc(6px * var(--menu-intro-travel)); }
+  to { opacity: 1; translate: 0 0; }
+}
+@keyframes menu-rule-in { from { scale: 0 1; } to { scale: 1 1; } }
+@keyframes menu-icon-in { from { opacity: 0; } to { opacity: var(--menu-intro-icon-opacity, .68); } }
+.menu-dial__content[data-selected] .menu-dial__icon { --menu-intro-icon-opacity: .92; }
+@keyframes menu-dialogue-in {
+  0% { opacity: 0; translate: calc(16px * var(--menu-intro-travel)) 0; }
+  100% { opacity: 1; translate: 0 0; }
+}
+
+.menu-entry[data-menu-reduced] *, .menu-entry[data-menu-reduced] *::before, .menu-entry[data-menu-reduced] *::after { animation: none !important; }
+
 @media (prefers-reduced-motion: reduce) {
+  .menu-entry *, .menu-entry *::before, .menu-entry *::after { animation: none !important; }
   .menu-dial__panel { transition: none; }
 }

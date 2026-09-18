@@ -2,9 +2,7 @@ import { readRoute } from "../../shared/routing/location";
 import { useState } from "react";
 import type { CSSProperties } from "react";
 import { AbyssaLogo } from "../../shared/ui/branding/AbyssaLogo";
-import { ABYSSA_LOGO_INTRO_TOTAL_MS } from "../../shared/ui/branding/abyssaLogoIntro";
 import { AbyssaProvider } from "../../shared/ui/primitives/AbyssaProvider";
-import { RibbonButton } from "../../shared/ui/primitives/RibbonButton";
 import { Stage } from "../../shared/stage";
 import { SceneTransitionProvider, useSceneTransition } from "../../shared/transition";
 import { TitleBackdrop } from "./TitleBackdrop";
@@ -19,15 +17,11 @@ import {
 import { TITLE_COMMANDS } from "./titleCommands";
 import type { TitleCommandId } from "./titleCommands";
 import { TITLE_FIELD_CENTRE_X, TITLE_FIELD_CENTRE_Y } from "./titleGeometry";
-import {
-  DEFAULT_TITLE_THEME,
-  TITLE_THEMES,
-  getNextTitleTheme,
-  resolveTitleTheme
-} from "./titleThemes";
-import type { TitleThemeId } from "./titleThemes";
 import { RpgModal } from "../../shared/ui/primitives/RpgModal";
 import { useTitleArchive } from "./useTitleArchive";
+import { NewGameDialog } from "./NewGameDialog";
+import { TitleCommandMenu } from "./TitleCommandMenu";
+import { useTitleParallax } from "./useTitleParallax";
 
 /* ============ 标题画面 ============
  *
@@ -39,15 +33,14 @@ import { useTitleArchive } from "./useTitleArchive";
  * 画布内一个视口单位都没有 —— 见 stage/README.md 铁律 1,
  * vw/cqh 会与 Stage 的整体 scale 叠成二次缩放。
  *
- * 主题(黑金/猩红/青幽)只改 CSS 变量,不碰任何尺寸。
+ * 标题固定使用猩红配色，颜色令牌与构图尺寸分开维护。
  */
 
-const TITLE_COMMAND_INTRO_GAP_MS = 130;
-const TITLE_COMMAND_INTRO_START_MS = ABYSSA_LOGO_INTRO_TOTAL_MS + 160;
-
-/* SVG 法阵、自转轴与下层透光区共用同一个原点。放在共同祖先上可避免
+/* SVG 法阵与下层透光区共用同一个原点。放在共同祖先上可避免
    其中一层改了坐标、另一层仍停在画布中心。 */
+const TITLE_CANVAS = "#070304";
 const TITLE_FIELD_STYLE = {
+  "--title-canvas": TITLE_CANVAS,
   "--title-field-origin": `${TITLE_FIELD_CENTRE_X}px ${TITLE_FIELD_CENTRE_Y}px`
 } as CSSProperties;
 
@@ -63,15 +56,19 @@ export function TitlePage() {
 function TitlePageContent() {
   const { navigate, isTransitioning } = useSceneTransition();
   const [hint, setHint] = useState("");
+  const [startOpen, setStartOpen] = useState(false);
+  const [startPresented, setStartPresented] = useState(false);
+  const [archivePresented, setArchivePresented] = useState(false);
+  const [startAttempted, setStartAttempted] = useState(false);
   const archive = useTitleArchive(href => { const opening = readRoute(new URL(href, window.location.href))?.page === "prologue"; navigate(href, { destination: opening ? "序幕" : "守望者之崖", channel: "正在载入", cinematic: opening }); });
-  const [importFormat, setImportFormat] = useState<"application" | "legacy">("application");
-  const [themeId, setThemeId] = useState<TitleThemeId>(DEFAULT_TITLE_THEME);
-
-  const theme = resolveTitleTheme(themeId);
+  const [importFormat, setImportFormat] = useState<"application" | "legacy" | "restore">("application");
+  const modalOpen = startOpen || archive.open || startPresented || archivePresented;
+  const sceneRef = useTitleParallax(modalOpen || isTransitioning || archive.busy);
+  const hasSave = archive.saves.some(save => save.status === "ready" && !archive.archivedIds.has(save.saveId));
 
   function activate(id: TitleCommandId) {
     setHint("");
-    if (id === "begin") { void archive.newGame(); return; }
+    if (id === "begin") { setStartAttempted(false); setStartOpen(true); return; }
     if (id === "continue") { void archive.continueGame(); return; }
     if (id === "archive") { archive.setOpen(true); return; }
     const command = TITLE_COMMANDS.find((item) => item.id === id);
@@ -81,38 +78,37 @@ function TitlePageContent() {
   }
 
   return (
-    <Stage background={theme.canvas} canvasClassName="abyssa-title-screen">
+    <Stage background={TITLE_CANVAS} canvasClassName="abyssa-title-screen">
+      <div ref={sceneRef} className="title-scene">
       {/*
-        AbyssaProvider 不是可选的装饰:tokens.css 的 prefers-reduced-motion
-        规则挂在 `.abyssa-theme` 上,少了它背景场的自转会无视系统的降低动效
-        设置。它同时提供 color-scheme 与正文字族。
-        data-theme 是本屏三套皮肤的唯一开关,只驱动 CSS 变量。
+        AbyssaProvider 提供统一 tokens、color-scheme、正文字族与降低动效设置。
+        data-theme 标识固定的猩红配色。
       */}
-      <AbyssaProvider className="title-app" data-theme={themeId} style={TITLE_FIELD_STYLE}>
+      <AbyssaProvider className="title-app" data-theme="crimson" style={TITLE_FIELD_STYLE}>
         {/* 层序:CG → 黑幕 → 背景场 → 内容。
             黑幕夹在 CG 与背景场之间,所以它压暗照片但不吃掉描边图案 ——
             反过来会把整屏连同字标一起糊掉。 */}
-        <TitleCgPanel
+        <div className="title-cg-layer" data-side="left"><TitleCgPanel
           side="left"
           dwellMs={TITLE_CG_DWELL_MS.left}
           initialDelayMs={TITLE_CG_INITIAL_DELAY_MS.left}
           fadeMs={TITLE_CG_FADE_MS.left}
           step={TITLE_CG_STEP.left}
-        />
-        <TitleCgPanel
+        /></div>
+        <div className="title-cg-layer" data-side="right"><TitleCgPanel
           side="right"
           dwellMs={TITLE_CG_DWELL_MS.right}
           initialIndex={TITLE_CG_RIGHT_OFFSET}
           initialDelayMs={TITLE_CG_INITIAL_DELAY_MS.right}
           fadeMs={TITLE_CG_FADE_MS.right}
           step={TITLE_CG_STEP.right}
-        />
+        /></div>
 
         <div className="title-shade" aria-hidden="true" />
 
         <TitleBackdrop />
 
-        <main className="title-stack">
+        <main className="title-stack" inert={modalOpen}>
           {/*
             background="none" 是必需的,不是可选项:AbyssaLogo 默认画一块不透明
             的近黑底板,直接放上来会盖掉背景场与 CG。
@@ -121,6 +117,7 @@ function TitlePageContent() {
             元素上不可靠,必须包一层 HTML。
           */}
           <div className="title-emblem">
+            {/* Logo 原时序不改，菜单沿用其总时长接续逐项入场。 */}
             <AbyssaLogo
               className="title-emblem__art"
               background="none"
@@ -129,26 +126,20 @@ function TitlePageContent() {
             />
           </div>
 
-          <nav className="title-commands" aria-label="标题菜单">
-            {TITLE_COMMANDS.map((command, index) => (
-              <RibbonButton
-                key={command.id}
-                className="title-commands__item"
-                variant={command.variant}
-                data-intro-order={index}
-                style={{
-                  animationDelay: `${TITLE_COMMAND_INTRO_START_MS + index * TITLE_COMMAND_INTRO_GAP_MS}ms`
-                }}
-                disabled={isTransitioning || archive.busy}
-                onClick={() => activate(command.id)}
-              >
-                {command.label}
-              </RibbonButton>
-            ))}
-          </nav>
+          <TitleCommandMenu intro defaultCommand={hasSave ? "continue" : "begin"}
+            disabled={isTransitioning || archive.busy || modalOpen}
+            onActivate={activate} />
         </main>
 
-        <RpgModal open={archive.open} onClose={() => archive.setOpen(false)} title="游戏档案" panelClassName="title-archive game-client-panel">
+        <NewGameDialog open={startOpen} busy={archive.busy || isTransitioning}
+          onPresentChange={setStartPresented}
+          message={startAttempted ? archive.message : ""}
+          onClose={() => { if (!archive.busy && !isTransitioning) setStartOpen(false); }}
+          onStart={startAt => { setStartAttempted(true); void archive.newGame(startAt); }}/>
+
+        <RpgModal open={archive.open} onClose={() => archive.setOpen(false)} onPresentChange={setArchivePresented} title="游戏档案" panelClassName="title-archive game-client-panel">
+          <p>AIRP 应用接口测试需连接本机 rp；“新的开始”使用离线内容，无需连接后端。</p>
+          <button disabled={archive.busy} onClick={() => void archive.newGame(10)}>新建 AIRP 联机档（内容10）</button>
           <div><button disabled={archive.busy} onClick={() => void archive.cleanup()}>整理已续接旧档</button>{archive.archivedIds.size > 0 && <button disabled={archive.busy} onClick={() => archive.setShowArchived(!archive.showArchived)}>{archive.showArchived ? "收起已归档" : `已归档（${archive.archivedIds.size}）`}</button>}</div>
           <div className="title-archive__list">{archive.saves.map(save => <article key={save.saveId}>
             <p>{archive.archivedIds.has(save.saveId) ? "已归档 · " : ""}档案 {save.saveId.slice(0, 8)} · {save.status === "ready" ? `第 ${save.clock.day} 天 · ${save.summary.activeExpeditionId ? "远征中" : "在洋馆"}` : "暂不可读取"}</p>
@@ -157,7 +148,7 @@ function TitlePageContent() {
             <button disabled={archive.busy} onClick={() => void archive.exportGame(save.saveId, true)}>导出诊断</button>
           </article>)}</div>
           {!archive.saves.length && <p>没有档案，可以创建或导入。</p>}
-          <label>导入格式 <select value={importFormat} onChange={e => setImportFormat(e.target.value as "application" | "legacy")}><option value="application">Abyssa 档案</option><option value="legacy">旧版战斗存档</option></select></label>
+          <label>导入格式 <select value={importFormat} onChange={e => setImportFormat(e.target.value as "application" | "legacy" | "restore")}><option value="application">Abyssa 档案（复制为新档）</option><option value="restore">AIRP 备份恢复（原身份）</option><option value="legacy">旧版战斗存档</option></select></label>
           <label>导入存档<input type="file" accept=".json,application/json" disabled={archive.busy} onChange={e => { const file = e.target.files?.[0]; if (file) void archive.importGame(file, importFormat); e.target.value = ""; }} /></label>
           <button disabled={archive.busy} onClick={() => void archive.refresh()}>重新读取档案</button><button onClick={() => archive.setOpen(false)}>关闭档案</button>
         </RpgModal>
@@ -165,33 +156,12 @@ function TitlePageContent() {
         {/* 底部信息带与中轴是相邻关系:中轴的 inset-block-end 正好让开这条带子,
             两者不再叠加(上一版提示行压在第四个键上,重叠 36.93px)。 */}
         <footer className="title-footer">
-          <p className="title-hint" role="status">{hint || archive.message}</p>
+          <p className="title-hint" role={startOpen ? undefined : "status"}>{startOpen ? "" : hint || archive.message}</p>
           <p className="title-imprint">裂隙远征 · 本机存档</p>
         </footer>
 
-        {/* 皮肤切换。视觉原型阶段是显式控件,将来应并入设定界面。 */}
-        <div className="title-skins" role="group" aria-label="界面主题">
-          {TITLE_THEMES.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              className="title-skins__item"
-              data-selected={item.id === themeId || undefined}
-              aria-pressed={item.id === themeId}
-              onClick={() => setThemeId(item.id)}
-            >
-              {item.label}
-            </button>
-          ))}
-          <button
-            type="button"
-            className="title-skins__cycle"
-            onClick={() => setThemeId((current) => getNextTitleTheme(current))}
-          >
-            下一套
-          </button>
-        </div>
       </AbyssaProvider>
+      </div>
     </Stage>
   );
 }

@@ -130,7 +130,7 @@
           "id": "morning.1.2",
           "kind": "dialogue",
           "actorId": "abyssa",
-          "text": "……（呼啊~）……唔。世界还很吵……。勇者，要把我搬去哪。",
+          "text": "……唔……勇者。……还要睡，要去哪里。",
           "emotion": "closed"
         }
       ]
@@ -144,14 +144,8 @@
         {
           "id": "morning.1.3",
           "kind": "narration",
-          "text": "煎蛋和香肠散发着油脂的热气。",
-          "stage": [
-            {
-              "actorId": "abyssa",
-              "emotion": "closed",
-              "still": true
-            }
-          ]
+          "text": "煎蛋和香肠散发着油脂的热气。黑泥触手悄悄探向餐盘，被木叉轻轻一敲，缩了回去。",
+          "sound": "wood"
         }
       ]
     },
@@ -165,7 +159,7 @@
           "id": "morning.1.4",
           "kind": "dialogue",
           "actorId": "abyssa",
-          "text": "……我的手，可不是为了握这种铁棒才长出来的。……不想动。",
+          "text": "……用叉子，很费劲。……直接吃不行吗。",
           "emotion": "displeased"
         }
       ]
@@ -178,9 +172,8 @@
       "frames": [
         {
           "id": "morning.1.5",
-          "kind": "narration",
-          "text": "黑泥触手探向香肠。木叉一敲，它缩了回去。",
-          "sound": "wood",
+          "kind": "direction",
+          "waitMs": 250,
           "stage": [
             {
               "actorId": "abyssa",
@@ -196,19 +189,19 @@
       "cursor": 6,
       "sectionId": "morning.section.1",
       "kind": "choice",
-      "prompt": "餐盘还冒着热气。",
+      "prompt": "……直接吃不行吗。",
       "options": [
         {
           "id": "A",
-          "label": "把银叉端正地塞进她手里合拢"
+          "label": "让她自己拿"
         },
         {
           "id": "B",
-          "label": "直接把盛着香肠的盘子往回拉开"
+          "label": "端走盘子"
         },
         {
           "id": "C",
-          "label": "换成圆头汤匙，切下一块递到她嘴边"
+          "label": "喂她一口"
         }
       ]
     },
@@ -223,7 +216,7 @@
           {
             "id": "morning.choice.breakfast.reaction.0.A",
             "kind": "narration",
-            "text": "{{user}}拿起叉子塞进她软绵绵的手心里。"
+            "text": "{{user}}拿起银叉塞进她软绵绵的手心里合拢。"
           }
         ],
         "B": [
@@ -254,7 +247,7 @@
             "id": "morning.choice.breakfast.reaction.1.A",
             "kind": "dialogue",
             "actorId": "kael",
-            "text": "多少用用工具。你长着手吧。"
+            "text": "自己握着。长了手不是摆着看的。"
           }
         ],
         "B": [
@@ -262,7 +255,7 @@
             "id": "morning.choice.breakfast.reaction.1.B",
             "kind": "dialogue",
             "actorId": "kael",
-            "text": "不想吃的话，我就收走了。"
+            "text": "不吃就算了。省得收拾。"
           }
         ],
         "C": [
@@ -287,7 +280,7 @@
             "id": "morning.choice.breakfast.reaction.2.A",
             "kind": "dialogue",
             "actorId": "abyssa",
-            "text": "……勇者，打以前起就这么粗鲁。……放凉了就不好吃了。",
+            "text": "……好麻烦，叉不起来。……勇者很烦。",
             "emotion": "wry"
           }
         ],
@@ -296,7 +289,7 @@
             "id": "morning.choice.breakfast.reaction.2.B",
             "kind": "dialogue",
             "actorId": "abyssa",
-            "text": "……等等。我吃，把盘子推回来。",
+            "text": "……拿回来。",
             "emotion": "surprised"
           }
         ],
@@ -305,7 +298,7 @@
             "id": "morning.choice.breakfast.reaction.2.C",
             "kind": "dialogue",
             "actorId": "abyssa",
-            "text": "……嗯。好吃。……明明从一开始，这么做不就好了。",
+            "text": "……嗯。好吃。……香肠也要。",
             "emotion": "joy"
           }
         ]
@@ -350,12 +343,13 @@
           {
             "id": "morning.choice.breakfast.reaction.3.C",
             "kind": "direction",
-            "waitMs": 250,
+            "waitMs": 400,
             "stage": [
               {
                 "actorId": "abyssa",
                 "emotion": "joy",
-                "still": true
+                "motion": "nod",
+                "aside": "（嚼嚼）"
               }
             ]
           }
@@ -371,11 +365,11 @@
         {
           "id": "morning.2.11",
           "kind": "narration",
-          "text": "红茶的蒸汽带着柑橘的冷香。",
+          "text": "银质茶壶微微倾斜，滚水落入瓷杯，激起一缕柑橘的冷香。",
           "stage": [
             {
               "actorId": "marietta",
-              "emotion": "smile",
+              "emotion": "neutral",
               "still": true
             }
           ]
@@ -393,7 +387,7 @@
           "kind": "dialogue",
           "actorId": "marietta",
           "text": "早安，{{user}}大人。今晨您依旧醒得很准时。",
-          "emotion": "smile"
+          "emotion": "neutral"
         }
       ]
     },
@@ -421,7 +415,14 @@
           "id": "morning.2.14",
           "kind": "dialogue",
           "actorId": "marietta",
-          "text": "运转平稳。只是王都运送物资的班车延误了两天。修补结界用的秘银线，下次采购的单价预计要上涨一些。",
+          "text": "尚在规矩之中。",
+          "emotion": "serious"
+        },
+        {
+          "id": "morning.2.14.page.1",
+          "kind": "dialogue",
+          "actorId": "marietta",
+          "text": "只是王都的班车又迟了。下批秘银线的单子，恐怕得重新核算。",
           "emotion": "serious"
         }
       ]
@@ -435,7 +436,7 @@
         {
           "id": "morning.2.15",
           "kind": "narration",
-          "text": "白色的餐巾先一步按在了魔王的唇角。"
+          "text": "艾比希斯刚抬起手背，一方叠得方正的餐巾已按在她唇角。"
         }
       ]
     },
@@ -449,7 +450,7 @@
           "id": "morning.2.16",
           "kind": "dialogue",
           "actorId": "marietta",
-          "text": "阁下，不可用衣袖擦拭。",
+          "text": "阁下。手背沾了油污，打扫起来会很麻烦。",
           "emotion": "neutral"
         }
       ]
@@ -479,7 +480,14 @@
           "id": "morning.2.18",
           "kind": "dialogue",
           "actorId": "marietta",
-          "text": "另外{{user}}大人。沙发上的旧毛毯破损显眼，已随早班车送往外围工坊。修整完毕后，会随傍晚的班车送回。",
+          "text": "这是分内之事。",
+          "emotion": "neutral"
+        },
+        {
+          "id": "morning.2.18.page.1",
+          "kind": "dialogue",
+          "actorId": "marietta",
+          "text": "另外，沙发上那领旧毛毯磨损显眼。今晨已送往工坊缝补。",
           "emotion": "neutral"
         }
       ]
@@ -492,15 +500,10 @@
       "frames": [
         {
           "id": "morning.2.19",
-          "kind": "direction",
-          "waitMs": 950,
-          "stage": [
-            {
-              "actorId": "marietta",
-              "emotion": "neutral",
-              "motion": "nod"
-            }
-          ]
+          "kind": "dialogue",
+          "actorId": "marietta",
+          "text": "傍晚的班车会送回，请您宽心。",
+          "emotion": "neutral"
         }
       ]
     },
@@ -512,8 +515,8 @@
       "frames": [
         {
           "id": "morning.3.20",
-          "kind": "direction",
-          "waitMs": 850,
+          "kind": "narration",
+          "text": "门把手被利落地拧开，带进一股微带咸味的清晨凉风。",
           "sound": "wood",
           "stage": [
             {
@@ -535,7 +538,14 @@
           "id": "morning.3.21",
           "kind": "dialogue",
           "actorId": "eustice",
-          "text": "第三哨所又在偷懒拖延换岗了。王都那帮少爷兵，总不至于被海风吹风化的石头吓破胆了吧。",
+          "text": "第三哨所换防又拖了整整一刻钟。",
+          "emotion": "angry"
+        },
+        {
+          "id": "morning.3.21.page.1",
+          "kind": "dialogue",
+          "actorId": "eustice",
+          "text": "王都那帮少爷兵，纪律松得没边了。",
           "emotion": "angry"
         }
       ]
@@ -549,7 +559,7 @@
         {
           "id": "morning.3.22",
           "kind": "narration",
-          "text": "椅背的黄铜挂钩，早就被她磨得发亮。",
+          "text": "刺剑摘下，熟练地挂上椅背。那枚黄铜挂钩早就被磨得锃亮。",
           "sound": "metal",
           "stage": [
             {
@@ -558,6 +568,12 @@
               "still": true
             }
           ]
+        },
+        {
+          "id": "morning.3.22.page.1",
+          "kind": "dialogue",
+          "actorId": "kael",
+          "text": "（……尤斯缇丝。每天晨练回来，不找点由头抱怨两句就浑身难受。）"
         }
       ]
     },
@@ -571,8 +587,13 @@
           "id": "morning.3.23",
           "kind": "dialogue",
           "actorId": "eustice",
-          "text": "下午我亲自去收拾那帮人。……真让那帮废物折腾结界，早晚得把大门拱手让给贼。",
+          "text": "下午我亲自去一趟。再不把皮绷紧，全得变成混日子的软骨头。",
           "emotion": "serious"
+        },
+        {
+          "id": "morning.3.23.page.1",
+          "kind": "narration",
+          "text": "毛巾往脖颈上一搭，她站在桌边擦着细汗，没急着坐下。"
         }
       ]
     },
@@ -581,19 +602,19 @@
       "cursor": 24,
       "sectionId": "morning.section.3",
       "kind": "choice",
-      "prompt": "她把毛巾搭在椅背上。",
+      "prompt": "她站在桌边，没急着坐下。",
       "options": [
         {
           "id": "A",
-          "label": "倒出一杯常温的红茶推到她面前"
+          "label": "顺着她"
         },
         {
           "id": "B",
-          "label": "指出她军靴上带进来的泥斑"
+          "label": "故意找茬"
         },
         {
           "id": "C",
-          "label": "从吧台拿出备用磨刀石放在桌角"
+          "label": "赞同她的安排"
         }
       ]
     },
@@ -608,21 +629,21 @@
           {
             "id": "morning.choice.training.reaction.0.A",
             "kind": "narration",
-            "text": "{{user}}顺势推过去一杯常温的红茶。"
+            "text": "{{user}}把手边温度刚好的麦茶推到她面前。"
           }
         ],
         "B": [
           {
             "id": "morning.choice.training.reaction.0.B",
             "kind": "narration",
-            "text": "{{user}}指了指门垫。"
+            "text": "{{user}}目光往下扫了一眼，下巴指了指门垫边的一小块泥印。"
           }
         ],
         "C": [
           {
             "id": "morning.choice.training.reaction.0.C",
             "kind": "narration",
-            "text": "{{user}}推过去一块防潮油石。"
+            "text": "{{user}}从抽屉摸出一块防潮油石，轻轻抛在桌面上，推到她手边。"
           }
         ]
       }
@@ -639,7 +660,7 @@
             "id": "morning.choice.training.reaction.1.A",
             "kind": "dialogue",
             "actorId": "kael",
-            "text": "晾温了。喝吧。"
+            "text": "行了，先润润嗓子。"
           }
         ],
         "B": [
@@ -647,7 +668,7 @@
             "id": "morning.choice.training.reaction.1.B",
             "kind": "dialogue",
             "actorId": "kael",
-            "text": "靴子上的泥，蹭干净再进来。"
+            "text": "讲纪律的大小姐，地毯今早刚换的。"
           }
         ],
         "C": [
@@ -655,7 +676,7 @@
             "id": "morning.choice.training.reaction.1.C",
             "kind": "dialogue",
             "actorId": "kael",
-            "text": "防潮润滑油。下午拿去用。"
+            "text": "下午放手去整。哨所的巡查条，我批了。"
           }
         ]
       }
@@ -670,9 +691,14 @@
         "A": [
           {
             "id": "morning.choice.training.reaction.2.A",
+            "kind": "narration",
+            "text": "端起来一口气喝了个底朝天，才把杯子放下"
+          },
+          {
+            "id": "morning.choice.training.reaction.2.A.page.1",
             "kind": "dialogue",
             "actorId": "eustice",
-            "text": "……哼。准备得倒是挺麻利。姑且夸你一句。",
+            "text": "……稍微有点凉了。不过……马马虎虎吧。",
             "emotion": "flustered"
           }
         ],
@@ -681,16 +707,33 @@
             "id": "morning.choice.training.reaction.2.B",
             "kind": "dialogue",
             "actorId": "eustice",
-            "text": "我知道啦。待会儿大不了陪你一起擦地板就是了。",
-            "emotion": "wry"
+            "text": "……唔！",
+            "emotion": "angry"
+          },
+          {
+            "id": "morning.choice.training.reaction.2.B.page.1",
+            "kind": "narration",
+            "text": "低头看见泥印，靴子触电一样猛地往后缩了半步"
+          },
+          {
+            "id": "morning.choice.training.reaction.2.B.page.2",
+            "kind": "dialogue",
+            "actorId": "eustice",
+            "text": "那是抄近路查哨踩的！……待会儿我自己擦干净就是了！",
+            "emotion": "panicked"
           }
         ],
         "C": [
           {
             "id": "morning.choice.training.reaction.2.C",
+            "kind": "narration",
+            "text": "一把握住油石在掌心转了一圈，下巴高高扬起"
+          },
+          {
+            "id": "morning.choice.training.reaction.2.C.page.1",
             "kind": "dialogue",
             "actorId": "eustice",
-            "text": "挺有眼力见的嘛。……下午的排查看来能早点收工了。",
+            "text": "那帮少爷兵落在我手里，可没好果子吃。",
             "emotion": "confident"
           }
         ]
@@ -706,43 +749,43 @@
         "A": [
           {
             "id": "morning.choice.training.reaction.3.A",
-            "kind": "direction",
-            "waitMs": 250,
-            "stage": [
-              {
-                "actorId": "eustice",
-                "emotion": "flustered",
-                "still": true
-              }
-            ]
+            "kind": "narration",
+            "text": "嘴角忍不住想扬起来，又硬生生压下去，抱起胳膊偏过头"
+          },
+          {
+            "id": "morning.choice.training.reaction.3.A.page.1",
+            "kind": "dialogue",
+            "actorId": "eustice",
+            "text": "……算你有点眼力见。",
+            "emotion": "wry"
           }
         ],
         "B": [
           {
             "id": "morning.choice.training.reaction.3.B",
-            "kind": "direction",
-            "waitMs": 250,
-            "stage": [
-              {
-                "actorId": "eustice",
-                "emotion": "wry",
-                "still": true
-              }
-            ]
+            "kind": "narration",
+            "text": "气急败坏地一把拉开椅子坐下"
+          },
+          {
+            "id": "morning.choice.training.reaction.3.B.page.1",
+            "kind": "dialogue",
+            "actorId": "eustice",
+            "text": "……真是的，一大早就抓人把柄，讨厌鬼。",
+            "emotion": "panicked"
           }
         ],
         "C": [
           {
             "id": "morning.choice.training.reaction.3.C",
-            "kind": "direction",
-            "waitMs": 250,
-            "stage": [
-              {
-                "actorId": "eustice",
-                "emotion": "confident",
-                "still": true
-              }
-            ]
+            "kind": "narration",
+            "text": "拉开椅子大步坐下，语气里满是藏不住的跃跃欲试"
+          },
+          {
+            "id": "morning.choice.training.reaction.3.C.page.1",
+            "kind": "dialogue",
+            "actorId": "eustice",
+            "text": "——等着看吧，明天交接前，我让他们连靴带都系得跟教科书一样齐。",
+            "emotion": "confident"
           }
         ]
       }
@@ -756,7 +799,7 @@
         {
           "id": "morning.4.29",
           "kind": "narration",
-          "text": "楼梯口传来拖沓的脚步声。",
+          "text": "楼梯拐角传来一阵拖沓的拖鞋声，宽大过头的法师袍一路扫着阶梯。",
           "stage": [
             {
               "actorId": "kororo",
@@ -777,7 +820,40 @@
           "id": "morning.4.30",
           "kind": "dialogue",
           "actorId": "kororo",
-          "text": "……呼啊……。今天的阳光，波长刺得人发疼……。队长，把遮光帘拉下来……",
+          "text": "……哈啊……。队长——，把遮光帘拉一下嘛……好晃眼。",
+          "emotion": "closed"
+        },
+        {
+          "id": "morning.4.30.page.1",
+          "kind": "dialogue",
+          "actorId": "kororo",
+          "text": "……帝都寄过来的书箱，到了没啊？",
+          "emotion": "closed"
+        },
+        {
+          "id": "morning.4.30.page.2",
+          "kind": "dialogue",
+          "actorId": "kael",
+          "text": "（……柯萝萝。平日里日上三竿都叫不醒，今天起这么早，果然全是为了那几本古籍。）"
+        },
+        {
+          "id": "morning.4.30.page.3",
+          "kind": "dialogue",
+          "actorId": "kael",
+          "text": "班车延误了，还没进镇子。"
+        },
+        {
+          "id": "morning.4.30.page.4",
+          "kind": "dialogue",
+          "actorId": "kororo",
+          "text": "……诶——？没到啊……",
+          "emotion": "confused"
+        },
+        {
+          "id": "morning.4.30.page.5",
+          "kind": "dialogue",
+          "actorId": "kororo",
+          "text": "那柯萝萝不行了……精力耗尽了，要去沙发上融化了……",
           "emotion": "closed"
         }
       ]
@@ -791,7 +867,7 @@
         {
           "id": "morning.4.31",
           "kind": "narration",
-          "text": "沙发上的黑泥精鼓起来，顶住了柯萝萝的额头。",
+          "text": "她拖着法杖刚往沙发上一倒，一团黑泥就软绵绵地鼓了起来，正正顶住了她的脑门。",
           "stage": [
             {
               "actorId": "kororo",
@@ -812,7 +888,7 @@
           "id": "morning.4.32",
           "kind": "dialogue",
           "actorId": "kororo",
-          "text": "……啊。又有泥巴。那里，是柯萝萝的专属位……",
+          "text": "……唔。泥巴，走开啦……那里是柯萝萝的专属位子。",
           "emotion": "confused"
         }
       ]
@@ -826,7 +902,7 @@
         {
           "id": "morning.4.33",
           "kind": "narration",
-          "text": "柯萝萝把黑泥拎到茶几上。它又弹回了沙发。"
+          "text": "她伸手把黑泥往外扒拉，刚推开半寸，黑泥像果冻一样又弹了回来。"
         }
       ]
     },
@@ -840,7 +916,7 @@
           "id": "morning.4.34",
           "kind": "dialogue",
           "actorId": "kororo",
-          "text": "……队长，泥巴不肯挪窝。蓄意的领空侵犯……",
+          "text": "……队长——。泥巴耍赖，占着地方不肯挪窝……",
           "emotion": "displeased"
         }
       ]
@@ -855,7 +931,7 @@
           "id": "morning.4.35",
           "kind": "dialogue",
           "actorId": "abyssa",
-          "text": "……那里是我的影子。有意见的话，冲太阳说去。",
+          "text": "……好挤。",
           "emotion": "neutral"
         }
       ]
@@ -868,10 +944,15 @@
       "frames": [
         {
           "id": "morning.4.36",
+          "kind": "narration",
+          "text": "黑泥噗哟一下，把柯萝萝整个人往外平移着拱开半尺。"
+        },
+        {
+          "id": "morning.4.36.page.1",
           "kind": "dialogue",
-          "actorId": "kororo",
-          "text": "……（呼啊）……书，还没到啊。",
-          "emotion": "closed"
+          "actorId": "abyssa",
+          "text": "……去地上睡。",
+          "emotion": "neutral"
         }
       ]
     },
@@ -883,8 +964,8 @@
       "frames": [
         {
           "id": "morning.5.37",
-          "kind": "direction",
-          "waitMs": 850,
+          "kind": "narration",
+          "text": "通往后院的侧门被推开，艾洛拉抱着空药篓走进来，发梢还带着清晨泥土的潮气。",
           "stage": [
             {
               "actorId": "elora",
@@ -905,7 +986,7 @@
           "id": "morning.5.38",
           "kind": "dialogue",
           "actorId": "elora",
-          "text": "大家，早安！{{user}}先生，锅里的高汤煮得好香呀！",
+          "text": "大家，早安！……今天后院的日头真好呢。",
           "emotion": "joy"
         }
       ]
@@ -919,7 +1000,7 @@
         {
           "id": "morning.5.39",
           "kind": "narration",
-          "text": "账册底下，多出了一行整整齐齐的小字。"
+          "text": "她把那本薄账册小心地摊在桌角，指尖在最新的一行小字上碰了碰，有些心虚地压低声音。"
         }
       ]
     },
@@ -933,7 +1014,7 @@
           "id": "morning.5.40",
           "kind": "dialogue",
           "actorId": "elora",
-          "text": "上周的止血药剂，因为改从药师公会的巡回商队采购，超出了三十个铜板。",
+          "text": "{{user}}先生……上周的止血药剂，超支了三十个铜板。",
           "emotion": "flustered"
         }
       ]
@@ -948,8 +1029,14 @@
           "id": "morning.5.41",
           "kind": "dialogue",
           "actorId": "elora",
-          "text": "……但是，纯度相对提升了两成！这不是该省下的开支！",
-          "emotion": "serious"
+          "text": "那个……今天班车上还有一批受潮的特价草药，我用私房钱买下来了。一会儿货到了，我想先借后院晒一晒……",
+          "emotion": "flustered"
+        },
+        {
+          "id": "morning.5.41.page.1",
+          "kind": "dialogue",
+          "actorId": "kael",
+          "text": "（……艾洛拉。平时买一捆葱都要磨半天嘴皮子，唯独买药和绷带，从来舍得下血本。）"
         }
       ]
     },
@@ -958,19 +1045,19 @@
       "cursor": 42,
       "sectionId": "morning.section.5",
       "kind": "choice",
-      "prompt": "账册摊在桌角。",
+      "prompt": "账册上记着三十个铜板的超支。",
       "options": [
         {
           "id": "A",
-          "label": "拿笔在公账杂项那一栏直接画勾核销"
+          "label": "直接核销"
         },
         {
           "id": "B",
-          "label": "曲指敲了敲她腰侧轻晃的空竹筐"
+          "label": "顺着她聊草药"
         },
         {
           "id": "C",
-          "label": "从暗袋摸出两枚零碎的铜币递过去"
+          "label": "逗她一句"
         }
       ]
     },
@@ -985,21 +1072,21 @@
           {
             "id": "morning.choice.ledger.reaction.0.A",
             "kind": "narration",
-            "text": "{{user}}拿笔直接盖了印。"
+            "text": "{{user}}拿笔在那行小字旁画了个勾。"
           }
         ],
         "B": [
           {
             "id": "morning.choice.ledger.reaction.0.B",
             "kind": "narration",
-            "text": "{{user}}敲了敲她的空药筐。"
+            "text": "{{user}}侧头往窗外的院子看了一眼。"
           }
         ],
         "C": [
           {
             "id": "morning.choice.ledger.reaction.0.C",
             "kind": "narration",
-            "text": "{{user}}放了两枚铜板在桌角。"
+            "text": "{{user}}指尖敲了敲桌子，目光扫过她身上洗得发白的旧神官袍。"
           }
         ]
       }
@@ -1016,7 +1103,7 @@
             "id": "morning.choice.ledger.reaction.1.A",
             "kind": "dialogue",
             "actorId": "kael",
-            "text": "这是安全成本。走公账报销。"
+            "text": "超就超了。药钱不用算这么细。"
           }
         ],
         "B": [
@@ -1024,7 +1111,7 @@
             "id": "morning.choice.ledger.reaction.1.B",
             "kind": "dialogue",
             "actorId": "kael",
-            "text": "今天送来的货是？"
+            "text": "簸箕在后檐挂着。今天风大，晒得快。"
           }
         ],
         "C": [
@@ -1032,7 +1119,7 @@
             "id": "morning.choice.ledger.reaction.1.C",
             "kind": "dialogue",
             "actorId": "kael",
-            "text": "喝茶的钱。偶尔也买点甜的。"
+            "text": "三十个铜板算得这么细。你自己的袍子都磨破边了，怎么不见记账？"
           }
         ]
       }
@@ -1049,8 +1136,8 @@
             "id": "morning.choice.ledger.reaction.2.A",
             "kind": "dialogue",
             "actorId": "elora",
-            "text": "太好了！这样就能为大家制作高品质的膏药了！",
-            "emotion": "smile"
+            "text": "诶……？可、可以吗？",
+            "emotion": "flustered"
           }
         ],
         "B": [
@@ -1058,7 +1145,7 @@
             "id": "morning.choice.ledger.reaction.2.B",
             "kind": "dialogue",
             "actorId": "elora",
-            "text": "用存了半年的私房钱，把批发店的一整箱受潮草药全买下来了！",
+            "text": "嗯！艾洛拉早就洗干净了！",
             "emotion": "joy"
           }
         ],
@@ -1067,8 +1154,8 @@
             "id": "morning.choice.ledger.reaction.2.C",
             "kind": "dialogue",
             "actorId": "elora",
-            "text": "不、不行的！公私分明可是原则呀！",
-            "emotion": "flustered"
+            "text": "噫……！那、那个贴个内衬还能穿的！",
+            "emotion": "panicked"
           }
         ]
       }
@@ -1083,37 +1170,43 @@
         "A": [
           {
             "id": "morning.choice.ledger.reaction.3.A",
-            "kind": "direction",
-            "waitMs": 250,
-            "stage": [
-              {
-                "actorId": "elora",
-                "emotion": "smile",
-                "still": true
-              }
-            ]
+            "kind": "narration",
+            "text": "她悄悄松了一大口气，双手攥紧围裙，抿着嘴笑起来"
+          },
+          {
+            "id": "morning.choice.ledger.reaction.3.A.page.1",
+            "kind": "dialogue",
+            "actorId": "elora",
+            "text": "……谢谢您，{{user}}先生。",
+            "emotion": "smile"
           }
         ],
         "B": [
           {
             "id": "morning.choice.ledger.reaction.3.B",
+            "kind": "narration",
+            "text": "她忍不住原地垫了垫脚，眼睛亮晶晶的"
+          },
+          {
+            "id": "morning.choice.ledger.reaction.3.B.page.1",
             "kind": "dialogue",
             "actorId": "elora",
-            "text": "虽然稍微有点受潮，但品质可是一级品呢！等货一到我就立刻拿到后院去风干！"
+            "text": "只要晒透了，那些都是顶好的药草呢。",
+            "emotion": "joy"
           }
         ],
         "C": [
           {
             "id": "morning.choice.ledger.reaction.3.C",
             "kind": "narration",
-            "text": "铜币被推了回来。",
-            "stage": [
-              {
-                "actorId": "elora",
-                "emotion": "flustered",
-                "still": true
-              }
-            ]
+            "text": "她慌慌张张把磨损的袖口往后藏了藏，耳根都红透了"
+          },
+          {
+            "id": "morning.choice.ledger.reaction.3.C.page.1",
+            "kind": "dialogue",
+            "actorId": "elora",
+            "text": "公家的账目可是一枚铜板都不能乱的……别笑话我了呀。",
+            "emotion": "flustered"
           }
         ]
       }
@@ -1127,7 +1220,7 @@
         {
           "id": "morning.6.47",
           "kind": "narration",
-          "text": "众人各自落座。靠走廊最外侧的一角，唯独空着一个位置，盘子上扣着粗陶碗保温。"
+          "text": "众人各自落座，刀叉与瓷盘发出细碎平稳的轻响。唯独靠外侧的走廊角空着一个席位，盘子上扣着粗陶碗保温。"
         }
       ]
     },
@@ -1141,7 +1234,7 @@
           "id": "morning.6.48",
           "kind": "dialogue",
           "actorId": "eustice",
-          "text": "诺玛呢？她不会又打破门禁了吧。",
+          "text": "诺玛呢？又打破门禁了吧。",
           "emotion": "confused"
         }
       ]
@@ -1156,7 +1249,7 @@
           "id": "morning.6.49",
           "kind": "dialogue",
           "actorId": "kael",
-          "text": "她去探查只有退潮时才能走的暗道了。肚子饿了自然会回来。"
+          "text": "天没亮就溜出去了。饿了自己会回来。"
         }
       ]
     },
@@ -1169,7 +1262,7 @@
         {
           "id": "morning.6.50",
           "kind": "narration",
-          "text": "艾比希斯离席了。方向是沙发。",
+          "text": "艾比希斯放下了空勺子，无声地滑下椅子，直奔沙发。",
           "stage": [
             {
               "actorId": "abyssa",
@@ -1189,7 +1282,7 @@
         {
           "id": "morning.7.51",
           "kind": "narration",
-          "text": "那领满是旧皮革与油烟气味的羊毛毯不见了。换上的深蓝厚毯，散发着刺鼻的防蛀草药味与生羊毛腥味。"
+          "text": "那领满是熟悉气息的旧羊毛毯不见了。换上的深蓝厚毯，散发着生羊毛的腥气与刺鼻的防蛀草药味。"
         }
       ]
     },
@@ -1216,26 +1309,13 @@
       "frames": [
         {
           "id": "morning.7.53",
-          "kind": "direction",
-          "waitMs": 650,
-          "stage": [
-            {
-              "actorId": "abyssa",
-              "emotion": "neutral",
-              "aside": "（くんくん）",
-              "motion": "nod"
-            }
-          ]
-        },
-        {
-          "id": "morning.7.53.page.1",
-          "kind": "direction",
-          "waitMs": 200,
+          "kind": "narration",
+          "text": "她把鼻尖凑在毯子边嗅了嗅，整个人僵在沙发角。",
           "stage": [
             {
               "actorId": "abyssa",
               "emotion": "serious",
-              "still": true
+              "motion": "nod"
             }
           ]
         }
@@ -1251,7 +1331,14 @@
           "id": "morning.7.54",
           "kind": "dialogue",
           "actorId": "abyssa",
-          "text": "……不对。这个，又硬又凉。……也没有，勇者的味道。",
+          "text": "……不对。这个，又硬又凉。",
+          "emotion": "serious"
+        },
+        {
+          "id": "morning.7.54.page.1",
+          "kind": "dialogue",
+          "actorId": "abyssa",
+          "text": "……也没有，勇者的味道。",
           "emotion": "serious"
         }
       ]
@@ -1279,10 +1366,35 @@
       "frames": [
         {
           "id": "morning.7.56",
+          "kind": "narration",
+          "text": "深蓝色的厚毯被她无意识地推开，滑落在地毯上。"
+        },
+        {
+          "id": "morning.7.56.page.1",
           "kind": "dialogue",
           "actorId": "abyssa",
-          "text": "……没有自己的窝，就睡不着。……我说勇者，把这片悬崖沉进海里好不好？",
+          "text": "……睡不着。",
           "emotion": "serious"
+        },
+        {
+          "id": "morning.7.56.page.2",
+          "kind": "dialogue",
+          "actorId": "abyssa",
+          "text": "……好冷。……讨厌这个。",
+          "emotion": "serious"
+        },
+        {
+          "id": "morning.7.56.page.3",
+          "kind": "narration",
+          "text": "脚下的影子毫无征兆地沸腾起来，化作沥青般的稠密黑泥无声漫开。触碰到茶几木腿的瞬间，硬木像被泼了酸水般无声地凹陷化灰。",
+          "effect": "pressure",
+          "sound": "wood"
+        },
+        {
+          "id": "morning.7.56.page.4",
+          "kind": "narration",
+          "text": "空气的温度骤降，整座洋馆的梁柱发出被巨力挤压的嘎吱声，餐桌上的银器剧烈震颤。",
+          "sound": "metal"
         }
       ]
     },
@@ -1298,8 +1410,6 @@
           "actorId": "eustice",
           "text": "…………！",
           "emotion": "serious",
-          "effect": "pressure",
-          "sound": "metal",
           "stage": [
             {
               "actorId": "eustice",
@@ -1333,15 +1443,15 @@
       "options": [
         {
           "id": "A",
-          "label": "把旧铁杯“笃”地砸在桌上，打破共鸣"
+          "label": "用甜食转移注意"
         },
         {
           "id": "B",
-          "label": "走上前，抬手揉了揉她冰凉的黑角"
+          "label": "按住黑角"
         },
         {
           "id": "C",
-          "label": "把浸满油烟气的粗布围裙递过去"
+          "label": "拿自己的旧斗篷裹住她"
         }
       ]
     },
@@ -1356,21 +1466,21 @@
           {
             "id": "morning.choice.blanket.reaction.0.A",
             "kind": "narration",
-            "text": "{{user}}将手中的旧铁杯重重顿在桌上。一声沉闷实响，震碎了魔力的共振。"
+            "text": "{{user}}将装着浓缩焦糖浆的粗陶罐重重顿在桌上。一声实响震碎了共振，浓郁的甜香瞬间在空气中漫开。"
           }
         ],
         "B": [
           {
             "id": "morning.choice.blanket.reaction.0.B",
             "kind": "narration",
-            "text": "{{user}}直接走上前，大手按在她石质的黑角上，用力揉了揉。"
+            "text": "{{user}}大步走上前，无视脚边翻滚的黑泥，大手直接覆在她冰凉的石质黑角上，用力揉了揉。"
           }
         ],
         "C": [
           {
             "id": "morning.choice.blanket.reaction.0.C",
             "kind": "narration",
-            "text": "{{user}}拿起刚才解下的围裙，一把罩在她头上。"
+            "text": "{{user}}解下肩上带着体温的厚重防风斗篷，走上前兜头将她整个人裹得严严实实。"
           }
         ]
       }
@@ -1387,7 +1497,7 @@
             "id": "morning.choice.blanket.reaction.1.A",
             "kind": "dialogue",
             "actorId": "kael",
-            "text": "别沉。中午给你做布丁，老实等到那时候。"
+            "text": "闻这个。中午做焦糖布丁，老实等到那时候。"
           }
         ],
         "B": [
@@ -1395,7 +1505,7 @@
             "id": "morning.choice.blanket.reaction.1.B",
             "kind": "dialogue",
             "actorId": "kael",
-            "text": "睡到中午去。毛毯傍晚就送到了。"
+            "text": "收一收。毛毯傍晚就到了，先闭眼躺着。"
           }
         ],
         "C": [
@@ -1403,7 +1513,7 @@
             "id": "morning.choice.blanket.reaction.1.C",
             "kind": "dialogue",
             "actorId": "kael",
-            "text": "裹着这个睡吧。味道总算有了吧。"
+            "text": "裹着这个睡。味道总算有了吧。"
           }
         ]
       }
@@ -1418,15 +1528,41 @@
         "A": [
           {
             "id": "morning.choice.blanket.reaction.2.A",
+            "kind": "narration",
+            "text": "漫开的黑泥微微一顿，像潮水般慢慢缩回了影子底下",
+            "effect": "release",
+            "stage": [
+              {
+                "actorId": "abyssa",
+                "emotion": "smile",
+                "still": true
+              }
+            ]
+          },
+          {
+            "id": "morning.choice.blanket.reaction.2.A.page.1",
             "kind": "dialogue",
             "actorId": "abyssa",
-            "text": "……布丁。……那，勉强行吧。",
+            "text": "……焦糖。",
             "emotion": "smile"
           }
         ],
         "B": [
           {
             "id": "morning.choice.blanket.reaction.2.B",
+            "kind": "narration",
+            "text": "被掌心的体温一按，她浑身极轻微地颤了一下，翻涌的混沌瞬间消散无形",
+            "effect": "release",
+            "stage": [
+              {
+                "actorId": "abyssa",
+                "emotion": "flustered",
+                "still": true
+              }
+            ]
+          },
+          {
+            "id": "morning.choice.blanket.reaction.2.B.page.1",
             "kind": "dialogue",
             "actorId": "abyssa",
             "text": "……被摸了。",
@@ -1436,9 +1572,22 @@
         "C": [
           {
             "id": "morning.choice.blanket.reaction.2.C",
+            "kind": "narration",
+            "text": "宽大的斗篷把她彻底淹没，只露出一小截发丝",
+            "effect": "release",
+            "stage": [
+              {
+                "actorId": "abyssa",
+                "emotion": "closed",
+                "still": true
+              }
+            ]
+          },
+          {
+            "id": "morning.choice.blanket.reaction.2.C.page.1",
             "kind": "dialogue",
             "actorId": "abyssa",
-            "text": "……有点，油烟味。……不过，凑合吧。",
+            "text": "……重。",
             "emotion": "closed"
           }
         ]
@@ -1454,46 +1603,43 @@
         "A": [
           {
             "id": "morning.choice.blanket.reaction.3.A",
-            "kind": "direction",
-            "waitMs": 1100,
-            "effect": "release",
-            "stage": [
-              {
-                "actorId": "abyssa",
-                "emotion": "smile",
-                "still": true
-              }
-            ]
+            "kind": "narration",
+            "text": "她把下巴抵在膝盖上，猩红的眼眸慢慢合上大半"
+          },
+          {
+            "id": "morning.choice.blanket.reaction.3.A.page.1",
+            "kind": "dialogue",
+            "actorId": "abyssa",
+            "text": "……要厚的一层。不然不睡。",
+            "emotion": "smile"
           }
         ],
         "B": [
           {
             "id": "morning.choice.blanket.reaction.3.B",
-            "kind": "direction",
-            "waitMs": 1100,
-            "effect": "release",
-            "stage": [
-              {
-                "actorId": "abyssa",
-                "emotion": "flustered",
-                "still": true
-              }
-            ]
+            "kind": "narration",
+            "text": "她下意识抬手护住黑角，眼神有些放空地缩回沙发深处"
+          },
+          {
+            "id": "morning.choice.blanket.reaction.3.B.page.1",
+            "kind": "dialogue",
+            "actorId": "abyssa",
+            "text": "……傍晚没送来，就不听你的了。",
+            "emotion": "flustered"
           }
         ],
         "C": [
           {
             "id": "morning.choice.blanket.reaction.3.C",
             "kind": "narration",
-            "text": "围裙里还留着油烟的气味。",
-            "effect": "release",
-            "stage": [
-              {
-                "actorId": "abyssa",
-                "emotion": "closed",
-                "still": true
-              }
-            ]
+            "text": "隔着厚实的布料，传来深吸了一口气的微弱闷哼声"
+          },
+          {
+            "id": "morning.choice.blanket.reaction.3.C.page.1",
+            "kind": "dialogue",
+            "actorId": "abyssa",
+            "text": "……勉强，凑合吧。",
+            "emotion": "closed"
           }
         ]
       }
@@ -1507,7 +1653,7 @@
         {
           "id": "morning.7.63",
           "kind": "narration",
-          "text": "窗外的海浪重新恢复了平缓的拍击声。"
+          "text": "阴冷的重压骤然退去，窗外海浪拍打礁石的声音重新清晰起来。"
         }
       ]
     },
@@ -1533,10 +1679,10 @@
       "frames": [
         {
           "id": "morning.7.65",
-          "kind": "direction",
-          "waitMs": 950,
-          "effect": "break",
-          "sound": "glass"
+          "kind": "narration",
+          "text": "砰——！",
+          "sound": "wood",
+          "effect": "crack"
         }
       ]
     },
@@ -1549,7 +1695,7 @@
         {
           "id": "morning.7.66",
           "kind": "narration",
-          "text": "咸湿的海风灌进了餐厅。"
+          "text": "门厅的方向冷不丁炸开一声木板崩裂的脆响。紧接着，咸湿冰冷的海风夹杂着凌乱的喘息，粗暴地灌进了餐厅。"
         }
       ]
     },
@@ -1562,7 +1708,7 @@
         {
           "id": "morning.8.67",
           "kind": "narration",
-          "text": "短靴边缘挂着海蚀滩的灰黑死泥。她的手还死死卡在短刀柄上。",
+          "text": "玄关的大门被重重撞在墙壁上，冷硬的海风卷着泥腥味粗暴地刮了进来。",
           "stage": [
             {
               "actorId": "norma",
@@ -1570,6 +1716,11 @@
               "still": true
             }
           ]
+        },
+        {
+          "id": "morning.8.67.page.1",
+          "kind": "narration",
+          "text": "诺玛扶着门框大口喘着粗气，黑皮短靴上糊满了退潮滩涂的灰黑死泥，左手还死死卡在腰侧的短刀柄上。"
         }
       ]
     },
@@ -1603,7 +1754,7 @@
           "id": "morning.8.69",
           "kind": "dialogue",
           "actorId": "norma",
-          "text": "……哈啊、哈啊……呼。{{user}}，水。",
+          "text": "……哈啊……咳、咳……！BOSS，水……",
           "emotion": "displeased"
         }
       ]
@@ -1617,15 +1768,20 @@
         {
           "id": "morning.8.70",
           "kind": "narration",
-          "text": "麦茶还是温的。杯底朝了天。",
-          "sound": "ceramic",
-          "stage": [
-            {
-              "actorId": "norma",
-              "emotion": "closed",
-              "still": true
-            }
-          ]
+          "text": "{{user}}抓起桌上的粗陶水壶，倒了半大碗温麦茶递过去。",
+          "sound": "ceramic"
+        },
+        {
+          "id": "morning.8.70.page.1",
+          "kind": "narration",
+          "text": "她一把夺过去仰头灌了个底朝天，手背抹了把下巴上的水渍，才算把那口气顺过来。"
+        },
+        {
+          "id": "morning.8.70.page.2",
+          "kind": "dialogue",
+          "actorId": "norma",
+          "text": "……出事了。",
+          "emotion": "serious"
         }
       ]
     },
@@ -1638,16 +1794,16 @@
         {
           "id": "morning.8.71",
           "kind": "narration",
-          "text": "断裂的车轴铁销上，留着扭曲的齿痕与海腥黑泥。",
+          "text": "当啷一声脆响。一根粗沉的断铁销被重重拍在桌面上，上面满是粗暴凿断的凹痕与海腥黑泥。",
           "sound": "metal",
+          "itemId": "story.broken-axle-pin",
           "stage": [
             {
               "actorId": "norma",
               "emotion": "serious",
               "still": true
             }
-          ],
-          "itemId": "story.broken-axle-pin"
+          ]
         }
       ]
     },
@@ -1661,7 +1817,7 @@
           "id": "morning.8.72",
           "kind": "dialogue",
           "actorId": "norma",
-          "text": "浅滩暗道。……缇比的马车翻了。是老手强盗，算准了退潮动的手。",
+          "text": "浅滩那条退潮暗道。缇比的马车被人掀翻了。",
           "emotion": "serious"
         }
       ]
@@ -1674,9 +1830,10 @@
       "frames": [
         {
           "id": "morning.8.73",
-          "kind": "direction",
-          "waitMs": 700,
-          "sound": "metal",
+          "kind": "dialogue",
+          "actorId": "eustice",
+          "text": "……！",
+          "emotion": "serious",
           "stage": [
             {
               "actorId": "eustice",
@@ -1684,6 +1841,11 @@
               "still": true
             }
           ]
+        },
+        {
+          "id": "morning.8.73.page.1",
+          "kind": "narration",
+          "text": "脸色骤然一沉，搭在椅背上的手指猛地收紧"
         }
       ]
     },
@@ -1697,7 +1859,7 @@
           "id": "morning.8.74",
           "kind": "dialogue",
           "actorId": "eustice",
-          "text": "不是魔物吧。人数和装备呢。",
+          "text": "不是魔物？人数和武装呢。",
           "emotion": "serious"
         }
       ]
@@ -1712,7 +1874,15 @@
           "id": "morning.8.75",
           "kind": "dialogue",
           "actorId": "norma",
-          "text": "是人类强盗，十人上下。带着十字弩。完全摸透了哨所巡逻的死角。"
+          "text": "是人。十来个亡命徒，带着精钢十字弩，卡位和撤退路线熟得跟回自己家一样。",
+          "emotion": "serious"
+        },
+        {
+          "id": "morning.8.75.page.1",
+          "kind": "dialogue",
+          "actorId": "norma",
+          "text": "……换防那会儿动的手。明摆着把哨所巡逻的空档摸得透透的。",
+          "emotion": "serious"
         }
       ]
     },
@@ -1746,7 +1916,7 @@
           "id": "morning.9.77",
           "kind": "dialogue",
           "actorId": "elora",
-          "text": "那个，诺玛小姐……货物呢？今天的木箱还好吗……？",
+          "text": "那个……诺玛小姐。货物……今天的木箱，还好吗……？",
           "emotion": "panicked"
         }
       ]
@@ -1760,7 +1930,7 @@
         {
           "id": "morning.9.78",
           "kind": "narration",
-          "text": "诺玛的视线移向了地板上的泥泞。",
+          "text": "诺玛的视线扫过艾洛拉死死攥紧的围裙角，有些不忍地移开了目光。",
           "stage": [
             {
               "actorId": "norma",
@@ -1781,7 +1951,7 @@
           "id": "morning.9.79",
           "kind": "dialogue",
           "actorId": "norma",
-          "text": "……抱歉了，小丫头。整箱草药，全被搬进海蚀洞里了。",
+          "text": "……抱歉了，小姑娘。印着公会火印的木箱，全被他们一股脑抬进洞里了。",
           "emotion": "serious"
         }
       ]
@@ -1858,7 +2028,7 @@
           "id": "morning.9.83",
           "kind": "dialogue",
           "actorId": "kororo",
-          "text": "……帝都送来的，木箱。",
+          "text": "……帝都送来的，箱子呢。",
           "emotion": "serious"
         }
       ]
@@ -1873,7 +2043,8 @@
           "id": "morning.9.84",
           "kind": "dialogue",
           "actorId": "norma",
-          "text": "……啊啊。车厢里的箱子，全被他们一股脑拖走了。"
+          "text": "……盖着红火漆的那个方木箱？……啊啊，那个也被拖走了。",
+          "emotion": "serious"
         }
       ]
     },
@@ -1885,15 +2056,20 @@
       "frames": [
         {
           "id": "morning.9.85",
-          "kind": "direction",
-          "waitMs": 500,
+          "kind": "narration",
+          "text": "柯萝萝没再吭声。只是藏在宽大袖口里的手指，将法杖的握柄攥得咯吱作响。",
           "stage": [
             {
-              "actorId": "norma",
+              "actorId": "kororo",
               "emotion": "serious",
               "still": true
             }
           ]
+        },
+        {
+          "id": "morning.9.85.page.1",
+          "kind": "narration",
+          "text": "诺玛的话音顿了顿，像是在回忆什么似地皱起了眉头。"
         }
       ]
     },
@@ -1907,7 +2083,34 @@
           "id": "morning.9.86",
           "kind": "dialogue",
           "actorId": "norma",
-          "text": "……玛丽埃塔。原本要送去工坊的，那个包袱也在里面。"
+          "text": "……另外，还有一个油纸包袱。绳结系得一丝不乱……怎么看都是这座宅子里的手法。",
+          "emotion": "neutral"
+        },
+        {
+          "id": "morning.9.86.page.1",
+          "kind": "dialogue",
+          "actorId": "norma",
+          "text": "玛丽埃塔。那个包袱里装的是什么？",
+          "emotion": "neutral"
+        },
+        {
+          "id": "morning.9.86.page.2",
+          "kind": "dialogue",
+          "actorId": "marietta",
+          "text": "…………。",
+          "emotion": "serious"
+        },
+        {
+          "id": "morning.9.86.page.3",
+          "kind": "dialogue",
+          "actorId": "marietta",
+          "text": "……是今晨送往工坊修缮的……阁下的旧毛毯。",
+          "emotion": "serious"
+        },
+        {
+          "id": "morning.9.86.page.4",
+          "kind": "narration",
+          "text": "餐厅里骤然陷入一片死寂。没有人发出声音，所有人的视线，不约而同地飘向了沙发的方向。"
         }
       ]
     },
@@ -1989,7 +2192,7 @@
         {
           "id": "morning.10.91",
           "kind": "narration",
-          "text": "咔。茶几的一角，无声地化成了灰。地板下的木梁发出沉闷的咯吱声。",
+          "text": "咔。茶几的一角无声地化成了灰。地板下的木梁发出不堪重负的吱呀悲鸣。",
           "effect": "crack",
           "sound": "wood"
         }
@@ -2025,7 +2228,7 @@
           "id": "morning.10.93",
           "kind": "dialogue",
           "actorId": "marietta",
-          "text": "阁下，请收敛脚步。……{{user}}大人，我会压低炉火强撑住结界。时限为一个时辰。",
+          "text": "阁下，请收敛威能。……{{user}}大人，宅邸内的结界交由我来支撑。极限是下一次潮水涨满之前。",
           "emotion": "serious"
         }
       ]
@@ -2060,7 +2263,8 @@
           "id": "morning.10.95",
           "kind": "dialogue",
           "actorId": "abyssa",
-          "text": "……勇者。……去拿回来吗？"
+          "text": "……勇者。……要去拿回来吗？",
+          "emotion": "serious"
         }
       ]
     },
@@ -2069,15 +2273,15 @@
       "cursor": 96,
       "sectionId": "morning.section.10",
       "kind": "choice",
-      "prompt": "……去拿回来吗？",
+      "prompt": "……要去拿回来吗？",
       "options": [
         {
           "id": "A",
-          "label": "大步上前，按住腰间的佩剑"
+          "label": "断然应战"
         },
         {
           "id": "B",
-          "label": "直接越过红线，按住她的发顶"
+          "label": "抚顶立约"
         }
       ]
     },
@@ -2091,24 +2295,15 @@
         "A": [
           {
             "id": "morning.choice.departure.reaction.0.A",
-            "kind": "direction",
-            "waitMs": 650,
-            "effect": "equip",
-            "sound": "metal"
+            "kind": "narration",
+            "text": "{{user}}一言不发地上前一步，手掌稳稳扣在腰间的剑柄上。"
           }
         ],
         "B": [
           {
             "id": "morning.choice.departure.reaction.0.B",
             "kind": "narration",
-            "text": "掌心下的额发，凉得沁人。",
-            "stage": [
-              {
-                "actorId": "abyssa",
-                "emotion": "serious",
-                "still": true
-              }
-            ]
+            "text": "{{user}}直接越过警戒的红线，大手按在她冰凉的发顶上揉了揉。"
           }
         ]
       }
@@ -2125,7 +2320,7 @@
             "id": "morning.choice.departure.reaction.1.A",
             "kind": "dialogue",
             "actorId": "kael",
-            "text": "去。在这等着。"
+            "text": "去。老实在这等着。"
           }
         ],
         "B": [
@@ -2133,7 +2328,7 @@
             "id": "morning.choice.departure.reaction.1.B",
             "kind": "dialogue",
             "actorId": "kael",
-            "text": "涨潮前回来。老实待着。"
+            "text": "潮水涨满前就回来。老实躺着。"
           }
         ]
       }
@@ -2148,8 +2343,8 @@
         "A": [
           {
             "id": "morning.choice.departure.reaction.2.A",
-            "kind": "direction",
-            "waitMs": 250,
+            "kind": "narration",
+            "text": "黑泥慢慢沉回影子深处，猩红的眼眸平静下来",
             "effect": "release",
             "stage": [
               {
@@ -2163,14 +2358,14 @@
         "B": [
           {
             "id": "morning.choice.departure.reaction.2.B",
-            "kind": "direction",
-            "waitMs": 700,
+            "kind": "narration",
+            "text": "感受着头顶传来的体温，眼睑微微垂下",
             "effect": "release",
             "stage": [
               {
                 "actorId": "abyssa",
                 "emotion": "closed",
-                "motion": "nod"
+                "still": true
               }
             ]
           }
@@ -2189,7 +2384,7 @@
             "id": "morning.choice.departure.reaction.3.A",
             "kind": "dialogue",
             "actorId": "abyssa",
-            "text": "……嗯。……要是弄坏了，就修不好了。",
+            "text": "……嗯。……被弄坏了的话，会很讨厌。",
             "emotion": "neutral"
           }
         ],
@@ -2198,7 +2393,7 @@
             "id": "morning.choice.departure.reaction.3.B",
             "kind": "dialogue",
             "actorId": "abyssa",
-            "text": "……日落之前。……凉了，我会生气的。",
+            "text": "……快点。……变冷了的话，我会生气的。",
             "emotion": "closed"
           }
         ]
@@ -2263,7 +2458,7 @@
           "id": "morning.11.104",
           "kind": "dialogue",
           "actorId": "marietta",
-          "text": "明白了。……诸位的椅子，我会按原样留着。",
+          "text": "明白了。……茶会温在炉子上，免得凉了。",
           "emotion": "neutral"
         }
       ]
@@ -2276,8 +2471,8 @@
       "frames": [
         {
           "id": "morning.11.105",
-          "kind": "direction",
-          "waitMs": 700,
+          "kind": "narration",
+          "text": "尤斯缇丝一言不发地系紧剑带，用力拉了拉皮手套的指尖，侧脸绷着一股被琐事打扰的冷硬。",
           "sound": "metal",
           "stage": [
             {
@@ -2299,7 +2494,7 @@
           "id": "morning.11.106",
           "kind": "dialogue",
           "actorId": "eustice",
-          "text": "潮汐岩窟是吧。……在涨潮前去把退路掐死。",
+          "text": "……王都巡逻漏成筛子的烂摊子，居然要我们去擦屁股。赶紧去料理掉，下午我还要去收拾哨所那帮人。",
           "emotion": "serious"
         }
       ]
@@ -2313,8 +2508,15 @@
         {
           "id": "morning.11.107",
           "kind": "narration",
-          "text": "吧台后传来利落的收拾声。",
-          "sound": "ceramic"
+          "text": "吧台后面传来一阵手忙脚乱的翻找声。艾洛拉红着眼眶，慌慌张张地把药包往肩上挎，鼻音里还带着没散干净的委屈。",
+          "sound": "ceramic",
+          "stage": [
+            {
+              "actorId": "elora",
+              "emotion": "sad",
+              "still": true
+            }
+          ]
         }
       ]
     },
@@ -2328,8 +2530,8 @@
           "id": "morning.11.108",
           "kind": "dialogue",
           "actorId": "elora",
-          "text": "{{user}}先生，止血带拿好了。……可以出发了。",
-          "emotion": "serious"
+          "text": "{{user}}先生，止血带和干净纱布我多拿了两卷……！那、那个……岩洞里应该没有积水吧？草药要是泡了水可就……",
+          "emotion": "sad"
         }
       ]
     },
@@ -2341,12 +2543,12 @@
       "frames": [
         {
           "id": "morning.11.109",
-          "kind": "direction",
-          "waitMs": 750,
+          "kind": "narration",
+          "text": "柯萝萝把法杖当成拐杖一样软趴趴地支在地上，整个人散发着浓浓的低气压，极度抗拒地叹了口气。",
           "stage": [
             {
               "actorId": "kororo",
-              "emotion": "serious",
+              "emotion": "displeased",
               "still": true
             }
           ]
@@ -2363,8 +2565,8 @@
           "id": "morning.11.110",
           "kind": "dialogue",
           "actorId": "kororo",
-          "text": "……海风会吹坏纸张。……动作快点。",
-          "emotion": "serious"
+          "text": "……哈啊。为什么非得柯萝萝走过去不可啊……海风潮死了，头发会黏在脸上……直接把洞窟压塌不行吗……",
+          "emotion": "displeased"
         }
       ]
     },
@@ -2376,13 +2578,12 @@
       "frames": [
         {
           "id": "morning.11.111",
-          "kind": "direction",
-          "waitMs": 650,
-          "sound": "metal",
+          "kind": "narration",
+          "text": "诺玛在门槛边跺了跺短靴上的烂泥，揉着酸痛的小腿，一脸没好气的厌烦。",
           "stage": [
             {
               "actorId": "norma",
-              "emotion": "serious",
+              "emotion": "displeased",
               "still": true
             }
           ]
@@ -2399,8 +2600,8 @@
           "id": "morning.11.112",
           "kind": "dialogue",
           "actorId": "norma",
-          "text": "离涨潮还有不到四个小时。……认得后门的只有老娘，跟紧点。",
-          "emotion": "serious"
+          "text": "少抱怨两句吧小法师。那条暗道全是烂泥滩，踩进去拔都拔不出来。……走了BOSS，别耽搁了。",
+          "emotion": "displeased"
         }
       ]
     },
@@ -2412,8 +2613,8 @@
       "frames": [
         {
           "id": "morning.12.113",
-          "kind": "direction",
-          "waitMs": 1,
+          "kind": "narration",
+          "text": "玛丽埃塔指尖微动，数道极细的红色魔力丝线无声地拂过众人的手腕，随即隐没于无形。",
           "stage": [
             {
               "actorId": "marietta",
@@ -2434,7 +2635,7 @@
           "id": "morning.12.114",
           "kind": "dialogue",
           "actorId": "marietta",
-          "text": "『归还之线』已系好。离海崖太远便会扯断。……请务必平安。",
+          "text": "『归还之线』已系好。……请尽量在午餐前赶回来。",
           "emotion": "serious"
         }
       ]
@@ -2443,34 +2644,82 @@
       "id": "morning.12.115",
       "cursor": 115,
       "sectionId": "morning.section.12",
-      "kind": "beat",
-      "frames": [
-        {
-          "id": "morning.12.115",
-          "kind": "narration",
-          "text": "一小团黑泥钻进了{{user}}腰间的皮囊，化作一小团沉静的微温。"
-        }
-      ]
+      "kind": "branch",
+      "choiceId": "morning.choice.blanket",
+      "variants": {
+        "A": [
+          {
+            "id": "morning.12.115.A",
+            "kind": "narration",
+            "text": "沙发角，悄悄滑出一缕安静的黑泥。它顺着裤管轻巧地钻进{{user}}腰间的皮囊，留下一团小巧而平稳的微温。"
+          }
+        ],
+        "B": [
+          {
+            "id": "morning.12.115.B",
+            "kind": "narration",
+            "text": "沙发角，悄悄滑出一缕安静的黑泥。它顺着裤管轻巧地钻进{{user}}腰间的皮囊，留下一团小巧而平稳的微温。"
+          }
+        ],
+        "C": [
+          {
+            "id": "morning.12.115.C",
+            "kind": "narration",
+            "text": "沙发上那领宽大的斗篷下，悄悄滑出一缕安静的黑泥。它顺着裤管轻巧地钻进{{user}}腰间的皮囊，留下一团小巧而平稳的微温。"
+          }
+        ]
+      }
     },
     {
       "id": "morning.12.116",
       "cursor": 116,
       "sectionId": "morning.section.12",
-      "kind": "beat",
-      "frames": [
-        {
-          "id": "morning.12.116",
-          "kind": "narration",
-          "text": "深蓝色的新毯子下，没再传来声音。",
-          "stage": [
-            {
-              "actorId": "abyssa",
-              "emotion": "closed",
-              "still": true
-            }
-          ]
-        }
-      ]
+      "kind": "branch",
+      "choiceId": "morning.choice.blanket",
+      "variants": {
+        "A": [
+          {
+            "id": "morning.12.116.A",
+            "kind": "narration",
+            "text": "沙发角，重新恢复了平缓微弱的呼吸声。",
+            "stage": [
+              {
+                "actorId": "abyssa",
+                "emotion": "closed",
+                "still": true
+              }
+            ]
+          }
+        ],
+        "B": [
+          {
+            "id": "morning.12.116.B",
+            "kind": "narration",
+            "text": "沙发角，重新恢复了平缓微弱的呼吸声。",
+            "stage": [
+              {
+                "actorId": "abyssa",
+                "emotion": "closed",
+                "still": true
+              }
+            ]
+          }
+        ],
+        "C": [
+          {
+            "id": "morning.12.116.C",
+            "kind": "narration",
+            "text": "斗篷之下，重新恢复了平缓微弱的呼吸声。",
+            "stage": [
+              {
+                "actorId": "abyssa",
+                "emotion": "closed",
+                "still": true
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "morning.12.117",
@@ -2496,7 +2745,7 @@
           "id": "morning.12.118",
           "kind": "dialogue",
           "actorId": "kael",
-          "text": "走了。"
+          "text": "……行了。出发。"
         }
       ]
     },

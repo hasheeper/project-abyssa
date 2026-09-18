@@ -31,7 +31,7 @@ export function ManorConclusion({record, onReview, ...props}: Omit<ExpeditionBat
   } satisfies ExpeditionBattleSidebarProps;
   return <ExpeditionBattleSurface {...props} onSettle={()=>{}} title="克雷格旧庄园" label="克雷格旧庄园战斗界面"
     party={[]} presentedEnemies={[]} phase="complete" layerClearPending={false} isRolling={false} interactive={false} heldActor={null}
-    attackFx={null} supportFx={null} enemyTurnFx={null} registerEnemyNode={()=>{}} isPresentationBusy={()=>busy}
+    attackFx={null} supportFx={null} enemyTurnFx={null} isPresentationBusy={()=>busy}
     handleMemberCardClick={()=>{}} handleEnemyClick={()=>{}} handleIntentClick={()=>{}} dicePanel={null}
     sceneStyle={{backgroundImage:`var(--battle-scene-tint), var(--battle-scene-curtain), url("${manorScenes["old-manor.banquet-hall"]}")`}}
     sidebar={<ExpeditionBattleSidebar {...sidebarProps} />}

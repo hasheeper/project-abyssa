@@ -1,0 +1,892 @@
+{
+  "schemaVersion": 1,
+  "id": "chapter.tide-cave.final",
+  "title": "雾滩·退潮岩窟",
+  "locale": "zh-CN",
+  "presentation": {
+    "stagePreset": "rp-stage",
+    "backgroundId": "tide-cave.shore",
+    "defaultMode": "adv",
+    "allowRp": false,
+    "initialSlots": {
+      "left": "norma"
+    },
+    "arrival": {
+      "eyebrow": "CHAPTER 01",
+      "title": "雾滩·退潮岩窟"
+    }
+  },
+  "player": {
+    "actorId": "kael",
+    "nameToken": "{{user}}",
+    "authoredSpeech": true
+  },
+  "cast": [
+    "norma",
+    "eustice",
+    "elora",
+    "kororo",
+    "marietta",
+    "abyssa",
+    "kael"
+  ],
+  "sections": [
+    {
+      "id": "S3-1",
+      "title": "雾滩进场"
+    },
+    {
+      "id": "S3-2",
+      "title": "洞口哨位"
+    },
+    {
+      "id": "S3-3",
+      "title": "背风石阶"
+    },
+    {
+      "id": "S3-4",
+      "title": "上层货台"
+    },
+    {
+      "id": "S3-5",
+      "title": "沿原路返回"
+    },
+    {
+      "id": "S4-1",
+      "title": "物归原主"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "S3-1.screen.1",
+      "cursor": 0,
+      "sectionId": "S3-1",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "S3-1.screen.1",
+          "kind": "narration",
+          "text": "退潮留下的泥滩泛着灰白冷光。翻覆的货车残骸旁，几道深凹的拖痕一路歪斜，笔直扎进山壁下的海蚀洞。"
+        },
+        {
+          "id": "S3-1.screen.1.page.1",
+          "kind": "dialogue",
+          "actorId": "norma",
+          "emotion": "serious",
+          "text": "拖痕里的水还没退。……刚钻进去没多久，BOSS。慌得很。",
+          "stage": [
+            {
+              "actorId": "norma",
+              "emotion": "serious",
+              "direction": "蹲在泥地边，刀尖挑起半凝固的泥浆"
+            }
+          ]
+        },
+        {
+          "id": "S3-1.screen.1.page.2",
+          "kind": "dialogue",
+          "actorId": "kael",
+          "emotion": "neutral",
+          "text": "（……看来他们也没什么余裕。追上不难。）"
+        }
+      ]
+    },
+    {
+      "id": "S3-1.screen.2",
+      "cursor": 1,
+      "sectionId": "S3-1",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "S3-1.screen.2",
+          "kind": "narration",
+          "text": "山壁下方的阴影一阵蠕动，冷不丁滑出两团灰蒙蒙的软泥，啪嗒瘫在洞口正中，截断了拖痕。"
+        },
+        {
+          "id": "S3-1.screen.2.page.1",
+          "kind": "dialogue",
+          "actorId": "elora",
+          "emotion": "surprised",
+          "text": "哇……！？软、软泥……？",
+          "stage": [
+            {
+              "actorId": "elora",
+              "emotion": "surprised",
+              "direction": "肩膀吓得一缩，下意识抱紧药包退了半步"
+            }
+          ]
+        },
+        {
+          "id": "S3-1.screen.2.page.2",
+          "kind": "dialogue",
+          "actorId": "eustice",
+          "emotion": "serious",
+          "text": "啧……偏偏在这种地方挡路？",
+          "stage": [
+            {
+              "actorId": "eustice",
+              "emotion": "serious",
+              "direction": "眉头骤紧，手腕一翻，刺剑出鞘半寸"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "S3-1.screen.3",
+      "cursor": 2,
+      "sectionId": "S3-1",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "S3-1.screen.3",
+          "kind": "narration",
+          "text": "队尾传来啪唧一声。柯萝萝费力地把深陷烂泥的厚底靴拔了出来，法师袍下摆甩上了几点泥星。"
+        },
+        {
+          "id": "S3-1.screen.3.page.1",
+          "kind": "dialogue",
+          "actorId": "kororo",
+          "emotion": "displeased",
+          "text": "……哈啊。靴子上全是泥了……。队长，快点清出路来。",
+          "stage": [
+            {
+              "actorId": "kororo",
+              "emotion": "displeased",
+              "direction": "半耷拉着眼皮，法杖在干燥碎石上厌烦地顿了顿"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "S3-2.screen.1",
+      "cursor": 3,
+      "sectionId": "S3-2",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "S3-2.screen.1",
+          "kind": "narration",
+          "text": "软泥瘫散成一地泛着酸腥气的灰水，缓缓渗进碎石缝里。"
+        },
+        {
+          "id": "S3-2.screen.1.page.1",
+          "kind": "dialogue",
+          "actorId": "eustice",
+          "emotion": "displeased",
+          "text": "……真难打理。",
+          "stage": [
+            {
+              "actorId": "eustice",
+              "emotion": "displeased",
+              "direction": "抽出手帕利落擦过刺剑血槽，低声轻啧"
+            }
+          ]
+        },
+        {
+          "id": "S3-2.screen.1.page.2",
+          "kind": "dialogue",
+          "actorId": "kororo",
+          "emotion": "neutral",
+          "text": "……呜，还在抽抽。……不想踩上去。队长，绕开走。",
+          "stage": [
+            {
+              "actorId": "kororo",
+              "emotion": "neutral",
+              "direction": "拿法杖下端远远挑起袍角，绕开水洼"
+            }
+          ]
+        },
+        {
+          "id": "S3-2.screen.1.page.3",
+          "kind": "dialogue",
+          "actorId": "elora",
+          "emotion": "serious",
+          "text": "……洞里的潮气，比想的还重……。得快点……找到才行……。",
+          "stage": [
+            {
+              "actorId": "elora",
+              "emotion": "serious",
+              "direction": "视线扫过岩壁渗出的酸水泡沫，下意识把药包抱紧了些"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "S3-2.screen.2",
+      "cursor": 4,
+      "sectionId": "S3-2",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "S3-2.screen.2",
+          "kind": "narration",
+          "text": "越过洞口狭窄的石棱，海风的呼啸骤然被岩壁切断。幽暗深处冷不丁传来铁器擦过碎石的拖音，间杂着几句粗野的催促。"
+        },
+        {
+          "id": "S3-2.screen.2.page.1",
+          "kind": "narration",
+          "text": "诺玛脚步无声一刹，手掌向下一压，整个人贴伏在潮湿的岩壁阴影里。"
+        },
+        {
+          "id": "S3-2.screen.2.page.2",
+          "kind": "dialogue",
+          "actorId": "norma",
+          "emotion": "serious",
+          "text": "……前面，两个。拿砍刀的杵在窄道上，里面的……正在绞弦呢，嘎吱嘎吱响。",
+          "stage": [
+            {
+              "actorId": "norma",
+              "emotion": "serious",
+              "direction": "侧耳贴在岩壁上，手指比了个二"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "S3-2.screen.3",
+      "cursor": 5,
+      "sectionId": "S3-2",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "S3-2.screen.3",
+          "kind": "dialogue",
+          "actorId": "eustice",
+          "emotion": "angry",
+          "text": "……丢王都脸面的渣滓。速战速决。",
+          "stage": [
+            {
+              "actorId": "eustice",
+              "emotion": "angry",
+              "direction": "把用脏的手帕塞回腰带，剑锋在阴影里无声下压"
+            }
+          ]
+        },
+        {
+          "id": "S3-2.screen.3.page.1",
+          "kind": "narration",
+          "text": "{{user}}（朝前打了个推进手势，剑刃出鞘半寸）。"
+        }
+      ]
+    },
+    {
+      "id": "S3-3.screen.1",
+      "cursor": 6,
+      "sectionId": "S3-3",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "S3-3.screen.1",
+          "kind": "narration",
+          "text": "窄道里的两名哨兵被彻底击倒瘫软在碎石堆里，脱手的十字弩摔在一旁。众人跨过散落的兵刃，拐进石阶后一处凹陷的背风岩壁。"
+        },
+        {
+          "id": "S3-3.screen.1.page.1",
+          "kind": "narration",
+          "text": "呼啸的穿堂风骤然被山壁切断，只剩下下层石缝里海水倒灌的咕嘟声，沉闷而潮湿。"
+        },
+        {
+          "id": "S3-3.screen.1.page.2",
+          "kind": "dialogue",
+          "actorId": "kororo",
+          "emotion": "neutral",
+          "text": "……哈啊……腿好沉……。真的一步都不想往上爬了……。",
+          "stage": [
+            {
+              "actorId": "kororo",
+              "emotion": "neutral",
+              "direction": "将沉重的法杖往岩壁上一靠，整个人顺着石壁软绵绵地蹲坐下去"
+            }
+          ]
+        },
+        {
+          "id": "S3-3.screen.1.page.3",
+          "kind": "dialogue",
+          "actorId": "elora",
+          "emotion": "panicked",
+          "text": "诶，脚……扭到哪里了吗！？",
+          "stage": [
+            {
+              "actorId": "elora",
+              "emotion": "panicked",
+              "direction": "急忙小跑上前，在柯萝萝身前蹲下"
+            }
+          ]
+        },
+        {
+          "id": "S3-3.screen.1.page.4",
+          "kind": "dialogue",
+          "actorId": "kororo",
+          "emotion": "flustered",
+          "text": "（把缩回来的脚尖藏进袍子底下，视线微晃）……没有啦。……就只是想坐着而已。",
+          "stage": [
+            {
+              "actorId": "kororo",
+              "emotion": "flustered",
+              "direction": "脚尖下意识往宽大的法师袍底下缩了半寸，视线不自在地飘向旁边，小声嘟囔"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "S3-3.screen.2",
+      "cursor": 7,
+      "sectionId": "S3-3",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "S3-3.screen.2",
+          "kind": "narration",
+          "text": "尤斯缇丝走在最前排查路径，靴尖忽然在退潮积水的岩缝死角里踢到了什么硬物，发出一声沉闷的金属钝响。"
+        },
+        {
+          "id": "S3-3.screen.2.page.1",
+          "kind": "narration",
+          "text": "那是一只被粗暴扯断背带的硬皮行囊，死死卡在礁石缝中，铜锁扣上糊满了惨白的海盐。"
+        },
+        {
+          "id": "S3-3.screen.2.page.2",
+          "kind": "dialogue",
+          "actorId": "eustice",
+          "emotion": "serious",
+          "text": "……古怪的暗扣。诺玛，这是你的老本行吧。赶紧弄开。",
+          "stage": [
+            {
+              "actorId": "eustice",
+              "emotion": "serious",
+              "direction": "靴尖又踢了踢那块暗扣，双手抱胸回头"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "S3-3.screen.3",
+      "cursor": 8,
+      "sectionId": "S3-3",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "S3-3.screen.3",
+          "kind": "dialogue",
+          "actorId": "norma",
+          "emotion": "wry",
+          "text": "……来喽来喽。带子都扯断了落荒而逃，倒还留了个便宜锁。……马上就好。",
+          "stage": [
+            {
+              "actorId": "norma",
+              "emotion": "wry",
+              "direction": "嘴里嚼着糖晃晃悠悠走上前，从袖口随手抽出一根细长的撬针蹲下身"
+            }
+          ]
+        },
+        {
+          "id": "S3-3.screen.3.page.1",
+          "kind": "narration",
+          "text": "诺玛单膝点地，指尖灵巧地拨开铜扣表面的海盐。"
+        },
+        {
+          "id": "S3-3.screen.3.page.2",
+          "kind": "dialogue",
+          "actorId": "kael",
+          "emotion": "neutral",
+          "text": "（……拿不准里面藏着什么机关的时候，交给诺玛是最稳当的。）"
+        }
+      ]
+    },
+    {
+      "id": "S3-4.screen.1",
+      "cursor": 9,
+      "sectionId": "S3-4",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "S3-4.screen.1",
+          "kind": "narration",
+          "text": "散落着空扁担与碎木板的石阶到了尽头，拐角处昏黄的火把光将死岩壁映得一片赤红。"
+        },
+        {
+          "id": "S3-4.screen.1.page.1",
+          "kind": "narration",
+          "text": "尤斯缇丝第一个贴上转角的掩体，目光越过石棱骤然一凝，压低了剑锋。"
+        },
+        {
+          "id": "S3-4.screen.1.page.2",
+          "kind": "dialogue",
+          "actorId": "eustice",
+          "emotion": "serious",
+          "text": "……慌了手脚呢。里面那两张弩，连弦都还没绞到底。",
+          "stage": [
+            {
+              "actorId": "eustice",
+              "emotion": "serious",
+              "direction": "手撑在岩壁边缘，声音低沉而敏锐"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "S3-4.screen.2",
+      "cursor": 10,
+      "sectionId": "S3-4",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "S3-4.screen.2",
+          "kind": "narration",
+          "text": "石台深处无路可退。匪首粗重地喘着粗气，反握砍刀堵在中央；两侧的弩手正手忙脚乱地摇着绞盘挂弦，金属棘轮在洞窟里发出刺耳的咔咔声。"
+        },
+        {
+          "id": "S3-4.screen.2.page.1",
+          "kind": "dialogue",
+          "actorId": "elora",
+          "emotion": "serious",
+          "text": "……火印木箱，居然放离火把那么近……！",
+          "stage": [
+            {
+              "actorId": "elora",
+              "emotion": "serious",
+              "direction": "从岩缝后瞥见火光，屏息低呼"
+            }
+          ]
+        },
+        {
+          "id": "S3-4.screen.2.page.2",
+          "kind": "dialogue",
+          "actorId": "kororo",
+          "emotion": "serious",
+          "text": "……封蜡。角被磕碎了。……",
+          "stage": [
+            {
+              "actorId": "kororo",
+              "emotion": "serious",
+              "direction": "死鱼眼冷冷盯着箱堆，握杖的指节微微泛白"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "S3-4.screen.3",
+      "cursor": 11,
+      "sectionId": "S3-4",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "S3-4.screen.3",
+          "kind": "narration",
+          "text": "药箱与书箱被当成值钱硬货堆在干燥处。而那个系得齐整细密的油纸包袱，却像擦脚布一样被随手扔在箱堆顶上，任由洞顶淌下的咸水滴在油纸上。"
+        },
+        {
+          "id": "S3-4.screen.3.page.1",
+          "kind": "dialogue",
+          "actorId": "kael",
+          "emotion": "neutral",
+          "text": "（……最上头的油纸包袱，跟破抹布一样随手扔在顶上。……那帮家伙，根本不知道自己搬走的是什么东西。）"
+        },
+        {
+          "id": "S3-4.screen.3.page.2",
+          "kind": "dialogue",
+          "actorId": "norma",
+          "emotion": "serious",
+          "text": "……趁那两张弩响之前办了他们。给暗号吧，BOSS。",
+          "stage": [
+            {
+              "actorId": "norma",
+              "emotion": "serious",
+              "direction": "在侧翼反手抽出苦无，在指尖利落地打了个转"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "S3-4.choice",
+      "cursor": 12,
+      "sectionId": "S3-4",
+      "kind": "choice",
+      "prompt": "接近货台时，先留意哪一处？",
+      "options": [
+        {
+          "id": "A",
+          "label": "守住出口"
+        },
+        {
+          "id": "B",
+          "label": "堵住退路"
+        },
+        {
+          "id": "C",
+          "label": "先检查货物"
+        }
+      ]
+    },
+    {
+      "id": "S3-5.screen.1",
+      "cursor": 13,
+      "sectionId": "S3-5",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "S3-5.screen.1",
+          "kind": "narration",
+          "text": "最后一把重刃当啷落地。被绳索反剪绑死的匪首与两名弩手瘫在石台角落，粗重的喘息渐渐微弱。"
+        },
+        {
+          "id": "S3-5.screen.1.page.1",
+          "kind": "narration",
+          "text": "货台上还堆着大半车笨重的粮袋与杂货，高出水线，暂时浸不到水。"
+        },
+        {
+          "id": "S3-5.screen.1.page.2",
+          "kind": "dialogue",
+          "actorId": "eustice",
+          "emotion": "serious",
+          "text": "……大件留在这。等退潮后，让哨所的人划小艇来拉。",
+          "stage": [
+            {
+              "actorId": "eustice",
+              "emotion": "serious",
+              "direction": "利落收剑入鞘，冷冷扫了一眼地上的俘虏和货堆"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "S3-5.screen.2",
+      "cursor": 14,
+      "sectionId": "S3-5",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "S3-5.screen.2",
+          "kind": "dialogue",
+          "actorId": "kororo",
+          "emotion": "neutral",
+          "text": "……这个。……找到了。",
+          "stage": [
+            {
+              "actorId": "kororo",
+              "emotion": "neutral",
+              "direction": "两手将小书箱稳稳抱进怀里，指尖蹭过封蜡"
+            }
+          ]
+        },
+        {
+          "id": "S3-5.screen.2.page.1",
+          "kind": "narration",
+          "text": "油纸包袱还被随手压在药箱顶上。{{user}}伸手去取，索性连箱带包一并端起——入手一沉，是实打实的分量。"
+        },
+        {
+          "id": "S3-5.screen.2.page.2",
+          "kind": "dialogue",
+          "actorId": "elora",
+          "emotion": "smile",
+          "text": "啊……这份是艾洛拉的。队长拿毛毯那边就好。",
+          "stage": [
+            {
+              "actorId": "elora",
+              "emotion": "smile",
+              "direction": "双手已经从箱底滑了进去，顺着他抬起的势头稳稳接住，整口箱子四平八稳落进她怀里"
+            }
+          ]
+        },
+        {
+          "id": "S3-5.screen.2.page.3",
+          "kind": "dialogue",
+          "actorId": "kael",
+          "emotion": "neutral",
+          "text": "（……早知道会这样。……可她抱得比我稳当多了。）",
+          "stage": [
+            {
+              "actorId": "kael",
+              "emotion": "neutral",
+              "direction": "手里只剩下那个轻飘飘的油纸包袱"
+            }
+          ]
+        },
+        {
+          "id": "S3-5.screen.2.page.4",
+          "kind": "dialogue",
+          "actorId": "norma",
+          "emotion": "wry",
+          "text": "……人家说不用你啦，BOSS。",
+          "stage": [
+            {
+              "actorId": "norma",
+              "emotion": "wry",
+              "direction": "靠在岩壁边，舌尖把糖顶到腮帮，笑眯眯地"
+            }
+          ]
+        },
+        {
+          "id": "S3-5.screen.2.page.5",
+          "kind": "dialogue",
+          "actorId": "eustice",
+          "emotion": "displeased",
+          "text": "真是的，你们还要推让到什么时候？不想让靴子被海水泡烂的话，就给我赶紧走！",
+          "stage": [
+            {
+              "actorId": "eustice",
+              "emotion": "displeased",
+              "direction": "双手抱胸，气哼哼地把脸偏向一边，靴尖轻磕碎石"
+            }
+          ]
+        },
+        {
+          "id": "S3-5.screen.2.page.6",
+          "kind": "narration",
+          "text": "{{user}}（将油纸包袱在胸前系紧，打了个出发的手势）。"
+        }
+      ]
+    },
+    {
+      "id": "S3-5.screen.3",
+      "cursor": 15,
+      "sectionId": "S3-5",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "S3-5.screen.3",
+          "kind": "narration",
+          "text": "顺着石阶快步下撤，下到最底层的石阶，冰凉翻滚的白沫已经漫过了石阶台面，浸透了靴底。"
+        },
+        {
+          "id": "S3-5.screen.3.page.1",
+          "kind": "narration",
+          "text": "全员踩着涌入的海水迅速穿出洞口。迎面的海风依然微凉，但{{user}}胸前的皮囊深处，那一小团安静的黑泥在隔着油纸触到毛毯的气息后，极轻微地翻了个身，透出一抹安稳的微温。"
+        },
+        {
+          "id": "S3-5.screen.3.page.2",
+          "kind": "dialogue",
+          "actorId": "kael",
+          "emotion": "neutral",
+          "text": "（……顶重要的东西，已经回到手里了。……该回去了。）"
+        }
+      ]
+    },
+    {
+      "id": "S4-1.screen.1",
+      "cursor": 16,
+      "sectionId": "S4-1",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "S4-1.screen.1",
+          "kind": "narration",
+          "text": "厚重的门扉合拢，咸腥的海风被彻底截断在门外。壁炉炭火噼啪微响，前厅早已弥漫着柑橘红茶的冷香。"
+        },
+        {
+          "id": "S4-1.screen.1.page.1",
+          "kind": "narration",
+          "text": "腰间的皮囊微微一松。一路护在里头的那团小黑泥像终于到家似的钻了出来，轻巧滑落脚边，噗哟一下贴着地板溜进阴影，无声融回了沙发底下。"
+        },
+        {
+          "id": "S4-1.screen.1.page.2",
+          "kind": "narration",
+          "text": "细红的魔力丝线擦着地面掠过，粗麻泥垫在众人靴底分毫不差地铺开。通往后院的泥道侧门，不知何时已虚掩着一掌宽。"
+        },
+        {
+          "id": "S4-1.screen.1.page.3",
+          "kind": "dialogue",
+          "actorId": "elora",
+          "emotion": "joy",
+          "text": "玛丽埃塔小姐，后院借用啦！午饭前一定回来……！",
+          "stage": [
+            {
+              "actorId": "elora",
+              "emotion": "joy",
+              "direction": "双手稳稳端着湿重的木箱，侧身用手肘顶开侧门，脚步飞快"
+            }
+          ]
+        },
+        {
+          "id": "S4-1.screen.1.page.4",
+          "kind": "narration",
+          "text": "话音还没落下，人已经小跑着消失在侧廊尽头。院里避风处，洗净的竹篾簸箕早就排成了一列。"
+        },
+        {
+          "id": "S4-1.screen.1.page.5",
+          "kind": "dialogue",
+          "actorId": "eustice",
+          "emotion": "serious",
+          "text": "……准备得倒是周到。",
+          "stage": [
+            {
+              "actorId": "eustice",
+              "emotion": "serious",
+              "direction": "在门垫旁解开靴扣，顺手拿起案头那叠压着铜镇纸的巡查笺"
+            }
+          ]
+        },
+        {
+          "id": "S4-1.screen.1.page.6",
+          "kind": "narration",
+          "text": "她将卷起的信笺在掌心轻敲了一下，目光扫过站在身侧的{{user}}，下巴朝客厅方向微扬。"
+        },
+        {
+          "id": "S4-1.screen.1.page.7",
+          "kind": "dialogue",
+          "actorId": "eustice",
+          "emotion": "serious",
+          "text": "哨所那帮家伙，下午我再去慢慢收拾。……你怀里那个也是，还不快给那个贪睡神送过去。"
+        },
+        {
+          "id": "S4-1.screen.1.page.8",
+          "kind": "dialogue",
+          "actorId": "marietta",
+          "emotion": "neutral",
+          "text": "分毫不差的准时归来，诸位辛苦了。……{{user}}大人，在为您拂拭外衣的间隙，那包袱请暂交我查验。",
+          "stage": [
+            {
+              "actorId": "marietta",
+              "emotion": "neutral",
+              "direction": "向{{user}}优雅欠身，手帕在指尖微翻，双手平稳托起"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "S4-1.screen.2",
+      "cursor": 17,
+      "sectionId": "S4-1",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "S4-1.screen.2",
+          "kind": "narration",
+          "text": "柯萝萝拖着书箱，径直缩进了壁炉旁最干燥的角落软垫。箱扣被手指熟练抹开，她挑出最上面那本厚皮古籍，指尖贴着书脊，哗啦啦快速捋了一遍书页。"
+        },
+        {
+          "id": "S4-1.screen.2.page.1",
+          "kind": "dialogue",
+          "actorId": "kororo",
+          "emotion": "neutral",
+          "text": "……嗯。没磕角，墨也没洇开。……是真迹。"
+        },
+        {
+          "id": "S4-1.screen.2.page.2",
+          "kind": "narration",
+          "text": "翻开第一页，人就顺着软垫软绵绵地滑了下去，下巴陷进宽大的领口。大厅里的一切走动与声音，瞬间被她隔绝在了书页之外。"
+        },
+        {
+          "id": "S4-1.screen.2.page.3",
+          "kind": "narration",
+          "text": "诺玛在门垫边利落地蹬掉泥靴，踩着袜底三两步晃过前厅，直奔走廊拐角那个从清晨起就扣着粗陶碗的席位。"
+        },
+        {
+          "id": "S4-1.screen.2.page.4",
+          "kind": "narration",
+          "text": "陶碗掀开，浓郁的肉汤香混着麦气腾地涌上来。她抄起勺子刮下大半勺直接塞进嘴里。"
+        },
+        {
+          "id": "S4-1.screen.2.page.5",
+          "kind": "dialogue",
+          "actorId": "norma",
+          "emotion": "neutral",
+          "text": "……哈啊，活过来了。……冻凝掉的肥油，我可最讨厌了。",
+          "stage": [
+            {
+              "actorId": "norma",
+              "emotion": "neutral",
+              "direction": "含着满嘴滚烫的肉汤咽下去，喉咙里满足地呼出一口气"
+            }
+          ]
+        },
+        {
+          "id": "S4-1.screen.2.page.6",
+          "kind": "narration",
+          "text": "从天没亮折腾到现在的第一口热食落肚，她整个人像只吃饱的野猫，懒散地往椅背上一陷，半眯起眼不再吭声。"
+        }
+      ]
+    },
+    {
+      "id": "S4-1.screen.3",
+      "cursor": 18,
+      "sectionId": "S4-1",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "S4-1.screen.3",
+          "kind": "narration",
+          "text": "玛丽埃塔指尖微动，数道细红丝线擦过油纸表面，泥渍与微潮被魔力震散落尽。她双手平托着折叠好的旧毛毯，递还到{{user}}手中，欠身退后半步。"
+        },
+        {
+          "id": "S4-1.screen.3.page.1",
+          "kind": "dialogue",
+          "actorId": "marietta",
+          "emotion": "neutral",
+          "text": "……污迹已除。请您递交吧。"
+        },
+        {
+          "id": "S4-1.screen.3.page.2",
+          "kind": "narration",
+          "text": "{{user}}走上前，将毛毯放在沙发边缘。"
+        },
+        {
+          "id": "S4-1.screen.3.page.3",
+          "kind": "narration",
+          "text": "阴影深处的银发无声滑落，鼻尖凑上去碰了碰，两道极浅的眉头微微蹙起。"
+        },
+        {
+          "id": "S4-1.screen.3.page.4",
+          "kind": "dialogue",
+          "actorId": "abyssa",
+          "emotion": "neutral",
+          "text": "……（耸了耸鼻尖轻嗅）……。"
+        },
+        {
+          "id": "S4-1.screen.3.page.5",
+          "kind": "dialogue",
+          "actorId": "abyssa",
+          "emotion": "neutral",
+          "text": "……是原来的那个。……但是。"
+        },
+        {
+          "id": "S4-1.screen.3.page.6",
+          "kind": "dialogue",
+          "actorId": "abyssa",
+          "emotion": "displeased",
+          "text": "……好凉。"
+        },
+        {
+          "id": "S4-1.screen.3.page.7",
+          "kind": "narration",
+          "text": "话音未落，脚下的黑泥毫无征兆地翻涌而起，直接缠紧了{{user}}的手腕，猛地向下一沉，将{{user}}整个人结结实实地拽得陷进了沙发里。"
+        },
+        {
+          "id": "S4-1.screen.3.page.8",
+          "kind": "narration",
+          "text": "旧毛毯被黑泥一把卷起压在两人膝头。艾比希斯顺势将脑袋靠过来，径直埋进{{user}}的颈侧。"
+        },
+        {
+          "id": "S4-1.screen.3.page.9",
+          "kind": "dialogue",
+          "actorId": "abyssa",
+          "emotion": "closed",
+          "text": "……（蹭蹭）……。"
+        },
+        {
+          "id": "S4-1.screen.3.page.10",
+          "kind": "dialogue",
+          "actorId": "abyssa",
+          "emotion": "neutral",
+          "text": "……变暖和之前，不准走。"
+        },
+        {
+          "id": "S4-1.screen.3.page.11",
+          "kind": "narration",
+          "text": "黑泥缓缓收回阴影，只留下一层沉甸甸的暖意与重量。壁炉的火光跳跃着，门内彻底安静了下来。"
+        }
+      ]
+    }
+  ]
+}

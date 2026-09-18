@@ -1,107 +1,82 @@
-import { act, cleanup, render } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { EnemyMist } from "./EnemyMist";
+import { act, cleanup, fireEvent, render } from "@testing-library/react";
+import { afterEach, expect, it, vi } from "vitest";
+vi.mock("./enemy-mist-renderer", () => ({createEnemyMistRenderer: vi.fn()}));
 import { createEnemyMistRenderer } from "./enemy-mist-renderer";
+import { EnemyMist } from "./EnemyMist";
+import { UiMotionProvider } from "../../../shared/ui/motion/UiMotionProvider";
+import { useBattleMotionPolicy } from "./useBattleMotionPolicy";
 
-vi.mock("./enemy-mist-renderer", () => ({ createEnemyMistRenderer: vi.fn() }));
-
-let motion: EventTarget & { matches: boolean };
-let hidden = false;
-const renderer = { draw: vi.fn(), resize: vi.fn(), dispose: vi.fn() };
-const advance = (ms: number) => act(() => { vi.advanceTimersByTime(ms); });
-
-beforeEach(() => {
-  vi.useFakeTimers({ toFake: ["requestAnimationFrame", "cancelAnimationFrame", "performance"] });
-  vi.stubGlobal("WebGLRenderingContext", class {});
-  vi.stubGlobal("ResizeObserver", class { observe() {} disconnect() {} });
-  motion = Object.assign(new EventTarget(), { matches: false });
-  vi.stubGlobal("matchMedia", () => motion);
-  hidden = false;
-  vi.spyOn(document, "hidden", "get").mockImplementation(() => hidden);
+afterEach(() => {cleanup();vi.restoreAllMocks();vi.unstubAllGlobals();});
+it("holds a prepared fog frame during entrance, then resumes the same renderer without a new WebGL context", () => {
+  const renderer={draw:vi.fn(),resize:vi.fn(),dispose:vi.fn()};
   vi.mocked(createEnemyMistRenderer).mockReturnValue(renderer);
+  vi.stubGlobal("WebGLRenderingContext",class {});
+  vi.stubGlobal("ResizeObserver",class {observe() {} disconnect() {}});
+  vi.stubGlobal("matchMedia",()=>({matches:false,addEventListener:vi.fn(),removeEventListener:vi.fn()}));
+  const frames=new Map<number,FrameRequestCallback>(); let next=0;
+  vi.stubGlobal("requestAnimationFrame",(cb:FrameRequestCallback)=>{frames.set(++next,cb);return next;});
+  vi.stubGlobal("cancelAnimationFrame",(id:number)=>{frames.delete(id);});
+  const mounted=render(<EnemyMist paused/>);
+  expect(createEnemyMistRenderer).toHaveBeenCalledTimes(1);
+  expect(renderer.draw).toHaveBeenCalledTimes(1);
+  expect(frames.size).toBe(0);
+  fireEvent(document,new Event("visibilitychange"));
+  expect(frames.size).toBe(0);
+  const draws = renderer.draw.mock.calls.length, resizes = renderer.resize.mock.calls.length;
+  mounted.rerender(<EnemyMist paused={false}/>);
+  expect(frames.size).toBe(1);
+  expect(createEnemyMistRenderer).toHaveBeenCalledTimes(1);
+  mounted.rerender(<EnemyMist paused/>);
+  expect(frames.size).toBe(0);
+  mounted.rerender(<EnemyMist paused={false}/>);
+  expect(frames.size).toBe(1);
+  expect(createEnemyMistRenderer).toHaveBeenCalledTimes(1);
+  expect(renderer.draw).toHaveBeenCalledTimes(draws);
+  expect(renderer.resize).toHaveBeenCalledTimes(resizes);
+  mounted.unmount();
+  expect(frames.size).toBe(0);
+  expect(renderer.dispose).toHaveBeenCalledTimes(1);
 });
 
-afterEach(() => {
-  cleanup();
-  vi.useRealTimers();
-  vi.restoreAllMocks();
-  vi.unstubAllGlobals();
-  vi.clearAllMocks();
-});
-
-describe("EnemyMist render budget", () => {
-  it("budgets GPU draws during dice motion without changing the clock or recreating the renderer", () => {
-    const view = render(<EnemyMist foregroundBusy />);
-    const initial = renderer.draw.mock.calls.length;
-    const start = renderer.draw.mock.calls.at(-1)![0];
-    advance(1000);
-    expect(renderer.draw.mock.calls.length - initial).toBeGreaterThanOrEqual(7);
-    expect(renderer.draw.mock.calls.length - initial).toBeLessThanOrEqual(8);
-    expect(renderer.draw.mock.calls.at(-1)![0] - start).toBeGreaterThan(.8);
-    const count = renderer.draw.mock.calls.length;
-    view.rerender(<EnemyMist foregroundBusy={false} />);
-    advance(1000);
-    expect(renderer.draw.mock.calls.length - count).toBeGreaterThanOrEqual(22);
-    expect(renderer.draw.mock.calls.length - count).toBeLessThanOrEqual(24);
-    expect(createEnemyMistRenderer).toHaveBeenCalledOnce();
-    expect(renderer.draw.mock.calls.at(-1)![0] - start).toBeGreaterThan(1.8);
-  });
-
-  it("caps drawing at 24fps and releases the loop and GPU resources on unmount", () => {
-    const view = render(<EnemyMist />);
-    const initial = renderer.draw.mock.calls.length;
-    advance(1000);
-    const frames = renderer.draw.mock.calls.length - initial;
-    expect(frames).toBeGreaterThanOrEqual(22);
-    expect(frames).toBeLessThanOrEqual(24);
-    const times = renderer.draw.mock.calls.map(([seconds]) => seconds as number);
-    expect(times.at(-1)! - times[0]!).toBeLessThanOrEqual(1);
-    view.unmount();
-    const count = renderer.draw.mock.calls.length;
-    advance(1000);
-    expect(renderer.draw).toHaveBeenCalledTimes(count);
-    expect(renderer.dispose).toHaveBeenCalledOnce();
-  });
-
-  it("keeps reduced motion static and resumes without jumping after a hidden tab", () => {
-    motion.matches = true;
-    render(<EnemyMist />);
-    advance(1000);
-    expect(renderer.draw).toHaveBeenCalledOnce();
-    act(() => { motion.matches = false; motion.dispatchEvent(new Event("change")); });
-    advance(500);
-    expect(renderer.draw.mock.calls.length).toBeGreaterThan(2);
-
-    act(() => { hidden = true; document.dispatchEvent(new Event("visibilitychange")); });
-    const count = renderer.draw.mock.calls.length;
-    const lastTime = renderer.draw.mock.calls.at(-1)![0];
-    advance(60_000);
-    expect(renderer.draw).toHaveBeenCalledTimes(count);
-    act(() => { hidden = false; document.dispatchEvent(new Event("visibilitychange")); });
-    expect(renderer.draw.mock.calls.at(-1)![0]).toBe(lastTime);
-    advance(100);
-    expect(renderer.draw.mock.calls.length).toBeGreaterThan(count + 1);
-  });
-
-  it("stops on context loss, recreates on restore, and tolerates unavailable WebGL", () => {
-    const view = render(<EnemyMist />);
-    const canvas = view.container.querySelector("canvas")!;
-    advance(100);
-    act(() => { canvas.dispatchEvent(new Event("webglcontextlost", { cancelable: true })); });
-    const count = renderer.draw.mock.calls.length;
-    advance(1000);
-    expect(renderer.draw).toHaveBeenCalledTimes(count);
-    act(() => { canvas.dispatchEvent(new Event("webglcontextrestored")); });
-    expect(createEnemyMistRenderer).toHaveBeenCalledTimes(2);
-    advance(100);
-    expect(renderer.draw.mock.calls.length).toBeGreaterThan(count);
-    view.unmount();
-
-    vi.mocked(createEnemyMistRenderer).mockReturnValue(null);
-    const fallback = render(<EnemyMist />);
-    const before = renderer.draw.mock.calls.length;
-    advance(1000);
-    expect(renderer.draw).toHaveBeenCalledTimes(before);
-    expect(fallback.container.querySelector("canvas")).toHaveAttribute("data-mist-ready", "false");
-  });
+it("uses the battle policy live, preserves the renderer, and draws once per three busy ticks",()=>{
+  const renderer={draw:vi.fn(),resize:vi.fn(),dispose:vi.fn()};
+  vi.mocked(createEnemyMistRenderer).mockClear().mockReturnValue(renderer);
+  vi.stubGlobal("WebGLRenderingContext",class {});
+  let resized:()=>void=()=>{};
+  vi.stubGlobal("ResizeObserver",class {constructor(cb:()=>void){resized=cb;} observe(){} disconnect(){}});
+  const frames=new Map<number,FrameRequestCallback>();let id=0;
+  vi.stubGlobal("requestAnimationFrame",(cb:FrameRequestCallback)=>{frames.set(++id,cb);return id;});
+  vi.stubGlobal("cancelAnimationFrame",(key:number)=>frames.delete(key));
+  const step=(time:number)=>act(()=>{const batch=[...frames.values()];frames.clear();batch.forEach(cb=>cb(time));});
+  function Subject({busy=false,blocked=false}:{busy?:boolean;blocked?:boolean}) {
+    const policy=useBattleMotionPolicy({blocked,foregroundBusy:busy});
+    return <EnemyMist paused={policy.ambientPaused} foregroundBusy={policy.fogThrottled}/>;
+  }
+  const {rerender,unmount}=render(<UiMotionProvider><Subject/></UiMotionProvider>);
+  renderer.draw.mockClear();
+  step(1);step(51);step(101);step(151);
+  expect(renderer.draw).toHaveBeenCalledTimes(3);
+  renderer.draw.mockClear();
+  rerender(<UiMotionProvider><Subject busy/></UiMotionProvider>);
+  step(201);step(251);
+  expect(renderer.draw).not.toHaveBeenCalled();
+  step(301);expect(renderer.draw).toHaveBeenCalledTimes(1);
+  rerender(<UiMotionProvider><Subject blocked/></UiMotionProvider>);
+  expect(frames.size).toBe(0);
+  const hidden=vi.spyOn(document,"hidden","get").mockReturnValue(true);
+  fireEvent(document,new Event("visibilitychange"));
+  act(()=>resized()); // hidden resizes are deferred until the page returns
+  const before=renderer.resize.mock.calls.length;
+  hidden.mockReturnValue(false);fireEvent(document,new Event("visibilitychange"));
+  // Still blocked: policy stays paused, so no work until unblocked.
+  expect(frames.size).toBe(0);
+  rerender(<UiMotionProvider><Subject/></UiMotionProvider>);
+  expect(renderer.resize).toHaveBeenCalledTimes(before+1);
+  expect(frames.size).toBe(1);
+  rerender(<UiMotionProvider preference="reduced"><Subject/></UiMotionProvider>);
+  expect(frames.size).toBe(0);
+  rerender(<UiMotionProvider><Subject/></UiMotionProvider>);
+  expect(frames.size).toBe(1);
+  expect(createEnemyMistRenderer).toHaveBeenCalledTimes(1);
+  unmount();expect(frames.size).toBe(0);expect(renderer.dispose).toHaveBeenCalledTimes(1);
 });

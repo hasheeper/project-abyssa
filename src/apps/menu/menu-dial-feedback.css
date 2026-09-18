@@ -1,0 +1,119 @@
+/* Keep the surface behind SVG <use> engravings the same interpolated color as
+   the main plate. Animating fill on only the main path leaves colored patches. */
+@property --menu-cmd-fill { syntax: "<color>"; inherits: true; initial-value: #101717; }
+
+.menu-dial [data-command="estate"] { --menu-command-axis-x: 0; --menu-command-axis-y: -1; }
+.menu-dial [data-command="storage"] { --menu-command-axis-x: -1; --menu-command-axis-y: 0; }
+.menu-dial [data-command="shop"] { --menu-command-axis-x: 1; --menu-command-axis-y: 0; }
+.menu-dial [data-command="sortie"] { --menu-command-axis-x: 0; --menu-command-axis-y: 1; }
+
+/* Interaction belongs to an inner plane. Outer entry wrappers still own the
+   entrance, and menu-app__dial still owns the camera. Hit boxes never lift. */
+.menu-dial__content-motion { position: absolute; inset: 0; pointer-events: none; }
+.menu-dial__panel, .menu-dial__content-motion {
+  --menu-feedback-distance: 0;
+  --menu-feedback-scale: 1;
+  --menu-feedback-unit: 1px;
+  transform-box: view-box;
+  transform-origin: var(--menu-command-origin);
+  transform: translate(
+    calc(var(--menu-command-axis-x) * var(--menu-feedback-distance) * var(--menu-feedback-unit)),
+    calc(var(--menu-command-axis-y) * var(--menu-feedback-distance) * var(--menu-feedback-unit))
+  ) scale(var(--menu-feedback-scale));
+  transition: transform 280ms cubic-bezier(.18, .72, .24, 1);
+}
+.menu-dial__panel { transition: transform 280ms cubic-bezier(.18, .72, .24, 1), --menu-cmd-fill 240ms ease; }
+.menu-dial__content-motion { --menu-feedback-unit: .875px; }
+.menu-dial__panel[data-selected], .menu-dial__content-motion[data-selected] {
+  --menu-feedback-distance: 3.4;
+  --menu-feedback-scale: 1.006;
+}
+.menu-dial__panel :is(.menu-dial__panel-outer, .menu-dial__panel-middle, .menu-dial__panel-inner, .menu-dial__panel-inset) { transition: stroke 240ms ease; }
+.menu-dial__filigree { transition: color 240ms ease, opacity 240ms ease; }
+.menu-dial__label { transition: color 220ms ease; }
+.menu-dial__icon { transition: background-color 220ms ease, opacity 220ms ease; }
+.menu-dial__label-rule { transition: opacity 220ms ease; }
+.menu-dial__panel-focus { transition: opacity 160ms ease; }
+
+/* Native hover / focus are projected from the transparent controls onto the
+   matching art and text, without mousemove state or an always-running loop. */
+@media (hover: hover) and (pointer: fine) {
+  .menu-dial:has(.menu-dial__button[data-command="estate"]:hover) :is(.menu-dial__panel, .menu-dial__content-motion)[data-command="estate"],
+  .menu-dial:has(.menu-dial__button[data-command="storage"]:hover) :is(.menu-dial__panel, .menu-dial__content-motion)[data-command="storage"],
+  .menu-dial:has(.menu-dial__button[data-command="shop"]:hover) :is(.menu-dial__panel, .menu-dial__content-motion)[data-command="shop"],
+  .menu-dial:has(.menu-dial__button[data-command="sortie"]:hover) :is(.menu-dial__panel, .menu-dial__content-motion)[data-command="sortie"] {
+    --menu-feedback-distance: 7;
+    --menu-feedback-scale: 1.018;
+    --menu-cmd-fill: #263b3d;
+    --menu-cmd-middle: #a3c6c5;
+    --menu-cmd-detail: #a9ccca;
+    --menu-cmd-filigree: #b7d8d4;
+    --menu-feedback-ink: #edf3e9;
+    --menu-feedback-icon-opacity: 1;
+    --menu-feedback-rule-opacity: 1;
+  }
+  .menu-dial:has(.menu-dial__button[data-command="estate"]:hover) .menu-dial__panel[data-command="estate"][data-selected],
+  .menu-dial:has(.menu-dial__button[data-command="storage"]:hover) .menu-dial__panel[data-command="storage"][data-selected],
+  .menu-dial:has(.menu-dial__button[data-command="shop"]:hover) .menu-dial__panel[data-command="shop"][data-selected],
+  .menu-dial:has(.menu-dial__button[data-command="sortie"]:hover) .menu-dial__panel[data-command="sortie"][data-selected] {
+    --menu-cmd-fill: #628d8e;
+    --menu-cmd-middle: #c3e0d9;
+  }
+}
+.menu-dial:has(.menu-dial__button[data-command="estate"]:focus-visible) :is(.menu-dial__panel, .menu-dial__content-motion)[data-command="estate"],
+.menu-dial:has(.menu-dial__button[data-command="storage"]:focus-visible) :is(.menu-dial__panel, .menu-dial__content-motion)[data-command="storage"],
+.menu-dial:has(.menu-dial__button[data-command="shop"]:focus-visible) :is(.menu-dial__panel, .menu-dial__content-motion)[data-command="shop"],
+.menu-dial:has(.menu-dial__button[data-command="sortie"]:focus-visible) :is(.menu-dial__panel, .menu-dial__content-motion)[data-command="sortie"] {
+  --menu-feedback-distance: 7;
+  --menu-feedback-scale: 1.018;
+  --menu-cmd-middle: #c3e0d9;
+  --menu-cmd-filigree: #b7d8d4;
+  --menu-feedback-ink: #edf3e9;
+  --menu-feedback-icon-opacity: 1;
+  --menu-feedback-rule-opacity: 1;
+}
+.menu-dial__content .menu-dial__label { color: var(--menu-feedback-ink, #b8c5c2); }
+.menu-dial__content[data-selected] .menu-dial__label { color: var(--menu-feedback-ink, #e0e9e7); }
+.menu-dial__content .menu-dial__icon { opacity: var(--menu-feedback-icon-opacity, .68); }
+.menu-dial__content[data-selected] .menu-dial__icon { opacity: var(--menu-feedback-icon-opacity, .92); }
+.menu-dial__content .menu-dial__label-rule { opacity: var(--menu-feedback-rule-opacity, .52); }
+.menu-dial__content[data-selected] .menu-dial__label-rule { opacity: var(--menu-feedback-rule-opacity, .78); }
+
+.menu-dial:has(.menu-dial__button[data-command="estate"]:active) :is(.menu-dial__panel, .menu-dial__content-motion)[data-command="estate"],
+.menu-dial:has(.menu-dial__button[data-command="storage"]:active) :is(.menu-dial__panel, .menu-dial__content-motion)[data-command="storage"],
+.menu-dial:has(.menu-dial__button[data-command="shop"]:active) :is(.menu-dial__panel, .menu-dial__content-motion)[data-command="shop"],
+.menu-dial:has(.menu-dial__button[data-command="sortie"]:active) :is(.menu-dial__panel, .menu-dial__content-motion)[data-command="sortie"] {
+  --menu-feedback-distance: 1;
+  --menu-feedback-scale: .988;
+  transition-duration: 90ms, 140ms;
+}
+
+/* A single engraved-edge acknowledgment; no bloom, particles or idle pulse.
+   Only these two tiny paths remount on a click, so repeated confirmation works
+   without replaying the entrance or delaying navigation. */
+.menu-dial__response, .menu-dial__hub-response {
+  fill: none;
+  stroke: #e8f3df;
+  stroke-width: 2.5;
+  stroke-linejoin: miter;
+  pointer-events: none;
+  opacity: 0;
+  animation: menu-dial-acknowledge 460ms ease-out;
+}
+.menu-dial__response[data-kind="confirm"], .menu-dial__hub-response[data-kind="confirm"] {
+  --menu-feedback-flash: 1;
+  stroke-width: 3.5;
+}
+@keyframes menu-dial-acknowledge {
+  from { opacity: var(--menu-feedback-flash, .55); }
+  to { opacity: 0; }
+}
+
+/* Retain the selected color and focus contour, but remove spatial movement
+   for both the OS setting and the in-game preference. */
+.menu-entry[data-menu-reduced] :is(.menu-dial__panel, .menu-dial__content-motion) { transform: none; }
+.menu-entry[data-menu-reduced] .menu-dial * { transition: none !important; }
+@media (prefers-reduced-motion: reduce) {
+  .menu-dial :is(.menu-dial__panel, .menu-dial__content-motion) { transform: none; }
+  .menu-dial * { transition: none !important; animation: none !important; }
+}

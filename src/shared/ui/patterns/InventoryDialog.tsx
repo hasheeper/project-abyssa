@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import { ItemSlotStatic } from "../primitives/ItemSlot";
-import { RpgModal } from "../primitives/RpgModal";
+import { RpgModal, type RpgModalProps } from "../primitives/RpgModal";
 import { VerticalIndicator } from "../primitives/VerticalIndicator";
 import { InventoryGrid } from "./InventoryGrid";
 import type { InventoryEntry } from "./InventoryGrid";
@@ -33,6 +33,7 @@ export interface InventoryDialogProps {
   signboard?: string;
   /** 名牌副名(罗马字)。 */
   signboardSecondary?: string;
+  signboardVariant?: "default" | "slim";
   columns?: number;
   rows?: number;
   /** 仓储上限,显示在页脚。 */
@@ -47,6 +48,10 @@ export interface InventoryDialogProps {
   /** 空背包时的提示语。 */
   emptyHint?: string;
   returnFocusRef?: React.RefObject<HTMLElement | null>;
+  onPresentChange?: (present: boolean) => void;
+  /** Optional scoped modal theme; does not change item rarity or inventory behavior. */
+  className?: string;
+  motionPreset?: RpgModalProps["motionPreset"];
 }
 
 export function InventoryDialog({
@@ -56,6 +61,7 @@ export function InventoryDialog({
   title = "物品栏",
   signboard,
   signboardSecondary,
+  signboardVariant,
   columns = 6,
   rows = 4,
   capacity,
@@ -65,7 +71,10 @@ export function InventoryDialog({
   onActivate,
   footer,
   emptyHint = "空无一物。",
-  returnFocusRef
+  returnFocusRef,
+  onPresentChange,
+  className,
+  motionPreset
 }: InventoryDialogProps) {
   const [categoryId, setCategoryId] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -124,8 +133,12 @@ export function InventoryDialog({
       title={title}
       signboard={signboard}
       signboardSecondary={signboardSecondary}
+      signboardVariant={signboardVariant}
       footer={footer}
       returnFocusRef={returnFocusRef}
+      onPresentChange={onPresentChange}
+      className={className}
+      motionPreset={motionPreset}
     >
       {/* 列/行数必须定在 .abyssa-inventory 上:--inv-grid-w 是在这一层由
           --inv-cols 推导的,若只写在内层网格上,外层仍按默认 6 列算宽度,

@@ -28,10 +28,11 @@ vi.mock("./createMapScene", () => ({
     mocks.select = options.onLocationSelect ?? null;
     options.onReady?.();
     return {
-      replay: vi.fn(),
       updateLocation: vi.fn(),
       setSelected: mocks.setSelected,
       setInteractive: mocks.setInteractive,
+      setReducedMotion: vi.fn(),
+      setIntroState: vi.fn(),
       destroy: mocks.destroy
     };
   }
@@ -39,7 +40,8 @@ vi.mock("./createMapScene", () => ({
 
 vi.mock("../../shared/transition", () => ({
   SceneTransitionProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-  useSceneTransition: () => ({ navigate: mocks.navigate })
+  useSceneTransition: () => ({ navigate: mocks.navigate }),
+  useSceneReady: () => false
 }));
 
 import { MapPage } from "./MapPage";
@@ -204,7 +206,9 @@ describe("map sortie", () => {
     );
     expect(viewport(container)).toHaveAttribute("data-mode", "team");
     expect(screen.getByRole("region", { name: "出战名单" })).toBeInTheDocument();
-    expect(quest).not.toBeInTheDocument();
+    // Exit pixels may remain briefly, but the outgoing panel cannot receive input.
+    expect(quest.closest(".map-panel-layer")).toHaveAttribute("inert");
+    expect(screen.queryByRole("complementary", { name: "潮声溶洞 委托" })).toBeNull();
     expect(partyStage(container)).toBe(stage);
 
     await user.click(screen.getByRole("button", { name: "完成编队" }));

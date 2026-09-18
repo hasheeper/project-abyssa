@@ -1,19 +1,15 @@
 import tibbyPortrait from "../../assets/characters/portraits/tibby-shop.png";
 import { useMemo, useState } from "react";
-import { AbyssaProvider } from "../../shared/ui/primitives/AbyssaProvider";
 import { CurrencyAmount } from "../../shared/ui/primitives/CurrencyAmount";
 import { IconButton } from "../../shared/ui/primitives/IconButton";
 import { Nameplate } from "../../shared/ui/primitives/Nameplate";
 import { RpgDialogue } from "../../shared/ui/primitives/RpgDialogue";
 import { RpgFrame } from "../../shared/ui/primitives/RpgFrame";
-import { RpgHeader } from "../../shared/ui/primitives/RpgHeader";
 import { RpgNotchedPillButton } from "../../shared/ui/primitives/RpgNotchedPillButton";
 import { RpgTab } from "../../shared/ui/primitives/RpgTab";
 import { VerticalIndicator } from "../../shared/ui/primitives/VerticalIndicator";
 import { resolveItemIcon as resolveCatalogItemIcon } from "../../assets/icons/items/catalog";
-import { MetalCorner } from "../../shared/ui/decorations/MetalCorner";
-import { Stage } from "../../shared/stage";
-import { SceneArrivalTitle } from "../../shared/transition";
+import { ShopFrame } from "./ShopFrame";
 
 type Mode = "buy" | "sell" | "appraise";
 type Currency = "lira" | "crystal";
@@ -237,26 +233,7 @@ export function ShopView({live}: {live?: LiveShop}) {
 
   const action = live && !live.available ? "请先结束当前旅程" : live && live.busy ? "正在装袋" : live && remaining <= 0 ? "已备足" : unavailable ? appraised.has(item.id) ? "已鉴定" : item.unavailable ? "非卖品" : "售罄" : actionLabels[mode];
 
-  return <Stage background="var(--abyssa-shop-backdrop)" canvasClassName="abyssa-shop-stage">
-    <SceneArrivalTitle
-      eyebrow="WATCHER'S CLIFF · MARKET"
-      title="守望者杂货铺"
-      tone="gold"
-    />
-    <AbyssaProvider className="abyssa-shop-screen abyssa-scene-panel" data-skin="black-gold">
-    <header className="abyssa-shop-screen__header"><RpgHeader label="WARDEN SHOP" /></header>
-    <div className="abyssa-shop-screen__shell">
-      <span className="abyssa-shop-screen__shell-rails" aria-hidden="true">
-        <i data-edge="top" />
-        <i data-edge="right" />
-        <i data-edge="bottom" />
-        <i data-edge="left" />
-      </span>
-      <div className="abyssa-shop-screen__shell-brass">
-        <div className="abyssa-shop-screen__shell-board">
-          <span className="abyssa-shop-screen__shell-corners" aria-hidden="true">
-            {(["tl", "tr", "br", "bl"] as const).map((corner) => <MetalCorner key={corner} corner={corner} />)}
-          </span>
+  return <ShopFrame>
           <div className="abyssa-shop-screen__layout">
       <section className="abyssa-shop-screen__main" aria-label="交易区">
         <nav className="abyssa-shop-categories" aria-label="商品分类">
@@ -308,9 +285,5 @@ export function ShopView({live}: {live?: LiveShop}) {
         <RpgDialogue name="缇比" text={line} showNameplate={false} typing autoHeight aria-live="polite" />
       </aside>
           </div>
-        </div>
-      </div>
-    </div>
-    </AbyssaProvider>
-  </Stage>;
+  </ShopFrame>;
 }

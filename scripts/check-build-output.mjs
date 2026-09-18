@@ -66,15 +66,18 @@ export async function validateBuildOutput(targetId, directory = resolveTarget(ta
     requireFile(destination, `${entry.id} navigation`);
   }
   if (target.entries.some(entry => entry.assetProfiles.includes('mansion'))) {
-    const manifestPath = resolve(directory, 'mansion-map/manifest.json');
-    requireFile('mansion-map/manifest.json', 'mansion');
     requireFile('mansion-map/composite-reference.png', 'mansion');
-    if (existsSync(manifestPath)) {
-      const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
-      if (!Array.isArray(manifest.layers)) errors.push('Invalid mansion manifest layers');
-      else for (const layer of manifest.layers) {
-        if (typeof layer.src !== 'string') errors.push('Invalid mansion layer source');
-        else requireFile(`mansion-map/${layer.src}`, 'mansion manifest');
+    requireFile('mansion-map/composite-materials-v1.png', 'mansion material fallback');
+    for (const name of ['manifest.json', 'manifest-materials-v1.json']) {
+      const manifestPath = resolve(directory, `mansion-map/${name}`);
+      requireFile(`mansion-map/${name}`, 'mansion');
+      if (existsSync(manifestPath)) {
+        const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
+        if (!Array.isArray(manifest.layers)) errors.push('Invalid mansion manifest layers');
+        else for (const layer of manifest.layers) {
+          if (typeof layer.src !== 'string') errors.push('Invalid mansion layer source');
+          else requireFile(`mansion-map/${layer.src}`, 'mansion manifest');
+        }
       }
     }
   }

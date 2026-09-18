@@ -21,13 +21,11 @@
   position: absolute;
   top: 0;
   left: 0;
-  height: 100%;
+  height: 1910px;
   transform-origin: top left;
   transition: transform 460ms cubic-bezier(.2, .78, .24, 1);
-  will-change: transform;
-  /* width 由 TSX 内联给出(= 世界宽 x 缩放)。这里曾写死 1918.86px 与
-     下面的 scale(0.3717277487),而 TSX 又用内联 style 写同样的值 ——
-     内联优先,故那两行是**无效死代码**,只在改高度时误导人。已删。 */
+  /* Camera translation and world scale are combined in one 2D transform.
+     No permanent will-change promotion of the entire 5162px scene. */
 }
 .mansion-viewport.is-dragging .mansion-world-pan { transition: none; }
 .mansion-viewport.is-room-focused { cursor: default; }
@@ -36,225 +34,52 @@
   position: relative;
   width: 5162px;
   height: 1910px;
-  transform-origin: top left;
-  /* transform: scale() 由 TSX 内联给出,单一来源见 MansionPage 顶部。 */
 }
 
-/* ============ 天空盒 ============
-   画在世界平面内部(5162x1910 世界坐标),z-index 低于所有美术图层。
-   美术的天空区是透明的,所以这层从下面透出来。
-
-   为什么不挂在 .mansion-app:那是世界的**祖先**,而 layer-21 是满幅
-   不透明底图,世界在任何 pan 位置都覆盖整个画布 —— 挂在祖先上的天空
-   永远被盖住,一次都没露出来。这就是「天空盒还是黑的」的原因。
-
-   三层结构,各管一件事:
-     1. 天空梯度  高空 / 地平线 / 地面反射三段。晨昏的暖色只在地平线
-                  附近,高空仍冷 —— 整片天一起变暖会很假。
-     2. 光晕      位置由 --mansion-sun-x/y 驱动,随相位真正移动。
-     3. 星空      只在夜间出现。 */
-.mansion-sky {
+/* One opaque, already-decoded phase image. Never put a filter, blend mode,
+ * mask or animated opacity on the full world or on its interaction ancestors. */
+.mansion-map-surface {
   position: absolute;
-  z-index: 1;
+  z-index: 20;
   inset: 0;
-  background:
-    /* 光晕。必须用 `ellipse <w> <h> at`,**不能**写 `circle <百分比> at` ——
-       circle 只接受单个长度值,给百分比会让整条 background 声明被浏览器
-       丢弃(连下面的天空梯度一起没了)。实测就是这个语法错误导致
-       「天空盒还是黑的」:令牌全对、DOM 也在,但 backgroundImage 计算值是 none。 */
-    radial-gradient(
-      ellipse var(--mansion-sun-size) var(--mansion-sun-size) at
-        var(--mansion-sun-x) var(--mansion-sun-y),
-      var(--mansion-sun-core),
-      var(--mansion-sun-halo) 40%,
-      transparent 70%
-    ),
-    linear-gradient(
-      180deg,
-      var(--mansion-sky-high) 0%,
-      var(--mansion-sky-mid) 42%,
-      var(--mansion-sky-low) 72%,
-      color-mix(in srgb, var(--mansion-sky-low) 58%, #4a5449) 100%
-    );
-  pointer-events: none;
-  transition: background 480ms var(--abyssa-ease, ease);
-}
-
-/* 星空。用两组重复渐变点阵模拟,不引入贴图。
-   只在夜间显形 —— 白天 opacity 0。 */
-.mansion-sky::before {
-  position: absolute;
-  z-index: 1;
-  right: 0;
-  bottom: 42%;
-  left: 0;
-  top: 0;
-  background-image:
-    radial-gradient(1.6px 1.6px at 18% 22%, rgb(255 255 255 / 82%), transparent 100%),
-    radial-gradient(1.2px 1.2px at 42% 12%, rgb(226 238 255 / 74%), transparent 100%),
-    radial-gradient(1.8px 1.8px at 63% 30%, rgb(255 252 240 / 70%), transparent 100%),
-    radial-gradient(1.1px 1.1px at 81% 16%, rgb(214 230 255 / 66%), transparent 100%),
-    radial-gradient(1.4px 1.4px at 8% 44%, rgb(255 255 255 / 58%), transparent 100%),
-    radial-gradient(1.2px 1.2px at 92% 38%, rgb(238 246 255 / 62%), transparent 100%),
-    radial-gradient(1px 1px at 30% 52%, rgb(255 255 255 / 46%), transparent 100%),
-    radial-gradient(1.3px 1.3px at 55% 46%, rgb(230 240 255 / 52%), transparent 100%);
-  background-repeat: repeat;
-  background-size: 620px 460px, 780px 520px, 540px 420px, 700px 480px,
-                   660px 500px, 820px 540px, 580px 440px, 740px 460px;
-  content: "";
-  opacity: var(--mansion-star-opacity, 0);
-  pointer-events: none;
-  transition: opacity 620ms var(--abyssa-ease, ease);
-}
-
-.mansion-world-layer,
-.mansion-world-composite {
-  position: absolute;
-  display: block;
   pointer-events: none;
   user-select: none;
 }
+.mansion-world-art { display: block; width: 100%; height: 100%; }
 
-.mansion-world-composite { z-index: 20; inset: 0; width: 5162px; height: 1910px; }
+/* Only the small cloud texture moves, clipped ABOVE the illustrated skyline.
+ * The opaque world image and every interactive/UI ancestor stay unchanged. */
+.mansion-sky-motion { position: absolute; top: 0; left: 0; display: block; width: 5162px; height: 1100px; overflow: hidden; pointer-events: none; }
+.mansion-sky-clouds { animation: mansion-cloud-drift var(--mansion-cloud-duration, 240s) ease-in-out infinite alternate; }
+.mansion-sky-motion[data-weather="rain"] { height: 1910px; }
+.mansion-rain__streaks { animation: mansion-rain-fall var(--rain-duration) linear infinite; }
+@keyframes mansion-rain-fall { to { transform: translate(var(--rain-x), var(--rain-y)); } }
+@keyframes mansion-cloud-drift { from { transform: translate(0, 0); } to { transform: translate(220px, -8px); } }
+.mansion-sky-motion[data-paused="true"] :is(.mansion-sky-clouds, .mansion-rain__streaks),
+.mansion-app:not([data-presentation="ready"]) :is(.mansion-sky-clouds, .mansion-rain__streaks),
+.mansion-viewport.is-dragging :is(.mansion-sky-clouds, .mansion-rain__streaks),
+.mansion-viewport[inert] :is(.mansion-sky-clouds, .mansion-rain__streaks) { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) { .mansion-sky-motion { display: none; } }
 
-.mansion-phase-light {
+/* Three small source-over glows share the baked emitters' exact coordinates.
+ * Their extents are source-sized, never room-sized; no backdrop sampling. */
+.mansion-ambient-glow {
   position: absolute;
-  z-index: 70;
-  inset: 0;
-  background: var(--mansion-world-tint);
-  box-shadow: inset 0 0 420px var(--mansion-world-shadow);
-  mix-blend-mode: multiply;
+  z-index: 30;
   pointer-events: none;
-  transition: background 280ms ease, box-shadow 280ms ease;
+  opacity: .025;
+  background: radial-gradient(ellipse at center, #ffda8d, #ec873d 22%, transparent 68%);
+  animation: mansion-ambient-glow 6.5s ease-in-out infinite;
 }
-
-/* ============ 地下近似隔离 ============
-   地下 8 个房间没有窗,昼夜对它们不该有区别。但滤镜挂在整块 world-plane
-   上、房间又是美术图层而非独立 DOM,做不到真隔离 —— 这里用遮罩近似:
-   给地下补一层均匀暗色,把天光带来的明暗差抵消掉。
-
-   ============ 上一版的硬分割线 ============
-   遮罩曾写成 left:0 right:0 **全宽**,但真地下只占 x 27%..59%。
-   结果左边的码头与海、右边的海崖与村舍外景全被压暗,在 y=1340 处
-   拉出一条横贯全图的硬边。现在按实测范围定位 + 四边羽化。
-   夜间反而**减弱**这层:因为夜里地上也暗了,不需要再压地下,
-   否则地下会黑成一片看不见结构。 */
-.mansion-underground {
-  position: absolute;
-  z-index: 65;
-  /* left / top / width / height 由 TSX 内联给出(见 UNDERGROUND_* 常量)。
-     只覆盖洋馆地基内的 x 27%..59%,不再是全宽。 */
-  background: linear-gradient(
-    180deg,
-    transparent 0,
-    rgb(6 10 14 / 30%) 7%,
-    rgb(5 9 12 / 44%) 22%,
-    rgb(5 9 12 / 46%) 100%
-  );
-  /* 四边羽化 —— 这是消除硬边的关键。
-     竖直方向:顶部渐入(地面层过渡);
-     水平方向:左右各 130px 淡出,免得在地基边缘切出两条竖直硬边。
-     两个 mask 相乘,得到一块四周都软的矩形。 */
-  mask-image:
-    linear-gradient(180deg, transparent 0, #000 9%, #000 100%),
-    linear-gradient(90deg, transparent 0, #000 130px, #000 calc(100% - 130px), transparent 100%);
-  mask-composite: intersect;
-  mix-blend-mode: multiply;
-  opacity: var(--mansion-underground-mask, .82);
-  pointer-events: none;
-  transition: opacity 420ms var(--abyssa-ease, ease);
+.mansion-ambient-glow[data-tone="arcane"] {
+  background: radial-gradient(ellipse at center, #f88799, #be3450 22%, transparent 68%);
+  animation-duration: 5.2s;
 }
-
-/* ============ 房间灯光 ============
-   只在夜相位渲染(见 lighting.ts 的 resolveRoomLight)。
-   做法:房间矩形内一个径向光斑,screen 混合 —— screen 只会提亮不会压暗,
-   所以灯光落在暗夜美术上是「透出来」而不是「糊上去」。
-   光斑刻意做成**上部偏亮**:光源在房间上方(吊灯/壁炉在墙边),
-   均匀铺满会像贴了一块色纸。 */
-.mansion-lights {
-  position: absolute;
-  z-index: 72;
-  inset: 0;
-  mix-blend-mode: screen;
-  pointer-events: none;
+@keyframes mansion-ambient-glow {
+  0%, 100% { opacity: .015; }
+  38% { opacity: .045; }
+  71% { opacity: .005; }
 }
-
-/* 月光铺底。天空盒位于美术下方，只能照亮透明天空；这一层位于美术上方，
-   用 screen 把冷光轻轻落到屋顶、外墙、露台和地面，同时不抬黑位。 */
-.mansion-lights::before {
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(
-      ellipse 58% 62% at var(--mansion-sun-x) var(--mansion-sun-y),
-      rgb(166 197 242 / 34%),
-      rgb(112 151 211 / 16%) 42%,
-      transparent 74%
-    ),
-    linear-gradient(
-      180deg,
-      rgb(118 154 210 / 8%) 0%,
-      rgb(93 130 190 / 17%) 70%,
-      rgb(66 94 146 / 10%) 100%
-    );
-  content: "";
-  pointer-events: none;
-}
-
-.mansion-light {
-  position: absolute;
-  display: block;
-  background:
-    radial-gradient(
-      ellipse 62% 52% at 50% 34%,
-      var(--light-core),
-      var(--light-edge) 54%,
-      transparent 84%
-    );
-  transition: opacity 420ms var(--abyssa-ease, ease);
-}
-
-/* 壁炉、篝火、油灯 —— 暖橙。全场最暖。 */
-.mansion-light[data-tone="hearth"] {
-  --light-core: rgb(255 186 104 / 82%);
-  --light-edge: rgb(206 116 52 / 40%);
-}
-/* 室内常规照明 —— 暖黄,比 hearth 淡也更均匀。 */
-.mansion-light[data-tone="lamp"] {
-  --light-core: rgb(255 218 152 / 62%);
-  --light-edge: rgb(198 152 92 / 26%);
-}
-/* 信号灯、法术光 —— 冷白偏青。 */
-.mansion-light[data-tone="cold"] {
-  --light-core: rgb(202 230 245 / 58%);
-  --light-edge: rgb(122 168 200 / 24%);
-}
-/* 结界红线 —— 赤红。 */
-.mansion-light[data-tone="arcane"] {
-  --light-core: rgb(226 96 92 / 56%);
-  --light-edge: rgb(150 44 60 / 28%);
-}
-/* 符纸、幽光 —— 惨白偏绿,弱到几乎看不见才对。 */
-.mansion-light[data-tone="spectral"] {
-  --light-core: rgb(196 226 202 / 34%);
-  --light-edge: rgb(96 138 122 / 16%);
-}
-/* 熟睡中的微光 —— 极弱暖色。 */
-.mansion-light[data-tone="dim"] {
-  --light-core: rgb(240 206 160 / 30%);
-  --light-edge: rgb(150 112 76 / 12%);
-}
-
-/* 呼吸。只给文案里明确是活火/脉搏的三处(hall 壁炉、plaza 篝火、
-   array 红线)。幅度刻意压到 4~6%、周期 5~7 秒 —— 慢到你不会注意它在动,
-   但画面不会死。这与「删掉状态呼吸灯」不矛盾:那是 UI 指示灯,
-   这是场景光源,后者在游戏里本就该活着。 */
-.mansion-light[data-flicker="flame"] { animation: mansion-flame 6.5s ease-in-out infinite; }
-.mansion-light[data-flicker="pulse"] { animation: mansion-arcane 5.2s ease-in-out infinite; }
-
-/* 世界滤镜:单一来源。四个相位各自的 --mansion-grade 已含色温/对比/亮度
-   三轴,所以这里只需要引用一次,不再每个相位写一条规则。 */
-.mansion-world-plane { filter: var(--mansion-grade); transition: filter 420ms var(--abyssa-ease, ease); }
 
 .mansion-region-layer {
   position: absolute;
@@ -272,6 +97,8 @@
 .mansion-region text { fill: #f0e8d4; font: 600 40px/1 var(--abyssa-font-body, Georgia, serif); letter-spacing: 4px; opacity: 0; paint-order: stroke; pointer-events: none; stroke: rgb(5 11 13 / 92%); stroke-width: 12px; text-anchor: middle; transition: opacity 120ms ease; }
 .mansion-region:hover rect,
 .mansion-region:hover polygon,
+.mansion-region.is-hovered rect,
+.mansion-region.is-hovered polygon,
 .mansion-region:focus-visible rect,
 .mansion-region:focus-visible polygon { fill: transparent; stroke: #b4d5d4; }
 .mansion-region:hover text,
@@ -513,24 +340,21 @@
 }
 .mansion-viewport.is-room-focused .mansion-marker:hover { transform: scale(.79); }
 
-.mansion-loading {
-  position: absolute;
-  z-index: 260;
-  top: 50%;
-  left: 50%;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 17px;
-  border: 1px solid #738385;
-  color: #d9dfda;
-  background: rgb(14 21 23 / 92%);
-  font-size: 12px;
-  letter-spacing: .12em;
-  pointer-events: none;
-  transform: translate(-50%, -50%);
+/* A real pan cancels, rather than fades out, ALL pending room-hover effects.
+ * Keep this gate through pointer release until a fresh move (or keyboard
+ * input), so native :hover cannot immediately recreate the discarded layers.
+ * Static avatar rings/shadows, scenery and ordinary hover styling stay intact. */
+.mansion-viewport[data-hover-suspended] .mansion-region rect,
+.mansion-viewport[data-hover-suspended] .mansion-region polygon { stroke: transparent; transition: none; }
+.mansion-viewport[data-hover-suspended] .mansion-region text { opacity: 0; transition: none; }
+.mansion-viewport[data-hover-suspended]:not(.is-room-focused) .mansion-character {
+  z-index: 135;
+  opacity: 1;
+  transform: translate(-50%, -100%);
+  transition: none;
 }
-.mansion-loading span { width: 8px; height: 8px; border-radius: 50%; background: #8ebdc0; box-shadow: 0 0 10px #8ebdc0; animation: mansion-loading 1s ease-in-out infinite; }
+.mansion-viewport[data-hover-suspended] .mansion-character__name { opacity: 1; transition: none; }
+.mansion-viewport[data-hover-suspended] .mansion-character__bubble { opacity: .82; transform: none; transition: none; }
 
 /* ============ 边缘平移 ============
    「暗罩 + 无边框键」。两处刻意:

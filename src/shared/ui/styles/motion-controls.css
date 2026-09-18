@@ -1,0 +1,19 @@
+@import "./motion-tokens.css";
+
+/* The outer native control stays put; only its artwork receives pressure. */
+.abyssa-control-motion {
+  filter: brightness(1) var(--abyssa-control-shadow, brightness(1));
+  transition: filter var(--abyssa-motion-hover) var(--abyssa-motion-ease);
+}
+.abyssa-control-motion:is(:hover, :focus-visible):not(:disabled):not([aria-disabled="true"]) {
+  filter: brightness(1.07) var(--abyssa-control-shadow, brightness(1));
+}
+.abyssa-control-motion:focus-visible { outline: 2px solid var(--abyssa-focus); outline-offset: 4px; }
+.abyssa-control-motion > .abyssa-control-motion__art {
+  translate: 0 0;
+  transition: translate var(--abyssa-motion-press) var(--abyssa-motion-ease);
+  pointer-events: none;
+}
+.abyssa-control-motion:active:not(:disabled):not([aria-disabled="true"]) > .abyssa-control-motion__art {
+  translate: 0 var(--abyssa-motion-press-distance);
+}

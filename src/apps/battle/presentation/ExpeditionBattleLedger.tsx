@@ -3,22 +3,26 @@ import { createPortal } from "react-dom";
 import { ExpeditionLedger, type ExpeditionLedgerProps } from "./ExpeditionLedger";
 import { ExpeditionBagOdometer, ExpeditionOdometer } from "../ExpeditionReels";
 import { CurrencyAmount } from "../../../shared/ui/primitives/CurrencyAmount";
+import { useTutorialSuspension, useTutorialAnchors } from "../../../shared/tutorial";
 
 /** Original mechanical reels share one instrument body; records slide over its right edge. */
 export function ExpeditionBattleLedger(props: ExpeditionLedgerProps) {
+  const anchor = useTutorialAnchors();
   const [open, setOpen] = useState(false);
+  useTutorialSuspension(open);
   const root = useRef<HTMLElement>(null), button = useRef<HTMLButtonElement>(null);
   const drawerRef = useRef<HTMLDivElement>(null);
   const [drawerHost, setDrawerHost] = useState<HTMLElement | null>(null);
   const panelId = useId();
   const {engine, memory, handFactor, layerFactor, earthFactor = 1, layerClearPending} = props;
-  const close = (focus = false) => {setOpen(false); if (focus) button.current?.focus();};
+  const close = (focus = false) => {setOpen(false); if (focus) button.current?.focus({preventScroll: true});};
   useLayoutEffect(() => {
     setDrawerHost(root.current?.closest<HTMLElement>(".abyssa-expedition-frame__interior") ?? null);
   }, []);
   useEffect(() => {
     if (!open) return;
-    drawerRef.current?.querySelector<HTMLButtonElement>(".battle-ledger-drawer__close")?.focus();
+    // Focus must not scroll the clipped/scaled stage or shift the multiplier anchor.
+    drawerRef.current?.querySelector<HTMLButtonElement>(".battle-ledger-drawer__close")?.focus({preventScroll: true});
     const outside = (event: PointerEvent) => {
       const target = event.target as Node;
       if (!root.current?.contains(target) && !drawerRef.current?.contains(target)) setOpen(false);
@@ -42,7 +46,7 @@ export function ExpeditionBattleLedger(props: ExpeditionLedgerProps) {
     </div>
   </div>;
   return <section ref={root} className="battle-sidebar-readouts" aria-label={memory ? "回忆战读数" : "远征读数"}>
-    <section className="abyssa-expedition-multiplier" data-finalizing={layerClearPending || undefined} aria-label={memory ? memory.readoutLabel ?? "侍偶护域" : "收益倍率"}>
+    <section ref={memory ? undefined : anchor("battle.multiplier")} className="abyssa-expedition-multiplier" data-finalizing={layerClearPending || undefined} aria-label={memory ? memory.readoutLabel ?? "侍偶护域" : "收益倍率"}>
       <div className="battle-meter-mount">
         <div className="abyssa-expedition-sidebar__section-title"><span>{memory ? memory.readoutLabel ?? "侍偶护域" : "收益倍率"}</span></div>
           <ExpeditionOdometer className="abyssa-expedition-multiplier__reels"
@@ -53,7 +57,7 @@ export function ExpeditionBattleLedger(props: ExpeditionLedgerProps) {
     </section>
     <section className="abyssa-expedition-purse" aria-label={memory ? "往昔记录" : "远征包裹"}>
         <div className="abyssa-expedition-purse__heading"><strong>{memory ? "往昔记录" : "已入袋 · G"}</strong>
-        <button ref={button} type="button" className="battle-ledger-toggle" aria-label={memory ? "回忆战记录" : "远征账本"}
+        <button ref={node => {button.current = node; anchor("battle.ledger")(node);}} type="button" className="battle-ledger-toggle" aria-label={memory ? "回忆战记录" : "远征账本"}
         aria-expanded={open} aria-controls={panelId} onClick={() => setOpen(value => !value)}>
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4.5c3.5-1 5.5 0 8 1.5 2.5-1.5 4.5-2.5 8-1.5v15c-3.5-1-5.5 0-8 1.5-2.5-1.5-4.5-2.5-8-1.5Z M12 6v15 M7 8l2 1 M7 12l2 1 M15 9l2-1 M15 13l2-1"/></svg>
         <span>{memory ? "查阅" : "账簿"}</span>

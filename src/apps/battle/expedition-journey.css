@@ -37,7 +37,7 @@
   100% { transform: var(--encounter-final-transform); }
 }
 /* The dark beat between flashes keeps the final camera pose. */
-.abyssa-expedition[data-journey-motion="flash"] .abyssa-expedition-scene {
+.abyssa-expedition:is([data-journey-motion="flash"], [data-journey-motion="loading"]) .abyssa-expedition-scene {
   transform-origin: 50% 54%;
   transform: var(--encounter-final-transform);
 }
@@ -75,10 +75,12 @@
 .abyssa-expedition[data-journey-motion="arriving"] .abyssa-expedition-journey-content {
   animation: manor-arrive var(--journey-arrive-ms) ease-out both;
 }
-.abyssa-expedition:is([data-journey-motion="encounter"], [data-journey-motion="flash"]) .abyssa-expedition-journey-content {
+.abyssa-expedition:is([data-journey-motion="encounter"], [data-journey-motion="flash"], [data-journey-motion="loading"]) .abyssa-expedition-journey-content {
   visibility: hidden;
   pointer-events: none;
 }
+/* Links extend below the enemy viewport; do not leave old targets below its veil. */
+.abyssa-expedition[data-journey-motion="loading"] .abyssa-expedition-enemies__intent-lines { opacity: 0; }
 @keyframes manor-depart { to { opacity: 0; } }
 @keyframes manor-arrive { from { opacity: 0; } to { opacity: 1; } }
 .manor-journey {

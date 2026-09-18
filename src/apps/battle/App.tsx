@@ -1,5 +1,7 @@
+import { GameLoading } from "../../game-client/GameLoading";
+import { TutorialDeparture } from "./TutorialDeparture";
 import { CampaignMenuScope } from "../../game-client/CampaignMenuScope";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AbyssaProvider } from "../../shared/ui/primitives/AbyssaProvider";
 import { Stage } from "../../shared/stage";
 import { SceneArrivalTitle } from "../../shared/transition";
@@ -13,12 +15,14 @@ import { gameHref, recordLocator, locatorMatchesRun } from "../../game-client/na
 import { useSceneTransition } from "../../shared/transition";
 
 export function App() {
-  return <GameProvider><GameGate><BattleRoute /></GameGate></GameProvider>;
+  return <GameProvider><GameGate allowTutorial><BattleRoute /></GameGate></GameProvider>;
 }
 function BattleRoute() {
   const session = useGameSession(), game = useGameState(), record = game.record!;
   const { navigate } = useSceneTransition();
-  const [uiSkin, setUiSkin] = useState<BattleUiSkin>(record.schemaVersion !== 1 ? "old-manor" : "timber");
+  const tutorial = session.runtime.queries.tutorial(record);
+  const isTutorial = tutorial?.progress.status === "active" || tutorial?.progress.status === "pending";
+  const [uiSkin, setUiSkin] = useState<BattleUiSkin>(isTutorial ? "hero-party" : record.schemaVersion !== 1 ? "old-manor" : "timber");
   const expeditionId = session.locator.expeditionId;
   const run = record.schemaVersion === 4 ? record.snapshot.run : record.snapshot.expedition;
   const memorySession = record.schemaVersion === 4 ? record.snapshot.campaign.memory : null;
@@ -40,15 +44,21 @@ function BattleRoute() {
       await session.dispatch({type: "settle-expedition", expeditionId: pending.expeditionId, terminalRef: pending.terminalRef});
     }
     const current = session.getSnapshot().record;
-    if (current && !activeRunId(current)) navigate(gameHref("mansion", recordLocator(current)), {destination: "守望者之崖洋馆", channel: "正在返回"});
+    if (current && !activeRunId(current) && !isTutorial) navigate(gameHref("mansion", recordLocator(current)), {destination: "守望者之崖洋馆", channel: "正在返回"});
   };
 
+  const tutorialReturned = tutorial?.progress.status === "completed" && tutorial.progress.runId === expeditionId && !run;
+  useEffect(() => {
+    if (tutorialReturned) navigate(gameHref("mansion", recordLocator(record)), {replace: true, cinematic: true});
+  }, [tutorialReturned]);
+  if (tutorialReturned) return <GameLoading/>;
+  if (tutorial?.canBegin) return <TutorialDeparture/>;
   return (
     <Stage
       background="var(--abyssa-battle-backdrop)"
       canvasClassName={record.schemaVersion === 1 ? `abyssa-battle-stage abyssa-battle-stage--${uiSkin}` : undefined}
     >
-      {!memoryReading && <SceneArrivalTitle
+      {!memoryReading && !isTutorial && (record.schemaVersion === 1 || memoryMatches) && <SceneArrivalTitle
         eyebrow={record.schemaVersion !== 1 ? "ABYSSAL EXPEDITION · OLD MANOR" : "ABYSSAL EXPEDITION · RIFT 01"}
         title={memoryMatches ? record.contentRef.contentVersion >= 3 ? "停下来的钟声" : "王座前的提线魔女" : record.schemaVersion !== 1 ? "克雷格旧庄园" : "混沌领域"}
         tone="gold"

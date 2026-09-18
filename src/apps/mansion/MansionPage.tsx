@@ -1,26 +1,24 @@
 import { navigateTo as navigateGame } from "../../shared/routing/location";
 import {
+  memo,
+  useCallback,
   useEffect,
   useMemo,
   useRef,
-  useState
+  useState,
+  type CSSProperties
 } from "react";
 import { AbyssaProvider } from "../../shared/ui/primitives/AbyssaProvider";
 import { IconButton } from "../../shared/ui/primitives/IconButton";
 import { Nameplate } from "../../shared/ui/primitives/Nameplate";
 import type { RpActor, RpMessage } from "../../shared/ui/patterns/RpScene";
-import {
-  DEFAULT_MANSION_RECTANGLES,
-  DEFAULT_MANSION_REGIONS
-} from "../../content/mansion/defaultRegions";
-import type {
-  MansionPsdManifest
-} from "../../shared/domain/mansion/regions";
 import { Stage } from "../../shared/stage";
 import { MansionLedger } from "./MansionLedger";
-import { resolveRoomLight } from "./lighting";
-import type { RoomLight } from "./lighting";
+import { MansionUtilityRail } from "./MansionUtilityRail";
+import type { CampaignReportControls, CampaignReportView } from "../../game-client/CampaignJournal";
+import { MANSION_ATMOSPHERE, MANSION_NIGHT_LIGHTS, MANSION_SCENE_REGIONS } from "./mansion-scenery";
 import { InventoryDialog } from "../../shared/ui/patterns/InventoryDialog";
+import { ResourceInventoryDialog } from "../../shared/ui/patterns/ResourceInventoryDialog";
 import { MansionPhaseBar } from "./MansionPhaseBar";
 import { AdvStage } from "../../shared/presentation/adv/AdvStage";
 import { CHARACTER_EMOTION_PROFILES } from "../../content/presentation/character-emotions";
@@ -30,9 +28,7 @@ import {
   MANSION_CHARACTERS,
   MANSION_PHASES,
   MANSION_ITEM_CATEGORIES,
-  MANSION_ROOM_DETAILS,
-  MANSION_WORLD_HEIGHT,
-  MANSION_WORLD_WIDTH
+  MANSION_ROOM_DETAILS
 } from "./data";
 import type {
   MansionCharacter,
@@ -47,10 +43,11 @@ import {
   regionBounds,
   roomFocusTransform
 } from "./mansion-geometry";
-import type { DrawerSide, SceneRegion } from "./mansion-geometry";
+import type { DrawerSide } from "./mansion-geometry";
 import { useMansionViewport } from "./useMansionViewport";
 import { useMansionEstate } from "./useMansionEstate";
-import { GameProvider, GameGate, useGameState } from "../../game-client/react";
+import { GameProvider, GameGate, useGameSession, useGameState } from "../../game-client/react";
+import { AirpStory } from "../../game-client/AirpStory";
 import { gameHref, recordLocator } from "../../game-client/navigation";
 import { CampaignPanel } from "../../game-client/CampaignPanel";
 import { GrowthStory } from "../../game-client/GrowthStory";
@@ -64,6 +61,14 @@ import {
 } from "./mansion-state";
 import { MansionWorld, type CharacterPlacement } from "./MansionWorld";
 import { MansionRoomDrawer } from "./MansionRoomDrawer";
+import { useMansionPresentation } from "./useMansionPresentation";
+import { MansionTimeLoading } from "./MansionTimeLoading";
+import { MansionWeatherDebug } from "./MansionWeatherDebug";
+import { weatherLabel, type MansionWeather } from "./mansion-weather";
+import { useMansionIntro } from "./useMansionIntro";
+
+const ResidentCampaignPanel = memo(CampaignPanel);
+const ResidentInventory = memo(ResourceInventoryDialog);
 
 /** 右侧宿舍群与大门会被右侧详情卡遮挡，因此只为这五个区域换到左侧。 */
 const LEFT_DRAWER_REGION_IDS = new Set(["eustice", "norma", "elora", "kororo", "gate"]);
@@ -73,21 +78,34 @@ const MANSION_SPRITE_BASE = import.meta.env.DEV
   : `${import.meta.env.BASE_URL}character-art/`;
 
 export function MansionPage() {
-  return <GameProvider><GameGate allowOpening><MansionEntry /></GameGate></GameProvider>;
+  return <GameProvider><GameGate allowOpening allowAirp><MansionEntry /></GameGate></GameProvider>;
 }
 function MansionEntry() {
   const {record}=useGameState();
+  const session = useGameSession(), narrative = record && session.runtime.queries.narrative(record);
   // Keep the outgoing opening mounted while its cinematic handoff completes.
   const opening=useRef(record?.schemaVersion===4 && record.snapshot.campaign.opening?.status==="playing");
-  return opening.current ? <FirstMorningStory/> : <MansionScene/>;
+  if (opening.current) return <FirstMorningStory/>;
+  const locked = !!narrative?.locked;
+  return <>
+    <div className="mansion-scene-resident" hidden={locked}><MansionScene suspended={locked}/></div>
+    {locked && <AirpStory/>}
+  </>;
 }
-function MansionScene() {
+function MansionScene({suspended = false}: {suspended?: boolean}) {
   const game = useGameState();
+  const session = useGameSession();
+  const [weather,setWeather]=useState<MansionWeather>("clear");
   const [growthReview,setGrowthReview] = useState<string|null>(null);
   const [growthNotice,setGrowthNotice] = useState<string|null>(null);
+  const [reportView, setReportView] = useState<CampaignReportView | null>(null);
+  const [stockPresented, setStockPresented] = useState(false);
+  const [reportsPresented, setReportsPresented] = useState({journal: false, preparation: false});
+  const utilityPresented = stockPresented || reportsPresented.journal || reportsPresented.preparation;
   const campaign = game.record?.schemaVersion===4 ? game.record.snapshot.campaign : null;
   const growthSession = campaign?.stories.find(s=>s.id===campaign.activeStoryId && growthStories[s.eventId]);
   const growthEventId = growthReview ?? growthSession?.eventId;
+  useEffect(() => { if (growthEventId || suspended) setReportView(null); }, [growthEventId, suspended]);
   useEffect(()=>{
     if(!growthNotice) return;
     const timer=window.setTimeout(()=>setGrowthNotice(null),6000);
@@ -98,30 +116,28 @@ function MansionScene() {
   const dialogueCloseRef = useRef<HTMLButtonElement>(null);
   const dialogueStageRef = useRef<HTMLDivElement>(null);
 
-  const [manifest, setManifest] = useState<MansionPsdManifest | null>(null);
-  const [manifestError, setManifestError] = useState(false);
-  const [loadedLayers, setLoadedLayers] = useState<Set<string>>(() => new Set());
-  const [failedLayers, setFailedLayers] = useState<Set<string>>(() => new Set());
   const [hoveredRegionId, setHoveredRegionId] = useState<string | null>(null);
   const [selectedRegionId, setSelectedRegionId] = useState<string | null>(null);
+  const clearRoomHover = useCallback(() => setHoveredRegionId(null), []);
   const {
     viewportRef,
     panX,
     dragging,
+    hoverSuppressed,
+    isHoverSuppressed,
+    resumeHover,
     shiftPan,
     isClickSuppressed,
     handlePointerDown,
     handlePointerMove,
     finishPointerDrag,
     handleWheel
-  } = useMansionViewport({ roomFocused: selectedRegionId !== null });
+  } = useMansionViewport({ roomFocused: selectedRegionId !== null, onDragStart: clearRoomHover });
   const [activeCharacterId, setActiveCharacterId] = useState<string | null>(null);
   const [dialogueTyping, setDialogueTyping] = useState(false);
   const [dialogueSettled, setDialogueSettled] = useState(false);
   const estate = useMansionEstate();
   const {
-    phase,
-    day,
     funds,
     levels,
     upgrading,
@@ -133,26 +149,30 @@ function MansionScene() {
     inventoryEntries,
     stockTotal
   } = estate;
+  const presentation = useMansionPresentation({
+    weather,
+    clock: {day: estate.day, phase: estate.phase},
+    next: estate.time?.next ?? null,
+    canAdvance: game.status === "ready" && !!estate.time && !estate.time.blocked && !activeCharacterId && !growthEventId && !stockOpen && !reportView,
+    suspended,
+    sceneRef: viewportRef,
+    advance: estate.advancePhase,
+    refresh: async () => {
+      await session.refresh();
+      if (session.getSnapshot().status !== "ready") throw Error("读取进度尚未完成");
+    }
+  });
+  const {day, phase} = presentation.clock;
+  const intro = useMansionIntro(presentation.step === "ready", suspended, viewportRef);
   const stockButtonRef = useRef<HTMLButtonElement>(null);
+  const journalButtonRef = useRef<HTMLButtonElement>(null);
+  const preparationButtonRef = useRef<HTMLButtonElement>(null);
 
-  const sceneRegions = useMemo<SceneRegion[]>(
-    () => [
-      ...DEFAULT_MANSION_RECTANGLES.map((region) => ({ ...region, shape: "rectangle" as const })),
-      ...DEFAULT_MANSION_REGIONS.map((region) => ({ ...region, shape: "polygon" as const }))
-    ],
-    []
-  );
+  const sceneRegions = MANSION_SCENE_REGIONS;
 
   const regionById = useMemo(
     () => new Map(sceneRegions.map((region) => [region.id, region])),
     [sceneRegions]
-  );
-
-  const visibleLayers = useMemo(
-    () => manifest?.layers
-      .filter((layer) => layer.visible)
-      .sort((left, right) => left.order - right.order) ?? [],
-    [manifest]
   );
 
   const characterPlacements = useMemo<CharacterPlacement[]>(() => {
@@ -188,28 +208,9 @@ function MansionScene() {
     });
   }, [phase, regionById]);
 
-  /**
-   * 夜间亮灯的房间。
-   * 两个来源合并:lighting.ts 的固定光源(壁炉/篝火/结界/信号灯/符纸)
-   * + 驻在驱动(夜里有人就点一盏常规灯)。
-   * 世界观覆盖优先 —— 烽火台有人也不点火。
-   */
-  const roomLights = useMemo(() => {
-    if (phase !== "night") return [];
-    const occupied = new Set(
-      MANSION_CHARACTERS
-        .map((character) => character.schedule.night)
-        .filter((roomId): roomId is string => Boolean(roomId))
-    );
-    return sceneRegions
-      .map((region) => ({
-        region,
-        light: resolveRoomLight(region.id, phase, occupied.has(region.id))
-      }))
-      .filter((item): item is { region: SceneRegion; light: RoomLight } =>
-        item.light !== null
-      );
-  }, [phase, sceneRegions]);
+  // Static lighting is baked into the scenery. Only three small, unfiltered
+  // opacity glows remain live, and none is mounted outside the night phase.
+  const roomLights = useMemo(() => phase === "night" ? MANSION_NIGHT_LIGHTS.filter(item => item.light.flicker) : [], [phase]);
 
   const selectedRegion = selectedRegionId ? regionById.get(selectedRegionId) ?? null : null;
   const selectedDetail = selectedRegion
@@ -218,9 +219,9 @@ function MansionScene() {
   const selectedDrawerSide: DrawerSide = selectedRegion && LEFT_DRAWER_REGION_IDS.has(selectedRegion.id)
     ? "left"
     : "right";
-  const roomCamera = selectedRegion
+  const roomCamera = useMemo(() => selectedRegion
     ? roomFocusTransform(selectedRegion, selectedDrawerSide)
-    : { x: panX, y: 0, zoom: 1 };
+    : { x: panX, y: 0, zoom: 1 }, [selectedRegion, selectedDrawerSide, panX]);
   const activeCharacter = activeCharacterId
     ? MANSION_CHARACTERS.find((character) => character.id === activeCharacterId) ?? null
     : null;
@@ -241,7 +242,7 @@ function MansionScene() {
   }] : [], [activeCharacter, phase]);
   /** 对话开启时,世界与四角挂件一律退出可交互与无障碍树。
    *  原先这个三元在 7 处重复写成 `activeCharacter ? true : undefined`。 */
-  const chromeInert = activeCharacter || growthEventId ? true : undefined;
+  const chromeInert = activeCharacter || growthEventId || presentation.blocked || reportView || stockOpen || utilityPresented ? true : undefined;
 
   useEffect(() => {
     if (selectedRegionId) {
@@ -259,37 +260,14 @@ function MansionScene() {
     return undefined;
   }, [activeCharacterId]);
 
-  useEffect(() => {
-    const manifestUrl = `${import.meta.env.BASE_URL}mansion-map/manifest.json`;
-    let active = true;
-    fetch(manifestUrl)
-      .then((response) => {
-        if (!response.ok) throw new Error(`manifest ${response.status}`);
-        return response.json() as Promise<MansionPsdManifest>;
-      })
-      .then((value) => {
-        if (!active) return;
-        if (value.width !== MANSION_WORLD_WIDTH || value.height !== MANSION_WORLD_HEIGHT) {
-          throw new Error("unexpected mansion canvas size");
-        }
-        setManifest(value);
-      })
-      .catch(() => {
-        if (active) setManifestError(true);
-      });
-    return () => {
-      active = false;
-    };
+  const restoreLastFocus = useCallback(() => {
+    window.requestAnimationFrame(() => lastFocusRef.current?.focus());
   }, []);
 
-  const restoreLastFocus = () => {
-    window.requestAnimationFrame(() => lastFocusRef.current?.focus());
-  };
-
-  const closeRegion = () => {
+  const closeRegion = useCallback(() => {
     setSelectedRegionId(null);
     restoreLastFocus();
-  };
+  }, [restoreLastFocus]);
 
   const closeCharacter = () => {
     setActiveCharacterId(null);
@@ -308,7 +286,7 @@ function MansionScene() {
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      if (growthEventId) return;
+      if (growthEventId || presentation.blocked || reportView || stockOpen || utilityPresented) return;
       const target = event.target as HTMLElement | null;
       const isControl = target?.matches("button, input, textarea, select, [contenteditable='true']");
       if (event.key === "Escape") {
@@ -337,9 +315,9 @@ function MansionScene() {
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [activeCharacterId, dialogueSettled, selectedRegionId, shiftPan,growthEventId]);
+  }, [activeCharacterId, dialogueSettled, selectedRegionId, shiftPan, growthEventId, presentation.blocked, reportView, stockOpen, utilityPresented]);
 
-  const openRegion = (regionId: string) => {
+  const openRegion = useCallback((regionId: string) => {
     if (isClickSuppressed()) return;
     if (selectedRegionId === regionId) {
       closeRegion();
@@ -352,7 +330,10 @@ function MansionScene() {
     setActiveCharacterId(null);
     setHoveredRegionId(null);
     setSelectedRegionId(regionId);
-  };
+  }, [isClickSuppressed, selectedRegionId, closeRegion]);
+  const hoverRegion = useCallback((regionId: string | null) => {
+    if (!isHoverSuppressed()) setHoveredRegionId(regionId);
+  }, [isHoverSuppressed]);
 
   const previewPhase = (nextPhase: MansionPhaseId) => {
     if (nextPhase === phase) return;
@@ -361,15 +342,16 @@ function MansionScene() {
   };
 
   const advancePhase = () => {
-    estate.advancePhase();
-    setActiveCharacterId(null);
+    if (game.status !== "ready" || !estate.time || estate.time.blocked) return;
+    setHoveredRegionId(null);
+    presentation.advance();
   };
 
   const collectProduction = estate.collectProduction;
   const startUpgrade = estate.startUpgrade;
   const promoteFacility = estate.promoteFacility;
 
-  const activateCharacter = (character: MansionCharacter) => {
+  const activateCharacter = useCallback((character: MansionCharacter) => {
     if (isClickSuppressed()) return;
     lastFocusRef.current = document.activeElement instanceof HTMLElement
       ? document.activeElement
@@ -378,7 +360,7 @@ function MansionScene() {
     setDialogueTyping(true);
     setDialogueSettled(false);
     setActiveCharacterId(character.id);
-  };
+  }, [isClickSuppressed]);
 
   const selectedOccupants = selectedRegion
     ? characterPlacements
@@ -400,40 +382,40 @@ function MansionScene() {
     navigateGame(gameHref(href.includes("shop") ? "shop" : "map", recordLocator(game.record!)));
   };
 
-  const useCompositeFallback = manifestError || failedLayers.size > 0;
-  const loading = !useCompositeFallback && (!manifest || loadedLayers.size < visibleLayers.length);
-
-  const markLayerLoaded = (layerId: string) => {
-    setLoadedLayers((current) => {
-      if (current.has(layerId)) return current;
-      const next = new Set(current);
-      next.add(layerId);
-      return next;
-    });
-  };
-
-  const markLayerFailed = (layerId: string) => {
-    setFailedLayers((current) => {
-      if (current.has(layerId)) return current;
-      const next = new Set(current);
-      next.add(layerId);
-      return next;
-    });
-  };
+  const menuHref = gameHref("menu", recordLocator(game.record!));
+  const {closeStock, toggleStock} = estate;
+  // Room hover/camera movement must not rerun the journal/expedition queries.
+  const reportControls = useMemo<CampaignReportControls>(() => ({
+    view: reportView, onViewChange: setReportView,
+    onPresentChange: (view, present) => setReportsPresented(previous => previous[view] === present ? previous : {...previous, [view]: present}),
+    returnFocusRefs: {journal: journalButtonRef, preparation: preparationButtonRef},
+    renderEntries: actionable => <MansionUtilityRail active={stockOpen ? "stock" : reportView}
+      stockTotal={stockTotal} actionable={actionable} inert={chromeInert}
+      buttonRefs={{stock: stockButtonRef, journal: journalButtonRef, preparation: preparationButtonRef}}
+      onOpen={entry => {
+        if (chromeInert) return;
+        setHoveredRegionId(null); setSelectedRegionId(null);
+        if (entry === "stock") { setReportView(null); toggleStock(); }
+        else { closeStock(); setReportView(entry); }
+      }}/>,
+  }), [reportView, stockOpen, stockTotal, chromeInert, closeStock, toggleStock]);
 
   return (
     <Stage background="#0a1114" canvasClassName="mansion-stage-canvas">
-      <AbyssaProvider className="mansion-app" density="compact" data-phase={phase}>
+      <AbyssaProvider className="mansion-app" density="compact" data-phase={phase} data-weather={presentation.artwork?.weather??"clear"}
+        data-ui-intro={intro} data-world-paused={!!chromeInert || suspended || intro !== "ready" || undefined}
+        style={{"--mansion-grade": MANSION_ATMOSPHERE[phase].grade} as CSSProperties}
+        inert={presentation.blocked || undefined}
+        data-presentation={presentation.step} aria-busy={presentation.blocked}>
         <MansionWorld
           viewportRef={viewportRef}
           dragging={dragging}
+          hoverSuppressed={hoverSuppressed}
+          onResumeHover={resumeHover}
           roomFocused={Boolean(selectedRegion)}
           inert={chromeInert}
           roomCamera={roomCamera}
-          visibleLayers={visibleLayers}
-          loadedLayerCount={loadedLayers.size}
-          useCompositeFallback={useCompositeFallback}
-          loading={loading}
+          artwork={presentation.artwork}
           sceneRegions={sceneRegions}
           selectedRegionId={selectedRegionId}
           hoveredRegionId={hoveredRegionId}
@@ -448,9 +430,7 @@ function MansionScene() {
           onPointerMove={handlePointerMove}
           onPointerUp={finishPointerDrag}
           onWheel={handleWheel}
-          onLayerLoad={markLayerLoaded}
-          onLayerError={markLayerFailed}
-          onHoverRegion={setHoveredRegionId}
+          onHoverRegion={hoverRegion}
           onOpenRegion={openRegion}
           onCollectProduction={collectProduction}
           onActivateCharacter={activateCharacter}
@@ -488,6 +468,8 @@ function MansionScene() {
         >
           <MansionPhaseBar
             readOnly
+            advanceDisabled={!estate.time || !!estate.time.blocked || game.status !== "ready" || presentation.blocked}
+            advanceHint={estate.time?.blocked ?? (estate.time ? `推进至第 ${estate.time.next.day} 天 · ${MANSION_PHASES.find(p => p.id === estate.time!.next.phase)?.label}` : "此旧版档案不支持手动推进")}
             phases={MANSION_PHASES}
             value={phase}
             day={day}
@@ -496,7 +478,9 @@ function MansionScene() {
           />
         </div>
 
-        {/* ============ 右上:状态 + 资源 + 库存 ============ */}
+        <MansionWeatherDebug value={weather} disabled={!!chromeInert || !!selectedRegionId} onChange={setWeather}/>
+
+        {/* ============ 右上:资源账簿 ============ */}
         <div
           className="mansion-corner mansion-corner--status"
           data-no-pan
@@ -506,10 +490,6 @@ function MansionScene() {
           <MansionLedger
             publicFund={funds.public}
             partyFund={funds.party}
-            stockTotal={stockTotal}
-            stockOpen={stockOpen}
-            onToggleStock={estate.toggleStock}
-            stockButtonRef={stockButtonRef}
           />
         </div>
 
@@ -616,12 +596,15 @@ function MansionScene() {
 
         {/* 物品栏挂在四角挂件**之外** —— 挂件在对话开启时会被 inert,
             而库存弹窗自己就是模态,不该继承那份 inert。 */}
-        <InventoryDialog
+        {game.record?.schemaVersion === 1 ? <InventoryDialog
+          className="manor-utility"
+          motionPreset="manor"
           open={stockOpen}
+          onPresentChange={setStockPresented}
           onClose={estate.closeStock}
           title="领地库存"
           signboard="领地库存"
-          signboardSecondary="ESTATE STORAGE"
+          signboardVariant="slim"
           entries={inventoryEntries}
           columns={STOCK_COLUMNS}
           rows={STOCK_ROWS}
@@ -629,10 +612,21 @@ function MansionScene() {
           categories={MANSION_ITEM_CATEGORIES}
           emptyHint="营地暂无物品。建设与生产尚未开放。"
           returnFocusRef={stockButtonRef}
-        />
+        /> : <ResidentInventory
+          className="manor-utility"
+          motionPreset="manor"
+          open={stockOpen}
+          onPresentChange={setStockPresented}
+          onClose={estate.closeStock}
+          fixedEntries={estate.fixedEntries}
+          entries={estate.sandboxEntries}
+          returnFocusRef={stockButtonRef}
+        />}
 
         {(growthNotice || toast) && <div className="mansion-toast" role="status" data-no-pan>{growthNotice || toast}</div>}
-        <div inert={chromeInert}><CampaignPanel report onReviewGrowth={setGrowthReview}/></div>
+        <div inert={!!activeCharacter || !!growthEventId || presentation.blocked || stockOpen || stockPresented || undefined}>
+          <ResidentCampaignPanel onReviewGrowth={setGrowthReview} report={reportControls}/>
+        </div>
         {growthEventId && <div style={{position:"absolute",inset:0,zIndex:610,display:"grid",placeItems:"center",background:"var(--abyssa-rp-backdrop)"}}>
           <GrowthStory key={`${growthEventId}:${!!growthReview}`} eventId={growthEventId} review={!!growthReview} onClose={()=>{if(growthEventId===teamMilestoneStory.eventId)setGrowthNotice(teamMilestoneStory.resultText);setGrowthReview(null);}} onCompleted={milestone=>{
             setGrowthNotice(growthStories[growthEventId].resultText);
@@ -640,6 +634,14 @@ function MansionScene() {
           }}/>
         </div>}
       </AbyssaProvider>
+      {presentation.step !== "ready" && <MansionTimeLoading
+        key={presentation.id}
+        phase={presentation.destination.phase} day={presentation.destination.day}
+        fromPhase={presentation.origin.phase} step={presentation.step} motionPaused={presentation.motionPaused} suspended={suspended}
+        weather={presentation.job==="weather" ? weather : undefined}
+        state={presentation.step === "error" ? "error" : "loading"}
+        message={presentation.step === "reveal" ? "景致已就绪" : presentation.job==="weather" ? `正在准备${weatherLabel(weather)}景致` : presentation.job === "advance" && (presentation.step === "cover" || presentation.step === "work") ? "正在确认时段" : "正在准备洋馆景致"}
+        error={presentation.error} onRetry={presentation.retry} menuHref={menuHref} />}
     </Stage>
   );
 }

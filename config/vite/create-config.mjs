@@ -35,7 +35,12 @@ export function createTargetConfig(targetId, options = {}) {
           formats: ['es'], fileName: (_format, name) => `${name}.js`, cssFileName: 'abyssa-ui',
         },
       } : {}),
-      rollupOptions: ui ? { external: ['react', 'react-dom', 'react/jsx-runtime'] } : {
+      rollupOptions: ui ? {
+        external: ['react', 'react-dom', 'react/jsx-runtime', /^motion(?:\/|$)/],
+        // Library CSS and images ship together at the package root. Be explicit
+        // so Vite's CSS URL resolver does not assume the app's assets/ directory.
+        output: { assetFileNames: '[name].[ext]' },
+      } : {
         input: target.entries.some(e => e.kind === 'game') ? { game: resolve(projectRoot, 'index.html') } : Object.fromEntries(target.entries.map(entry => [entry.id, resolve(projectRoot, entry.sourceHtml ?? entry.html)])),
         output: {
           ...(readable ? { entryFileNames: 'assets/[name].js', chunkFileNames: 'assets/[name].js', assetFileNames: 'assets/[name][extname]' } : {}),

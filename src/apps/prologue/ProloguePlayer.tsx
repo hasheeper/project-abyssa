@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperti
 import { GameGate, GameProvider, useGameSession, useGameState } from "../../game-client/react";
 import { gameHref } from "../../game-client/navigation";
 import { Stage } from "../../shared/stage";
-import { SceneTransitionProvider, useSceneTransition } from "../../shared/transition";
+import { SceneTransitionProvider, useSceneReady, useSceneTransition } from "../../shared/transition";
 import { AbyssaProvider } from "../../shared/ui/primitives/AbyssaProvider";
 import { AbyssaLogo } from "../../shared/ui/branding/AbyssaLogo";
 import { PROLOGUE_SHOTS, PROLOGUE_ACT_NAMES, CHARACTER_FADE_MS, PARAGRAPH_BREATH_MS, INTERTITLE_FADE_MS, CONTACT_TRANSITION_MS, readingDuration, typingDuration, shotEndTime } from "./script";
@@ -13,16 +13,11 @@ import { resolvePlayerText } from "../../shared/domain/player-identity";
 
 export function ProloguePage() {
   return <AbyssaProvider><Stage canvasClassName="prologue-stage"><SceneTransitionProvider minimumBlackoutMs={0}>
-    <OpeningGate/>
+    <GameProvider><GameGate allowPrologue><ProloguePlayer/></GameGate></GameProvider>
   </SceneTransitionProvider></Stage></AbyssaProvider>;
 }
-function OpeningGate() {
-  const transition=useSceneTransition(),release=useRef<(()=>void)|null>(null);
-  useLayoutEffect(()=>{release.current=transition.holdReady();return()=>release.current?.();},[transition.holdReady]);
-  return <GameProvider><GameGate allowPrologue><ProloguePlayer onReady={()=>{release.current?.();release.current=null;}}/></GameGate></GameProvider>;
-}
 
-function ProloguePlayer({onReady}:{onReady():void}) {
+function ProloguePlayer() {
   const session=useGameSession(),state=useGameState(),transition=useSceneTransition();
   const progress=state.record?.schemaVersion===4?state.record.snapshot.campaign.prologue:undefined;
   const initialIndex=Math.max(0,PROLOGUE_SHOTS.findIndex(s=>s.id===progress?.shotId));
@@ -32,6 +27,10 @@ function ProloguePlayer({onReady}:{onReady():void}) {
   const [auto,setAuto]=useState(false),[history,setHistory]=useState(false),[hidden,setHidden]=useState(false);
   const [busy,setBusy]=useState(false),[loaded,setLoaded]=useState(false),[error,setError]=useState(false),[retry,setRetry]=useState(0);
   const [outgoing,setOutgoing]=useState<OutgoingFrame|null>(null),[holding,setHolding]=useState(false),[canContinue,setCanContinue]=useState(false);
+  // Hold only while the actual player exists. An invalid/missing save must be
+  // able to reveal GameProvider/GameGate's error instead of waiting for a CG
+  // callback from a player that was never mounted.
+  useSceneReady(loaded || error || progress?.status !== "playing");
   const [reduced,setReduced]=useState(()=>window.matchMedia("(prefers-reduced-motion: reduce)").matches);
   const clock=useMemo<SceneClock>(()=>({time:0,cueTime:null,paused:false,ready:false}),[shot.id,retry]);
   const scene=useRef<CanvasHandle>(null),flight=useRef(false),alive=useRef(true),nextBeatAt=useRef<number|null>(null),beatStarted=useRef<number|null>(null),queued=useRef(false);
@@ -46,7 +45,7 @@ function ProloguePlayer({onReady}:{onReady():void}) {
   useEffect(()=>{alive.current=true;return()=>{alive.current=false;if(skipTimer.current)clearTimeout(skipTimer.current);};},[]);
   useEffect(()=>{const media=window.matchMedia("(prefers-reduced-motion: reduce)"),change=()=>setReduced(media.matches);media.addEventListener("change",change);return()=>media.removeEventListener("change",change);},[]);
   useEffect(()=>{
-    if(progress?.status!=="playing" && !flight.current) {onReady(); transition.navigate(gameHref("mansion",session.locator),{replace:true,cinematic:true,still:shot.image});}
+    if(progress?.status!=="playing" && !flight.current) {transition.navigate(gameHref("mansion",session.locator),{replace:true,cinematic:true,still:shot.image});}
     else if(progress?.status==="playing" && !busy && !flight.current && progress.shotId!==shot.id){setIndex(Math.max(0,PROLOGUE_SHOTS.findIndex(s=>s.id===progress.shotId)));resetReading();}
   },[progress?.shotId,progress?.status,busy]);
   useEffect(()=>{
@@ -152,7 +151,7 @@ function ProloguePlayer({onReady}:{onReady():void}) {
   const showIntertitle=loaded && shown && !fading && !outgoing && !hidden && !transition.isTransitioning;
   const log=PROLOGUE_SHOTS.slice(0,index+1).flatMap((s,i)=>s.beats.slice(0,i===index?beatIndex+(shown?1:0):undefined).filter(b=>b.text).map((b,j)=>({...b,key:`${s.id}-${j}`,act:s.act})));
   return <main className="prologue" data-shot={shot.id} data-act={shot.act} data-beat={beatIndex} data-ready={loaded} data-reduced={reduced} onContextMenu={e=>{e.preventDefault();setHidden(v=>!v);}}>
-    <PrologueCanvas key={`${shot.id}-${retry}-${reduced}`} ref={scene} shot={shot} clock={clock} reduced={reduced} onReady={()=>{setLoaded(true);onReady();}} onError={()=>{setError(true);onReady();}}/>
+    <PrologueCanvas key={`${shot.id}-${retry}-${reduced}`} ref={scene} shot={shot} clock={clock} reduced={reduced} onReady={()=>setLoaded(true)} onError={()=>setError(true)}/>
     {outgoing && <PrologueTransition frame={outgoing} ready={loaded} onDone={()=>setOutgoing(null)}/>}
     <div className="prologue-memory-finish" aria-hidden="true"/>
     <button className="prologue-advance-area" aria-label="继续序幕" onClick={advance} disabled={busy || !!outgoing || history || !loaded}/>

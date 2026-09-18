@@ -1,6 +1,7 @@
 import type { ValidatedDemoCatalog } from "../contracts/demo";
 import * as v from "../contracts/validation";
 import { sha256 } from "../contracts/sha256";
+import { departureSupplyLimit } from "../contracts/journey-limits";
 import { demoRoom } from "../contracts/demo-journey-validation";
 import type { RuleContext, RuleRun, RuleCatalog, RuleExpeditionRun } from "../battle/domain/rule-state";
 import type { createRuleBattleEngine } from "../battle/demo-engine";
@@ -44,7 +45,7 @@ export function validateTerminal(catalog: import("../battle/domain/rule-state").
     } else if (r.completion !== null) v.invalid("completion", "Premature completion");
     if (r.outcome === "extracted" && r.deepestLayer !== 3) v.invalid("terminal", "No exit on this layer");
   }
-  validateSupplies(catalog, r.returnedSupplies, 4);
+  validateSupplies(catalog, r.returnedSupplies, departureSupplyLimit(catalog.ref));
   return raw as DemoTerminal;
 }
 export function validateDemoExpedition(catalog: ValidatedDemoCatalog, raw: unknown): DemoExpeditionState {

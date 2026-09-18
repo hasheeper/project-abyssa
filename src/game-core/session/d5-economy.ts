@@ -3,6 +3,7 @@ import type { DemoSupply } from "../battle/domain/demo-state";
 import type { D5Projection } from "./d5-types";
 import * as v from "../contracts/validation";
 import { sha256 } from "../contracts/sha256";
+import { departureSupplyLimit } from "../contracts/journey-limits";
 
 /** One source of truth for the shop quote and committed purchase replay. Prices never come from UI. */
 export function supplyQuote(catalog: ValidatedD5Catalog, campaign: D5Projection, input: {shopId: string; definitionId: string; quantity: number; quoteVersion: number}) {
@@ -23,7 +24,7 @@ export function supplyQuote(catalog: ValidatedD5Catalog, campaign: D5Projection,
 
 /** Free allowance refills on departure; purchased charges retain their actual identity and balance. */
 export function departureSupplies(catalog: ValidatedD5Catalog, campaign: D5Projection, runId: string, raw: unknown): DemoSupply[] {
-  return v.ids(raw, "itemIds", 4).map(id => {
+  return v.ids(raw, "itemIds", departureSupplyLimit(catalog.ref)).map(id => {
     const def = v.reference(catalog.data.journey!.items, id, "itemIds");
     const stored = campaign.supplies.find(s => s.definitionId === id);
     if (catalog.data.economy && !catalog.data.economy.freeItemIds.includes(id)) {

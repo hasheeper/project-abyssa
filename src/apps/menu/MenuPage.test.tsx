@@ -75,6 +75,11 @@ describe("MenuPage", () => {
     expect(host?.querySelector(".abyssa-frame")).toBeNull();
     expect(host?.querySelector(".abyssa-nameplate")).toBeNull();
     expect(host?.querySelector(".menu-host__figure")).not.toBeNull();
+    // Photo, resident and controls are separate camera planes; the Stage stays put.
+    expect(container.querySelector(".menu-entry > .menu-scenery")).toHaveAttribute("aria-hidden", "true");
+    expect(container.querySelector(".menu-entry > .menu-scenery-shade")).toHaveAttribute("aria-hidden", "true");
+    expect(container.querySelector(".menu-app > .menu-host__fade")).not.toBeNull();
+    expect(host).not.toContainElement(container.querySelector(".menu-host__fade"));
     const characterSwitch = screen.getByRole("button", { name: /切换角色，当前艾比希斯，5\/9/ });
     expect(host).not.toContainElement(characterSwitch);
     expect(screen.getByRole("button", { name: /切换背景，当前月下长廊，1\/1/ })).toBeInTheDocument();
@@ -99,7 +104,7 @@ describe("MenuPage", () => {
     const roster = screen.getByRole("button", { name: "角色" });
     await user.click(roster);
 
-    // 第一次:只选中并说话,黑幕不动。台词走打字机,得等它敲完。
+    // 第一次只选中并开始打字，黑幕不动；等待对白完整呈现。
     expect(roster).toHaveAttribute("aria-pressed", "true");
     expect(await screen.findByText("想看谁的档案？")).toBeInTheDocument();
     expect(container.querySelector(".scene-transition")).toHaveAttribute("data-phase", "idle");

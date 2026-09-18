@@ -1,7 +1,9 @@
 @import "./tokens.css";
 @import "./components-core.css";
+@import "../motion/page-board.css";
 @import "./components-character-status.css";
 @import "./items.css";
+@import "./manor-utility.css";
 @import "./battle.css";
 @import "./paper-doll.css";
 @import "./novel.css";

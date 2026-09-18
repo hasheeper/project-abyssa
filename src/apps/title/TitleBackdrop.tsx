@@ -64,10 +64,9 @@ export function TitleBackdrop() {
 
         <rect className="title-backdrop__wash" width="1600" height="900" fill={`url(#${glowId})`} />
       </svg>
-      {/* 固定遮罩包住独立的 HTML 合成层；SVG 内部只保留静态图案。
-          这样转动不再每帧重绘整张带遮罩的 SVG，遮罩和底光也不会旋转。 */}
+      {/* 固定遮罩与分层图案保留原构图；没有独立旋转或呼吸时钟。 */}
       <div className="title-backdrop__field" style={{ mask: `url(#${maskId})` }}>
-        <div className="title-backdrop__spin title-backdrop__spin--spokes">
+        <div className="title-backdrop__pattern">
           <svg className="title-backdrop__layer" viewBox="0 0 1600 900">
             <g transform={`translate(${CENTER_X} ${CENTER_Y})`}>
               {SPOKES.map((angle, index) => (
@@ -89,7 +88,7 @@ export function TitleBackdrop() {
           </svg>
         </div>
 
-        {/* 同心环不转:正圆转起来看不出变化,只会白耗合成层。 */}
+        {/* 同心环与其他图案一起保持静态。 */}
         <svg className="title-backdrop__layer" viewBox="0 0 1600 900">
           <g className="title-backdrop__orbits">
             <circle cx={CENTER_X} cy={CENTER_Y} r="322" />
@@ -98,7 +97,7 @@ export function TitleBackdrop() {
           </g>
         </svg>
 
-        <div className="title-backdrop__spin title-backdrop__spin--diamonds">
+        <div className="title-backdrop__pattern">
           <svg className="title-backdrop__layer" viewBox="0 0 1600 900">
             <g className="title-backdrop__diamonds">
               {DIAMONDS.map((radius, index) => (
@@ -116,7 +115,7 @@ export function TitleBackdrop() {
           </svg>
         </div>
 
-        <div className="title-backdrop__spin title-backdrop__spin--ticks">
+        <div className="title-backdrop__pattern">
           <svg className="title-backdrop__layer" viewBox="0 0 1600 900">
             <g className="title-backdrop__ticks" transform={`translate(${CENTER_X} ${CENTER_Y})`}>
               {TICKS.map((angle, index) => (

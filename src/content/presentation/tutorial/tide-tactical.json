@@ -1,0 +1,17 @@
+{
+  "slimes": {"actorId": "eustice", "kind": "ready", "text": "路就这么宽，先集中解决一只。两边一起纠缠，反而容易让后面的人挨打。"},
+  "sentries": {"actorId": "norma", "kind": "ready", "text": "后排还在挂弦，前面的刀已经拔出来了。趁弩箭没上膛，先把守路的料理掉。"},
+  "haulers": {"actorId": "eustice", "kind": "ready", "text": "搬货的都停下来了。先集中收拾刀手，别让三个人轮流压过来。"},
+  "guardBow": {"actorId": "eustice", "kind": "guard", "text": "那支弩箭由我来挡，前排就交给你了。别让刀手趁这个空当靠过来。"},
+  "arrowBlocked": {"actorId": "eustice", "kind": "guard", "text": "弩箭挡住了。他得重新装填，趁这时候把剩下的麻烦解决掉。"},
+  "throwingKnife": {"actorId": "norma", "kind": "special", "text": "配合得不错，正好给我腾出手来补这一刀。别停，那家伙还没倒呢。"},
+  "eventStrong": {"actorId": "elora", "kind": "success", "text": "太好了，水还没透进去。慢一点打开果然没错，总算没有把里面的东西一起扯坏。"},
+  "eventWeak": {"actorId": "elora", "kind": "success", "text": "还是进了些水……能保住的先留好吧。剩下这些，不能再当作完好的东西了。"},
+  "eventFailed": {"actorId": "elora", "kind": "failure", "text": "来不及了，里面已经湿透了……别再往水边站，我们先回石阶上吧。"},
+  "locksmithStrong": {"actorId": "norma", "kind": "success", "text": "……开了。里面没事，BOSS。"},
+  "locksmithWeak": {"actorId": "norma", "kind": "success", "text": "……底下湿了。完好的东西带走就行。"},
+  "locksmithFailed": {"actorId": "norma", "kind": "failure", "text": "……啧，锈死了，水也灌进去了。撤吧，BOSS。"},
+  "bossA": {"actorId": "norma", "kind": "ready", "text": "出口就在身后，BOSS，别让他们绕过去。先拔掉两边的弩手，还是直取领头的，你来定。"},
+  "bossB": {"actorId": "norma", "kind": "ready", "text": "想堵住他们的退路，就得先压住货台。两边的弩手和领头的都在，BOSS，先对付谁由你定。"},
+  "bossC": {"actorId": "norma", "kind": "ready", "text": "货物的位置看清了，动手时留点余地。先收拾两边的弩手，还是领头的，BOSS，你来定。"}
+}

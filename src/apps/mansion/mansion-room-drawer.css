@@ -20,7 +20,6 @@
 .mansion-room-drawer {
   /* 安全带 188..876(高 688)。留 24 余量 -> 上限 664。 */
   --mansion-drawer-max-h: 664px;
-  --mansion-drawer-enter-x: 16px;
   position: absolute;
   z-index: 500;
   top: 532px;
@@ -30,11 +29,9 @@
   max-height: var(--mansion-drawer-max-h);
   transform: translateY(-50%);
   filter: drop-shadow(0 20px 34px rgb(0 0 0 / 46%));
-  animation: mansion-room-card-in 300ms cubic-bezier(.16, .84, .3, 1) both;
 }
 .mansion-room-drawer[data-side="right"] { right: 24px; left: auto; }
 .mansion-room-drawer[data-side="left"] {
-  --mansion-drawer-enter-x: -16px;
   right: auto;
   left: 24px;
 }

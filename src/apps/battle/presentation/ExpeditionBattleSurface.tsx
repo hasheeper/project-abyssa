@@ -1,37 +1,52 @@
-import { useState, type CSSProperties, type ReactNode } from "react";
-import { FRENZY_ATTACK_BONUS } from "../view";
-import { ExpeditionGlyph } from "../ExpeditionGlyph";
-import { getNextBattleUiSkin, resolveBattleUiSkin } from "../battleUiSkins";
+import { useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { useTutorialAnchors } from "../../../shared/tutorial";
+import { useSceneSequenceBusy } from "../../../shared/presentation/adv/SceneSequence";
+import { getNextBattleUiSkin } from "../battleUiSkins";
 import type { ExpeditionBattleScreenProps } from "../ExpeditionBattleScreen";
-import { INTENT_GLYPH, PARTY_VISUALS } from "./expedition-visuals";
-import { INTENT_VIEW_WIDTH, enemyAnchorX, partyAnchorX } from "./battle-view-model";
+import { PARTY_VISUALS } from "./expedition-visuals";
+import { useEnemyStageLayout } from "./useEnemyStageLayout";
+import { useBattleMotionPolicy } from "./useBattleMotionPolicy";
+import { ExpeditionEnemyStage } from "./ExpeditionEnemyStage";
 import { AnimatedPartyLink } from "./ExpeditionBattleChrome";
 import { ExpeditionBattleFrame } from "./ExpeditionBattleFrame";
-import { EnemyMist } from "./EnemyMist";
 import { JOURNEY_MOTION_MS, type JourneyMotion } from "./journey-motion";
 import type { BattleSurfaceMember, BattleSurfaceEnemy, BattleEnemyFx } from "./battle-surface-model";
 import type { PlayerAttackFx, PlayerSupportFx } from "./useExpeditionBattlePresentation";
 
-type Props = ExpeditionBattleScreenProps & {
+export type BattleSurfaceProps = ExpeditionBattleScreenProps & {
+  inert?: boolean;
+  entrance?: boolean;
+  formationKey?: string;
   label: string; party: BattleSurfaceMember[]; presentedEnemies: BattleSurfaceEnemy[];
   phase: string; layerClearPending: boolean; isRolling: boolean; interactive: boolean;
   heldActor: string | null; attackFx: PlayerAttackFx | null; supportFx: PlayerSupportFx | null; enemyTurnFx: BattleEnemyFx | null;
-  registerEnemyNode: (id: string, node: HTMLElement | null) => void;
   isPresentationBusy: () => boolean;
   handleMemberCardClick: (id: string) => void; handleEnemyClick: (id: string) => void; handleIntentClick: (id: string) => void;
-  dicePanel: ReactNode; sidebar: ReactNode; overlays: ReactNode; sceneStyle?: CSSProperties; title?: string;
+  dicePanel: ReactNode; sidebar: ReactNode; overlays: ReactNode; sceneStyle?: CSSProperties; title?: string; location?: string;
   journey?: { content: ReactNode; key: string; label: string };
   journeyMotion?: JourneyMotion | null;
-  partyChoice?: { selectedId: string; disabled: boolean; onSelect: (id: string) => void };
+  roomLoading?: ReactNode;
+  partyChoice?: { selectedId: string; disabled: boolean; canSelect?: (id: string) => boolean; onSelect: (id: string) => void };
+  canSelectMember?: (id: string) => boolean;
 };
 /** The approved battle markup, shared by content versions. No game rules live here. */
 export function ExpeditionBattleSurface({
   inspectHref, saving = false, uiSkin, defaultUiSkin = "timber", onUiSkinChange,
   label, party, presentedEnemies, phase, layerClearPending, isRolling, interactive,
-  heldActor, attackFx, supportFx, enemyTurnFx, registerEnemyNode, isPresentationBusy,
-  handleMemberCardClick, handleEnemyClick, handleIntentClick, dicePanel, sidebar, overlays, sceneStyle, title,
-  journey, journeyMotion, partyChoice,
-}: Props) {
+  heldActor, attackFx, supportFx, enemyTurnFx, isPresentationBusy,
+  handleMemberCardClick, handleEnemyClick, handleIntentClick, dicePanel, sidebar, overlays, sceneStyle, title, location,
+  journey, journeyMotion, roomLoading, partyChoice, canSelectMember,
+  inert, entrance, formationKey = "battle",
+}: BattleSurfaceProps) {
+  const anchor=useTutorialAnchors();
+  const sequenceBusy = useSceneSequenceBusy();
+  const enemyLayout = useEnemyStageLayout(presentedEnemies,formationKey,party.map(member=>member.id),!sequenceBusy);
+  const {reflowing}=enemyLayout;
+  const motionPolicy=useBattleMotionPolicy({
+    blocked:Boolean(inert)||sequenceBusy||journeyMotion==="loading",
+    foregroundBusy:isRolling||Boolean(attackFx)||Boolean(supportFx)||Boolean(enemyTurnFx)||reflowing||Boolean(journeyMotion)||isPresentationBusy(),
+  });
+  const pointerInput = useRef(false);
   const [internalUiSkin, setInternalUiSkin] = useState(defaultUiSkin);
   const activeUiSkin = uiSkin ?? internalUiSkin;
   const nextUiSkin = getNextBattleUiSkin(activeUiSkin);
@@ -42,6 +57,7 @@ export function ExpeditionBattleSurface({
   return (
     <main
       className="abyssa-expedition"
+      inert={inert}
       style={{
         "--party-size": party.length,
         "--journey-walk-ms": `${JOURNEY_MOTION_MS.walking}ms`,
@@ -51,6 +67,12 @@ export function ExpeditionBattleSurface({
         "--journey-reveal-ms": `${JOURNEY_MOTION_MS.revealing}ms`,
       } as CSSProperties}
       data-ui-skin={activeUiSkin}
+      data-enemy-ui="separated"
+      data-enemy-reflowing={reflowing||undefined}
+      data-ambient-paused={motionPolicy.ambientPaused||undefined}
+      data-links-paused={motionPolicy.linksPaused||undefined}
+      onKeyDownCapture={() => { pointerInput.current = false; }}
+      data-manor-entry={entrance || undefined}
       data-ui-ornamented={activeUiSkin !== "timber" || undefined}
       data-dice-rolling={isRolling || undefined}
       data-attack-phase={attackFx?.phase}
@@ -71,195 +93,22 @@ export function ExpeditionBattleSurface({
       }
       aria-label={label}
     >
-      <ExpeditionBattleFrame title={title} skin={activeUiSkin} onCycleSkin={cycleUiSkin}>
+      <ExpeditionBattleFrame title={title} location={location} skin={activeUiSkin} onCycleSkin={cycleUiSkin}>
         <div className="abyssa-expedition-regions__battlefield">
                   {/* ==================== 敌方区域 ==================== */}
-                  <section className="abyssa-expedition-region abyssa-expedition-enemies" aria-label={journey?.label ?? "敌方单位"} style={sceneStyle ? {...sceneStyle, backgroundImage: "none"} : undefined}>
-                    {sceneStyle && <div className="abyssa-expedition-scene-clip" aria-hidden="true"><div className="abyssa-expedition-scene" style={sceneStyle}/></div>}
-                    <span className="abyssa-expedition-enemies__haze" aria-hidden="true" />
-                    {resolveBattleUiSkin(activeUiSkin).enemyAtmosphere === "mist" && <EnemyMist foregroundBusy={isRolling || journeyMotion === "encounter" || journeyMotion === "flash"} />}
-                    {journey && <div className="abyssa-expedition-journey-content" key={journey.key}>{journey.content}</div>}
-                    {(journeyMotion === "flash" || journeyMotion === "revealing") && <span className="abyssa-expedition-encounter-flash" aria-hidden="true" />}
-                    <div
-                      className="abyssa-expedition-enemies__formation"
-                      style={{ gridTemplateColumns: `repeat(${Math.max(presentedEnemies.length, 1)}, 1fr)` }}
-                    >
-                      {presentedEnemies.map((enemy, enemyIndex) => {
-                        const intent = enemy.intent;
-                        const blocked = enemy.blocked;
-                        const frenzyWarning = enemy.frenzyWarning;
-                        const defeated = enemy.defeated;
-                        const frenzyActive = enemy.frenzyActive && !defeated;
-                        const enemyAttackFx =
-                          attackFx?.targetId === enemy.id ? attackFx : null;
-                        const enemyActionFx =
-                          enemyTurnFx?.enemyId === enemy.id ? enemyTurnFx : null;
-                        /* 拿着攻击/牵羊骰时敌人可点；拿着格挡骰时其攻击意图可点 */
-                        const targetable =
-                          interactive && enemy.targetable;
-                        const intentBlockable =
-                          interactive && enemy.intentBlockable;
-
-                        return (
-                          <article
-                            className="abyssa-expedition-enemy"
-                            data-enemy-id={enemy.id}
-                            data-art={enemy.art}
-                            data-frenzied={frenzyActive || undefined}
-                            data-frenzy-warning={frenzyWarning !== null || undefined}
-                            data-frenzy-active={frenzyActive || undefined}
-                            data-attack-phase={enemyAttackFx?.phase}
-                            data-attack-lethal={enemyAttackFx?.lethal || undefined}
-                            data-enemy-acting={Boolean(enemyActionFx) || undefined}
-                            data-enemy-action-phase={enemyActionFx?.phase}
-                            data-enemy-action-kind={enemyActionFx?.intentType}
-                            data-defeated={defeated || undefined}
-                            data-targetable={targetable || undefined}
-                            ref={(node) => registerEnemyNode(enemy.id, node)}
-                            style={{ animationDelay: `${enemyIndex * 70}ms` }}
-                            key={enemy.id}
-                            onClick={() => handleEnemyClick(enemy.id)}
-                          >
-                            {frenzyWarning !== null ? (
-                              <span
-                                className="abyssa-expedition-enemy__frenzy-status"
-                                data-imminent={frenzyWarning === 0 || undefined}
-                                role="status"
-                                aria-label={`${enemy.name}狂暴预警：${
-                                  frenzyWarning > 0
-                                    ? `${frenzyWarning} 个完整回合后爆发`
-                                    : "下回合爆发"
-                                }，攻击将从 ${enemy.attack} 提升至 ${
-                                  enemy.attack + FRENZY_ATTACK_BONUS
-                                }`}
-                              >
-                                <small>狂暴预警</small>
-                                <b>{frenzyWarning > 0 ? `${frenzyWarning} 回合` : "即将爆发"}</b>
-                                <em>ATK {enemy.attack} → {enemy.attack + FRENZY_ATTACK_BONUS}</em>
-                              </span>
-                            ) : frenzyActive ? (
-                              <span
-                                className="abyssa-expedition-enemy__frenzy-status"
-                                data-active="true"
-                                role="status"
-                                aria-label={`${enemy.name}正在狂暴：攻击 ${enemy.attack}，不可解除，持续至死亡`}
-                              >
-                                <small>狂暴中</small>
-                                <b>持续至死亡</b>
-                                <em>ATK {enemy.attack} · 不可解除</em>
-                              </span>
-                            ) : null}
-                            <header>
-                              <strong>{enemy.name}</strong>
-                              <div className="abyssa-expedition-enemy__stats">
-                                <span
-                                  className="abyssa-expedition-enemy__health"
-                                  aria-label={`生命 ${enemy.hp} / ${enemy.maxHp}`}
-                                >
-                                  {Array.from({ length: enemy.maxHp }, (_, index) => (
-                                    <i data-filled={index < enemy.hp || undefined} key={index} />
-                                  ))}
-                                </span>
-                                {enemy.attack > 0 && (
-                                  <span className="abyssa-expedition-enemy__attack" aria-label={`攻击力 ${enemy.attack}`}>
-                                    <small>ATK</small>
-                                    <b>{enemy.attack}</b>
-                                  </span>
-                                )}
-                              </div>
-                              {intent && (
-                                <button
-                                  type="button"
-                                  className="abyssa-expedition-intent"
-                                  data-kind={intent.type}
-                                  data-blockable={intentBlockable || undefined}
-                                  data-threat={enemy.threat ?? undefined}
-                                  title={intent.description}
-                                  aria-label={intent.description}
-                                  onClick={(event) => {
-                                    event.stopPropagation();
-                                    if (intentBlockable) handleIntentClick(enemy.id);
-                                  }}
-                                >
-                                  <ExpeditionGlyph name={INTENT_GLYPH[intent.type] ?? "art"} />
-                                  <b>
-                                    {intent.type === "attack"
-                                      ? Math.max(0, (intent.value ?? 0) - blocked)
-                                      : intent.title}
-                                  </b>
-                                </button>
-                              )}
-                            </header>
-                            <img src={enemy.artUrl} style={enemy.artStyle} alt="" />
-                            {enemyAttackFx && (
-                              <>
-                                <span className="abyssa-expedition-attack-fx" aria-hidden="true">
-                                  <i className="abyssa-expedition-attack-flash" />
-                                  <i className="abyssa-expedition-attack-slash" data-slash="one" />
-                                  <i className="abyssa-expedition-attack-slash" data-slash="two" />
-                                  <i className="abyssa-expedition-attack-burst" />
-                                </span>
-                                <output
-                                  className="abyssa-expedition-attack-damage"
-                                  aria-label={`${enemy.name}受到 ${enemyAttackFx.damage} 点伤害${
-                                    enemyAttackFx.lethal ? "并被斩杀" : ""
-                                  }`}
-                                >
-                                  <b>−{enemyAttackFx.damage}</b>
-                                  {enemyAttackFx.lethal && <small>SLAIN</small>}
-                                </output>
-                              </>
-                            )}
-                          </article>
-                        );
-                      })}
-                    </div>
-                    {/* 意图连线：敌人 → 目标队员 */}
-                    <svg
-                      className="abyssa-expedition-enemies__intent-lines"
-                      viewBox={`0 0 ${INTENT_VIEW_WIDTH} 310`}
-                      preserveAspectRatio="none"
-                      aria-hidden="true"
-                    >
-                      {presentedEnemies.map((enemy, index) => {
-                        const intent = enemy.intent;
-                        if (!intent?.targetId || !party.some(m => m.id === intent.targetId)) return null;
-                        const fromX = enemyAnchorX(index, presentedEnemies.length);
-                        const targetX = partyAnchorX(intent.targetId, party.map(member => member.id));
-                        /* 红=致死 / 黄=掉血不致死 / 灰=已挡尽，全部派生自状态，undo 自动回退 */
-                        const threat = enemy.threat;
-                        const path = `M ${fromX} 260 L ${targetX} 346`;
-
-                        return (
-                          <g
-                            data-kind={intent.type}
-                            data-threat={threat ?? undefined}
-                            data-resolving={enemyTurnFx?.enemyId === enemy.id || undefined}
-                            key={`${enemy.id}-line`}
-                          >
-                            <path className="abyssa-expedition-intent-line__shadow" d={path} />
-                            <path className="abyssa-expedition-intent-line__body" d={path} />
-                          </g>
-                        );
-                      })}
-                      {presentedEnemies.map((enemy, index) =>
-                        enemy.intent?.targetId && party.some(m => m.id === enemy.intent?.targetId) ? (
-                          <circle
-                            className="abyssa-expedition-intent-line__socket"
-                            cx={enemyAnchorX(index, presentedEnemies.length)}
-                            cy="260"
-                            r="5"
-                            key={`${enemy.id}-socket`}
-                          />
-                        ) : null
-                      )}
-                    </svg>
-                  </section>
+                  <ExpeditionEnemyStage
+                    motionPolicy={motionPolicy}
+                    layout={enemyLayout} sequenceBusy={sequenceBusy} activeUiSkin={activeUiSkin} pointerInput={pointerInput}
+                    party={party} presentedEnemies={presentedEnemies} entrance={entrance} inert={inert}
+                    isPresentationBusy={isPresentationBusy} attackFx={attackFx} enemyTurnFx={enemyTurnFx} supportFx={supportFx} isRolling={isRolling}
+                    interactive={interactive} handleEnemyClick={handleEnemyClick} handleIntentClick={handleIntentClick}
+                    sceneStyle={sceneStyle} journey={journey} journeyMotion={journeyMotion} roomLoading={roomLoading}
+                  />
 
                   {/* ==================== 我方区域 ==================== */}
                   <section className="abyssa-expedition-region abyssa-expedition-party" aria-label="我方区域">
                     <div className="abyssa-expedition-party__cards">
-                      {party.map((member) => {
+                      {party.map((member, memberIndex) => {
                         const visual = PARTY_VISUALS[member.id];
                         const held = heldActor === member.id;
                         const attacking = attackFx?.actorId === member.id;
@@ -291,10 +140,19 @@ export function ExpeditionBattleSurface({
 
                         /* 骰子一装载曲线就通电；拿起后再加强 */
                         const linked = ready || held || attacking || supporting;
+                        const selectable = partyChoice
+                          ? !partyChoice.disabled && !member.downed && (partyChoice.canSelect?.(member.id) ?? true)
+                          : interactive && !member.downed && (canSelectMember?.(member.id) ?? (ready || Boolean(heldActor)));
+                        const selectMember = () => {
+                          if (!selectable) return;
+                          if (partyChoice) partyChoice.onSelect(member.id);
+                          else handleMemberCardClick(member.id);
+                        };
 
                         return (
                           <div
                             className="abyssa-expedition-party-column"
+                            style={{"--manor-order": memberIndex} as CSSProperties}
                             data-active={linked || undefined}
                             data-held={held || undefined}
                             data-attacking={attacking || undefined}
@@ -302,6 +160,7 @@ export function ExpeditionBattleSurface({
                             key={member.id}
                           >
                             <article
+                              ref={anchor(`battle.member:${member.id}`)}
                               className="abyssa-expedition-party-card"
                               data-character={member.id}
                               data-tone={visual.tone}
@@ -313,21 +172,18 @@ export function ExpeditionBattleSurface({
                               data-safe={safe || undefined}
                               data-healable={healable || undefined}
                               data-held={held || undefined}
-                              data-event-selectable={partyChoice && !member.downed && !partyChoice.disabled || undefined}
+                              data-event-selectable={partyChoice && selectable || undefined}
                               data-event-selected={partyChoice?.selectedId === member.id || undefined}
-                              role={partyChoice ? "button" : undefined}
-                              tabIndex={partyChoice && !member.downed && !partyChoice.disabled ? 0 : undefined}
+                              role="button"
+                              tabIndex={selectable ? 0 : -1}
                               aria-pressed={partyChoice ? partyChoice.selectedId === member.id : undefined}
-                              aria-disabled={partyChoice ? member.downed || partyChoice.disabled : undefined}
+                              aria-disabled={!selectable}
                               data-attacking={attacking || undefined}
                               data-supporting={supporting || undefined}
                               data-support-kind={memberSupportFx?.kind}
                               data-support-phase={memberSupportFx?.phase}
                               data-ready={(ready && !held) || undefined}
-                              data-clickable={
-                                (interactive && !member.downed && (ready || Boolean(heldActor))) ||
-                                undefined
-                              }
+                              data-clickable={selectable || undefined}
                               aria-label={`${visual.name}：生命 ${member.hp} / ${member.maxHp}${
                                 member.downed
                                   ? `，力竭倒下，本层无法行动，下一层以 ${member.returnHp} 点生命重整`
@@ -335,15 +191,12 @@ export function ExpeditionBattleSurface({
                                     ? "，待指挥"
                                     : ""
                               }`}
-                              onClick={() => {
-                                if (partyChoice) {if (!partyChoice.disabled && !member.downed) partyChoice.onSelect(member.id);}
-                                else handleMemberCardClick(member.id);
-                              }}
-                              onKeyDown={partyChoice ? event => {
-                                if ((event.key === "Enter" || event.key === " ") && !partyChoice.disabled && !member.downed) {
-                                  event.preventDefault(); partyChoice.onSelect(member.id);
+                              onClick={selectMember}
+                              onKeyDown={event => {
+                                if (event.target === event.currentTarget && (event.key === "Enter" || event.key === " ")) {
+                                  event.preventDefault(); selectMember();
                                 }
-                              } : undefined}
+                              }}
                             >
                               <span className="abyssa-expedition-party-card__crest" aria-hidden="true" />
                               {memberEnemyFx && (
@@ -418,6 +271,7 @@ export function ExpeditionBattleSurface({
                                     {member.shield}
                                   </span>
                                   <span
+                                    ref={anchor(`battle.health:${member.id}`)}
                                     className="abyssa-expedition-party-card__hearts"
                                     aria-label={`生命 ${member.hp} / ${member.maxHp}`}
                                   >
@@ -471,7 +325,7 @@ export function ExpeditionBattleSurface({
                             <div className="abyssa-expedition-party-nameplate" data-targeted={(targeted && !safe) || undefined}>
                               {inspectHref && !saving && !isPresentationBusy() ? <a href={inspectHref(member.id)} aria-label={`查看${visual.name}档案`}><strong>{visual.nameplate}</strong></a> : <strong>{visual.nameplate}</strong>}
                             </div>
-                            <AnimatedPartyLink active={linked} paused={isRolling || Boolean(attackFx) || Boolean(supportFx) || Boolean(enemyTurnFx)} />
+                            <AnimatedPartyLink active={linked} paused={motionPolicy.linksPaused} />
                           </div>
                         );
                       })}

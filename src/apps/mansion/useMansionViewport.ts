@@ -17,27 +17,38 @@ type DragState = {
 
 export type UseMansionViewportOptions = {
   roomFocused: boolean;
+  onDragStart?: () => void;
 };
 
 /** Owns horizontal world navigation and click suppression after a drag. */
-export function useMansionViewport({ roomFocused }: UseMansionViewportOptions) {
+export function useMansionViewport({ roomFocused, onDragStart }: UseMansionViewportOptions) {
   const viewportRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<DragState | null>(null);
   const suppressClickRef = useRef(false);
   const [panX, setPanX] = useState(INITIAL_PAN);
   const [dragging, setDragging] = useState(false);
+  const [hoverSuppressed, setHoverSuppressed] = useState(false);
+  const hoverSuppressedRef = useRef(false);
+  const releasedAt = useRef({x:0,y:0});
+
+  const isHoverSuppressed = useCallback(() => hoverSuppressedRef.current, []);
+  const resumeHover = useCallback(() => {
+    if (dragRef.current?.moved) return;
+    hoverSuppressedRef.current = false;
+    setHoverSuppressed(false);
+  }, []);
 
   const shiftPan = useCallback((delta: number) => {
     setPanX((value) => clampPan(value + delta));
   }, []);
 
-  const stagePerClientPixel = () => {
+  const stagePerClientPixel = useCallback(() => {
     const viewportWidth =
       viewportRef.current?.getBoundingClientRect().width ?? STAGE_CANVAS_WIDTH;
     return STAGE_CANVAS_WIDTH / viewportWidth;
-  };
+  }, []);
 
-  const handlePointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
+  const handlePointerDown = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
     if (roomFocused || event.button !== 0) return;
     const target = event.target as Element;
     if (target.closest("[data-no-pan]") && !target.closest(".mansion-region")) return;
@@ -49,28 +60,43 @@ export function useMansionViewport({ roomFocused }: UseMansionViewportOptions) {
       moved: false
     };
     suppressClickRef.current = false;
-  };
+  }, [roomFocused, panX]);
 
-  const handlePointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
+  const handlePointerMove = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
     const drag = dragRef.current;
-    if (!drag || drag.pointerId !== event.pointerId) return;
+    if (!drag) {
+      // Capture release can synthesize enter/move at the same coordinates.
+      // Only new, unpressed pointer movement may re-enable hover afterwards.
+      if (hoverSuppressedRef.current && event.buttons === 0
+        && (event.clientX !== releasedAt.current.x || event.clientY !== releasedAt.current.y)) resumeHover();
+      return;
+    }
+    if (drag.pointerId !== event.pointerId) return;
     const delta = (event.clientX - drag.startClientX) * stagePerClientPixel();
 
     if (!drag.moved) {
       if (Math.abs(delta) < DRAG_THRESHOLD) return;
       drag.moved = true;
+      // This handler runs in capture, before a room can publish more hover.
+      // The ref gates events immediately; the attribute cancels CSS fades in
+      // the same commit as the first camera movement, without a fade-out tail.
+      hoverSuppressedRef.current = true;
+      setHoverSuppressed(true);
+      onDragStart?.();
       event.currentTarget.setPointerCapture?.(event.pointerId);
       setDragging(true);
     }
     setPanX(clampPan(drag.startPan + delta));
-  };
+  }, [stagePerClientPixel, resumeHover, onDragStart]);
 
-  const finishPointerDrag = (event: ReactPointerEvent<HTMLDivElement>) => {
+  const finishPointerDrag = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
     const drag = dragRef.current;
     if (!drag || drag.pointerId !== event.pointerId) return;
     suppressClickRef.current = drag.moved;
+    releasedAt.current = {x:event.clientX,y:event.clientY};
     dragRef.current = null;
     setDragging(false);
+    if (!drag.moved) resumeHover();
 
     if (event.currentTarget.hasPointerCapture?.(event.pointerId)) {
       event.currentTarget.releasePointerCapture?.(event.pointerId);
@@ -78,9 +104,9 @@ export function useMansionViewport({ roomFocused }: UseMansionViewportOptions) {
     window.setTimeout(() => {
       suppressClickRef.current = false;
     }, 0);
-  };
+  }, [resumeHover]);
 
-  const handleWheel = (event: ReactWheelEvent<HTMLDivElement>) => {
+  const handleWheel = useCallback((event: ReactWheelEvent<HTMLDivElement>) => {
     event.preventDefault();
     if (roomFocused) return;
     const input =
@@ -88,7 +114,7 @@ export function useMansionViewport({ roomFocused }: UseMansionViewportOptions) {
         ? event.deltaX
         : event.deltaY;
     shiftPan(-input * stagePerClientPixel() * 0.7);
-  };
+  }, [roomFocused, shiftPan, stagePerClientPixel]);
 
   const isClickSuppressed = useCallback(() => suppressClickRef.current, []);
 
@@ -96,6 +122,9 @@ export function useMansionViewport({ roomFocused }: UseMansionViewportOptions) {
     viewportRef,
     panX,
     dragging,
+    hoverSuppressed,
+    isHoverSuppressed,
+    resumeHover,
     shiftPan,
     isClickSuppressed,
     handlePointerDown,

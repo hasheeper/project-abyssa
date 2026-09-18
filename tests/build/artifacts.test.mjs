@@ -58,6 +58,7 @@ test('UI and game builds preserve each other and the package excludes all other 
   t.after(() => Promise.all(markers.map(file => rm(file, { force: true }))));
   for (const marker of markers) { await mkdir(resolve(marker, '..'), { recursive: true }); await writeFile(marker, 'preserve sibling'); }
   await buildTarget('ui');
+  assert.deepEqual(await validateBuildOutput('ui'), [], 'packaged CSS URLs must resolve inside the UI artifact');
   for (const marker of markers) assert.equal(await readFile(marker, 'utf8'), 'preserve sibling');
   const uiFiles = ['index.js', 'index.d.ts', 'abyssa-ui.css'];
   const before = await Promise.all(uiFiles.map(file => fileHash(resolve(distRoot, 'ui', file))));

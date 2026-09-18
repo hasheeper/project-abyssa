@@ -6,6 +6,9 @@ import type { DemoItemTarget } from "../../game-core/session";
 import type { CommandReceipt, GameCommit, GameStorePort, HeadRef } from "../contracts";
 import type { DemoCommand } from "./demo-command";
 import type { D5CombatEvidence, D5CombatFactPayload } from "./d5-combat-evidence";
+import type { TutorialOperation } from "../../game-core/session";
+import type { AirpNarrativeState, AirpPoolCommand, AirpIntent } from "../../game-core/contracts";
+import type { AirpOnlineCommand, AirpOnlineIntent, AirpOnlineState } from "../airp/gameplay-contracts";
 
 export type D5Fact = {
   version: 4;
@@ -17,9 +20,13 @@ export type D5Fact = {
   originRef: null;
   worldTime: D5Snapshot["campaign"]["clock"];
   visibility: "party";
-} & ({ kind: "save-created"; payload: { profileId: string } } | { kind: "progression"; payload: D5ProgressEvent } | { kind: "combat"; payload: D5CombatFactPayload } | { kind: "journey"; payload: D5JourneyFactPayload });
+} & ({ kind: "save-created"; payload: { profileId: string } } | { kind: "progression"; payload: D5ProgressEvent } | { kind: "combat"; payload: D5CombatFactPayload } | { kind: "journey"; payload: D5JourneyFactPayload } | { kind: "airp"; payload: AirpIntent } | { kind: "airp-online"; payload: AirpOnlineIntent });
 export type D5GameRecord = {
   schemaVersion: 4;
+  /** Required in content8, forbidden in earlier content; reconstructed from committed evidence. */
+  narrative?: AirpNarrativeState;
+  /** Content10 only; replayed connection, source selection and durable online intents. */
+  airpOnline?: AirpOnlineState;
   head: HeadRef;
   contentRef: D5CatalogRef;
   profileId: string;
@@ -37,8 +44,16 @@ export type D5Receipt = Omit<CommandReceipt, "version" | "contentRef" | "events"
   events: D5ProgressEntry[];
   combat?: D5CombatEvidence;
   journey?: D5JourneyEvidence;
+  airp?: AirpIntent;
+  airpOnline?: AirpOnlineIntent;
+  archiveOperation?: "restore";
 };
 export type D5Command =
+  | { type: "advance-phase" }
+  | { type: "select-game-start"; startAt: import("../../game-core/session").GameStartPoint }
+  | AirpPoolCommand
+  | AirpOnlineCommand
+  | (TutorialOperation & { runRef: Extract<D5RunRef, { kind: "expedition" }> })
   | {type:"advance-opening";step:number;choice:"continue"|"A"|"B"|"C"}
   | { type: "advance-prologue"; shotId: string }
   | { type: "complete-prologue"; shotId: string; choice: "continue" | "skip" }

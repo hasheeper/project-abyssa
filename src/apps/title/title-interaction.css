@@ -1,0 +1,240 @@
+/* Title-only finishing: dark lacquer, etched brass and a single travelling cursor. */
+/* Camera coordinates belong to layer roots, not their large artwork subtrees. */
+@property --title-look-x { syntax: "<number>"; inherits: false; initial-value: 0; }
+@property --title-look-y { syntax: "<number>"; inherits: false; initial-value: 0; }
+.title-app[data-theme="crimson"] { --title-metal: #aa816e; --title-metal-light: #eddbc3; }
+
+.title-scene {
+  position: absolute;
+  inset: 0;
+  --title-look-x: 0;
+  --title-look-y: 0;
+}
+
+/* The Stage and vignette stay still. Mirroring belongs to the inner CG, so both
+   outer depth layers follow the same camera even when the right image is flipped. */
+.title-cg-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transform: translate3d(calc(var(--title-look-x) * -24px), calc(var(--title-look-y) * -14px), 0);
+}
+.title-cg-layer[data-side="right"] {
+  transform: translate3d(calc(var(--title-look-x) * -20px), calc(var(--title-look-y) * -11px), 0);
+}
+.title-backdrop {
+  transform: translate3d(calc(var(--title-look-x) * -8px), calc(var(--title-look-y) * -6px), 0);
+}
+.title-emblem {
+  transform: translate3d(calc(var(--title-look-x) * -7px), calc(var(--title-look-y) * -5px), 0)
+    perspective(1800px) rotateX(calc(var(--title-look-y) * 0.35deg)) rotateY(calc(var(--title-look-x) * -0.55deg));
+}
+.title-commands {
+  position: relative;
+  transform: translate3d(calc(var(--title-look-x) * -2px), calc(var(--title-look-y) * -1.5px), 0);
+}
+.title-scene[data-looking] :is(.title-cg-layer, .title-backdrop, .title-emblem, .title-commands) {
+  will-change: transform;
+}
+
+/* The Logo's existing clock leads into the original four-row entrance. */
+.title-commands[data-intro] .title-commands__entry {
+  animation: title-command-enter 460ms cubic-bezier(0.2, 0.82, 0.24, 1) both;
+  animation-delay: calc(var(--title-menu-start) + var(--title-entry-index) * 80ms);
+}
+.title-commands[data-intro] .title-commands__markers {
+  animation: title-cursor-enter 460ms ease both;
+  animation-delay: calc(var(--title-menu-start) + 160ms);
+}
+@keyframes title-command-enter {
+  from { visibility: hidden; opacity: 0; translate: 0 10px; }
+  to { visibility: visible; opacity: 1; translate: 0 0; }
+}
+@keyframes title-cursor-enter { from { opacity: 0; } to { opacity: 1; } }
+
+.title-commands__item {
+  --abyssa-ribbon-fill: color-mix(in srgb, var(--title-canvas) 65%, var(--abyssa-panel-soft));
+  --abyssa-ribbon-text: var(--abyssa-text-soft);
+  --abyssa-ribbon-pattern: color-mix(in srgb, var(--title-metal) 13%, transparent);
+  --abyssa-frame-light: color-mix(in srgb, var(--title-metal) 64%, var(--title-canvas));
+  --abyssa-frame-dark: var(--title-canvas);
+  isolation: isolate;
+  outline: none;
+  transition: opacity 180ms ease, color 180ms ease;
+}
+.title-commands__item:hover:not(:disabled),
+.title-commands__item:active:not(:disabled),
+.title-commands__item:disabled {
+  filter: none;
+  transform: none;
+}
+.title-commands__item:disabled { opacity: 0.5; cursor: wait; }
+.title-commands__item[data-highlighted] {
+  --abyssa-ribbon-fill: color-mix(in srgb, var(--abyssa-teal-dark) 56%, var(--abyssa-panel-black));
+  --abyssa-ribbon-text: var(--title-metal-light);
+  --abyssa-ribbon-pattern: color-mix(in srgb, var(--title-metal-light) 12%, transparent);
+  --abyssa-frame-light: var(--title-metal);
+}
+.title-commands__surface {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transform: scaleX(1);
+  filter: drop-shadow(0 3px 3px rgb(0 0 0 / 42%));
+  transition: transform 220ms cubic-bezier(0.2, 0.8, 0.25, 1), filter 220ms ease;
+}
+.title-commands__surface .abyssa-ribbon-button__art :is(path, rect) {
+  transition: fill 180ms ease, stroke 180ms ease;
+}
+.title-commands__item[data-highlighted] .title-commands__surface {
+  transform: scaleX(1.018);
+  filter: drop-shadow(0 4px 4px rgb(0 0 0 / 55%));
+}
+.title-commands__finish,
+.title-commands__sheen {
+  position: absolute;
+  inset: 0;
+  /* The shared ribbon's 820×68 silhouette; material never leaks past its bevel. */
+  clip-path: polygon(4.15% 10.3%, 95.85% 10.3%, 93.29% 50%, 95.85% 89.7%, 4.15% 89.7%, 6.71% 50%);
+}
+.title-commands__finish {
+  background:
+    linear-gradient(180deg, rgb(255 239 213 / 13%), transparent 40%, rgb(0 0 0 / 12%) 56%, rgb(0 0 0 / 38%)),
+    repeating-linear-gradient(0deg, transparent 0 2px, rgb(255 232 210 / 2.5%) 2px 3px);
+}
+.title-commands__sheen {
+  opacity: 0;
+  background: linear-gradient(110deg, transparent 40%, rgb(255 239 213 / 12%) 48%, rgb(255 245 228 / 20%) 50%, transparent 58%);
+  background-size: 260% 100%;
+  background-position: 140% 0;
+}
+.title-commands__item[data-highlighted] .title-commands__sheen {
+  animation: title-command-sheen 640ms cubic-bezier(0.2, 0.65, 0.35, 1) both;
+}
+@keyframes title-command-sheen {
+  0% { opacity: 0; background-position: 140% 0; }
+  18% { opacity: 1; }
+  80% { opacity: 0.8; }
+  100% { opacity: 0; background-position: -50% 0; }
+}
+.title-commands__edge {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  stroke: var(--title-metal-light);
+  stroke-width: 0.7;
+  opacity: 0.25;
+  transition: opacity 180ms ease;
+}
+.title-commands__corners { stroke-width: 1.4; }
+.title-commands__item[data-highlighted] .title-commands__edge { opacity: 0.72; }
+.title-commands__item[data-highlighted]:focus-visible { outline: none; }
+.title-commands__item[data-highlighted]:focus-visible .title-commands__edge {
+  opacity: 1;
+  stroke-width: 1.3;
+}
+.title-commands__item .abyssa-ribbon-button__label {
+  color: var(--abyssa-ribbon-text);
+  text-shadow: 0 1px 2px rgb(0 0 0 / 85%);
+  transition: color 180ms ease, transform 100ms ease;
+}
+.title-commands__item:active:not(:disabled) .title-commands__surface {
+  transform: translateY(1.5px) scaleX(1.006);
+  filter: drop-shadow(0 1px 1px rgb(0 0 0 / 65%));
+  transition-duration: 80ms;
+}
+.title-commands__item:active:not(:disabled) .abyssa-ribbon-button__label { transform: translateY(1px); }
+
+.title-commands__markers {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  pointer-events: none;
+}
+.title-commands__cursor {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  aspect-ratio: 820 / 68;
+  transform: translateY(var(--title-cursor-y));
+  transition: transform 240ms cubic-bezier(0.2, 0.9, 0.3, 1.08), opacity 180ms ease;
+}
+.title-commands__cursor--left { --gem-inward: 1; }
+.title-commands__cursor--right {
+  --gem-inward: -1;
+  transition-duration: 270ms, 180ms;
+  transition-delay: 28ms, 0ms;
+}
+.title-commands__gem-seat {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 12px;
+  height: 12px;
+  transform: translate(-50%, -50%);
+  transition: translate 100ms ease;
+}
+.title-commands__cursor--right .title-commands__gem-seat { left: 100%; }
+.title-commands__gem {
+  position: absolute;
+  inset: 0;
+  border: 1px solid color-mix(in srgb, var(--title-metal-light) 80%, var(--title-metal));
+  background: linear-gradient(135deg, rgb(237 219 195 / 9%), var(--title-canvas) 65%);
+  transform: rotate(45deg);
+  box-shadow: 0 0 6px rgb(199 112 91 / 12%);
+  animation: title-gem-float 4600ms ease-in-out infinite;
+  transition: scale 100ms ease;
+}
+.title-commands__cursor--right .title-commands__gem {
+  opacity: 0.9;
+  animation-delay: -800ms;
+}
+.title-commands__gem::before {
+  position: absolute;
+  inset: 3px;
+  background: linear-gradient(135deg, #ffedcf, #cd8d79);
+  box-shadow: 0 0 4px rgb(227 153 120 / 24%);
+  content: "";
+}
+.title-commands__gem::after {
+  position: absolute;
+  top: -1px;
+  left: 0;
+  width: 4px;
+  height: 1px;
+  background: var(--title-metal-light);
+  content: "";
+}
+.title-commands:has(.title-commands__item:active:not(:disabled)) .title-commands__gem-seat {
+  translate: calc(var(--gem-inward) * 4px) 1px;
+  transition-duration: 80ms;
+}
+.title-commands:has(.title-commands__item:active:not(:disabled)) .title-commands__gem { scale: 0.88; }
+.title-commands[data-disabled] .title-commands__cursor { opacity: 0.4; }
+.title-commands[data-disabled] .title-commands__gem { animation-play-state: paused; }
+/* A small outward drift and tilt keeps the thin frame alive; the core stays legible. */
+@keyframes title-gem-float {
+  0%, 100% { translate: 0 0; rotate: 0deg; }
+  45% { translate: calc(var(--gem-inward) * -2.5px) -0.8px; rotate: calc(var(--gem-inward) * 3deg); }
+  72% { translate: calc(var(--gem-inward) * -1px) 0.5px; rotate: 0deg; }
+}
+
+/* Authored title exception: no delayed menu entrance, and no coupling to Logo.
+   Both the system and the application's manual preference switch it off. */
+.title-commands[data-ui-motion="reduced"] *,
+.title-commands[data-ui-motion="reduced"] .title-commands__surface .abyssa-ribbon-button__art :is(path, rect) {
+  animation: none !important;
+  transition: none !important;
+}
+.title-commands[data-ui-motion="reduced"] :is(.title-commands__gem, .title-commands__gem-seat) {
+  translate: none !important;
+  rotate: none !important;
+  scale: none !important;
+}
+.title-commands[data-ui-motion="reduced"] .title-commands__surface,
+.title-commands[data-ui-motion="reduced"] .abyssa-ribbon-button__label { transform: none !important; }
+@media (prefers-reduced-motion: reduce) {
+  .title-cg-layer, .title-cg-layer[data-side="right"], .title-backdrop, .title-emblem, .title-commands { transform: none; }
+}

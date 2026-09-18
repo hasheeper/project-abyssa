@@ -1,0 +1,181 @@
+/* Approved enemy-only layout. Scope beats legacy skin chrome without touching party UI. */
+.abyssa-expedition[data-enemy-ui] .abyssa-enemy-sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; }
+.abyssa-expedition[data-enemy-ui] .abyssa-expedition-enemies__formation {
+  inset: 0;
+  display: block;
+  padding: 0;
+  isolation: isolate;
+}
+.abyssa-expedition[data-enemy-ui] .abyssa-expedition-enemy {
+  position: absolute;
+  top: 0;
+  display: block;
+  height: 100%;
+  padding: 0;
+  z-index: var(--enemy-depth, 2);
+  pointer-events: none;
+}
+.abyssa-expedition[data-enemy-ui] .abyssa-enemy-hit-area {
+  position: absolute; z-index: 4; left: 50%; bottom: var(--enemy-foot,66px);
+  width: var(--enemy-hit-width,100%); height: var(--enemy-hit-height,180px);
+  transform: translateX(-50%); pointer-events: auto;
+}
+.abyssa-expedition[data-enemy-ui] .abyssa-expedition-enemy[data-previewed] .abyssa-enemy-hit-area { transform: translateX(-50%) scale(var(--enemy-hover-zoom,1)); transform-origin: center bottom; }
+.abyssa-expedition[data-enemy-ui] .abyssa-expedition-enemy[data-previewed] { z-index: 10; }
+.abyssa-expedition[data-enemy-ui] .abyssa-expedition-enemy:is([data-attack-phase], [data-enemy-acting]) { z-index: 11; }
+.abyssa-expedition[data-enemy-ui] .abyssa-expedition-enemy > img {
+  position: absolute;
+  margin: 0;
+  max-width: none;
+  pointer-events: none;
+}
+.abyssa-expedition[data-enemy-ui] .abyssa-expedition-enemies__formation .abyssa-expedition-enemy:not([data-attack-phase]):not([data-enemy-acting]) > img {
+  transform: translateY(-18px) scale(1);
+  filter: grayscale(.35) saturate(.7) brightness(.84) contrast(1.04) drop-shadow(0 5px 4px #000a);
+  transition: filter 160ms ease-out, transform 160ms ease-out;
+}
+.abyssa-expedition[data-enemy-ui] .abyssa-expedition-enemies[data-enemy-previewing] .abyssa-expedition-enemies__formation .abyssa-expedition-enemy:not([data-previewed]):not([data-attack-phase]):not([data-enemy-acting]) > img {
+  filter: grayscale(.55) saturate(.48) brightness(.56) contrast(1.04) drop-shadow(0 5px 4px #000b);
+}
+.abyssa-expedition[data-enemy-ui] .abyssa-expedition-enemies__formation .abyssa-expedition-enemy[data-previewed]:not([data-attack-phase]):not([data-enemy-acting]) > img {
+  transform: translateY(-18px) scale(var(--enemy-hover-zoom, 1.04));
+  filter: grayscale(.12) saturate(.9) brightness(1.16) contrast(1.08) drop-shadow(0 0 .6px #d5b978) drop-shadow(0 5px 4px #000b);
+}
+.abyssa-expedition[data-enemy-ui] .abyssa-enemy-intent-zone {
+  position: absolute;
+  z-index: 6;
+  top: 8px;
+  left: 50%;
+  right: auto;
+  width: var(--enemy-ui-width,94px);
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  pointer-events: none;
+}
+.abyssa-expedition[data-enemy-ui] .abyssa-expedition-enemy .abyssa-enemy-intent-zone .abyssa-expedition-intent {
+  position: relative;
+  isolation: isolate;
+  order: -1;
+  min-height: 24px;
+  max-width: calc(100% - 6px);
+  gap: 4px;
+  padding: 0 4px;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  color: #e7ce96;
+  opacity: 1;
+  transform: none;
+  animation: none;
+  transition: color 140ms;
+  pointer-events: auto;
+  width: max-content;
+}
+.abyssa-expedition[data-enemy-ui] .abyssa-expedition-intent::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  left: 50%; top: 50%;
+  width: calc(100% + 26px); height: 42px;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(ellipse, #02060af5 0 26%, #03080de0 43%, #06101980 60%, transparent 77%);
+  filter: blur(3px);
+  opacity: .8;
+  pointer-events: none;
+}
+.abyssa-expedition[data-enemy-ui] .abyssa-expedition-intent > .abyssa-expedition-glyph { width: 18px; height: 18px; flex: none; filter: drop-shadow(0 1px #000) drop-shadow(0 2px 2px #000); }
+.abyssa-expedition[data-enemy-ui] .abyssa-expedition-enemy .abyssa-expedition-intent b {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font: 600 14px/22px var(--font-display);
+  letter-spacing: .04em;
+  text-shadow: 0 1px #514330, 0 2px 1px #010509, 0 0 6px #000b;
+}
+.abyssa-expedition[data-enemy-ui] .abyssa-expedition-enemy .abyssa-expedition-intent[data-kind="attack"] b { font: 600 18px/24px Georgia, serif; font-variant-numeric: tabular-nums; }
+.abyssa-expedition[data-enemy-ui] .abyssa-expedition-enemy .abyssa-enemy-intent-zone .abyssa-expedition-intent[data-threat="lethal"] { color: #ffb9ae; }
+.abyssa-expedition[data-enemy-ui] .abyssa-expedition-enemy .abyssa-enemy-intent-zone .abyssa-expedition-intent[data-threat="blocked"] { color: #a4b6bd; }
+.abyssa-expedition[data-enemy-ui] .abyssa-expedition-enemy .abyssa-enemy-intent-zone .abyssa-expedition-intent[data-blockable] { cursor: pointer; }
+.abyssa-expedition[data-enemy-ui] .abyssa-expedition-enemy .abyssa-enemy-intent-zone .abyssa-expedition-intent[data-blockable]:hover { color: #f8e6ae; }
+.abyssa-expedition[data-enemy-ui] .abyssa-expedition-enemy .abyssa-expedition-enemy__frenzy-status {
+  position: static; min-width: 0; padding: 0; border: 0; background: none; box-shadow: none;
+  transform: none; animation: none; color: #edaf8a;
+}
+.abyssa-expedition[data-enemy-ui] .abyssa-expedition-enemy__frenzy-status b { margin: 0; font: 400 11px/14px var(--font-display); color: inherit; }
+.abyssa-expedition[data-enemy-ui] .abyssa-expedition-enemy > header {
+  position: absolute; z-index: 6; left: 50%; right: auto; bottom: 17px;
+  width: var(--enemy-ui-width,94px); transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 4px 0 0;
+  pointer-events: auto;
+}
+.abyssa-expedition[data-enemy-ui] .abyssa-expedition-enemy header strong {
+  display: block; max-width: 100%; min-width: 0; overflow: hidden; text-overflow: ellipsis;
+  white-space: nowrap; color: #ead9ac; font: 500 14px/18px var(--font-display);
+  letter-spacing: .05em; text-shadow: 0 1px 3px #000, 0 0 8px #000;
+}
+.abyssa-expedition[data-enemy-ui] [data-dense] .abyssa-expedition-enemy header strong { font-size: 13px; letter-spacing: .015em; }
+.abyssa-expedition[data-enemy-ui] .abyssa-expedition-enemy[data-previewed] header strong { color: #fff0c4; }
+.abyssa-expedition[data-enemy-ui] .abyssa-enemy-health-layer { margin-left: 4px; font: 400 11px/18px Georgia, serif; color: #b7a58c; }
+.abyssa-expedition[data-enemy-ui] .abyssa-expedition-enemy__health { display: flex; height: 11px; gap: 6px; }
+.abyssa-expedition[data-enemy-ui] .abyssa-enemy-health-group { display: flex; align-items: center; gap: 2px; }
+.abyssa-expedition[data-enemy-ui] .abyssa-expedition-enemies .abyssa-expedition-enemy__health i {
+  --enemy-hp: #c9a75d; --enemy-glint: #ffedaa;
+  position: relative; flex: none; width: 8px; height: 8px; border: 0; border-radius: 50%;
+  background: radial-gradient(circle at 35% 28%, var(--enemy-glint) 0 16%, var(--enemy-hp) 46%, color-mix(in srgb, var(--enemy-hp), #111820 40%) 74%, #172127 100%);
+  box-shadow: inset 0 1px 1px #fff1, 0 1px 2px #000;
+}
+.abyssa-expedition[data-enemy-ui] .abyssa-expedition-enemy__health i[data-layer="2"] { --enemy-hp: #d7833e; --enemy-glint: #ffd2a0; }
+.abyssa-expedition[data-enemy-ui] .abyssa-expedition-enemy__health i[data-layer="3"] { --enemy-hp: #bf514b; --enemy-glint: #efb3a5; }
+.abyssa-expedition[data-enemy-ui] .abyssa-expedition-enemy__health i[data-layer="4"] { --enemy-hp: #9b70bc; --enemy-glint: #e2c6f2; }
+.abyssa-expedition[data-enemy-ui] .abyssa-expedition-enemies .abyssa-expedition-enemy__health i[data-empty] { background: radial-gradient(circle at 35% 28%, #585042, #232728 70%); box-shadow: inset 0 1px 2px #070b0e, 0 0 0 1px #aa945438; }
+.abyssa-expedition[data-enemy-ui] .abyssa-expedition-enemy__health i[data-buried] { filter: brightness(.5) saturate(.55); }
+.abyssa-expedition[data-enemy-ui] .abyssa-expedition-enemy__health i[data-layer-end]::after { content: ""; position: absolute; top: -2px; right: -1.5px; width: 1px; height: 10px; background: #cbb781; opacity: .85; }
+.abyssa-expedition[data-enemy-ui] .abyssa-enemy-health-group:first-child i:last-child[data-layer-end]::after { right: -3.5px; }
+.abyssa-expedition[data-enemy-ui] .abyssa-enemy-focus-rule { position: absolute; left: 50%; top: -3px; width: 48px; height: 1px; transform: translateX(-50%); background: linear-gradient(90deg, transparent, #dabe72 22% 78%, transparent); opacity: 0; }
+.abyssa-expedition[data-enemy-ui] .abyssa-enemy-focus-rule::after { content: ""; position: absolute; left: 50%; top: -2px; width: 4px; height: 4px; background: #dbbe76; transform: translateX(-50%) rotate(45deg); }
+.abyssa-expedition[data-enemy-ui] .abyssa-expedition-enemy[data-previewed] .abyssa-enemy-focus-rule { opacity: 1; }
+.abyssa-expedition[data-enemy-ui] .abyssa-enemy-boss {
+  /* Use a real icon box: an inline glyph's inherited baseline used to overlap
+     the name. The 12px badge sits between the art and the name, with 2px gaps. */
+  position: absolute; top: -10px; left: 50%; width: 16px; height: 12px;
+  display: flex; align-items: center; justify-content: center; line-height: 0;
+  transform: translateX(-50%); color: #e1bc6e; filter: drop-shadow(0 1px 1px #000);
+}
+.abyssa-expedition[data-enemy-ui] .abyssa-enemy-boss .abyssa-expedition-glyph { width: 16px; height: 12px; }
+.abyssa-expedition[data-enemy-ui] .abyssa-expedition-enemy[data-boss] .abyssa-enemy-focus-rule { opacity: .55; background: linear-gradient(90deg, transparent, #dabe72 20% 30%, transparent 30% 70%, #dabe72 70% 80%, transparent); }
+.abyssa-expedition[data-enemy-ui] .abyssa-expedition-enemy[data-boss] .abyssa-enemy-focus-rule::after { display: none; }
+.abyssa-expedition[data-enemy-ui] .abyssa-enemy-focus-frame {
+  --enemy-frame-line: #d2b476c9;
+  position: absolute; z-index: 5; top: var(--enemy-frame-top, 36px); bottom: 12px;
+  left: var(--enemy-frame-left, 0); width: var(--enemy-frame-width, 100%);
+  border: 1px solid var(--enemy-frame-line); border-top: 0; opacity: 0; pointer-events: none;
+  background: linear-gradient(var(--enemy-frame-line),var(--enemy-frame-line)) left top/var(--enemy-cap-left,25%) 1px no-repeat,
+    linear-gradient(var(--enemy-frame-line),var(--enemy-frame-line)) right top/calc(100% - var(--enemy-cap-left,25%) - var(--enemy-cap-width,50%)) 1px no-repeat,
+    linear-gradient(180deg,#c9aa6303,transparent 35% 70%,#c9aa630a);
+  filter: drop-shadow(0 1px 1px #000a); transition: opacity 130ms;
+}
+.abyssa-expedition[data-enemy-ui] .abyssa-enemy-focus-frame::before { content: ""; position: absolute; left: var(--enemy-cap-left,25%); width: var(--enemy-cap-width,50%); top: calc(4px - var(--enemy-frame-top,36px)); height: calc(var(--enemy-frame-top,36px) - 4px); border: 1px solid var(--enemy-frame-line); border-bottom: 0; }
+.abyssa-expedition[data-enemy-ui] .abyssa-enemy-focus-frame > i { position: absolute; width: 12px; height: 12px; background: linear-gradient(135deg,#dfc793,#9b7b42 58%,#514022); clip-path: polygon(0 0,100% 0,100% 2px,2px 2px,2px 100%,0 100%); }
+.abyssa-expedition[data-enemy-ui] .abyssa-enemy-focus-frame > i:nth-child(1) { left: 0; top: 0; }
+.abyssa-expedition[data-enemy-ui] .abyssa-enemy-focus-frame > i:nth-child(2) { right: 0; top: 0; transform: rotate(90deg); }
+.abyssa-expedition[data-enemy-ui] .abyssa-enemy-focus-frame > i:nth-child(3) { right: 0; bottom: 0; transform: rotate(180deg); }
+.abyssa-expedition[data-enemy-ui] .abyssa-enemy-focus-frame > i:nth-child(4) { left: 0; bottom: 0; transform: rotate(270deg); }
+.abyssa-expedition[data-enemy-ui] .abyssa-expedition-enemy[data-previewed] .abyssa-enemy-focus-frame { opacity: 1; }
+.abyssa-expedition[data-enemy-ui] .abyssa-enemy-line-anchor { position: absolute; bottom: 5px; left: 50%; width: 0; height: 0; pointer-events: none; }
+.abyssa-expedition[data-enemy-ui] .abyssa-expedition-enemies__intent-lines { z-index: 1; inset: 0 auto auto 0; pointer-events: none; }
+.abyssa-expedition[data-enemy-ui] .abyssa-expedition-enemies__intent-lines .abyssa-expedition-intent-line__body { stroke-width: 1.8px; }
+.abyssa-expedition[data-enemy-ui] .abyssa-expedition-enemies__intent-lines .abyssa-expedition-intent-line__shadow { stroke-width: 4px; }
+.abyssa-expedition[data-enemy-ui] .abyssa-expedition-enemies__intent-lines g { transition: opacity 130ms; }
+.abyssa-expedition[data-enemy-ui] .abyssa-expedition-enemies[data-enemy-previewing] .abyssa-expedition-enemies__intent-lines g:not([data-previewed]) { opacity: .22; }
+.abyssa-expedition[data-enemy-ui] .abyssa-expedition-enemies__intent-lines g[data-previewed] { opacity: 1; }
+.abyssa-expedition[data-enemy-ui] .abyssa-expedition-enemy[data-attack-phase="defeat"] .abyssa-enemy-intent-zone { opacity: 0; transition: opacity 260ms; }
+@media (prefers-reduced-motion: reduce) {
+  .abyssa-expedition[data-enemy-ui] .abyssa-expedition-enemies__formation .abyssa-expedition-enemy > img,
+  .abyssa-expedition[data-enemy-ui] .abyssa-enemy-focus-frame,
+  .abyssa-expedition[data-enemy-ui] .abyssa-expedition-enemies__intent-lines g { transition: none !important; }
+}

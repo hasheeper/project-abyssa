@@ -18,6 +18,7 @@ import type {
 } from "./types";
 
 import { loadImage } from "../loading/images";
+import { useSceneRevealRegistry } from "./useSceneReveal";
 
 const HANDOFF_KEY = "abyssa:scene-handoff:v1";
 const HANDOFF_TTL_MS = 15_000;
@@ -35,6 +36,7 @@ export interface SceneTransitionContextValue {
   isTransitioning: boolean;
   navigate: (target: string, options?: SceneNavigationOptions) => boolean;
   holdReady: () => () => void;
+  requestReveal?: (mode: SceneRevealMode) => () => void;
 }
 
 export const SceneTransitionContext = createContext<SceneTransitionContextValue | null>(null);
@@ -114,10 +116,11 @@ export function SceneTransitionProvider(props: SceneTransitionProviderProps) {
 function StandaloneTransitionProvider({
   children,
   ready,
-  reveal = "fade",
+  reveal: defaultReveal = "fade",
   minimumBlackoutMs = 320,
   maximumReadyWaitMs = 6_000
 }: SceneTransitionProviderProps) {
+  const {mode: reveal, modeRef: revealRef, requestReveal} = useSceneRevealRegistry(defaultReveal);
   // 必须惰性读取一次。若把 readIncomingHandoff() 直接传给 useRef，它会在
   // 每次 render 都执行；源页面写入“目标页 marker”后，下一次源页 render
   // 会因路径不匹配把 marker 误删，跨文档接力随即失效。
@@ -206,7 +209,7 @@ function StandaloneTransitionProvider({
       if (cancelled) return;
 
       setPhase("opening");
-      const openingDuration = reveal === "panel-drop" ? PANEL_OPEN_MS : FADE_OPEN_MS;
+      const openingDuration = revealRef.current === "panel-drop" ? PANEL_OPEN_MS : FADE_OPEN_MS;
       openTimer = window.setTimeout(() => {
         if (cancelled) return;
         setPhase("idle");
@@ -219,7 +222,7 @@ function StandaloneTransitionProvider({
       cancelled = true;
       if (openTimer !== null) window.clearTimeout(openTimer);
     };
-  }, [maximumReadyWaitMs, minimumBlackoutMs, ready, readiness, reveal]);
+  }, [maximumReadyWaitMs, minimumBlackoutMs, ready, readiness, revealRef]);
 
   useEffect(
     () => () => {
@@ -275,8 +278,8 @@ function StandaloneTransitionProvider({
   }, []);
 
   const value = useMemo<SceneTransitionContextValue>(
-    () => ({ phase, isTransitioning: phase !== "idle", navigate, holdReady: readiness.hold }),
-    [navigate, phase, readiness]
+    () => ({ phase, isTransitioning: phase !== "idle", navigate, holdReady: readiness.hold, requestReveal }),
+    [navigate, phase, readiness, requestReveal]
   );
 
   return (

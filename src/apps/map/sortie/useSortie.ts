@@ -23,7 +23,7 @@ import type { SortieMember, SortieParty } from "./sortie-model";
  * backTo 记住「从委托点进配队」的来路，编完队回到那份委托，
  * 而不是掉回裸地图 —— 玩家的意图是改这一趟的队，不是取消这一趟。 */
 
-export type SortieMode = "map" | "team" | "pop";
+export type SortieMode = "map" | "team" | "pop" | "loadout";
 
 export interface UseSortieOptions {
   roster: readonly SortieMember[];
@@ -42,6 +42,13 @@ export function useSortie({ roster, nodeIds, onDepart, storage, now, persistOrde
   const [party, setParty] = useState<SortieParty>(() => initialMemberIds ? {...EMPTY_SORTIE_PARTY, memberIds: initialMemberIds} : EMPTY_SORTIE_PARTY);
   const [activeNode, setActiveNode] = useState<MapLocationId | null>(null);
   const [backTo, setBackTo] = useState<MapLocationId | null>(null);
+  const [loadoutReturnMode, setLoadoutReturnMode] = useState<Exclude<SortieMode, "loadout">>("map");
+  const openLoadout = useCallback(() => {
+    if (mode === "loadout") return;
+    setLoadoutReturnMode(mode);
+    setMode("loadout");
+  }, [mode]);
+  const finishLoadout = useCallback(() => setMode(loadoutReturnMode), [loadoutReturnMode]);
 
   const toggleMember = useCallback(
     (memberId: string) => setParty((current) => toggleRosterMember(roster, current, memberId)),
@@ -86,9 +93,10 @@ export function useSortie({ roster, nodeIds, onDepart, storage, now, persistOrde
 
   /** 点遮罩：配队态等同完成，委托态等同关闭。 */
   const dismiss = useCallback(() => {
-    if (mode === "team") finishTeam();
+    if (mode === "loadout") finishLoadout();
+    else if (mode === "team") finishTeam();
     else closeAll();
-  }, [mode, finishTeam, closeAll]);
+  }, [mode, finishTeam, finishLoadout, closeAll]);
 
   /* 名单可能在配队期间变化。渲染前先对账，只剔除已从名单消失的 id；
      伤势/缺骰面成员仍留在预览队伍，真正出发时再由 rejection 拦截。 */
@@ -115,6 +123,9 @@ export function useSortie({ roster, nodeIds, onDepart, storage, now, persistOrde
 
   return {
     mode,
+    loadoutReturnMode,
+    openLoadout,
+    finishLoadout,
     party: reconciled,
     activeNode,
     rejection,

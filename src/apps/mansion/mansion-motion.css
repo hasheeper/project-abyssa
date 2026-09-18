@@ -1,0 +1,234 @@
+/* Only the independent curtain fades. The world remains mounted and is
+   decoded/painted under the opaque cover before it becomes visible. */
+.mansion-world-art { transition: none; }
+
+.mansion-time-loading {
+  --time-metal: #99b7b5;
+  position: fixed;
+  z-index: 2147483600; /* Below the route curtain, above all in-scene controls. */
+  inset: 0;
+  display: grid;
+  place-items: center;
+  overflow: auto;
+  padding: max(22px, env(safe-area-inset-top)) max(22px, env(safe-area-inset-right))
+    max(22px, env(safe-area-inset-bottom)) max(22px, env(safe-area-inset-left));
+  background: var(--loading-veil);
+  opacity: 1;
+  pointer-events: auto;
+}
+.mansion-time-loading,
+.mansion-time-loading *,
+.mansion-time-loading *::before,
+.mansion-time-loading *::after { box-sizing: border-box; }
+/* Keep the paused timeline mounted, but never cover/intercept the active story. */
+.mansion-time-loading[hidden] { visibility: hidden; pointer-events: none; }
+.mansion-time-loading[data-step="cover"] {
+  animation: mansion-time-cover var(--time-cover-duration) var(--abyssa-ease) both;
+}
+.mansion-time-loading[data-step="reveal"] {
+  animation: mansion-time-unveil var(--time-reveal-duration) var(--abyssa-ease) both;
+}
+/* A small temperature shift belongs to the symbol, never the whole plaque. */
+.mansion-time-loading[data-phase="dawn"] { --time-metal: #b8bbb0; }
+.mansion-time-loading[data-phase="dusk"] { --time-metal: #b5afaa; }
+.mansion-time-loading[data-phase="night"] { --time-metal: #a8b8bf; }
+
+.mansion-time-loading__content {
+  width: min(var(--loading-plaque-width), 100%);
+  margin-block: auto;
+  text-align: center;
+  animation: mansion-time-instrument-in 280ms 160ms var(--abyssa-ease) both;
+}
+.mansion-time-loading[data-step="reveal"] .mansion-time-loading__content {
+  animation: mansion-time-content-out 180ms ease-in both;
+}
+.mansion-time-loading__instrument {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  padding: 30px 27px 20px;
+}
+.mansion-time-loading__inscription {
+  position: absolute;
+  top: 12px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 9px;
+  line-height: 1.2;
+}
+.mansion-time-loading__inscription i {
+  width: 4px;
+  height: 4px;
+  border: 1px solid rgb(var(--loading-line) / 42%);
+  transform: rotate(45deg);
+}
+.mansion-time-loading__clock,
+.mansion-time-loading__weather {
+  display: block;
+  width: 96px;
+  height: 96px;
+  margin: 0 0 8px;
+  overflow: visible;
+  stroke-linejoin: round;
+}
+.mansion-time-loading__weather { padding: 12px; color: var(--time-metal); }
+.mansion-time-loading__ticks {
+  fill: none;
+  stroke: rgb(var(--loading-line) / 46%);
+  stroke-width: 1.2;
+}
+.mansion-time-loading__bezel {
+  fill: #0b1213;
+  stroke: rgb(var(--loading-line) / 38%);
+  stroke-width: 1.25;
+}
+.mansion-time-loading__dial {
+  fill: #0d1516;
+  stroke: rgb(var(--loading-line) / 18%);
+  stroke-width: 1;
+}
+.mansion-time-loading__hand {
+  fill: var(--time-metal);
+  stroke: var(--abyssa-frame-deep);
+  stroke-width: 1;
+  transform-origin: 90px 90px;
+  transform: rotate(var(--time-hand-to));
+}
+.mansion-time-loading[data-time-changing] .mansion-time-loading__hand {
+  transform: rotate(var(--time-hand-from));
+}
+.mansion-time-loading[data-time-changing][data-time-started] .mansion-time-loading__hand {
+  animation: mansion-time-hand var(--time-turn-duration) cubic-bezier(.3, .08, .24, 1) both;
+}
+.mansion-time-loading__symbol-window { overflow: hidden; }
+.mansion-time-loading__symbol-roll { transform: translateY(0); }
+.mansion-time-loading[data-time-started] .mansion-time-loading__symbol-roll {
+  animation: mansion-time-symbol-roll var(--time-turn-duration) cubic-bezier(.3, .08, .24, 1) both;
+}
+.mansion-time-loading__symbol {
+  fill: none;
+  stroke: var(--time-metal);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+.mansion-time-loading__relief { fill: color-mix(in srgb, var(--time-metal) 12%, #101718); }
+.mansion-time-loading__star { fill: var(--time-metal); stroke-width: 1; }
+.mansion-time-loading__caption h1 { margin: 0; padding-left: .1em; }
+.mansion-time-loading__day {
+  margin: 4px 0 0;
+  color: var(--loading-muted);
+  font-size: 11px;
+  line-height: 1.6;
+  letter-spacing: .1em;
+}
+.mansion-time-loading__day b {
+  color: rgb(var(--loading-line) / 85%);
+  font-family: var(--abyssa-font-display);
+  font-size: 12px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+.mansion-time-loading__day > span { margin-inline: 5px; }
+
+/* Read-only time marks, inset into a fine rail rather than a second button row. */
+.mansion-time-loading__phases {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  width: min(210px, 100%);
+  margin: 10px 0 8px;
+  padding: 0;
+  list-style: none;
+}
+.mansion-time-loading__phases::before {
+  position: absolute;
+  top: calc(50% - 1px);
+  right: 12px;
+  left: 12px;
+  height: 2px;
+  background: #080e0f;
+  box-shadow: 0 1px 0 rgb(var(--loading-line) / 17%);
+  content: "";
+}
+.mansion-time-loading__phases .abyssa-facet-diamond {
+  --abyssa-facet-size: 28px;
+  --abyssa-facet-fill: #111b1c;
+  --abyssa-facet-lit: #273333;
+  --abyssa-facet-shade: #091011;
+  --abyssa-facet-edge: #405351;
+  --abyssa-facet-rim: #738580;
+  --abyssa-facet-inner: #506c68;
+  filter: none;
+}
+.mansion-time-loading__phases .abyssa-facet-diamond b {
+  color: #7d918d;
+  font-size: 12px;
+  font-weight: 400;
+}
+.mansion-time-loading__phases .abyssa-facet-diamond[data-state="current"] {
+  --abyssa-facet-fill: #233838;
+  --abyssa-facet-lit: #536e6a;
+  --abyssa-facet-edge: #8ea8a2;
+  --abyssa-facet-rim: #b0c1b9;
+}
+.mansion-time-loading__phases [data-state="current"] b { color: var(--loading-ink); }
+.mansion-time-loading[data-time-changing]:not([data-time-started]) .mansion-time-loading__phases [data-state="current"] { opacity: .4; }
+.mansion-time-loading[data-time-changing][data-time-started] .mansion-time-loading__phases [data-state="current"] {
+  animation: mansion-time-mark var(--time-turn-duration) ease-out both;
+}
+.mansion-time-loading__message {
+  width: 100%;
+  margin: 0;
+  color: var(--loading-muted);
+  font-size: 11px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+/* Waiting feedback is local to the copy; the day/symbol never loops again. */
+.mansion-time-loading[data-step="work"] .mansion-time-loading__message {
+  animation: mansion-time-breathe 2200ms 800ms ease-in-out infinite;
+}
+.mansion-time-loading[data-state="error"] .mansion-time-loading__message {
+  margin-top: 8px;
+  color: var(--loading-ink);
+}
+.mansion-time-loading[data-state="error"] :is(.mansion-time-loading__hand, .mansion-time-loading__symbol-roll) { animation-play-state: paused; }
+.mansion-time-loading__actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  width: 100%;
+}
+.mansion-time-loading__actions .scene-loading-action { padding-inline: 13px; }
+
+/* Route curtains can pause this instrument without replacing its DOM or clock. */
+.mansion-time-loading[data-motion-paused] *,
+.mansion-time-loading[data-motion-paused] { animation-play-state: paused !important; }
+@keyframes mansion-time-cover { from { opacity: 0; } to { opacity: 1; } }
+@keyframes mansion-time-unveil { 0%, 16% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes mansion-time-instrument-in { from { opacity: 0; translate: 0 6px; } to { opacity: 1; translate: 0 0; } }
+@keyframes mansion-time-hand {
+  0% { transform: rotate(var(--time-hand-from)); }
+  82% { transform: rotate(calc(var(--time-hand-to) + 2deg)); }
+  100% { transform: rotate(var(--time-hand-to)); }
+}
+@keyframes mansion-time-symbol-roll { from { transform: translateY(0); } to { transform: translateY(-88px); } }
+@keyframes mansion-time-mark { 0%, 32% { opacity: .4; } 100% { opacity: 1; } }
+@keyframes mansion-time-content-out { from { opacity: 1; translate: 0 0; } to { opacity: 0; translate: 0 -4px; } }
+@keyframes mansion-time-breathe { 0%, 100% { opacity: .65; } 50% { opacity: 1; } }
+
+.mansion-time-loading[data-ui-motion="reduced"],
+.mansion-time-loading[data-ui-motion="reduced"] * { animation: none !important; }
+.mansion-time-loading[data-ui-motion="reduced"] .mansion-time-loading__hand { transform: rotate(var(--time-hand-to)); }
+.mansion-time-loading[data-ui-motion="reduced"] .mansion-time-loading__symbol-roll { transform: translateY(-88px); }
+.mansion-time-loading[data-ui-motion="reduced"][data-time-changing] .mansion-time-loading__phases [data-state="current"] { opacity: 1; }
+@media (prefers-reduced-motion: reduce) {
+  .mansion-app *, .mansion-app *::before, .mansion-app *::after { animation: none !important; transition-duration: 0ms !important; }
+  .mansion-time-loading, .mansion-time-loading * { animation: none !important; }
+  .mansion-time-loading .mansion-time-loading__hand { transform: rotate(var(--time-hand-to)); }
+  .mansion-time-loading .mansion-time-loading__symbol-roll { transform: translateY(-88px); }
+}

@@ -1,12 +1,12 @@
 import { committedDemoEvents } from "../../../game-runtime/d5-views";
 import { demoBattleReaction, useBattleReaction } from "../presentation/battle-reactions";
+import { tideCueMemory, tideImpactCue, tideOpeningCue } from "../presentation/tide-tactical-cues";
 import { formationSteps } from "../presentation/formation-motion";
 import { manorEventDie, type ManorEventRoll } from "../presentation/manor-event-presentation";
-import { JOURNEY_MOTION_MS, type JourneyMotion } from "../presentation/journey-motion";
+import { JOURNEY_MOTION_MS, ROOM_LOADING_MIN_MS, ROOM_LOADING_NOTICE_MS, type JourneyMotion } from "../presentation/journey-motion";
 import {
   useCallback,
   useEffect,
-  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -42,7 +42,7 @@ function duration(ms: number) {
     : ms;
 }
 /** Same animation phases and die timing as the original battle, driven by committed Demo receipts. */
-export function useManorBattlePresentation() {
+export function useManorBattlePresentation({coordinateRoomAssets = false}: {coordinateRoomAssets?: boolean} = {}) {
   const reactions = useBattleReaction();
   const session = useGameSession(),
     game = useGameState(),
@@ -58,13 +58,27 @@ export function useManorBattlePresentation() {
   const [enemyTurnFx, setEnemyTurnFx] = useState<BattleEnemyFx | null>(null);
   const [heldActor, holdActor] = useState<string | null>(null);
   const [journeyMotion, setJourneyMotion] = useState<JourneyMotion | null>(null);
+  const [pendingRoom,setPendingRoom]=useState<{id:number;view:DemoJourneyView}|null>(null);
+  const roomGate=useRef<{id:number;ready:boolean;resolve:(ready:boolean)=>void}|null>(null);
+  const roomAssetsReady=useCallback((id:number)=>{
+    const gate=roomGate.current;
+    if(gate?.id===id) {gate.ready=true;gate.resolve(true);}
+  },[]);
+  const cancelRoom=useCallback(()=>{
+    roomGate.current?.resolve(false);
+    roomGate.current=null;
+    setPendingRoom(null);
+  },[]);
+  useEffect(()=>()=>{roomGate.current?.resolve(false);roomGate.current=null;},[]);
   const [eventRoll, setEventRoll] = useState<ManorEventRoll | null>(null);
-  const nodes = useRef(new Map<string, HTMLElement>()),
-    rects = useRef(new Map<string, DOMRect>());
-  const motions = useRef(new Set<Animation>());
-  const cancelMotions = () => { for (const animation of motions.current) animation.cancel(); motions.current.clear(); };
+  const cueMemory = useMemo(() => {
+    let storage: Storage | undefined;
+    try { storage = window.sessionStorage; } catch { /* Optional tab-local reading state. */ }
+    return tideCueMemory(`${committed.head.saveId}:${committed.head.epoch}`, storage);
+  }, [committed.head.saveId, committed.head.epoch]);
+  const observeTide = useCallback((next: ReturnType<typeof tideOpeningCue>) => reactions.observe(cueMemory.take(next)), [cueMemory, reactions.observe]);
   const reset = () => {
-    cancelMotions();
+    cancelRoom();
     setShown(null);
     setRolls({});
     setAttackFx(null);
@@ -87,8 +101,12 @@ export function useManorBattlePresentation() {
       }
     };
     document.addEventListener("visibilitychange", hide);
-    return () => { document.removeEventListener("visibilitychange", hide); cancelMotions(); };
+    return () => { document.removeEventListener("visibilitychange", hide); };
   }, [queue.cancel]);
+  useEffect(() => { reactions.clear(); }, [committed.roomId, committed.tutorial?.attempt]);
+  useEffect(() => {
+    if (!queue.busy && game.status === "ready" && !document.hidden) observeTide(tideOpeningCue(committed));
+  }, [committed, queue.busy, game.status, observeTide]);
   const perform = async (command: ManorPlayerCommand) => {
     if (session.getSnapshot().status !== "ready") return;
     const runId = queue.begin();
@@ -101,7 +119,7 @@ export function useManorBattlePresentation() {
       if (command.type === "undo") reactions.clear();
       const eventAttempt = command.type === "choose-event" && command.choiceId === "attempt";
       const announce = () => {
-        for (const receipt of batch.receipts) reactions.observe(demoBattleReaction(committedDemoEvents(receipt), receipt.requestId));
+        if (!committed.tutorial?.guide) for (const receipt of batch.receipts) reactions.observe(demoBattleReaction(committedDemoEvents(receipt), receipt.requestId));
       };
       // A success/failure line would reveal the event before its die has landed.
       if (!eventAttempt) announce();
@@ -112,6 +130,13 @@ export function useManorBattlePresentation() {
       const wait = async (ms: number) =>
         (await queue.wait(duration(ms), runId)) && current();
       const after = session.runtime.queries.journey(batch.after)!;
+      const announceEvent = () => {
+        announce();
+        for (const receipt of batch.receipts) {
+          const events = committedDemoEvents(receipt);
+          for (const event of events) observeTide(tideImpactCue(after, event, events));
+        }
+      };
       if (!current()) return;
       const eventDie = eventAttempt ? manorEventDie(after) : null;
       if (eventDie) {
@@ -128,14 +153,48 @@ export function useManorBattlePresentation() {
           if (!(await wait(620))) return;
           setShown(after);
           setEventRoll({...eventDie, phase: "outcome"});
-          announce();
+          announceEvent();
           if (!(await wait(700))) return;
-        } else announce();
+        } else announceEvent();
         return;
       }
       // Room changes may have an empty event list. Animate the committed
       // command boundary, keeping the old room visible until arrival.
       if (command.type === "advance-room" || command.type === "choose-exit" && command.choice === "continue") {
+        // Begin decoding the committed destination while the old room still
+        // plays. The binding acknowledges readiness; no damage/commands replay.
+        const assetsReady=coordinateRoomAssets && !after.tutorial?.runRef && after.room
+          ? new Promise<boolean>(resolve=>{
+            roomGate.current={id:runId,ready:false,resolve};
+            setPendingRoom({id:runId,view:after});
+          }) : null;
+        const revealRoom=async(reduced=false)=>{
+          let held=false,started=0;
+          const hold=()=>{
+            if(!current())return;
+            held=true;started=performance.now();setJourneyMotion("loading");
+          };
+          // Without the walking beat, give cached/fast art time to acknowledge
+          // readiness before adding a veil. A slow reduced-motion load still has feedback.
+          let notice:number|undefined;
+          if(assetsReady&&!roomGate.current?.ready) {
+            if(reduced)notice=window.setTimeout(hold,ROOM_LOADING_NOTICE_MS);
+            else hold();
+          }
+          try {
+            if(assetsReady&&(!(await assetsReady)||!current()))return null;
+          } finally {window.clearTimeout(notice);}
+          // A slow load gets one stable local veil, not a one-frame loading card.
+          const elapsed=performance.now()-started;
+          const remaining=(elapsed>=ROOM_LOADING_NOTICE_MS?ROOM_LOADING_NOTICE_MS+ROOM_LOADING_MIN_MS:ROOM_LOADING_MIN_MS)-elapsed;
+          // Readability time is not motion, so system reduction must not compress it.
+          if(held&&remaining>0&&!(await queue.wait(remaining,runId)))return null;
+          if(!current())return null;
+          roomGate.current=null;
+          setPendingRoom(null);
+          setShown(after);
+          return held;
+        };
         if (!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
           setJourneyMotion("walking");
           if (!(await wait(JOURNEY_MOTION_MS.walking))) return;
@@ -146,15 +205,17 @@ export function useManorBattlePresentation() {
             if (!(await wait(JOURNEY_MOTION_MS.encounter))) return;
             setJourneyMotion("flash");
             if (!(await wait(JOURNEY_MOTION_MS.flash))) return;
-            setShown(after);
-            setJourneyMotion("revealing");
+            const held=await revealRoom();
+            if(held===null)return;
+            setJourneyMotion(held?"loaded":"revealing");
             if (!(await wait(JOURNEY_MOTION_MS.revealing))) return;
           } else {
-            setShown(after);
-            setJourneyMotion("arriving");
+            const held=await revealRoom();
+            if(held===null)return;
+            setJourneyMotion(held?"loaded":"arriving");
             if (!(await wait(JOURNEY_MOTION_MS.arriving))) return;
           }
-        }
+        } else await revealRoom(true);
         return;
       }
       let visible = committed;
@@ -245,7 +306,7 @@ export function useManorBattlePresentation() {
             if (!(await wait(100))) return;
             setEnemyTurnFx({ ...cue, phase: "hitstop" });
             if (!(await wait(60))) return;
-            events.forEach(apply);
+            events.forEach(event => { apply(event); observeTide(tideImpactCue(visible, event, events)); });
             setEnemyTurnFx({ ...cue, phase: "impact" });
             if (!(await wait(320))) return;
             setEnemyTurnFx({ ...cue, phase: "recover" });
@@ -275,6 +336,7 @@ export function useManorBattlePresentation() {
             setAttackFx({ ...cue, phase: "hitstop" });
             if (!(await wait(70))) return;
             apply(event);
+            observeTide(tideImpactCue(visible, event, events));
             // Apply the committed linked preview on the hit frame, while the guest's
             // existing defeat animation finishes. Reapplying this absolute delta is harmless.
             const seatChange = events.find(e => e.type === "banquet-seats-changed" && (e.payload as {targetId:string;reason:string}).targetId === p.targetId && (e.payload as {reason:string}).reason === "defeated");
@@ -302,6 +364,7 @@ export function useManorBattlePresentation() {
             setSupportFx({ ...cue, phase: "release" });
             if (!(await wait(120))) return;
             apply(event);
+            observeTide(tideImpactCue(visible, event, events));
             holdActor(null);
             setSupportFx({ ...cue, phase: "impact" });
             if (!(await wait(240))) return;
@@ -338,41 +401,8 @@ export function useManorBattlePresentation() {
       attackFx?.targetId === e.id ||
       enemyTurnFx?.enemyId === e.id,
   );
-  const layoutKey = presentedEnemies.map((e) => e.id).join("|");
-  const registerEnemyNode = useCallback(
-    (id: string, node: HTMLElement | null) => {
-      if (node) nodes.current.set(id, node);
-      else nodes.current.delete(id);
-    },
-    [],
-  );
-  useLayoutEffect(() => {
-    const next = new Map<string, DOMRect>();
-    for (const enemy of presentedEnemies) {
-      const node = nodes.current.get(enemy.id);
-      if (!node) continue;
-      const rect = node.getBoundingClientRect(),
-        before = rects.current.get(enemy.id);
-      next.set(enemy.id, rect);
-      if (before && node.animate && !document.hidden && (before.left !== rect.left || before.top !== rect.top)) {
-        const dx = before.left - rect.left, dy = before.top - rect.top;
-        const reorder = before && rects.current.size === presentedEnemies.length && queue.isBusy();
-        const animation = node.animate(
-          [
-            {
-              transform: `translate(${dx}px, ${dy}px)`,
-            },
-            ...(reorder ? [{transform: `translate(${dx * 0.5}px, ${dy * 0.5 + (dx > 0 ? -12 : 12)}px)`, offset: 0.5}] : []),
-            { transform: "translate(0, 0)" },
-          ],
-          { duration: duration(reorder ? 360 : 320), easing: reorder ? "cubic-bezier(.25,.1,.25,1)" : "ease-out" },
-        );
-        motions.current.add(animation);
-        animation.onfinish = () => motions.current.delete(animation);
-      }
-    }
-    rects.current = next;
-  }, [layoutKey]);
+  // The shared enemy stage owns layout/reflow. Controller-side FLIP used stale
+  // screen-space entrance/resize rects and fought the stage's local positions.
   const busy = queue.busy || game.status !== "ready";
   return {
     reaction: reactions.reaction,
@@ -389,9 +419,10 @@ export function useManorBattlePresentation() {
     perform,
     busy,
     isBusy: queue.isBusy,
-    registerEnemyNode,
     isRolling: Object.values(rolls).some((v) => v.rolling),
     journeyMotion,
+    pendingRoom,
+    roomAssetsReady,
     eventRoll,
   };
 }

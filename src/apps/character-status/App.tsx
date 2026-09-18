@@ -1,7 +1,7 @@
 import { routeSearch } from "../../shared/routing/location";
 import { useEffect, useMemo, useState } from "react";
 import { AbyssaProvider } from "../../shared/ui/primitives/AbyssaProvider";
-import { CharacterStatusScreen } from "../../shared/ui/patterns/CharacterStatusScreen";
+import { CharacterBoardScreen } from "./CharacterBoardScreen";
 import { StatusPanel } from "../../shared/ui/patterns/StatusPanel";
 import { DiceLoadoutPanel } from "../../shared/ui/patterns/DiceLoadoutPanel";
 import { CharacterChroniclePanel } from "../../shared/ui/patterns/CharacterChroniclePanel";
@@ -127,7 +127,7 @@ function ArchiveScreen({
     location.from === "battle" && !view.runRef ? "map" : location.from;
   const returnLabel = `返回${returnPage === "battle" ? "战斗" : returnPage === "map" ? "地图" : "菜单"}`;
   return (
-    <Stage background="var(--abyssa-character-status-backdrop)">
+    <Stage canvasClassName="character-status-canvas">
       <AbyssaProvider className="character-status-app">
         <aside className="character-status-app__menu" aria-label="角色页导航">
           <GameMenu
@@ -161,8 +161,7 @@ function ArchiveScreen({
               <span role="status">所选角色不存在，已显示当前队伍。</span>
             )}
         </div>
-        <main className="character-status-app__main">
-          <CharacterStatusScreen
+          <CharacterBoardScreen
             characters={characters.map((c) => c.profile)}
             selectedId={selected.profile.id}
             activeMenuId={location.tab}
@@ -171,7 +170,10 @@ function ArchiveScreen({
             onActiveMenuIdChange={(tab) =>
               change({ tab: tab as CharacterLocation["tab"] })
             }
-            renderTabPanel={({ menuId }) => {
+            renderTabPanel={({ character, menuId }) => {
+              // The selector/URL responds immediately, but the whole visible
+              // dossier changes only at the presentation controller's commit.
+              const selected = characters.find(candidate => candidate.profile.id === character.id)!;
               if (menuId === "dice")
                 return (
                   <DiceLoadoutPanel
@@ -215,7 +217,6 @@ function ArchiveScreen({
               );
             }}
           />
-        </main>
         {progression && <EquipmentEditor key={selected.profile.id} open={equipmentOpen} onClose={()=>setEquipmentOpen(false)} ownerId={selected.profile.id} progression={progression} writer={equipment.writer} state={equipment.state}/>}
       </AbyssaProvider>
     </Stage>

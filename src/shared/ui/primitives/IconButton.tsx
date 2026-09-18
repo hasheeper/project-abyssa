@@ -2,6 +2,7 @@ import { forwardRef, useId } from "react";
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 import type { AbyssaSize, AbyssaVariant } from "../types";
 import { cx } from "../../lib/cx";
+import { useUiMotion } from "../motion/UiMotionProvider";
 import { DiamondWatermark, resolveDiamondWatermark } from "./DiamondWatermark";
 import type { DiamondWatermarkConfig } from "./DiamondWatermark";
 
@@ -37,6 +38,7 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
     },
     ref
   ) {
+    const { reduced } = useUiMotion();
     const uid = useId().replace(/:/g, "");
     const patternId = `abyssa-icon-pattern-${uid}`;
     const clipId = `abyssa-icon-clip-${uid}`;
@@ -57,7 +59,8 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
       <button
         ref={ref}
         type={type}
-        className={cx("abyssa-icon-button", className)}
+        className={cx("abyssa-icon-button", "abyssa-control-motion", className)}
+        data-ui-motion={reduced ? "reduced" : "full"}
         data-variant={variant}
         data-size={size}
         data-shape={shape}
@@ -67,7 +70,7 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
         aria-pressed={selected === undefined ? undefined : selected}
         {...props}
       >
-        <svg className="abyssa-icon-button__art" viewBox="0 0 120 120" aria-hidden="true">
+        <svg className="abyssa-icon-button__art abyssa-control-motion__art" viewBox="0 0 120 120" aria-hidden="true">
           <defs>
             {watermarkOptions && <DiamondWatermark as="pattern" id={patternId} outerFill="var(--abyssa-icon-pattern-dark)" innerFill="var(--abyssa-icon-pattern-light)" {...watermarkOptions} />}
             <clipPath id={clipId}>
@@ -111,7 +114,7 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
             </g>
           )}
         </svg>
-        {children && <span className="abyssa-icon-button__custom" aria-hidden="true">{children}</span>}
+        {children && <span className="abyssa-icon-button__custom abyssa-control-motion__art" aria-hidden="true">{children}</span>}
       </button>
     );
   }

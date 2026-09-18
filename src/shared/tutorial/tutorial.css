@@ -1,0 +1,40 @@
+.abyssa-tutorial {
+  position: fixed;
+  inset: 0;
+  z-index: 700;
+  pointer-events: none;
+  font-family: var(--abyssa-font-body, "Noto Serif SC", serif);
+  color: #d8d2c2;
+}
+.abyssa-tutorial__canvas { position: absolute; inset: 0; overflow: hidden; animation: tutorial-reveal 150ms ease-out both; }
+.abyssa-tutorial__outline { fill: none; stroke: #ad9b70; stroke-width: 1; }
+.abyssa-tutorial__context { fill: none; stroke: #ad9b70; stroke-width: 1; stroke-dasharray: 5 4; opacity: .7; }
+.abyssa-tutorial__focus path { fill: none; stroke: #e0d1a6; stroke-width: 2; }
+.abyssa-tutorial__card {
+  box-sizing: border-box;
+  position: absolute;
+  width: min(304px, calc(100vw - 28px));
+  margin: 0;
+  padding: 16px 18px 18px;
+  background: linear-gradient(140deg, #303633, #1b2221 70%);
+  border: 1px solid #82775d;
+  box-shadow: inset 0 0 0 3px #141a19, inset 0 0 0 4px #454a3f, 0 10px 24px #0009;
+  pointer-events: auto;
+}
+.abyssa-tutorial[data-visible] .abyssa-tutorial__card { animation: tutorial-reveal 150ms ease-out both; }
+.abyssa-tutorial__heading { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.abyssa-tutorial__heading > span { color: #b09d70; font-size: 18px; }
+.abyssa-tutorial__heading h2 { margin: 0; font-size: 18px; line-height: 1.5; font-weight: 600; letter-spacing: .1em; color: #ded2b5; }
+.abyssa-tutorial__close { margin: -6px -8px -6px auto; width: 32px; height: 32px; padding: 0; border: 0; background: transparent; color: #a6aa9c; font: 24px/1 sans-serif; cursor: pointer; }
+.abyssa-tutorial__card p { margin: 0; font: 14px/1.85 var(--abyssa-font-body, serif); overflow-wrap: anywhere; }
+.abyssa-tutorial__card[data-collapsed] { width: min(246px, calc(100vw - 28px)); padding: 0; }
+.abyssa-tutorial__restore { display: flex; align-items: center; gap: 12px; width: 100%; padding: 10px 14px; border: 0; background: transparent; color: #ded2b5; text-align: left; font: 14px/1.5 var(--abyssa-font-body, serif); cursor: pointer; }
+.abyssa-tutorial__restore > span:first-child { font: 22px/1 sans-serif; }
+.abyssa-tutorial__restore small { display: block; color: #a6aa9c; font-size: 12px; }
+.abyssa-tutorial__restore:hover { background: rgb(145 195 198 / 7%); }
+.abyssa-tutorial__next { display: block; margin: 14px 0 0 auto; padding: 5px 12px; border: 1px solid #686c59; box-shadow: inset 0 0 0 2px #202824; background: #343e35; color: #dfd4b9; font: 13px/1.5 var(--abyssa-font-body, serif); cursor: pointer; }
+.abyssa-tutorial__close:hover,.abyssa-tutorial__next:hover { color: #f1e5c5; background-color: #465043; }
+.abyssa-tutorial button:focus-visible { outline: 2px solid #ddcca0; outline-offset: 3px; }
+.abyssa-tutorial__deferred { position: absolute; right: 16px; top: 16px; padding: 8px 12px; background: #202824; border: 1px solid #82775d; color: #ddd0b1; font: 13px var(--abyssa-font-body, serif); pointer-events: auto; cursor: pointer; }
+@keyframes tutorial-reveal { from {opacity:0} to {opacity:1} }
+@media (prefers-reduced-motion: reduce) { .abyssa-tutorial *, .abyssa-tutorial[data-visible] .abyssa-tutorial__card {animation:none;} }

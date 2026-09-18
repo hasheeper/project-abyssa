@@ -1,0 +1,242 @@
+{
+  "schemaVersion": 1,
+  "id": "O1-W.S3-2",
+  "sceneId": "S3-2",
+  "title": "洞口哨位",
+  "status": "editorial-task-awaiting-draft",
+  "purpose": "精修 T1 后洞口哨位对白，确认前方哨兵与后方弩手。读完才开放 T2，不提前写击倒结果。",
+  "contextActors": [
+    "kael",
+    "norma",
+    "eustice",
+    "elora",
+    "kororo"
+  ],
+  "actors": [
+    {
+      "id": "kael",
+      "name": "{{user}}"
+    },
+    {
+      "id": "norma",
+      "name": "诺玛"
+    },
+    {
+      "id": "eustice",
+      "name": "尤斯缇丝"
+    },
+    {
+      "id": "elora",
+      "name": "艾洛拉"
+    },
+    {
+      "id": "kororo",
+      "name": "柯萝萝"
+    }
+  ],
+  "player": {
+    "actorId": "kael",
+    "nameToken": "{{user}}",
+    "authoredSpeech": false
+  },
+  "slots": [
+    {
+      "id": "S3-2",
+      "actorId": "norma",
+      "sourceText": "洞口有哨兵。弩手在后面。",
+      "sourceEmotion": "serious",
+      "allowedEmotions": [
+        "serious",
+        "confident",
+        "neutral"
+      ],
+      "mustConvey": [
+        "洞口有哨兵",
+        "弩手在后方"
+      ],
+      "readingNote": "诺玛向熟悉战斗的同伴指出威胁，不把格挡按钮和重掷教学念出来。"
+    }
+  ],
+  "outline": [
+    {
+      "sceneId": "S3-1",
+      "title": "车辙入潮沟",
+      "when": "创建教程 run 后、T1 开骰前",
+      "beats": [
+        "诺玛确认车辙通往洞口",
+        "读完后开放 T1：两只潮沟软泥"
+      ],
+      "lineIds": [
+        "S3-1"
+      ],
+      "completion": "continue"
+    },
+    {
+      "sceneId": "S3-2",
+      "title": "洞口哨位",
+      "when": "T1 完成",
+      "beats": [
+        "辨明洞口哨兵与后方弩手",
+        "接 T2：望风者与弩手；成熟队伍谈战术，不念操作教程"
+      ],
+      "lineIds": [
+        "S3-2"
+      ],
+      "completion": "continue"
+    },
+    {
+      "sceneId": "S3-3",
+      "title": "背风石阶",
+      "when": "T2 完成",
+      "beats": [
+        "背风处短暂整备",
+        "伤势和补给依真实查询；不知道伤势时不得写成已受伤",
+        "接 T3：搬运者、望风者、弩手"
+      ],
+      "lineIds": [
+        "S3-3"
+      ],
+      "completion": "continue"
+    },
+    {
+      "sceneId": "S3-4",
+      "title": "上层货台",
+      "when": "T3 完成",
+      "beats": [
+        "确认草药箱、帝都书箱、工坊包袱三类目标",
+        "匪首还在货台；A/B/C 只表达态度",
+        "三支均接 T4：匪首与两名弩手"
+      ],
+      "lineIds": [
+        "S3-4"
+      ],
+      "completion": "S3-4.choice",
+      "reservedWork": "后续分支回应需人工先分配新的稳定台词槽及版本策略，本任务禁止自行插入。"
+    },
+    {
+      "sceneId": "S3-5",
+      "title": "沿原路返回",
+      "when": "T4 胜利且真实终局生成",
+      "beats": [
+        "三类货物清点完毕",
+        "沿原路撤回；不写千金专属解线或抱起"
+      ],
+      "lineIds": [
+        "S3-5"
+      ],
+      "completion": "continue"
+    },
+    {
+      "sceneId": "S4-1",
+      "title": "物归原主",
+      "when": "S3-5 读完",
+      "beats": [
+        "艾洛拉接草药",
+        "柯萝萝接书",
+        "玛丽埃塔接工坊包袱",
+        "旧毯子的修缮和交还细节待文案定稿，不自行确定"
+      ],
+      "lineIds": [
+        "S4-1",
+        "S4-1.page.1",
+        "S4-1.page.2"
+      ],
+      "completion": "continue",
+      "reservedWork": "艾比希斯的具体反应属于 O1-W 后续制作需求，现有此槽无她的台词 ID；须先明确分配，不能冒名插入。"
+    },
+    {
+      "sceneId": "S4-2",
+      "title": "下一份委托",
+      "when": "S4-1 读完",
+      "beats": [
+        "回馆先休整",
+        "旧庄园事务只作后续钩子",
+        "补给可去缇比处购买；完成后进入 claimable，领取才推进一次时段并开放自由枢纽"
+      ],
+      "lineIds": [
+        "S4-2",
+        "S4-2.page.1"
+      ],
+      "completion": "continue"
+    }
+  ],
+  "immutableBranches": [
+    {
+      "sceneId": "S3-4",
+      "choiceId": "S3-4.choice",
+      "options": [
+        {
+          "id": "A",
+          "label": "守住出口",
+          "attitude": "指令",
+          "next": "T4"
+        },
+        {
+          "id": "B",
+          "label": "堵住退路",
+          "attitude": "老练",
+          "next": "T4"
+        },
+        {
+          "id": "C",
+          "label": "先检查货物",
+          "attitude": "务实",
+          "next": "T4"
+        }
+      ],
+      "effects": "只记态度，不改敌人、判定、伤害、骰面、货物、奖励或通关；重试保留原选择。"
+    }
+  ],
+  "state": {
+    "routeId": "intro.tide-cave.first",
+    "storyId": "S3-2",
+    "storyStep": 0,
+    "stage": "story",
+    "encounter": "T1-cleared-before-T2",
+    "presentActorIds": [
+      "kael",
+      "norma",
+      "eustice",
+      "elora",
+      "kororo"
+    ],
+    "absentActorIds": [
+      "marietta",
+      "abyssa",
+      "tibby"
+    ],
+    "knownFacts": [
+      "T1 的两只潮沟软泥已由真实战斗通过",
+      "洞口有望风哨兵，弩手在后方",
+      "货物尚未追回"
+    ],
+    "unknownFacts": [
+      "当前五人具体伤势与补给余量"
+    ],
+    "result": "T1 已通过，T2 尚未开始"
+  },
+  "constraints": [
+    "当前稿只是候选对白，不是现行游戏或存档变更；保留稳定 storyId、step、lineId 和 actorId。",
+    "当前任务的玩家规则高于 st/setting 旧固定姓名和示例对白：{{user}} 为姓名占位，kael 仅作 ID；普通节点不自动发言。",
+    "主角物理动作无台词，群像自行运转；只有明确分配的抉择分支台词可有一句短回应。首晨固定台词特许不延伸到本章。",
+    "对话不增加新真相、选项、奖励或机制。不可把缇比写成被抓等待营救的人质。",
+    "潮水提供叙事压力，没有现实时间倒计时、对白罚时或自动毁货。",
+    "牌型按未力竭的清醒队友结算，已使用骰仍参与，沉眠面排除；倍率影响收益，不增加攻击伤害。",
+    "骰子、目标、判定、伤害和战利品必须真实计算；对白不能指定结果。",
+    "失败恢复检查点与随机状态，不扣时间、不发奖励；成功回馆读完七槽后领取真实收益和一次8G报酬。",
+    "不因此授予庄园接管、回忆开放、玛亲征、等级提升或装备；三类任务货物不是商店库存。",
+    "原 AVG 舞台、转场、动画和教程高亮画布由前端执行。只给允许的 emotion，不加动作、位置、气泡、声音或舞台字段。",
+    "用户本次语言协议覆盖旧设计稿的纯中文交付口径：日本語原文（中文翻译）。"
+  ],
+  "humanReview": {
+    "required": true,
+    "checklist": [
+      "逐位角色的口吻、年龄感与当场目的是否可信",
+      "日文能否自然配音，中文是否保留语气",
+      "没有堆口癖或让角色朗读教程",
+      "每页的语意和阅读节奏是否合适",
+      "对照 knownFacts、unknownFacts 与各槽 mustConvey，没有新增真相或代替玩家行动",
+      "同意后由正式内容流程接入，不自动覆盖冻结内容"
+    ]
+  }
+}

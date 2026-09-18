@@ -1,5 +1,5 @@
 import type { SceneTransitionCopy, SceneTransitionPhase } from "./types";
-import { RpgFrame } from "../ui/primitives/RpgFrame";
+import { LoadingPlaque } from "./LoadingPlaque";
 /* 样式与实际渲染组件共置，确保任何消费路径都会自动带上同一套公共样式。 */
 import "./transition.css";
 
@@ -27,7 +27,7 @@ export function SceneTransition({
   className, progress, error, onRetry
 }: SceneTransitionProps) {
   const active = phase !== "idle";
-  const rootClass = ["scene-transition", className].filter(Boolean).join(" ");
+  const rootClass = ["scene-transition", "scene-loading-surface", className].filter(Boolean).join(" ");
 
   return (
     <>
@@ -41,18 +41,7 @@ export function SceneTransition({
         <div className="scene-transition__veil" />
         {cinematic && still && <img className="scene-transition__still" src={still} alt=""/>}
         {!cinematic && <div className="scene-transition__content">
-          <RpgFrame
-            className="scene-transition__plaque"
-            variant="dark"
-            padding="none"
-            ornamented
-            watermark={{
-              size: 38,
-              outerOpacity: 0.38,
-              innerOpacity: 0.2,
-              innerInset: 9
-            }}
-          >
+          <LoadingPlaque className="scene-transition__plaque">
             <div className="scene-transition__plaque-body">
               <span className="scene-transition__plaque-index" aria-hidden="true">
                 <i />
@@ -74,16 +63,16 @@ export function SceneTransition({
               </div>
 
               <div className="scene-transition__copy">
-                <span className="scene-transition__channel">{channel}</span>
-                <strong className="scene-transition__destination">{destination}</strong>
+                <span className="scene-transition__channel scene-loading-channel">{channel}</span>
+                <strong className="scene-transition__destination scene-loading-title">{destination}</strong>
                 {progress !== undefined && !error && <span className="scene-transition__progress" role="progressbar" aria-label="资源准备" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100}>{progress}%</span>}
-                {error && <><span className="scene-transition__error" role="alert">{error}</span><button className="scene-transition__retry" onClick={onRetry}>重试</button></>}
+                {error && <><span className="scene-transition__error" role="alert">{error}</span><button className="scene-transition__retry scene-loading-action" onClick={onRetry}>重试</button></>}
                 {progress === undefined && !error && <span className="scene-transition__activity" aria-hidden="true">
                   <i /><i /><i />
                 </span>}
               </div>
             </div>
-          </RpgFrame>
+          </LoadingPlaque>
         </div>}
       </div>
 

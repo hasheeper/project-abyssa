@@ -1,6 +1,6 @@
 import * as v from "../../game-core/contracts";
 import type { ValidatedD5Catalog } from "../../game-core/contracts";
-import { createD5ExpeditionEngine, parseDemoItemTarget } from "../../game-core/session";
+import { createD5ExpeditionEngine, parseDemoItemTarget, parseTutorialOperation } from "../../game-core/session";
 import type { D5Departure, D5ExpeditionState, D5JourneyOperation, D5Projection } from "../../game-core/session";
 import { parseDemoBattleCommand } from "../../game-core/battle";
 import type { DemoEvent } from "../../game-core/battle";
@@ -20,12 +20,13 @@ export function compactD5Journey(proof: D5JourneyEvidence): D5JourneyFactPayload
   return { runRef: proof.runRef, operation: proof.operation, beforeDigest: d5Digest(proof.before), afterDigest: d5Digest(proof.after), events: proof.events, retracts: proof.retracts };
 }
 function parseOperation(raw: unknown): D5JourneyEvidence["operation"] {
+  if (String(v.record(raw, "operation").type).startsWith("tutorial-")) return parseTutorialOperation(raw);
   const r = v.record(raw, "operation"), type = v.choice(r.type, ["start", "resume", "battle", "advance", "event", "exit", "item"], "operation.type");
   const fields = { start: ["input"], resume: [], battle: ["command"], advance: ["roomId"], event: ["roomId", "choice", "actorId"], exit: ["roomId", "choice"], item: ["instanceId", "target"] };
   v.record(r, "operation", ["type", ...fields[type]]);
   if (type === "start") {
     const i = v.record(r.input, "departure", ["runId", "routeId", "partyIds", "itemIds", "seed"]);
-    return { type, input: { runId: v.id(i.runId, "runId"), routeId: v.id(i.routeId, "routeId"), partyIds: v.ids(i.partyIds, "partyIds", 5), itemIds: v.ids(i.itemIds, "itemIds", 4), seed: v.number(i.seed, "seed", 0, 0xffffffff) } };
+    return { type, input: { runId: v.id(i.runId, "runId"), routeId: v.id(i.routeId, "routeId"), partyIds: v.ids(i.partyIds, "partyIds", 5), itemIds: v.ids(i.itemIds, "itemIds", v.MAX_DEPARTURE_SUPPLIES), seed: v.number(i.seed, "seed", 0, 0xffffffff) } };
   }
   if (type === "resume") return { type };
   if (type === "battle") return { type, command: parseDemoBattleCommand(r.command) };

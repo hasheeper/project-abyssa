@@ -1,13 +1,15 @@
 import * as v from "../../game-core/contracts";
-import { parseD5RunRef } from "../../game-core/session";
+import { parseD5RunRef, parseTutorialOperation } from "../../game-core/session";
 import { parseDemoBattleCommand } from "../../game-core/battle";
 import { parseDemoItemTarget } from "../../game-core/session";
 import { parseHead } from "../parse";
 import { parseDemoRequest } from "./demo-parse";
 import type { D5Command, D5Request } from "./d5-contracts";
 import type { D5StoryAdvanceChoice, D5UserChoiceTone } from "../../game-core/session";
+import { parseAirpOnlineCommand } from "../airp/gameplay";
+import { GAME_START_POINTS } from "../../game-core/session";
 
-export function parseD5Request(raw: unknown, internal = false): D5Request {
+export function parseD5Request(raw: unknown, internal = false, airpEnabled: boolean | 1 | 2 = false, onlineEnabled = false): D5Request {
   v.assertJson(raw);
   const r = v.record(raw, "request", ["protocolVersion", "saveId", "expectedHead", "clientRequestId", "command"]);
   v.choice(r.protocolVersion, [4], "protocolVersion");
@@ -16,7 +18,18 @@ export function parseD5Request(raw: unknown, internal = false): D5Request {
   const c = v.record(r.command, "command"), type = v.id(c.type, "command.type");
   if (internal && type !== "resume-run" || !internal && type === "resume-run") v.invalid("command.type", "Internal continuation boundary");
   let command: D5Command;
-  if (["battle-command", "undo", "resume-run", "retry-memory", "leave-memory", "advance-memory", "read-memory", "use-item"].includes(type)) {
+  if (type.startsWith("airp-online-")) {
+    if (!onlineEnabled) v.invalid("command.type", "This content has no online protocol", "content-unavailable");
+    command = parseAirpOnlineCommand(c);
+  } else if (type.startsWith("airp-")) {
+    if (!airpEnabled) v.invalid("command.type", "This content has no AIRP command protocol", "content-unavailable");
+    command = airpEnabled === 2 ? v.parseAirpPoolCommand(c) : v.parseAirpCommand(c);
+  } else if (["tutorial-read", "tutorial-retry", "tutorial-hints", "tutorial-guide", "tutorial-observe"].includes(type)) {
+    const { runRef: rawRef, ...operation } = c;
+    const runRef = parseD5RunRef(rawRef);
+    if (runRef.kind !== "expedition") v.invalid("runRef", "Tutorial needs its expedition reference");
+    command = { ...parseTutorialOperation(operation), runRef };
+  } else if (["battle-command", "undo", "resume-run", "retry-memory", "leave-memory", "advance-memory", "read-memory", "use-item"].includes(type)) {
     v.record(c, "command", ["type", "runRef", ...(type === "battle-command" ? ["command"] : type === "use-item" ? ["instanceId", "target"] : type === "advance-memory" ? ["node", "choice"] : type === "read-memory" ? ["node", "step"] : [])], type === "read-memory" ? ["choice"] : []);
     const runRef = parseD5RunRef(c.runRef);
     if (type === "battle-command") {
@@ -35,6 +48,12 @@ export function parseD5Request(raw: unknown, internal = false): D5Request {
       if (runRef.kind !== "memory") v.invalid("runRef", "Expected memory attempt");
       command = { type, runRef };
     } else command = { type: type as "undo" | "resume-run", runRef };
+  } else if (type === "advance-phase") {
+    v.record(c, "command", ["type"]);
+    command = { type };
+  } else if (type === "select-game-start") {
+    v.record(c, "command", ["type", "startAt"]);
+    command = {type, startAt: v.choice(c.startAt, GAME_START_POINTS, "startAt")};
   } else if (type === "advance-opening") {
     v.record(c, "command", ["type", "step", "choice"]);
     command = {type, step:v.number(c.step,"step",0,512), choice:v.choice(c.choice,["continue","A","B","C"],"choice")};
@@ -42,6 +61,11 @@ export function parseD5Request(raw: unknown, internal = false): D5Request {
     v.record(c, "command", ["type", "shotId", ...(type === "complete-prologue" ? ["choice"] : [])]);
     const shotId = v.id(c.shotId, "shotId");
     command = type === "advance-prologue" ? {type, shotId} : {type, shotId, choice: v.choice(c.choice, ["continue", "skip"], "choice")};
+  } else if (type === "start-expedition") {
+    v.record(c, "command", ["type", "runId", "routeId", "partyIds", "seed"], ["itemIds"]);
+    command = {type, runId: v.id(c.runId, "runId"), routeId: v.id(c.routeId, "routeId"),
+      partyIds: v.ids(c.partyIds, "partyIds", 5), seed: v.number(c.seed, "seed", 0, 0xffffffff),
+      ...(c.itemIds !== undefined ? {itemIds: v.ids(c.itemIds, "itemIds", v.MAX_DEPARTURE_SUPPLIES)} : {})};
   } else if (type === "purchase-supply") {
     v.record(c, "command", ["type", "shopId", "definitionId", "quantity", "quoteVersion"]);
     command = {type, shopId: v.id(c.shopId, "shopId"), definitionId: v.id(c.definitionId, "definitionId"), quantity: v.number(c.quantity, "quantity", 1, 4), quoteVersion: v.number(c.quoteVersion, "quoteVersion", 1)};

@@ -1,4 +1,5 @@
 import { Progress } from "../../../shared/ui/primitives/Progress";
+import { useUiMotion } from "../../../shared/ui/motion/UiMotionProvider";
 import { RpgDiamondNodeTrack } from "../../../shared/ui/primitives/RpgDiamondNodeTrack";
 import { RpgRadio } from "../../../shared/ui/primitives/RpgChoice";
 import { SettingsRow } from "../controls/SettingsRow";
@@ -20,6 +21,7 @@ export interface SectionProps {
  * 「结果显示」,与 Progress 在参考里的角色一致。
  */
 export function PerformanceSection({ state, onChange }: SectionProps) {
+  const { reduced } = useUiMotion();
   return (
     <div className="settings-grid">
       <div className="settings-list">
@@ -128,7 +130,7 @@ export function PerformanceSection({ state, onChange }: SectionProps) {
         <TypingPreview
           step={state.typeStep}
           dur={state.typeDur}
-          reducedMotion={state.reducedMotion}
+          reducedMotion={reduced}
         />
       </aside>
     </div>

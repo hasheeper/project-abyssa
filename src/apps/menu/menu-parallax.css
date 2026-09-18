@@ -1,0 +1,35 @@
+/* Non-inheriting coordinates keep each pointer frame local to six planes,
+   rather than invalidating every SVG path / label below them. */
+@property --menu-look-x { syntax: "<number>"; inherits: false; initial-value: 0; }
+@property --menu-look-y { syntax: "<number>"; inherits: false; initial-value: 0; }
+
+.menu-scenery,
+.menu-backdrop,
+.menu-app__host,
+.menu-topbar,
+.menu-sidebar,
+.menu-app__dial {
+  /* Calculate directly on transform: an inheriting derived custom property
+     would otherwise invalidate every label and SVG descendant on each frame. */
+  transform: translate3d(
+    calc(var(--menu-look-x) * var(--menu-depth-x)),
+    calc(var(--menu-look-y) * var(--menu-depth-y)), 0
+  );
+  /* Entrance owns independent translate / scale; the camera owns transform. */
+}
+.menu-scenery { --menu-depth-x: -10px; --menu-depth-y: -6px; }
+.menu-backdrop { --menu-depth-x: -4px; --menu-depth-y: -2px; }
+.menu-app__host { --menu-depth-x: -24px; --menu-depth-y: -13px; }
+.menu-topbar, .menu-sidebar { --menu-depth-x: -3px; --menu-depth-y: -1.5px; }
+.menu-app__dial { --menu-depth-x: -6px; --menu-depth-y: -3px; }
+/* Preserve the sidebar's authored 0.94 layout scale, including its origin. */
+.menu-sidebar {
+  transform: translate3d(
+    calc(var(--menu-look-x) * var(--menu-depth-x)),
+    calc(var(--menu-look-y) * var(--menu-depth-y)), 0
+  ) scale(.94);
+}
+
+.menu-entry[data-menu-looking] :is(.menu-scenery, .menu-backdrop, .menu-app__host, .menu-topbar, .menu-sidebar, .menu-app__dial) {
+  will-change: transform;
+}

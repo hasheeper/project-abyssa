@@ -1,0 +1,211 @@
+{
+  "schemaVersion": 1,
+  "id": "chapter.tide-cave",
+  "title": "雾滩·退潮岩窟",
+  "locale": "zh-CN",
+  "presentation": {
+    "stagePreset": "rp-stage",
+    "backgroundId": "tide-cave.shore",
+    "defaultMode": "adv",
+    "allowRp": false,
+    "initialSlots": {
+      "left": "norma"
+    },
+    "arrival": {
+      "eyebrow": "CHAPTER 01",
+      "title": "雾滩·退潮岩窟"
+    }
+  },
+  "player": {
+    "actorId": "kael",
+    "nameToken": "{{user}}",
+    "authoredSpeech": false
+  },
+  "cast": [
+    "kael",
+    "norma",
+    "eustice",
+    "elora",
+    "kororo",
+    "marietta"
+  ],
+  "sections": [
+    {
+      "id": "S3-1",
+      "title": "雾滩·退潮岩窟"
+    },
+    {
+      "id": "S3-2",
+      "title": "洞口哨位"
+    },
+    {
+      "id": "S3-3",
+      "title": "背风石阶"
+    },
+    {
+      "id": "S3-4",
+      "title": "上层货台"
+    },
+    {
+      "id": "S3-5",
+      "title": "沿原路返回"
+    },
+    {
+      "id": "S4-1",
+      "title": "物归原主"
+    },
+    {
+      "id": "S4-2",
+      "title": "下一份委托"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "S3-1",
+      "cursor": 0,
+      "sectionId": "S3-1",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "S3-1",
+          "kind": "dialogue",
+          "actorId": "norma",
+          "text": "车辙一直延伸到洞口。跟紧了。",
+          "emotion": "serious"
+        }
+      ]
+    },
+    {
+      "id": "S3-2",
+      "cursor": 1,
+      "sectionId": "S3-2",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "S3-2",
+          "kind": "dialogue",
+          "actorId": "norma",
+          "text": "洞口有哨兵。弩手在后面。",
+          "emotion": "serious"
+        }
+      ]
+    },
+    {
+      "id": "S3-3",
+      "cursor": 2,
+      "sectionId": "S3-3",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "S3-3",
+          "kind": "dialogue",
+          "actorId": "elora",
+          "text": "这里暂时安全。……先检查一下伤口吧。",
+          "emotion": "serious"
+        }
+      ]
+    },
+    {
+      "id": "S3-4",
+      "cursor": 3,
+      "sectionId": "S3-4",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "S3-4",
+          "kind": "dialogue",
+          "actorId": "norma",
+          "text": "草药箱、书箱和包袱都在货台上。匪首也在。",
+          "emotion": "serious"
+        }
+      ]
+    },
+    {
+      "id": "S3-4.choice",
+      "cursor": 4,
+      "sectionId": "S3-4",
+      "kind": "choice",
+      "prompt": "准备接近货台。",
+      "options": [
+        {
+          "id": "A",
+          "label": "守住出口"
+        },
+        {
+          "id": "B",
+          "label": "堵住退路"
+        },
+        {
+          "id": "C",
+          "label": "先检查货物"
+        }
+      ]
+    },
+    {
+      "id": "S3-5",
+      "cursor": 5,
+      "sectionId": "S3-5",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "S3-5",
+          "kind": "dialogue",
+          "actorId": "eustice",
+          "text": "货物齐了。沿原路撤回。",
+          "emotion": "serious"
+        }
+      ]
+    },
+    {
+      "id": "S4-1",
+      "cursor": 6,
+      "sectionId": "S4-1",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "S4-1",
+          "kind": "dialogue",
+          "actorId": "elora",
+          "text": "草药找回来了……谢谢。",
+          "emotion": "smile"
+        },
+        {
+          "id": "S4-1.page.1",
+          "kind": "dialogue",
+          "actorId": "kororo",
+          "text": "……书没湿。",
+          "emotion": "neutral"
+        },
+        {
+          "id": "S4-1.page.2",
+          "kind": "dialogue",
+          "actorId": "marietta",
+          "text": "包袱收到了。我会把旧毯子修好。",
+          "emotion": "neutral"
+        }
+      ]
+    },
+    {
+      "id": "S4-2",
+      "cursor": 7,
+      "sectionId": "S4-2",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "S4-2",
+          "kind": "dialogue",
+          "actorId": "marietta",
+          "text": "诸位先歇一歇。旧庄园的事，稍后还要劳烦各位。",
+          "emotion": "neutral"
+        },
+        {
+          "id": "S4-2.page.1",
+          "kind": "dialogue",
+          "actorId": "norma",
+          "text": "缺什么就去缇比那儿补齐。",
+          "emotion": "neutral"
+        }
+      ]
+    }
+  ]
+}

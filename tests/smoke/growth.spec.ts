@@ -1,3 +1,4 @@
+import { openManorJournal } from "./playable-helpers";
 import { test, expect, type Page } from "@playwright/test";
 import { build } from "esbuild";
 import { resolve } from "node:path";
@@ -34,7 +35,7 @@ async function install(page:Page,record:D5GameRecord,prefix="/",destination="man
   await ready(page);
 }
 async function frame(page:Page,text:string) {
-  await expect(page.locator(".abyssa-dialogue__content")).toHaveText(text);
+  await expect(page.locator(".abyssa-dialogue__content")).toHaveText(text.replaceAll("{{user}}","你"));
   const outer=(await page.locator(".rp-app").boundingBox())!;
   for(const selector of [".rp-adv__dialogue",".rp-app__bar"]) {
     const b=(await page.locator(selector).boundingBox())!;
@@ -60,6 +61,24 @@ for(const [prefix,width,height] of [["/",1600,900],["/abyssa/",1280,720]] as con
     test.setTimeout(180000);page.setDefaultTimeout(20000);await page.setViewportSize({width,height});
     const failures=await observeArtifacts(page);
     await install(page,records.home,prefix);
+    await expect(page.getByRole("button",{name:"日志",exact:true})).toHaveAccessibleDescription(/\d+ 项可交谈/);
+    await openManorJournal(page, "把剑暂时放下");
+    const journalPage = page.locator(".campaign-journal__page");
+    expect(await journalPage.evaluate(n => n.scrollWidth <= n.clientWidth)).toBe(true);
+    await expect(journalPage.locator(".abyssa-frame")).toHaveCount(0);
+    const growthActions = journalPage.locator(".journal-record__actions .journal-action");
+    await expect(journalPage.locator(".journal-browser__reader")).toHaveCount(1);
+    expect(await journalPage.locator(".journal-browser__index button").count()).toBeGreaterThan(1);
+    await expect(growthActions).toHaveCount(1);
+    for (const action of await growthActions.all()) {
+      await expect(action).toHaveCSS("height","40px");
+      await expect(action).toHaveCSS("font-size","14px");
+      const buttonBox = (await action.boundingBox())!, labelBox = (await action.locator(".journal-action__label").boundingBox())!;
+      expect(labelBox.width).toBeLessThanOrEqual(buttonBox.width-32*width/1600);
+      expect(labelBox.height).toBeLessThanOrEqual(buttonBox.height-4*width/1600);
+      expect(Math.abs(labelBox.y+labelBox.height/2-buttonBox.y-buttonBox.height/2)).toBeLessThan(1);
+    }
+    await page.screenshot({path:info.outputPath(`growth-journal-${width}.png`)});
     await page.getByRole("button",{name:"谈起 · 把剑暂时放下",exact:true}).click();await ready(page);
     await page.getByRole("button",{name:"下一句",exact:true}).click();await ready(page);
     const cursor=(await inspect(page)).record.snapshot.campaign.stories.at(-1).step;
@@ -68,17 +87,18 @@ for(const [prefix,width,height] of [["/",1600,900],["/abyssa/",1280,720]] as con
     await page.screenshot({path:info.outputPath(`growth-adv-${width}.png`)});
     await page.getByRole("button",{name:"稍后继续",exact:true}).click();await ready(page);
     expect((await inspect(page)).record.snapshot.campaign.growthGrants).toHaveLength(0);
-    await page.getByRole("button",{name:"继续 · 把剑暂时放下",exact:true}).click();await ready(page);
+    await openManorJournal(page, "把剑暂时放下"); await page.getByRole("button",{name:"继续 · 把剑暂时放下",exact:true}).click();await ready(page);
     expect((await inspect(page)).record.snapshot.campaign.stories.at(-1).step).toBe(cursor);
     await page.getByRole("button",{name:"跳至片段末句",exact:true}).click();await ready(page);
     expect((await inspect(page)).record.snapshot.campaign.growthGrants).toHaveLength(0);
     await finish(page);expect((await inspect(page)).record.snapshot.campaign.growthGrants).toHaveLength(1);
-    await page.getByRole("button",{name:"谈起 · 把空着的那一手用起来",exact:true}).click();await ready(page);
+    await openManorJournal(page, "把空着的那一手用起来"); await page.getByRole("button",{name:"谈起 · 把空着的那一手用起来",exact:true}).click();await ready(page);
     await page.getByRole("button",{name:"跳至片段末句",exact:true}).click();await ready(page);await finish(page);
     const gifted=(await inspect(page)).record;
     expect(gifted.snapshot.campaign.inventory).toHaveLength(2);
     expect(gifted.snapshot.campaign.inventory.every((i:any)=>i.location.kind==="inventory")).toBe(true);
-    await page.getByRole("link",{name:"前往骰装",exact:true}).click();await ready(page);
+    await openManorJournal(page, "把空着的那一手用起来"); await page.getByRole("link",{name:"前往骰装",exact:true}).click();await ready(page);
+    await expect(page.locator(".character-status-canvas")).toHaveCSS("background-image", /url\("http:\/\/[^/]+\/(?:abyssa\/)?assets\/manor-night-gallery-[^"/]+\.jpg"\)/);
     await openEquipment(page);await page.getByRole("button",{name:"装备备用短刃",exact:true}).click();
     await expect(page.getByRole("button",{name:"卸下备用短刃",exact:true})).toBeEnabled();
     await page.getByRole("button",{name:"转交艾洛拉",exact:true}).click();
@@ -117,7 +137,7 @@ test("the second Lv.3 grants Kael once; recap is read only",async({page})=>{
   const after=(await inspect(page)).record;expect(after.snapshot.campaign.teamMilestone).not.toBeNull();
   await page.getByRole("button",{name:"结束回顾",exact:true}).last().click();
   await expect(page.getByRole("status").filter({hasText:teamMilestoneStory.resultText})).toBeVisible();
-  await page.getByText("成长与整备记录",{exact:true}).click();
+  await openManorJournal(page, "这边交给我");
   await page.getByRole("button",{name:"回顾「这边交给我」",exact:true}).click();
   await page.getByRole("button",{name:"结束回顾",exact:true}).last().click();
   expect((await inspect(page)).record.head).toEqual(after.head);

@@ -28,7 +28,8 @@ for (const prefix of ["/", "/abyssa/"])
     await page.goto(prefix);
     await page
       .getByRole("button", { name: "新的开始", exact: true })
-      .dblclick();
+      .click();
+    await page.getByRole("button", {name: "跳过教程", exact: true}).click();
     await expect(page).toHaveURL(/#\/menu/);
     await ready(page);
     const sortie = page.getByRole("button", { name: "出征 · 编队并进入副本", exact: true });

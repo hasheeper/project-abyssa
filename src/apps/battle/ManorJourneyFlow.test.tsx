@@ -3,11 +3,14 @@ import { afterEach, expect, it, vi } from "vitest";
 import { manorClientFixture } from "../../game-client/testing/manor";
 import { journeyOf, playToJourney } from "../../game-client/testing/journey-flow";
 import { GameSessionScope } from "../../game-client/react";
+import { CampaignMenuScope, useCampaignMenuScene } from "../../game-client/CampaignMenuScope";
+import { GameMenu } from "../../shared/ui/patterns/game-menu/GameMenu";
 import { SceneTransitionProvider } from "../../shared/transition";
 import { ManorBattleView } from "./ManorBattleView";
 import { useManorBattlePresentation } from "./controller/useManorBattlePresentation";
 // These tests exercise the battle/mechanical surface. StorySceneFlow covers the director.
 function ManorMechanics() {const p=useManorBattlePresentation(); return <ManorBattleView presentation={p} onSettle={() => {}} uiSkin="old-manor"/>;}
+function JourneyMenu() {const {commands,busy}=useCampaignMenuScene();return <GameMenu commands={commands} busy={busy} navigation={[]}/>;}
 import { JOURNEY_MOTION_MS } from "./presentation/journey-motion";
 
 type Fixture = Awaited<ReturnType<typeof manorClientFixture>>;
@@ -17,7 +20,7 @@ async function setup(version: 2 | 3 | 4 = 2, stop: Parameters<typeof playToJourn
   const f = await manorClientFixture(19, version, itemIds); fixtures.push(f);
   await playToJourney(f, stop);
   vi.useFakeTimers({toFake: ["setTimeout", "clearTimeout"]});
-  render(<GameSessionScope session={f.session}><SceneTransitionProvider><ManorMechanics/></SceneTransitionProvider></GameSessionScope>);
+  render(<GameSessionScope session={f.session}><CampaignMenuScope><SceneTransitionProvider><ManorMechanics/><JourneyMenu/></SceneTransitionProvider></CampaignMenuScope></GameSessionScope>);
   return {f, board: screen.getByRole("main", {name: "克雷格旧庄园战斗界面"})};
 }
 async function click(node: Element) { await act(async () => { fireEvent.click(node); }); }
@@ -27,7 +30,9 @@ async function elapse(ms: number) { await act(async () => { await vi.advanceTime
 it.each([2, 3, 4] as const)("v%i：间歇→空事件回执→阅读结果内嵌，连点只推进一次", async version => {
   const {f, board} = await setup(version);
   expect(screen.queryByRole("dialog")).toBeNull();
-  expect(screen.getByRole("button", {name: "扎营 · 未开放"})).toBeDisabled();
+  const camp=screen.getByRole("button", {name: "扎营"});
+  expect(camp).toBeDisabled();
+  expect(camp).toHaveAttribute("title","扎营 · 尚未开放");
   const dispatch = vi.spyOn(f.session, "dispatch");
   const previous = journeyOf(f).roomId;
   const button = screen.getByRole("button", {name: "继续前进"});

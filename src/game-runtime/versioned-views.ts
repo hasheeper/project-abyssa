@@ -1,4 +1,7 @@
 import { d5EncounterView, d5MemoryView, d5ProgressionView } from "./d5-views";
+import { tutorialView } from "./tutorial-view";
+import { airpView } from "./airp-view";
+import { airpLocked } from "../game-application/versions/airp-replay";
 import { createD5MemoryEngine, createD5BattleEngine, resolveDemoCharacter } from "../game-core/battle";
 import type { D5Request, D5Command } from "../game-application";
 import { parseD5Request } from "../game-application";
@@ -8,7 +11,7 @@ import {
   createDemoBattleEngine,
   resolveDemoParty,
 } from "../game-core/battle";
-import { activeExecution, demoCharacterView, asDemoBattle, layerReady, routeComplete } from "../game-core/session";
+import { activeExecution, demoCharacterView, asDemoBattle, layerReady, routeComplete, mansionTimeBlock, nextCampaignClock } from "../game-core/session";
 import type {
   AnyGameRecord,
   CommandRequest,
@@ -28,7 +31,8 @@ export function parseVersionedRequest(
 ): CommandRequest | DemoRequest | D5Request {
   v.assertJson(raw);
   const envelope = v.record(raw, "request");
-  if (envelope.protocolVersion === 4) return parseD5Request(raw, internal);
+  // The application applies the selected Catalog gate; this shared client parser only checks syntax.
+  if (envelope.protocolVersion === 4) return parseD5Request(raw, internal, 2, true); // grammar only; authoritative content gating is in D5 application
   if (envelope.protocolVersion === 1) return parseCommandRequest(raw, internal);
   if (envelope.protocolVersion === 2 || envelope.protocolVersion === 3) return parseDemoRequest(raw, internal, envelope.protocolVersion);
   return v.invalid(
@@ -41,6 +45,20 @@ export function createVersionedQueries(registry: CatalogRegistry) {
   const journeyCache = new WeakMap<AnyGameRecord, ReturnType<typeof demoJourneyView>>();
   return {
     archive: createCharacterArchiveQuery(registry),
+    mansionTime(raw: AnyGameRecord) {
+      const record = registry.read(raw);
+      if (record.schemaVersion !== 4) return null;
+      const blocked = mansionTimeBlock(record.snapshot.campaign) ?? (airpLocked(record.narrative) ? "请先完成或暂缓当前交谈" : null);
+      return { blocked, next: nextCampaignClock(record.snapshot.campaign.clock) };
+    },
+    narrative(raw: AnyGameRecord) {
+      const record = registry.read(raw), entry = registry.resolve(record.schemaVersion, record.contentRef);
+      return record.schemaVersion === 4 && entry.version === 4 ? airpView(entry.catalog, record) : null;
+    },
+    tutorial(raw: AnyGameRecord) {
+      const record = registry.read(raw), entry = registry.resolve(record.schemaVersion, record.contentRef);
+      return record.schemaVersion === 4 && entry.version === 4 ? tutorialView(entry.catalog, record) : null;
+    },
     shop(raw: AnyGameRecord) {
       const record = registry.read(raw), entry = registry.resolve(record.schemaVersion, record.contentRef);
       if (record.schemaVersion !== 4 || entry.version !== 4 || !entry.catalog.data.economy) return null;
@@ -141,6 +159,7 @@ export function createVersionedQueries(registry: CatalogRegistry) {
       const record = registry.read(raw),
         entry = registry.resolve(record.schemaVersion, record.contentRef);
       if (entry.version === 4 && record.schemaVersion === 4) {
+        if (airpLocked(record.narrative)) return null;
         const run = record.snapshot.run;
         const selected = run?.kind === "memory" && run.battle ? createD5MemoryEngine(entry.catalog).select(run.battle) : run?.kind === "expedition" && run.state.node === "battle" ? createD5BattleEngine(entry.catalog).select(asDemoBattle(run.state)!) : null;
         return selected ? { version: 2 as const, head: record.head, ...selected, settledHand: d5EncounterView(record)!.encounter!.hand } : null;
@@ -179,6 +198,7 @@ export function createVersionedQueries(registry: CatalogRegistry) {
           const e = run.battle.encounter;
           if (e.phase === "enemy" || e.phase === "act" && e.memory?.defeated) command = {type: "resume-run", runRef: {kind: "memory", id: run.id, attempt: run.attempt}};
         } else if (run?.kind === "expedition") {
+          if (run.state.tutorial && run.state.tutorial.stage !== "active") return null;
           const e = run.state.encounter, runRef = {kind: "expedition" as const, id: run.id};
           if (e && (e.phase === "enemy" || e.phase === "complete" || e.phase === "act" && !e.formation.length) || layerReady(entry.catalog.data, run.state) || routeComplete(entry.catalog.data, run.state)) command = {type: "resume-run", runRef};
           else if (run.state.node === "finished" && run.state.result.outcome === "cleared") command = {type: "settle-expedition", runRef, terminalRef: run.state.result.id};

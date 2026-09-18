@@ -1,0 +1,82 @@
+/* One inventory inset groups both rows; the item artwork supplies the relief.
+   Details stay on the window plane, without a second set of nested trays. */
+.departure-preparation {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) 48px;
+  gap: 16px;
+  height: 100%;
+  padding: 0;
+  box-sizing: border-box;
+}
+/* The larger slots fit the shared window's scale. Keep the assembly on the
+   common top baseline, without centering or stretching the groups apart. */
+.departure-preparation__main { display: grid; grid-template-columns: minmax(0, 1fr) 224px; align-content: start; align-items: start; gap: 24px; min-height: 0; }
+.departure-preparation__inventory { display: flex; flex-direction: column; gap: 48px; min-width: 0; padding: 32px 24px; box-sizing: border-box; }
+.departure-preparation__group { min-width: 0; }
+.departure-preparation__heading { display: flex; align-items: center; gap: 18px; margin: 0 0 32px; }
+.departure-preparation .departure-preparation__heading h3 { margin: 0; color: var(--abyssa-text); font: 20px/1.4 var(--abyssa-font-display); letter-spacing: .16em; white-space: nowrap; }
+.departure-preparation__rule { flex: 1; position: relative; height: 1px; background: var(--manor-hair, #354345); }
+.departure-preparation__rule::before { content: ""; position: absolute; left: 0; top: -2px; width: 5px; height: 5px; background: var(--manor-gold-shadow, #7b6d47); transform: rotate(45deg); }
+.departure-preparation__capacity { display: flex; gap: 6px; align-items: baseline; white-space: nowrap; }
+.departure-preparation__capacity b { color: var(--abyssa-text); font: 24px/1 var(--abyssa-font-display); }
+.departure-preparation__capacity i { font: 14px/1 var(--abyssa-font-display); color: var(--abyssa-text-muted); }
+.departure-preparation ul, .departure-preparation ol { margin: 0; padding: 0; list-style: none; }
+/* Distribute the slots themselves, so both rows share the same outer edges. */
+.departure-preparation .departure-preparation__loadout,
+.departure-preparation .departure-preparation__catalogue { display: grid; justify-content: space-between; padding: 4px 4px 8px; }
+.departure-preparation .departure-preparation__loadout { grid-template-columns: repeat(6, 108px); gap: 12px; }
+.departure-preparation[data-capacity="4"] .departure-preparation__loadout { grid-template-columns: repeat(4, 108px); }
+.departure-preparation__loadout li, .departure-preparation__catalogue li { min-width: 0; display: grid; justify-items: center; align-content: start; gap: 11px; }
+/* Empty carry positions reserve the same name line as occupied positions. */
+.departure-preparation__item-name { display: block; max-width: 100%; height: 24px; color: var(--abyssa-text); font-size: 16px; line-height: 24px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.departure-preparation .departure-preparation__catalogue { grid-template-columns: repeat(7, 80px); gap: 12px; }
+.departure-preparation__item-art { position: relative; }
+.departure-preparation__catalogue li[data-stocked="false"] .abyssa-item-slot [data-layer^="glyph"] { opacity: .45; }
+.departure-preparation__carried { position: absolute; top: -5px; right: -4px; z-index: 5; display: grid; width: 16px; height: 16px; place-items: center; border: 1px solid var(--manor-gold-edge, #88784f); background: #171b1a; color: var(--manor-gold-bright, #e0c67f); font: 11px/1 sans-serif; pointer-events: none; }
+
+/* An unboxed detail column: identity / effect / quantities / action.
+   Two side-by-side quantities leave enough room for longer item descriptions. */
+.departure-preparation__detail { display: flex; flex-direction: column; min-width: 0; min-height: 0; padding: 32px 0 8px 8px; box-sizing: border-box; }
+.departure-preparation__detail-identity { display: flex; align-items: center; gap: 14px; padding: 0 0 26px; }
+.departure-preparation__detail-identity .abyssa-item-slot { flex-shrink: 0; }
+.departure-preparation__kind { color: var(--abyssa-text-muted); font-size: 11px; letter-spacing: .1em; }
+.departure-preparation .departure-preparation__detail h3 { margin: 5px 0 0; color: var(--abyssa-text); font-size: 24px; line-height: 1.4; }
+.departure-preparation .departure-preparation__effect { margin: 0 0 24px; color: var(--abyssa-text); font-size: 16px; line-height: 1.6; }
+.departure-preparation__detail dl { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin: 0; padding: 12px 0 10px; }
+.departure-preparation__detail dt { color: var(--abyssa-text-muted); font-size: 11px; line-height: 18px; }
+.departure-preparation__detail dd { margin: 3px 0 0; font: 25px/1.2 var(--abyssa-font-display); color: var(--abyssa-text-soft); }
+.departure-preparation__detail dd small { font: 11px var(--abyssa-font-body); color: var(--abyssa-text-muted); }
+.departure-preparation__detail-action { margin-top: 22px; text-align: left; }
+/* Local item operation, not a second full-width navigation bar. */
+.departure-preparation .departure-preparation__detail-action > .journal-action {
+  width: 144px; min-width: 144px; height: 36px; padding: 0 16px; font-size: 13px;
+  --abyssa-notched-fill: transparent;
+  --abyssa-notched-middle: var(--manor-edge);
+  --abyssa-notched-ornament: transparent;
+  --abyssa-notched-pattern-dark: transparent;
+  --abyssa-notched-pattern-light: transparent;
+}
+.departure-preparation .departure-preparation__detail-action > p { min-height: 16px; margin: 0 0 4px; color: var(--abyssa-text-muted); font-size: 10px; line-height: 1.6; }
+
+/* Resources / quiet utility links / one framed primary command. */
+.departure-preparation__footer { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 8px 0 0; border-top: 1px solid var(--manor-hair, #354345); }
+.departure-preparation__funds { display: flex; align-items: center; gap: 26px; }
+.departure-preparation__balance { position: relative; display: inline-flex; align-items: center; min-height: 32px; cursor: help; }
+.departure-preparation__balance > span[aria-hidden="true"] { display: inline-flex; align-items: center; }
+.departure-preparation__balance .abyssa-currency-amount { gap: 8px; font: 20px/1 var(--abyssa-font-display); font-variant-numeric: tabular-nums; }
+.departure-preparation__balance[data-currency="gold"] { color: var(--journal-gold); }
+.departure-preparation__balance[data-currency="crystal"] { color: var(--journal-crystal); }
+.departure-preparation__balance .abyssa-currency-amount[data-currency="gold"] i { width: 18px; height: 18px; }
+.departure-preparation__balance .abyssa-currency-amount i[data-icon="custom"] { width: 22px; height: 22px; }
+.departure-preparation__balance .abyssa-currency-amount[data-currency="crystal"] i { width: 12px; height: 12px; margin: 0 3px; }
+.departure-preparation__balance .departure-preparation__balance-hint { position: absolute; bottom: calc(100% + 6px); left: 0; z-index: 20; padding: 5px 9px; border: 1px solid var(--manor-edge); background: var(--manor-void); color: var(--abyssa-text-soft); font: 11px/1.5 var(--abyssa-font-body); white-space: nowrap; opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 120ms ease; }
+.departure-preparation__balance:is(:hover, :focus-visible) .departure-preparation__balance-hint { opacity: 1; visibility: visible; }
+.departure-preparation__balance:focus-visible { outline: 1px solid var(--abyssa-focus); outline-offset: 3px; }
+.departure-preparation__footer > div > span { display: block; color: var(--abyssa-text-muted); font-size: 10px; line-height: 1.5; }
+.departure-preparation__footer > div > [role="alert"] { color: var(--abyssa-danger); }
+.departure-preparation__footer nav { display: flex; gap: 24px; align-items: center; }
+.departure-preparation .departure-preparation__aux-link { display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 4px; color: var(--abyssa-text-muted); font: 13px/1.4 var(--abyssa-font-body); text-decoration: none; white-space: nowrap; }
+.departure-preparation__aux-link i { width: 22px; height: 22px; flex: none; background: currentColor; mask-position: center; mask-repeat: no-repeat; mask-size: contain; }
+.departure-preparation .departure-preparation__aux-link:hover { color: var(--abyssa-text); }
+.departure-preparation__aux-link:focus-visible { outline: 1px solid var(--abyssa-focus); outline-offset: 3px; }
+.departure-preparation__footer .campaign-journal__link { width: 150px; margin-left: 8px; white-space: nowrap; }

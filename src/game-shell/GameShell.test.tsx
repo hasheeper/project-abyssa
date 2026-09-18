@@ -2,12 +2,13 @@ import { useEffect, useState } from "react";
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 vi.mock("../shared/loading/startup", () => ({prepareGame:vi.fn(async () => {})}));
-vi.mock("./routes", () => ({loadRoute:vi.fn(),routeTitles:{title:"标题",map:"地图",mansion:"洋馆"}}));
+vi.mock("./routes", () => ({loadRoute:vi.fn(),routeTitles:{title:"标题",map:"地图",mansion:"洋馆",shop:"商店",battle:"战斗"}}));
 import { prepareGame } from "../shared/loading/startup";
 import { loadRoute } from "./routes";
 import { navigateTo } from "../shared/routing/location";
 import { SceneTransitionProvider, useSceneReady } from "../shared/transition/TransitionProvider";
 import { GameShell } from "./GameShell";
+import { useSceneReveal } from "../shared/transition/useSceneReveal";
 
 const advance = (ms = 1500) => act(() => vi.advanceTimersByTimeAsync(ms));
 beforeEach(() => { vi.useFakeTimers(); vi.clearAllMocks(); history.replaceState(null,"","/abyssa/#/title"); });
@@ -64,4 +65,36 @@ it("cancels an in-flight route when back returns to the currently visible page",
   await act(async () => finish({default:() => <p>迟到的地图</p>})); await advance();
   expect(screen.queryByText("迟到的地图")).toBeNull();
   expect(location.hash).toBe("#/title"); expect(container.querySelector(".scene-transition")).toHaveAttribute("data-phase","idle");
+});
+
+it("gives shop the short backdrop curtain while keeping battle's existing panel-drop timing", async () => {
+  vi.mocked(loadRoute).mockImplementation(async page => ({default:() => <p>{page}</p>}));
+  const {container} = render(<GameShell/>); await advance();
+  act(() => {navigateTo("#/shop");}); await advance(850);
+  expect(document.documentElement).toHaveAttribute("data-scene-reveal", "fade");
+  expect(container.querySelector(".scene-transition")).toHaveAttribute("data-phase", "opening");
+  await advance(500);
+  expect(container.querySelector(".scene-transition")).toHaveAttribute("data-phase", "idle");
+  act(() => {navigateTo("#/battle");}); await advance(850);
+  expect(document.documentElement).toHaveAttribute("data-scene-reveal", "panel-drop");
+  await advance(500);
+  expect(container.querySelector(".scene-transition")).toHaveAttribute("data-phase", "opening");
+  await advance(1400);
+  expect(container.querySelector(".scene-transition")).toHaveAttribute("data-phase", "idle");
+});
+
+it("lets the manor own its entrance, and releases that override when leaving the page", async () => {
+  function Manor() { useSceneReveal("fade"); return <p>旧庄园</p>; }
+  vi.mocked(loadRoute).mockImplementation(async page => ({default:page === "battle" ? Manor : () => <p>{page}</p>}));
+  const {container} = render(<GameShell/>); await advance();
+  act(() => {navigateTo("#/battle");}); await advance(850);
+  expect(document.documentElement).toHaveAttribute("data-scene-reveal", "fade");
+  await advance(500);
+  expect(container.querySelector(".scene-transition")).toHaveAttribute("data-phase", "idle");
+  act(() => {navigateTo("#/title");}); await advance();
+  vi.mocked(loadRoute).mockResolvedValue({default:() => <p>旧裂隙</p>});
+  act(() => {navigateTo("#/battle");}); await advance(850);
+  expect(document.documentElement).toHaveAttribute("data-scene-reveal", "panel-drop");
+  await advance(500);
+  expect(container.querySelector(".scene-transition")).toHaveAttribute("data-phase", "opening");
 });

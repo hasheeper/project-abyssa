@@ -72,8 +72,9 @@ describe("durable CG prologue",()=>{
     expect(await f.runtime.application.continueSave({sourceSaveId:"opening",expectedSourceHead:source.head,saveId:"upgraded",epoch:"next-epoch",clientRequestId:"upgrade",kind:"upgrade"})).toMatchObject({ok:true});
     const result=await f.runtime.application.open("upgraded");if(!result.ok || result.record.schemaVersion!==4)throw Error("upgrade");
     expect(result.record.snapshot.campaign.prologue).toEqual({shotId:"title-card",status:"skipped"});
-    const {prologue:_,opening,...campaign}=result.record.snapshot.campaign;
+    const {prologue:_,opening,tutorial,...campaign}=result.record.snapshot.campaign;
     expect(opening).toEqual({step:119,status:"skipped",choices:[]});
+    expect(tutorial).toEqual({status:"exempt",reason:"pre-tutorial-save"});
     expect(campaign).toEqual(source.snapshot.campaign);expect(await f.read()).toEqual(source);
     expect(validateD5Catalog(LOOP_CATALOG.data).ref).toEqual(before);
   });

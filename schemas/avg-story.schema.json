@@ -448,6 +448,11 @@
                   },
                   "still": {
                     "type": "boolean"
+                  },
+                  "direction": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 500
                   }
                 }
               }
@@ -576,6 +581,11 @@
                   },
                   "still": {
                     "type": "boolean"
+                  },
+                  "direction": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 500
                   }
                 }
               }
@@ -680,6 +690,11 @@
                   },
                   "still": {
                     "type": "boolean"
+                  },
+                  "direction": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 500
                   }
                 }
               }
@@ -778,6 +793,11 @@
                   },
                   "still": {
                     "type": "boolean"
+                  },
+                  "direction": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 500
                   }
                 }
               }

@@ -1,0 +1,26 @@
+{
+  "copyStatus": "placeholder",
+  "copyTask": "O1-W",
+  "steps": {
+    "reroll": {
+      "title": "重掷",
+      "text": "点击 REROLL，重掷未固定的可用骰子，保留已固定骰面。"
+    },
+    "guardFix": {
+      "title": "固定防御面",
+      "text": "固定当前防御骰，选择对应队员，再指定一条攻击意图。"
+    },
+    "recovery": {
+      "title": "战间补给",
+      "text": "打开道具栏，为受伤且存活的队友恢复生命。"
+    },
+    "hand": {
+      "title": "牌型结算",
+      "text": "已使用的清醒骰仍参与成牌。牌型加成计入本层收益倍率。"
+    },
+    "covenant": {
+      "title": "铭约触发",
+      "text": "铭约在敌方行动前结算，具体效果显示在战斗记录中。"
+    }
+  }
+}

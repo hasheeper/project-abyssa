@@ -13,7 +13,8 @@ describe("shared style entry boundaries", () => {
       "./components-foundation.css",
       "./components-controls.css",
       "./components-dialogue.css",
-      "./avatar-frame.css"
+      "./avatar-frame.css",
+      "./motion-controls.css"
     ]);
     expect(cssImports(read("src/shared/ui/styles/components-character-status.css"))).toEqual([
       "./components-character-selector.css",
@@ -58,6 +59,9 @@ describe("shared style entry boundaries", () => {
     expect(characterStatus).toContain("shared/ui/styles/components-character-status.css");
     expect(characterStatus).toContain("shared/ui/styles/components-character-archive.css");
     expect(characterStatus).toContain("shared/ui/styles/items.css");
+    expect(read("src/apps/shop/route.tsx")).toContain("shared/ui/styles/items.css");
+    expect(read("src/apps/mansion/route.tsx")).toContain("shared/ui/styles/manor-utility.css");
+    expect(read("src/game-client/CampaignJournal.tsx")).toContain("shared/ui/styles/manor-utility.css");
     expect(read("src/apps/shop/ShopPage.tsx")).not.toContain('from "../../index"');
   });
 });

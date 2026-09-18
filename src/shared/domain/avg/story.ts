@@ -6,7 +6,7 @@ export const AVG_SOUNDS = ["wood", "metal", "glass", "cloth", "ceramic"] as cons
 export const AVG_MOTIONS = ["nod", "waver", "jump", "shakeLight", "shakeHeavy"] as const satisfies readonly ActorMotion[];
 export type AvgEffect = typeof AVG_EFFECTS[number];
 export type AvgSound = typeof AVG_SOUNDS[number];
-export type AvgStageCue = { actorId: string; emotion?: EmotionId; motion?: ActorMotion; aside?: string; still?: boolean };
+export type AvgStageCue = { actorId: string; emotion?: EmotionId; motion?: ActorMotion; aside?: string; still?: boolean; direction?: string };
 type FrameBase = { id: string; effect?: AvgEffect; sound?: AvgSound; stage?: AvgStageCue[]; itemId?: string };
 export type AvgFrame = FrameBase & (
   | { kind: "dialogue"; actorId: string; text: string; emotion?: EmotionId }
@@ -75,11 +75,12 @@ export function validateAvgFrames(raw: unknown, path: string, cast: readonly str
     if (f.itemId !== undefined) identifier(f.itemId, `${p}.itemId`);
     if (f.stage !== undefined) {
       const actors = array(f.stage, `${p}.stage`, 8, 0).map((cue, i) => {
-        const cp = `${p}.stage[${i}]`, c = avgObject(cue, cp, ["actorId"], ["emotion", "motion", "aside", "still"]);
+        const cp = `${p}.stage[${i}]`, c = avgObject(cue, cp, ["actorId"], ["emotion", "motion", "aside", "still", "direction"]);
         avgEnum(c.actorId, `${cp}.actorId`, cast);
         if (c.emotion !== undefined) avgEnum(c.emotion, `${cp}.emotion`, Object.keys(EMOTION_LABELS));
         if (c.motion !== undefined) avgEnum(c.motion, `${cp}.motion`, AVG_MOTIONS);
         if (c.aside !== undefined) avgText(c.aside, `${cp}.aside`, 100);
+        if (c.direction !== undefined) avgText(c.direction, `${cp}.direction`, 500);
         if (c.still !== undefined) boolean(c.still, `${cp}.still`);
         if (c.still === true && c.motion !== undefined) avgInvalid(cp, "still and motion conflict");
         return c.actorId;

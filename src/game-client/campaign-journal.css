@@ -1,0 +1,107 @@
+/* Independent journal/preparation windows use the original shared modal chrome. */
+.campaign-journal.abyssa-modal { backdrop-filter: none; }
+.campaign-journal__panel {
+  --journal-void: var(--manor-void);
+  --journal-window: var(--manor-window);
+  --journal-surface-fill: var(--manor-well);
+  --journal-well: var(--manor-well);
+  --journal-metal: var(--abyssa-ornament);
+  --journal-metal-dark: var(--abyssa-ornament-dark);
+  --journal-metal-light: var(--abyssa-frame-light);
+  --journal-line: var(--manor-line);
+  --journal-line-faint: var(--manor-hair);
+  --journal-accent-deep: var(--manor-gold-shadow);
+  --journal-accent-hover: var(--manor-gold-edge);
+  --journal-accent-soft: var(--manor-gold);
+  --journal-gold: var(--manor-gold-bright);
+  --journal-crystal: #c4a3eb;
+  color: var(--abyssa-text-soft);
+  font: 16px/1.8 var(--abyssa-font-body, serif);
+}
+.campaign-journal__log { display: grid; gap: 26px; }
+.campaign-journal__log-section { border-top: 1px solid var(--journal-line); padding-top: 22px; }
+.campaign-journal__section-heading { margin: 0 0 12px; color: var(--abyssa-text); font: 600 22px/1.4 var(--abyssa-font-display); letter-spacing: .1em; }
+.campaign-journal__page { height: 100%; min-height: 0; overflow: auto; overscroll-behavior: contain; scrollbar-gutter: stable; padding-right: 10px; }
+.campaign-journal__page:has(> .departure-preparation) { overflow: visible; scrollbar-gutter: auto; padding: 0; }
+.campaign-journal__page:focus-visible { outline: 1px solid var(--abyssa-focus); outline-offset: -2px; }
+.campaign-journal h3 { margin: 0 0 16px; color: var(--abyssa-text); font-size: 24px; line-height: 1.4; letter-spacing: .06em; font-weight: 600; }
+.campaign-journal h4 { margin: 0 0 12px; color: var(--abyssa-text-soft); font-size: 15px; font-weight: 500; letter-spacing: .08em; }
+.campaign-journal p { margin: 12px 0; }
+.campaign-journal a { color: var(--journal-accent-soft); text-underline-offset: 4px; }
+.campaign-journal a.journal-action { color: var(--abyssa-notched-text); }
+.campaign-journal a.journal-action[data-emphasis="primary"] { color: var(--abyssa-text); }
+.campaign-journal a.journal-action:hover { color: var(--abyssa-text); }
+.campaign-journal__link { text-decoration: none; }
+.campaign-journal__empty { min-height: 180px; display: grid; align-content: center; justify-items: center; text-align: center; gap: 5px; }
+.campaign-journal__empty p { max-width: 420px; color: var(--abyssa-text-muted); }
+.campaign-journal__eyebrow { display: block; color: var(--abyssa-text-muted); font: 12px/1.4 var(--abyssa-font-body); letter-spacing: .18em; }
+.campaign-journal__surface > .journal-surface__content { padding: 16px 0; }
+.campaign-journal__return { min-width: 0; }
+.campaign-journal__return .journal-record__heading { padding-bottom: 20px; margin-bottom: 24px; }
+.campaign-journal .campaign-journal__return .journal-record__meta { margin-bottom: 8px; }
+.campaign-journal .campaign-journal__depth { flex-shrink: 0; margin: 0; color: var(--abyssa-text-muted); font-size: 13px; text-align: right; white-space: nowrap; }
+.campaign-journal__depth strong { margin-left: 10px; font-size: 16px; font-weight: 500; color: var(--abyssa-text-soft); }
+.campaign-journal__return-notes { display: grid; gap: 12px; }
+.campaign-journal__return-notes:empty { display: none; }
+.campaign-journal__return-notes:empty + .campaign-journal__settlement { margin-top: 0; }
+.campaign-journal__return-notes > p { margin: 0; font-size: 15px; line-height: 1.95; }
+.campaign-journal__return-notes .campaign-journal__loss { font-size: 13px; color: var(--abyssa-danger); }
+.campaign-journal__settlement { position: relative; width: 100%; box-sizing: border-box; margin-top: 24px; padding: 20px 22px; border: 1px solid var(--manor-edge); background: var(--manor-well); box-shadow: inset 3px 0 var(--manor-gold-shadow); }
+.campaign-journal__settlement-heading { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.campaign-journal__settlement-heading h4 { margin: 0; color: var(--manor-gold); }
+.campaign-journal__settlement-heading > span { color: var(--abyssa-text-muted); font-size: 12px; }
+.campaign-journal__stats { display: grid; gap: 8px; margin: 20px 0 16px; }
+.campaign-journal__stats div { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: baseline; gap: 24px; }
+.campaign-journal__stats dt { color: var(--abyssa-text-muted); font-size: 14px; }
+.campaign-journal__stats dd { margin: 0; font: 18px/1.6 var(--abyssa-font-display); }
+.campaign-journal__stats dd small { color: var(--abyssa-text-muted); }
+.campaign-journal__total { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: baseline; gap: 24px; border-top: 1px solid var(--journal-line-faint); padding-top: 16px; }
+.campaign-journal__total > span { color: var(--abyssa-text-soft); font-size: 14px; }
+.campaign-journal__total strong { color: var(--journal-gold); font: 28px/1.4 var(--abyssa-font-display); }
+/* The value edge and unit column stay aligned even when the total is larger. */
+.campaign-journal__amount { display: inline-grid; grid-template-columns: auto 12px; align-items: baseline; column-gap: 6px; text-align: right; white-space: nowrap; }
+.campaign-journal__amount > span { font-variant-numeric: lining-nums tabular-nums; }
+.campaign-journal__amount small { font-size: 12px; font-weight: 400; line-height: 1; }
+
+.campaign-journal__companions { display: grid; grid-template-columns: minmax(0, 1fr) 276px; gap: 24px; align-items: start; padding: 5px; min-height: 100%; box-sizing: border-box; }
+.campaign-journal__companions[data-has-memory="false"] { grid-template-columns: minmax(0, 1fr); }
+.campaign-journal__companion-events { display: grid; gap: 20px; min-width: 0; }
+.campaign-journal__companion-events:empty { display: none; }
+.campaign-journal__growth { min-width: 0; }
+.campaign-journal__growth-current h3 { padding-bottom: 14px; border-bottom: 1px solid var(--journal-line); }
+.campaign-journal .campaign-journal__quiet { margin: 20px 0 4px; color: var(--abyssa-text-muted); font-size: 14px; line-height: 1.8; }
+.campaign-journal__memory > .journal-surface__content { padding: 16px 0 16px 24px; }
+.campaign-journal__memory p { font-size: 13px; color: var(--abyssa-text-soft); }
+.campaign-journal__note { color: var(--abyssa-text-muted); font-size: 14px; }
+.campaign-journal__actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+.campaign-journal__actions .journal-action { width: 100%; }
+.campaign-journal__growth-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.campaign-journal details { margin-top: 16px; }
+.campaign-journal summary { cursor: pointer; padding: 10px 0; color: var(--abyssa-text-soft); }
+.campaign-journal summary:focus-visible, .campaign-journal a:focus-visible { outline: 2px solid var(--abyssa-focus); outline-offset: 3px; }
+.campaign-journal .campaign-journal__archive { margin-top: 18px; padding: 0; border-top: 1px solid var(--journal-line); border-bottom: 1px solid var(--journal-line-faint); }
+.campaign-journal__archive > summary { display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 7px 0; list-style: none; font-size: 14px; box-sizing: border-box; }
+.campaign-journal__archive > summary::-webkit-details-marker { display: none; }
+.campaign-journal__archive > summary::before { content: ""; width: 6px; height: 6px; flex: 0 0 6px; border: 1px solid var(--journal-metal); transform: rotate(45deg); }
+.campaign-journal__archive > summary:hover, .campaign-journal__archive[open] > summary { color: var(--journal-accent-soft); }
+.campaign-journal__archive[open] > summary::before { background: var(--journal-accent-soft); border-color: var(--journal-accent-soft); }
+.campaign-journal__archive[open] > summary { border-bottom: 1px solid var(--journal-line-faint); }
+.campaign-journal__memory .campaign-journal__archive { padding: 0; }
+.campaign-journal__records { list-style: none; margin: 0; padding: 0; }
+.campaign-journal__records li { padding: 14px 0; border-bottom: 1px solid var(--journal-line-faint); }
+.campaign-journal__records li:last-child { border: 0; }
+.campaign-journal__records li > p { margin-bottom: 0; }
+.campaign-journal__record-head { display: flex; gap: 20px; align-items: center; justify-content: space-between; }
+.campaign-journal__record-head strong { color: var(--abyssa-text-soft); font-size: 15px; font-weight: 500; }
+.campaign-journal__record-head .journal-action { min-width: 96px; flex-shrink: 0; }
+
+.campaign-journal .airp-panel.journal-surface { margin: 0; padding: 0; border: 0; border-bottom: 1px solid var(--journal-line); }
+.campaign-journal .airp-panel h3 { font-size: 24px; }
+.campaign-journal .airp-panel h4 { font-size: 17px; color: var(--abyssa-text-soft); }
+.campaign-journal .airp-panel__meta { font-size: 12px; opacity: 1; color: var(--abyssa-text-muted); }
+.campaign-journal .airp-pool article { margin-top: 16px; padding: 16px 0; border-bottom: 1px solid var(--journal-line); }
+.campaign-journal .airp-panel .journal-action { border: 0; background: transparent; padding: 0 24px; font: 14px/1.25 var(--abyssa-font-body); }
+.campaign-journal .airp-online input { background: var(--journal-well); border-color: var(--journal-metal-dark); color: var(--abyssa-text-soft); }
+.campaign-journal .airp-online button { background: var(--journal-accent-deep); border-color: var(--journal-metal); color: var(--abyssa-text); }
+.campaign-journal .airp-online button:hover:not(:disabled) { background: var(--journal-accent-hover); border-color: var(--journal-accent-soft); }
+.campaign-journal .airp-online button:disabled { background: var(--journal-window); color: var(--abyssa-text-muted); border-color: var(--journal-metal-dark); cursor: not-allowed; }

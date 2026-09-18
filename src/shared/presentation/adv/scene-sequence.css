@@ -2,6 +2,11 @@
 .scene-sequence { position: relative; width: 1600px; height: 900px; isolation: isolate; overflow: hidden; background: #080808; }
 .scene-sequence[data-phase="prepare"] .scene-sequence__frame {opacity: 0;}
 .scene-sequence__frame { position: absolute; inset: 0; }
+/* In-place location changes: cover the whole reading stage before swapping any content. */
+.scene-sequence__curtain {position:absolute;inset:0;z-index:10;background:#000;pointer-events:auto;}
+.scene-sequence[data-phase="cover"] .scene-sequence__curtain {animation:scene-wash-in var(--scene-cover-ms) ease-in both;}
+.scene-sequence[data-phase="uncover"] .scene-sequence__curtain {animation:scene-wash-out var(--scene-uncover-ms) ease-out both;}
+.scene-sequence[data-reduced="true"] .scene-sequence__curtain {animation:none;}
 /* Establish the location before mounting its actors. The existing arrival title owns the visual style. */
 .scene-sequence__arrival {position:absolute;inset:0;pointer-events:none;background:#101616;}
 .scene-sequence__arrival-bg {position:absolute;inset:0 0 52px;background-size:cover;background-position:center;filter:brightness(.5) saturate(.85);}

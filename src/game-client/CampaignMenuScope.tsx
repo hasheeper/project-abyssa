@@ -2,16 +2,19 @@ import { createContext, useContext, useLayoutEffect, useRef, useState, type Reac
 import type { GameMenuEntry } from "../shared/ui/patterns/game-menu/GameMenu";
 
 type SceneCommands = {commands: readonly GameMenuEntry[]; busy: boolean};
-const Context = createContext<{scene: SceneCommands; set: (scene: SceneCommands) => void} | null>(null);
 const empty: SceneCommands = {commands: [], busy: false};
+const Context = createContext<SceneCommands>(empty);
+// Registering commands must not subscribe the battle to its own menu updates.
+// Otherwise unlocking the scene synchronously renders the whole battle twice.
+const RegistrationContext = createContext<((scene: SceneCommands) => void) | null>(null);
 export function CampaignMenuScope({children}: {children:ReactNode}) {
   const [scene, set] = useState<SceneCommands>(empty);
-  return <Context.Provider value={{scene,set}}>{children}</Context.Provider>;
+  return <RegistrationContext.Provider value={set}><Context.Provider value={scene}>{children}</Context.Provider></RegistrationContext.Provider>;
 }
-export function useCampaignMenuScene() { return useContext(Context)?.scene ?? empty; }
+export function useCampaignMenuScene() { return useContext(Context); }
 /** Register scene-authorized commands; callbacks always read the current presentation. */
 export function useCampaignMenuCommands(commands: readonly GameMenuEntry[], busy: boolean) {
-  const context = useContext(Context), set = context?.set;
+  const set = useContext(RegistrationContext);
   const latest = useRef(commands); latest.current = commands;
   const signature = JSON.stringify(commands.map(({onSelect:_,...entry}) => entry));
   useLayoutEffect(() => {

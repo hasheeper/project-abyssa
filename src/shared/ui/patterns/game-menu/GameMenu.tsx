@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, useState } from "react";
+import { useTutorialSuspension } from "../../../tutorial";
 import compassIcon from "../../../../assets/icons/items/compass.svg";
 import swordIcon from "../../../../assets/icons/items/broadsword.svg";
 import campIcon from "../../../../assets/icons/items/camping-tent.svg";
@@ -19,12 +20,13 @@ export type GameMenuProps = {
 };
 const icons: Record<string, string> = {
   "end-turn": clockIcon, finish: clockIcon, retreat: returnIcon, camp: campIcon,
-  menu: bookIcon, mansion: keyIcon, journey: compassIcon, archive: archiveIcon,
+  menu: bookIcon, mansion: keyIcon, journey: compassIcon, archive: archiveIcon, "battle-guide": bookIcon,
 };
 
 /** One expanding rail: every icon is a direct action, never a category submenu. */
 export function GameMenu({commands = [], navigation, busy = false, title = "旅途菜单", navigationHint = "选择前往的地点"}: GameMenuProps) {
   const [expanded, setExpanded] = useState(false);
+  useTutorialSuspension(expanded);
   const root = useRef<HTMLElement>(null), toggle = useRef<HTMLButtonElement>(null);
   const uid = useId();
   const close = () => {setExpanded(false); toggle.current?.focus();};

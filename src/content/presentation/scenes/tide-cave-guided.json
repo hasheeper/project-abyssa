@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 1,
+  "id": "chapter.tide-cave.guided",
+  "title": "雾滩·退潮岩窟",
+  "locale": "zh-CN",
+  "presentation": {
+    "stagePreset": "rp-stage", "backgroundId": "tide-cave.shore", "defaultMode": "adv", "allowRp": false,
+    "initialSlots": {"left": "norma"}, "arrival": {"eyebrow": "CHAPTER 01", "title": "雾滩·退潮岩窟"}
+  },
+  "player": {"actorId": "kael", "nameToken": "{{user}}", "authoredSpeech": false},
+  "cast": ["kael", "norma", "eustice", "elora", "kororo", "marietta", "abyssa"],
+  "sections": [
+    {"id": "S3-1", "title": "雾滩进场"}, {"id": "S3-2", "title": "洞口哨位"},
+    {"id": "S3-3", "title": "背风石阶"}, {"id": "S3-4", "title": "上层货台"},
+    {"id": "S3-5", "title": "沿原路返回"}, {"id": "S4-1", "title": "物归原主"}, {"id": "S4-2", "title": "下一份委托"}
+  ],
+  "nodes": [
+    {"id": "S3-1", "cursor": 0, "sectionId": "S3-1", "kind": "beat", "frames": [
+      {"id": "S3-1", "kind": "narration", "text": "退潮留下的泥滩泛着灰光。车辙在乱石间断断续续，几道拖痕沿着它，一直伸进山壁下的洞口。"},
+      {"id": "S3-1.page.1", "kind": "dialogue", "actorId": "norma", "emotion": "serious", "text": "就是这里，BOSS。箱子太沉，他们一路拖着走，连脚印都顾不上抹。"},
+      {"id": "S3-1.page.2", "kind": "dialogue", "actorId": "eustice", "emotion": "serious", "text": "回程还得走这片浅滩。别追散了，找到货物就一起撤出去。"},
+      {"id": "S3-1.page.3", "kind": "narration", "text": "一团半透明的东西从石缝间挤出来，紧接着是第二团。软泥覆过拖痕，堵在了进洞的路上。"},
+      {"id": "S3-1.page.4", "kind": "dialogue", "actorId": "kororo", "emotion": "displeased", "text": "……还没见到抢东西的，就先碰上挡路的。队长，快点清出一条路吧。"}
+    ]},
+    {"id": "S3-2", "cursor": 1, "sectionId": "S3-2", "kind": "beat", "frames": [
+      {"id": "S3-2", "kind": "narration", "text": "越过软泥留下的水迹，洞里的声音渐渐清楚起来。木箱擦着地面移动，间或夹着几声不耐烦的催促。"},
+      {"id": "S3-2.page.1", "kind": "dialogue", "actorId": "norma", "emotion": "serious", "text": "门口两个。拿刀的守着窄路，弩手躲在后面，正忙着挂弦呢。"},
+      {"id": "S3-2.page.2", "kind": "dialogue", "actorId": "eustice", "emotion": "serious", "text": "先看清谁要动手。弩没装好之前，前排的刀手就是眼前的威胁；等弩抬起来，再留人照应。"},
+      {"id": "S3-2.page.3", "kind": "dialogue", "actorId": "elora", "emotion": "serious", "text": "我会留意大家的情况。有人受伤就先照顾一下，别带着伤一直往里赶。"},
+      {"id": "S3-2.page.4", "kind": "dialogue", "actorId": "norma", "emotion": "neutral", "text": "那就趁他们还没站稳。后面的搬运声，可没打算等我们。"}
+    ]},
+    {"id": "S3-3", "cursor": 2, "sectionId": "S3-3", "kind": "beat", "frames": [
+      {"id": "S3-3", "kind": "narration", "text": "哨位后方是一段背风的石阶。这里听不见弩弦了，只有潮水在低处的石缝里来回拍打。"},
+      {"id": "S3-3.page.1", "kind": "dialogue", "actorId": "elora", "emotion": "serious", "text": "先在这里缓一缓吧。食物和药都在行囊里，确认好大家的状态，再去追前面的人。"},
+      {"id": "S3-3.page.2", "kind": "dialogue", "actorId": "kororo", "emotion": "neutral", "text": "这句我赞成……总不能连喘口气，都要等到回家以后。"},
+      {"id": "S3-3.page.3", "kind": "dialogue", "actorId": "norma", "emotion": "serious", "text": "等等，下面卡着只硬皮包。好像是他们搬东西时掉的，潮水已经够到包底了。"},
+      {"id": "S3-3.page.4", "kind": "narration", "text": "皮包夹在两块礁石之间，沾着盐霜的锁扣露在外面。它比要找的货箱小得多，倒像是随手携带的杂物包。"},
+      {"id": "S3-3.page.5", "kind": "dialogue", "actorId": "elora", "emotion": "serious", "text": "别硬拉，锁扣旁边的皮子已经泡软了。等大家休息好，我想试着把它打开，看看里面还能保住什么。"}
+    ]},
+    {"id": "S3-4", "cursor": 3, "sectionId": "S3-4", "kind": "beat", "frames": [
+      {"id": "S3-4", "kind": "narration", "text": "搬运队身后的石阶通向上层货台。公会火印、红色封蜡，还有系得齐整的油纸包袱，都挤在同一堆货里。"},
+      {"id": "S3-4.page.1", "kind": "dialogue", "actorId": "elora", "emotion": "serious", "text": "有公会印的那箱是草药……就在那边，别让他们再往水边搬了。"},
+      {"id": "S3-4.page.2", "kind": "dialogue", "actorId": "kororo", "emotion": "serious", "text": "书箱也在。旁边那个包袱，是玛丽埃塔系的结吧。"},
+      {"id": "S3-4.page.3", "kind": "dialogue", "actorId": "norma", "emotion": "serious", "text": "没错，三件都找到了。可领头的也在，左右还各留了一个弩手。"},
+      {"id": "S3-4.page.4", "kind": "dialogue", "actorId": "eustice", "emotion": "serious", "text": "货物就在眼前，也别急着冲过去。先把这几个人解决，才有余地搬东西。"}
+    ]},
+    {"id": "S3-4.choice", "cursor": 4, "sectionId": "S3-4", "kind": "choice", "prompt": "接近货台时，先留意哪一处？", "options": [
+      {"id": "A", "label": "守住出口"}, {"id": "B", "label": "堵住退路"}, {"id": "C", "label": "先检查货物"}
+    ]},
+    {"id": "S3-5", "cursor": 5, "sectionId": "S3-5", "kind": "beat", "frames": [
+      {"id": "S3-5", "kind": "narration", "text": "最后一张弩垂了下去。货台上再没有人阻拦，众人把散开的绳索重新拢好，将三件货移到石阶旁。"},
+      {"id": "S3-5.page.1", "kind": "dialogue", "actorId": "norma", "emotion": "neutral", "text": "公会的草药、帝都来的书，还有工坊包袱。数目对了，BOSS，可以收工了。"},
+      {"id": "S3-5.page.2", "kind": "dialogue", "actorId": "elora", "emotion": "serious", "text": "草药箱先别开，这里太潮。回去摊开检查，比现在着急翻找要好。"},
+      {"id": "S3-5.page.3", "kind": "dialogue", "actorId": "kororo", "emotion": "neutral", "text": "书也一样……先带离这地方。我可不想回去以后，一页一页地揭。"},
+      {"id": "S3-5.page.4", "kind": "narration", "text": "洞外传来的浪声比来时近了。尤斯缇丝望了一眼水线，转身让出通往洞口的路。"},
+      {"id": "S3-5.page.5", "kind": "dialogue", "actorId": "eustice", "emotion": "serious", "text": "沿原路回去，别再绕了。潮水还没涨满，玛丽埃塔也还在等我们。"}
+    ]},
+    {"id": "S4-1", "cursor": 6, "sectionId": "S4-1", "kind": "beat", "frames": [
+      {"id": "S4-1", "kind": "narration", "text": "跨进洋馆的门，海风终于被关在身后。玛丽埃塔把桌边的空处让出来，接住最后放下的油纸包袱。"},
+      {"id": "S4-1.page.1", "kind": "dialogue", "actorId": "marietta", "emotion": "neutral", "text": "欢迎回来，勇者大人。先把东西放稳吧，炉上的茶还温着。"},
+      {"id": "S4-1.page.2", "kind": "narration", "text": "艾洛拉守在草药箱旁，解绳结时比一路上都轻。柯萝萝已经把书箱拉近，低头去看封口。"},
+      {"id": "S4-1.page.3", "kind": "dialogue", "actorId": "elora", "emotion": "smile", "text": "总算带回来了……我会把草药一份份检查好。谢谢大家陪我跑这一趟，这些可不能再受潮了。"},
+      {"id": "S4-1.page.4", "kind": "dialogue", "actorId": "kororo", "emotion": "neutral", "text": "也陪我跑了一趟呢。书箱先放这边，离你的茶壶远一点……我等它好久了。"},
+      {"id": "S4-1.page.5", "kind": "dialogue", "actorId": "norma", "emotion": "wry", "text": "刚才还嚷着走不动，一回家倒知道自己搬了。行，这个角落让你。"},
+      {"id": "S4-1.page.6", "kind": "narration", "text": "油纸被慢慢揭开，露出那领旧毛毯。沙发那边传来衣料摩擦的声音，艾比希斯的视线落在了玛丽埃塔手上。"},
+      {"id": "S4-1.page.7", "kind": "dialogue", "actorId": "abyssa", "emotion": "neutral", "text": "……勇者。拿回来了啊。"},
+      {"id": "S4-1.page.8", "kind": "dialogue", "actorId": "marietta", "emotion": "neutral", "text": "是的，阁下。不过包袱没能送到工坊，修缮还没有完成。请容我先检查一遍，再安排后面的事。"},
+      {"id": "S4-1.page.9", "kind": "dialogue", "actorId": "abyssa", "emotion": "closed", "text": "……嗯。先放在看得见的地方。"},
+      {"id": "S4-1.page.10", "kind": "narration", "text": "玛丽埃塔把毛毯留在沙发旁的矮几上。艾比希斯看了一会儿，才慢慢收回目光；这一次，没有再催着谁出门。"}
+    ]},
+    {"id": "S4-2", "cursor": 7, "sectionId": "S4-2", "kind": "beat", "frames": [
+      {"id": "S4-2", "kind": "narration", "text": "桌上的杯子重新摆开，绳索和空油纸归到一旁。等众人腾出手，玛丽埃塔才把话题从追回的货物上移开。"},
+      {"id": "S4-2.page.1", "kind": "dialogue", "actorId": "marietta", "emotion": "neutral", "text": "诸位先休息。勇者大人，等您整备好了，还有一处地方想请您去看看——克雷格旧庄园。"},
+      {"id": "S4-2.page.2", "kind": "dialogue", "actorId": "eustice", "emotion": "serious", "text": "旧庄园？那里还有人在等客人吗？"},
+      {"id": "S4-2.page.3", "kind": "dialogue", "actorId": "marietta", "emotion": "serious", "text": "早就没有了。只是那里的家政结界，仍在照着旧规矩迎客。我担心，留在那里的人和物都还没能离席。"},
+      {"id": "S4-2.page.4", "kind": "dialogue", "actorId": "kororo", "emotion": "neutral", "text": "……听着就不像去喝一杯茶。队长，这回能先让我们把东西收好吗？"},
+      {"id": "S4-2.page.5", "kind": "dialogue", "actorId": "marietta", "emotion": "neutral", "text": "当然，不必现在动身。请先领好这次追回货物的报酬；是否前往、何时出发，都由您决定。"},
+      {"id": "S4-2.page.6", "kind": "dialogue", "actorId": "norma", "emotion": "neutral", "text": "出门前再看看行囊，BOSS。食物和药不够的话，缇比那儿能补；先看缺什么，别把刚挣的钱一股脑花出去。"},
+      {"id": "S4-2.page.7", "kind": "narration", "text": "茶香盖过了衣服上的海腥气。货物各有了去处，下一段路却不必立刻开始。"}
+    ]}
+  ]
+}

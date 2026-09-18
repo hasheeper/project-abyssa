@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { RpgDialogue } from "../../../shared/ui/primitives/RpgDialogue";
 import mariettaPortrait from "../../../assets/characters/portraits/marietta.png";
 import { PARTY_VISUALS } from "./expedition-visuals";
@@ -15,6 +15,9 @@ const portraits: Record<string, {name: string; portrait: string; nameplate: stri
 export type ExpeditionBattleSidebarProps = ExpeditionLedgerProps & {
   partyIds: readonly string[];
   reaction: BattleReaction | null;
+  quiet?: boolean;
+  entrance?: boolean;
+  battleObjective?: string;
 };
 function ReactionPortrait({ actorId }: { actorId: string }) {
   const [frame, setFrame] = useState({current: actorId, previous: null as string | null});
@@ -31,9 +34,10 @@ function ReactionPortrait({ actorId }: { actorId: string }) {
 }
 
 /** A single instrument body groups the readings above the companion stage. */
-export function ExpeditionBattleSidebar({partyIds, reaction, ...ledger}: ExpeditionBattleSidebarProps) {
+export function ExpeditionBattleSidebar({partyIds, reaction, quiet, battleObjective, entrance, ...ledger}: ExpeditionBattleSidebarProps) {
   const fallback = partyIds.find(id => id !== "kael" && portraits[id]) ?? partyIds.find(id => portraits[id]) ?? "kael";
   const current = reaction && partyIds.includes(reaction.actorId) ? reaction : makeBattleReaction(`ready:${fallback}`, fallback, "ready")!;
+  const initialReaction = useRef(current.key);
   const actor = portraits[current.actorId]!;
   const {engine, memory} = ledger;
   return <aside className="abyssa-expedition-region abyssa-expedition-sidebar battle-companion" aria-label="同行伙伴">
@@ -42,15 +46,16 @@ export function ExpeditionBattleSidebar({partyIds, reaction, ...ledger}: Expedit
       <CompanionStatus layer={engine.layer} round={engine.round} memory={!!memory}/>
       <ExpeditionBattleLedger {...ledger}/>
     </div>
+    {battleObjective && <p className="battle-companion__preview" aria-label="战斗目标">{battleObjective}</p>}
     <section className="battle-reaction" aria-label={`${actor.name}的战斗反应`} data-actor={current.actorId} data-reaction-id={current.key}>
       <div className="battle-reaction__stage">
         <span className="battle-reaction__inlay" aria-hidden="true"/>
         <ReactionPortrait actorId={current.actorId}/>
         <div className="battle-reaction__name"><small>{actor.nameplate}</small><strong>{actor.name}</strong><span>{REACTION_LABELS[current.kind]}</span></div>
       </div>
-      <div className="battle-reaction__speech" role="status" aria-live="polite" aria-atomic="true">
-        <RpgDialogue key={current.key} className="battle-reaction__dialogue" name={actor.name} showNameplate={false} autoHeight text={current.text}/>
-      </div>
+      {(!quiet || reaction) && <div className="battle-reaction__speech" data-scene-settle={entrance ? "manor-speech-in" : undefined} role="status" aria-live="polite" aria-atomic="true">
+        <RpgDialogue key={current.key} className="battle-reaction__dialogue" data-entry-line={entrance && current.key === initialReaction.current || undefined} name={actor.name} showNameplate={false} autoHeight text={current.text}/>
+      </div>}
     </section>
     {memory?.preview && <p className="battle-companion__preview">{memory.preview}</p>}
   </aside>;

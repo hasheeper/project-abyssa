@@ -63,8 +63,8 @@
 .item-dock__slots button strong { position: absolute; bottom: 2px; right: 4px; min-width: 17px; font: 600 16px/1 var(--font-display,serif); text-align: center; color: var(--item-ink); text-shadow: 0 1px 2px #000; }
 .item-dock__empty { display: grid; place-items: center; height: 100%; font-size: 12px; opacity: .22; }
 
-/* Target selection replaces the rail contents inside the same footprint. */
-.item-dock:has(.item-dock__targets) .item-dock__slots { visibility: hidden; }
+/* Unmount the old hit targets, keeping the same footprint during selection. */
+.item-dock__spacer { width: 100%; height: 76px; }
 .item-dock__targets { position: absolute; inset: 0; padding: 8px 28px; background: var(--battle-frame-surface, #21170e); animation: item-target-arrive 200ms ease-out; }
 .item-dock__targets header { display: flex; align-items: center; gap: 10px; min-height: 26px; margin-bottom: 6px; padding-bottom: 6px; border-bottom: 1px solid #ffffff12; font: 14px var(--abyssa-font-body,serif); }
 .item-dock__targets header i { width: 22px; height: 22px; background: currentColor; mask: no-repeat center / contain; }

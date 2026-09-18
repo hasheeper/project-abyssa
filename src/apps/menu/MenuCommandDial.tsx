@@ -1,9 +1,10 @@
-import { useId } from "react";
+import { useId, useState } from "react";
 import type { CSSProperties } from "react";
 import cargoCrateIcon from "../../assets/icons/items/cargo-crate.svg";
 import fireplaceIcon from "../../assets/icons/items/fireplace.svg";
 import twoCoinsIcon from "../../assets/icons/items/two-coins.svg";
 import crossedSwordsIcon from "../../assets/icons/crossed-swords.svg";
+import { MenuDialFiligree } from "./MenuDialFiligree";
 
 /* ============ 四角命令盘 ============
  *
@@ -89,23 +90,12 @@ export function MenuCommandDial({ selectedId, onSelect, onActivate }: MenuComman
   const uid = useId().replace(/:/g, "");
   const diamondId = `menu-dial-diamond-${uid}`;
   const sideId = `menu-dial-side-${uid}`;
+  const [feedback, setFeedback] = useState<{ id: MenuCommandId; serial: number; kind: "select" | "confirm" } | null>(null);
 
   return (
     <nav className="menu-dial" aria-label="主菜单">
       <svg className="menu-dial__art" viewBox="0 0 800 620" aria-hidden="true">
-        <defs>
-          {/* 两枚可复用的花饰:菱形(指向中心)与侧翼箭形。 */}
-          <g id={diamondId} className="menu-dial__filigree">
-            <path d="M0-34 8-17 24-9 11 0 24 9 8 17 0 34-8 17-24 9-11 0-24-9-8-17Z" />
-            <path d="M0-25C-2-12-10-7-17 0C-10 7-2 12 0 25M0-25C2-12 10-7 17 0C10 7 2 12 0 25M-17 0H17M0-25V25M-9-13 0-4 9-13M-9 13 0 4 9 13" />
-            <circle cx="0" cy="0" r="2.6" className="menu-dial__filigree-fill" />
-          </g>
-          <g id={sideId} className="menu-dial__filigree">
-            <path d="M-26 0-13-7-4-22 2-9 18-5 7 0 18 5 2 9-4 22-13 7Z" />
-            <path d="M-17 0H8M-8-11 0 0-8 11M-14-6-4 0-14 6" />
-            <circle cx="-8" cy="0" r="2.2" className="menu-dial__filigree-fill" />
-          </g>
-        </defs>
+        <MenuDialFiligree diamondId={diamondId} sideId={sideId} />
 
         {/* 三重同心环 + 上下轴饰。 */}
         <g className="menu-dial__rings">
@@ -121,6 +111,10 @@ export function MenuCommandDial({ selectedId, onSelect, onActivate }: MenuComman
           return (
             <g
               key={command.id}
+              className="menu-dial__panel-entry"
+              data-command={command.id}
+            >
+            <g
               className="menu-dial__panel"
               data-command={command.id}
               data-selected={selected || undefined}
@@ -130,32 +124,42 @@ export function MenuCommandDial({ selectedId, onSelect, onActivate }: MenuComman
               <path className="menu-dial__panel-middle" d={geometry.path} />
               <path className="menu-dial__panel-inner" d={geometry.path} />
               <path className="menu-dial__panel-inset" d={geometry.insetPath} />
+              <path className="menu-dial__panel-focus" d={geometry.insetPath} />
               {command.id === "estate" && (
                 <>
-                  <use href={`#${sideId}`} transform="translate(247 154)" />
-                  <use href={`#${sideId}`} transform="translate(553 154) scale(-1 1)" />
-                  <use href={`#${diamondId}`} transform="translate(400 257) scale(.85)" />
+                  <use className="menu-dial__filigree menu-dial__filigree--wing" href={`#${sideId}`} transform="translate(253 156)" />
+                  <use className="menu-dial__filigree menu-dial__filigree--wing" href={`#${sideId}`} transform="translate(547 156) scale(-1 1)" />
+                  <use className="menu-dial__filigree" href={`#${diamondId}`} transform="translate(400 246)" />
                 </>
               )}
               {command.id === "storage" && (
                 <>
-                  <use href={`#${sideId}`} transform="translate(34 310)" />
-                  <use href={`#${diamondId}`} transform="translate(342 310) scale(.88)" />
+                  <use className="menu-dial__filigree menu-dial__filigree--wing" href={`#${sideId}`} transform="translate(35 310)" />
+                  <use className="menu-dial__filigree" href={`#${diamondId}`} transform="translate(334 310) rotate(-90) scale(.9)" />
                 </>
               )}
               {command.id === "shop" && (
                 <>
-                  <use href={`#${diamondId}`} transform="translate(458 310) scale(.88)" />
-                  <use href={`#${sideId}`} transform="translate(766 310) scale(-1 1)" />
+                  <use className="menu-dial__filigree" href={`#${diamondId}`} transform="translate(466 310) rotate(90) scale(.9)" />
+                  <use className="menu-dial__filigree menu-dial__filigree--wing" href={`#${sideId}`} transform="translate(765 310) scale(-1 1)" />
                 </>
               )}
               {command.id === "sortie" && (
                 <>
-                  <use href={`#${diamondId}`} transform="translate(400 363) scale(.85)" />
-                  <use href={`#${sideId}`} transform="translate(247 466)" />
-                  <use href={`#${sideId}`} transform="translate(553 466) scale(-1 1)" />
+                  <use className="menu-dial__filigree" href={`#${diamondId}`} transform="translate(400 374) rotate(180)" />
+                  <use className="menu-dial__filigree menu-dial__filigree--wing" href={`#${sideId}`} transform="translate(253 464)" />
+                  <use className="menu-dial__filigree menu-dial__filigree--wing" href={`#${sideId}`} transform="translate(547 464) scale(-1 1)" />
                 </>
               )}
+              {feedback?.id === command.id && (
+                <path
+                  key={feedback.serial}
+                  className="menu-dial__response"
+                  data-kind={feedback.kind}
+                  d={geometry.insetPath}
+                />
+              )}
+            </g>
             </g>
           );
         })}
@@ -163,24 +167,28 @@ export function MenuCommandDial({ selectedId, onSelect, onActivate }: MenuComman
         {/* 中心宝石:四块的尖角在此汇聚。 */}
         <path className="menu-dial__jewel" d="M400 294 416 310 400 326 384 310Z" />
         <path className="menu-dial__jewel-line" d="M400 299 411 310 400 321 389 310Z" />
+        {feedback && <path key={feedback.serial} className="menu-dial__hub-response" data-kind={feedback.kind} d="M400 294 416 310 400 326 384 310Z" />}
       </svg>
 
       {MENU_COMMANDS.map((command) => (
+        <span key={command.id} className="menu-dial__content-entry" data-command={command.id} aria-hidden="true">
+        <span className="menu-dial__content-motion" data-command={command.id} data-selected={command.id === selectedId || undefined}>
         <span
-          key={command.id}
           className="menu-dial__content"
           data-command={command.id}
           data-selected={command.id === selectedId || undefined}
           aria-hidden="true"
         >
           <span className="menu-dial__label">
-            {command.displayLabel}
+            <span className="menu-dial__label-reveal"><span className="menu-dial__label-text">{command.displayLabel}</span></span>
             <i className="menu-dial__label-rule" aria-hidden="true" />
           </span>
           <span
             className="menu-dial__icon"
             style={{ "--menu-dial-icon": `url("${commandIcons[command.id]}")` } as CSSProperties}
           />
+        </span>
+        </span>
         </span>
       ))}
 
@@ -195,10 +203,11 @@ export function MenuCommandDial({ selectedId, onSelect, onActivate }: MenuComman
           aria-label={`${command.label} · ${command.caption}`}
           aria-pressed={command.id === selectedId}
           onClick={() => {
-            if (command.id === selectedId) onActivate(command.id);
+            const kind = command.id === selectedId ? "confirm" : "select";
+            setFeedback(previous => ({ id: command.id, serial: (previous?.serial ?? 0) + 1, kind }));
+            if (kind === "confirm") onActivate(command.id);
             else onSelect(command.id);
           }}
-          onDoubleClick={() => onActivate(command.id)}
         />
       ))}
     </nav>

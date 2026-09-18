@@ -2,6 +2,7 @@ import { forwardRef, useId } from "react";
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 import type { AbyssaSize, AbyssaVariant } from "../types";
 import { cx } from "../../lib/cx";
+import { useUiMotion } from "../motion/UiMotionProvider";
 import { DiamondWatermark, resolveDiamondWatermark } from "./DiamondWatermark";
 import type { DiamondWatermarkConfig } from "./DiamondWatermark";
 
@@ -118,11 +119,13 @@ export const RibbonButton = forwardRef<HTMLButtonElement, RibbonButtonProps>(
     },
     ref
   ) {
+    const { reduced } = useUiMotion();
     return (
       <button
         ref={ref}
         type={type}
-        className={cx("abyssa-ribbon-button", className)}
+        className={cx("abyssa-ribbon-button", "abyssa-control-motion", className)}
+        data-ui-motion={reduced ? "reduced" : "full"}
         data-variant={variant}
         data-size={size}
         data-selected={selected || undefined}
@@ -132,8 +135,8 @@ export const RibbonButton = forwardRef<HTMLButtonElement, RibbonButtonProps>(
         disabled={disabled || loading}
         {...props}
       >
-        <RibbonFrameArt watermark={watermark} />
-        <span className="abyssa-ribbon-button__label">
+        <RibbonFrameArt className="abyssa-control-motion__art" watermark={watermark} />
+        <span className="abyssa-ribbon-button__label abyssa-control-motion__art">
           {leadingIcon && (
             <span className="abyssa-ribbon-button__icon" aria-hidden="true">
               {leadingIcon}

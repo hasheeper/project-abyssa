@@ -18,6 +18,9 @@ import {
   toCssVariables
 } from "./settings-state";
 import type { SettingsState } from "./settings-state";
+import { GameUiPreferences } from "../../shared/preferences/GameUiPreferences";
+import { setUiMotionPreference, useUiMotionPreference } from "../../shared/preferences/ui-motion";
+import { useUiMotion } from "../../shared/ui/motion/UiMotionProvider";
 
 type TabId = "performance" | "display" | "ai" | "about";
 
@@ -59,14 +62,20 @@ const TABS: {
 ];
 
 export function SettingsPage() {
+  return <GameUiPreferences><SettingsPageContent /></GameUiPreferences>;
+}
+
+function SettingsPageContent() {
   const [state, dispatch] = useReducer(settingsReducer, DEFAULT_SETTINGS);
   const [tab, setTab] = useState<TabId>("performance");
+  const { preference, saved } = useUiMotionPreference();
+  const { reduced } = useUiMotion();
 
   const onChange = useCallback((patch: Partial<SettingsState>) => {
     dispatch({ type: "set", patch });
   }, []);
 
-  const pristine = isPristine(state);
+  const pristine = isPristine(state) && preference === "system";
   const cssVariables = useMemo(() => toCssVariables(state), [state]);
 
   /* 底纹挂在画布上而不是 body —— 这样它随界面缩放并止于画布边界
@@ -81,9 +90,8 @@ export function SettingsPage() {
     <Stage background={background}>
       <main
         className="settings-app"
-        /* 减弱动态效果:settings.css 把 tokens.css 里那套
-           prefers-reduced-motion 规则复用到这个属性上,手动开关与系统偏好同源。 */
-        data-reduced-motion={state.reducedMotion || undefined}
+        data-reduced-motion={reduced || undefined}
+        data-ui-motion={reduced ? "reduced" : "full"}
         style={cssVariables as CSSProperties}
       >
         <RpgHeader label="SETTINGS" description="系统设置" variant="teal" />
@@ -115,7 +123,7 @@ export function SettingsPage() {
             <div>
               <span>{current.label.toUpperCase()}</span>
               <h3>{current.title}</h3>
-              <p>{current.description}</p>
+              <p>{current.description}{!saved && <span role="status"> · 动效偏好仅在本次会话生效，浏览器未能保存设置。</span>}</p>
             </div>
             {/* 未改动时显示「默认配置」,改过则提示尚未套用 —— 状态灯要说
                 当前事实,不是永远亮一个「有效」。 */}
@@ -147,7 +155,7 @@ export function SettingsPage() {
             <RpgNotchButton
               label="恢复默认设置"
               disabled={pristine}
-              onClick={() => dispatch({ type: "reset" })}
+              onClick={() => { dispatch({ type: "reset" }); setUiMotionPreference("system"); }}
             />
             <RpgHexButton variant="teal" size="sm" fullWidth>
               返回

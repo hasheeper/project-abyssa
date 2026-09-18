@@ -1,11 +1,13 @@
 import { createServer } from 'node:http';
 import { readFile, stat } from 'node:fs/promises';
-import { extname, resolve } from 'node:path';
+import { extname, relative, resolve } from 'node:path';
 import { distRoot, isWithin } from '../config/paths.mjs';
 import { isMain } from './lib/files.mjs';
 
-/** Static artifacts only: no source serving, proxy, or SPA fallback. @param {string} [root] */
-export function createArtifactServer(root = distRoot) {
+/** Static artifacts only: no source serving, proxy, or SPA fallback.
+ * @param {string} [root]
+ * @param {{overrides?:Record<string,Buffer>}} [options] Local QA only; defaults to byte-identical artifacts. */
+export function createArtifactServer(root = distRoot, options = {}) {
   /** @type {Record<string,string>} */
   const types = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.png': 'image/png', '.webp': 'image/webp', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.svg': 'image/svg+xml', '.woff': 'font/woff', '.woff2': 'font/woff2', '.mp3': 'audio/mpeg', '.ogg': 'audio/ogg', '.apng': 'image/apng' };
   return createServer(async (request, response) => {
@@ -19,7 +21,7 @@ export function createArtifactServer(root = distRoot) {
       if (!isWithin(directory, file) || !(await stat(file)).isFile()) throw new Error('Not found');
       response.setHeader('content-type', types[extname(file)] ?? 'application/octet-stream');
       response.setHeader('cache-control', 'no-store');
-      response.end(request.method === 'HEAD' ? undefined : await readFile(file));
+      response.end(request.method === 'HEAD' ? undefined : options.overrides?.[`${group}/${relative(directory, file)}`] ?? await readFile(file));
     } catch {
       response.statusCode = 404;
       response.end('Not found');

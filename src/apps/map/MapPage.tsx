@@ -1,11 +1,19 @@
 import { activeRunId } from "../../game-client/session";
 import manorHall from "../../assets/backgrounds/old-manor/welcoming-hall.jpg";
 import manorMapIcon from "../../assets/map/landmarks/old-manor.png";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { AnimatePresence } from "motion/react";
+import type { CSSProperties } from "react";
 import { AbyssaProvider } from "../../shared/ui/primitives/AbyssaProvider";
 import { RpgHeader } from "../../shared/ui/primitives/RpgHeader";
 import { Stage } from "../../shared/stage";
-import { SceneTransitionProvider, useSceneTransition } from "../../shared/transition";
+import { SceneTransitionProvider, useSceneReady, useSceneTransition } from "../../shared/transition";
+import { MapCommand } from "./MapCommand";
+import { supplyArt } from "../../content/presentation/supply-icons";
+import { MapLoadoutPanel, type MapLoadoutItem } from "./MapLoadoutPanel";
+import { MapPanel } from "./MapPanel";
+import { useMapIntro } from "./useMapIntro";
+import { MAP_FOCUS_EASE, MAP_FOCUS_MS } from "./map-motion";
 import { createMapScene } from "./createMapScene";
 import type { MapSceneController } from "./createMapScene";
 import { MapWoodFrame } from "./MapWoodFrame";
@@ -18,9 +26,11 @@ import { liveParty } from "./sortie/live-roster";
 import type { SortieParty } from "./sortie/sortie-model";
 import { GameProvider, GameGate, useGameSession, useGameState } from "../../game-client/react";
 import { CampaignPanel } from "../../game-client/CampaignPanel";
+import { AirpPanel } from "../../game-client/AirpPanel";
 import { gameHref, recordLocator } from "../../game-client/navigation";
 import { gameContent } from "../../game-runtime/views";
 import { useSortie } from "./sortie/useSortie";
+import { useDepartureLoadout } from "../../game-client/useDepartureLoadout";
 
 /** 委托侧板靠哪边：地标在画面右半就贴左，免得侧板压住刚点的地标。 */
 const QUEST_SIDE: Record<MapLocationId, "left" | "right"> = {
@@ -34,11 +44,19 @@ function MapPageBody() {
   const sceneRef = useRef<MapSceneController | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  useSceneReady(!loading);
+  const intro = useMapIntro(!loading);
+  const introState = useRef(intro.state);
+  introState.current = intro.state;
+  const supplyTrigger = useRef<HTMLButtonElement>(null);
   const { navigate } = useSceneTransition();
   const session = useGameSession(), game = useGameState(), record = game.record!;
   const manor = useMemo(() => record.schemaVersion !== 1 ? session.runtime.queries.journey(record) : null, [session, record]);
   const { roster: sortieRoster, leader: sortieLeader } = useMemo(() => liveParty(session.runtime.queries.archive(record)), [session, record]);
-  const [itemIds, setItemIds] = useState<string[]>(manor?.defaultItems ?? []), [equipmentIds, setEquipmentIds] = useState<string[]>([]);
+  const loadout = useDepartureLoadout(record,manor);
+  const [legacyItemIds, setLegacyItemIds] = useState<string[]>([]), [equipmentIds, setEquipmentIds] = useState<string[]>([]);
+  const itemIds = record.schemaVersion === 1 ? legacyItemIds : loadout.ids;
+  const setItemIds = record.schemaVersion === 1 ? setLegacyItemIds : loadout.setIds;
 
   const locations = useMemo(() => cloneMapLocations().map(location => location.id === "tower" ? { ...location, name: manor ? manor.maintenance ? "旧庄园·维护委托" : "克雷格旧庄园" : "裂隙远征", englishName: manor ? "The Old Manor" : "Rift Expedition", imageUrl: manor ? manorMapIcon : location.imageUrl } : location), [!!manor, manor?.maintenance]);
   const nodeIds = useMemo<MapLocationId[]>(() => ["tower"], []);
@@ -68,11 +86,39 @@ function MapPageBody() {
 
   const sortie = useSortie({ roster: sortieRoster, nodeIds, onDepart: handleDepart, persistOrder: false, personalOnly: true, initialMemberIds: manor?.initialParty.filter(id => id !== manor.leaderId) });
   const { mode, activeNode, openNode } = sortie;
+  const stageMode = mode === "loadout" ? sortie.loadoutReturnMode : mode;
+  const loadoutLocked = game.status !== "ready" ? "正在保存或恢复进度" : activeRunId(record) ? "远征进行中，无法更改行囊" : undefined;
+  const supplies: MapLoadoutItem[] = record.schemaVersion !== 1 ? (manor?.items ?? []).map(item => ({
+    id: item.id, name: item.name, icon: supplyArt[item.kind]?.icon,
+    description: supplyArt[item.kind]?.description ?? "", quantity: item.availableCharges, stock: item.storedCharges,
+    source: item.free ? "免费配给" : "战术补给", selected: itemIds.includes(item.id),
+    blocked: loadoutLocked ?? (!itemIds.includes(item.id) ? !item.availableCharges ? "暂无库存，可返回洋馆补充" : itemIds.length >= loadout.itemLimit ? "行囊已满，请先移出一种" : undefined : undefined),
+  })) : [...record.snapshot.campaign.inventory.items, ...record.snapshot.campaign.inventory.equipment].map(item => {
+    const equipment = "durability" in item;
+    const ownerReady = !equipment || [gameContent.leaderId, ...sortie.party.memberIds].includes(item.ownerId!);
+    return { id: item.instanceId, name: item.definitionId, description: item.instanceId, quantity: 1,
+      source: equipment ? "随身装备" : "营地物品", selected: ownerReady && (equipment ? equipmentIds : itemIds).includes(item.instanceId),
+      blocked: !ownerReady ? "所属伙伴未编入" : loadoutLocked };
+  });
+  const toggleSupply = (id: string) => {
+    if (supplies.find(item => item.id === id)?.blocked) return;
+    const equipment = record.schemaVersion === 1 && record.snapshot.campaign.inventory.equipment.some(item => item.instanceId === id);
+    (equipment ? setEquipmentIds : setItemIds)(ids => ids.includes(id) ? ids.filter(current => current !== id) : [...ids, id]);
+  };
+
+  useEffect(() => {
+    if (mode !== "loadout") return;
+    intro.ref.current?.querySelector<HTMLButtonElement>('.map-supplies button[aria-label="关闭出征行囊"]')?.focus({ preventScroll: true });
+    return () => {
+      if (document.activeElement instanceof HTMLElement && document.activeElement.closest(".map-supplies")) supplyTrigger.current?.focus({ preventScroll: true });
+    };
+  }, [mode, intro.ref]);
 
   useEffect(() => {
     const container = sceneContainerRef.current;
     if (!container) return;
     const controller = createMapScene(container, {
+      intro: true,
       locations: locations.map(location => ({ ...location })),
       onReady: () => setLoading(false),
       onError: () => {
@@ -82,6 +128,7 @@ function MapPageBody() {
       onLocationSelect: (location) => openNode(location.id)
     });
     sceneRef.current = controller;
+    controller.setIntroState(introState.current);
     return () => {
       sceneRef.current = null;
       controller.destroy();
@@ -100,6 +147,8 @@ function MapPageBody() {
   useEffect(() => {
     sceneRef.current?.setInteractive(mode === "map");
   }, [mode]);
+  useEffect(() => { sceneRef.current?.setReducedMotion(intro.reduced); }, [intro.reduced, locations]);
+  useLayoutEffect(() => { sceneRef.current?.setIntroState(intro.state); }, [intro.state]);
 
   const activeLocation = activeNode
     ? locations.find((location) => location.id === activeNode)
@@ -107,8 +156,10 @@ function MapPageBody() {
   const activeQuestSide = activeLocation ? QUEST_SIDE[activeLocation.id] : undefined;
 
   return (
-    <Stage background="var(--abyssa-map-backdrop)">
-      <AbyssaProvider className="abyssa-map-page" density="compact">
+    <Stage canvasClassName="abyssa-map-canvas">
+      <AbyssaProvider className="abyssa-map-page" density="compact" data-map-reduced={intro.reduced}>
+        <div ref={intro.ref} className="map-board" data-map-intro={intro.state}
+          onKeyDown={event => { if (event.key === "Escape" && mode !== "map") { event.preventDefault(); event.stopPropagation(); sortie.dismiss(); } }}>
         {/* 招牌与 shop 同构:absolute 挂墙,不参与流,允许压住画框上沿。 */}
         <header className="abyssa-map-heading">
           <RpgHeader
@@ -124,6 +175,7 @@ function MapPageBody() {
             className="abyssa-map-viewport"
             aria-label="守望者之崖副本地图"
             data-mode={mode}
+            style={{ "--map-focus-duration": `${MAP_FOCUS_MS}ms`, "--map-focus-ease": `cubic-bezier(${MAP_FOCUS_EASE.join(",")})` } as CSSProperties}
           >
             <div ref={sceneContainerRef} className="abyssa-map-scene" />
             <div className="abyssa-map-vignette" aria-hidden="true" />
@@ -147,8 +199,9 @@ function MapPageBody() {
             />
 
             <SortiePartyStage
-              mode={mode}
-              questSide={mode === "pop" ? activeQuestSide : undefined}
+              inert={mode === "loadout"}
+              mode={stageMode}
+              questSide={stageMode === "pop" ? activeQuestSide : undefined}
               roster={sortieRoster}
               leader={sortieLeader}
               party={sortie.party}
@@ -159,7 +212,8 @@ function MapPageBody() {
               onToggleCommand={sortie.toggleCommand}
             />
 
-            {mode === "team" && (
+            <AnimatePresence initial={false}>
+            {mode === "team" && <MapPanel key="team" kind="team">
               <SortieRosterPanel
                 roster={sortieRoster}
                 leader={sortieLeader}
@@ -168,9 +222,9 @@ function MapPageBody() {
                 inspectHref={id => gameHref("character-status", recordLocator(record), {characterId: id, tab: "summary", from: "map"})}
                 onClose={sortie.finishTeam}
               />
-            )}
+            </MapPanel>}
 
-            {mode === "pop" && activeLocation && (
+            {mode === "pop" && activeLocation && <MapPanel key={`quest-${activeNode}`} kind="quest" side={activeQuestSide}>
               <SortieQuestPanel
                 location={activeLocation}
                 side={activeQuestSide!}
@@ -183,23 +237,21 @@ function MapPageBody() {
                 onDepart={sortie.depart}
                 onClose={sortie.closeAll}
               />
-            )}
+            </MapPanel>}
+            {mode === "loadout" && <MapPanel key="loadout" kind="loadout"><MapLoadoutPanel items={supplies}
+              limit={record.schemaVersion === 1 ? Math.max(6, supplies.length) : loadout.itemLimit}
+              notice={loadout.storageUnavailable ? "此窗口无法保留方案，请在本页确认后出发。" : record.schemaVersion === 1 ? "携带已编入伙伴的物品与装备；出发前仍可调整。" : record.contentRef.rulesVersion === 4 && record.contentRef.contentVersion >= 3 ? undefined : "出发前将所选配给免费补足。"}
+              onToggle={toggleSupply} onClose={sortie.finishLoadout}/></MapPanel>}
+            </AnimatePresence>
+            {(manor || record.schemaVersion === 1) && <MapCommand ref={supplyTrigger} className="map-supply-entry"
+              aria-expanded={mode === "loadout"} onClick={mode === "loadout" ? sortie.finishLoadout : sortie.openLoadout}>
+              出征行囊 <span>{supplies.filter(item => item.selected).length} / {record.schemaVersion === 1 ? supplies.length : loadout.itemLimit}</span>
+            </MapCommand>}
           </section>
         </MapWoodFrame>
-        {record.schemaVersion !== 1 && manor ? <details className="map-loadout game-client-panel"><summary>携带配给（{itemIds.length}/4）</summary>
-          <p>{record.contentRef.rulesVersion === 4 && record.contentRef.contentVersion >= 3 ? "食物和药水出发时补足；战术补给按库存携带，最多四种。" : "出发前将所选配给免费补足，最多携带四种。"}</p>
-          {manor.items.map(item => <label key={item.id}><input type="checkbox" checked={itemIds.includes(item.id)}
-            disabled={game.status !== "ready" || !!activeRunId(record) || !itemIds.includes(item.id) && (itemIds.length >= 4 || !item.availableCharges)}
-            onChange={e => setItemIds(ids => e.target.checked ? [...ids,item.id] : ids.filter(id => id !== item.id))} />{item.name} ×{item.availableCharges}{item.free ? " · 配给" : " · 库存"}</label>)}
-        </details> : record.schemaVersion === 1 ? <details className="map-loadout game-client-panel"><summary>携带物品与装备</summary>
-          {[...record.snapshot.campaign.inventory.items, ...record.snapshot.campaign.inventory.equipment].map(item => {
-            const equipment = "durability" in item, selected = equipment ? equipmentIds : itemIds, update = equipment ? setEquipmentIds : setItemIds;
-            const ownerReady = !equipment || [gameContent.leaderId, ...sortie.party.memberIds].includes(item.ownerId!);
-            return <label key={item.instanceId}><input type="checkbox" checked={ownerReady && selected.includes(item.instanceId)} disabled={!ownerReady || game.status !== "ready" || Boolean(record.snapshot.expedition)} onChange={e => update(current => e.target.checked ? [...current, item.instanceId] : current.filter(id => id !== item.instanceId))} />{item.definitionId} · {item.instanceId}{!ownerReady ? "（所属伙伴未编入）" : ""}</label>;
-          })}
-          {!record.snapshot.campaign.inventory.items.length && !record.snapshot.campaign.inventory.equipment.length && <p>营地暂无物品，可以空包出征。</p>}
-        </details> : null}
+        </div>
         <CampaignPanel />
+        <aside className="airp-map-note"><AirpPanel compact/></aside>
       </AbyssaProvider>
     </Stage>
   );

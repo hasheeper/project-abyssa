@@ -18,6 +18,8 @@ export type BattleSurfaceEnemy = {
   art: string;
   artUrl: string;
   artStyle?: CSSProperties;
+  artBounds?: import("./enemy-stage-model").EnemyArtBounds;
+  boss?: boolean;
   hp: number;
   maxHp: number;
   attack: number;

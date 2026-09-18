@@ -1,0 +1,1751 @@
+{
+  "_readme": {
+    "title": "Abyssa 纯教程文案编辑稿",
+    "date": "2026-09-13",
+    "scope": "仅保留教程总览、逐步提示、事件判定、骰面与意图说明、倍率、补给、整备重试、结算引导及教学按钮。无S3/S4故事、首晨、序幕、战术对白、通用角色气泡或旧版教程附录。",
+    "status": "仅整理编辑副本；未改文案正文，未修改游戏运行时。",
+    "editing": [
+      "只需编辑 sections[].entries[].text；source、key、sourceSha256和bindings用于回填定位，请保留。",
+      "保留 {handFactor}、{value1}、{{user}} 等占位符；有bindings的条目会由游戏填入数值。",
+      "instructionOverrides为现有特殊教学步骤的文案映射，不是正文。",
+      "同一提示可能复用于多步；带有场景名或队员名的操作说明仍属于教学，不是剧情对白。",
+      "newCopy可写新增教学文案并注明出现位置；本文件未接入运行时，修改后需回填原文件。",
+      "剧情对白与其余非教学条目已分离到 SCENE_COPY_SEPARATED.json；没有删除原条目。"
+    ],
+    "sourceCount": 16,
+    "entryCount": 266,
+    "separatedFile": "SCENE_COPY_SEPARATED.json"
+  },
+  "instructionOverrides": {
+    "guide.T1.R1.roll.roll": "firstRoll",
+    "guide.T1.R1.kael.fix.fix": "firstFix",
+    "guide.T1.R1.kael.actor": "firstActor",
+    "guide.T1.R1.kael.attack": "firstAttack",
+    "guide.T1.R1.eustice.attack": "focusSlime",
+    "guide.T1.R1.end.end": "firstEnd",
+    "guide.T1.R2.roll.roll": "nextRound",
+    "guide.T2.R1.roll.roll": "intent",
+    "guide.T2.R1.keep.fix": "keep",
+    "guide.T2.R1.kael.heal.heal": "firstHeal",
+    "guide.T2.R2.roll.roll": "twoAttacks",
+    "guide.T2.R2.guard-bow.guard": "singleGuard",
+    "guide.T3.R1.roll.roll": "teamHand",
+    "guide.T3.R1.focus.kael.fix.fix": "handBonus",
+    "guide.T3.R1.focus.eustice.fix.fix": "qualityBonus",
+    "guide.T3.R1.kororo.attack.fix.fix": "accumulation",
+    "guide.T3.R1.norma.guard.actor": "hand",
+    "guide.T3.R1.focus.eustice.attack": "focusKnife",
+    "guide.T3.R1.end.end": "multiplier",
+    "guide.E1.enter.advance": "toEvent",
+    "guide.T3.enter.advance": "toHaulers"
+  },
+  "sections": [
+    {
+      "scope": "tutorial",
+      "title": "01 · 教程总览",
+      "source": "src/apps/battle/presentation/TutorialOverview.tsx",
+      "sourceSha256": "76d608f31d9a92ba8368de48743999e64d4c90cbaafe908c34a71b922818441f",
+      "entries": [
+        {
+          "key": "L15:C23",
+          "context": "topics > [0] > title",
+          "kind": "literal",
+          "text": "骰子决定行动"
+        },
+        {
+          "key": "L16:C11",
+          "context": "topics > [0] > text",
+          "kind": "literal",
+          "text": "每名队员都有自己的行动骰。先掷骰，固定需要的骰面，再选队员和目标；每枚骰子每轮只能行动一次。"
+        },
+        {
+          "key": "L17:C14",
+          "context": "topics > [0] > caption",
+          "kind": "literal",
+          "text": "战斗示例 · 下方是行动骰，上方是队员与敌人。固定骰面后，再安排谁对谁行动。"
+        },
+        {
+          "key": "L18:C26",
+          "context": "topics > [1] > title",
+          "kind": "literal",
+          "text": "观察威胁，调整这一手"
+        },
+        {
+          "key": "L19:C11",
+          "context": "topics > [1] > text",
+          "kind": "literal",
+          "text": "敌人会提前亮出意图。保留有用的骰面，重掷其余骰子，再安排攻击、治疗或格挡。格挡只拦截指定的一条攻击。"
+        },
+        {
+          "key": "L20:C14",
+          "context": "topics > [1] > caption",
+          "kind": "literal",
+          "text": "意图示例 · 先看攻击指向谁、会造成多少伤害，再决定要保留哪些骰面。"
+        },
+        {
+          "key": "L21:C24",
+          "context": "topics > [2] > title",
+          "kind": "literal",
+          "text": "战斗之外，也有小事件"
+        },
+        {
+          "key": "L22:C11",
+          "context": "topics > [2] > text",
+          "kind": "literal",
+          "text": "战间可以使用补给，也会遇到事件。选择一名队员，用她的专属骰面独立判定；事件不消耗战斗骰，也不能重掷。"
+        },
+        {
+          "key": "L23:C14",
+          "context": "topics > [2] > caption",
+          "kind": "literal",
+          "text": "事件示例 · 选择队员后，右侧会显示判定依据。这里判断事件结果，不施放战斗技能。"
+        },
+        {
+          "key": "L24:C26",
+          "context": "topics > [3] > title",
+          "kind": "literal",
+          "text": "整手牌型，也值得留意"
+        },
+        {
+          "key": "L25:C11",
+          "context": "topics > [3] > text",
+          "kind": "literal",
+          "text": "结束回合时，牌型会累积本层的金币收益倍率；满足条件还会触发同伴铭约。收益倍率不增加攻击伤害，报酬需在返馆后领取。"
+        },
+        {
+          "key": "L26:C14",
+          "context": "topics > [3] > caption",
+          "kind": "literal",
+          "text": "收益示例 · 下方查看牌型，右上查看金币倍率。具体加成与铭约，会在第三场战斗中带你认识。"
+        },
+        {
+          "key": "L40:C13",
+          "context": "TutorialOverview",
+          "kind": "jsx",
+          "text": "PLAY GUIDE · 退潮岩窟"
+        },
+        {
+          "key": "L41:C13",
+          "context": "TutorialOverview",
+          "kind": "jsx",
+          "text": "欢迎来到教程的基本玩法介绍总览"
+        },
+        {
+          "key": "L42:C13",
+          "context": "TutorialOverview",
+          "kind": "jsx",
+          "text": "这是一场由骰子决定行动的小队冒险。先看看你将用到的几种玩法，再和同伴一起出发。"
+        },
+        {
+          "key": "L49:C17",
+          "context": "TutorialOverview",
+          "kind": "jsx",
+          "text": "实机示例 · 点击放大"
+        },
+        {
+          "key": "L52:C15",
+          "context": "TutorialOverview",
+          "kind": "jsx",
+          "text": "截图仅作玩法预览，不是当前存档的战斗进度。"
+        },
+        {
+          "key": "L63:C18",
+          "context": "TutorialOverview",
+          "kind": "jsx",
+          "text": "四场战斗 · 一次事件 · 逐步上手"
+        },
+        {
+          "key": "L64:C15",
+          "context": "TutorialOverview",
+          "kind": "jsx",
+          "text": "现在不必记住全部规则。前几场会逐步引导，最后一战交给你决定。"
+        },
+        {
+          "key": "L65:C88",
+          "context": "TutorialOverview",
+          "kind": "literal",
+          "text": "正在准备教程…"
+        },
+        {
+          "key": "L65:C100",
+          "context": "TutorialOverview",
+          "kind": "literal",
+          "text": "准备好后，再开始教程。"
+        },
+        {
+          "key": "L68:C37",
+          "context": "TutorialOverview > label",
+          "kind": "literal",
+          "text": "返回标题"
+        },
+        {
+          "key": "L69:C46",
+          "context": "TutorialOverview > label",
+          "kind": "literal",
+          "text": "重试开始"
+        },
+        {
+          "key": "L69:C55",
+          "context": "TutorialOverview > label",
+          "kind": "literal",
+          "text": "开始教程"
+        },
+        {
+          "key": "L74:C73",
+          "context": "TutorialOverview > title",
+          "kind": "template",
+          "text": "{value1} · 实机截图",
+          "bindings": {
+            "value1": "topic.title"
+          }
+        }
+      ]
+    },
+    {
+      "scope": "tutorial",
+      "title": "02 · 逐步教学：首次说明与复用提示",
+      "source": "src/content/presentation/tutorial/guided-tide.json",
+      "sourceSha256": "27e9a5a0df291dd9bd126e69ab258681ca76abf15f516fe1bf0116b4ef4f6b0f",
+      "entries": [
+        {
+          "key": "/steps/roll/title",
+          "text": "投掷行动骰"
+        },
+        {
+          "key": "/steps/roll/text",
+          "text": "点击 ROLL，投掷本轮的行动骰。先看看各位队员这次能做什么。"
+        },
+        {
+          "key": "/steps/fix/title",
+          "text": "保留骰面"
+        },
+        {
+          "key": "/steps/fix/text",
+          "text": "点击标记的骰子，将当前骰面固定下来。接着就能选择这名队员行动。"
+        },
+        {
+          "key": "/steps/actor/title",
+          "text": "选择队员"
+        },
+        {
+          "key": "/steps/actor/text",
+          "text": "骰面已经固定。点选标记的队员，再为这次行动选择目标。"
+        },
+        {
+          "key": "/steps/attack/title",
+          "text": "选择攻击目标"
+        },
+        {
+          "key": "/steps/attack/text",
+          "text": "点选标记的敌人，使用这枚骰子的攻击。伤害取决于当前骰面。"
+        },
+        {
+          "key": "/steps/heal/title",
+          "text": "照顾同伴"
+        },
+        {
+          "key": "/steps/heal/text",
+          "text": "点选标记的同伴，为她恢复生命。治疗也会用掉这枚骰子本轮的行动。"
+        },
+        {
+          "key": "/steps/guard/title",
+          "text": "拦截攻击"
+        },
+        {
+          "key": "/steps/guard/text",
+          "text": "点选标记的攻击意图，将格挡分配给这一击。其他攻击仍需另外应对。"
+        },
+        {
+          "key": "/steps/reroll/title",
+          "text": "保留与重掷"
+        },
+        {
+          "key": "/steps/reroll/text",
+          "text": "点击 REROLL，重新投掷其余未固定的骰子。尤斯缇丝的骰面会保留，每轮最多重掷两次。"
+        },
+        {
+          "key": "/steps/end/title",
+          "text": "结束本轮"
+        },
+        {
+          "key": "/steps/end/text",
+          "text": "安排好行动后，点击 END TURN。随后结算牌型与铭约，再由敌人行动。"
+        },
+        {
+          "key": "/steps/items/title",
+          "text": "战间整备"
+        },
+        {
+          "key": "/steps/items/text",
+          "text": "伤势不会在战后自动恢复。先打开道具，给柯萝萝补充一些体力。"
+        },
+        {
+          "key": "/steps/food/title",
+          "text": "使用食物"
+        },
+        {
+          "key": "/steps/food/text",
+          "text": "选择一份食物。食物适合在战斗之间使用，接下来再选择需要恢复的同伴。"
+        },
+        {
+          "key": "/steps/foodTarget/title",
+          "text": "恢复后再出发"
+        },
+        {
+          "key": "/steps/foodTarget/text",
+          "text": "将这份食物交给柯萝萝，恢复她缺少的 1 点生命。用掉的补给会从行囊中扣除。"
+        },
+        {
+          "key": "/steps/participant/title",
+          "text": "选一人处理事件"
+        },
+        {
+          "key": "/steps/participant/text",
+          "text": "事件由一名队员尝试，不是全队一起行动。这次先选艾洛拉；可以在右侧查看她的成功面数。"
+        },
+        {
+          "key": "/steps/event/title",
+          "text": "独立判定"
+        },
+        {
+          "key": "/steps/event/text",
+          "text": "点击 ROLL，从艾洛拉的六个专属骰面中独立抽取一面。不消耗战斗骰，无法重掷。"
+        },
+        {
+          "key": "/steps/result/title",
+          "text": "读懂事件结果"
+        },
+        {
+          "key": "/steps/result/text",
+          "text": "右侧会列出抽到的骰面和判定依据。这里判断的是能否保全物件，不会施放骰面上的战斗技能；看完后确认结果。"
+        },
+        {
+          "key": "/steps/advance/title",
+          "text": "继续前进"
+        },
+        {
+          "key": "/steps/advance/text",
+          "text": "确认好队伍和剩余补给后，点击“继续前进”，进入下一段路。"
+        },
+        {
+          "key": "/steps/firstRoll/title",
+          "text": "先看看这一手"
+        },
+        {
+          "key": "/steps/firstRoll/text",
+          "text": "点击 ROLL，为全队投掷行动骰。每名队员都有自己的骰子，骰面决定这一轮可用的行动。"
+        },
+        {
+          "key": "/steps/firstFix/title",
+          "text": "固定可用的骰面"
+        },
+        {
+          "key": "/steps/firstFix/text",
+          "text": "先点击标记的骰子，把这张攻击面固定下来。固定只是保留骰面，还没有发动攻击。"
+        },
+        {
+          "key": "/steps/firstActor/title",
+          "text": "从骰面到行动"
+        },
+        {
+          "key": "/steps/firstActor/text",
+          "text": "现在点选你的角色卡，准备使用这张攻击面。每枚骰子每轮只能行动一次。"
+        },
+        {
+          "key": "/steps/firstAttack/title",
+          "text": "指定一名敌人"
+        },
+        {
+          "key": "/steps/firstAttack/text",
+          "text": "点选标记的软泥，发动攻击。出手后这枚骰子本轮就用过了，其他队员仍可继续行动。"
+        },
+        {
+          "key": "/steps/focusSlime/title",
+          "text": "先解决同一个目标"
+        },
+        {
+          "key": "/steps/focusSlime/text",
+          "text": "让尤斯缇丝继续攻击刚才那只软泥。集中伤害，能让敌人更早减员。"
+        },
+        {
+          "key": "/steps/firstEnd/title",
+          "text": "轮到敌人行动"
+        },
+        {
+          "key": "/steps/firstEnd/text",
+          "text": "这一轮先行动到这里。点击 END TURN，观察剩下的软泥如何攻击；不必强行用完所有骰子。"
+        },
+        {
+          "key": "/steps/nextRound/title",
+          "text": "新的一轮"
+        },
+        {
+          "key": "/steps/nextRound/text",
+          "text": "敌人行动结束了。再次点击 ROLL，队员会获得新的骰面，也能重新各行动一次。"
+        },
+        {
+          "key": "/steps/intent/title",
+          "text": "先看敌方意图"
+        },
+        {
+          "key": "/steps/intent/text",
+          "text": "敌人头上的意图会提前说明本轮行动。刀手准备攻击，弩手仍在装填；看清后点击 ROLL。"
+        },
+        {
+          "key": "/steps/keep/title",
+          "text": "留住需要的行动"
+        },
+        {
+          "key": "/steps/keep/text",
+          "text": "先固定尤斯缇丝的攻击面。这枚骰子保留下来后，我们再重掷其他骰子，寻找更合适的行动。"
+        },
+        {
+          "key": "/steps/firstHeal/title",
+          "text": "用治疗面补位"
+        },
+        {
+          "key": "/steps/firstHeal/text",
+          "text": "点选受伤的尤斯缇丝，为她恢复 1 点生命。队员这轮能做什么，要看掷出的骰面。"
+        },
+        {
+          "key": "/steps/twoAttacks/title",
+          "text": "重新判断威胁"
+        },
+        {
+          "key": "/steps/twoAttacks/text",
+          "text": "弩手已经装好弩了。留意两条攻击各指向谁、伤害有多大，再点击 ROLL 安排这一轮。"
+        },
+        {
+          "key": "/steps/singleGuard/title",
+          "text": "格挡只拦一条攻击"
+        },
+        {
+          "key": "/steps/singleGuard/text",
+          "text": "点选弩手的攻击意图，把 2 点格挡留给这支弩箭。刀手的攻击不会因此消失，还需要另行处理。"
+        },
+        {
+          "key": "/steps/teamHand/title",
+          "text": "收益倍率不是伤害倍率"
+        },
+        {
+          "key": "/steps/teamHand/text",
+          "text": "右上角的倍率会放大清层时的金币收益，不增加攻击伤害。先点击 ROLL，看看这一手能为收益增加多少。"
+        },
+        {
+          "key": "/steps/handBonus/title",
+          "text": "看懂本轮加成"
+        },
+        {
+          "key": "/steps/handBonus/text",
+          "text": "下方显示本轮的最佳牌型，不会把多个牌型重复相加。这手“{handName}”基础＋{baseBonus}，品质修正{qualityBonus}，合计＋{adjustedBonus}；先固定你的攻击骰。"
+        },
+        {
+          "key": "/steps/qualityBonus/title",
+          "text": "金面与锈面的影响"
+        },
+        {
+          "key": "/steps/qualityBonus/text",
+          "text": "接着固定尤斯缇丝的骰子。用于成牌的金面每枚多加0.10，锈面少加0.10；它们改变的是收益加成，不是这次攻击的伤害。"
+        },
+        {
+          "key": "/steps/accumulation/title",
+          "text": "加成会在本层累积"
+        },
+        {
+          "key": "/steps/accumulation/text",
+          "text": "每轮结算的加成都会累积，牌型倍率最高×{handCap}。岩窟四战同属一层，不会每战清零；清层后才重置。现在固定柯萝萝的骰子。"
+        },
+        {
+          "key": "/steps/focusKnife/title",
+          "text": "集中伤害打开局面"
+        },
+        {
+          "key": "/steps/focusKnife/text",
+          "text": "继续攻击同一个刀手，将他击倒。这样能先减少一名会出手的敌人，再处理剩下的威胁。"
+        },
+        {
+          "key": "/steps/hand/title",
+          "text": "牌型之外，还有铭约"
+        },
+        {
+          "key": "/steps/hand/text",
+          "text": "已用过的清醒骰仍然成牌。艾洛拉的沉眠空面不成牌，却满足诺玛“两对＋空面”的铭约条件；先选中诺玛，安排好这一轮的防守。"
+        },
+        {
+          "key": "/steps/multiplier/title",
+          "text": "看看倍率怎样变化"
+        },
+        {
+          "key": "/steps/multiplier/text",
+          "text": "点击 END TURN，牌型倍率将从×{handFactor}升至×{nextHandFactor}。再乘本层的层深×{layerFactor}与大地共鸣×{earthFactor}，右上总倍率将从×{total}变为×{nextTotal}。"
+        },
+        {
+          "key": "/steps/toEvent/title",
+          "text": "去看看潮坑里的皮包"
+        },
+        {
+          "key": "/steps/toEvent/text",
+          "text": "整备好了，点击“继续前进”。接下来不是战斗，而是由一名队员处理的小事件。"
+        },
+        {
+          "key": "/steps/toHaulers/title",
+          "text": "事件之后"
+        },
+        {
+          "key": "/steps/toHaulers/text",
+          "text": "这次检查已经结束，无论结果如何都能继续。点击“继续前进”，追上前方的搬运队。"
+        }
+      ]
+    },
+    {
+      "scope": "tutorial",
+      "title": "03 · 事件规则、整备、重试与结算引导",
+      "source": "src/apps/battle/presentation/TideJourneyPanel.tsx",
+      "sourceSha256": "4b90f24d64f8263303cf2c7bad4ae35c4d2dae6bd8e0ccbef772a6e9e187673b",
+      "entries": [
+        {
+          "key": "L10:C15",
+          "context": "tideEventCopy: JourneyEventCopy > conditions",
+          "kind": "literal",
+          "text": "这次检查不收取金币。使用所选队员的专属骰独立判定，不消耗战斗骰，无法重掷。"
+        },
+        {
+          "key": "L35:C26",
+          "context": "TideJourneyPanel",
+          "kind": "literal",
+          "text": "队伍已撤回安全处。可以重试本场，也可以从岩窟入口重新开始。"
+        },
+        {
+          "key": "L35:C73",
+          "context": "TideJourneyPanel",
+          "kind": "literal",
+          "text": "草药、书和工坊包袱已经送回。点击“领取并返回洋馆”，将下方收益正式存入小队资金，并归还剩余补给；之后便可自由整备，选择下一段行程。"
+        },
+        {
+          "key": "L35:C143",
+          "context": "TideJourneyPanel",
+          "kind": "literal",
+          "text": "战斗暂时结束了，伤势和剩余补给都会带到下一场。可以先打开道具照顾同伴，准备好后再继续前进。"
+        },
+        {
+          "key": "L36:C24",
+          "context": "TideJourneyPanel",
+          "kind": "jsx",
+          "text": "重试恢复到所选起点的队伍与补给。本次失败不扣金币，也不推进时间。"
+        },
+        {
+          "key": "L37:C24",
+          "context": "TideJourneyPanel",
+          "kind": "jsx",
+          "text": "远征实得 {value1} G · 追回报酬 {value2} G · 本次总入账 {value3} G",
+          "bindings": {
+            "value1": "view.expedition!.result!.totalGold",
+            "value2": "t.reward.gold",
+            "value3": "view.expedition!.result!.totalGold + t.reward.gold"
+          }
+        },
+        {
+          "key": "L38:C24",
+          "context": "TideJourneyPanel",
+          "kind": "jsx",
+          "text": "远征实得已包含清层倍率，不会在领取时再乘一次。追回报酬 {value1} G 单独加入，不受倍率影响。",
+          "bindings": {
+            "value1": "t.reward.gold"
+          }
+        },
+        {
+          "key": "L46:C43",
+          "context": "TideJourneyActions > label",
+          "kind": "literal",
+          "text": "从入口重来"
+        },
+        {
+          "key": "L47:C25",
+          "context": "TideJourneyActions",
+          "kind": "literal",
+          "text": "恢复对应起点"
+        },
+        {
+          "key": "L47:C49",
+          "context": "TideJourneyActions",
+          "kind": "template",
+          "text": "本次总入账 · {value1} G",
+          "bindings": {
+            "value1": "view.expedition!.result!.totalGold + t.reward.gold"
+          }
+        },
+        {
+          "key": "L47:C117",
+          "context": "TideJourneyActions",
+          "kind": "literal",
+          "text": "可使用道具整备"
+        },
+        {
+          "key": "L48:C137",
+          "context": "TideJourneyActions > label",
+          "kind": "literal",
+          "text": "重试本场"
+        },
+        {
+          "key": "L48:C159",
+          "context": "TideJourneyActions > label",
+          "kind": "literal",
+          "text": "领取并返回洋馆"
+        },
+        {
+          "key": "L48:C171",
+          "context": "TideJourneyActions > label",
+          "kind": "literal",
+          "text": "继续前进"
+        }
+      ]
+    },
+    {
+      "scope": "tutorial",
+      "title": "04 · 事件判定与结果读取说明",
+      "source": "src/apps/battle/presentation/ManorJourneyPanel.tsx",
+      "sourceSha256": "27f51790317fbe5d3f00142453ecef7156a4cf8b6f52931e4f3c60474c457263",
+      "entries": [
+        {
+          "key": "L76:C140",
+          "context": "ManorJourneyPanel",
+          "kind": "literal",
+          "text": "治疗、昂贵治疗、庇护、守护全体、万能行动可强保全；其余清醒且至少四点或万能命数可弱保全。"
+        },
+        {
+          "key": "L81:C7",
+          "context": "ManorJourneyPanel",
+          "kind": "jsx",
+          "text": "{value1} · 判定骰",
+          "bindings": {
+            "value1": "rollingActor.name"
+          }
+        },
+        {
+          "key": "L82:C48",
+          "context": "ManorJourneyPanel",
+          "kind": "literal",
+          "text": "掷骰中"
+        },
+        {
+          "key": "L83:C43",
+          "context": "ManorJourneyPanel",
+          "kind": "literal",
+          "text": "等待骰子落定……"
+        },
+        {
+          "key": "L83:C91",
+          "context": "ManorJourneyPanel",
+          "kind": "literal",
+          "text": "清醒"
+        },
+        {
+          "key": "L83:C98",
+          "context": "ManorJourneyPanel",
+          "kind": "literal",
+          "text": "沉睡"
+        },
+        {
+          "key": "L83:C143",
+          "context": "ManorJourneyPanel",
+          "kind": "literal",
+          "text": "万能命数"
+        },
+        {
+          "key": "L83:C152",
+          "context": "ManorJourneyPanel",
+          "kind": "template",
+          "text": "{value1} 点",
+          "bindings": {
+            "value1": "checkingFace.pip.value"
+          }
+        },
+        {
+          "key": "L84:C79",
+          "context": "ManorJourneyPanel",
+          "kind": "literal",
+          "text": "此刻尚未揭晓"
+        },
+        {
+          "key": "L84:C90",
+          "context": "ManorJourneyPanel",
+          "kind": "literal",
+          "text": "核对行动与命数条件……"
+        },
+        {
+          "key": "L86:C7",
+          "context": "ManorJourneyPanel",
+          "kind": "jsx",
+          "text": "整理伙伴"
+        },
+        {
+          "key": "L86:C50",
+          "context": "ManorJourneyPanel",
+          "kind": "literal",
+          "text": "选择一名队员"
+        },
+        {
+          "key": "L89:C23",
+          "context": "ManorJourneyPanel",
+          "kind": "literal",
+          "text": "成功面"
+        },
+        {
+          "key": "L89:C74",
+          "context": "ManorJourneyPanel",
+          "kind": "jsx",
+          "text": "点选伙伴 · 确认后独立掷骰"
+        },
+        {
+          "key": "L91:C7",
+          "context": "ManorJourneyPanel",
+          "kind": "jsx",
+          "text": "{value1} · 此次判定",
+          "bindings": {
+            "value1": "resultActor!.name"
+          }
+        },
+        {
+          "key": "L92:C121",
+          "context": "ManorJourneyPanel",
+          "kind": "literal",
+          "text": "强成功"
+        },
+        {
+          "key": "L92:C176",
+          "context": "ManorJourneyPanel",
+          "kind": "literal",
+          "text": "成功"
+        },
+        {
+          "key": "L92:C191",
+          "context": "ManorJourneyPanel",
+          "kind": "literal",
+          "text": "未能保全"
+        },
+        {
+          "key": "L94:C15",
+          "context": "ManorJourneyPanel",
+          "kind": "jsx-fragment",
+          "text": "行动判定"
+        },
+        {
+          "key": "L94:C52",
+          "context": "ManorJourneyPanel",
+          "kind": "literal",
+          "text": "命中"
+        },
+        {
+          "key": "L94:C59",
+          "context": "ManorJourneyPanel",
+          "kind": "literal",
+          "text": "未命中"
+        },
+        {
+          "key": "L95:C15",
+          "context": "ManorJourneyPanel",
+          "kind": "jsx-fragment",
+          "text": "命数判定"
+        },
+        {
+          "key": "L95:C52",
+          "context": "ManorJourneyPanel",
+          "kind": "literal",
+          "text": "无需判定"
+        },
+        {
+          "key": "L95:C88",
+          "context": "ManorJourneyPanel",
+          "kind": "literal",
+          "text": "通过"
+        },
+        {
+          "key": "L95:C95",
+          "context": "ManorJourneyPanel",
+          "kind": "literal",
+          "text": "未通过"
+        },
+        {
+          "key": "L97:C66",
+          "context": "ManorJourneyPanel",
+          "kind": "literal",
+          "text": "清醒"
+        },
+        {
+          "key": "L97:C73",
+          "context": "ManorJourneyPanel",
+          "kind": "literal",
+          "text": "沉睡"
+        },
+        {
+          "key": "L97:C109",
+          "context": "ManorJourneyPanel",
+          "kind": "literal",
+          "text": "万能命数"
+        },
+        {
+          "key": "L97:C118",
+          "context": "ManorJourneyPanel",
+          "kind": "template",
+          "text": "{value1} 点",
+          "bindings": {
+            "value1": "face.pip.value"
+          }
+        },
+        {
+          "key": "L98:C7",
+          "context": "ManorJourneyPanel",
+          "kind": "jsx",
+          "text": "花费 {value1} G · 获得 {value2} G",
+          "bindings": {
+            "value1": "result.cost",
+            "value2": "result.reward"
+          }
+        },
+        {
+          "key": "L110:C29",
+          "context": "ManorJourneyActions > label",
+          "kind": "literal",
+          "text": "绕行"
+        },
+        {
+          "key": "L111:C76",
+          "context": "ManorJourneyActions",
+          "kind": "literal",
+          "text": "掷骰中"
+        },
+        {
+          "key": "L111:C84",
+          "context": "ManorJourneyActions",
+          "kind": "literal",
+          "text": "判定中"
+        },
+        {
+          "key": "L111:C101",
+          "context": "ManorJourneyActions",
+          "kind": "literal",
+          "text": "正在整理……"
+        },
+        {
+          "key": "L111:C146",
+          "context": "ManorJourneyActions",
+          "kind": "literal",
+          "text": "选择一名队员"
+        },
+        {
+          "key": "L111:C182",
+          "context": "ManorJourneyActions",
+          "kind": "template",
+          "text": "{value1}整理",
+          "bindings": {
+            "value1": "actor.name"
+          }
+        },
+        {
+          "key": "L112:C147",
+          "context": "ManorJourneyActions > label",
+          "kind": "literal",
+          "text": "ROLL"
+        },
+        {
+          "key": "L121:C58",
+          "context": "ManorJourneyActions",
+          "kind": "literal",
+          "text": "判定揭晓"
+        },
+        {
+          "key": "L121:C74",
+          "context": "ManorJourneyActions",
+          "kind": "literal",
+          "text": "前行中"
+        },
+        {
+          "key": "L121:C82",
+          "context": "ManorJourneyActions",
+          "kind": "literal",
+          "text": "可使用道具整备"
+        },
+        {
+          "key": "L122:C118",
+          "context": "ManorJourneyActions > label",
+          "kind": "literal",
+          "text": "确认结果"
+        },
+        {
+          "key": "L122:C127",
+          "context": "ManorJourneyActions > label",
+          "kind": "literal",
+          "text": "继续前进"
+        }
+      ]
+    },
+    {
+      "scope": "tutorial",
+      "title": "05 · 金币倍率说明",
+      "source": "src/apps/battle/presentation/ExpeditionLedger.tsx",
+      "sourceSha256": "eb356cb4df04618ed924ec17e21e268e2d17f9ca03f37f7f6729152a5dfa7392",
+      "entries": [
+        {
+          "key": "L41:C74",
+          "context": "ExpeditionLedger > aria-label",
+          "kind": "accessibility",
+          "text": "收益倍率明细"
+        },
+        {
+          "key": "L42:C11",
+          "context": "ExpeditionLedger",
+          "kind": "jsx",
+          "text": "牌型 ×{value1} · 层深 ×{value2} · 大地共鸣 ×{value3} ＝ 总倍率 ×{value4}",
+          "bindings": {
+            "value1": "handFactor.toFixed(2)",
+            "value2": "layerFactor.toFixed(2)",
+            "value3": "earthFactor.toFixed(2)",
+            "value4": "(handFactor * layerFactor * earthFactor).toFixed(2)"
+          }
+        },
+        {
+          "key": "L43:C11",
+          "context": "ExpeditionLedger",
+          "kind": "jsx",
+          "text": "层深取当前楼层的倍率；至少四名尘世队员会带来大地共鸣 ×1.10，不要求本轮掷出同花。"
+        },
+        {
+          "key": "L44:C11",
+          "context": "ExpeditionLedger",
+          "kind": "jsx",
+          "text": "本层散金 {value1} G，按当前倍率清层可得 {value2} G（四舍五入）。战斗中的读数只是预估，不是已经到账。",
+          "bindings": {
+            "value1": "engine.gold",
+            "value2": "projected"
+          }
+        },
+        {
+          "key": "L45:C11",
+          "context": "ExpeditionLedger",
+          "kind": "jsx",
+          "text": "每轮牌型加成在本层累积，清层后重置；已入袋的金币不再重复乘算。收益倍率不增加攻击伤害。"
+        }
+      ]
+    },
+    {
+      "scope": "tutorial",
+      "title": "06 · 骰面状态、成牌说明与操作按钮",
+      "source": "src/apps/battle/presentation/ExpeditionDicePanel.tsx",
+      "sourceSha256": "51b7cb73b08fe5cc715f9f0f0250162be5957fd7670334ff6b6d2da2a3065c2c",
+      "entries": [
+        {
+          "key": "L99:C26",
+          "context": "handExclusion",
+          "kind": "literal",
+          "text": "力竭"
+        },
+        {
+          "key": "L100:C26",
+          "context": "handExclusion",
+          "kind": "literal",
+          "text": "封锁"
+        },
+        {
+          "key": "L101:C38",
+          "context": "handExclusion",
+          "kind": "literal",
+          "text": "未掷"
+        },
+        {
+          "key": "L102:C48",
+          "context": "handExclusion",
+          "kind": "literal",
+          "text": "沉眠"
+        },
+        {
+          "key": "L109:C22",
+          "context": "dieHandHint > pip",
+          "kind": "template",
+          "text": "命数 {value1}，",
+          "bindings": {
+            "value1": "face.wildPip ? \"万能\" : `${face.pip ?? die.faceIndex! + 1} 点`"
+          }
+        },
+        {
+          "key": "L109:C43",
+          "context": "dieHandHint > pip",
+          "kind": "literal",
+          "text": "万能"
+        },
+        {
+          "key": "L109:C50",
+          "context": "dieHandHint > pip",
+          "kind": "template",
+          "text": "{value1} 点",
+          "bindings": {
+            "value1": "face.pip ?? die.faceIndex! + 1"
+          }
+        },
+        {
+          "key": "L110:C30",
+          "context": "dieHandHint > action",
+          "kind": "literal",
+          "text": "已使用；"
+        },
+        {
+          "key": "L110:C52",
+          "context": "dieHandHint > action",
+          "kind": "literal",
+          "text": "已固定；"
+        },
+        {
+          "key": "L111:C39",
+          "context": "dieHandHint",
+          "kind": "template",
+          "text": "{value1}不参与成牌",
+          "bindings": {
+            "value1": "excluded"
+          }
+        },
+        {
+          "key": "L111:C60",
+          "context": "dieHandHint",
+          "kind": "literal",
+          "text": "参与成牌"
+        },
+        {
+          "key": "L117:C12",
+          "context": "handExplanation > [0]",
+          "kind": "template",
+          "text": "参与判定点数：{value1}",
+          "bindings": {
+            "value1": "hand.pips.join(\" / \") || \"无\""
+          }
+        },
+        {
+          "key": "L117:C47",
+          "context": "handExplanation > [0]",
+          "kind": "literal",
+          "text": "无"
+        },
+        {
+          "key": "L117:C55",
+          "context": "handExplanation > [0]",
+          "kind": "literal",
+          "text": "掷骰后判定牌型"
+        },
+        {
+          "key": "L118:C33",
+          "context": "handExplanation > [1]",
+          "kind": "template",
+          "text": "成牌：{value1}",
+          "bindings": {
+            "value1": "hand.contributors.map(id => PARTY_VISUALS[id].name).join(\"、\")"
+          }
+        },
+        {
+          "key": "L119:C23",
+          "context": "handExplanation > [2]",
+          "kind": "template",
+          "text": "不计入：{value1}",
+          "bindings": {
+            "value1": "excluded.join(\"、\")"
+          }
+        },
+        {
+          "key": "L120:C5",
+          "context": "handExplanation > [3]",
+          "kind": "literal",
+          "text": "已使用、已固定仍参与成牌；力竭、封锁、沉眠、未掷不参与。"
+        },
+        {
+          "key": "L121:C5",
+          "context": "handExplanation > [4]",
+          "kind": "literal",
+          "text": "回合结束时结算，牌型加成累加至倍率。"
+        },
+        {
+          "key": "L196:C152",
+          "context": "ExpeditionDiceTray > alternate > label",
+          "kind": "literal",
+          "text": "返回行动"
+        },
+        {
+          "key": "L196:C161",
+          "context": "ExpeditionDiceTray > alternate > label",
+          "kind": "literal",
+          "text": "打开道具坞"
+        },
+        {
+          "key": "L199:C30",
+          "context": "ExpeditionDiceTray > leading > label",
+          "kind": "template",
+          "text": "撤回：{value1}",
+          "bindings": {
+            "value1": "undoLabel"
+          }
+        },
+        {
+          "key": "L199:C50",
+          "context": "ExpeditionDiceTray > leading > label",
+          "kind": "literal",
+          "text": "撤回"
+        },
+        {
+          "key": "L214:C42",
+          "context": "ExpeditionDiceTray > label",
+          "kind": "literal",
+          "text": "ROLL"
+        },
+        {
+          "key": "L214:C51",
+          "context": "ExpeditionDiceTray > label",
+          "kind": "literal",
+          "text": "REROLL"
+        },
+        {
+          "key": "L223:C21",
+          "context": "ExpeditionDiceTray > caption",
+          "kind": "literal",
+          "text": "REROLL"
+        },
+        {
+          "key": "L224:C20",
+          "context": "ExpeditionDiceTray > label",
+          "kind": "template",
+          "text": "重掷剩余 {value1} 次",
+          "bindings": {
+            "value1": "rerollsRemaining"
+          }
+        },
+        {
+          "key": "L230:C19",
+          "context": "ExpeditionDiceTray > label",
+          "kind": "literal",
+          "text": "END TURN"
+        }
+      ]
+    },
+    {
+      "scope": "tutorial",
+      "title": "07 · 骰子悬停与状态说明",
+      "source": "src/apps/battle/ExpeditionDie3D.tsx",
+      "sourceSha256": "568635e9b3d9dbee77b5499157e17639fe66469e9cdb87e4487db20b272428d4",
+      "entries": [
+        {
+          "key": "L142:C19",
+          "context": "ExpeditionDie3D > aria-label",
+          "kind": "template",
+          "text": "{value1}命数骰，第 {value2} 槽，当前 {value3}{value4} 点{value5}{value6}{value7}{value8}{value9}",
+          "bindings": {
+            "value1": "characterName",
+            "value2": "index + 1",
+            "value3": "currentFace?.name ? `${currentFace.name}，` : \"\"",
+            "value4": "currentFace?.name && currentFace?.wildPip ? \"万能\" : currentFace?.pip ?? value",
+            "value5": "currentFace?.asleep ? \"（沉眠，不参与牌型）\" : \"\"",
+            "value6": "rustFaces > 0 ? `，锈铭 ${rustFaces} 面` : \"\"",
+            "value7": "gildFaces > 0 ? `，金铭 ${gildFaces} 面` : \"\"",
+            "value8": "unusable ? \"，无行动面，无法指挥角色\" : \"\"",
+            "value9": "downed ? \"，力竭不可用\" : \"\""
+          }
+        },
+        {
+          "key": "L142:C156",
+          "context": "ExpeditionDie3D > aria-label",
+          "kind": "literal",
+          "text": "万能"
+        },
+        {
+          "key": "L142:C215",
+          "context": "ExpeditionDie3D > aria-label",
+          "kind": "literal",
+          "text": "（沉眠，不参与牌型）"
+        },
+        {
+          "key": "L143:C25",
+          "context": "ExpeditionDie3D > aria-label",
+          "kind": "template",
+          "text": "，锈铭 {value1} 面",
+          "bindings": {
+            "value1": "rustFaces"
+          }
+        },
+        {
+          "key": "L145:C25",
+          "context": "ExpeditionDie3D > aria-label",
+          "kind": "template",
+          "text": "，金铭 {value1} 面",
+          "bindings": {
+            "value1": "gildFaces"
+          }
+        },
+        {
+          "key": "L146:C21",
+          "context": "ExpeditionDie3D > aria-label",
+          "kind": "literal",
+          "text": "，无行动面，无法指挥角色"
+        },
+        {
+          "key": "L146:C52",
+          "context": "ExpeditionDie3D > aria-label",
+          "kind": "literal",
+          "text": "，力竭不可用"
+        },
+        {
+          "key": "L188:C22",
+          "context": "ExpeditionDie3D > title",
+          "kind": "template",
+          "text": "{value1}的命数骰有 {value2} 面锈铭",
+          "bindings": {
+            "value1": "characterName",
+            "value2": "rustFaces"
+          }
+        },
+        {
+          "key": "L197:C22",
+          "context": "ExpeditionDie3D > title",
+          "kind": "template",
+          "text": "{value1}的命数骰有 {value2} 面金铭",
+          "bindings": {
+            "value1": "characterName",
+            "value2": "gildFaces"
+          }
+        }
+      ]
+    },
+    {
+      "scope": "tutorial",
+      "title": "08 · 命数与骰面图例提示",
+      "source": "src/shared/ui/dice-face/ExpeditionFlatDieFrame.tsx",
+      "sourceSha256": "67ffcb48599c800f85087bd3c487174eaef2b8ea942a6207a74b24490732d54d",
+      "entries": [
+        {
+          "key": "L211:C11",
+          "context": "ExpeditionFlatDieFrame > label",
+          "kind": "literal",
+          "text": "双层镂空染色象牙外框与下沉深色木面的战斗骰面"
+        },
+        {
+          "key": "L450:C30",
+          "context": "ExpeditionFlatDieFrame",
+          "kind": "jsx",
+          "text": "命数沉眠：{value1} 点不参与成牌",
+          "bindings": {
+            "value1": "displayedFate"
+          }
+        },
+        {
+          "key": "L470:C33",
+          "context": "ExpeditionFlatDieFrame",
+          "kind": "literal",
+          "text": "眠"
+        }
+      ]
+    },
+    {
+      "scope": "tutorial",
+      "title": "09 · 牌型与清层结算反馈",
+      "source": "src/apps/battle/presentation/ExpeditionBattleChrome.tsx",
+      "sourceSha256": "aec703e80b038cf7eed955a8c9aacdaea814f6f08951064686f7e839d3d1e07b",
+      "entries": [
+        {
+          "key": "L143:C44",
+          "context": "ExpeditionHandReadout > formed",
+          "kind": "literal",
+          "text": "散牌"
+        },
+        {
+          "key": "L160:C28",
+          "context": "ExpeditionHandReadout > aria-label",
+          "kind": "template",
+          "text": "当前牌型 {value1}，倍率加成 +{value2}",
+          "bindings": {
+            "value1": "name",
+            "value2": "bonus"
+          }
+        },
+        {
+          "key": "L160:C60",
+          "context": "ExpeditionHandReadout > aria-label",
+          "kind": "literal",
+          "text": "当前无成牌"
+        },
+        {
+          "key": "L186:C9",
+          "context": "LayerSettlementBreakdown > aria-label",
+          "kind": "template",
+          "text": "第 {value1} 层结算：本层散金 {value2} 金币，",
+          "bindings": {
+            "value1": "settlement.layer",
+            "value2": "settlement.baseGold"
+          }
+        },
+        {
+          "key": "L187:C9",
+          "context": "LayerSettlementBreakdown > aria-label",
+          "kind": "template",
+          "text": "乘牌型倍率 {value1}，乘层倍率 {value2}，{value3}",
+          "bindings": {
+            "value1": "settlement.handFactor.toFixed(2)",
+            "value2": "settlement.layerFactor",
+            "value3": "earthFactor !== 1 ? `乘大地倍率 ${earthFactor}，` : \"\""
+          }
+        },
+        {
+          "key": "L187:C105",
+          "context": "LayerSettlementBreakdown > aria-label",
+          "kind": "template",
+          "text": "乘大地倍率 {value1}，",
+          "bindings": {
+            "value1": "earthFactor"
+          }
+        },
+        {
+          "key": "L188:C9",
+          "context": "LayerSettlementBreakdown > aria-label",
+          "kind": "template",
+          "text": "本层入袋 {value1} 金币",
+          "bindings": {
+            "value1": "settlement.payout"
+          }
+        },
+        {
+          "key": "L192:C9",
+          "context": "LayerSettlementBreakdown",
+          "kind": "jsx",
+          "text": "本层散金 {value1}G",
+          "bindings": {
+            "value1": "settlement.baseGold.toLocaleString()"
+          }
+        },
+        {
+          "key": "L197:C9",
+          "context": "LayerSettlementBreakdown",
+          "kind": "jsx",
+          "text": "最终牌型 {value1}",
+          "bindings": {
+            "value1": "settlement.handFactor.toFixed(2)"
+          }
+        },
+        {
+          "key": "L202:C9",
+          "context": "LayerSettlementBreakdown",
+          "kind": "jsx",
+          "text": "层倍率 {value1}",
+          "bindings": {
+            "value1": "settlement.layerFactor"
+          }
+        },
+        {
+          "key": "L206:C60",
+          "context": "LayerSettlementBreakdown",
+          "kind": "jsx",
+          "text": "大地共鸣{value1}",
+          "bindings": {
+            "value1": "earthFactor"
+          }
+        },
+        {
+          "key": "L208:C9",
+          "context": "LayerSettlementBreakdown",
+          "kind": "jsx",
+          "text": "本层入袋 ＋{value1}G",
+          "bindings": {
+            "value1": "settlement.payout.toLocaleString()"
+          }
+        },
+        {
+          "key": "L215:C13",
+          "context": "LayerSettlementBreakdown",
+          "kind": "template",
+          "text": "最后回合【{value1}】倍率 +{value2}，已计入最终牌型倍率",
+          "bindings": {
+            "value1": "settlement.closingHandName",
+            "value2": "closingBonus.toFixed(2)"
+          }
+        },
+        {
+          "key": "L216:C13",
+          "context": "LayerSettlementBreakdown",
+          "kind": "literal",
+          "text": "最后回合没有新增牌型倍率"
+        },
+        {
+          "key": "L218:C7",
+          "context": "LayerSettlementBreakdown",
+          "kind": "jsx",
+          "text": "包裹 {value1}G → {value2}G",
+          "bindings": {
+            "value1": "settlement.bagBefore.toLocaleString()",
+            "value2": "settlement.bagAfter.toLocaleString()"
+          }
+        }
+      ]
+    },
+    {
+      "scope": "tutorial",
+      "title": "10 · 格挡、攻击与装填的意图说明",
+      "source": "src/apps/battle/presentation/manor-battle-model.ts",
+      "sourceSha256": "06517acd01b6af200e223faff5160fab55c3b44ede7f619c6ae4bcfec76141e8",
+      "entries": [
+        {
+          "key": "L132:C20",
+          "context": "manorBattleModel > party: BattleSurfaceMember[] > shieldLabel",
+          "kind": "template",
+          "text": "当前来袭意图已格挡 {value1} 点伤害",
+          "bindings": {
+            "value1": "shield"
+          }
+        },
+        {
+          "key": "L149:C109",
+          "context": "manorBattleModel > enemies: BattleSurfaceEnemy[] > title",
+          "kind": "literal",
+          "text": "射击"
+        },
+        {
+          "key": "L149:C116",
+          "context": "manorBattleModel > enemies: BattleSurfaceEnemy[] > title",
+          "kind": "literal",
+          "text": "攻击"
+        },
+        {
+          "key": "L155:C60",
+          "context": "manorBattleModel > enemies: BattleSurfaceEnemy[] > title",
+          "kind": "literal",
+          "text": "装填"
+        },
+        {
+          "key": "L159:C162",
+          "context": "manorBattleModel > enemies: BattleSurfaceEnemy[] > description",
+          "kind": "literal",
+          "text": "：锁定目标已力竭，本轮落空"
+        },
+        {
+          "key": "L159:C180",
+          "context": "manorBattleModel > enemies: BattleSurfaceEnemy[] > description",
+          "kind": "template",
+          "text": "：对{value1}造成 {value2} 点伤害{value3}",
+          "bindings": {
+            "value1": "target?.name",
+            "value2": "e.damage",
+            "value3": "i.formula ? `（2＋${view.banquet?.guests ?? 0}位宾客，已格挡${i.blocked}）` : \"\""
+          }
+        },
+        {
+          "key": "L159:C574",
+          "context": "manorBattleModel > enemies: BattleSurfaceEnemy[] > description",
+          "kind": "literal",
+          "text": "：本轮装填，下回合射击"
+        },
+        {
+          "key": "L159:C784",
+          "context": "manorBattleModel > enemies: BattleSurfaceEnemy[] > description",
+          "kind": "template",
+          "text": "；本次实伤预览 {value1}",
+          "bindings": {
+            "value1": "options.filter(o => o.choice === \"attack\" && o.targetId === e.id).map(o => \"damage\" in o && o.damage && typeof o.damage === \"object\" && \"applied\" in o.damage ? o.damage.applied : o.amount).join(\"／\")"
+          }
+        }
+      ]
+    },
+    {
+      "scope": "tutorial",
+      "title": "11 · 教学控制、回合操作与最终目标",
+      "source": "src/apps/battle/ManorBattleView.tsx",
+      "sourceSha256": "a3d89ede3ba2f62ab6439d71e887b165f0d58fde83b6a3551093d0e46b4e9102",
+      "entries": [
+        {
+          "key": "L64:C92",
+          "context": "ManorBattleView > [0] > label",
+          "kind": "literal",
+          "text": "关闭提示"
+        },
+        {
+          "key": "L64:C101",
+          "context": "ManorBattleView > [0] > label",
+          "kind": "literal",
+          "text": "操作指引"
+        },
+        {
+          "key": "L64:C115",
+          "context": "ManorBattleView > [0] > detail",
+          "kind": "literal",
+          "text": "只调整提示显示，不改变步骤限制"
+        },
+        {
+          "key": "L70:C64",
+          "context": "ManorBattleView > [1] > [0] > label",
+          "kind": "literal",
+          "text": "退出带做"
+        },
+        {
+          "key": "L70:C80",
+          "context": "ManorBattleView > [1] > [0] > detail",
+          "kind": "literal",
+          "text": "取消步骤限制，继续自由操作"
+        },
+        {
+          "key": "L73:C29",
+          "context": "ManorBattleView > [2] > label",
+          "kind": "literal",
+          "text": "结束回合"
+        },
+        {
+          "key": "L73:C45",
+          "context": "ManorBattleView > [2] > detail",
+          "kind": "literal",
+          "text": "交由敌方行动"
+        },
+        {
+          "key": "L200:C68",
+          "context": "ManorBattleView > sidebarProps > battleObjective",
+          "kind": "literal",
+          "text": "击败全部敌人，夺回货物。"
+        },
+        {
+          "key": "L323:C40",
+          "context": "ManorBattleView > dicePanel > undoLabel",
+          "kind": "literal",
+          "text": "上一步操作"
+        }
+      ]
+    },
+    {
+      "scope": "tutorial",
+      "title": "12 · 教学确认按钮",
+      "source": "src/apps/battle/presentation/TideTutorialGuide.tsx",
+      "sourceSha256": "368f87c39144b0325d2d367dca0840d4175b228a157a8718e5e226820074e38d",
+      "entries": [
+        {
+          "key": "L15:C43",
+          "context": "TideTutorialGuide > step > action > label",
+          "kind": "literal",
+          "text": "明白了"
+        }
+      ]
+    },
+    {
+      "scope": "tutorial",
+      "title": "13 · 教学浮层与关闭按钮",
+      "source": "src/shared/tutorial/TutorialProvider.tsx",
+      "sourceSha256": "285a1ac5d643ae6a9a953607ea92050e9d675cb2a02a0c24ebd46557ef1501fa",
+      "entries": [
+        {
+          "key": "L150:C98",
+          "context": "TutorialHost > aria-label",
+          "kind": "accessibility",
+          "text": "操作指引"
+        },
+        {
+          "key": "L153:C171",
+          "context": "TutorialHost > aria-label",
+          "kind": "accessibility",
+          "text": "关闭操作指引"
+        },
+        {
+          "key": "L157:C46",
+          "context": "TutorialHost",
+          "kind": "jsx",
+          "text": "关闭操作指引"
+        }
+      ]
+    },
+    {
+      "scope": "tutorial",
+      "title": "14 · 补给效果说明",
+      "source": "src/content/presentation/supply-icons.ts",
+      "sourceSha256": "e6b881fa431973c968d25f2be566aa4f5a9d12db1fa39e070bb0161bf212a931",
+      "entries": [
+        {
+          "key": "L10:C34",
+          "context": "supplyArt: Record<string, {icon:string; description:string}> > food > description",
+          "kind": "literal",
+          "text": "恢复 1 点生命"
+        },
+        {
+          "key": "L11:C37",
+          "context": "supplyArt: Record<string, {icon:string; description:string}> > potion > description",
+          "kind": "literal",
+          "text": "恢复 2 点生命"
+        },
+        {
+          "key": "L12:C33",
+          "context": "supplyArt: Record<string, {icon:string; description:string}> > ward > description",
+          "kind": "literal",
+          "text": "抵挡 2 点攻击伤害"
+        },
+        {
+          "key": "L13:C42",
+          "context": "supplyArt: Record<string, {icon:string; description:string}> > \"holy-water\" > description",
+          "kind": "literal",
+          "text": "解除骰子封印"
+        },
+        {
+          "key": "L14:C47",
+          "context": "supplyArt: Record<string, {icon:string; description:string}> > \"maintenance-kit\" > description",
+          "kind": "literal",
+          "text": "清除一面临时锈蚀"
+        },
+        {
+          "key": "L15:C43",
+          "context": "supplyArt: Record<string, {icon:string; description:string}> > \"lucky-charm\" > description",
+          "kind": "literal",
+          "text": "增加一次重掷"
+        },
+        {
+          "key": "L16:C46",
+          "context": "supplyArt: Record<string, {icon:string; description:string}> > \"divination-slip\" > description",
+          "kind": "literal",
+          "text": "查阅事件或下一层"
+        }
+      ]
+    },
+    {
+      "scope": "tutorial",
+      "title": "15 · 道具使用限制",
+      "source": "src/game-runtime/demo-journey-view.ts",
+      "sourceSha256": "f57f430270170a0aa8d0cb475a887166e56fc3625a5def729c1b6d1b9d6ca2e8",
+      "entries": [
+        {
+          "key": "L38:C102",
+          "context": "ruleJourneyView > supplies > unavailableReason",
+          "kind": "literal",
+          "text": "已用尽"
+        },
+        {
+          "key": "L38:C154",
+          "context": "ruleJourneyView > supplies > unavailableReason",
+          "kind": "literal",
+          "text": "本回合已使用两件道具"
+        },
+        {
+          "key": "L38:C169",
+          "context": "ruleJourneyView > supplies > unavailableReason",
+          "kind": "literal",
+          "text": "当前没有可用目标"
+        },
+        {
+          "key": "L100:C124",
+          "context": "d5JourneyView > unavailableReason",
+          "kind": "literal",
+          "text": "当前不能使用"
+        }
+      ]
+    },
+    {
+      "scope": "tutorial",
+      "title": "16 · 主动打开的基础操作帮助",
+      "source": "src/content/presentation/tutorial/battle-basics.json",
+      "sourceSha256": "52d05813d1bd7538701047d840d7aa265cf4c6458515100ac0bf0ed5b1ac48b9",
+      "entries": [
+        {
+          "key": "/steps/intent/title",
+          "node": "battle.basics",
+          "text": "先看敌方意图"
+        },
+        {
+          "key": "/steps/intent/text",
+          "node": "battle.basics",
+          "text": "图标表示敌人这一轮准备做什么。攻击意图会显示伤害与目标，格挡只作用于其中一条攻击。"
+        },
+        {
+          "key": "/steps/roll/title",
+          "node": "battle.basics",
+          "text": "掷出行动"
+        },
+        {
+          "key": "/steps/roll/text",
+          "node": "battle.basics",
+          "text": "点击 ROLL，掷出每位队员这一轮的骰面。"
+        },
+        {
+          "key": "/steps/fix/title",
+          "node": "battle.basics",
+          "text": "留下需要的骰面"
+        },
+        {
+          "key": "/steps/fix/text",
+          "node": "battle.basics",
+          "text": "点击骰子将它固定。也可以先重掷，寻找更合适的面。"
+        },
+        {
+          "key": "/steps/actor/title",
+          "node": "battle.basics",
+          "text": "选择行动的队员"
+        },
+        {
+          "key": "/steps/actor/text",
+          "node": "battle.basics",
+          "text": "骰面已固定。点击这位队员的立绘，再选择行动目标。"
+        },
+        {
+          "key": "/steps/attack/title",
+          "node": "battle.basics",
+          "text": "选择敌人"
+        },
+        {
+          "key": "/steps/attack/text",
+          "node": "battle.basics",
+          "text": "点击可选敌人执行当前攻击。击倒敌人后，它的意图也会消失。"
+        },
+        {
+          "key": "/steps/guard/title",
+          "node": "battle.basics",
+          "text": "挡住这一次攻击"
+        },
+        {
+          "key": "/steps/guard/text",
+          "node": "battle.basics",
+          "text": "点击攻击意图进行格挡。若队友受到多条攻击，需要分别应对。"
+        },
+        {
+          "key": "/steps/heal/title",
+          "node": "battle.basics",
+          "text": "恢复队友"
+        },
+        {
+          "key": "/steps/heal/text",
+          "node": "battle.basics",
+          "text": "点击受伤且仍存活的队友。普通治疗不能复活力竭者。"
+        },
+        {
+          "key": "/steps/bind/title",
+          "node": "battle.basics",
+          "text": "选择提线目标"
+        },
+        {
+          "key": "/steps/bind/text",
+          "node": "battle.basics",
+          "text": "点击可选敌人使用当前动作。只有满足条件的目标可以被提线。"
+        },
+        {
+          "key": "/steps/reroll/title",
+          "node": "battle.basics",
+          "text": "重掷其余骰子"
+        },
+        {
+          "key": "/steps/reroll/text",
+          "node": "battle.basics",
+          "text": "当前没有可用的行动目标。可以重掷未固定的骰子，或调整已经固定的面。"
+        },
+        {
+          "key": "/steps/end/title",
+          "node": "battle.basics",
+          "text": "安排好后结束回合"
+        },
+        {
+          "key": "/steps/end/text",
+          "node": "battle.basics",
+          "text": "还可以继续使用其他队员。准备好后点击 END TURN，结算牌型、铭约与剩余敌方意图。"
+        },
+        {
+          "key": "/steps/next/title",
+          "node": "battle.basics",
+          "text": "开始下一轮"
+        },
+        {
+          "key": "/steps/next/text",
+          "node": "battle.basics",
+          "text": "用过的清醒骰仍参与上一轮成牌；沉眠与力竭会被排除。接下来可以自行安排战斗。"
+        }
+      ]
+    }
+  ],
+  "newCopy": []
+}

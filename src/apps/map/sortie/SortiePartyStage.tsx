@@ -31,6 +31,7 @@ export interface SortiePartyStageProps {
   party: SortieParty;
   /** 托管尚未开放时锁死第五席切换（由页面按当前玩法声明，而非从数据形状猜）。 */
   delegateLocked?: boolean;
+  inert?: boolean;
   onOpen: () => void;
   onRemoveMember: (memberId: string) => void;
   onToggleCommand: () => void;
@@ -75,6 +76,7 @@ export function SortiePartyStage({
   leader,
   party,
   delegateLocked = false,
+  inert = false,
   onOpen,
   onRemoveMember,
   onToggleCommand
@@ -102,6 +104,7 @@ export function SortiePartyStage({
   return (
     <div
       className="abyssa-sortie-stage"
+      inert={inert}
       data-mode={mode}
       data-quest-side={pop ? questSide : undefined}
       data-party-size={activeMemberCount}

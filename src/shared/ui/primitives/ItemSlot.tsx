@@ -28,6 +28,8 @@ export interface ItemSlotProps {
   /** 物品名,用于无障碍名。 */
   name?: string;
   rarity?: ItemRarity | string;
+  /** Interface controls retain the same artwork without claiming an item quality. */
+  tone?: "rarity" | "interface";
   /** 数量。<= 1 时不显示徽标(单件物品不该挂 "×1")。 */
   quantity?: number;
   /** 数量单位,只进无障碍名与 title,不占视觉。 */
@@ -66,11 +68,11 @@ function buildLabel(
   name: string | undefined,
   quantity: number | undefined,
   unit: string | undefined,
-  rarity: ItemRarity
+  rarity?: ItemRarity
 ): string {
   if (!name) return "空格位";
   const count = quantity != null && quantity > 1 ? ` ${quantity}${unit ?? ""}` : "";
-  return `${name}${count} ${ITEM_RARITY_LABELS[rarity]}`;
+  return `${name}${count}${rarity ? ` ${ITEM_RARITY_LABELS[rarity]}` : ""}`;
 }
 
 function SlotLayers({
@@ -118,6 +120,7 @@ export const ItemSlot = forwardRef<HTMLButtonElement, ItemSlotButtonProps>(funct
     icon,
     name,
     rarity,
+    tone = "rarity",
     quantity,
     unit,
     selected,
@@ -132,14 +135,17 @@ export const ItemSlot = forwardRef<HTMLButtonElement, ItemSlotButtonProps>(funct
   const tier = normalizeItemRarity(rarity);
   /* 调用方给了 aria-label 就用它。原先 label 写在 {...rest} 之后,
      会把调用方的无障碍名覆盖掉 —— 空插孔因此被读成「… 凡品」。 */
-  const label = rest["aria-label"] ?? buildLabel(name, quantity, unit, tier);
+  const hasRarity = tone === "rarity" && showRarity;
+  const label = rest["aria-label"] ?? buildLabel(name, quantity, unit, tone === "rarity" ? tier : undefined);
   return (
     <button
       {...rest}
       ref={ref}
       type="button"
       className={["abyssa-item-slot", className].filter(Boolean).join(" ")}
-      data-rarity={tier}
+      data-tone={tone === "interface" ? tone : undefined}
+      data-rarity={tone === "rarity" ? tier : undefined}
+      data-show-rarity={hasRarity}
       data-empty={icon ? undefined : true}
       data-selected={selected || undefined}
       data-interactive=""
@@ -148,7 +154,7 @@ export const ItemSlot = forwardRef<HTMLButtonElement, ItemSlotButtonProps>(funct
       title={name ? `${name}${quantity != null && quantity > 1 ? ` ×${quantity}${unit ?? ""}` : ""}` : undefined}
       style={size ? { ...style, ["--slot-size" as string]: `${size}px` } : style}
     >
-      <SlotLayers icon={icon} rarity={tier} quantity={quantity} showRarity={showRarity} />
+      <SlotLayers icon={icon} rarity={tier} quantity={quantity} showRarity={hasRarity} />
     </button>
   );
 });
@@ -158,6 +164,7 @@ export function ItemSlotStatic({
   icon,
   name,
   rarity,
+  tone = "rarity",
   quantity,
   unit,
   size,
@@ -167,17 +174,20 @@ export function ItemSlotStatic({
   ...rest
 }: ItemSlotStaticProps) {
   const tier = normalizeItemRarity(rarity);
+  const hasRarity = tone === "rarity" && showRarity;
   return (
     <div
       {...rest}
       className={["abyssa-item-slot", className].filter(Boolean).join(" ")}
-      data-rarity={tier}
+      data-tone={tone === "interface" ? tone : undefined}
+      data-rarity={tone === "rarity" ? tier : undefined}
+      data-show-rarity={hasRarity}
       data-empty={icon ? undefined : true}
       role="img"
-      aria-label={buildLabel(name, quantity, unit, tier)}
+      aria-label={buildLabel(name, quantity, unit, tone === "rarity" ? tier : undefined)}
       style={size ? { ...style, ["--slot-size" as string]: `${size}px` } : style}
     >
-      <SlotLayers icon={icon} rarity={tier} quantity={quantity} showRarity={showRarity} />
+      <SlotLayers icon={icon} rarity={tier} quantity={quantity} showRarity={hasRarity} />
     </div>
   );
 }

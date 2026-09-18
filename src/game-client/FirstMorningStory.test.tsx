@@ -1,7 +1,7 @@
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
 import { FirstMorningPlayer, morningMessages, morningPlayerText } from "./FirstMorningStory";
-import { FIRST_MORNING_ENTRIES, firstMorningAssetsLines, morningTranscript } from "../content/presentation/first-morning";
+import { FIRST_MORNING_ENTRIES, firstMorningAssetsLines, morningTranscript, morningPages } from "../content/presentation/first-morning";
 import { FIRST_MORNING_CATALOG_DATA } from "../content/gameplay/demo-v5/content";
 import { MORNING_DEPARTURE_CATALOG_DATA } from "../content/gameplay/demo-v6/content";
 import { deriveRpStage } from "../shared/ui/patterns/rp-stage";
@@ -10,7 +10,7 @@ import { storyItem } from "./story-items";
 import { existsSync } from "node:fs";
 afterEach(()=>{cleanup();vi.useRealTimers();delete (HTMLElement.prototype as Partial<HTMLElement>).animate;delete (HTMLElement.prototype as Partial<HTMLElement>).scrollTo;});
 
-it("matches the saved cursors and all 81 branch combinations without apron leakage",()=> {
+it("matches the saved cursors and all 162 paths without cloak or response leakage",()=> {
   const spec=FIRST_MORNING_CATALOG_DATA.opening!;
   expect(FIRST_MORNING_ENTRIES.length-1).toBe(MORNING_DEPARTURE_CATALOG_DATA.opening!.lastStep);
   expect(FIRST_MORNING_ENTRIES.flatMap((e,i)=>e.kind==="decision"?[i]:[])).toEqual(MORNING_DEPARTURE_CATALOG_DATA.opening!.choiceSteps);
@@ -18,17 +18,20 @@ it("matches the saved cursors and all 81 branch combinations without apron leaka
     const choices=[a,b,c,d].map((choice,i)=>({step:spec.choiceSteps[i],choice}));
     const transcript=morningTranscript(66,choices);
     expect(transcript).toHaveLength(67);expect(new Set(transcript.map(b=>b.id)).size).toBe(67);
-    const last=transcript.slice(59).map(b=>"text" in b?b.text:"").join("");
-    expect(last.includes("围裙")).toBe(d==="C");
+    const last=transcript.slice(59).flatMap(b=>b.kind==="decision"?[]:morningPages(b)).map(b=>b.text).join("");
+    expect(last.includes("斗篷")).toBe(d==="C");
     const text=morningMessages(66,choices).map(m=>"text" in m?m.text:"").join("");
     expect(text).not.toMatch(/凯尔|\{\{user\}\}|你大人|你先生/);
     for(const departure of ["A","B"] as const) {
       const whole=morningTranscript(119,[...choices,{step:96,choice:departure}]);
       expect(whole).toHaveLength(120);
       expect(new Set(whole.map(b=>b.id)).size).toBe(120);
-      const response=whole.slice(97,101).map(b=>"text" in b?b.text:"").join("");
-      expect(response.includes("要是弄坏了")).toBe(departure==="A");
-      expect(response.includes("日落之前")).toBe(departure==="B");
+      const response=whole.slice(97,101).flatMap(b=>b.kind==="decision"?[]:morningPages(b)).map(b=>b.text).join("");
+      expect(response.includes("被弄坏了的话")).toBe(departure==="A");
+      expect(response.includes("变冷了的话")).toBe(departure==="B");
+      const ending=whole.slice(113).flatMap(b=>b.kind==="decision"?[]:morningPages(b)).map(b=>b.text).join("");
+      expect(ending.includes("斗篷")).toBe(d==="C");
+      expect(ending).not.toMatch(/围裙|深蓝色的新毯子/);
       expect(whole.at(-1)).toMatchObject({effect:"handoff",text:"第一章：雾滩·退潮岩窟"});
     }
   }
@@ -38,7 +41,7 @@ it("matches the saved cursors and all 81 branch combinations without apron leaka
 it("keeps the player's voice offstage and preserves the source dialogue exception",()=> {
   const m=morningMessages(13,[{step:6,choice:"B"}]);
   expect(deriveRpStage(m,{left:"abyssa"}).slots).toEqual({left:"abyssa",right:"marietta"});
-  expect(m.find(b=>b.kind==="say" && b.actorId==="kael")).toMatchObject({offstage:true,text:"不想吃的话，我就收走了。"});
+  expect(m.find(b=>b.kind==="say" && b.actorId==="kael")).toMatchObject({offstage:true,text:"不吃就算了。省得收拾。"});
   expect(morningPlayerText("早安，{{user}}大人。")).toBe("早安，大人。");
   expect(morningPlayerText("早安，{{user}}大人。","测试名")).toBe("早安，测试名大人。");
   expect(morningPlayerText("……哈啊、哈啊……呼。{{user}}，水。")).toBe("……哈啊、哈啊……呼。水。");
@@ -64,11 +67,11 @@ it("offers exactly two departure choices in AVG and RP and keeps the chosen resp
   fireEvent.click(screen.getByRole("button",{name:"切换为 RP 舞台"}));
   await act(async()=>vi.advanceTimersByTime(600));
   expect(view.container.querySelectorAll(".first-morning__choice")).toHaveLength(2);
-  fireEvent.click(screen.getByRole("button",{name:"直接越过红线，按住她的发顶"}));
+  fireEvent.click(screen.getByRole("button",{name:"抚顶立约"}));
   expect(advance).toHaveBeenCalledWith("B");
   view.rerender(<FirstMorningPlayer step={100} choices={[...choices,{step:96,choice:"B"}]} onAdvance={advance} onExit={()=>{}}/>);
-  expect(view.container.textContent).toContain("……日落之前。……凉了，我会生气的。");
-  expect(view.container.textContent).not.toContain("……要是弄坏了，就修不好了。");
+  expect(view.container.textContent).toContain("……快点。……变冷了的话，我会生气的。");
+  expect(view.container.textContent).not.toContain("……被弄坏了的话，会很讨厌。");
   view.rerender(<FirstMorningPlayer step={119} choices={[...choices,{step:96,choice:"B"}]} onAdvance={advance} onExit={()=>{}}/>);
   expect(screen.getByRole("region",{name:"第一章：雾滩·退潮岩窟"})).toBeTruthy();
   expect(screen.getByRole("button",{name:"结束本场"})).toBeTruthy();
@@ -85,10 +88,10 @@ it("starts in AVG and switches the same decision to RP without advancing or sele
   expect(view.container.querySelectorAll(".abyssa-rp__avatar-photo img").length).toBeGreaterThan(0);
   expect(view.container.querySelector(".rp-adv")).toBeNull();
   expect(advance).not.toHaveBeenCalled();
-  fireEvent.click(screen.getByRole("button",{name:/直接把盛着香肠/}));
+  fireEvent.click(screen.getByRole("button",{name:"端走盘子"}));
   expect(advance).toHaveBeenCalledWith("B");
   view.rerender(<FirstMorningPlayer step={9} choices={[{step:6,choice:"B"}]} onAdvance={advance} onExit={()=>{}}/>);
-  expect(screen.getByLabelText("RP 消息流").textContent).toContain("……等等。我吃，把盘子推回来。");
+  expect(screen.getByLabelText("RP 消息流").textContent).toContain("……拿回来。");
   expect(view.container.textContent).not.toContain("来，张嘴。");
   fireEvent.click(screen.getByRole("button",{name:"切换为 AVG 舞台"}));
   await act(async()=>vi.advanceTimersByTime(600));
@@ -123,6 +126,30 @@ it("plays the two S1 reactions as separate clicks without changing the saved cur
   expect(view.container.querySelector(".rp-adv__dialogue")?.textContent).toContain("噫……！");
   fireEvent.click(screen.getByRole("button",{name:"下一句"}));
   expect(advance).toHaveBeenCalledExactlyOnceWith("continue");
+});
+
+it("applies pressure only after its authored page and retains it across restore and layout changes",async()=> {
+  vi.useFakeTimers();const advance=vi.fn();
+  Object.defineProperty(HTMLElement.prototype,"animate",{configurable:true,value:vi.fn(()=>({cancel:vi.fn(),finished:Promise.resolve()}))});
+  Object.defineProperty(HTMLElement.prototype,"scrollTo",{configurable:true,value:vi.fn()});
+  const choices=[6,24,42].map(step=>({step,choice:"A" as const}));
+  const props={choices,onAdvance:advance,onExit:()=>{}};
+  const view=render(<FirstMorningPlayer {...props} step={56}/>);
+  const main=()=>view.container.querySelector("main")!;
+  expect(main()).not.toHaveAttribute("data-pressure");
+  for(let i=0;i<3;i++) {
+    await act(async()=>vi.advanceTimersByTime(6000));
+    fireEvent.click(screen.getByRole("button",{name:"下一句"}));
+  }
+  expect(advance).not.toHaveBeenCalled();
+  expect(main()).toHaveAttribute("data-pressure","true");
+  fireEvent.click(screen.getByRole("button",{name:"切换为 RP 舞台"}));
+  await act(async()=>vi.advanceTimersByTime(600));
+  expect(main()).toHaveAttribute("data-pressure","true");
+  view.rerender(<FirstMorningPlayer {...props} step={57}/>);
+  expect(main()).toHaveAttribute("data-pressure","true");
+  view.rerender(<FirstMorningPlayer {...props} step={61} choices={[...choices,{step:58,choice:"B"}]}/>);
+  expect(main()).not.toHaveAttribute("data-pressure");
 });
 
 it("advances a silent beat once, pauses in LOG, and allows manual retry after a failed save",async()=> {

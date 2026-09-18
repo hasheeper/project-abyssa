@@ -2,6 +2,7 @@ import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
+import { validateBuildOutput } from "./check-build-output.mjs";
 
 const projectRoot = resolve(import.meta.dirname, "..");
 const packageJson = JSON.parse(
@@ -10,10 +11,10 @@ const packageJson = JSON.parse(
 
 const entrypoints = {
   // Includes the five shared emotion-cue exports added to index and patterns.
-  index: 108,
+  index: 109,
   branding: 14,
   patterns: 37,
-  primitives: 57
+  primitives: 58
 };
 const requiredAssets = [
   "dist/ui/battle-frame-corner-gold.png",
@@ -39,6 +40,9 @@ function check(condition, message) {
     failures.push(message);
   }
 }
+
+check(typeof packageJson.dependencies?.motion === "string", "Motion must be a runtime dependency of the UI package");
+failures.push(...(await validateBuildOutput("ui")).map(error => `UI asset closure: ${error}`));
 
 /** @param {number} bytes */
 function formatBytes(bytes) {
@@ -146,6 +150,8 @@ if (pack) {
     const libraryCss = readFileSync(resolve(projectRoot, "dist/ui/abyssa-ui.css"), "utf8");
     /** @type {[string, RegExp][]} */
     const publicStyleMarkers = [
+      ["shared motion controls", /\.abyssa-control-motion(?:[\s,{.:>])/],
+      ["shared motion tokens", /--abyssa-motion-hover/],
       ["character status panel", /\.abyssa-status-panel(?:[\s,{.:>])/],
       ["character status screen", /\.abyssa-character-screen(?:[\s,{.:>])/]
     ];

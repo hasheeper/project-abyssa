@@ -516,7 +516,7 @@ describe("ExpeditionBattleScreen", () => {
     await mount();
 
     for (const name of ["你", "尤斯缇丝", "艾洛拉", "柯萝萝", "诺玛"]) {
-      expect(screen.getByRole("article", { name: new RegExp(name) })).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: new RegExp(`^${name}：生命`) })).toBeInTheDocument();
     }
     expect(
       screen.getByRole("region", { name: "敌方单位" }).querySelectorAll(".abyssa-expedition-intent").length

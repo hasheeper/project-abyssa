@@ -43,6 +43,22 @@ function setup() {
 }
 
 describe("useSortie", () => {
+  it("opens supplies exclusively and returns through the original quest/team path", () => {
+    const { view, onDepart } = setup();
+    act(() => view.result.current.openNode("tower"));
+    act(() => view.result.current.openLoadout());
+    expect(view.result.current.mode).toBe("loadout");
+    act(() => view.result.current.dismiss());
+    expect(view.result.current.mode).toBe("pop");
+    expect(view.result.current.activeNode).toBe("tower");
+    act(() => view.result.current.openTeam("tower"));
+    act(() => view.result.current.openLoadout());
+    act(() => view.result.current.finishLoadout());
+    expect(view.result.current.mode).toBe("team");
+    act(() => view.result.current.finishTeam());
+    expect(view.result.current.mode).toBe("pop");
+    expect(onDepart).not.toHaveBeenCalled();
+  });
   it("refuses to write an order for an empty party even when called directly", () => {
     const { view, onDepart, store } = setup();
 

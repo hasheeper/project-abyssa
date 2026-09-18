@@ -5,7 +5,7 @@ import { demoBattleReaction, legacyBattleReaction, makeBattleReaction, useBattle
 import type { DemoEvent } from "../../../game-core/battle";
 import type { BattleEvent } from "../view";
 
-afterEach(cleanup);
+afterEach(() => {cleanup(); vi.restoreAllMocks();});
 function Subject(props: ExpeditionBattleSidebarProps) { return <ExpeditionBattleSidebar {...props}/>; }
 const base: ExpeditionBattleSidebarProps = {
   partyIds: ["kael", "eustice", "elora", "kororo", "norma"], reaction: null,
@@ -20,6 +20,10 @@ it("右栏仪表保留机械读数，下拉账簿；点击记录后Escape仍归�
   expect(screen.queryByRole("region", {name: "账本详情"})).toBeNull();
   fireEvent.click(toggle);
   const panel = screen.getByRole("region", {name: "账本详情"});
+  const breakdown = within(panel).getByLabelText("收益倍率明细");
+  expect(breakdown).toHaveTextContent("牌型 ×1.30 · 层深 ×1.40 · 大地加成 ×1.10 ＝ 总倍率 ×2.00");
+  expect(breakdown).toHaveTextContent("本层散金 12 G，按当前倍率清层可得 24 G");
+  expect(breakdown).toHaveTextContent("收益倍率不增加攻击伤害");
   expect(screen.getByLabelText("包裹 83 枚金币").querySelectorAll(".abyssa-expedition-odometer__reel")).toHaveLength(6);
   expect(screen.getByLabelText("0 枚远古晶石").closest(".abyssa-expedition-purse")).not.toBeNull();
   expect(panel.querySelector(".abyssa-expedition-odometer")).toBeNull();
@@ -45,9 +49,26 @@ it("回忆摘要不冒充远征收益，保留护域、实伤和原暂离命令"
   expect(toggle).not.toHaveTextContent("83");
   fireEvent.click(toggle);
   expect(screen.getByRole("button", {name: "暂离回忆"})).toBeDisabled();
+  expect(screen.queryByLabelText("收益倍率明细")).toBeNull();
   rerender(<Subject {...base} memory={{protection: 1, preview: null, busy: false, onLeave: leave}}/>);
   fireEvent.click(screen.getByRole("button", {name: "暂离回忆"}));
   expect(leave).toHaveBeenCalledTimes(1);
+});
+it("账本开关与Escape归还焦点不滚动裁剪舞台或倍率区域", () => {
+  const focus = vi.spyOn(HTMLElement.prototype,"focus");
+  render(<Subject {...base}/>);
+  const toggle = screen.getByRole("button",{name:"远征账本"});
+  fireEvent.click(toggle);
+  const close = screen.getByRole("button",{name:"收起账本"});
+  expect(close).toHaveFocus();
+  expect(focus).toHaveBeenLastCalledWith({preventScroll:true});
+  fireEvent.click(close);
+  expect(toggle).toHaveFocus();
+  expect(focus).toHaveBeenLastCalledWith({preventScroll:true});
+  fireEvent.click(toggle);
+  fireEvent.keyDown(document.body,{key:"Escape"});
+  expect(toggle).toHaveFocus();
+  expect(focus).toHaveBeenLastCalledWith({preventScroll:true});
 });
 it("仅已提交动作/事件判定产生反应，AOE命中不重复发声", () => {
   const action: DemoEvent = {id:"action-1", type:"action-resolved", actorId:"elora", payload:{choice:"guard-all"}};
@@ -75,4 +96,12 @@ it("敌方或离队角色不能占用同行位，未参战玛不出现在历史�
   render(<Subject {...base} reaction={makeBattleReaction("enemy-action","marietta","bind")}/>);
   expect(screen.getByRole("region",{name:"尤斯缇丝的战斗反应"})).toBeVisible();
   expect(screen.queryByRole("region",{name:"玛丽埃塔的战斗反应"})).toBeNull();
+});
+it("the entrance owns only the initial speech fade; later committed reactions retain their own reveal", () => {
+  const {container,rerender}=render(<Subject {...base} entrance/>);
+  expect(container.querySelector(".battle-reaction__dialogue")).toHaveAttribute("data-entry-line");
+  rerender(<Subject {...base} entrance engine={{...base.engine,gold:14}}/>);
+  expect(container.querySelector(".battle-reaction__dialogue")).toHaveAttribute("data-entry-line");
+  rerender(<Subject {...base} entrance reaction={makeBattleReaction("later-guard","elora","guard")}/>);
+  expect(container.querySelector(".battle-reaction__dialogue")).not.toHaveAttribute("data-entry-line");
 });

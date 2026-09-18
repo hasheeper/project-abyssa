@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { randomRollDuration } from "../../../shared/presentation/roll/timing";
 import { EXPEDITION_DIE_ROLL_MS, getExpeditionDieRotation, nextExpeditionDieRotation, type ExpeditionDieRotation } from "../ExpeditionDie3D";
 import { getBattlePhase, getExpeditionStatus, getRoundOutcome, isEnemyDefeated, type CharacterId, type EnemyIntent, type EnemyTurnEvent, type BattleCommand, type ExpeditionState } from "../view";
@@ -62,8 +62,6 @@ export function useExpeditionBattlePresentation(controller: ReturnType<typeof us
   const [attackFx, setAttackFx] = useState<PlayerAttackFx | null>(null);
   const [supportFx, setSupportFx] = useState<PlayerSupportFx | null>(null);
   const [enemyTurnFx, setEnemyTurnFx] = useState<EnemyTurnFx | null>(null);
-  const enemyNodesRef = useRef(new Map<string, HTMLElement>());
-  const previousEnemyRectsRef = useRef(new Map<string, DOMRect>());
   useEffect(() => {
     presentation.cancel(); controller.finish(); setAttackFx(null); setSupportFx(null); setEnemyTurnFx(null);
     reactions.clear();
@@ -172,22 +170,11 @@ export function useExpeditionBattlePresentation(controller: ReturnType<typeof us
     }
   };
   const presentedEnemies = engine.enemies.filter(enemy => !isEnemyDefeated(enemy) || enemy.id === attackFx?.targetId || enemy.id === enemyTurnFx?.enemyId);
-  const enemyLayoutKey = presentedEnemies.map(enemy => enemy.id).join("|");
-  const registerEnemyNode = useCallback((id: string, node: HTMLElement | null) => { if (node) enemyNodesRef.current.set(id, node); else enemyNodesRef.current.delete(id); }, []);
-  useLayoutEffect(() => {
-    const current = new Map<string, DOMRect>();
-    for (const enemy of presentedEnemies) {
-      const node = enemyNodesRef.current.get(enemy.id); if (!node) continue;
-      const rect = node.getBoundingClientRect(), previous = previousEnemyRectsRef.current.get(enemy.id); current.set(enemy.id, rect);
-      if (previous && typeof node.animate === "function") node.animate([{ transform: `translate(${previous.left - rect.left}px, ${previous.top - rect.top}px)` }, { transform: "translate(0, 0)" }], { duration: duration(320), easing: "ease-out" });
-    }
-    previousEnemyRectsRef.current = current;
-  }, [enemyLayoutKey]);
   const phase = enemyTurnFx ? "enemy" : getBattlePhase(engine), status = getExpeditionStatus(engine);
   const layerClearPending = engine.mode.type === "player-turn" && getRoundOutcome(engine) === "layer-cleared";
   const isRolling = Object.values(visuals).some(value => value.rolling);
   const available = controller.ready && !presentation.busy && !layerClearPending;
-  return { phase, status, layerClearPending, isRolling, visuals, attackFx, supportFx, enemyTurnFx, presentedEnemies, registerEnemyNode,
+  return { phase, status, layerClearPending, isRolling, visuals, attackFx, supportFx, enemyTurnFx, presentedEnemies,
     interactive: available && phase === "act" && status === "active", canInitialRoll: available && phase === "roll" && status === "active",
     isBusy: presentation.isBusy, play, reaction: reactions.reaction,
   };

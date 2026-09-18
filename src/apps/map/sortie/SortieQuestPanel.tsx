@@ -135,7 +135,7 @@ export function SortieQuestPanel({
           <p className="abyssa-sortie-quest__flavor">{brief.flavor}</p>
 
           <div className="abyssa-sortie-quest__intel">
-            <section className="abyssa-sortie-quest__block">
+            {brief.threats.length > 0 && <section className="abyssa-sortie-quest__block">
               <h3>威胁</h3>
               <ul className="abyssa-sortie-quest__threats">
                 {brief.threats.map((threat) => (
@@ -145,9 +145,9 @@ export function SortieQuestPanel({
                   </li>
                 ))}
               </ul>
-            </section>
+            </section>}
 
-            <section className="abyssa-sortie-quest__block">
+            {brief.yields.length > 0 && <section className="abyssa-sortie-quest__block">
               <h3>收益</h3>
               <ul className="abyssa-sortie-quest__yields">
                 {brief.yields.map((entry) => (
@@ -176,7 +176,7 @@ export function SortieQuestPanel({
                   </li>
                 ))}
               </ul>
-            </section>
+            </section>}
           </div>
 
           {brief.event && <p className="abyssa-sortie-quest__event">{brief.event}</p>}

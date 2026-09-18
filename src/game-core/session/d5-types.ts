@@ -4,8 +4,11 @@ import type { DemoProgress } from "../contracts/demo";
 import type { DemoBattleState, DemoCheckpoint, DemoSupply } from "../battle/domain/demo-state";
 import type { DemoExpeditionState, DemoTerminal } from "./demo-expedition";
 import type { ManorProgression } from "./manor-progression";
+import type { TutorialProgress, TutorialRunState } from "./tutorial-types";
 
 export type D5RunRef = { kind: "expedition"; id: string } | { kind: "memory"; id: string; attempt: number };
+export const GAME_START_POINTS = ["prologue", "first-morning", "tutorial", "hub"] as const;
+export type GameStartPoint = typeof GAME_START_POINTS[number];
 export type D5UserChoiceTone = "iron" | "seasoned" | "pragmatic";
 export type D5StoryAdvanceChoice = "continue" | "skip" | "later" | D5UserChoiceTone;
 export type D5Checkpoint = Omit<DemoCheckpoint, "run"> & {
@@ -17,7 +20,8 @@ export type D5MemoryCheckpoint = Omit<D5Checkpoint, "run"> & {
   run: Omit<D5Checkpoint["run"], "supplies"> & { supplies: D5MemorySupply[] };
 };
 export type D5MemoryBattleState = D5MemoryCheckpoint & { undo: D5MemoryCheckpoint[] };
-export type D5ExpeditionState = DemoExpeditionState<D5BattleState["run"]>;
+export type D5BaseExpeditionState = DemoExpeditionState<D5BattleState["run"]>;
+export type D5ExpeditionState = D5BaseExpeditionState & { tutorial?: TutorialRunState<D5BaseExpeditionState> };
 export type D5MemoryTerminal = {
   id: string;
   runRef: Extract<D5RunRef, { kind: "memory" }>;
@@ -29,6 +33,8 @@ export type D5MemoryTerminal = {
 /** Semantic evidence produced by accepted application transitions; never a player command. */
 export type D5ProgressEvent =
   | OpeningAdvance
+  | { type: "phase-advanced" }
+  | { type: "game-start-selected"; startAt: GameStartPoint }
   | { type: "prologue-advanced"; shotId: string }
   | { type: "prologue-completed"; shotId: string; choice: "continue" | "skip" }
   | { type: "supply-purchased"; shopId: string; definitionId: string; quantity: number; quoteVersion: number }
@@ -69,6 +75,7 @@ export type D5MemorySession = {
   node: "present-intro" | "history-opening" | "teaching" | "battle" | "failed" | "history-complete" | "return-pending" | "left" | "completed";
 };
 export type D5Projection = {
+  tutorial?: TutorialProgress;
   opening?: OpeningProgress;
   prologue?: { shotId: string; status: "playing" | "viewed" | "skipped" };
   inheritedChapter?: {completionId: string; terminalId: string};
@@ -97,6 +104,8 @@ export type D5Snapshot = { campaign: D5Projection; run: D5RunSnapshot | null };
 
 /** Validated origin projection. Instance IDs remain save-scoped; no strings are guessed or rewritten. */
 export type D5Baseline = D5Snapshot & {
+  /** Derived from a validated readonly ancestor, not decoded as an optional save field. */
+  narrative?: import("../contracts").AirpNarrativeState;
   departures: {revision: number; event: Extract<D5ProgressEvent, {type:"expedition-started"}>; supplyIds: string[]}[];
   anchors: string[];
 };

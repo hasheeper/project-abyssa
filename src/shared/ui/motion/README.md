@@ -1,0 +1,112 @@
+# UI Motion：共享动作与参数
+
+> 当前状态（2026-09-17）：M1 失效残留清理、M2 相同动作与参数收拢、M3 四页入场生命周期收拢、M4 校验与维护收口已完成。保留回退后的逐页演出，不恢复 U3 批量迁移；UiSurface／UiCurtain 不重新引入。标题选中／双菱形、视差和 Logo 后四菜单入场仍是独立效果。普通 UI 的手动减弱偏好不代表全项目统一；洋馆首次开窗长帧仍待单点调查。见[当前计划](../../../../docs/plans/2026-09-17-ui-motion-consolidation.md)、[历史回退边界](../../../../docs/audits/2026-09-16-ui-motion-rollback.md)。
+
+执行层是 `motion/react`（固定 `motion@13.3.0`）＋共享 CSS，不向业务暴露引擎 API。
+
+## 当前消费者与所有权
+
+| 能力 | 实际接线 | 不能自动推广到 |
+| --- | --- | --- |
+| control | IconButton（含 ArrowButton／关闭键）、RibbonButton、RpgNotchedPillButton；MapCommand 显式复用 | 所有形状按钮、TAB、标题菱形、menu 轮盘 |
+| surface | RpgModal → UiModal，默认预设；组件调用者沿用原 API | 页面黑幕、非模态地图侧板、整页入场 |
+| manor | 洋馆 InventoryDialog／ResourceInventoryDialog、CampaignJournal 的仓库／日志／整备功能窗 | 其他页面默认窗口 |
+| content | JournalBrowser 阅读区、ResourceInventoryDialog 物品详情、ShopCounter 商品说明 | 等待新图解码的 CharacterContentSwap／角色整体切换 |
+| page-board | CharacterBoardScreen、ShopCounter、map route 引入同一 CSS，现有容器播放 | 战斗 960ms 专用主板、洋馆世界层 |
+| 入场生命周期 | `shared/transition/usePageUiIntro` → 角色／商店／地图／洋馆适配 | menu opening 时序、SceneSequence、Logo／AVG／天气 |
+
+共享动作并不要求共享所有编排。新增消费者先选择上述职责，确认实际入口导入样式，再检查默认／减弱、关闭中重开、提前输入和卸载；不要为了接库重复动画父子两个整框。
+
+## 调用方式
+
+```tsx
+import { AbyssaProvider, RpgModal, UiContentTransition } from "@abyssa/ui";
+import "@abyssa/ui/styles.css";
+
+<AbyssaProvider motionPreference="system">
+  <RpgModal open={open} onClose={close} title="日志">
+    <UiContentTransition contentKey={selectedId}>
+      {reading}
+    </UiContentTransition>
+  </RpgModal>
+</AbyssaProvider>
+```
+
+- control：`RpgNotchedPillButton`、`IconButton`、`RibbonButton` 原 API 不变；120ms 提亮、80ms／1px 下压，仅内部美术移动，原生点击区不动。
+- surface：`RpgModal` 进入 220ms／退出 160ms，最多 8 个设计像素，不缩放正文；遮罩与面板同步。
+- content：`UiContentTransition` 用稳定业务 ID；首次不播，同 ID 更新不播，替换 120ms 淡显，仅一份活内容，无退出队列。它不替业务重置滚动或表单。
+- page-board：角色、商店、出征主板显式复用 820ms／34px 缓落与 240ms 显现，不接管子内容时序。
+- manor：洋馆仓库、日志、整备显式选择的 760ms 窗口；默认 surface 不变。
+
+以上参数统一来自 `tokens.json`。修改后运行 `npm run motion:tokens`；`npm run motion:check` 校验三个生成产物：`styles/motion-tokens.css`（控件）、`motion/page-board.css`（主板动作）、`motion/modal-tokens.css`（洋馆正文节奏）。不要手改生成文件。TS 的 `presets.ts` 直接读取同一 JSON，在 Motion 边界转换为秒。
+
+样式按消费者加载：三页通过模块直接导入 `page-board.css`；`UiModal` 直接导入洋馆生成参数和窗口样式。公开 `@abyssa/ui/styles.css` 包含主板预设，不增加 JS 导出或包装组件。专用演出仍可保留自己的 keyframes／过渡。
+
+## 页面主板
+
+在**原有实体板容器**上消费变量，不增加 DOM 层，也不动画整个 Stage：
+
+```css
+.my-board[data-intro="playing"] {
+  animation: var(--abyssa-motion-page-board-enter);
+}
+```
+
+- 共享动作只拥有 `translate`／`opacity`，不覆盖宿主的 `transform:scale(...)`、尺寸、裁切或点击区域。
+- 页面提供就绪、暂停、收尾和提前输入策略；角色、商店、出征、洋馆通过薄适配调用产品内部的 [`usePageUiIntro`](../../transition/README.md)。立绘、TAB、正文层次仍归页面，没有 readiness 轮询、共享 RAF 或全局动画状态仓库。
+- `abyssa-ui-appear` 是同文件内的纯淡入关键帧；商店资产、地图图景复用它，但继续保留各自的时长与延迟。
+- M2 保留了原 hook，M3 才合并其重复 effect，四页结束时点仍为 920／920／1520／1000ms。测试检查现有收尾时钟晚于主板和局部 CSS 动作；参数改长时必须同时检查页面完整时序，不能只改一个 duration。路由依赖不进入公开 UI 包。
+- 手动／系统减弱将主板预设置为 `none`；页面原有的 waiting 可见性与减弱收束逻辑保留。
+
+战斗主板仍为独立的 960ms 编排，仅登记，不自动迁入本预设。Logo、menu 视差、地图弹簧、角色切换不属于 page-board。
+
+## 窗口生命周期
+
+### 洋馆功能窗（2026-09-17，显式选择）
+
+仓库、日志、整备使用 `<RpgModal motionPreset="manor">`，保留原尺寸与美术。默认 `surface` 不变，不自动推广到其他页面。
+
+- 框体与招牌共同从上方 30px 缓落，760ms；面板淡入 240ms，独立暗幕 180ms。
+- 正文延迟 140ms 后用 380ms 淡入并轻移 8px；头部、导航、底栏延迟 100ms。按区域播放一次，不按物品逐个播放，数据更新不重播。
+- 退出 200ms、上移 8px；减弱模式无位移，仅 80ms 淡变。动画结束释放面板的临时 `will-change`。
+- 不使用整幅 `backdrop-filter`；宿主在 `open || presented` 期间暂停背景装饰运动，退出完成才恢复。
+
+框体、退出距离、暗幕、淡入、正文与头尾节奏统一来自 `tokens.json.manorWindow`；减弱时长复用 `surface.reducedMs`。`manorWindowMotion` 是该对象的直接引用，`modal-motion.css` 只消费生成的 CSS 变量。退出收尾仍等待真实动画完成，不添加独立计时器。洋馆页挂件、头像与房间详情的入场仍由页面自身管理。见[洋馆演出说明](../../../../docs/audits/2026-09-17-mansion-ui-motion.md)、[M2 验收](../../../../docs/audits/2026-09-17-ui-motion-m2.md)。
+
+### 通用生命周期约束
+
+保持 `<RpgModal open={open}>` 挂载，**不要**写 `open && <RpgModal>`。后者会把负责退出的 presence 边界一起移除。
+
+窗口用 Motion 的 `AnimatePresence/usePresence` 管理生命周期，`animate` 负责可中断的插值，完成后通知 `safeToRemove`；无自建定时退出引擎。关闭中重开使旧完成回调失效并接续当前位置；关闭中改变减弱偏好也会中断旧动画。
+
+有外部背景 `inert`／快捷键门禁的宿主，使用可选 `onPresentChange` 同步“仍在呈现”，门禁为 `open || presented`，不要自行延迟 N 毫秒。退出期间焦点留在非业务容器，子控件 inert，鼠标和键盘不穿透；真正卸载才还焦点。首批标题与洋馆已经接好。
+
+窗口保持内联 Stage，不 portal、不锁 body、不覆盖宿主的布局 transform。宿主因路由卸载时即时清理监听，不向旧页面抢焦点。
+
+## 减弱与隔离
+
+`AbyssaProvider.motionPreference` 只接受 `system | reduced`。省略时继承外层；没有 Provider 时跟随系统。系统变化实时生效，不支持强行覆盖系统减弱。
+
+减弱下控件与内容直接到终态，窗口去掉位移、淡变 80ms。产品持久化位于 `shared/preferences`，键为 `abyssa:ui-motion:v1`；UI 包不读写存储，不依赖 `GameRecord`。保存失败保留会话选择并在设置页提示。
+
+Logo、剧情、战斗、天气和 WebGL 专用演出不消费本批手动开关，继续各自策略。形状按钮、页签、页面转场和手工复用按钮美术已恢复迁移前实现；不继续自动推广 U3，不因 CSS 类名相同就宣称全库已统一。鼠标指针／点击效果未加入。
+
+Storybook：`Foundation/UI Motion`。`Standard`／`Reduced` 保留默认窗口；新增 `Page Board`／`Page Board Reduced` 和 `Manor`／`Manor Reduced`。主板直接使用共享 CSS 变量，洋馆直接使用 `RpgModal motionPreset="manor"` 与现有功能窗样式；无预览专用关键帧。支持主板重播、连续内容替换、窗口关闭中重开，不依赖游戏存档。
+
+## 检查与性能记录
+
+```sh
+npm run motion:check
+npm run motion:audit
+npm run build:game
+npm run motion:audit -- --json --build
+node --test tests/build/ui-motion*.test.mjs tests/build/route-styles.test.mjs
+```
+
+`motion:audit` 只读源码，报告未引用候选、重名、同内容关键帧和明确允许的 reduced 替代；检查 CSS shorthand／变量及 TS/JS 字面字符串，但不模拟完整 cascade，也不把动态类名判死。候选不导致自动删除或 CI 失败；已有明确契约仍由测试严格保护。4 组跨文件 RP 减弱替代按实际导入关系登记，不允许任意同名定义借 reduced 名义绕过检查。
+
+`--build` 按 Vite manifest 统计游戏壳＋单一路由的静态依赖闭包，每个 JS/CSS 文件只算一次；另列相对游戏壳的新增量，不递归累加所有 dynamicImports。gzip 为逐文件 level 9 的字节数，不是实测网络流量，图片／字体／数据另计。
+
+运行 `npm run motion:profile` 可在独立的 `127.0.0.1:5198` 原点检查生产构建。它只给验收响应加被动 PerformanceObserver／页面阶段记录和「记录动效快照」按钮；不改磁盘构建、游戏 JS/CSS 或用户原开发存档，不加 RAF／轮询，不替换事件原型。验收 HTML 的资源哈希与 worker 元数据同步重算，仍启用完整性校验。停止后重启可读取新构建。
+
+测量 JSON 位于 DOM 的 `#abyssa-motion-audit`。分别记录新文档加载、可见 playing→ready 和窗口交互，注明资源缓存状态；300 条上限触发时 `truncated=true`，应重新加载再测。pagehide 清理后标记 `stopped=true`，从 bfcache 恢复须刷新再采样。支持情况明确记录，未支持的 long-animation-frame 不能记成零；快照区分 running／paused／finished 和专用常驻动画。模态输入门禁可能拦截 QA 按钮，不要用旧快照判断窗口内状态。工具按钮只用于 QA，不属于正式 UI。不要把一次采样、回调数量、源码行数或关键帧总量说成 FPS 提升。见 [M4 验收与限制](../../../../docs/audits/2026-09-17-ui-motion-m4.md)。

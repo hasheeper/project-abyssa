@@ -1,6 +1,7 @@
 import { act, cleanup, render } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
 import { SceneTransitionProvider, useSceneReady } from "./TransitionProvider";
+import { useSceneReveal } from "./useSceneReveal";
 
 afterEach(() => { cleanup(); sessionStorage.clear(); vi.useRealTimers(); });
 
@@ -17,4 +18,16 @@ it("keeps the existing curtain closed until the actual scene data is ready, incl
   expect(container.querySelector(".scene-transition")).toHaveAttribute("data-phase","opening");
   await act(() => vi.advanceTimersByTimeAsync(650));
   expect(container.querySelector(".scene-transition")).toHaveAttribute("data-phase","idle");
+});
+
+it("honors the local board's fade override on a standalone battle handoff", async () => {
+  vi.useFakeTimers();
+  sessionStorage.setItem("abyssa:scene-handoff:v1", JSON.stringify({target:location.pathname + location.search,issuedAt:Date.now()}));
+  function Manor() {useSceneReveal("fade");return <p>旧庄园</p>;}
+  const {container} = render(<SceneTransitionProvider reveal="panel-drop" minimumBlackoutMs={0} maximumReadyWaitMs={80}><Manor/></SceneTransitionProvider>);
+  await act(() => vi.advanceTimersByTimeAsync(250));
+  expect(document.documentElement).toHaveAttribute("data-scene-reveal", "fade");
+  expect(container.querySelector(".scene-transition")).toHaveAttribute("data-phase", "opening");
+  await act(() => vi.advanceTimersByTimeAsync(650));
+  expect(container.querySelector(".scene-transition")).toHaveAttribute("data-phase", "idle");
 });

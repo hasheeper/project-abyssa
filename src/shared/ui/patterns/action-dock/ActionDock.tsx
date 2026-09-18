@@ -1,4 +1,4 @@
-import { useRef, type ReactNode } from "react";
+import { useRef, type ReactNode, type RefCallback } from "react";
 import { CurrencyAmount } from "../../primitives/CurrencyAmount";
 import { IconButton } from "../../primitives/IconButton";
 import "./action-dock.css";
@@ -9,7 +9,7 @@ export interface ActionDockProps {
   balance?: number;
   children?: ReactNode;
   leading?: ReactNode;
-  alternate?: { open: boolean; label: string; icon: string; onToggle: () => void; panel: ReactNode };
+  alternate?: { open: boolean; label: string; icon: string; onToggle: () => void; panel: ReactNode; toggleRef?: RefCallback<HTMLButtonElement> };
 }
 
 export interface ActionDockSlotProps {
@@ -59,7 +59,7 @@ export function ActionDock({ active, busy = false, balance, children, leading, a
       {leading}
       {alternate && <>
         <div className="action-dock__alternate" inert={!alternate.open || undefined} aria-hidden={!alternate.open || undefined}>{alternate.panel}</div>
-        <IconButton ref={toggle} className="action-dock__switch" label={alternate.label} title={alternate.label} shape="diamond" size="md" variant="dark" aria-expanded={alternate.open} onClick={alternate.onToggle}>
+        <IconButton ref={node => {toggle.current = node; alternate.toggleRef?.(node);}} className="action-dock__switch" label={alternate.label} title={alternate.label} shape="diamond" size="md" variant="dark" aria-expanded={alternate.open} onClick={alternate.onToggle}>
           <i className="action-dock__switch-icon" style={{maskImage: `url("${alternate.icon}")`}} aria-hidden="true"/>
         </IconButton>
       </>}

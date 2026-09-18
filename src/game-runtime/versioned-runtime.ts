@@ -1,4 +1,6 @@
 import { createD5LineageApplication } from "../game-application/versions/d5-lineage";
+import { restoreD5Archive } from "../game-application/versions/d5-restore";
+import { airpCopyBlocked } from "../game-application/versions/airp-replay";
 import * as v from "../game-core/contracts";
 import {
   applicationError,
@@ -149,8 +151,9 @@ export function createVersionedGameRuntime(
                   clock: record.snapshot.campaign.clock,
                   continuation: record.schemaVersion === 3 || record.schemaVersion === 4 ? (()=>{
                     const c=record.snapshot.campaign, eligible=!c.activeRunRef && c.manor?.story?.status!=="pending" && (record.schemaVersion!==4 || record.snapshot.campaign.prologue?.status!=="playing" && record.snapshot.campaign.opening?.status!=="playing" && !record.snapshot.campaign.activeStoryId && (!record.snapshot.campaign.memory || record.snapshot.campaign.memory.node==="completed"));
-                    const newer = registrations.some(e => e.version === 4 && e.catalog.ref.contentVersion >= 3 && (record.schemaVersion === 3 || e.catalog.ref.contentVersion > record.contentRef.contentVersion));
-                    return {upgrade:eligible && newer,cycle:eligible && record.schemaVersion===4 && !!record.snapshot.campaign.chapterClaim};
+                    const newer = registrations.some(e => e.version === 4 && !e.catalog.data.tutorial?.guide && e.catalog.ref.contentVersion >= 3 && (record.schemaVersion === 3 || e.catalog.ref.contentVersion > record.contentRef.contentVersion));
+                    const airpSafe = record.schemaVersion !== 4 || !airpCopyBlocked(record.narrative) && !record.airpOnline?.connection;
+                    return {upgrade:eligible && airpSafe && newer,cycle:eligible && airpSafe && record.schemaVersion===4 && !!record.snapshot.campaign.chapterClaim};
                   })() : {upgrade:false,cycle:false},
                   activeRunId: record.schemaVersion !== 1 ? record.snapshot.campaign.activeRunRef?.id ?? null : record.snapshot.campaign.activeExpeditionId,
                 };
@@ -191,6 +194,16 @@ export function createVersionedGameRuntime(
       } catch (e) {
         return failure(e);
       }
+    },
+    async restoreSave(raw: unknown) {
+      try {
+        const r = v.record(raw, "restore", ["archive", "clientRequestId"]);
+        const archive = v.record(v.parseJson(v.text(r.archive, "archive", 8 * 1024 * 1024)), "archive", ["archiveVersion", "record"]);
+        v.choice(archive.archiveVersion, [4], "archiveVersion");
+        const record = registry.read(archive.record), entry = registry.resolve(record.schemaVersion, record.contentRef);
+        if (record.schemaVersion !== 4 || entry.version !== 4) v.invalid("archive", "Expected AIRP record");
+        return await restoreD5Archive(record, v.id(r.clientRequestId, "clientRequestId"), entry.catalog, narrowStore<D5GameRecord, D5Receipt>(store, 4), registry.readers);
+      } catch (e) { return failure(e); }
     },
     async importSave(raw: unknown) {
       try {

@@ -57,6 +57,16 @@ Command表示请求；Event表示规则产生的事实，不能重新当作命�
 
 [扩展指南](docs/README.md)中的原子效果示例主要对应规则1；[开发手册](DEVELOPMENT_GUIDE.md)保留具体接口，使用前核对版本。
 
+## 动效管理与性能边界
+
+共享基础仍由 UiModal、SceneSequence、usePresentationQueue 分别承担窗口、场景和战斗事件队列；不要求把骰子／WebGL／SVG 全部改用 Motion。
+
+- `presentation/useBattleMotionPolicy.ts` 是装饰播放的唯一入口：窗口遮挡、场景锁定、后台、减弱动态时冻结；前景演出与补位时停流线、雾降至原有 8fps，空闲雾保持 24fps。新装饰须消费这一策略，不能自建一套偏好／可见性判断。
+- `useEnemyStageLayout` 负责合并外部测量、批量读写与 420ms 补位。固定 left，逐帧仅更新 translate 和缓存的 SVG 端点；不要重新引入逐帧 React state、几何读取或 DOM 查询。
+- `ExpeditionEnemyStage` 持有悬浮／键盘预览状态，避免带动我方和画框渲染；教学锚点使用稳定 ref。战斗队列与命中时序不受装饰暂停影响。
+
+本次范围、测试证据及未完成的性能验收见[战斗动效优化计划](../../../docs/plans/2026-09-18-battle-motion-performance.md)。减弱动态在此覆盖装饰与补位，不代表所有历史战斗演出已统一适配。
+
 ## 验证命令
 
 ```sh

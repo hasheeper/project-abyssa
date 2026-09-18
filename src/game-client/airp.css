@@ -1,0 +1,30 @@
+.airp-panel { border-top: 1px solid #ad96725c; margin-top: 1rem; padding-top: .7rem; }
+.airp-panel h3 { margin: 0 0 .45rem; font-size: 1rem; }
+.airp-panel p { margin: .45rem 0; line-height: 1.6; }
+.airp-panel__meta { opacity: .7; font-size: .8rem; }
+.airp-panel button:not(.abyssa-ribbon-button), .airp-control { color: inherit; font: inherit; cursor: pointer; border: 1px solid #ad9672; background: #322f25; padding: .5rem .7rem; }
+.airp-control { margin: .3rem; font-size: .85rem; }
+.airp-saved { padding: 1rem; opacity: .65; font-size: .75rem; }
+.airp-panel details { margin: .55rem 0; }
+.airp-pool article { padding: .7rem 0; border-bottom: 1px solid #ad967230; }
+.airp-pool h4 { margin: 0 0 .3rem; font-size: .95rem; }
+.airp-pool h4 small { margin-left: .5rem; font-weight: normal; opacity: .6; }
+.airp-pool__aftermath { padding-top: .8rem; }
+.airp-pool__aftermath button { display: block; margin: .4rem 0; }
+.airp-panel--compact { font-size: .8rem; margin: .5rem 0; }
+.airp-map-note:has(.airp-panel) { position: absolute; top: 90px; left: 48px; max-width: 285px; padding: 12px 18px; color: #eee2ca; background: #1a1d22ee; border: 1px solid #9a8050; z-index: 5; }
+.airp-online-gate{max-width:760px;margin:8vh auto;padding:28px;background:#17201e;color:#efe7d4;border:1px solid #736b51;border-radius:8px}
+.airp-online-gate>button{margin:12px 12px 12px 0;padding:10px 16px}
+.airp-online{font-size:14px;line-height:1.6;max-width:680px;overflow-wrap:anywhere}
+.airp-online form{display:grid;gap:12px;margin:16px 0}
+.airp-online label{display:grid;gap:4px}
+.airp-online input{padding:9px;background:#101714;color:#efe7d4;border:1px solid #736b51;border-radius:4px;min-width:0}
+.airp-online button{padding:7px 12px;margin:4px 8px 4px 0}
+.airp-online [role=alert]{color:#efb28e}
+.airp-creation-record{max-width:560px;font-size:13px;line-height:1.6;white-space:pre-wrap}
+.airp-story-tools{position:relative;align-self:stretch;display:flex;align-items:center;max-width:240px;color:#eee2ca;font-size:13px}
+.rp-app__bar:has(.airp-story-tools){z-index:30}
+.airp-story-tools>summary{padding:16px;cursor:pointer;white-space:nowrap}
+.airp-story-tools__panel{position:absolute;right:8px;bottom:calc(100% + 8px);width:min(420px,calc(100vw - 32px));max-height:55vh;overflow:auto;padding:16px;background:#17201ef5;border:1px solid #736b51;box-shadow:0 8px 32px #0008;z-index:10;white-space:normal}
+.airp-story-tools__panel p{margin:8px 0}
+.airp-story-tools__panel summary{cursor:pointer}

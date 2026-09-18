@@ -3,20 +3,26 @@ import { createEnemyMistRenderer } from "./enemy-mist-renderer";
 
 const FRAME_INTERVAL = 1000 / 24;
 
-export const EnemyMist = memo(function EnemyMist({ foregroundBusy = false }: { foregroundBusy?: boolean }) {
+/** The parent battle policy owns visibility/reduced-motion subscriptions. */
+export const EnemyMist = memo(function EnemyMist({ foregroundBusy = false, paused }: { foregroundBusy?: boolean; paused: boolean }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const foregroundBusyRef = useRef(foregroundBusy);
+  // Entrance holds the already painted fog; resuming must not compile another
+  // shader or jump its clock while the foreground board/dice are settling.
+  const pausedRef = useRef(paused);
+  const playbackRef = useRef<(() => void) | null>(null);
   useEffect(() => { foregroundBusyRef.current = foregroundBusy; }, [foregroundBusy]);
+  useEffect(() => { pausedRef.current = paused; playbackRef.current?.(); }, [paused]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas || typeof WebGLRenderingContext === "undefined") return;
-    const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
     let renderer: ReturnType<typeof createEnemyMistRenderer> = null;
     let frame = 0;
     let previous = 0;
     let elapsed = 11_000;
     let deferredDraws = 0;
+    let needsResize = false;
 
     const stop = () => {
       cancelAnimationFrame(frame);
@@ -41,12 +47,24 @@ export const EnemyMist = memo(function EnemyMist({ foregroundBusy = false }: { f
       }
       frame = requestAnimationFrame(draw);
     };
-    const refresh = () => {
+    const syncPlayback = () => {
       stop();
       if (!renderer || document.hidden) return;
+      if (needsResize) {
+        needsResize=false;
+        renderer.resize();
+        renderer.draw(elapsed/1000);
+      }
+      if (!pausedRef.current) frame = requestAnimationFrame(draw);
+    };
+    const refresh = () => {
+      stop();
+      if (!renderer) return;
+      if (document.hidden) {needsResize=true;return;}
+      needsResize=false;
       renderer.resize();
       renderer.draw(elapsed / 1000);
-      if (!motion.matches) frame = requestAnimationFrame(draw);
+      syncPlayback();
     };
     const initialize = () => {
       renderer = createEnemyMistRenderer(canvas);
@@ -60,20 +78,20 @@ export const EnemyMist = memo(function EnemyMist({ foregroundBusy = false }: { f
       canvas.dataset.mistReady = "false";
     };
 
+    // Pause/resume only touches the clock. Do not force a layout measurement and
+    // synchronous WebGL redraw at the exact frame the scene releases its layers.
+    playbackRef.current = syncPlayback;
     initialize();
     const observer = new ResizeObserver(refresh);
     observer.observe(canvas);
     window.addEventListener("resize", refresh);
-    document.addEventListener("visibilitychange", refresh);
-    motion.addEventListener("change", refresh);
     canvas.addEventListener("webglcontextlost", contextLost);
     canvas.addEventListener("webglcontextrestored", initialize);
     return () => {
+      playbackRef.current = null;
       stop();
       observer.disconnect();
       window.removeEventListener("resize", refresh);
-      document.removeEventListener("visibilitychange", refresh);
-      motion.removeEventListener("change", refresh);
       canvas.removeEventListener("webglcontextlost", contextLost);
       canvas.removeEventListener("webglcontextrestored", initialize);
       renderer?.dispose();

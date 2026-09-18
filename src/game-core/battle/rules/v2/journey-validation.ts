@@ -1,6 +1,7 @@
 import { eventFaceMethod } from "./event-face";
 import type { RuleContext as ValidatedDemoCatalog } from "../../domain/rule-state";
 import * as v from "../../../contracts/validation";
+import { departureSupplyLimit } from "../../../contracts/journey-limits";
 import type { DemoLayerResult, DemoRunState, DemoSupply } from "../../domain/demo-state";
 
 export function validateSupplies(catalog: ValidatedDemoCatalog, raw: unknown, max: number, memory = false): DemoSupply[] {
@@ -47,7 +48,7 @@ export function validateJourneyRun(catalog: ValidatedDemoCatalog, r: Record<stri
   const completed = v.ids(r.completedRoomIds, "completedRoomIds", 100);
   const current = all.indexOf(run.roomIds[run.layer - 1][run.room]);
   completed.forEach(id => { if (!all.includes(id) || all.indexOf(id) > current) v.invalid("completedRoomIds", "Completion outside visited rooms"); });
-  validateSupplies(catalog, r.supplies, 4, catalog.data.rulesVersion === 4 && run.routeId === catalog.data.combat.memory.routeId);
+  validateSupplies(catalog, r.supplies, departureSupplyLimit(catalog.ref), catalog.data.rulesVersion === 4 && run.routeId === catalog.data.combat.memory.routeId);
   for (const [id, amount] of Object.entries(v.record(r.foodUses, "foodUses"))) {
     if (!run.party.some(m => m.id === id)) v.invalid("foodUses", "Member outside party");
     v.number(amount, "foodUses", 0, 2);
@@ -84,5 +85,11 @@ export function validateJourneyRun(catalog: ValidatedDemoCatalog, r: Record<stri
   });
   const rng = v.record(r.eventRng, "eventRng", ["algorithm", "seed", "cursor"]);
   v.choice(rng.algorithm, ["mulberry32"], "eventRng.algorithm"); v.number(rng.seed, "eventRng.seed", 0, 0xffffffff); v.number(rng.cursor, "eventRng.cursor");
-  if (rng.seed !== ((run.rng.combat.seed ^ 0x3c6ef372) >>> 0) || rng.cursor !== run.eventResults.filter(e => e.choiceId === "attempt").length) v.invalid("eventRng", "Event stream differs from decisions");
+  const tutorial = catalog.data.rulesVersion === 4 && run.routeId === catalog.data.tutorial?.routeId ? catalog.data.tutorial : undefined;
+  // The opening battle keeps its original seed; the authored event stream is
+  // installed with the continuation seed before entering T2. Other routes and
+  // published releases keep the combat-derived event seed exactly as before.
+  const authoredSeed = tutorial?.guide && run.rng.combat.seed === tutorial.guide.continuationSeed ? tutorial.guide.eventSeed : undefined;
+  const expectedSeed = authoredSeed ?? ((run.rng.combat.seed ^ 0x3c6ef372) >>> 0);
+  if (rng.seed !== expectedSeed || rng.cursor !== run.eventResults.filter(e => e.choiceId === "attempt").length) v.invalid("eventRng", "Event stream differs from decisions");
 }

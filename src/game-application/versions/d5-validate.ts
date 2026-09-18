@@ -2,7 +2,7 @@ import { replayD5Journey, validateD5JourneyEvidence } from "./d5-journey-evidenc
 import type { D5ExpeditionState } from "../../game-core/session";
 import * as v from "../../game-core/contracts";
 import type { ValidatedD5Catalog } from "../../game-core/contracts";
-import { parseD5ProgressEntry, parseD5RunRef, validateD5Snapshot, validateD5EvidenceContent, projectD5Progress } from "../../game-core/session";
+import { campaignPhaseIndex, parseD5ProgressEntry, parseD5RunRef, validateD5Snapshot, validateD5EvidenceContent, projectD5Progress } from "../../game-core/session";
 import type { D5ProgressEntry, D5ProgressEvent, D5RunReaders, D5RunRef } from "../../game-core/session";
 import { parseHead } from "../parse";
 import { sameHead } from "../transaction";
@@ -11,6 +11,9 @@ import type { D5GameRecord, D5Receipt } from "./d5-contracts";
 import { validateD5CombatEvidence, replayD5CombatFact } from "./d5-combat-evidence";
 import type { D5CombatEvidence } from "./d5-combat-evidence";
 import { createD5MemoryEngine, readD5Battle } from "../../game-core/battle";
+import { airpCommandPayload, emptyAirp } from "./airp-replay";
+import { emptyAirpOnline, parseAirpOnlineIntent, reduceAirpApplicationCommit, type AirpOnlineState } from "../airp/gameplay";
+import type { AirpNarrativeState } from "../../game-core/contracts";
 
 export const d5FactId = demoFactId;
 export function d5EvidenceRunRef(e: D5ProgressEvent): D5RunRef | null {
@@ -26,12 +29,12 @@ export function d5EvidenceRunRef(e: D5ProgressEvent): D5RunRef | null {
 }
 const same = (a: unknown, b: unknown) => v.canonicalJson(a) === v.canonicalJson(b);
 
-type VerifiedReplay = { catalog: ValidatedD5Catalog; memory: D5RunReaders["memory"]; expedition: D5RunReaders["expedition"]; requireJourneyHistory: boolean | undefined; baseline: D5RunReaders["baseline"]; entries: D5ProgressEntry[]; requests: Set<string>; retracted: string[]; anchors: string[]; lastCombat: D5CombatEvidence | null; lastJourney: D5ExpeditionState | null; projection: ReturnType<typeof projectD5Progress> | null; ordinaryReturns: number };
+type VerifiedReplay = { catalog: ValidatedD5Catalog; memory: D5RunReaders["memory"]; expedition: D5RunReaders["expedition"]; requireJourneyHistory: boolean | undefined; baseline: D5RunReaders["baseline"]; entries: D5ProgressEntry[]; requests: Set<string>; retracted: string[]; anchors: string[]; lastCombat: D5CombatEvidence | null; lastJourney: D5ExpeditionState | null; projection: ReturnType<typeof projectD5Progress> | null; ordinaryReturns: number; narrative?: AirpNarrativeState; online?: AirpOnlineState };
 const verifiedReplays = new WeakMap<D5GameRecord, VerifiedReplay>();
 /** A verified immutable prefix can accelerate append validation; bytes, not head alone, must match. */
 export function validateD5Record(raw: unknown, catalog: ValidatedD5Catalog, readers: D5RunReaders = {}, prefix?: D5GameRecord): D5GameRecord {
   v.assertJson(raw);
-  const r = v.record(raw, "record", ["schemaVersion", "head", "contentRef", "profileId", "snapshot", "commits", "facts", "retractedFactIds", "undoAnchors", "originRef"]);
+  const r = v.record(raw, "record", ["schemaVersion", "head", "contentRef", "profileId", "snapshot", "commits", "facts", "retractedFactIds", "undoAnchors", "originRef", ...(catalog.data.airp ? ["narrative"] : []), ...(catalog.data.airpOnline ? ["airpOnline"] : [])]);
   v.choice(r.schemaVersion, [4], "schemaVersion");
   if (!same(r.contentRef, catalog.ref)) v.invalid("contentRef", "Catalog identity differs", "content-mismatch");
   const head = parseHead(r.head), profileId = v.id(r.profileId, "profileId");
@@ -58,9 +61,15 @@ export function validateD5Record(raw: unknown, catalog: ValidatedD5Catalog, read
   const retracted = reuse ? [...reuse.retracted] : [], anchors = reuse ? [...reuse.anchors] : [...(baseline?.anchors ?? [])];
   let lastCombat = reuse?.lastCombat ?? null, lastJourney = reuse ? reuse.lastJourney : baseline?.run?.kind === "expedition" ? baseline.run.state : null;
   let projection = reuse?.projection ?? null;
+  let narrative = catalog.data.airp ? structuredClone(reuse?.narrative ?? baseline?.narrative ?? emptyAirp(catalog)) : undefined;
+  let online = catalog.data.airpOnline ? structuredClone(reuse?.online ?? emptyAirpOnline()) : undefined;
   const requests = new Set(reuse?.requests), entries = reuse ? [...reuse.entries] : [];
-  let ordinaryReturns = reuse?.ordinaryReturns ?? baseline?.campaign.settlements.length ?? 0, factIndex = reuse ? prefix!.facts.length : 0;
+  // This counter is elapsed world phases, not a reward/settlement count. Older
+  // archives without phase-advanced evidence retain exactly the same times.
+  let ordinaryReturns = reuse?.ordinaryReturns ?? (baseline ? campaignPhaseIndex(baseline.campaign.clock) : 0), factIndex = reuse ? prefix!.facts.length : 0;
   for (let revision = reuse ? prefix!.commits.length : 0; revision < commits.length; revision++) {
+    const beforeAirp = narrative ? (projection ??= projectD5Progress(catalog, entries, readers)) : null;
+    const groupStart = factIndex;
     const rawCommit = commits[revision];
     const c = v.record(rawCommit, "commit", ["ref", "previous", "requestId", "kind", "factIds"]);
     const source = { ...head, revision }, previous = revision ? { ...head, revision: revision - 1 } : null;
@@ -79,6 +88,12 @@ export function validateD5Record(raw: unknown, catalog: ValidatedD5Catalog, read
     if (!same(f.worldTime, time)) v.invalid("worldTime", "Historical event leaked into ordinary time");
     if (revision === 0) {
       if (c.kind !== "create" || f.kind !== "save-created" || f.origin !== "present" || f.runRef !== null || !same(f.payload, { profileId })) v.invalid("create", "No valid initial proof");
+    } else if (f.kind === "airp-online") {
+      if (!catalog.data.airpOnline || c.kind !== "airp-online" || group.length !== 1 || slot !== 0 || f.origin !== "present" || f.runRef !== null) v.invalid("online", "Unbound online transaction");
+      parseAirpOnlineIntent(f.payload);
+    } else if (f.kind === "airp") {
+      if (!catalog.data.airp || c.kind !== "airp" || group.length !== 1 || slot !== 0 || f.origin !== "present" || f.runRef !== null) v.invalid("airp", "Unbound AIRP transaction");
+      airpCommandPayload(f.payload, catalog.data.airp!.version);
     } else if (f.kind === "journey") {
       const progress = projection ??= projectD5Progress(catalog, entries, readers);
       const proof = replayD5Journey(catalog, f.payload, lastJourney, progress);
@@ -131,9 +146,17 @@ export function validateD5Record(raw: unknown, catalog: ValidatedD5Catalog, read
       if (entry.event.type === "memory-ended" && lastCombat && same(lastCombat.runRef,entry.event.terminal.runRef) && !same(lastCombat.after,entry.event.terminal.finalBattle)) v.invalid("memory.terminal", "Completion differs from committed battle");
       if (["expedition-started","expedition-settled","memory-started","memory-retried","memory-left"].includes(entry.event.type)) { lastCombat = null; anchors.length=0; }
       if (entry.event.type === "expedition-settled") { ordinaryReturns++; lastJourney = null; anchors.length = 0; }
+      if (entry.event.type === "phase-advanced") ordinaryReturns++;
     }
+    }
+    if (narrative) {
+      const reduced = reduceAirpApplicationCommit(catalog, narrative, online, { head: source, before: beforeAirp!, after: projection ??= projectD5Progress(catalog, entries, readers),
+        run: lastJourney, facts: facts.slice(0, factIndex) as D5GameRecord["facts"], group: facts.slice(groupStart, factIndex) as D5GameRecord["facts"], retracted });
+      narrative = reduced.narrative; online = reduced.online;
     }
   }
+  if (narrative && !same(r.narrative, narrative)) v.invalid("narrative", "Narrative differs from its replayed commands and journey evidence");
+  if (online && !same(r.airpOnline, online)) v.invalid("airpOnline", "Online binding/outbox differs from committed evidence");
   if(factIndex !== facts.length) v.invalid("facts","Uncommitted facts remain");
   if(!same(r.retractedFactIds,retracted)) v.invalid("retractedFactIds", "Retractions differ from validated action groups");
   if(lastCombat) {
@@ -150,7 +173,7 @@ export function validateD5Record(raw: unknown, catalog: ValidatedD5Catalog, read
   const checked = validateD5Snapshot(catalog, entries, r.snapshot, readers);
   if (readers.requireJourneyHistory && !lastCombat && checked.run?.kind === "memory" && checked.campaign.memory?.node === "battle" && !same(checked.run, baseline?.run ?? null) && !same(checked.run.battle, createD5MemoryEngine(catalog).create({runId: checked.run.id, seed: checked.campaign.memory.seed}))) v.invalid("memory", "Unproved initial battle");
   const record = v.freezeData(structuredClone(raw) as D5GameRecord);
-  verifiedReplays.set(record, {catalog, memory: readers.memory, expedition: readers.expedition, requireJourneyHistory: readers.requireJourneyHistory, baseline, entries, requests, retracted, anchors, lastCombat, lastJourney, projection, ordinaryReturns});
+  verifiedReplays.set(record, {catalog, memory: readers.memory, expedition: readers.expedition, requireJourneyHistory: readers.requireJourneyHistory, baseline, entries, requests, retracted, anchors, lastCombat, lastJourney, projection, ordinaryReturns, narrative, online});
   return record;
 }
 
@@ -163,9 +186,11 @@ export function d5ReplayBasis(record: D5GameRecord) {
 
 export function validateD5Receipt(raw: unknown, catalog: ValidatedD5Catalog, readers: D5RunReaders = {}): D5Receipt {
   v.assertJson(raw);
-  const r = v.record(raw, "receipt", ["version", "contentRef", "saveId", "epoch", "requestId", "fingerprint", "status", "before", "after", "error", "events", "factIds"], ["combat", "journey"]);
+  const r = v.record(raw, "receipt", ["version", "contentRef", "saveId", "epoch", "requestId", "fingerprint", "status", "before", "after", "error", "events", "factIds"], ["combat", "journey", ...(catalog.data.airp ? ["airp", "archiveOperation"] : []), ...(catalog.data.airpOnline ? ["airpOnline"] : [])]);
+  const airp = r.airp === undefined ? null : airpCommandPayload(r.airp, catalog.data.airp!.version);
+  const online = r.airpOnline === undefined ? null : parseAirpOnlineIntent(r.airpOnline);
   const journey = r.journey === undefined ? null : validateD5JourneyEvidence(catalog, r.journey);
-  if (journey && r.combat) v.invalid("receipt", "Mixed run kinds");
+  if (journey && r.combat || airp && (journey || r.combat) || online && (journey || r.combat || airp)) v.invalid("receipt", "Mixed run kinds");
   const combat = r.combat === undefined ? null : validateD5CombatEvidence(catalog,r.combat);
   if (r.version !== 4 || !same(r.contentRef, catalog.ref)) v.invalid("receipt", "Receipt version/content differs");
   const saveId = v.id(r.saveId, "saveId"), epoch = v.id(r.epoch, "epoch"); v.id(r.requestId, "requestId");
@@ -176,14 +201,16 @@ export function validateD5Receipt(raw: unknown, catalog: ValidatedD5Catalog, rea
   const events = v.list(r.events, "events", 1).map(parseD5ProgressEntry), factIds = v.ids(r.factIds, "factIds", 2);
   events.forEach(entry => validateD5EvidenceContent(catalog, entry, readers));
   if (status === "rejected") {
-    if (!sameHead(before, after) || events.length || factIds.length || combat || journey || r.error === null) v.invalid("receipt", "Rejected receipt carries effects");
+    if (!sameHead(before, after) || events.length || factIds.length || combat || journey || airp || online || r.archiveOperation || r.error === null) v.invalid("receipt", "Rejected receipt carries effects");
     const e = v.record(r.error, "error", ["code", "path", "message"]);
     v.id(e.code, "error.code"); v.text(e.path, "error.path"); v.text(e.message, "error.message");
+  } else if (r.archiveOperation !== undefined) {
+    if (r.archiveOperation !== "restore" || before !== null || !after || r.error !== null || events.length || factIds.length || combat || journey || airp || online) v.invalid("receipt", "Invalid archive restore receipt");
   } else {
     const departure = journey?.operation.type === "start";
     const terminal = combat?.runRef.kind === "memory" && combat.after.encounter.phase === "complete";
     if (r.error !== null || !after || after.revision !== (before ? before.revision + 1 : 0) || factIds.length !== (terminal || departure ? 2 : 1) || factIds.some((id,i)=>id!==d5FactId(saveId,epoch,after.revision,i))) v.invalid("receipt", "Commit/result identity differs");
-    if (after.revision === 0 ? events.length !== 0 || combat || journey : (combat || journey) && !terminal && !departure ? events.length !== 0 : events.length !== 1 || events[0].revision !== after.revision || events[0].id !== factIds[terminal || departure ? 1 : 0]) v.invalid("receipt.events", "Unbound progression event");
+    if (after.revision === 0 ? events.length !== 0 || combat || journey || airp || online : (combat || journey || airp || online) && !terminal && !departure ? events.length !== 0 : events.length !== 1 || events[0].revision !== after.revision || events[0].id !== factIds[terminal || departure ? 1 : 0]) v.invalid("receipt.events", "Unbound progression event");
     if (departure && (events[0].event.type !== "expedition-started" || events[0].event.runId !== journey!.after.run.id || !same(events[0].event.progress, journey!.after.run.progress) || !same(events[0].event.partyIds, journey!.after.run.party.map(m => m.id)) || events[0].event.routeId !== journey!.after.run.routeId || !same(events[0].event.itemIds, journey!.after.run.supplies.map(i => i.definitionId)))) v.invalid("receipt", "Departure proof differs");
     if(terminal && (events[0].event.type!=="memory-ended" || !same(events[0].event.terminal.finalBattle,combat!.after) || !same(events[0].event.terminal.runRef,combat!.runRef))) v.invalid("receipt","Completion differs from terminal combat");
   }

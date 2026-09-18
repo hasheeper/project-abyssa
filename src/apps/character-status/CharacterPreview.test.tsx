@@ -1,9 +1,11 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { CharacterPreview as App } from "./CharacterPreview";
 
-afterEach(cleanup);
+// These assert content contracts; motion has separate lifecycle/browser tests.
+beforeEach(() => vi.stubGlobal("matchMedia", () => ({ matches: true, addEventListener() {}, removeEventListener() {} })));
+afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
 
 describe("character status explicit preview", () => {
   it("exposes three archive tabs", () => {

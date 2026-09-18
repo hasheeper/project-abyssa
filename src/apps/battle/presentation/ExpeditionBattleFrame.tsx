@@ -12,6 +12,7 @@ import { BattleFrameCorners, FrameRails } from "./ExpeditionBattleChrome";
 export type ExpeditionBattleFrameProps = {
   skin: BattleUiSkin;
   title?: string;
+  location?: string;
   onCycleSkin: () => void;
   children: ReactNode;
   accessories?: ReactNode;
@@ -20,6 +21,7 @@ export type ExpeditionBattleFrameProps = {
 export function ExpeditionBattleFrame({
   skin,
   title = "裂隙远征",
+  location,
   onCycleSkin,
   children,
   accessories,
@@ -29,7 +31,7 @@ export function ExpeditionBattleFrame({
   const nextDefinition = resolveBattleUiSkin(getNextBattleUiSkin(skin));
 
   return (
-    <div className="abyssa-expedition-frame abyssa-scene-panel">
+    <div className="abyssa-expedition-frame abyssa-scene-panel" data-scene-settle="manor-board-settle">
       {definition.frameOverlayUrl && (
         <img
           key={`${skin}-frame-overlay`}
@@ -72,7 +74,7 @@ export function ExpeditionBattleFrame({
           />
         )}
         <RpgHeader label={title} variant="dark" />
-        <span>ABYSSAL EXPEDITION</span>
+        <span>{location ?? "ABYSSAL EXPEDITION"}</span>
         {definition.topOrnamentUrl && (
           <img
             key={`${skin}-top-right`}

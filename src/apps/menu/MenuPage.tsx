@@ -16,6 +16,8 @@ import { MenuSceneControls } from "./MenuSceneControls";
 import { MenuSidebar } from "./MenuSidebar";
 import type { MenuSectionId } from "./MenuSidebar";
 import { MenuTopBar } from "./MenuTopBar";
+import { useMenuIntro } from "./useMenuIntro";
+import { useMenuParallax } from "./useMenuParallax";
 
 /* ============ 枢纽主界面 ============
  *
@@ -111,7 +113,9 @@ export function MenuPage() {
 }
 
 function MenuPageContent() {
-  const { navigate } = useSceneTransition();
+  const { navigate, phase: scenePhase } = useSceneTransition();
+  const intro = useMenuIntro(scenePhase);
+  useMenuParallax(intro.ref, intro.blocked);
   const game = useGameState(), record = game.record!, locator = recordLocator(record);
   const route = (href: string) => gameHref(href.replace(/^\.\//, "").replace(/\.html$/, "") as GamePage, locator);
   const [selectedCommand, setSelectedCommand] = useState<MenuCommandId>("estate");
@@ -134,7 +138,7 @@ function MenuPageContent() {
 
   return (
     <Stage
-      background="var(--abyssa-menu-backdrop)"
+      background="#071011"
       canvasClassName="menu-stage"
       style={
         {
@@ -142,8 +146,18 @@ function MenuPageContent() {
         } as CSSProperties
       }
     >
+      <div
+        ref={intro.ref}
+        className="menu-entry"
+        data-menu-intro={intro.state}
+        data-menu-reduced={intro.reducedMotion || undefined}
+        inert={intro.blocked}
+      >
+      <div className="menu-scenery" aria-hidden="true" />
+      <div className="menu-scenery-shade" aria-hidden="true" />
       <AbyssaProvider className="menu-app">
         <MenuBackdrop />
+        <div className="menu-host__fade" aria-hidden="true" />
         <MenuTopBar
           day={day}
           phase={phase}
@@ -215,7 +229,6 @@ function MenuPageContent() {
                 draggable={false}
               />
             )}
-            <div className="menu-host__fade" aria-hidden="true" />
           </div>
 
           <div className="menu-app__dial">
@@ -243,15 +256,16 @@ function MenuPageContent() {
               className="menu-dial__dialogue"
               name={host?.selectorLabel ?? host?.name ?? ""}
               secondaryName={host?.secondaryName}
-              text={line}
+              text={intro.speechReady ? line : ""}
               showNameplate
-              typing
+              typing={!intro.reducedMotion}
               autoHeight
               aria-live="polite"
             />
           </div>
         </div>
       </AbyssaProvider>
+      </div>
     </Stage>
   );
 }

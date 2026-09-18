@@ -1,10 +1,9 @@
-import { useCallback, useEffect, useRef } from "react";
 import type { ReactNode } from "react";
-import { cx } from "../../lib/cx";
 import { IconButton } from "./IconButton";
 import { Nameplate } from "./Nameplate";
 import { RpgFrame } from "./RpgFrame";
 import type { RpgFrameProps } from "./RpgFrame";
+import { UiModal, type UiModalProps } from "../motion/UiModal";
 
 /* ============ 模态 ============
  *
@@ -25,8 +24,8 @@ import type { RpgFrameProps } from "./RpgFrame";
  * 3. **不锁 body 滚动。** 画布内不存在页面滚动;去动 document.body.style
  *    只会在别的地方引发布局抖动。滚动交给面板内部的 overflow。
  *
- * 焦点陷阱是真的循环遍历,不是"Tab 一律跳到关闭键"。退出动画靠 data-open
- * 属性 + transition 驱动 —— keyframe-on-mount 只能做入场,做不了退场。
+ * Motion 保留退出节点；焦点、输入隔离与归还跟随其真实呈现生命周期。
+ * 调用方保持组件挂载并改变 open，不要在外层用 open && 卸载 presence 边界。
  *
  * ============ 不要在这里放 MetalCorner ============
  * 上一版给四角挂了 MetalCorner,是错的。那份美术是 216x198 的黄铜角件,
@@ -41,8 +40,10 @@ export interface RpgModalProps {
   onClose: () => void;
   /** 标题。用作 aria-label,并渲染在面板头部(除非给了 header)。 */
   title: string;
-  /** 自定义头部,覆盖默认的标题行。 */
+  /** 自定义头部,覆盖默认的标题行；null 不渲染框内头部。 */
   header?: ReactNode;
+  /** 框外导航,仍在 dialog 内参与焦点循环。 */
+  navigation?: ReactNode;
   children: ReactNode;
   footer?: ReactNode;
   /** 点遮罩是否关闭,默认 true。强制选择的模态传 false。 */
@@ -53,6 +54,8 @@ export interface RpgModalProps {
   signboard?: string;
   /** 名牌副名(罗马字),接在主名右侧作小字。 */
   signboardSecondary?: string;
+  /** Slim external plate for the manor utility windows; default artwork stays unchanged. */
+  signboardVariant?: "default" | "slim";
   /** 是否渲染右上角关闭键,默认 true。 */
   closable?: boolean;
   frameVariant?: RpgFrameProps["variant"];
@@ -60,124 +63,23 @@ export interface RpgModalProps {
   panelClassName?: string;
   /** 关闭后要把焦点还给谁。缺省则还给打开前的 activeElement。 */
   returnFocusRef?: React.RefObject<HTMLElement | null>;
+  /** 与背景 inert／快捷键门禁同步，false 只在退出完成或宿主卸载后通知。 */
+  onPresentChange?: (present: boolean) => void;
+  motionPreset?: UiModalProps["motionPreset"];
 }
 
-const FOCUSABLE = [
-  "a[href]",
-  "button:not([disabled])",
-  "input:not([disabled])",
-  "select:not([disabled])",
-  "textarea:not([disabled])",
-  '[tabindex]:not([tabindex="-1"])'
-].join(",");
-
-export function RpgModal({
-  open,
-  onClose,
-  title,
-  header,
-  children,
-  footer,
-  dismissOnBackdrop = true,
-  dismissOnEscape = true,
-  signboard,
-  signboardSecondary,
-  closable = true,
-  frameVariant = "dark",
-  className,
-  panelClassName,
-  returnFocusRef
-}: RpgModalProps) {
-  const panelRef = useRef<HTMLDivElement>(null);
-  const restoreRef = useRef<HTMLElement | null>(null);
-
-  /* 打开时记住来源焦点,关闭时归还。rAF 是必需的:关闭那一帧目标元素可能
-     还没恢复可聚焦状态(inert 刚撤、或刚被重新挂载)。 */
-  useEffect(() => {
-    if (!open) return;
-    restoreRef.current =
-      returnFocusRef?.current ??
-      (document.activeElement instanceof HTMLElement ? document.activeElement : null);
-
-    const frame = requestAnimationFrame(() => {
-      const panel = panelRef.current;
-      if (!panel) return;
-      const first = panel.querySelector<HTMLElement>(FOCUSABLE);
-      (first ?? panel).focus();
-    });
-    return () => cancelAnimationFrame(frame);
-  }, [open, returnFocusRef]);
-
-  useEffect(() => {
-    if (open) return;
-    const target = restoreRef.current;
-    if (!target) return;
-    restoreRef.current = null;
-    const frame = requestAnimationFrame(() => target.focus());
-    return () => cancelAnimationFrame(frame);
-  }, [open]);
-
-  const handleKeyDown = useCallback(
-    (event: React.KeyboardEvent<HTMLDivElement>) => {
-      if (event.key === "Escape" && dismissOnEscape) {
-        event.stopPropagation();
-        onClose();
-        return;
-      }
-      if (event.key !== "Tab") return;
-
-      const panel = panelRef.current;
-      if (!panel) return;
-      const nodes = Array.from(panel.querySelectorAll<HTMLElement>(FOCUSABLE)).filter(
-        (node) => node.offsetParent !== null || node === document.activeElement
-      );
-      if (nodes.length === 0) {
-        event.preventDefault();
-        panel.focus();
-        return;
-      }
-      const first = nodes[0];
-      const last = nodes[nodes.length - 1];
-      const active = document.activeElement;
-
-      // 真正的环形陷阱:只在两端接管,中间交给浏览器原生顺序。
-      if (!event.shiftKey && active === last) {
-        event.preventDefault();
-        first.focus();
-      } else if (event.shiftKey && (active === first || active === panel)) {
-        event.preventDefault();
-        last.focus();
-      }
-    },
-    [dismissOnEscape, onClose]
-  );
-
-  if (!open) return null;
-
-  return (
-    <div
-      className={cx("abyssa-modal", className)}
-      data-open={open ? "true" : "false"}
-      onMouseDown={(event) => {
-        // 只认按在遮罩本身上的,避免面板内拖拽松手时误关。
-        if (dismissOnBackdrop && event.target === event.currentTarget) onClose();
-      }}
-    >
-      <div
-        ref={panelRef}
-        className={cx("abyssa-modal__panel", panelClassName)}
-        role="dialog"
-        aria-modal="true"
-        aria-label={title}
-        tabIndex={-1}
-        onKeyDown={handleKeyDown}
-      >
-{/* 名牌骑在面板上边缘。用 Nameplate 而不是 RpgHeader:
+export function RpgModal({ open, onClose, title, header, navigation, children, footer,
+  signboard, signboardSecondary, signboardVariant = "default", closable = true,
+  frameVariant = "dark", className, panelClassName, returnFocusRef, onPresentChange,
+  dismissOnBackdrop, dismissOnEscape, motionPreset }: RpgModalProps) {
+  return <UiModal open={open} onClose={onClose} title={title} className={className} panelClassName={panelClassName}
+    returnFocusRef={returnFocusRef} onPresentChange={onPresentChange} dismissOnBackdrop={dismissOnBackdrop} dismissOnEscape={dismissOnEscape} motionPreset={motionPreset}>
+    {present => <>{/* 名牌骑在面板上边缘。用 Nameplate 而不是 RpgHeader:
             RpgHeader 是 660x116 的横幅招牌,为整屏顶部设计,压到模态上必须
             缩到 .78 才放得下,字就糊了;而 Nameplate 本身就是"主名 + 罗马字
             副名"的六边形牌,尺寸量级和模态标题匹配,且它是全库通用的姓名牌。 */}
         {signboard && (
-          <div className="abyssa-modal__signboard" aria-hidden="true">
+          <div className="abyssa-modal__signboard" data-variant={signboardVariant} aria-hidden="true">
             <Nameplate name={signboard} secondaryName={signboardSecondary} />
           </div>
         )}
@@ -190,16 +92,17 @@ export function RpgModal({
             icon="close"
             size="sm"
             onClick={onClose}
+            disabled={!present}
           />
         )}
+        {navigation && <div className="abyssa-modal__navigation">{navigation}</div>}
         <RpgFrame variant={frameVariant} padding="md">
-          <div className="abyssa-modal__head">
+          {header !== null && <div className="abyssa-modal__head">
             {header ?? <h2 className="abyssa-modal__title">{title}</h2>}
-          </div>
+          </div>}
           <div className="abyssa-modal__body">{children}</div>
           {footer && <div className="abyssa-modal__foot">{footer}</div>}
         </RpgFrame>
-      </div>
-    </div>
-  );
+</>}
+  </UiModal>;
 }

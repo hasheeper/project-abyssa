@@ -13,3 +13,10 @@ coverage
 playwright-report
 test-results
 *.log
+
+# Local configuration and generated Python bytecode never belong to a baseline.
+.env
+.env.*
+!.env.example
+__pycache__/
+*.py[cod]

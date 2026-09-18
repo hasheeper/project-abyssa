@@ -1,0 +1,46 @@
+/* Journal geometry; color roles come from the shared manor utility palette. */
+.campaign-journal__page--browser { overflow: hidden; padding: 0; scrollbar-gutter: auto; }
+.journal-browser { display: grid; grid-template-columns: 302px minmax(0, 1fr); height: 100%; min-height: 0; }
+.journal-browser__index { overflow: auto; overscroll-behavior: contain; scrollbar-gutter: stable; padding: 12px; border: 1px solid var(--manor-edge); background: transparent; box-shadow: inset 0 1px rgb(255 255 255 / 4%), inset 0 -1px rgb(0 0 0 / 24%); }
+/* One rhythm across current, archived and locked entries; state never changes geometry. */
+.journal-browser__entries { display: grid; gap: 4px; list-style: none; margin: 0; padding: 0; }
+.journal-browser__entries > li { min-width: 0; margin: 0; padding: 0; }
+.journal-browser__entries button { position: relative; display: grid; grid-template-columns: 24px minmax(0, 1fr); align-items: center; gap: 12px; width: 100%; height: 76px; padding: 12px; box-sizing: border-box; border: 1px solid transparent; border-left-width: 2px; background: transparent; color: var(--abyssa-text-soft); text-align: left; font: inherit; cursor: pointer; transition: background-color 140ms, border-color 140ms, color 140ms, box-shadow 140ms; }
+.journal-browser__entries button > img { width: 24px; height: 24px; object-fit: contain; opacity: .65; }
+.journal-browser__entries button > span { min-width: 0; }
+.journal-browser__entries strong, .journal-browser__entries small { display: block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.journal-browser__entries strong { font-size: 17px; font-weight: 500; line-height: 24px; }
+.journal-browser__entries small { margin-top: 4px; font-size: 12px; line-height: 18px; color: var(--abyssa-text-muted); }
+.journal-browser__entries button:hover { background: rgb(255 255 255 / 3%); border-color: var(--journal-line); color: var(--abyssa-text); }
+.journal-browser__entries button[aria-current="true"] { background: var(--manor-well); border-color: var(--manor-gold-shadow); border-left-color: var(--manor-gold); color: var(--manor-title); box-shadow: inset 0 1px rgb(206 191 146 / 12%), inset 0 -2px rgb(0 0 0 / 34%); }
+.journal-browser__entries button:active { box-shadow: inset 0 1px 3px var(--abyssa-frame-deep); }
+.journal-browser__entries button[aria-current="true"] img { opacity: 1; }
+.journal-browser__entries button:focus-visible { outline: 1px solid var(--abyssa-focus); outline-offset: -3px; }
+.journal-browser__entries button[data-locked] { color: var(--abyssa-text-muted); }
+.journal-browser__entries button[data-locked] small { opacity: .75; }
+.journal-browser__entries button[data-locked] img { opacity: .3; }
+.journal-browser__entries button[data-locked]:hover { color: var(--abyssa-text-soft); }
+.journal-browser__entries button[data-locked][aria-current="true"] { border-color: var(--journal-line); border-left-color: var(--abyssa-ornament); background: var(--abyssa-panel-dark); color: var(--abyssa-text-soft); box-shadow: inset 0 1px var(--journal-line-faint), inset 0 -1px var(--abyssa-frame-dark); }
+.journal-browser__index-empty { padding-left: 14px; color: var(--abyssa-text-muted); font-size: 14px; }
+.journal-browser__tools { margin: 22px 16px 0; font-size: 12px; }
+.journal-browser__tools summary { font-size: 12px; }
+.journal-browser__tools .airp-online input { width: 100%; min-width: 0; box-sizing: border-box; }
+.journal-browser__tools .airp-online { overflow-wrap: anywhere; }
+.journal-browser__reader { overflow: auto; overscroll-behavior: contain; scrollbar-gutter: stable; min-width: 0; padding: 12px 12px 24px 36px; }
+.journal-browser__reader:focus { outline: none; }
+.journal-browser__reader:focus-visible { box-shadow: inset 2px 0 var(--abyssa-ornament-light); }
+.journal-browser__reading { max-width: 34em; }
+.journal-record__heading { padding-bottom: 18px; margin-bottom: 20px; border-bottom: 1px solid var(--journal-line); }
+.journal-record__title-row { display: flex; align-items: baseline; justify-content: space-between; gap: 24px; }
+.journal-record__title-row > h3 { min-width: 0; overflow-wrap: anywhere; }
+.campaign-journal .journal-record__meta { margin: 0 0 12px; color: var(--abyssa-text-muted); font-size: 13px; letter-spacing: .06em; }
+.campaign-journal .journal-record__heading h3 { margin: 0; font-size: 28px; font-weight: 500; letter-spacing: .04em; line-height: 1.55; }
+.journal-browser__reading p { font-size: 15px; line-height: 1.95; color: var(--abyssa-text-soft); }
+.journal-browser__reading .campaign-journal__note { font-size: 13px; }
+.journal-record__actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+.journal-record__history { margin-top: 28px; border-top: 1px solid var(--journal-line-faint); }
+.journal-record__history summary { font-size: 14px; }
+.journal-record__history > details { margin: 0; padding-left: 12px; }
+.journal-browser__reading .campaign-journal__empty { align-content: start; justify-items: start; text-align: left; min-height: 0; padding-top: 10px; }
+.journal-browser__reading .campaign-journal__empty h3 { font-weight: 500; }
+.journal-browser__reading .campaign-journal__empty p { max-width: 26em; margin: 12px 0 24px; }

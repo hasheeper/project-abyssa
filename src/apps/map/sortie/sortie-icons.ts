@@ -6,15 +6,15 @@ import splitCrossIcon from "../../../assets/icons/6-0-split-cross.svg";
 import crossShieldIcon from "../../../assets/icons/game-icon-cross-shield.svg";
 import hospitalCrossIcon from "../../../assets/icons/game-icon-hospital-cross.svg";
 import magicPalmIcon from "../../../assets/icons/game-icon-magic-palm.svg";
-import slashedShieldIcon from "../../../assets/icons/slashed-shield.svg";
+import blankCrossIcon from "../../../assets/icons/blank-cross.svg";
 import type { DieFaceAction } from "../../../shared/domain/dice/face";
 import type { QuestSpoil } from "./sortie-quests";
 
 /* 图标一律走 CSS mask，不用 <img> —— 才能被令牌色着色，
    也才不会出现「用文字符号当图标」。骨架稿里的 ⚔🛡⚕💰○ 全部映射到这里。
 
-   来源与 ExpeditionFlatDieFrame 的 STAMP_ICONS 同一批 SVG（该常量未导出，
-   所以这里重新 import 同名文件）。两处必须同源，否则六面展开图上的印记
+   来源与 ExpeditionFlatDieFrame 的 EXPEDITION_DIE_STAMP_ICONS 同一批 SVG。
+   两处必须同源，否则六面展开图上的印记
    与构成表里的图标会是两套画风。 */
 export const SORTIE_ACTION_ICONS: Record<DieFaceAction, string> = {
   attack: broadswordIcon,
@@ -23,7 +23,7 @@ export const SORTIE_ACTION_ICONS: Record<DieFaceAction, string> = {
   coin: swapBagIcon,
   art: magicPalmIcon,
   wild: splitCrossIcon,
-  blank: slashedShieldIcon
+  blank: blankCrossIcon
 };
 
 /* 只有素材需要 mask 图标。

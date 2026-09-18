@@ -5,12 +5,15 @@ import {
   fireEvent,
   render,
   screen,
+  within,
 } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
+vi.mock("../../shared/loading/images", () => ({prepareImages: vi.fn(async () => {})}));
 import { manorClientFixture } from "../../game-client/testing/manor";
 import { GameSessionScope } from "../../game-client/react";
 import { ManorBattleBinding } from "./ManorBattleBinding";
 import { SceneTransitionProvider } from "../../shared/transition";
+import { SCENE_SEQUENCE_MS } from "../../shared/presentation/adv/SceneSequence";
 const fixtures: Awaited<ReturnType<typeof manorClientFixture>>[] = [];
 afterEach(() => {
   cleanup();
@@ -27,6 +30,15 @@ const finish = async () => {
     await vi.runAllTimersAsync();
   });
 };
+const enter = async () => {
+  await act(async () => {}); // Resolve decoded assets before advancing the board clock.
+  await act(() => vi.advanceTimersByTimeAsync(0));
+  await act(async () => {await new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));});
+  await act(() => vi.advanceTimersByTimeAsync(SCENE_SEQUENCE_MS.boardIn));
+  for (const node of document.querySelectorAll<HTMLElement>("[data-scene-settle]"))
+    fireEvent(node, Object.assign(new Event("animationend", {bubbles:true}), {animationName:node.dataset.sceneSettle}));
+  expect(document.querySelector(".scene-sequence")).toHaveAttribute("data-phase", "idle");
+};
 /* 固定种子 19：roll 后艾洛拉持格挡面，三只候席客分别瞄准凯尔／尤斯缇丝／艾洛拉。 */
 const mountManor = async () => {
   vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
@@ -37,6 +49,7 @@ const mountManor = async () => {
       <SceneTransitionProvider><ManorBattleBinding onSettle={() => {}} uiSkin="old-manor" /></SceneTransitionProvider>
     </GameSessionScope>,
   );
+  await enter();
   const board = screen.getByRole("main", { name: "克雷格旧庄园战斗界面" });
   await click(screen.getByRole("button", { name: "ROLL" }));
   await finish();
@@ -91,6 +104,7 @@ it("uses the approved battle structure with manor content and animates only roll
       <SceneTransitionProvider><ManorBattleBinding onSettle={() => {}} uiSkin="old-manor" /></SceneTransitionProvider>
     </GameSessionScope>,
   );
+  await enter();
   const board = screen.getByRole("main", { name: "克雷格旧庄园战斗界面" });
   expect(
     board.querySelectorAll(".abyssa-expedition-party-card__skills"),
@@ -140,12 +154,15 @@ it("道具从七槽直接提交；取消不扣除、每回合两次限制和刷�
   vi.useFakeTimers({toFake:["setTimeout","clearTimeout"]});
   const f=await manorClientFixture();fixtures.push(f);
   render(<GameSessionScope session={f.session}><SceneTransitionProvider><ManorBattleBinding onSettle={() => {}} uiSkin="old-manor"/></SceneTransitionProvider></GameSessionScope>);
+  await enter();
   const read=() => f.runtime.queries.journey(f.session.getSnapshot().record!)!;
   await click(screen.getByRole("button",{name:"打开道具坞"}));
   expect(screen.getByRole("list",{name:"携带道具"}).children).toHaveLength(7);
   const before=f.session.getSnapshot().record!.head.revision;
   await click(screen.getByRole("button",{name:"护符，剩余 2 次"}));
   expect(screen.queryByRole("dialog",{name:"护符"})).toBeNull();
+  expect(screen.getByRole("button",{name:/第 \d 席 · 攻击你/})).toBeVisible();
+  expect(screen.queryByRole("button",{name:/攻击凯尔/})).toBeNull();
   await click(screen.getByRole("button",{name:"返回道具"}));
   expect(f.session.getSnapshot().record!.head.revision).toBe(before);
   for (const charges of [2,1]) {
@@ -160,24 +177,46 @@ it("道具从七槽直接提交；取消不扣除、每回合两次限制和刷�
   expect(screen.getByRole("button",{name:"护符，剩余 0 次"})).toHaveAttribute("aria-disabled","true");
   await act(async () => {await f.session.refresh();});
   expect(read().supplies.find(s=>s.definition.kind === "ward")!.charges).toBe(0);
-});
+}, 15_000); // Real multi-item transactions, duplicate-click checks and restore.
 
 it("左侧菜单读取最新合法状态，结束回合走现有提交，导航仅携带恢复链接", async () => {
   vi.useFakeTimers({toFake:["setTimeout","clearTimeout"]});
   const f=await manorClientFixture();fixtures.push(f);
   render(<GameSessionScope session={f.session}><SceneTransitionProvider><CampaignMenuScope><ManorBattleBinding onSettle={() => {}} uiSkin="old-manor"/></CampaignMenuScope></SceneTransitionProvider></GameSessionScope>);
-  await click(screen.getByRole("button",{name:"展开菜单"}));
-  expect(screen.getByRole("button",{name:/结束回合/})).toBeDisabled();
-  await click(screen.getByRole("button",{name:"收起菜单"}));
+  await enter();
+  // Scope menu queries so each assertion does not walk all thirty die SVGs.
+  const menu = within(screen.getByRole("complementary",{name:"游戏导航"}));
+  await click(menu.getByRole("button",{name:"展开菜单"}));
+  expect(menu.getByRole("button",{name:/结束回合/})).toBeDisabled();
+  await click(menu.getByRole("button",{name:"收起菜单"}));
   await click(screen.getByRole("button",{name:"ROLL"}));await finish();
   const read=() => f.runtime.queries.journey(f.session.getSnapshot().record!)!;
   const round=read().battle!.encounter.round;
-  await click(screen.getByRole("button",{name:"展开菜单"}));
-  expect(screen.getByRole("button",{name:/撤退/})).toBeDisabled();
-  await click(screen.getByRole("button",{name:/结束回合/}));await finish();
+  await click(menu.getByRole("button",{name:"展开菜单"}));
+  expect(menu.getByRole("button",{name:/撤退/})).toBeDisabled();
+  await click(menu.getByRole("button",{name:/结束回合/}));await finish();
   expect(read().battle!.encounter.round).toBe(round+1);
   const before=f.session.getSnapshot().record!.head.revision;
-  await click(screen.getByRole("button",{name:"展开菜单"}));
-  expect(screen.getByRole("link",{name:/继续远征/})).toHaveAttribute("href",expect.stringContaining("expedition=manor-run"));
+  await click(menu.getByRole("button",{name:"展开菜单"}));
+  expect(menu.getByRole("link",{name:/继续远征/})).toHaveAttribute("href",expect.stringContaining("expedition=manor-run"));
   expect(f.session.getSnapshot().record!.head.revision).toBe(before);
+});
+
+it("enemy-turn completion permits a food target before the next roll", async () => {
+  vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
+  const f = await manorClientFixture(19, 4, ["item.food", "item.potion"]); fixtures.push(f);
+  render(<GameSessionScope session={f.session}><SceneTransitionProvider><ManorBattleBinding onSettle={() => {}} uiSkin="old-manor" /></SceneTransitionProvider></GameSessionScope>);
+  await enter();
+  await click(screen.getByRole("button", { name: "ROLL" })); await finish();
+  await click(screen.getByRole("button", { name: "END TURN" })); await finish();
+  const view = () => f.runtime.queries.journey(f.session.getSnapshot().record!)!;
+  expect(view().battle!.phase).toBe("roll");
+  const food = view().supplies.find(s => s.definition.id === "item.food")!;
+  const wounded = food.targets.find(t => t.kind === "member")!;
+  if (wounded.kind !== "member") throw Error("Expected a wounded member");
+  await click(screen.getByRole("button", { name: "打开道具坞" }));
+  await click(screen.getByRole("button", { name: `食物，剩余 ${food.charges} 次` }));
+  const name = wounded.id === "kael" ? "你" : view().party.find(p => p.id === wounded.id)!.name;
+  await click(screen.getByRole("button", { name })); await finish();
+  expect(view().supplies.find(s => s.definition.id === "item.food")!.charges).toBe(food.charges - 1);
 });

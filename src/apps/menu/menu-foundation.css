@@ -17,16 +17,24 @@
   --menu-topbar-h: 104px;
 }
 
-/* 在画布自身解析场景图变量，避免从 :root 继承时提前回退为 none。 */
-.menu-stage {
-  /* 背景从下到上：洋馆长廊原图 → 透明黑幕 → 青色冷光 → 外围暗角。
-     左侧向下逐步退成透图；右侧命令 HUD 由青光托住后再被深黑吃入。 */
-  --abyssa-menu-backdrop:
+/* 场景图独立成面，只有这张图随镜头移动；暗角与右侧 UI 的托光留在原位。
+   18px 出血覆盖最大 10×6px 位移，画布自身不动、不露出边缘。 */
+.menu-scenery {
+  position: absolute;
+  inset: -18px;
+  z-index: -2;
+  background: var(--menu-scene-image, none) center / cover no-repeat, #071011;
+  pointer-events: none;
+}
+.menu-scenery-shade {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
     radial-gradient(ellipse 52% 78% at 75% 49%, rgb(24 91 91 / 34%) 0%, rgb(12 45 46 / 16%) 43%, transparent 72%),
     linear-gradient(180deg, rgb(1 5 6 / 48%) 0%, transparent 22% 78%, rgb(1 4 5 / 12%) 100%),
-    linear-gradient(90deg, rgb(11 43 44 / 16%) 0%, rgb(2 7 8 / 28%) 32%, rgb(2 7 8 / 70%) 62%, rgb(5 24 25 / 82%) 79%, rgb(1 5 6 / 94%) 100%),
-    var(--menu-scene-image, none) center / cover no-repeat,
-    #071011;
+    linear-gradient(90deg, rgb(11 43 44 / 16%) 0%, rgb(2 7 8 / 28%) 32%, rgb(2 7 8 / 70%) 62%, rgb(5 24 25 / 82%) 79%, rgb(1 5 6 / 94%) 100%);
+  pointer-events: none;
 }
 
 html { min-width: 320px; min-height: 100%; overflow-x: hidden; }

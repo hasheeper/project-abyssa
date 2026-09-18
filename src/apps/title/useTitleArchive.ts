@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import type { createBrowserGameRuntime } from "../../game-runtime/browser";
-import type { PlayerSaveListEntry as SaveListEntry } from "../../game-runtime/player-runtime";
+import type { GameStartPoint, PlayerSaveListEntry as SaveListEntry } from "../../game-runtime/player-runtime";
 import { gameHref, recentSave, rememberSave, recordLocator, locatorHasRun, type SaveLocator } from "../../game-client/navigation";
 import { downloadJson, gameErrorText } from "../../game-client/game-errors";
 import { readTitleSaveList } from "../../game-client/title-save-list";
 import { archiveCandidates, isSaveArchived, readSaveArchive, writeSaveArchive, type ArchivedSave } from "../../game-client/save-archive";
 
-const creationKey = "abyssa:new-save:first-morning-v2";
+const creationKey = "abyssa:new-save:airp-v1";
 const importKey = "abyssa:import-save:v1";
 type Identity = { protocolVersion: 1 | 2 | 3 | 4; contentVersion?: number; profileId?: string; saveId: string; epoch: string; clientRequestId: string };
 function identity(runtime: ReturnType<typeof createBrowserGameRuntime>, key: string): Identity {
@@ -21,6 +21,7 @@ export function useTitleArchive(navigate: (href: string) => void) {
   const runtime = useRef<ReturnType<typeof createBrowserGameRuntime> | null>(null);
   const listing = useRef<AbortController | null>(null);
   const alive = useRef(false), locked = useRef(false), generation = useRef(0);
+  const leaving = useRef(false);
   const [saves, setSaves] = useState<SaveListEntry[]>([]);
   const [busy, setBusy] = useState(true), [message, setMessage] = useState("正在读取档案…");
   const [open, setOpen] = useState(false);
@@ -58,7 +59,7 @@ export function useTitleArchive(navigate: (href: string) => void) {
       }
       await work();
     } catch { if (alive.current && version === generation.current) setMessage("档案操作未完成，请重试；原有档案已保留。"); }
-    finally { locked.current = false; if (alive.current && version === generation.current) setBusy(false); }
+    finally { locked.current = leaving.current; if (alive.current && version === generation.current) setBusy(leaving.current); }
   }
   async function enter(locator: SaveLocator) {
     let result = await runtime.current!.application.open(locator.saveId);
@@ -66,10 +67,10 @@ export function useTitleArchive(navigate: (href: string) => void) {
     if (!result.ok) { setMessage(gameErrorText(result.error.code)); return; }
     if (result.record.head.epoch !== locator.epoch) { setMessage(gameErrorText("identity-mismatch")); return; }
     // Continue the append-only opening without asking the player to restart S1. Keep the original save.
-    if(result.record.schemaVersion===4 && result.record.contentRef.contentVersion===5) {
+    if(result.record.schemaVersion===4 && [5,6].includes(result.record.contentRef.contentVersion)) {
       const c=result.record.snapshot.campaign;
       if(c.opening && c.opening.status!=="skipped" && !c.activeRunRef && !c.activeStoryId && !c.memory && !c.settlements.length) {
-        const extension=await runtime.current!.application.extendOpening(locator.saveId,result.record.head);
+        const extension=await runtime.current!.application.extendTutorial(locator.saveId,result.record.head);
         if(!alive.current) return;
         if(!extension.ok) {setMessage(gameErrorText(extension.error.code));return;}
         result=await runtime.current!.application.open(extension.receipt.after!.saveId);
@@ -80,8 +81,10 @@ export function useTitleArchive(navigate: (href: string) => void) {
     const destination = recordLocator(result.record);
     rememberSave(destination);
     const prologue = result.record.schemaVersion === 4 && result.record.snapshot.campaign.prologue?.status === "playing";
+    const tutorial = runtime.current!.queries.tutorial(result.record);
     const opening = result.record.schemaVersion === 4 && result.record.snapshot.campaign.opening?.status === "playing";
-    navigate(gameHref(prologue ? "prologue" : opening ? "mansion" : locatorHasRun(destination) ? "battle" : "menu", destination));
+    navigate(gameHref(prologue ? "prologue" : opening ? "mansion" : (locatorHasRun(destination) || tutorial?.canBegin) ? "battle" : "menu", destination));
+    leaving.current = true; // Keep the archive locked until route handoff unmounts it.
     return true;
   }
   const archivedIds = new Set(saves.filter(s => isSaveArchived(s, archived, saves, recentSave())).map(s => s.saveId));
@@ -109,27 +112,38 @@ export function useTitleArchive(navigate: (href: string) => void) {
       if (selected) await enter({ saveId: selected.saveId, epoch: selected.summary.head.epoch });
       else { setOpen(true); if (!ready.length) setMessage("还没有可继续的档案，请选择新的开始或导入。"); }
     }),
-    newGame: () => operation(async () => {
-      const request = identity(runtime.current!, creationKey);
-      const result = await runtime.current!.application.create(request);
+    newGame: (startAt: GameStartPoint | 10 = "prologue") => operation(async () => {
+      const key = startAt === 10 ? `${creationKey}:online-v1` : `abyssa:new-save:guided-start-v1:${startAt}`;
+      const prior = identity(runtime.current!, key);
+      const request = startAt === 10 ? { ...prior, protocolVersion: 4 as const, contentVersion: 10 } : prior;
+      sessionStorage.setItem(key, JSON.stringify(request));
+      setMessage("正在建立新的档案…");
+      const result = startAt === 10 ? await runtime.current!.application.create(request)
+        : await runtime.current!.application.createNewGame({saveId: request.saveId, epoch: request.epoch, clientRequestId: request.clientRequestId, startAt});
       if (!result.ok) { setMessage(gameErrorText(result.error.code)); return; }
-      if (await enter(request)) sessionStorage.removeItem(creationKey);
+      if (await enter(request)) sessionStorage.removeItem(key);
     }),
-    importGame: (file: File, format: "application" | "legacy") => operation(async () => {
+    importGame: (file: File, format: "application" | "legacy" | "restore") => operation(async () => {
       if (file.size > 8 * 1024 * 1024) { setMessage("档案文件超过 8 MiB，无法导入。"); return; }
       const archive = await file.text();
       const digest = Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(archive)))).map(x => x.toString(16).padStart(2, "0")).join("");
       const signature = `${format}:${digest}`;
       if (sessionStorage.getItem(`${importKey}:signature`) !== signature) { sessionStorage.removeItem(importKey); sessionStorage.setItem(`${importKey}:signature`, signature); }
       const request = identity(runtime.current!, importKey);
+      if (format === "restore") {
+        const result = await runtime.current!.application.restoreSave({ archive, clientRequestId: request.clientRequestId });
+        if (!result.ok) { setMessage(result.error.code === "conflict" ? "本机已有不同或更新的同身份档案，未覆盖任何进度。请载入本机档案。" : gameErrorText(result.error.code)); return; }
+        if (await enter(result.head)) { sessionStorage.removeItem(importKey); sessionStorage.removeItem(`${importKey}:signature`); }
+        return;
+      }
       const result = await runtime.current!.application.importSave({ ...request, format, archive });
-      if (!result.ok) { setMessage(gameErrorText(result.error.code)); return; }
+      if (!result.ok) { setMessage(result.error.code === "run-active" ? "活动委托不可复制为新档。请在导入格式选择“AIRP 备份恢复（原身份）”。" : gameErrorText(result.error.code)); return; }
       if (await enter(request)) { sessionStorage.removeItem(importKey); sessionStorage.removeItem(`${importKey}:signature`); }
     }),
     continueSave: (save: Extract<SaveListEntry,{status:"ready"}>, kind:"upgrade"|"cycle") => operation(async () => {
       const key = `abyssa:continue:${kind}:${save.saveId}:${save.summary.head.revision}`;
       const request = identity(runtime.current!,key);
-      const result = await runtime.current!.application.continueSave({sourceSaveId:save.saveId,expectedSourceHead:save.summary.head,saveId:request.saveId,epoch:request.epoch,clientRequestId:request.clientRequestId,kind});
+      const result = await runtime.current!.application.continueSave({sourceSaveId:save.saveId,expectedSourceHead:save.summary.head,saveId:request.saveId,epoch:request.epoch,clientRequestId:request.clientRequestId,kind,contentVersion:save.summary.contentRef.contentVersion >= 9 ? 10 : 9});
       if(!result.ok) {setMessage(result.error.code === "run-active" ? "请先结束当前远征或回忆，并完成归来片段；原档保持不变。" : gameErrorText(result.error.code));return;}
       if(await enter(request)) sessionStorage.removeItem(key);
     }),

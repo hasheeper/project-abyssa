@@ -9,6 +9,7 @@ import "../../shared/ui/styles/logo.css";
 import "../../shared/stage/stage.css";
 import "../../game-client/game-client.css";
 import "./title.css";
+import "./title-interaction.css";
 
 export async function prepare() {
   const [{ TITLE_CG_FRAMES }, { loadImage }] = await Promise.all([import("./titleCg"), import("../../shared/loading/images")]);

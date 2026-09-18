@@ -1,13 +1,14 @@
 * { box-sizing: border-box; }
 
-/* 画布外一律纯黑(由 stage.css 的 .abyssa-stage-root 负责),
-   底纹挂进画布内,随界面缩放并止于画布边界。 */
-:root {
-  --abyssa-map-backdrop:
-    radial-gradient(circle at 50% 42%, rgb(75 58 44 / 24%), transparent 45%),
-    linear-gradient(135deg, rgb(255 255 255 / 2%) 0 1px, transparent 1px 18px),
-    linear-gradient(45deg, rgb(255 255 255 / 1.4%) 0 1px, transparent 1px 18px),
-    #0c1010;
+/* Same room as menu / character; the framed parchment retains its warm ink.
+   Consume the URL here so Vite resolves it in both dev and built routes. */
+.abyssa-map-canvas {
+  background:
+    radial-gradient(ellipse 52% 78% at 75% 49%, rgb(24 91 91 / 34%), transparent 72%),
+    linear-gradient(180deg, rgb(1 5 6 / 48%), transparent 22% 78%, rgb(1 4 5 / 12%)),
+    linear-gradient(90deg, rgb(11 43 44 / 16%), rgb(2 7 8 / 28%) 32%, rgb(2 7 8 / 70%) 62%, rgb(5 24 25 / 82%) 79%, rgb(1 5 6 / 94%)),
+    url("../../assets/backgrounds/manor-night-gallery.jpg") center / cover no-repeat,
+    #071011;
 }
 
 body { font-family: var(--abyssa-font-body, "Noto Serif SC", serif); }
@@ -50,20 +51,13 @@ input { font: inherit; }
 
 /* 画布内装饰,尺寸一律设计 px(原 min(42vw, 580px) 是视口相关单位,
    在 scale 之下会二次缩放,已按 1600 画布折算成定值)。 */
-.abyssa-map-page::before,
-.abyssa-map-page::after {
+.map-board {
   position: absolute;
-  z-index: -1;
-  width: 580px;
-  aspect-ratio: 1;
-  border: 1px solid rgb(143 111 82 / 8%);
-  content: "";
-  pointer-events: none;
-  transform: rotate(45deg);
+  inset: 0;
+  display: grid;
+  justify-items: center;
+  align-content: start;
 }
-
-.abyssa-map-page::before { top: -30%; left: -13%; }
-.abyssa-map-page::after { right: -14%; bottom: -34%; }
 
 /* 招牌 —— 与 shop 同构:absolute 挂墙不参与流,顶边 y=38.41 与
    shop / character-status 对齐;放大倍数与露出高由共享令牌控制。 */
@@ -261,7 +255,4 @@ input { font: inherit; }
   pointer-events: none;
   transform: translate(-50%, -50%);
 }
-.map-loadout { position: absolute; top: 230px; left: 18px; z-index: 40; max-width: 430px; max-height: 240px; overflow: auto; font-size: 14px; }
-.map-loadout label { display: block; }
-
 .abyssa-sortie-inspect-link { color: #c9b88d; font-size: 11px; text-underline-offset: 3px; margin-left: auto; }

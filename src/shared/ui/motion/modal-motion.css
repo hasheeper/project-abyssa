@@ -1,0 +1,21 @@
+/* Opt-in two-layer board; timing comes from tokens.json, not page overrides. */
+.abyssa-modal[data-ui-motion-preset="manor"] { background: transparent; backdrop-filter: none; }
+.abyssa-modal[data-ui-motion-preset="manor"] > .abyssa-modal__scrim {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: rgb(5 9 10 / 76%);
+}
+.abyssa-modal[data-ui-motion-preset="manor"] > .abyssa-modal__panel { z-index: 1; }
+/* Signboard and frame stay together. Contents follow once, never per item. */
+.abyssa-modal[data-ui-motion-preset="manor"] .abyssa-modal__body {
+  animation: var(--abyssa-motion-manor-body-enter);
+}
+.abyssa-modal[data-ui-motion-preset="manor"] :is(.abyssa-modal__head, .abyssa-modal__foot, .abyssa-modal__navigation) {
+  animation: var(--abyssa-motion-manor-chrome-enter);
+}
+@keyframes manor-window-contents-in {
+  from { opacity: 0; translate: 0 var(--abyssa-motion-manor-content-distance); }
+  to { opacity: 1; translate: 0 0; }
+}
+.abyssa-modal[data-ui-motion-preset="manor"][data-ui-motion="reduced"] :is(.abyssa-modal__body, .abyssa-modal__head, .abyssa-modal__foot, .abyssa-modal__navigation) { animation: none; }

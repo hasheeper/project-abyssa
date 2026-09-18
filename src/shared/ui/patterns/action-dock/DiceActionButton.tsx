@@ -1,4 +1,5 @@
 import { RpgShapeButton } from "../../primitives/RpgShapeButton";
+import { forwardRef } from "react";
 import "./action-dock.css";
 
 export interface DiceActionButtonProps {
@@ -10,10 +11,11 @@ export interface DiceActionButtonProps {
   onClick: () => void;
 }
 
-export function DiceActionButton({ label, english, disabled = false, primary = false, placeholder = false, onClick }: DiceActionButtonProps) {
+export const DiceActionButton = forwardRef<HTMLButtonElement, DiceActionButtonProps>(function DiceActionButton({ label, english, disabled = false, primary = false, placeholder = false, onClick }, ref) {
   const hasEnglish = Boolean(english);
   return (
     <RpgShapeButton
+      ref={ref}
       label={placeholder ? "不可用操作" : hasEnglish ? `${label} · ${english}` : label}
       shape="chamfer"
       variant="dark"
@@ -35,4 +37,4 @@ export function DiceActionButton({ label, english, disabled = false, primary = f
       )}
     </RpgShapeButton>
   );
-}
+});

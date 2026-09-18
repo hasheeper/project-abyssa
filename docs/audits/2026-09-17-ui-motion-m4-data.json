@@ -1,0 +1,722 @@
+{
+  "date": "2026-09-17",
+  "scope": "M4 only; before = completed M3, after = M4 hidden-curtain pause rule",
+  "source": {
+    "beforeProduction": {
+      "files": 770,
+      "sha256": "2f374d02d931328c27a0a1e498fe5b919ebf262b40febb819440455b20e90538"
+    },
+    "afterProduction": {
+      "files": 770,
+      "sha256": "0597e345fceef0aa1372a69b10bc2c83628edbe129130904e9512fd9562786de",
+      "normalizedSha256": "2f374d02d931328c27a0a1e498fe5b919ebf262b40febb819440455b20e90538",
+      "curtainMatches": true
+    },
+    "digestMethod": "Sorted absolute paths from listFiles(src), then raw file bytes; css/ts/tsx/js/jsx/json excluding .test., .stories., /testing/, /tools/. Normalized hash removes only the exact M4 curtain pause CSS block in memory, without editing disk.",
+    "beforeCounts": {
+      "cssFiles": 138,
+      "motionCssFiles": 57,
+      "keyframes": 232,
+      "names": 228
+    },
+    "afterCounts": {
+      "cssFiles": 138,
+      "motionCssFiles": 57,
+      "keyframes": 232,
+      "names": 228
+    },
+    "unreferencedCandidates": [],
+    "duplicateNames": [],
+    "allowedReduced": [
+      [
+        {
+          "name": "abyssa-rp-node-pop",
+          "path": "src/shared/ui/styles/rp-bubble-effects.css",
+          "scopes": []
+        },
+        {
+          "name": "abyssa-rp-node-pop",
+          "path": "src/shared/ui/styles/rp-motion.css",
+          "scopes": [
+            "@media (prefers-reduced-motion: reduce)"
+          ]
+        }
+      ],
+      [
+        {
+          "name": "abyssa-rp-message-in",
+          "path": "src/shared/ui/styles/rp-message-layout.css",
+          "scopes": []
+        },
+        {
+          "name": "abyssa-rp-message-in",
+          "path": "src/shared/ui/styles/rp-motion.css",
+          "scopes": [
+            "@media (prefers-reduced-motion: reduce)"
+          ]
+        }
+      ],
+      [
+        {
+          "name": "abyssa-rp-rule-in",
+          "path": "src/shared/ui/styles/rp-message-layout.css",
+          "scopes": []
+        },
+        {
+          "name": "abyssa-rp-rule-in",
+          "path": "src/shared/ui/styles/rp-motion.css",
+          "scopes": [
+            "@media (prefers-reduced-motion: reduce)"
+          ]
+        }
+      ],
+      [
+        {
+          "name": "abyssa-rp-avatar-pop",
+          "path": "src/shared/ui/styles/rp-message-layout.css",
+          "scopes": []
+        },
+        {
+          "name": "abyssa-rp-avatar-pop",
+          "path": "src/shared/ui/styles/rp-motion.css",
+          "scopes": [
+            "@media (prefers-reduced-motion: reduce)"
+          ]
+        }
+      ]
+    ],
+    "identicalBodyCandidates": [
+      [
+        {
+          "name": "manor-entry-appear",
+          "path": "src/apps/battle/battle-entry-content.css"
+        },
+        {
+          "name": "manor-board-appear",
+          "path": "src/apps/battle/battle-motion.css"
+        }
+      ],
+      [
+        {
+          "name": "manor-board-settle",
+          "path": "src/apps/battle/battle-motion.css"
+        },
+        {
+          "name": "abyssa-page-board-settle",
+          "path": "src/shared/ui/motion/page-board.css"
+        }
+      ],
+      [
+        {
+          "name": "companion-fade-in",
+          "path": "src/apps/battle/expedition-companion.css"
+        },
+        {
+          "name": "manor-arrive",
+          "path": "src/apps/battle/expedition-journey.css"
+        },
+        {
+          "name": "mansion-time-cover",
+          "path": "src/apps/mansion/mansion-motion.css"
+        },
+        {
+          "name": "mansion-room-copy-arrive",
+          "path": "src/apps/mansion/mansion-ui-motion.css"
+        },
+        {
+          "name": "menu-soft-in",
+          "path": "src/apps/menu/menu-motion.css"
+        },
+        {
+          "name": "prologue-character",
+          "path": "src/apps/prologue/prologue.css"
+        },
+        {
+          "name": "prologue-title-in",
+          "path": "src/apps/prologue/prologue.css"
+        },
+        {
+          "name": "title-cursor-enter",
+          "path": "src/apps/title/title-interaction.css"
+        },
+        {
+          "name": "morning-chapter-in",
+          "path": "src/game-client/first-morning.css"
+        },
+        {
+          "name": "story-item-appear",
+          "path": "src/game-client/story-item-display.css"
+        },
+        {
+          "name": "scene-wash-in",
+          "path": "src/shared/presentation/adv/scene-sequence.css"
+        },
+        {
+          "name": "tutorial-reveal",
+          "path": "src/shared/tutorial/tutorial.css"
+        },
+        {
+          "name": "abyssa-ui-appear",
+          "path": "src/shared/ui/motion/page-board.css"
+        },
+        {
+          "name": "abyssa-rp-text-in",
+          "path": "src/shared/ui/styles/rp-bubble-effects.css"
+        },
+        {
+          "name": "abyssa-rp-message-in",
+          "path": "src/shared/ui/styles/rp-motion.css"
+        },
+        {
+          "name": "abyssa-rp-avatar-pop",
+          "path": "src/shared/ui/styles/rp-motion.css"
+        },
+        {
+          "name": "abyssa-rp-node-pop",
+          "path": "src/shared/ui/styles/rp-motion.css"
+        },
+        {
+          "name": "abyssa-rp-rule-in",
+          "path": "src/shared/ui/styles/rp-motion.css"
+        },
+        {
+          "name": "abyssa-rp-type-char",
+          "path": "src/shared/ui/styles/rp-typing.css"
+        }
+      ],
+      [
+        {
+          "name": "companion-fade-out",
+          "path": "src/apps/battle/expedition-companion.css"
+        },
+        {
+          "name": "manor-encounter-reveal",
+          "path": "src/apps/battle/expedition-journey.css"
+        },
+        {
+          "name": "scene-wash-out",
+          "path": "src/shared/presentation/adv/scene-sequence.css"
+        }
+      ],
+      [
+        {
+          "name": "battle-skin-ornament-in",
+          "path": "src/apps/battle/expedition-skins.css"
+        },
+        {
+          "name": "battle-skin-corner-in",
+          "path": "src/apps/battle/expedition-skins.css"
+        },
+        {
+          "name": "mansion-adv-backdrop-in",
+          "path": "src/apps/mansion/mansion-dialogue.css"
+        },
+        {
+          "name": "rp-adv-line-in",
+          "path": "src/shared/presentation/adv/adv-stage.css"
+        },
+        {
+          "name": "rp-adv-reduced-fade",
+          "path": "src/shared/presentation/adv/adv-stage.css"
+        },
+        {
+          "name": "rp-adv-in-fade",
+          "path": "src/shared/presentation/adv/reading-morph.css"
+        },
+        {
+          "name": "rp-morph-reduced-fade",
+          "path": "src/shared/presentation/adv/reading-motion.css"
+        }
+      ]
+    ]
+  },
+  "build": {
+    "method": "gzip level 9 per file, deduplicated static-import closures. Cold = shell + requested route, not all dynamic routes. Excludes images/fonts/data and later optional imports; not measured network transfer.",
+    "before": {
+      "shell": {
+        "jsBytes": 367128,
+        "cssBytes": 160096,
+        "jsGzipBytes": 118081,
+        "cssGzipBytes": 49633
+      },
+      "routes": {
+        "battle": {
+          "shellPlusRoute": {
+            "jsBytes": 1411434,
+            "cssBytes": 579962,
+            "jsGzipBytes": 473095,
+            "cssGzipBytes": 125856
+          },
+          "additionalToShell": {
+            "jsBytes": 1044306,
+            "cssBytes": 419866,
+            "jsGzipBytes": 355014,
+            "cssGzipBytes": 76223
+          }
+        },
+        "character-status": {
+          "shellPlusRoute": {
+            "jsBytes": 1087353,
+            "cssBytes": 313164,
+            "jsGzipBytes": 349477,
+            "cssGzipBytes": 78416
+          },
+          "additionalToShell": {
+            "jsBytes": 720225,
+            "cssBytes": 153068,
+            "jsGzipBytes": 231396,
+            "cssGzipBytes": 28783
+          }
+        },
+        "dice": {
+          "shellPlusRoute": {
+            "jsBytes": 455269,
+            "cssBytes": 209445,
+            "jsGzipBytes": 150489,
+            "cssGzipBytes": 60778
+          },
+          "additionalToShell": {
+            "jsBytes": 88141,
+            "cssBytes": 49349,
+            "jsGzipBytes": 32408,
+            "cssGzipBytes": 11145
+          }
+        },
+        "mansion": {
+          "shellPlusRoute": {
+            "jsBytes": 1409409,
+            "cssBytes": 348002,
+            "jsGzipBytes": 453274,
+            "cssGzipBytes": 86503
+          },
+          "additionalToShell": {
+            "jsBytes": 1042281,
+            "cssBytes": 187906,
+            "jsGzipBytes": 335193,
+            "cssGzipBytes": 36870
+          }
+        },
+        "map": {
+          "shellPlusRoute": {
+            "jsBytes": 1716730,
+            "cssBytes": 272028,
+            "jsGzipBytes": 523317,
+            "cssGzipBytes": 72296
+          },
+          "additionalToShell": {
+            "jsBytes": 1349602,
+            "cssBytes": 111932,
+            "jsGzipBytes": 405236,
+            "cssGzipBytes": 22663
+          }
+        },
+        "menu": {
+          "shellPlusRoute": {
+            "jsBytes": 936625,
+            "cssBytes": 219173,
+            "jsGzipBytes": 294642,
+            "cssGzipBytes": 60710
+          },
+          "additionalToShell": {
+            "jsBytes": 569497,
+            "cssBytes": 59077,
+            "jsGzipBytes": 176561,
+            "cssGzipBytes": 11077
+          }
+        },
+        "prologue": {
+          "shellPlusRoute": {
+            "jsBytes": 925390,
+            "cssBytes": 178248,
+            "jsGzipBytes": 290365,
+            "cssGzipBytes": 53966
+          },
+          "additionalToShell": {
+            "jsBytes": 558262,
+            "cssBytes": 18152,
+            "jsGzipBytes": 172284,
+            "cssGzipBytes": 4333
+          }
+        },
+        "settings": {
+          "shellPlusRoute": {
+            "jsBytes": 402070,
+            "cssBytes": 173473,
+            "jsGzipBytes": 128906,
+            "cssGzipBytes": 52148
+          },
+          "additionalToShell": {
+            "jsBytes": 34942,
+            "cssBytes": 13377,
+            "jsGzipBytes": 10825,
+            "cssGzipBytes": 2515
+          }
+        },
+        "shop": {
+          "shellPlusRoute": {
+            "jsBytes": 1074073,
+            "cssBytes": 261303,
+            "jsGzipBytes": 349058,
+            "cssGzipBytes": 70018
+          },
+          "additionalToShell": {
+            "jsBytes": 706945,
+            "cssBytes": 101207,
+            "jsGzipBytes": 230977,
+            "cssGzipBytes": 20385
+          }
+        },
+        "title": {
+          "shellPlusRoute": {
+            "jsBytes": 433432,
+            "cssBytes": 204416,
+            "jsGzipBytes": 141406,
+            "cssGzipBytes": 59570
+          },
+          "additionalToShell": {
+            "jsBytes": 66304,
+            "cssBytes": 44320,
+            "jsGzipBytes": 23325,
+            "cssGzipBytes": 9937
+          }
+        }
+      },
+      "selectedAssets": {
+        "assets/game-B71HGttC.js": {
+          "bytes": 30044,
+          "gzipBytes": 10760,
+          "sha256": "fd461f68e968829930e14759043ece4f7b77faee6161b8f43a437e91af00e2a6"
+        },
+        "assets/game-S0tEUUde.css": {
+          "bytes": 157642,
+          "gzipBytes": 48691,
+          "sha256": "17309a65303ef7c28cbb9420b41e29397975d18543358abc5ee1e51c6d0380b7"
+        },
+        "assets/page-board-D2xBCX1z.css": {
+          "bytes": 478,
+          "gzipBytes": 237,
+          "sha256": "b553a08213d41b666a7052b565e342034973d6bfc7f479ad52c6d3c79237b532"
+        },
+        "assets/usePageUiIntro-BgAJ6cUd.js": {
+          "bytes": 1565,
+          "gzipBytes": 784,
+          "sha256": "aa87b2fbc685e718d13ecbc7351f269fc98d35025820fd74b84038afc832a31d"
+        }
+      }
+    },
+    "after": {
+      "shell": {
+        "jsBytes": 367128,
+        "cssBytes": 160191,
+        "jsGzipBytes": 118078,
+        "cssGzipBytes": 49648
+      },
+      "routes": {
+        "battle": {
+          "shellPlusRoute": {
+            "jsBytes": 1411434,
+            "cssBytes": 580057,
+            "jsGzipBytes": 473094,
+            "cssGzipBytes": 125871
+          },
+          "additionalToShell": {
+            "jsBytes": 1044306,
+            "cssBytes": 419866,
+            "jsGzipBytes": 355016,
+            "cssGzipBytes": 76223
+          }
+        },
+        "character-status": {
+          "shellPlusRoute": {
+            "jsBytes": 1087353,
+            "cssBytes": 313259,
+            "jsGzipBytes": 349473,
+            "cssGzipBytes": 78431
+          },
+          "additionalToShell": {
+            "jsBytes": 720225,
+            "cssBytes": 153068,
+            "jsGzipBytes": 231395,
+            "cssGzipBytes": 28783
+          }
+        },
+        "dice": {
+          "shellPlusRoute": {
+            "jsBytes": 455269,
+            "cssBytes": 209540,
+            "jsGzipBytes": 150486,
+            "cssGzipBytes": 60793
+          },
+          "additionalToShell": {
+            "jsBytes": 88141,
+            "cssBytes": 49349,
+            "jsGzipBytes": 32408,
+            "cssGzipBytes": 11145
+          }
+        },
+        "mansion": {
+          "shellPlusRoute": {
+            "jsBytes": 1409409,
+            "cssBytes": 348097,
+            "jsGzipBytes": 453275,
+            "cssGzipBytes": 86518
+          },
+          "additionalToShell": {
+            "jsBytes": 1042281,
+            "cssBytes": 187906,
+            "jsGzipBytes": 335197,
+            "cssGzipBytes": 36870
+          }
+        },
+        "map": {
+          "shellPlusRoute": {
+            "jsBytes": 1716730,
+            "cssBytes": 272123,
+            "jsGzipBytes": 523318,
+            "cssGzipBytes": 72311
+          },
+          "additionalToShell": {
+            "jsBytes": 1349602,
+            "cssBytes": 111932,
+            "jsGzipBytes": 405240,
+            "cssGzipBytes": 22663
+          }
+        },
+        "menu": {
+          "shellPlusRoute": {
+            "jsBytes": 936625,
+            "cssBytes": 219268,
+            "jsGzipBytes": 294639,
+            "cssGzipBytes": 60725
+          },
+          "additionalToShell": {
+            "jsBytes": 569497,
+            "cssBytes": 59077,
+            "jsGzipBytes": 176561,
+            "cssGzipBytes": 11077
+          }
+        },
+        "prologue": {
+          "shellPlusRoute": {
+            "jsBytes": 925390,
+            "cssBytes": 178343,
+            "jsGzipBytes": 290361,
+            "cssGzipBytes": 53981
+          },
+          "additionalToShell": {
+            "jsBytes": 558262,
+            "cssBytes": 18152,
+            "jsGzipBytes": 172283,
+            "cssGzipBytes": 4333
+          }
+        },
+        "settings": {
+          "shellPlusRoute": {
+            "jsBytes": 402070,
+            "cssBytes": 173568,
+            "jsGzipBytes": 128902,
+            "cssGzipBytes": 52163
+          },
+          "additionalToShell": {
+            "jsBytes": 34942,
+            "cssBytes": 13377,
+            "jsGzipBytes": 10824,
+            "cssGzipBytes": 2515
+          }
+        },
+        "shop": {
+          "shellPlusRoute": {
+            "jsBytes": 1074073,
+            "cssBytes": 261398,
+            "jsGzipBytes": 349059,
+            "cssGzipBytes": 70033
+          },
+          "additionalToShell": {
+            "jsBytes": 706945,
+            "cssBytes": 101207,
+            "jsGzipBytes": 230981,
+            "cssGzipBytes": 20385
+          }
+        },
+        "title": {
+          "shellPlusRoute": {
+            "jsBytes": 433432,
+            "cssBytes": 204511,
+            "jsGzipBytes": 141401,
+            "cssGzipBytes": 59585
+          },
+          "additionalToShell": {
+            "jsBytes": 66304,
+            "cssBytes": 44320,
+            "jsGzipBytes": 23323,
+            "cssGzipBytes": 9937
+          }
+        }
+      },
+      "selectedAssets": {
+        "assets/game-BDWCyyur.css": {
+          "bytes": 157737,
+          "gzipBytes": 48706,
+          "sha256": "6052258ca998e9de7bdfb917d42e45406a470f2d407ed481dadc39f3536900b0"
+        },
+        "assets/game-DHafyrZK.js": {
+          "bytes": 30044,
+          "gzipBytes": 10757,
+          "sha256": "98294c8337acdcbd6956f372ca248be96275c42bac1cb3899e0e4da45d85a2a5"
+        },
+        "assets/page-board-D2xBCX1z.css": {
+          "bytes": 478,
+          "gzipBytes": 237,
+          "sha256": "b553a08213d41b666a7052b565e342034973d6bfc7f479ad52c6d3c79237b532"
+        },
+        "assets/usePageUiIntro-qDIVT7aD.js": {
+          "bytes": 1565,
+          "gzipBytes": 785,
+          "sha256": "77ae8d69651745051b6abff2a1e3c58fe53d5a2aa502cd43fb214c8f94cafd85"
+        }
+      }
+    },
+    "qaProbeInProduction": false
+  },
+  "runtime": {
+    "method": "Codex in-app Chromium, 1280x720, independent 127.0.0.1:5198 QA save. One fresh document per page before/after, warm assets, no cache clearing/CPU throttling. Visible playing-to-ready windows; DOM MutationObserver timestamps. Milliseconds rounded to 0.1. Not an FPS benchmark.",
+    "allSamplesInitiallyHidden": false,
+    "allSamplesTruncated": false,
+    "entries": [
+      {
+        "page": "menu",
+        "beforeMs": 1362.1,
+        "afterMs": 1362.1,
+        "beforeLoafMs": [],
+        "afterLoafMs": [],
+        "stableRunningBefore": 3,
+        "stableRunningAfter": 0
+      },
+      {
+        "page": "character-status",
+        "beforeMs": 924.3,
+        "afterMs": 923.4,
+        "beforeLoafMs": [],
+        "afterLoafMs": [],
+        "stableRunningBefore": 3,
+        "stableRunningAfter": 0
+      },
+      {
+        "page": "shop",
+        "beforeMs": 922.7,
+        "afterMs": 923.6,
+        "beforeLoafMs": [],
+        "afterLoafMs": [],
+        "stableRunningBefore": 3,
+        "stableRunningAfter": 0
+      },
+      {
+        "page": "map",
+        "beforeMs": 1526.3,
+        "afterMs": 1528.1,
+        "beforeLoafMs": [
+          58.6
+        ],
+        "afterLoafMs": [
+          53.2
+        ],
+        "stableRunningBefore": 3,
+        "stableRunningAfter": 0
+      },
+      {
+        "page": "mansion",
+        "beforeMs": 1002.7,
+        "afterMs": 1002.6,
+        "beforeLoafMs": [
+          68.3
+        ],
+        "afterLoafMs": [
+          61.8
+        ],
+        "stableRunningBefore": 4,
+        "stableRunningAfter": 1,
+        "remaining": "mansion-cloud-drift"
+      }
+    ],
+    "visibleEntryLongTasks": 0,
+    "mapLoafScript": {
+      "invoker": "FrameRequestCallback",
+      "beforeDurationMs": 43.9,
+      "afterDurationMs": 37.8,
+      "forcedStyleAndLayoutDurationMs": 0
+    },
+    "windowFirstOpenAfter": [
+      {
+        "name": "仓库",
+        "windowMs": 1000,
+        "loafMs": [
+          76.2,
+          93.6,
+          74.4
+        ],
+        "firstScript": {
+          "invoker": "DIV#root.onclick",
+          "durationMs": 60.9,
+          "forcedStyleAndLayoutDurationMs": 47.4
+        }
+      },
+      {
+        "name": "日志",
+        "windowMs": 1000,
+        "loafMs": [
+          71.5
+        ],
+        "firstScript": {
+          "invoker": "DIV#root.onclick",
+          "durationMs": 55.8,
+          "forcedStyleAndLayoutDurationMs": 48.4
+        }
+      },
+      {
+        "name": "整备",
+        "windowMs": 1000,
+        "loafMs": [
+          181.6,
+          54
+        ],
+        "firstScript": {
+          "invoker": "DIV#root.onclick",
+          "durationMs": 169.8,
+          "forcedStyleAndLayoutDurationMs": 154.7
+        }
+      }
+    ],
+    "hiddenCurtain": {
+      "before": "spinner paused; 3 activity ticks running",
+      "after": "spinner and all 3 activity ticks paused",
+      "activeClosingAfter": {
+        "ticks": "running",
+        "durationSeconds": 1.35,
+        "delaysSeconds": [
+          0,
+          0.225,
+          0.45
+        ]
+      }
+    },
+    "limitations": [
+      "Single samples cannot establish a performance improvement. LoAF is not equivalent to longtask.",
+      "Stable animation snapshots cover CSS/WAAPI animations, not all JS/WebGL activity or event listeners.",
+      "QA snapshot button is blocked by the active modal input gate. Modal world-pause and will-change verified via computed styles, not stale animation snapshots.",
+      "Listener cleanup is covered by existing StrictMode tests/source ownership, not a live whole-page listener census.",
+      "Window first-open long frames remain unresolved; attribution is not enough to identify the responsible function."
+    ]
+  },
+  "validation": {
+    "appTestFiles": 21,
+    "appTests": 178,
+    "nodeBuildTests": 85,
+    "focusedNodeTestsIncluded": 17,
+    "typecheckApp": true,
+    "typecheckTooling": true,
+    "boundaries": true,
+    "motionTokens": true,
+    "gameBuild": true,
+    "gameOutput": true
+  }
+}

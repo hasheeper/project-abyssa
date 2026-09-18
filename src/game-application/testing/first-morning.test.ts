@@ -92,7 +92,8 @@ describe("the first morning",()=> {
     for(let step=0;step<6;step++) await f.send({type:"advance-opening",step,choice:"continue"});
     expect((await f.send({type:"advance-opening",step:6,choice:"continue"})).result.ok).toBe(false);
     const source=await f.read();
-    expect(await f.runtime.application.continueSave({sourceSaveId:"morning",expectedSourceHead:source.head,saveId:"up",epoch:"up",clientRequestId:"up",kind:"upgrade"})).toMatchObject({ok:false});
+    expect(await f.runtime.application.extendTutorial("morning",source.head)).toMatchObject({ok:true});
+    expect(await f.read()).toEqual(source);
     const commit=f.store.commit.bind(f.store);
     f.store.commit=async()=>{throw new GameStorageError("storage-quota","injected");};
     const failed=await f.send({type:"advance-opening",step:6,choice:"B"});

@@ -89,8 +89,8 @@
   --sortie-wood: #2b1c11;
   /* 与 Three 镜头的 0.78s 推进保持同一时间窗，避免侧板和小队先到、
      地图随后才追上的拖滞感。 */
-  --sortie-focus-duration: 780ms;
-  --sortie-focus-ease: cubic-bezier(0.65, 0, 0.35, 1);
+  --sortie-focus-duration: var(--map-focus-duration, 780ms);
+  --sortie-focus-ease: var(--map-focus-ease, cubic-bezier(0.65, 0, 0.35, 1));
   --sortie-stage-duration: 400ms;
   --sortie-stage-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
 
@@ -496,7 +496,6 @@
   left: var(--sortie-inset);
   z-index: 10;
   height: var(--sortie-drawer-h);
-  animation: abyssa-sortie-drawer-in 320ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 /* 名单不用通用 RpgFrame 的五层等距套框。这里收成两道不同权重的边：
@@ -557,10 +556,6 @@
   gap: var(--sortie-roster-gap) var(--sortie-roster-pad-x);
   grid-template-columns: 1fr var(--sortie-info-w);
   grid-template-rows: var(--sortie-roster-label-h) var(--sortie-row-h);
-}
-
-@keyframes abyssa-sortie-drawer-in {
-  from { opacity: 0; transform: translateY(28px); }
 }
 
 .abyssa-sortie-roster__lab {
@@ -1262,20 +1257,10 @@
 
 .abyssa-sortie-quest[data-side="right"] {
   right: var(--sortie-inset);
-  animation: abyssa-sortie-quest-in-r var(--sortie-focus-duration) var(--sortie-focus-ease);
 }
 
 .abyssa-sortie-quest[data-side="left"] {
   left: var(--sortie-inset);
-  animation: abyssa-sortie-quest-in-l var(--sortie-focus-duration) var(--sortie-focus-ease);
-}
-
-@keyframes abyssa-sortie-quest-in-r {
-  from { opacity: 0; transform: translateX(40px); }
-}
-
-@keyframes abyssa-sortie-quest-in-l {
-  from { opacity: 0; transform: translateX(-40px); }
 }
 
 /* 场景横幅是真实背景图的固定接入口。没有素材时保留同尺寸占位，

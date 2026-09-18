@@ -6,7 +6,7 @@ import splitCrossIcon from "../../../assets/icons/6-0-split-cross.svg";
 import crossShieldIcon from "../../../assets/icons/game-icon-cross-shield.svg";
 import hospitalCrossIcon from "../../../assets/icons/game-icon-hospital-cross.svg";
 import magicPalmIcon from "../../../assets/icons/game-icon-magic-palm.svg";
-import slashedShieldIcon from "../../../assets/icons/slashed-shield.svg";
+import blankCrossIcon from "../../../assets/icons/blank-cross.svg";
 import "./expedition-flat-die-frame.css";
 
 export type ExpeditionDieStampAction =
@@ -37,14 +37,14 @@ export const DEFAULT_EXPEDITION_DIE_STAMP_LAYOUT: ExpeditionDieStampLayout = {
   opacity: 0.96
 };
 
-const STAMP_ICONS: Record<ExpeditionDieStampAction, string> = {
+export const EXPEDITION_DIE_STAMP_ICONS: Record<ExpeditionDieStampAction, string> = {
   attack: broadswordIcon,
   guard: crossShieldIcon,
   heal: hospitalCrossIcon,
   coin: swapBagIcon,
   art: magicPalmIcon,
   wild: splitCrossIcon,
-  blank: slashedShieldIcon
+  blank: blankCrossIcon
 };
 
 const CROSS_PATH = `
@@ -228,7 +228,7 @@ export function ExpeditionFlatDieFrame({
   const fateY = suitShape === "triangle" ? 33 : suitShape === "square" ? 29 : 30;
   const rootClass = ["expedition-flat-die-frame", className].filter(Boolean).join(" ");
   const rootStyle = {
-    "--expedition-die-stamp-icon": `url("${STAMP_ICONS[action]}")`,
+    "--expedition-die-stamp-icon": `url("${EXPEDITION_DIE_STAMP_ICONS[action]}")`,
     "--expedition-die-stamp-x": `${layout.x / 2.8}%`,
     "--expedition-die-stamp-y": `${layout.y / 2.8}%`,
     "--expedition-die-stamp-scale": layout.scale,

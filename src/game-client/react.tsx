@@ -2,7 +2,7 @@ import { navigateTo, routeSearch } from "../shared/routing/location";
 import { createContext, useContext, useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import { createBrowserGameRuntime } from "../game-runtime/browser";
 import { GameSession, type ClientRuntime } from "./session";
-import { gameHref, parseLocator } from "./navigation";
+import { gameHref, parseLocator, recordLocator, locatorMatchesRun } from "./navigation";
 import "./game-client.css";
 import { observeCommits } from "./observe-commits";
 import { GameLoading } from "./GameLoading";
@@ -38,16 +38,23 @@ export function GameProvider({ children, factory = createBrowserGameRuntime }: {
   if (!session) return <GameLoading/>;
   return <Context.Provider value={session}>{children}</Context.Provider>;
 }
-export function GameGate({ children, allowPrologue = false, allowOpening = false }: { children: ReactNode; allowPrologue?: boolean; allowOpening?: boolean }) {
+export function GameGate({ children, allowPrologue = false, allowOpening = false, allowTutorial = false, allowAirp = false }: { children: ReactNode; allowPrologue?: boolean; allowOpening?: boolean; allowTutorial?: boolean; allowAirp?: boolean }) {
   const session = useGameSession(), state = useGameState();
-  const entered = useRef(false);
+  const entered = useRef(false), openingEntered = useRef(false);
+  if (allowOpening && state.record?.schemaVersion === 4 && state.record.snapshot.campaign.opening?.status === "playing") openingEntered.current = true;
   const needsPrologue = !allowPrologue && state.record?.schemaVersion === 4 && state.record.snapshot.campaign.prologue?.status === "playing";
   const needsOpening = !allowOpening && !allowPrologue && !needsPrologue && state.record?.schemaVersion === 4 && state.record.snapshot.campaign.opening?.status === "playing";
+  const tutorial = state.record && session.runtime.queries.tutorial(state.record);
+  const needsAirp = !allowAirp && !!state.record && !!session.runtime.queries.narrative(state.record)?.locked;
+  const needsTutorial = !!tutorial && ["pending", "active"].includes(tutorial.progress.status) && !needsPrologue && !needsOpening && !allowPrologue && !openingEntered.current &&
+    (!allowTutorial || tutorial.progress.status === "active" && !locatorMatchesRun(state.record!, session.locator));
   useEffect(() => {
     if (needsPrologue) navigateTo(gameHref("prologue", session.locator), {replace:true,cinematic:true});
     else if (needsOpening) navigateTo(gameHref("mansion", session.locator), {replace:true,cinematic:true});
-  }, [needsPrologue, needsOpening, session]);
-  if (needsPrologue || needsOpening) return <GameLoading/>;
+    else if (needsTutorial) navigateTo(gameHref("battle", recordLocator(state.record!)), {replace:true,cinematic:true});
+    else if (needsAirp) navigateTo(gameHref("mansion", recordLocator(state.record!)), {replace:true});
+  }, [needsPrologue, needsOpening, needsTutorial, needsAirp, session, state.record]);
+  if (needsPrologue || needsOpening || needsTutorial || needsAirp) return <GameLoading/>;
   if (state.record && state.status === "ready") entered.current = true;
   if (!state.record && !state.error || !entered.current && ["loading", "recovering"].includes(state.status)) return <GameLoading/>;
   if (!state.record) return <div className="game-client-gate" role="alert">

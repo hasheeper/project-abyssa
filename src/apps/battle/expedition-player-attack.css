@@ -7,6 +7,10 @@
 /* 新层与召唤物都从瘴气中显形；稳定 key 确保普通重渲染不会重播。 */
 .abyssa-expedition-enemy {
   transform-origin: 50% 82%;
+}
+/* Initial manor seats belong to the scene entrance for their whole lifetime.
+   Do not revive this mount animation when the scene changes from in to idle. */
+.abyssa-expedition-enemy:where(:not([data-entry-seated])) {
   animation: expedition-enemy-enter 460ms cubic-bezier(.14, .78, .2, 1) backwards;
 }
 

@@ -129,15 +129,47 @@ beforeEach(() => {
   mocks.gsapKill.mockClear();
   vi.stubGlobal("requestAnimationFrame", vi.fn(() => 73));
   vi.stubGlobal("cancelAnimationFrame", vi.fn());
+  vi.stubGlobal("matchMedia", () => ({ matches: false }));
 });
 
 afterEach(() => {
   vi.useRealTimers();
   vi.unstubAllGlobals();
+  vi.restoreAllMocks();
 });
 
 describe("createMapScene", () => {
-  it("loads the scene, replays locations, updates shared front/back geometry and destroys once", async () => {
+  it("waits for the page cue, springs the paper above its foot, and cancels to the exact resting pose", async () => {
+    const clock = vi.spyOn(performance, "now").mockReturnValue(1000);
+    const locations = cloneMapLocations();
+    const controller = createMapScene(document.createElement("div"), { locations, intro: true });
+    await flushPromiseQueue();
+    const root = mocks.renderers[0].scene!.children.find(child => child instanceof THREE.Group && child.position.x === locations[0].position.x)!;
+    const paper = root.children[0], label = root.children[1];
+    expect(root.visible).toBe(false);
+    controller.setIntroState("playing");
+    const tick = (time: number) => {
+      clock.mockReturnValue(time);
+      vi.mocked(requestAnimationFrame).mock.calls.at(-1)![0](time);
+    };
+    tick(1478);
+    expect(root.visible).toBe(true);
+    expect(paper.scale.x).toBeGreaterThan(1.2);
+    expect(paper.scale.x).toBe(paper.scale.y);
+    expect(label.scale.x).toBe(1);
+    expect(label.position.y).toBe(locations[0].plateY);
+    tick(1736);
+    expect(paper.scale.x).toBeLessThan(.94);
+    controller.setIntroState("ready");
+    expect(paper.scale.x).toBe(1);
+    expect(paper.rotation.x).toBe(0);
+    controller.setIntroState("playing");
+    controller.setReducedMotion(true); tick(1800);
+    expect(paper.scale.x).toBe(1); expect(paper.rotation.x).toBe(0);
+    controller.destroy();
+    expect(vi.getTimerCount()).toBe(0);
+  });
+  it("loads full-sized static landmarks, updates shared geometry and destroys once", async () => {
     const container = document.createElement("div");
     Object.defineProperties(container, {
       clientWidth: { value: 800 },
@@ -151,8 +183,9 @@ describe("createMapScene", () => {
     await flushPromiseQueue();
     expect(onReady).toHaveBeenCalledOnce();
 
-    controller.replay();
-    expect(mocks.gsapTo).toHaveBeenCalledTimes(locations.length * 3);
+    expect(mocks.gsapTo).not.toHaveBeenCalled();
+    expect(mocks.gsapFromTo).not.toHaveBeenCalled();
+    expect(vi.getTimerCount()).toBe(0);
     for (const texture of mocks.rawTextures.slice(1)) {
       expect(texture.dispose).toHaveBeenCalledOnce();
     }
@@ -166,6 +199,8 @@ describe("createMapScene", () => {
       child.position.z === location.position.z
     ) as THREE.Group;
     const pivot = root.children[0] as THREE.Group;
+    expect(pivot.scale.toArray()).toEqual([1, 1, 1]);
+    expect([pivot.rotation.x, pivot.rotation.y, pivot.rotation.z]).toEqual([0, 0, 0]);
     const meshes = pivot.children.filter((child): child is THREE.Mesh => child instanceof THREE.Mesh);
     const oldGeometry = meshes[0].geometry;
     const disposeOldGeometry = vi.spyOn(oldGeometry, "dispose");
@@ -232,7 +267,7 @@ describe("createMapScene", () => {
     expect(mocks.gsapKill).toHaveBeenCalledWith(focusTween[0]);
     expect(focusPose).toMatchObject({
       duration: 0.78,
-      ease: "power3.inOut"
+      ease: expect.any(Function)
     });
     /* 侧板在右，镜头中心向右让位，地标因此落在左侧可视区。 */
     expect(focusPose.targetX as number).toBeGreaterThan(tower.position.x);
@@ -253,6 +288,48 @@ describe("createMapScene", () => {
       targetZ: 0
     });
 
+    controller.destroy();
+  });
+
+  it("selects a hit landmark without tilting or queuing a click animation", async () => {
+    const container = document.createElement("div");
+    const locations = cloneMapLocations(), onLocationSelect = vi.fn();
+    const controller = createMapScene(container, { locations, onLocationSelect });
+    await flushPromiseQueue();
+    const scene = mocks.renderers[0].scene!;
+    const root = scene.children.find(child => child instanceof THREE.Group &&
+      child.position.x === locations[0].position.x && child.position.z === locations[0].position.z)!;
+    const pivot = root.children[0], mesh = pivot.children[0];
+    vi.spyOn(THREE.Raycaster.prototype, "intersectObjects").mockReturnValue([{ object: mesh }] as THREE.Intersection[]);
+    const canvas = container.querySelector("canvas")!;
+    vi.spyOn(canvas, "getBoundingClientRect").mockReturnValue({ left: 0, top: 0, width: 800, height: 450 } as DOMRect);
+    canvas.dispatchEvent(new PointerEvent("pointerdown", { clientX: 400, clientY: 225 }));
+    expect(onLocationSelect).toHaveBeenCalledExactlyOnceWith(locations[0]);
+    expect(mocks.gsapFromTo).not.toHaveBeenCalled();
+    expect(mocks.gsapTo).not.toHaveBeenCalled();
+    expect([pivot.rotation.x, pivot.rotation.y, pivot.rotation.z]).toEqual([0, 0, 0]);
+    controller.setInteractive(false);
+    canvas.dispatchEvent(new PointerEvent("pointerdown"));
+    expect(onLocationSelect).toHaveBeenCalledOnce();
+    controller.destroy();
+  });
+
+  it("cancels obsolete focus moves and settles directly when reduced motion is requested", async () => {
+    const controller = createMapScene(document.createElement("div"), { locations: cloneMapLocations() });
+    await flushPromiseQueue();
+    controller.setSelected("tower", "right");
+    const pose = mocks.gsapTo.mock.lastCall![0];
+    controller.setSelected("cave", "left");
+    expect(mocks.gsapKill).toHaveBeenCalledTimes(2);
+    expect(mocks.gsapKill).toHaveBeenLastCalledWith(pose);
+    expect(mocks.gsapTo).toHaveBeenCalledTimes(2);
+    controller.setSelected("cave", "left");
+    expect(mocks.gsapTo).toHaveBeenCalledTimes(2);
+    vi.stubGlobal("matchMedia", () => ({ matches: true }));
+    controller.setSelected(null);
+    expect(mocks.gsapKill).toHaveBeenLastCalledWith(pose);
+    expect(mocks.gsapTo).toHaveBeenCalledTimes(2);
+    expect(pose).toMatchObject({ positionX: 0, positionY: 17, positionZ: 22, targetX: 0, targetY: -0.5, targetZ: 0 });
     controller.destroy();
   });
 });

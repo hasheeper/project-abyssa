@@ -5,7 +5,7 @@
   z-index: 610;
   overflow: hidden;
   background: rgb(4 8 9 / 58%);
-  backdrop-filter: blur(1.5px) saturate(.78);
+  backdrop-filter: none;
   pointer-events: auto;
   animation: mansion-adv-backdrop-in 220ms ease-out both;
 }
@@ -14,7 +14,7 @@
   inset: 0;
   background: transparent;
   cursor: pointer;
-  animation: mansion-adv-stage-in 360ms cubic-bezier(.16, .84, .3, 1) both;
+  animation: mansion-adv-stage-in 460ms cubic-bezier(.28, .08, .24, 1) backwards;
 }
 .mansion-adv-dialogue .rp-adv::after,
 .mansion-adv-dialogue .rp-adv__frame-ornaments { display: none; }
@@ -90,43 +90,17 @@
 }
 
 @keyframes mansion-adv-stage-in {
-  from { opacity: 0; transform: scale(.992); }
-}
-
-/* 火焰:亮度+光斑尺寸同时微动,只动 4%。 */
-@keyframes mansion-flame {
-  0%, 100% { filter: brightness(1); transform: scale(1); }
-  38% { filter: brightness(1.06); transform: scale(1.012); }
-  71% { filter: brightness(.96); transform: scale(.995); }
-}
-
-/* 结界红线:「如脉搏明暗起伏」—— 文案原话,所以只动亮度不动尺寸。 */
-@keyframes mansion-arcane {
-  0%, 100% { filter: brightness(.94); }
-  50% { filter: brightness(1.1); }
-}
-
-@keyframes mansion-loading {
-  50% { opacity: .35; transform: scale(.7); }
+  from { opacity: 0; translate: 0 12px; }
 }
 
 @keyframes mansion-toast-in {
   from { opacity: 0; transform: translate(-50%, -8px); }
 }
 
-@keyframes mansion-room-card-in {
-  from { opacity: 0; transform: translate(var(--mansion-drawer-enter-x), -50%); }
-  to { opacity: 1; transform: translate(0, -50%); }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .mansion-marker--promote,
   .mansion-marker--production,
-  .mansion-light,
-  .mansion-loading span,
   .mansion-toast,
   .mansion-room-drawer { animation: none; }
-  .mansion-world-pan,
-  .mansion-world-plane,
-  .mansion-phase-light { transition: none; }
+  .mansion-world-pan { transition: none; }
 }

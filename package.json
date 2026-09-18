@@ -33,6 +33,10 @@
     "dist/ui"
   ],
   "scripts": {
+    "motion:audit": "node scripts/audit-ui-motion.mjs",
+    "motion:profile": "node scripts/serve-motion-audit.mjs",
+    "motion:tokens": "node scripts/sync-motion-tokens.mjs --write",
+    "motion:check": "node scripts/sync-motion-tokens.mjs",
     "dev": "node scripts/run-target.mjs dev entry:catalog",
     "dev:battle": "node scripts/run-target.mjs dev entry:battle",
     "dev:dice": "node scripts/run-target.mjs dev entry:dice",
@@ -112,7 +116,7 @@
     "build:all": "node scripts/run-target.mjs build all",
     "build:entries": "node scripts/check-entry-builds.mjs",
     "check:auxiliary": "node scripts/check-auxiliary.mjs",
-    "release:check:ui": "npm run build:ui && node scripts/check-package-release.mjs",
+    "release:check:ui": "npm run motion:check && npm run build:ui && node scripts/check-package-release.mjs",
     "release:check:game": "npm run build:game && npm run check:output -- game && npm run test:smoke -- --project=game",
     "check:entries": "node scripts/check-entries.mjs",
     "check:output": "node scripts/check-build-output.mjs",
@@ -164,5 +168,8 @@
     "node": ">=22.12.0 <23",
     "npm": "10.9.8"
   },
-  "packageManager": "npm@10.9.8"
+  "packageManager": "npm@10.9.8",
+  "dependencies": {
+    "motion": "13.3.0"
+  }
 }

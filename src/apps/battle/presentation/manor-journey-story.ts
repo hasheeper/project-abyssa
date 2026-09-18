@@ -1,12 +1,17 @@
 import type { DemoJourneyView } from "../../../game-runtime/demo-journey-view";
 import type { AuthoredLine } from "../../../content/presentation/marietta-memory";
 import { manorJourneyDialogue, type ManorScene } from "../../../content/presentation/manor-journey-dialogue";
+import { manorRepriseDialogue } from "../../../content/presentation/airp/reprise";
 
 export type JourneyStory = {id: string; title: string; lines: AuthoredLine[]};
 /** Choose a script from committed state; never assign an absent character's lines to another actor. */
 export function manorJourneyStory(v: DemoJourneyView): JourneyStory | null {
   const node = v.expedition?.node, result = v.lastEvent;
   if (!v.expedition || !v.roomId || v.battle?.encounter.memory) return null;
+  if (v.reprise) {
+    const id = `${v.head.saveId}:${v.head.epoch}:reprise.v1:${v.reprise.runId}:${v.reprise.previousTerminalId}`;
+    return { id, title: "再战 · 未散的家宴", lines: manorRepriseDialogue(v.reprise.previousOutcome, v.party.map(m => m.id), v.reprise.previousPartyIds).map((row, i) => ({...row, id: `${id}:${i}`})) };
+  }
   let scene: ManorScene, title: string;
   if (node === "event" && v.event) {
     scene = `${v.event.kind}-intro`;

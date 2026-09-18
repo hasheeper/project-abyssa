@@ -5,13 +5,18 @@ export interface CurrencyAmountProps {
   currency?: CurrencyKind;
   label?: string;
   className?: string;
+  /** Optional account emblem; default coin and crystal artwork is unchanged. */
+  iconUrl?: string;
 }
 
-export function CurrencyAmount({ value, currency = "lira", label, className }: CurrencyAmountProps) {
+export function CurrencyAmount({ value, currency = "lira", label, className, iconUrl }: CurrencyAmountProps) {
   const name = currency === "crystal" ? "远古晶石" : currency === "gold" ? "金币" : "里拉";
   return (
     <span className={["abyssa-currency-amount", className].filter(Boolean).join(" ")} data-currency={currency} aria-label={label ?? `${name} ${value}`}>
-      <i aria-hidden="true"><span data-part="ring" /><span data-part="mark" /></i>
+      <i aria-hidden="true" data-icon={iconUrl ? "custom" : undefined}
+        style={iconUrl ? {WebkitMaskImage: `url(${JSON.stringify(iconUrl)})`, maskImage: `url(${JSON.stringify(iconUrl)})`} : undefined}>
+        {!iconUrl && <><span data-part="ring" /><span data-part="mark" /></>}
+      </i>
       <span>{value.toLocaleString("en-US")}</span>
     </span>
   );

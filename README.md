@@ -4,19 +4,29 @@ Abyssa 的复古 RPG React 组件库与交互场景仓库。项目从静态视�
 
 组件使用原生语义元素、TypeScript 类型和命名空间化 CSS 变量；组件包本身不依赖业务后端。仓库内共有 **19 个 Vite 入口**：1 个组件目录、13 个场景／实验入口和 5 个制作工具。
 
-当前游戏已经接通同档案的角色、地图出征、庄园初战／维护／回忆、成长装备、基础商店与结算恢复；默认使用规则4／内容6。新档先播放四幕15图CG，再进入「洋馆的第一个清晨」，早餐至出门合为一幕，默认AVG、可切RP；首晨由JSON主控，120个节点与五组选项可保存和恢复。章节交接后暂回现有洋馆，岩窟教学、回馆兑现和正式音频待补。庄园难度与既有剧作仍需返工。
+当前游戏已经接通同档案的角色、地图出征、庄园初战／维护／回忆、成长装备、基础商店与结算恢复；默认使用规则4／内容12，联机样本为显式内容10。“新的开始”先弹起点选择：完整开始、跳过序章到首晨、跳过第一章到教程、跳过教程到自由枢纽；关闭不建档，跳过不发通关奖励。完整流程先播放四幕15图CG，再进入「洋馆的第一个清晨」，早餐至出门合为一幕，默认AVG、可切RP；首晨由JSON主控，120个节点与五组选项可保存和恢复。章节交接后进入四战＋E1五房带做教学与返馆领奖；章一定稿六场（18屏78帧）和渐进教学已接入，正式敌图、音频和真人试教仍待补。庄园难度与既有剧作仍需返工。
+
+当前内容12采用用户定稿的 S3-1～S3-5／S4-1，仅显示中文，不展示日文或双语括注；E1 由诺玛处理，返回正文结束后手动领取，不再接旧 S4-2。持久规则以新内容版本发布，旧11保留原对白、摘要与事件序列，不隐式迁移。G3/G4 的历史基线见[G4记录](docs/audits/2026-09-13-tide-guided-g4.md)；本轮完成项、分批验收与明确边界见[章一定稿验收](docs/audits/2026-09-15-chapter-one-finalization.md)。
+
+内容11／12教程顺序为 **S3-1 雾滩进场剧情 → 规则总览 → 第一场战斗**。总览按战斗与地牢、骰子、倍率机制、其他机制、角色词条划分为五章13节；首页「界面与操作」以真实战斗图标注六个功能区域，配放大局部，逐步讲解观察意图、掷骰、固定、选人、选目标和结束回合。「远征流程」串起出发、房间战斗、战间整备、清层和返馆，再以表格速查进度变化。后续章节复用真实骰面、局部图解与规则表。读完或跳过开场后显示，点击“开始战斗”进入战1。实战菜单复用同一手册，阅读配色与战斗皮肤隔离。操作指引的 × 仅收起当前说明，保留目标和恢复入口，下一步自动展开；不改选中目标或教程进度。
+
+手册的实际运行时文案源为 [`src/content/presentation/tutorial/handbook.json`](src/content/presentation/tutorial/handbook.json)，修改后随开发热更新／重新构建生效；不是独立导出稿，也不写入玩家存档或 RP 数据库。
 
 - [文档统一入口](docs/README.md)
 - [当前机制与完整游戏闭环](docs/GAME_SYSTEMS_AND_CONTENT_SPEC.md)
 - [定稿、完成度与下一步](docs/DESIGN_DECISIONS_AND_CURRENT_STATUS.md)
+- [Abyssa DEMO推进计划与rp能力判断](docs/plans/ABYSSA_DEMO_NEXT_STEPS.md)
 - [初章与引导计划](docs/plans/DEMO_PROLOGUE_AND_ONBOARDING_PLAN.md)
+- [AIRP叙事闭环DEMO计划](docs/plans/AIRP_NARRATIVE_DEMO_PLAN.md) · [AIRP-2首条手写闭环](docs/plans/AIRP_2_IMPLEMENTATION.md) · [AIRP-3四型与时局](docs/plans/AIRP_3_IMPLEMENTATION.md) · [AIRP-4应用接口接入](docs/plans/AIRP_4_APPLICATION_INTEGRATION_PLAN.md)
 - [序幕CG实施与素材缺口](docs/design/PROLOGUE_CG_IMPLEMENTATION.md)
 - [首晨AVG／RP实施与交接](docs/design/FIRST_MORNING_IMPLEMENTATION.md)
 - [本轮序幕与首晨基线收口](docs/archive/audits/2026-09-09-opening-avg-closeout.md)
 - [运行／构建与工程配置](config/README.md)
 - [历史计划与验收档案](docs/archive/README.md)
 
-Abyssa独立拥有游戏规则与存档，复杂LLM上下文／管线按需交给rp-style-lab。原始人设、已定稿美术和既有界面继续保留；工程接线通过不代表内容质量已验收。
+AIRP由Abyssa直接调用rp-style-lab通用应用后端，撤销纯静态／内容发布器路线。rp提供模型、Workflow、状态、分支与审计，应用定义人物、任务及记忆政策；制作与运行同定义、独立Session。显式内容10接通药箱归来、原AVG与读后记忆，默认内容12经11继承9的离线卡池，标题「记录」可建联机档。当前本机已安装0.3.2：按用户修正小模型为`deepseek-flash`，新增Writing事实承接约束，保留4来源／11摘录，版本、容量与玩家链隔离回归通过。两情境四场真实闭环、正文保真、摘要召回、幂等重放和AVG通过；文稿仍有玩家行为推断、无来源价格及节拍重复，第二批内容质量未收口，见[0.3.2记录](docs/audits/2026-09-12-airp-032-acceptance.md)。上批错误模型名／正文越界及0.2.1完整真实基线分开保留。27份用户资料、旧Release与旧档不迁移，普通构建不调用模型；完整试读过关后才扩四型／多人。详情见[实施记录](docs/plans/AIRP_4_IMPLEMENTATION.md)。
+
+[变量与记忆方案](docs/plans/AIRP_4_APPLICATION_INTEGRATION_PLAN.md#5-变量与记忆)：通用机制复用或补入rp，AIRP定义记忆语义、筛选与失效政策；首条在线链路已实施，候选不等于玩家已读，实际阅读通过应用动作确认，开发试跑与玩家实例隔离。原身份备份可重放；在线档复制／自动Fork与跨设备强幂等尚不支持。
 
 ## 当前组件
 
@@ -62,7 +72,9 @@ Abyssa独立拥有游戏规则与存档，复杂LLM上下文／管线按需交�
 - `Emote`：15 个统一规格的 APNG 头顶漫符，支持全局基准与逐角色微调
 - `expressions`、`spriteCalibration`：表情部件映射与角色画布校准数据
 - `motions`：立绘动作关键帧生成器（`playMotion` + `nod`/`waver`/`jump`/`shakeLight`/`shakeHeavy`）
-- `shared/transition`：首次准备与路由切换共用的六面骰黑幕、抵达标题与淡入／面板落入交接
+- `shared/transition`：产品内部的资源黑幕、抵达交接，以及角色／商店／出征／洋馆共享入场生命周期；不进入公开 UI 包
+
+普通 UI 动效使用 `motion/react`＋共享 CSS：控件、窗口、内容替换和三页主板预设有实际消费者，页面保留独立层次与就绪条件；Logo、视差、地图弹簧、战斗／AVG／天气不强制迁入。见[调用与消费者清单](src/shared/ui/motion/README.md)、[合并收口计划](docs/plans/2026-09-17-ui-motion-consolidation.md)。`npm run motion:check` 检查参数同步；`npm run motion:audit` 只报告候选，不能自动删动画。
 
 公共组件和类型统一从 `src/index.ts` 导出。为兼容早期接入，部分组件同时保留 `RetroRpg*` 别名。
 
@@ -112,7 +124,7 @@ Storybook 默认运行在 `http://127.0.0.1:6006/`。
 | `npm run dev:battle` | 裂隙远征 | 2–5 人真实编队、持久战斗、敌方意图与顺序演出、一次结算；木制／勇者／四席／魔王四套 UI 主题 |
 | `npm run dev:dice` | 明暗骰 | 五骰牌型、固定注额下注、公开/私有锁骰、重掷、庄家轮换、筹码结算、3D 骰子和本地对手逻辑 |
 | `npm run dev:map` | 副本地图 | Three.js + GSAP 地图、选点镜头聚焦、凯尔加 1–4 名伙伴、真实库存领用；裂隙远征提交成功后进入 Battle，托管暂未开放 |
-| `npm run dev:title` | 标题画面 | 新建/继续、多档列表、导入/导出与坏档诊断；字标、CG 轮播、三套主题及黑幕转场保留，固定端口 5182 |
+| `npm run dev:title` | 标题画面 | 新建/继续、多档列表、导入/导出与坏档诊断；金属缎带菜单、错拍浮动菱形游标、鼠标分层视差，支持方向键与提前结束入场；固定猩红配色、字标、CG 轮播及黑幕转场，固定端口 5182 |
 | `node scripts/run-target.mjs dev entry:prologue` | CG序幕 | 四幕15图，逐镜存档；从标题新建进入，独立端口5189 |
 | `npm run dev:menu` | 枢纽主界面 | 四角命令盘（府邸/出征/仓库/商店）、破窗立绘与吐槽、档案侧栏、资源与相位顶栏 |
 | `npm run dev:loading` | 场景交接实验室 | 骰子六面体黑幕、区域抵达标题、真实资源等待，以及淡入与实体面板落入的切换演示 |
@@ -320,7 +332,7 @@ src/
     battle/       裂隙远征规则、表现层与四套 UI 皮肤
     loading/      场景交接视觉实验页
     menu/         守望者之崖枢纽主界面
-    title/        标题画面：字标徽记 + 档案层命令 + 双侧 CG 轮播 + 三套主题
+    title/        标题画面：字标徽记 + 档案层命令 + 双侧 CG 轮播 + 固定猩红配色
     prologue/     四幕CG序幕：运镜、字幕、阅读、特效与逐镜恢复
     mansion/      洋馆房间、角色 ADV、修缮与设施收益
   tools/          5 个内容制作、标注与参数校准工具

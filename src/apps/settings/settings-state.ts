@@ -56,14 +56,7 @@ export interface SettingsState {
   /* ==================== 显示 ====================
      只做两件事:减弱动画、关掉渲染开销大的样式。 */
 
-  /**
-   * 减弱动态效果。
-   * 下游:tokens.css 已有 @media (prefers-reduced-motion: reduce) 的整套
-   * 实现(把 transition/animation 压到 0.01ms)。这个开关把同一套规则
-   * 挂到 [data-reduced-motion="true"] 上,于是它是一个真实生效的功能,
-   * 而不是等待接线的占位 —— 系统偏好之外再给一个手动入口。
-   */
-  reducedMotion: boolean;
+  // Motion preference is persisted separately by shared/preferences/ui-motion.
 
   /** 气泡特效。下游:rp-bubble-effects.css(541 行,渲染开销大头)。 */
   bubbleEffects: boolean;
@@ -92,7 +85,6 @@ export const DEFAULT_SETTINGS: SettingsState = {
   autoMs: 2200,
   morphMs: 560,
   crop: "knee",
-  reducedMotion: false,
   bubbleEffects: true,
   emotes: true,
   seatTransitions: true,

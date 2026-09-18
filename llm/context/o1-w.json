@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "id": "abyssa.o1-w",
+  "systemPrompt": "llm/prompts/editorial.md",
+  "maxInputChars": 120000,
+  "sources": [
+    {"id": "world", "path": "st/setting/world_setting_bible.txt"},
+    {"id": "present", "path": "st/setting/current_situation.txt"},
+    {"id": "prequel", "path": "st/setting/prequel_chronicle.txt"},
+    {"id": "player", "path": "st/setting/user/0-kael.txt", "actorId": "kael", "always": true},
+    {"id": "abyssa", "path": "st/setting/char/0-abyssa.txt", "actorId": "abyssa"},
+    {"id": "marietta", "path": "st/setting/char/1-marietta.txt", "actorId": "marietta"},
+    {"id": "alvitr", "path": "st/setting/char/1-alvitr.txt", "actorId": "alvitr"},
+    {"id": "lenore", "path": "st/setting/char/1-lenore.txt", "actorId": "lenore"},
+    {"id": "vivienne", "path": "st/setting/char/1-vivienne.txt", "actorId": "vivienne"},
+    {"id": "eustice", "path": "st/setting/char/2-eustice.txt", "actorId": "eustice"},
+    {"id": "elora", "path": "st/setting/char/2-elora.txt", "actorId": "elora"},
+    {"id": "kororo", "path": "st/setting/char/2-kororo.txt", "actorId": "kororo"},
+    {"id": "norma", "path": "st/setting/char/2-norma.txt", "actorId": "norma"},
+    {"id": "tibby", "path": "st/setting/char/3-tibby.txt", "actorId": "tibby"},
+    {"id": "voice-guide", "path": "docs/design/DEMO_DIALOGUE_VOICE_GUIDE.md"}
+  ]
+}

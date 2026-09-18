@@ -22,13 +22,12 @@ afterEach(() => {
 });
 
 describe("createMapSceneRuntime", () => {
-  it("starts rendering, wires interactions and schedules the entrance replay", () => {
+  it("starts rendering and wires interactions without an entrance timer", () => {
     const element = document.createElement("canvas");
     const onFrame = vi.fn();
     const onResize = vi.fn();
     const onPointerDown = vi.fn();
     const onPointerMove = vi.fn();
-    const replay = vi.fn();
     const runtime = createMapSceneRuntime({
       element,
       onFrame,
@@ -49,11 +48,8 @@ describe("createMapSceneRuntime", () => {
 
     frameCallback?.(16);
     expect(onFrame).toHaveBeenCalledTimes(2);
-    runtime.scheduleReplay(replay, 200);
-    vi.advanceTimersByTime(199);
-    expect(replay).not.toHaveBeenCalled();
-    vi.advanceTimersByTime(1);
-    expect(replay).toHaveBeenCalledOnce();
+    expect(vi.getTimerCount()).toBe(0);
+    runtime.destroy();
   });
 
   it("cancels every browser resource and destroys the scene exactly once", () => {
@@ -63,7 +59,6 @@ describe("createMapSceneRuntime", () => {
     const onPointerDown = vi.fn();
     const onPointerMove = vi.fn();
     const onDestroy = vi.fn();
-    const replay = vi.fn();
     const runtime = createMapSceneRuntime({
       element,
       onFrame,
@@ -72,7 +67,6 @@ describe("createMapSceneRuntime", () => {
       onPointerMove,
       onDestroy
     });
-    runtime.scheduleReplay(replay, 200);
 
     runtime.destroy();
     runtime.destroy();
@@ -83,7 +77,6 @@ describe("createMapSceneRuntime", () => {
     expect(onDestroy).toHaveBeenCalledOnce();
     expect(vi.getTimerCount()).toBe(0);
     vi.advanceTimersByTime(200);
-    expect(replay).not.toHaveBeenCalled();
     element.dispatchEvent(new PointerEvent("pointerdown"));
     element.dispatchEvent(new PointerEvent("pointermove"));
     window.dispatchEvent(new Event("resize"));

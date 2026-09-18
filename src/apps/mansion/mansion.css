@@ -3,7 +3,10 @@
 @import "./mansion-chrome.css";
 @import "./mansion-world.css";
 @import "./mansion-room-drawer.css";
+@import "./mansion-motion.css";
 @import "./mansion-dialogue.css";
+@import "./mansion-weather.css";
+@import "./mansion-ui-motion.css";
 
 /* Above edge-panning hit areas (300), below room drawers (500). */
 .mansion-app .game-menu { --game-menu-top:104px; z-index:310; }

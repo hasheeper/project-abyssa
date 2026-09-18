@@ -1,0 +1,19 @@
+.mansion-weather-debug { position: absolute; z-index: 310; top: 104px; left: 50%; transform: translateX(-50%); }
+.mansion-weather-debug > .abyssa-notched-pill { width: 168px; height: 40px; }
+.mansion-weather-debug .abyssa-notched-pill__label { font-size: 18px; letter-spacing: .5px; }
+.mansion-weather-debug__picker.abyssa-frame {
+  position: absolute; top: 52px; left: 50%; width: 304px; transform: translateX(-50%);
+  --abyssa-frame-surface: #182024;
+  --abyssa-ornament: #8d9c9c;
+}
+.mansion-weather-debug__options { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.mansion-weather-debug__options button {
+  display: grid; gap: 7px; justify-items: center; padding: 11px 4px 9px;
+  color: #9dacad; border: 1px solid transparent; background: transparent;
+  font-size: 13px; cursor: pointer; transition: color 160ms, background-color 160ms;
+}
+.mansion-weather-debug__options svg { width: 30px; height: 30px; }
+.mansion-weather-debug__options button:hover { color: #eee4cc; background: #232e32; }
+.mansion-weather-debug__options button[aria-pressed="true"] { color: #e1d2aa; background: #263135; border-color: #727e79; }
+.mansion-weather-debug__options button:focus-visible { outline: 1px solid #d9cba8; outline-offset: 2px; }
+.mansion-weather-debug__picker p { margin: 12px 0 1px; color: #899999; text-align: center; font-size: 11px; }

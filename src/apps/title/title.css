@@ -8,10 +8,7 @@
  * 画布内**没有任何视口单位**。Stage 会整体 scale(k),vw/cqh 会与它叠成
  * 二次缩放,构图必然漂移 —— 见 shared/stage/README.md 铁律 1。
  *
- * ---- 三套主题 ----
- * 黑金 / 猩红 / 青幽,由 `.title-app[data-theme]` 切换,**只改颜色令牌**。
- * 主题绝不许碰尺寸:构图是 titleGeometry 的职责,混在一起会让皮肤切换
- * 变成布局重排。
+ * 标题固定使用猩红配色；颜色令牌与 titleGeometry 的构图尺寸分开维护。
  */
 
 .abyssa-title-screen {
@@ -26,12 +23,11 @@
   inset: 0;
 }
 
-/* ---- 猩红(默认)----
+/* ---- 猩红 ----
    取值自 cg-b-1 / cg-b-2 的实测像素:
    最高饱和 #e31620 / #d51112,最亮 #fbf0ed,暗部 #010102。
    22.3% / 24.7% 的饱和像素落在 345°..360°,所以 CG 在场时只有这套不打架。 */
 .title-app[data-theme="crimson"] {
-  --title-canvas: #070304;
   --title-field-ink: #7d3a3f;
   --title-field-ink-strong: #a8474b;
   --title-field-node: #c25a56;
@@ -60,72 +56,6 @@
   --abyssa-text-muted: #a07f79;
   --abyssa-text-dark: #17090a;
   --abyssa-focus: #f6d8cf;
-}
-
-/* ---- 黑金:logo 自身的金/象牙渐变,原始基线 ---- */
-.title-app[data-theme="black-gold"] {
-  --title-canvas: #050707;
-  --title-field-ink: #7d6440;
-  --title-field-ink-strong: #a8875a;
-  --title-field-node: #b8935f;
-  --title-glow-core: #8a6a34;
-  --title-glow-mid: #5c4520;
-  --title-glow-far: #2a2012;
-  --title-cg-tint: #1c1206;
-  --title-emblem-sepia: 0.18;
-  --title-emblem-halo: rgb(200 165 112 / 16%);
-
-  --abyssa-frame-dark: #16110a;
-  --abyssa-frame-deep: #070503;
-  --abyssa-frame-light: #6d5330;
-  --abyssa-panel-black: #14100a;
-  --abyssa-panel-dark: #1d1710;
-  --abyssa-panel-soft: #2b2216;
-  --abyssa-panel-gray: #574632;
-  --abyssa-teal: #c8a570;
-  --abyssa-teal-dark: #79512d;
-  --abyssa-teal-soft: #efd19a;
-  --abyssa-ornament: #6b563a;
-  --abyssa-ornament-dark: #3a2d1c;
-  --abyssa-ornament-light: #8e7550;
-  --abyssa-text: #f2e6cd;
-  --abyssa-text-soft: #cdbda1;
-  --abyssa-text-muted: #8b7a5d;
-  --abyssa-text-dark: #17110a;
-  --abyssa-focus: #f4e3bd;
-}
-
-/* ---- 青幽:全局 tokens.css 的青灰血统,压暗加深 ---- */
-.title-app[data-theme="verdigris"] {
-  --title-canvas: #04080a;
-  --title-field-ink: #3f6b6a;
-  --title-field-ink-strong: #58908d;
-  --title-field-node: #6da9a3;
-  --title-glow-core: #2f6866;
-  --title-glow-mid: #1e4544;
-  --title-glow-far: #0f2426;
-  --title-cg-tint: #071c1e;
-  --title-emblem-sepia: 0;
-  --title-emblem-halo: rgb(126 196 190 / 16%);
-
-  --abyssa-frame-dark: #0d1618;
-  --abyssa-frame-deep: #040809;
-  --abyssa-frame-light: #4a7472;
-  --abyssa-panel-black: #0b1416;
-  --abyssa-panel-dark: #111d1f;
-  --abyssa-panel-soft: #1b2c2d;
-  --abyssa-panel-gray: #37514f;
-  --abyssa-teal: #74b3ad;
-  --abyssa-teal-dark: #33625f;
-  --abyssa-teal-soft: #a8dad3;
-  --abyssa-ornament: #47706d;
-  --abyssa-ornament-dark: #1f3634;
-  --abyssa-ornament-light: #669691;
-  --abyssa-text: #e3f0ee;
-  --abyssa-text-soft: #b6cdca;
-  --abyssa-text-muted: #7d9793;
-  --abyssa-text-dark: #0a1213;
-  --abyssa-focus: #d6efeb;
 }
 
 /* ---- 两侧 CG ----
@@ -191,23 +121,15 @@
   opacity: 1;
 }
 
-/* 主题染色层。CG 本身偏猩红,青幽/黑金主题下需要压一层色才不突兀。
-   它在 .title-cg 内部,因此**继承容器的遮罩** —— 这是它不再露出
-   硬矩形边界的原因。opacity 也从 0.42 降到 0.3:染色越重,
-   一旦遮罩有任何缝隙就越明显。 */
+/* CG 的轻猩红染色与原图一起受容器遮罩裁切，四边都能完全渐隐。 */
 .title-cg::after {
   position: absolute;
   background: var(--title-cg-tint);
   mix-blend-mode: color;
   content: "";
   inset: 0;
-  opacity: 0.3;
-  pointer-events: none;
-}
-
-/* 猩红主题下 CG 本来就是同色系,染色几乎不需要。 */
-.title-app[data-theme="crimson"] .title-cg::after {
   opacity: 0.1;
+  pointer-events: none;
 }
 
 /* ---- 黑幕层 ----
@@ -245,8 +167,6 @@
 
 .title-backdrop {
   position: absolute;
-  /* 与徽记独立合成，法阵转动不能连带重画带滤镜的字标。 */
-  transform: translateZ(0);
   inset: 0;
   width: 100%;
   height: 100%;
@@ -256,14 +176,14 @@
 /* ---- 背景场 ---- */
 .title-backdrop__layer,
 .title-backdrop__field,
-.title-backdrop__spin {
+.title-backdrop__pattern {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
 }
 
-/* 图案超出画布的部分仍参与旋转，由固定外层裁切。 */
+/* 保留超出画布的静态图案，由固定外层裁切。 */
 .title-backdrop__layer { overflow: visible; }
 
 .title-backdrop__field {
@@ -322,53 +242,6 @@
   opacity: 0.5;
 }
 
-/* 只在 HTML 合成层转动静态图案，固定遮罩与底光不参与动画。
-   转轴依然来自 titleGeometry，保持原本的半径、速度与呼吸幅度。 */
-.title-backdrop__spin {
-  transform-origin: var(--title-field-origin);
-  will-change: transform;
-}
-
-.title-backdrop__spin--spokes {
-  animation: title-field-spin 226s linear infinite;
-}
-
-/* 菱形不自转,改呼吸 ——
-   菱形有明确的上下左右四个尖端,一旋转就会读成「歪了」而不是「转着」;
-   正圆和细密刻度没有这个问题,所以只有它换成缩放。
-   幅度刻意很小(±1.8%),要的是心跳般的存在感,不是脉冲。 */
-.title-backdrop__spin--diamonds {
-  animation: title-field-breathe 13s ease-in-out infinite;
-}
-
-@keyframes title-field-breathe {
-  0%,
-  100% { transform: scale(1); }
-  50% { transform: scale(1.018); }
-}
-
-.title-backdrop__spin--ticks {
-  animation: title-field-spin 96s linear infinite;
-}
-
-@keyframes title-field-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-/* tokens.css 的降低动效规则把 animation-duration 压到 0.01ms 并令
-   iteration-count: 1,那对**过渡**是对的,但对无限自转会让图案瞬间停在
-   360° —— 视觉上等于没转,却仍然创建了合成层。这里直接取消动画。
-
-   注意该规则依赖 `.abyssa-theme`(即 AbyssaProvider),所以本屏必须
-   被 AbyssaProvider 包住,否则整个降低动效契约都不生效。 */
-@media (prefers-reduced-motion: reduce) {
-  .title-backdrop__spin {
-    animation: none !important;
-    will-change: auto;
-  }
-}
-
 /* ---- 中轴 ---- */
 /* 中轴只占「画布高 - 底部信息带」,不是整块画布。
    inset-block-end = TITLE_FOOTER_H,居中因此发生在剩余区域内。
@@ -391,7 +264,6 @@
    墨迹在 tight 裁切里水平正中,所以居中即视觉居中,无需偏移修正。 */
 .title-emblem {
   position: relative;
-  transform: translateZ(0);
   /* = TITLE_EMBLEM_W / TITLE_EMBLEM_H */
   width: 560px;
   height: 459.2px;
@@ -452,26 +324,11 @@
      否则与 titleGeometry 的推导脱钩。 */
   width: 100%;
   max-width: none;
-  animation: title-command-enter 620ms cubic-bezier(0.2, 0.82, 0.24, 1) both;
 }
 
-@keyframes title-command-enter {
-  from {
-    opacity: 0;
-    translate: 0 10px;
-  }
-  to {
-    opacity: 1;
-    translate: 0 0;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .title-commands__item {
-    animation: none !important;
-    opacity: 1;
-    translate: none;
-  }
+.title-commands__entry {
+  display: grid;
+  width: 100%;
 }
 
 /* ---- 命令文字的三处对齐修正 ----
@@ -540,46 +397,6 @@
   text-transform: uppercase;
 }
 
-/* ---- 主题切换(原型期控件)----
-   贴右上角,刻意低调:它是开发期开关,不是标题构图的一部分。
-   将来并入设定界面后应整块删掉。 */
-.title-skins {
-  position: absolute;
-  top: 22px;
-  right: 26px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.title-skins__item,
-.title-skins__cycle {
-  padding: 5px 12px;
-  border: 1px solid var(--abyssa-ornament-dark, #3a2d1c);
-  border-radius: 2px;
-  background: rgb(8 6 4 / 62%);
-  color: var(--abyssa-text-muted, #8b7a5d);
-  font-family: var(--abyssa-font-body, serif);
-  font-size: 13px;
-  letter-spacing: 0.06em;
-  cursor: pointer;
-  transition:
-    color 140ms var(--abyssa-ease, ease),
-    border-color 140ms var(--abyssa-ease, ease),
-    background-color 140ms var(--abyssa-ease, ease);
-}
-
-.title-skins__item:hover,
-.title-skins__cycle:hover {
-  border-color: var(--abyssa-teal-dark, #79512d);
-  color: var(--abyssa-text-soft, #cdbda1);
-}
-
-.title-skins__item[data-selected] {
-  border-color: var(--abyssa-teal, #c8a570);
-  background: rgb(20 14 8 / 82%);
-  color: var(--abyssa-teal-soft, #efd19a);
-}
 /* RpgModal owns centering within Stage. Scroll the body so the close button
    remains visible and does not inherit the old standalone dialog's inset. */
 .title-archive.abyssa-modal__panel {
@@ -593,3 +410,25 @@
 .title-archive__list { max-height: 340px; overflow-y: auto; }
 .title-archive article { border-bottom: 1px solid #81704c; padding: 8px; }
 .title-archive label { display: block; margin: 15px 0; }
+
+/* New-game choices stay inside the shared Stage/modal and inherit the crimson palette. */
+.title-start.abyssa-modal__panel { width: 670px; }
+.title-start__intro { margin: 0 0 20px; color: var(--abyssa-text-soft); font-size: 15px; line-height: 1.7; }
+.title-start__options { display: grid; gap: 10px; }
+.title-start__option {
+  display: flex; align-items: center; gap: 18px; width: 100%; padding: 17px 20px;
+  border: 1px solid var(--abyssa-ornament-dark); background: var(--abyssa-panel-black);
+  color: var(--abyssa-text); font: inherit; text-align: left; cursor: pointer;
+  transition: background 150ms, border-color 150ms;
+}
+.title-start__option[data-primary] { border-color: var(--abyssa-ornament); background: var(--abyssa-panel-dark); }
+.title-start__option:hover:not(:disabled) { background: var(--abyssa-panel-soft); border-color: var(--abyssa-teal); }
+.title-start__option:focus-visible { outline: 2px solid var(--abyssa-focus); outline-offset: 3px; }
+.title-start__option:disabled { opacity: .5; cursor: wait; }
+.title-start__index { color: var(--abyssa-text-muted); font-size: 14px; letter-spacing: .1em; }
+.title-start__copy { display: grid; gap: 7px; flex: 1; }
+.title-start__copy strong { font-size: 18px; font-weight: 500; letter-spacing: .06em; }
+.title-start__copy > span { color: var(--abyssa-text-soft); font-size: 14px; line-height: 1.65; }
+.title-start__arrow { color: var(--abyssa-teal-soft); font-size: 25px; }
+.title-start__note { margin: 20px 0 0; color: var(--abyssa-text-muted); font-size: 13px; line-height: 1.6; }
+.title-start__status { min-height: 22px; margin: 8px 0 0; color: var(--abyssa-teal-soft); font-size: 14px; line-height: 1.6; }

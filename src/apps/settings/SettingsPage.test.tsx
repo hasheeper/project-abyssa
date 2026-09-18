@@ -1,12 +1,23 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { SettingsPage } from "./SettingsPage";
 import { DEFAULT_SETTINGS } from "./settings-state";
+import { setUiMotionPreference } from "../../shared/preferences/ui-motion";
 
-afterEach(cleanup);
+afterEach(() => { cleanup(); vi.restoreAllMocks(); setUiMotionPreference("system"); });
 
 describe("settings page", () => {
+  it("reports failed persistence while keeping the selected session preference", async () => {
+    const user = userEvent.setup(); render(<SettingsPage/>);
+    await user.click(screen.getByRole("tab", { name: "Display" }));
+    vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => { throw new Error("blocked"); });
+    const toggle = screen.getByRole("switch", { name: "减弱界面动效（关闭时跟随系统）" });
+    await user.click(toggle);
+    expect(toggle).toHaveAttribute("aria-checked", "true");
+    expect(screen.getByText(/浏览器未能保存设置/)).toHaveAttribute("role", "status");
+    expect(document.querySelector(".settings-app")).toHaveAttribute("data-ui-motion", "reduced");
+  });
   it("exposes four categories with Scene selected first", () => {
     render(<SettingsPage />);
 
@@ -90,7 +101,7 @@ describe("settings page", () => {
 
     await user.click(screen.getByRole("tab", { name: "Display" }));
 
-    const reduced = screen.getByRole("switch", { name: "减弱动态效果" });
+    const reduced = screen.getByRole("switch", { name: "减弱界面动效（关闭时跟随系统）" });
     const bubbles = screen.getByRole("switch", { name: "气泡特效" });
     expect(bubbles).toBeEnabled();
 

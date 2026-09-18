@@ -10,6 +10,7 @@ import vivienneAvatar from "../../assets/characters/avatars/vivienne.png";
 import type { MansionCharacter } from "./data";
 import { roomPreviewImageStyle } from "./mansion-geometry";
 import type { SceneRegion } from "./mansion-geometry";
+import { MANSION_COMPOSITE_FILE } from "./mansion-assets";
 
 const MANSION_AVATARS: Record<string, string> = {
   abyssa: abyssaAvatar,
@@ -59,7 +60,7 @@ export function MansionRoomPreview({
   return (
     <div className="mansion-room-card__preview" role="img" aria-label={`${label}房间预览`}>
       <img
-        src={`${import.meta.env.BASE_URL}mansion-map/composite-reference.png`}
+        src={`${import.meta.env.BASE_URL}mansion-map/${MANSION_COMPOSITE_FILE}`}
         alt=""
         draggable={false}
         style={roomPreviewImageStyle(region)}

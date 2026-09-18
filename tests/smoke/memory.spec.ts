@@ -3,7 +3,8 @@ import { build } from "esbuild";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { projectRoot } from "../../config/paths.mjs";
-import { ready as baseReady } from "./playable-helpers";
+import { openManorJournal, ready as baseReady } from "./playable-helpers";
+import { observeArtifacts } from "./helpers";
 import type { D5GameRecord } from "../../src/game-application/versions/d5-contracts";
 import { mariettaMemoryScript } from "../../src/content/presentation/marietta-memory";
 const probe = resolve(projectRoot,"dist/reports/demo-d5-d/memory-probe.js");
@@ -21,16 +22,16 @@ test.beforeAll(async () => {
   records = await (await import(pathToFileURL(generator).href)).playedMemoryFixtures();
 });
 async function loadProbe(page: Page) {await page.addScriptTag({path:probe});}
-async function install(page: Page, record: D5GameRecord, prefix = "/") {
+async function install(page: Page, record: D5GameRecord, prefix = "/", destination: "battle" | "mansion" = "battle") {
   await page.goto(prefix); await loadProbe(page);
   await page.evaluate(json => (window as any).MemoryProbe.seedPlayed(JSON.parse(json)),JSON.stringify(record));
-  const m = record.snapshot.campaign.memory!;
-  await page.goto(`${prefix}battle.html?save=${record.head.saveId}&epoch=${record.head.epoch}&memory=${m.id}&attempt=${m.attempt}`);
+  const m = record.snapshot.campaign.memory;
+  await page.goto(`${prefix}${destination}.html?save=${record.head.saveId}&epoch=${record.head.epoch}${destination === "battle" && m ? `&memory=${m.id}&attempt=${m.attempt}` : ""}`);
   await ready(page);
 }
 async function inspect(page: Page) {await loadProbe(page);return page.evaluate(() => (window as any).MemoryProbe.inspectMemory());}
 async function expectStoryInsideFrame(page: Page, text: string) {
-  await expect(page.locator(".abyssa-dialogue__content")).toHaveText(text);
+  await expect(page.locator(".abyssa-dialogue__content")).toHaveText(text.replaceAll("{{user}}","你"));
   const frame = (await page.locator(".rp-app").boundingBox())!;
   for (const selector of [".rp-adv__dialogue", ".rp-app__bar"]) {
     const bounds = (await page.locator(selector).boundingBox())!;
@@ -48,7 +49,11 @@ async function expectStoryInsideFrame(page: Page, text: string) {
 for (const [prefix,width,height] of [["/",1600,900],["/abyssa/",1280,720]] as const) {
   test(`memory uses the approved surface and restores narrative/results under ${prefix}`, async ({page},info) => {
     test.setTimeout(180000); page.setDefaultTimeout(15000); await page.setViewportSize({width,height});
-    await install(page,records.intro,prefix);
+    const failures = await observeArtifacts(page);
+    await install(page,records.firstClear,prefix,"mansion");
+    await openManorJournal(page, "chapter.marietta.memory");
+    await page.getByRole("button",{name:"谈起旧日回廊",exact:true}).click();
+    await expect(page).toHaveURL(/#\/battle/,{timeout:20000}); await ready(page);
     await page.getByRole("button",{name:"下一句",exact:true}).click(); await ready(page);
     const cursor = (await inspect(page)).record.snapshot.campaign.memory.step;
     expect(cursor).toBe(1);
@@ -68,7 +73,7 @@ for (const [prefix,width,height] of [["/",1600,900],["/abyssa/",1280,720]] as co
     }
     await expect(page.getByRole("main",{name:"玛丽埃塔回忆战斗界面"})).toBeVisible();
     await expect(page.getByLabel("侍偶护域 · 1",{exact:true})).toBeVisible();
-    await page.getByRole("button",{name:"回忆战记录与补给",exact:true}).click();
+    await page.getByRole("button",{name:"回忆战记录",exact:true}).click();
     await expect(page.getByText("玛丽埃塔：规矩是我立的。",{exact:true})).toBeVisible();
     await page.getByRole("button",{name:"收起账本",exact:true}).click();
     expect(await page.locator(".abyssa-expedition-enemies").evaluate(e => getComputedStyle(e).backgroundImage)).not.toContain("url(");
@@ -94,10 +99,13 @@ for (const [prefix,width,height] of [["/",1600,900],["/abyssa/",1280,720]] as co
     await page.reload();await ready(page);
     expect((await inspect(page)).record.head).toEqual(after.record.head);
     await expect(page.locator(".expedition-die[data-rolling]")).toHaveCount(0);
-    await page.getByRole("button",{name:"回忆战记录与补给",exact:true}).click();
+    await page.getByRole("button",{name:"回忆战记录",exact:true}).click();
     await page.getByRole("button",{name:"暂离回忆",exact:true}).click();
     await expect(page).toHaveURL(/#\/mansion/,{timeout:20000});await ready(page);
     expect((await inspect(page)).record.snapshot.campaign.funds).toEqual(records.memory.snapshot.campaign.funds);
+    await openManorJournal(page, "chapter.marietta.memory");
+    await page.getByRole("button",{name:"重新进入回忆",exact:true}).click();
+    await expect(page).toHaveURL(/attempt=2/,{timeout:20000}); await ready(page);
 
     await install(page,records.failed,prefix);
     await page.getByRole("button",{name:"重新挑战",exact:true}).click();
@@ -118,10 +126,11 @@ for (const [prefix,width,height] of [["/",1600,900],["/abyssa/",1280,720]] as co
     expect(unlocked.snapshot.campaign.funds).toEqual(records.firstClear.snapshot.campaign.funds);
     const revision = unlocked.head.revision;
     await page.reload();await ready(page);
-    if(prefix === "/") {await page.getByRole("link",{name:"回顾回忆与同行",exact:true}).click();await ready(page);}
+    if(prefix === "/") {await openManorJournal(page, "chapter.marietta.memory");await page.getByRole("link",{name:"回顾回忆与同行",exact:true}).click();await ready(page);}
     await page.getByRole("button",{name:"回顾当下对话",exact:true}).click();
     await page.getByRole("button",{name:"结束回顾",exact:true}).last().click();await ready(page);
     expect((await inspect(page)).record.head.revision).toBe(revision);
+    expect(failures).toEqual([]);
   });
 }
 test("D5 result survives IndexedDB connection loss, replay and a stale competing claim",async ({page}) => {

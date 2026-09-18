@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { HandEvaluation, LayerSettlement } from "../view";
 import type { BattleUiSkin } from "../battleUiSkins";
+import { useTutorialAnchors } from "../../../shared/tutorial";
 
 const PARTY_LINK_SEGMENTS = 36;
 const PARTY_LINK_FRAME_INTERVAL = 1000 / 30;
@@ -50,11 +51,13 @@ function getAnimatedPartyLinkPath(
   return path;
 }
 
-export function AnimatedPartyLink({ active, paused = false }: { active: boolean; paused?: boolean }) {
+/** paused is supplied by the battle policy (visibility, preferences and action load). */
+export function AnimatedPartyLink({ active, paused }: { active: boolean; paused: boolean }) {
   const auraRef = useRef<SVGPathElement>(null);
   const mainRef = useRef<SVGPathElement>(null);
   const highRef = useRef<SVGPathElement>(null);
   const samples = useMemo(() => getPartyLinkSamples(), []);
+  const elapsed=useRef(0);
   const staticPath = "M32 90 C32 60, 32 30, 32 0";
 
   useEffect(() => {
@@ -64,10 +67,8 @@ export function AnimatedPartyLink({ active, paused = false }: { active: boolean;
       highRef.current?.setAttribute("d", staticPath);
     };
 
-    const reducedMotion =
-      typeof window.matchMedia === "function" &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (!active || reducedMotion) {
+    if (!active) {
+      elapsed.current=0;
       resetToStatic();
       return;
     }
@@ -77,9 +78,13 @@ export function AnimatedPartyLink({ active, paused = false }: { active: boolean;
 
     let frame = 0;
     let lastDraw = -PARTY_LINK_FRAME_INTERVAL;
-    const draw = (time: number) => {
-      if (time - lastDraw >= PARTY_LINK_FRAME_INTERVAL) {
-        lastDraw = time;
+    let previous: number | null=null;
+    const draw = (now: number) => {
+      if(previous!==null)elapsed.current+=Math.min(now-previous,100);
+      previous=now;
+      const time=elapsed.current;
+      if (now - lastDraw >= PARTY_LINK_FRAME_INTERVAL) {
+        lastDraw = now;
         auraRef.current?.setAttribute("d", getAnimatedPartyLinkPath(samples, time, 1.5, 5, .0008, 0));
         mainRef.current?.setAttribute("d", getAnimatedPartyLinkPath(samples, time, 2.2, 3, .0016, Math.PI / 4));
         highRef.current?.setAttribute("d", getAnimatedPartyLinkPath(samples, time, 3.5, -2, .0022, Math.PI));
@@ -136,6 +141,7 @@ export function BattleFrameCorners({
 }
 
 export function ExpeditionHandReadout({ hand, explanation }: { hand: HandEvaluation | null; explanation?: string }) {
+  const anchor = useTutorialAnchors();
   const name = hand?.name ?? null;
   const bonus = hand?.adjustedBonus ?? 0;
   const formed = Boolean(name) && name !== "散牌";
@@ -151,6 +157,7 @@ export function ExpeditionHandReadout({ hand, explanation }: { hand: HandEvaluat
 
   return (
     <output
+      ref={anchor("battle.hand")}
       className="abyssa-expedition-hand"
       data-scoring={scoring || undefined}
       data-idle={!scoring || undefined}
@@ -200,7 +207,7 @@ export function LayerSettlementBreakdown({ settlement, earthFactor = 1 }: { sett
           <small>层倍率</small>
           <strong>{settlement.layerFactor}</strong>
         </span>
-        {earthFactor !== 1 && <><i aria-hidden="true">×</i><span><small>大地共鸣</small><strong>{earthFactor}</strong></span></>}
+        {earthFactor !== 1 && <><i aria-hidden="true">×</i><span><small>大地加成</small><strong>{earthFactor}</strong></span></>}
         <i aria-hidden="true">＝</i>
         <span data-currency="gold" data-result>
           <small>本层入袋</small>

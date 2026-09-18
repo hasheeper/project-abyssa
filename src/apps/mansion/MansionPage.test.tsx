@@ -11,6 +11,15 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { MansionPage } from "./MansionPage";
 
+// Interaction cases use an already drawable scene; the real mounted-image
+// barrier and entrance clocks have separate delayed-resource tests.
+vi.mock("./useMansionPresentation", () => ({ useMansionPresentation: (options: {clock: {day: number; phase: string}}) => ({
+  clock: options.clock, step: "ready", blocked: false, artwork: null, advance: vi.fn(), retry: vi.fn()
+}) }));
+vi.mock("./MansionMapArt", () => ({MansionMapArt: vi.fn(() => <img className="mansion-world-art" alt=""/>)}));
+import { MansionMapArt } from "./MansionMapArt";
+import { WORLD_SCALE } from "./mansion-geometry";
+
 describe("MansionPage", () => {
   beforeEach(() => {
     vi.stubGlobal("fetch", vi.fn(() => new Promise<Response>(() => {})));
@@ -27,11 +36,47 @@ describe("MansionPage", () => {
     expect(screen.getByRole("button", { name: "昼" })).toHaveAttribute("aria-pressed", "true");
     expect(screen.getByRole("button", { name: "与艾比希斯交谈" })).toBeInTheDocument();
     const ledger = screen.getByRole("region", { name: "领地账簿" });
-    const stockButton = screen.getByRole("button", { name: /领地库存/ });
+    const stockButton = screen.getByRole("button", { name: "仓库" });
     expect(ledger).toBeInTheDocument();
     expect(ledger).not.toContainElement(stockButton);
     expect(stockButton).toHaveAttribute("aria-expanded", "false");
+    const rail = screen.getByRole("navigation", {name: "洋馆功能"});
+    expect(within(rail).getAllByRole("button").map(button => button.getAttribute("aria-label"))).toEqual(["仓库", "日志", "整备"]);
+    expect(rail.querySelectorAll(".mansion-utility-rail__plate")).toHaveLength(3);
+    expect(screen.queryByRole("button", {name: "洋馆记事"})).toBeNull();
     expect(screen.queryByText(/情绪平稳|核心结界/)).not.toBeInTheDocument();
+  });
+
+  it("opens and closes utility UI without rebuilding the stable world art subtree", async () => {
+    const user = userEvent.setup();
+    render(<MansionPage/>);
+    const art = vi.mocked(MansionMapArt), count = art.mock.calls.length;
+    const image = document.querySelector(".mansion-world-art");
+    await user.click(screen.getByRole("button",{name:"仓库"}));
+    expect(screen.getByRole("dialog",{name:"领地库存"}).parentElement).toHaveAttribute("data-ui-motion-preset","manor");
+    expect(art.mock.calls.length).toBe(count);
+    expect(document.querySelector(".mansion-world-art")).toBe(image);
+    expect(document.querySelector(".mansion-app")).toHaveAttribute("data-world-paused");
+    await user.click(screen.getByRole("button",{name:"关闭领地库存"}));
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    expect(art.mock.calls.length).toBe(count);
+    expect(document.querySelector(".mansion-world-art")).toBe(image);
+    expect(document.querySelector(".mansion-app")).not.toHaveAttribute("data-world-paused");
+  });
+
+  it("exposes temporary weather previews without changing the saved clock or record",async()=>{
+    const user=userEvent.setup();render(<MansionPage/>);
+    const before=fixture.session.getSnapshot().record;
+    await user.click(screen.getByRole("button",{name:"天气调试 · 晴天"}));
+    const options=screen.getByRole("group",{name:"天气预览"});
+    expect(within(options).getAllByRole("button")).toHaveLength(4);
+    await user.click(within(options).getByRole("button",{name:"雨天"}));
+    expect(screen.getByRole("button",{name:"天气调试 · 雨天"})).toHaveAttribute("aria-expanded","false");
+    expect(fixture.session.getSnapshot().record).toBe(before);
+    await user.click(screen.getByRole("button",{name:"天气调试 · 雨天"}));
+    await user.keyboard("{Escape}");
+    expect(screen.queryByRole("group",{name:"天气预览"})).toBeNull();
+    expect(screen.getByRole("button",{name:"天气调试 · 雨天"})).toHaveFocus();
   });
 
   it("opens a room detail drawer from its map region", async () => {
@@ -48,7 +93,7 @@ describe("MansionPage", () => {
     expect(within(drawer).getByRole("img", { name: "大厅房间预览" })).toBeInTheDocument();
     expect(drawer).toHaveAttribute("data-side", "right");
     expect(drawer.querySelector(".mansion-room-card")).toHaveAttribute("data-padding", "md");
-    expect(worldPan?.style.transform).toContain("scale(1.45)");
+    expect(worldPan?.style.transform).toContain(`scale(${WORLD_SCALE * 1.45})`);
 
     await user.click(within(drawer).getByRole("button", { name: "关闭房间详情" }));
     expect(worldPan?.style.transform).toBe(initialTransform);
@@ -63,7 +108,7 @@ describe("MansionPage", () => {
 
     await user.click(gate);
     expect(screen.getByRole("dialog", { name: "正门" })).toHaveAttribute("data-side", "left");
-    expect(worldPan?.style.transform).toContain("scale(1.45)");
+    expect(worldPan?.style.transform).toContain(`scale(${WORLD_SCALE * 1.45})`);
 
     await user.click(gate);
     expect(screen.queryByRole("dialog", { name: "正门" })).not.toBeInTheDocument();
@@ -156,10 +201,11 @@ describe("MansionPage", () => {
     const user = userEvent.setup();
     render(<MansionPage />);
 
-    const stockButton = screen.getByRole("button", { name: /领地库存/ });
+    const stockButton = screen.getByRole("button", { name: "仓库" });
     expect(screen.queryByRole("dialog", { name: "领地库存" })).not.toBeInTheDocument();
 
     await user.click(stockButton);
+    expect(document.querySelector(".mansion-viewport")).toHaveAttribute("inert");
 
     const dialog = screen.getByRole("dialog", { name: "领地库存" });
     expect(dialog).toHaveAttribute("aria-modal", "true");
@@ -173,11 +219,29 @@ describe("MansionPage", () => {
     expect(within(dialog).getByText("32")).toBeInTheDocument();
   });
 
+  it.each(["日志", "整备"])("locks world navigation while %s is open and restores its trigger on close", async title => {
+    const user = userEvent.setup(), {container} = render(<MansionPage/>);
+    const trigger = screen.getByRole("button",{name:title});
+    const world = container.querySelector(".mansion-viewport")!;
+    const before = container.querySelector<HTMLElement>(".mansion-world-pan")!.style.transform;
+    await user.click(trigger);
+    expect(world).toHaveAttribute("inert");
+    const page = screen.getByRole("dialog",{name:title});
+    expect(screen.queryByRole("tablist")).toBeNull();
+    expect(container.querySelector(".mansion-utility-rail")).toHaveAttribute("inert");
+    expect(container.querySelector(".mansion-corner--phase")).toHaveAttribute("inert");
+    page.focus(); await user.keyboard("{ArrowRight}");
+    expect(container.querySelector<HTMLElement>(".mansion-world-pan")!.style.transform).toBe(before);
+    await user.keyboard("{Escape}");
+    await waitFor(() => expect(world).not.toHaveAttribute("inert"));
+    await waitFor(()=>expect(trigger).toHaveFocus());
+  });
+
   it("returns focus to the stock button after closing the real inventory", async () => {
     const user = userEvent.setup();
     render(<MansionPage />);
 
-    const stockButton = screen.getByRole("button", { name: /领地库存/ });
+    const stockButton = screen.getByRole("button", { name: "仓库" });
     await user.click(stockButton);
 
     const dialog = screen.getByRole("dialog", { name: "领地库存" });

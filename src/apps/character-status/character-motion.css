@@ -1,0 +1,113 @@
+/* Character pilot: wood settles first; portrait, dossier, controls overlap.
+   Own `translate`, never the screen/visual/details' authored scale/transform. */
+.character-status-app__main[data-character-intro="waiting"] .abyssa-character-screen {
+  opacity: 0;
+}
+.character-status-app__main[data-character-intro="playing"] .abyssa-character-screen {
+  /* Separate material reveal from travel. The old 68% overshoot keyframe plus
+     a steep ease-out spent 87% of the drop in 150ms, despite a 560ms label. */
+  animation: var(--abyssa-motion-page-board-enter);
+}
+.character-status-app__main[data-character-intro="playing"] :is(
+  .abyssa-character-screen__portrait > .abyssa-frame__content,
+  .abyssa-character-screen__portrait-column > .abyssa-nameplate
+) {
+  animation: character-board-portrait 580ms 260ms cubic-bezier(.2, .7, .2, 1) both;
+}
+/* Tabs belong to the dossier, not the bottom navigation beat. One plane
+   preserves their overlap with the board during every intermediate frame. */
+.character-status-app__main[data-character-intro="playing"] .abyssa-character-screen__details {
+  animation: character-board-dossier 520ms 340ms cubic-bezier(.2, .7, .2, 1) both;
+}
+.character-status-app__main[data-character-intro="playing"] :is(
+  .abyssa-character-screen__outfit-selector,
+  .abyssa-character-screen__character-selector
+) {
+  animation: character-board-controls 400ms 480ms cubic-bezier(.2, .7, .2, 1) both;
+}
+
+/* Preserve the existing portrait crop and the tab slot's definite height. */
+.character-board__portrait-content { height: 100%; }
+.character-board__panel-content { position: relative; z-index: 1; height: 100%; min-height: 0; }
+.character-board__panel-content > .abyssa-status-panel { height: 100%; }
+
+/* A permanent seat under the tab row. Swapping contents never removes the
+   surface the tabs are attached to; it is covered by the normal settled panel. */
+.character-status-app__main[data-character-intro] .abyssa-character-screen__tabpanel { position: relative; isolation: isolate; }
+.character-status-app__main[data-character-intro] .abyssa-character-screen__tabpanel::before {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border: 3px solid var(--abyssa-frame-dark);
+  background: var(--abyssa-panel-black);
+  box-shadow: inset 0 0 0 1px var(--abyssa-frame-light), inset 0 0 0 3px var(--abyssa-frame-deep);
+  content: "";
+  pointer-events: none;
+}
+
+/* Recessed brass tabs: the illustration moves around a fixed bottom hinge,
+   never its hit area. Active tabs seat into the panel instead of floating up. */
+.character-status-app__main[data-character-intro] .abyssa-rpg-tab,
+.character-status-app__main[data-character-intro] .abyssa-rpg-tab:not(:disabled):is(:hover, :active, :focus-visible, [data-selected]) {
+  filter: none;
+  transform: none;
+  transition: none;
+}
+.character-status-app__main[data-character-intro] .abyssa-rpg-tab > svg {
+  transform: scaleY(.9);
+  transform-origin: center bottom;
+  transition: transform 220ms cubic-bezier(.2, .7, .2, 1);
+}
+.character-status-app__main[data-character-intro] .abyssa-rpg-tab svg :is(path, circle, text) {
+  transition: fill 220ms ease-out, stroke 220ms ease-out;
+}
+.character-status-app__main[data-character-intro] .abyssa-rpg-tab:is([data-selected], :focus-visible) > svg { transform: scaleY(1); }
+/* The scroll-clipped tab row cuts off a native outside outline. Draw keyboard
+   focus on the existing brass contour, keeping a complete visible indicator. */
+.character-status-app__main[data-character-intro] .abyssa-rpg-tab:focus-visible { outline: none; }
+.character-status-app__main[data-character-intro] .abyssa-rpg-tab:focus-visible > svg > path:nth-of-type(3) { stroke: var(--abyssa-text); }
+@media (hover: hover) and (pointer: fine) {
+  .character-status-app__main[data-character-intro] .abyssa-rpg-tab:not([data-selected]):hover > svg { transform: scaleY(.97); }
+  .character-status-app__main[data-character-intro] .abyssa-rpg-tab:not([data-selected]):hover {
+    --abyssa-tab-fill: color-mix(in srgb, var(--abyssa-character-tab-idle-fill, #10191a) 75%, var(--abyssa-character-tab-active-fill, #4f8e92));
+    --abyssa-tab-ornament: var(--abyssa-character-tab-active-ornament, #b0d6d7);
+  }
+}
+.character-status-app__main[data-character-intro] .abyssa-rpg-tab:active > svg {
+  transform: scaleY(.86);
+  transition-duration: 75ms;
+}
+
+@keyframes character-board-portrait {
+  from { opacity: 0; translate: -24px 12px; }
+  to { opacity: 1; translate: 0 0; }
+}
+@keyframes character-board-dossier {
+  from { opacity: 0; translate: 20px 8px; }
+  to { opacity: 1; translate: 0 0; }
+}
+@keyframes character-board-controls {
+  from { opacity: 0; translate: 0 14px; }
+  to { opacity: 1; translate: 0 0; }
+}
+
+/* The hook also settles on preference changes; CSS prevents an extra paint. */
+.character-status-app__main[data-character-reduced="true"] :is(
+  .abyssa-character-screen, .abyssa-character-screen__portrait > .abyssa-frame__content,
+  .abyssa-character-screen__portrait-column > .abyssa-nameplate,
+  .abyssa-character-screen__details,
+  .abyssa-character-screen__outfit-selector, .abyssa-character-screen__character-selector
+) { animation: none; opacity: 1; translate: none; }
+.character-status-app__main[data-character-reduced="true"] .abyssa-rpg-tab > svg,
+.character-status-app__main[data-character-reduced="true"] .abyssa-rpg-tab svg :is(path, circle, text),
+.character-status-app__main[data-character-reduced="true"] .abyssa-character-portrait-selector .abyssa-shape-button { transition: none; }
+@media (prefers-reduced-motion: reduce) {
+  .character-status-app__main[data-character-intro] :is(
+    .abyssa-character-screen, .abyssa-character-screen__portrait > .abyssa-frame__content,
+    .abyssa-character-screen__portrait-column > .abyssa-nameplate,
+    .abyssa-character-screen__details,
+    .abyssa-character-screen__outfit-selector, .abyssa-character-screen__character-selector
+  ) { animation: none; opacity: 1; translate: none; }
+  .character-status-app__main[data-character-intro] .abyssa-rpg-tab > svg,
+  .character-status-app__main[data-character-intro] .abyssa-rpg-tab svg :is(path, circle, text) { transition: none; }
+}

@@ -7,6 +7,7 @@
    对话已移到右侧命令盘下方，中栏只负责展示人物。 */
 .menu-app__host {
   position: relative;
+  z-index: 1;
   min-width: 0;
 }
 /* 人物背后的一团光,把立绘从背景里托出来。没有它,无框立绘会糊在底纹上。 */
@@ -40,11 +41,12 @@
   pointer-events: none;
   user-select: none;
 }
-/* 底缘溶接:立绘下缘渐隐,不留硬边。 */
+/* 前景遮罩固定在画布底边，不属于人物的相机层。覆盖全宽，人物横移时
+   也不会从侧边漏出；命令盘、侧栏与控制台始终绘制在遮罩上方。 */
 .menu-host__fade {
   position: absolute;
-  right: -34px;
-  bottom: -32px;
+  right: 0;
+  bottom: 0;
   left: 0;
   z-index: 2;
   height: 200px;

@@ -21,6 +21,8 @@
 
 克雷格旧庄园的 7 张敌人／Boss、3 张场景和 1 张地图地标，统一索引见[庄园素材清单](battle/old-manor/README.md)。图片分别归入 `battle/old-manor/`、`backgrounds/old-manor/` 和 `map/landmarks/`；迎客门厅已用于战斗主题配色预览，其余仍待接入。[设计稿](../../docs/design/OLD_MANOR_DESIGN.md)记录身份、机制状态与缺项，主题专用的红线 SVG 装饰见 [`ui/old-manor`](ui/old-manor/README.md)。
 
+退潮黑礁批次的 7 张敌人、3 张战斗背景和 1 张地图立牌见[退潮黑礁素材清单](battle/tide-reef/README.md)。正式敌人文件以完整资产 ID 命名；教学关已接入五张透明 PNG，第 1、2 战使用 `bg.tide-reef.shore`，第 3 战使用原默认溶洞背景，第 4 战／Boss 使用 `bg.tide-reef.cargo`。全项目三层命名和提示词视觉锚见[美术资产命名合同](../../docs/design/ART_ASSET_NAMING_CONTRACT.md)。
+
 项目字标 SVG 位于 [`ui/abyssa-wordmark.svg`](ui/abyssa-wordmark.svg)。它只是完整徽记中的西文字标部件；标题、问号、印章、分隔线和装饰由 [`AbyssaLogo.tsx`](../shared/ui/branding/AbyssaLogo.tsx) 组合绘制，因此仓库里没有另一张“完整 Logo”独立 SVG。
 
 物品图标的来源、作者与许可证见 [`icons/items/ATTRIBUTION.md`](icons/items/ATTRIBUTION.md)，新增或替换此目录中的图标时必须同步维护归属信息。

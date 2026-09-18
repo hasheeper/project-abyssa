@@ -123,6 +123,7 @@ export function MansionRoomDrawer({
           <small><i aria-hidden="true" />生活痕迹</small>
           <p>{detail.trace}</p>
         </div>
+        {readOnly && <p className="mansion-room-card__description">建设与生产尚未开放</p>}
 
         {detail.production && (
           <div className="mansion-room-card__harvest">
@@ -131,7 +132,7 @@ export function MansionRoomDrawer({
               type="button"
               className="mansion-room-card__collect"
               data-ready={productionReady || undefined}
-              aria-label={productionReady
+              aria-label={readOnly ? "建设与生产尚未开放" : productionReady
                 ? `收取${detail.production.label} ${detail.production.amount}${detail.production.unit}`
                 : `${detail.production.label}本相位已收取`}
               disabled={readOnly || !productionReady}
@@ -150,7 +151,7 @@ export function MansionRoomDrawer({
                 ×{detail.production.amount}<i>{detail.production.unit}</i>
               </span>
               <span className="mansion-room-card__collect-state">
-                {productionReady ? "收取" : "已收"}
+                {readOnly ? "未开放" : productionReady ? "收取" : "已收"}
               </span>
             </button>
           </div>

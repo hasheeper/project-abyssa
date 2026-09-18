@@ -305,18 +305,27 @@
   text-shadow: 0 1px 5px rgb(0 0 0 / 68%);
 }
 
-/* ============ 库存入口 ============
-   传统 RPG 的圆形「道具袋」按钮:一枚 56 圆章,图标居中,数量做右上角标。
-   上一版是 174x32 的横条(「领地库存」+ 数字 + 折叠箭头),两个问题:
-     1. 那是网页折叠面板的语汇;而它现在打开的是**模态**,箭头是错的提示
-     2. 横条把右上角占满,与铭牌成了两块并排的板,没有主次
-   现在它挂在铭牌右侧,圆形在这一区里是唯一的非矩形轮廓,天然读作「按钮」。 */
-.mansion-ledger__stock {
+/* The original warehouse seal now serves all three independent manor tools.
+   The rail sits below the ledger, clear of the central pan arrow. */
+.mansion-utility-rail {
   position: absolute;
-  /* 挂在铭牌**左侧**外沿:右侧只有 30px 到画布边,放不下 56 的圆章。
-     铭牌高 111,圆章 56 -> top = (111-56)/2 = 27.5 竖向居中。 */
-  top: 27.5px;
-  left: -68px;
+  z-index: 310;
+  top: 164px;
+  right: 30px;
+  display: grid;
+  gap: 16px;
+}
+.mansion-utility-rail__entry { display: grid; justify-items: center; gap: 5px; }
+.mansion-utility-rail__label {
+  color: var(--abyssa-text-soft);
+  font: 13px/1.4 var(--abyssa-font-body, serif);
+  letter-spacing: .12em;
+  padding-left: .12em;
+  text-shadow: 0 2px 4px #070c0d;
+  pointer-events: none;
+}
+.mansion-utility-rail__button {
+  position: relative;
   display: grid;
   width: 56px;
   height: 56px;
@@ -328,7 +337,7 @@
   filter: drop-shadow(0 5px 12px rgb(2 6 8 / 52%));
   transition: filter 160ms var(--abyssa-ease, ease), transform 160ms var(--abyssa-ease, ease);
 }
-.mansion-ledger__stock-plate {
+.mansion-utility-rail__plate {
   position: absolute;
   inset: 0;
   display: block;
@@ -337,7 +346,7 @@
   overflow: visible;
   shape-rendering: geometricPrecision;
 }
-.mansion-ledger__stock img {
+.mansion-utility-rail__button img {
   position: relative;
   z-index: 1;
   width: 26px;
@@ -345,7 +354,7 @@
   opacity: .88;
 }
 /* 数量角标:压在圆章右上,与世界图钉的 __badge 同族(切角小牌 + 等宽数字)。 */
-.mansion-ledger__stock b {
+.mansion-utility-rail__button b {
   position: absolute;
   z-index: 2;
   top: -2px;
@@ -361,10 +370,10 @@
   font-variant-numeric: tabular-nums;
   text-align: center;
 }
-.mansion-ledger__stock:hover { filter: brightness(1.12) drop-shadow(0 5px 12px rgb(2 6 8 / 52%)); }
-.mansion-ledger__stock:active { transform: translateY(1px); }
-.mansion-ledger__stock:focus-visible { outline: 2px solid #f2eee2; outline-offset: 3px; border-radius: 50%; }
-.mansion-ledger__stock[aria-expanded="true"] .mansion-ledger__stock-plate circle:nth-of-type(2) {
+.mansion-utility-rail__button:hover { filter: brightness(1.12) drop-shadow(0 5px 12px rgb(2 6 8 / 52%)); }
+.mansion-utility-rail__button:active { transform: translateY(1px); }
+.mansion-utility-rail__button:focus-visible { outline: 2px solid #f2eee2; outline-offset: 3px; border-radius: 50%; }
+.mansion-utility-rail__button[aria-expanded="true"] .mansion-utility-rail__plate circle:nth-of-type(2) {
   fill: #2a3a36;
 }
 

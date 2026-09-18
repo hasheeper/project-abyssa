@@ -39,7 +39,7 @@ export function TitleCgPanel({ side, dwellMs, initialIndex = 0, initialDelayMs, 
     };
     function schedule(delay: number) {
       const version = generation, due = performance.now() + delay;
-      // 首切 6.2/7.6 秒，预备帧避开约 4 秒的 Logo 入场。
+      // 首切 6.2/7.6 秒，错开首屏资源请求；下一帧解码不阻塞 UI。
       later(() => {
         candidate = (candidate + step) % TITLE_CG_FRAMES.length;
         const next = candidate;

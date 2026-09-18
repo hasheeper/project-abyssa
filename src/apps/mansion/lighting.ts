@@ -4,15 +4,17 @@ import type { MansionPhaseId } from "./data";
  * 洋馆夜间灯光表。
  *
  * ============ 数据从哪来 ============
- * **不是我编的** —— 逐条来自 data.ts 里已有的房间文案。文案早就把光照
- * 设定写好了,这里只是把它翻译成可渲染的参数:
+ * 文案决定用途,原画决定有没有可见发光体。具体锚点与作用范围集中在
+ * mansion-light-sources.ts,不可再用房间中心制造一个泛光光团。
  *
  *   hall       「壁炉**全年不熄**」        -> 必亮,暖橙,有火焰摇曳
  *   array      「红线如**脉搏明暗起伏**」  -> 必亮,赤红,缓慢呼吸
- *   plaza      「一堆**篝火**」            -> 必亮,暖橙,火焰摇曳
+ *   kaelHut    原画右侧炉膛               -> 暖橙,贴合炉口
+ *   workshop   原画左侧锻炉               -> 暖橙,贴合炉内火焰
+ *   library    原画四盏蓝色火灯           -> 蓝焰,不使用驻在默认暖灯
  *   towerHall  「墙上挂着海图与**信号灯**」-> 必亮,冷白
- *   seal       「**符纸**无风自动」        -> 惨白微光(不是"灯")
- *   towerTop   「烽火台**从未点燃**」      -> **不点火**,只有窗内微光
+ *   seal       原画门缝、锁链与符纹        -> 局部赤红封印光
+ *   towerTop   「烽火台**从未点燃**」      -> **不点火**,仅自然夜色
  *   cellar     「**从不开锁**」            -> 不亮
  *   kitchen    「炊烟一起」                -> 夜间灶火余温
  *
@@ -21,7 +23,7 @@ import type { MansionPhaseId } from "./data";
  * ============ 亮灯的两个来源 ============
  * 1. 固定光源(本表)—— 壁炉/篝火/结界这类不随人走的光。
  * 2. 驻在驱动 —— 夜相位有人的房间默认点灯(见 resolveRoomLight)。
- * 两者合并后约 14 亮 / 17 暗,形成明暗错落。
+ * 无可见灯具的驻在房间只给很弱的窗边反光,形成明暗错落。
  */
 
 export type LightTone =
@@ -31,6 +33,8 @@ export type LightTone =
   | "lamp"
   /** 信号灯、法术光 —— 冷白偏青。 */
   | "cold"
+  /** 地下书库和结界侧灯的蓝色火焰。 */
+  | "blue"
   /** 结界红线 —— 赤红。 */
   | "arcane"
   /** 符纸、幽光 —— 惨白偏绿,极弱。 */
@@ -42,7 +46,7 @@ export interface RoomLight {
   tone: LightTone;
   /** 光强 0~1。会乘进最终不透明度。 */
   intensity: number;
-  /** 缓慢呼吸。只给「文案里明确是活火/脉搏」的三处。 */
+  /** 缓慢呼吸。只给有明确可见火焰/脉搏的主光源。 */
   flicker?: "flame" | "pulse";
 }
 
@@ -53,20 +57,21 @@ export interface RoomLight {
 const FIXED_ROOM_LIGHTS: Partial<Record<string, RoomLight>> = {
   // 「壁炉全年不熄」—— 全场最暖最亮的一处,是「家」的锚点。
   hall: { tone: "hearth", intensity: 0.95, flicker: "flame" },
-  // 「一堆篝火」—— 村舍中心。
-  plaza: { tone: "hearth", intensity: 0.88, flicker: "flame" },
+  kaelHut: { tone: "hearth", intensity: 0.86, flicker: "flame" },
+  workshop: { tone: "hearth", intensity: 0.9 },
+  library: { tone: "blue", intensity: 0.95 },
+  // 温室不点室内灯；原画两株植物自身分别发蓝光和金光。
+  greenhouse: { tone: "blue", intensity: 0.86 },
   // 「红线如脉搏明暗起伏」—— 文案直接指定了呼吸。
   array: { tone: "arcane", intensity: 0.82, flicker: "pulse" },
   // 「墙上挂着海图与信号灯」。
   towerHall: { tone: "cold", intensity: 0.5 },
-  // 「符纸无风自动」—— 惨白,弱到几乎看不见才对。
-  seal: { tone: "spectral", intensity: 0.34 },
+  // 原画为红色封印；沿门缝与两侧符纹发光，不照亮整面墙。
+  seal: { tone: "arcane", intensity: 0.76 },
   // 「炊烟一起」—— 夜里是灶膛余火,不是全亮。
   kitchen: { tone: "hearth", intensity: 0.42 },
   // 缇比的黑店「古龙没有这种世俗的作息」—— 通夜营业。
   tibby: { tone: "lamp", intensity: 0.72 },
-  // 女仆工作间的红线织机,夜里仍在运转。
-  maid: { tone: "arcane", intensity: 0.4 }
 };
 
 /**
@@ -74,14 +79,16 @@ const FIXED_ROOM_LIGHTS: Partial<Record<string, RoomLight>> = {
  * 这些都有文案依据,不是随手挑的。
  */
 const LIGHT_OVERRIDES: Partial<Record<string, RoomLight | null>> = {
-  // 「烽火台从未点燃过——但愿永远如此」。有人但不点火,只有窗内微光。
-  towerTop: { tone: "dim", intensity: 0.3 },
-  // 「熟睡中」—— 极弱微光,不是正常照明。
-  abyssa: { tone: "dim", intensity: 0.26 },
+  // 敞开瞭望台没有点燃的烽火,由自然月光负责。
+  towerTop: null,
+  // 原画为床头冷色晶灯；保持熟睡时的弱光。
+  abyssa: { tone: "cold", intensity: 0.26 },
+  // 文案提及篝火/红线,但当前原画只有长椅食物托盘/普通缝纫机。
+  // 不在它们上面凭空画出火球；等美术有明确发光体再登记源点。
+  plaza: null,
+  maid: null,
   // 「铜锁边缘有极细的划痕——女仆长每月查库存,从不开锁」。
   cellar: null,
-  // 玻璃房夜里不点灯(月光会打在玻璃上,那由天光层负责)。
-  greenhouse: null,
   // 露台是室外平台。
   terrace: null
 };

@@ -1,0 +1,30 @@
+/* Independent translate preserves the authored frame scale and heading transform. */
+.map-board[data-map-intro="waiting"] { opacity: 0; }
+.map-board[data-map-intro="playing"] {
+  animation: var(--abyssa-motion-page-board-enter);
+}
+.map-board[data-map-intro="playing"] .abyssa-map-scene {
+  animation: abyssa-ui-appear 540ms 180ms ease-out both;
+}
+.map-board[data-map-intro="playing"] .abyssa-sortie-stage__slots {
+  animation: map-party-arrive 560ms 320ms cubic-bezier(.2, .7, .2, 1) both;
+}
+.map-board[data-map-intro="playing"] .map-supply-entry {
+  animation: map-entry-arrive 360ms 540ms cubic-bezier(.2, .7, .2, 1) both;
+}
+@keyframes map-party-arrive { from { opacity: 0; translate: -22px 14px; } to { opacity: 1; translate: 0 0; } }
+@keyframes map-entry-arrive { from { opacity: 0; translate: 0 -10px; } to { opacity: 1; translate: 0 0; } }
+
+.map-panel-layer { position: absolute; inset: 0; z-index: 10; pointer-events: none; }
+.map-panel-layer > * { pointer-events: auto; }
+.map-panel-layer[data-exiting] { z-index: 9; }
+.map-panel-layer[data-exiting] > * { pointer-events: none; }
+.abyssa-map-viewport[data-mode="loadout"] .abyssa-map-dim { opacity: 1; pointer-events: auto; }
+.abyssa-map-viewport[data-mode="loadout"] .abyssa-sortie-stage { pointer-events: none; }
+.abyssa-map-viewport[data-mode="loadout"] .abyssa-sortie-stage * { pointer-events: none; }
+
+.abyssa-map-page[data-map-reduced="true"] :is(.map-board, .abyssa-map-scene, .abyssa-sortie-stage__slots, .map-supply-entry, .abyssa-sortie-stage__slot) {
+  animation: none; translate: none;
+}
+.abyssa-map-page[data-map-reduced="true"] :is(.abyssa-sortie-stage, .abyssa-sortie-stage *, .abyssa-map-dim, .map-supplies *, .map-supply-entry) { transition: none; }
+.abyssa-map-page[data-map-reduced="true"] .map-board:not([data-map-intro="waiting"]) { opacity: 1; }

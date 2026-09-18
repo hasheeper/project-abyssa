@@ -9,14 +9,12 @@ export interface MapSceneRuntimeOptions {
 
 export interface MapSceneRuntime {
   readonly destroyed: boolean;
-  scheduleReplay: (callback: () => void, delay: number) => void;
   destroy: () => void;
 }
 
 /** Owns the browser lifecycle around a map scene, independently of Three.js. */
 export function createMapSceneRuntime(options: MapSceneRuntimeOptions): MapSceneRuntime {
   let animationFrame = 0;
-  let replayTimer: number | null = null;
   let destroyed = false;
 
   const animate = () => {
@@ -34,21 +32,9 @@ export function createMapSceneRuntime(options: MapSceneRuntimeOptions): MapScene
     get destroyed() {
       return destroyed;
     },
-    scheduleReplay(callback, delay) {
-      if (destroyed) return;
-      if (replayTimer !== null) window.clearTimeout(replayTimer);
-      replayTimer = window.setTimeout(() => {
-        replayTimer = null;
-        if (!destroyed) callback();
-      }, delay);
-    },
     destroy() {
       if (destroyed) return;
       destroyed = true;
-      if (replayTimer !== null) {
-        window.clearTimeout(replayTimer);
-        replayTimer = null;
-      }
       cancelAnimationFrame(animationFrame);
       options.element.removeEventListener("pointerdown", options.onPointerDown);
       options.element.removeEventListener("pointermove", options.onPointerMove);

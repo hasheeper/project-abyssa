@@ -629,6 +629,7 @@
 }
 
 /* 前景演出期间保留指向，暂停装饰流动，避免与掷骰、命中争抢绘制帧。 */
+.abyssa-expedition[data-links-paused] .abyssa-expedition-intent-line__body,
 .abyssa-expedition[data-dice-rolling] .abyssa-expedition-intent-line__body,
 .abyssa-expedition[data-enemy-turn-phase] .abyssa-expedition-intent-line__body,
 .abyssa-expedition[data-attack-phase] .abyssa-expedition-intent-line__body,

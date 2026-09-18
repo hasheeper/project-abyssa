@@ -1,15 +1,18 @@
+import { tutorialView } from "./tutorial-view";
+import { manorRepriseView } from "./manor-reprise-view";
 import type { DemoGameRecord, D5GameRecord } from "../game-application";
 import type { RuleContext, RuleRun } from "../game-core/battle/domain/rule-state";
 import type { ValidatedD5Catalog } from "../game-core/contracts";
 import type { DemoExpeditionState } from "../game-core/session";
 import { d5EncounterView, d5VisibleEvents, withMemoryDialogue } from "./d5-views";
-import { demoRoom, type ValidatedDemoCatalog } from "../game-core/contracts";
+import { demoRoom, departureSupplyLimit, type ValidatedDemoCatalog } from "../game-core/contracts";
 import { createDemoBattleEngine, createD5MemoryEngine, createD5BattleEngine, demoFace } from "../game-core/battle";
 import { asDemoBattle, roomInstance, eventFaceMethod, demoItemTargets } from "../game-core/session";
 import { layerGold } from "../game-core/battle/rules/v2/journey-validation";
 import type { JourneyLogRecord } from "./manor-log";
 import { manorLog, manorReturnFeedback } from "./manor-log";
 import { manorGuestCount } from "../game-core/battle/rules/v3/manor";
+import { demoActionOptions } from "../game-core/battle/rules/v2/combat";
 
 /** Presentation projection from one committed record. No page decides rule legality. */
 type ViewRecord = JourneyLogRecord & { head: DemoGameRecord["head"]; contentRef: RuleContext["ref"]; snapshot: { campaign: Pick<DemoGameRecord["snapshot"]["campaign"], "supplies" | "settlements" | "manor">; expedition: DemoExpeditionState<RuleRun> | null } };
@@ -36,12 +39,14 @@ function ruleJourneyView(catalog: RuleContext, record: ViewRecord, selected: Ret
   }) ?? [];
   return {
     head: record.head, contentRef: record.contentRef, defaultRouteId,
+    tutorial: null as ReturnType<typeof tutorialView>,
+    reprise: null as ReturnType<typeof manorRepriseView>,
     fullManor: !!c.manor, maintenance, takeover, story: record.snapshot.campaign.manor?.story ?? null,
     lastSettlement: record.snapshot.campaign.settlements.at(-1) ?? null,
     returnFeedback: manorReturnFeedback(c,record),
     banquet: battle && c.manor && battle.encounter.enemies.some(e => e.definitionId === c.manor!.boss.definitionId) ? {guests: manorGuestCount(battle), limit: c.manor.boss.maxGuests, reserve: c.manor.boss.summonBudget - battle.encounter.manor!.summoned, nextToast: 2 + manorGuestCount(battle)} : null,
     brief: c.manor ? {flavor: maintenance ? "主位已经收起。清理失去中央权限的支线残余，让旧庄园重新安静。" : "从迎客门厅走到宴会厅，逐区拆开红线，结束等候三百年的家宴。", event: "全程五层，第三层可撤离或深入；后半段通向第五层终场。"} : {flavor: "白布覆盖宾客，红线维系规矩。带领伙伴穿过迎客门厅与服务走廊。", event: "三层庄园考核，各层独立入袋；通过落幕管家后带宝返回。"},
-    leaderId: c.leaderId, initialParty: c.initialParty, defaultItems: journey.defaultItems, items, supplies,
+    leaderId: c.leaderId, initialParty: c.initialParty, defaultItems: journey.defaultItems, itemLimit: departureSupplyLimit(catalog.ref), items, supplies,
     expedition, room, roomId: run ? roomInstance(run) : null,
     event: room?.kind === "event" ? journey.events[room.eventId] : null,
     lastEvent: run?.eventResults.find(r => r.roomId === roomInstance(run)) ?? null,
@@ -58,7 +63,21 @@ function ruleJourneyView(catalog: RuleContext, record: ViewRecord, selected: Ret
     log: manorLog(c, record),
     nextLayer: run && run.revealed.includes(`layer:${run.layer + 1}`) ? c.routes[run.routeId].layers[run.layer].map(id => { const r = journey.rooms[id]; return {kind: r.kind, enemies: r.kind === "battle" ? c.encounters[r.encounterId].enemyIds.map(id => c.enemies[id].name ?? id) : []}; }) : null,
     eventRevealed: !!run && run.revealed.includes(roomInstance(run)),
-    party: run?.party.map(m => ({...m, name: c.characters[m.id].name, faces: m.config.faces.map((f, faceIndex) => ({...demoFace({run}, {ownerId: m.id, faceIndex, loaded: false, spent: false, sealed: false})!, kind: c.actions[f.actionId].kind})), eventSuccessFaces: m.config.faces.filter(f => eventFaceMethod(c, f) !== "failed").length, die: battle?.encounter.dice.find(d => d.ownerId === m.id) ?? null, actions: selected?.party.find(p => p.id === m.id)!.actions ?? {reason: "not-in-battle", options: []}})) ?? [],
+    party: run?.party.map(m => {
+      const die = battle?.encounter.dice.find(d => d.ownerId === m.id) ?? null;
+      // Read-only fixation preview uses the same legality query as real actions.
+      // Do not suggest fixing a heal with no injured ally, or bind with no legal target.
+      const afterFixOptions = battle && die && !die.loaded
+        ? demoActionOptions(c, {...battle, encounter: {...battle.encounter,
+          dice: battle.encounter.dice.map(d => d === die ? {...d, loaded: true} : d),
+        }}, m.id).options
+        : [];
+      return {...m, name: c.characters[m.id].name,
+        faces: m.config.faces.map((f, faceIndex) => ({...demoFace({run}, {ownerId: m.id, faceIndex, loaded: false, spent: false, sealed: false})!, kind: c.actions[f.actionId].kind})),
+        eventSuccessFaces: m.config.faces.filter(f => eventFaceMethod(c, f) !== "failed").length,
+        die, afterFixOptions, actions: selected?.party.find(p => p.id === m.id)!.actions ?? {reason: "not-in-battle", options: []},
+      };
+    }) ?? [],
     battle: battle && selected ? {...selected, encounter: battle.encounter, enemies: selected.enemies.map(e => ({...e, definition: c.enemies[e.definitionId]})), eligibleOwnerIds: battle.encounter.dice.filter(d => !d.loaded && !d.spent && !d.sealed && run!.party.some(m => m.id === d.ownerId && m.hp > 0)).map(d => d.ownerId)} : null,
   };
 }
@@ -71,6 +90,17 @@ export function d5JourneyView(catalog: ValidatedD5Catalog, record: D5GameRecord)
   const selected = run?.kind === "memory" && run.battle ? createD5MemoryEngine(catalog).select(run.battle)
     : run?.kind === "expedition" && run.state.node === "battle" ? createD5BattleEngine(catalog).select(asDemoBattle(run.state)!) : null;
   // Presentation-only shape retains the actual content reference and run configuration.
-  return ruleJourneyView(catalog, { head: record.head, contentRef: record.contentRef, snapshot: { campaign: record.snapshot.campaign, expedition }, facts: withMemoryDialogue(record, d5VisibleEvents(record, record.snapshot.campaign.activeRunRef)), retractedFactIds: [] }, selected);
+  const view = ruleJourneyView(catalog, { head: record.head, contentRef: record.contentRef, snapshot: { campaign: record.snapshot.campaign, expedition }, facts: withMemoryDialogue(record, d5VisibleEvents(record, record.snapshot.campaign.activeRunRef)), retractedFactIds: [] }, selected);
+  if (view) {
+    view.reprise = manorRepriseView(catalog, record);
+    view.tutorial = tutorialView(catalog, record);
+    if (view.tutorial?.runRef) {
+      view.fullManor = false;
+      view.depthFactors = view.depthFactors.slice(0, view.layerCount);
+      if (view.tutorial.stage !== "active") view.supplies = view.supplies.map(s => ({...s, targets: [], unavailableReason: "当前不能使用"}));
+      if (catalog.data.tutorial?.guide && view.room?.id === "room.tide-cave.event.intro") view.eventRevealed = true;
+    }
+  }
+  return view;
 }
 export type DemoJourneyView = NonNullable<ReturnType<typeof demoJourneyView>>;

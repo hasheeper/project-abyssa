@@ -1,0 +1,49 @@
+/* The world is already revealed. Only small UI assemblies enter; no scaling,
+   filter animation or whole-map fade is attached to the camera/scene. */
+.mansion-corner--identity { --mansion-ui-x: -22px; --mansion-ui-y: 0px; --mansion-ui-delay: 0ms; }
+.mansion-corner--phase { --mansion-ui-x: 0px; --mansion-ui-y: -30px; --mansion-ui-delay: 60ms; }
+.mansion-corner--status { --mansion-ui-x: 22px; --mansion-ui-y: 0px; --mansion-ui-delay: 120ms; }
+.mansion-utility-rail__entry { --mansion-ui-x: 0px; --mansion-ui-y: 24px; --mansion-ui-delay: 200ms; }
+.mansion-utility-rail__entry:nth-child(2) { --mansion-ui-delay: 240ms; }
+.mansion-utility-rail__entry:nth-child(3) { --mansion-ui-delay: 280ms; }
+.mansion-app .game-menu { --mansion-ui-x: -16px; --mansion-ui-y: 0px; --mansion-ui-delay: 220ms; }
+.mansion-weather-debug { --mansion-ui-x: 0px; --mansion-ui-y: -10px; --mansion-ui-delay: 280ms; }
+.mansion-pan-edge { --mansion-ui-x: 0px; --mansion-ui-y: 0px; --mansion-ui-delay: 180ms; }
+.mansion-app[data-ui-intro="waiting"] :is(.mansion-corner, .mansion-utility-rail__entry, .game-menu, .mansion-weather-debug, .mansion-pan-edge) {
+  opacity: 0;
+  translate: var(--mansion-ui-x) var(--mansion-ui-y);
+}
+.mansion-app[data-ui-intro="playing"] :is(.mansion-corner, .mansion-utility-rail__entry, .game-menu, .mansion-weather-debug, .mansion-pan-edge) {
+  animation: mansion-chrome-arrive 680ms var(--mansion-ui-delay) cubic-bezier(.28, .08, .24, 1) both;
+}
+@keyframes mansion-chrome-arrive {
+  0% { opacity: 0; translate: var(--mansion-ui-x) var(--mansion-ui-y); }
+  24% { opacity: .65; }
+  100% { opacity: 1; translate: 0 0; }
+}
+/* Resident portraits emerge locally at their saved room position. The original
+   anchor and hover scale remain on transform; entrance owns only translate. */
+.mansion-app[data-ui-intro="waiting"] .mansion-character { opacity: 0; translate: 0 42px; }
+.mansion-app[data-ui-intro="playing"] .mansion-character {
+  animation: mansion-resident-arrive 620ms calc(180ms + var(--mansion-resident-order, 0) * 35ms) cubic-bezier(.28, .08, .24, 1) both;
+}
+@keyframes mansion-resident-arrive { from { opacity: 0; translate: 0 42px; } to { opacity: 1; translate: 0 0; } }
+
+/* Pause the already-mounted decoration through the full modal exit. Resuming
+   never regenerates textures, replaces images or restarts the cloud phase. */
+.mansion-app[data-world-paused] :is(.mansion-sky-clouds, .mansion-rain__streaks, .mansion-ambient-glow, .mansion-marker) { animation-play-state: paused; }
+.mansion-app[data-ui-motion="reduced"] .mansion-sky-motion { display: none; }
+.mansion-app[data-ui-motion="reduced"] :is(.mansion-ambient-glow, .mansion-marker, .mansion-room-drawer, .mansion-adv-dialogue, .mansion-adv-dialogue .rp-adv) { animation: none; }
+
+/* Detail cards use the same unhurried settling, from the appropriate side.
+   Body follows the frame; no row-by-row effects or transparent-layout changes. */
+.mansion-room-drawer { --mansion-drawer-enter-x: 28px; animation: mansion-room-drawer-arrive 560ms cubic-bezier(.28, .08, .24, 1) backwards; }
+.mansion-room-drawer[data-side="left"] { --mansion-drawer-enter-x: -28px; }
+.mansion-room-drawer .mansion-room-card > .abyssa-frame__content { animation: mansion-room-copy-arrive 340ms 100ms ease-out backwards; }
+@keyframes mansion-room-drawer-arrive { from { opacity: 0; translate: var(--mansion-drawer-enter-x) 0; } to { opacity: 1; translate: 0 0; } }
+@keyframes mansion-room-copy-arrive { from { opacity: 0; } to { opacity: 1; } }
+.mansion-app[data-ui-motion="reduced"] .mansion-room-drawer .mansion-room-card > .abyssa-frame__content { animation: none; }
+@media (prefers-reduced-motion: reduce) {
+  .mansion-app :is(.mansion-corner, .mansion-utility-rail__entry, .game-menu, .mansion-weather-debug, .mansion-pan-edge, .mansion-character) { animation: none; opacity: 1; translate: none; }
+  .mansion-room-drawer, .mansion-room-drawer .mansion-room-card > .abyssa-frame__content { animation: none; }
+}

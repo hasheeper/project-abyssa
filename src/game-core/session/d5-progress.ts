@@ -9,6 +9,8 @@ import { applyManorTakeover, MANOR_STORY_LAST_STEP } from "./manor-progression";
 import { parseD5ProgressEntry, parseD5RunRef } from "./d5-parse";
 import type { D5MemoryBattleState, D5ProgressEntry, D5Projection, D5RunReaders, D5RunRef, D5StorySession } from "./d5-types";
 import { departureSupplies, supplyQuote } from "./d5-economy";
+import { applyGameStart, validateGameStart } from "./game-start";
+import { mansionTimeBlock, nextCampaignClock } from "./d5-clock";
 
 const same = (a: unknown, b: unknown) => v.canonicalJson(a) === v.canonicalJson(b);
 export const d5EquipmentId = (grantId: string, definitionId: string) => `equipment:${sha256(v.canonicalJson([grantId, definitionId])).slice(0, 32)}`;
@@ -16,6 +18,7 @@ import { memorySupplyId as d5MemorySupplyId } from "../battle/rules/v4/memory";
 export { d5MemorySupplyId };
 export function initialD5Projection(catalog: ValidatedD5Catalog): D5Projection {
   return {
+    ...(catalog.data.tutorial ? {tutorial: {status: "pending" as const}} : {}),
     ...(catalog.data.opening ? {opening: {step:0,status:"playing" as const,choices:[]}} : {}),
     ...(catalog.data.prologue ? {prologue: {shotId: catalog.data.prologue.shotIds[0], status: "playing" as const}} : {}),
     clock: { day: 1, phase: "dawn" }, funds: { public: 0, party: 0, crystals: 0 }, supplies: [], settlements: [],
@@ -62,7 +65,9 @@ function memoryVictory(catalog: ValidatedD5Catalog, battle: D5MemoryBattleState)
 /** Content-aware validation for receipts that do not carry the previous campaign snapshot. */
 export function validateD5EvidenceContent(catalog: ValidatedD5Catalog, entry: D5ProgressEntry, readers: D5RunReaders = {}): void {
   const e = entry.event, spec = catalog.data.progression;
-  if (e.type === "opening-advanced") {
+  if (e.type === "game-start-selected") {
+    validateGameStart(catalog, e.startAt);
+  } else if (e.type === "opening-advanced") {
     if (!catalog.data.opening) v.invalid("opening", "Opening is not in this catalog");
     validateOpeningChoice(catalog.data.opening,e);
   } else if (e.type === "prologue-advanced" || e.type === "prologue-completed") {
@@ -112,6 +117,7 @@ export function d5EventEligibility(catalog: ValidatedD5Catalog, state: D5Project
   }
   if (state.activeRunRef) v.invalid("activeRunRef", "Operation requires the mansion", "run-active");
   const terminal = state.settlements.find(t => t.id === basisId), start = terminal && starts.get(terminal.runId);
+  if (terminal && terminal.routeId === catalog.data.tutorial?.routeId) v.invalid("basisId", "Tutorial returns do not grant growth or equipment");
   if (!terminal || start === undefined || terminal.outcome === "wipe" || !(terminal.outcome === "extracted" && terminal.deepestLayer === 3 || terminal.outcome === "cleared" && terminal.deepestLayer === 5)) v.invalid("basisId", "No qualifying ordinary return");
   if (eventId === spec.gift.eventId) {
     if (state.giftGrantId) v.invalid("gift", "Gift already claimed");
@@ -150,9 +156,15 @@ export function projectD5Progress(catalog: ValidatedD5Catalog, raw: unknown, rea
     if (seen.has(entry.id) || entry.revision <= revision) v.invalid("progression", "Duplicate evidence or nonchronological transaction");
     seen.add(entry.id); revision = entry.revision;
     const e = entry.event;
+    if (e.type === "game-start-selected") {
+      if (entry.revision !== 1 || readers.baseline) v.invalid("startAt", "Only a fresh, unplayed save can select its start", "command-not-available");
+      applyGameStart(catalog, state, e.startAt);
+      continue;
+    }
     const openingEvent = e.type === "prologue-advanced" || e.type === "prologue-completed";
     if (state.prologue?.status === "playing" && !openingEvent) v.invalid("prologue", "Finish or skip the prologue before playing", "command-not-available");
     if (state.opening?.status === "playing" && !openingEvent && e.type !== "opening-advanced") v.invalid("opening", "Finish the first morning before playing", "command-not-available");
+    if (state.tutorial?.status === "pending" && !openingEvent && e.type !== "opening-advanced" && e.type !== "expedition-started") v.invalid("tutorial", "Complete the opening expedition before free play", "command-not-available");
     if (openingEvent) {
       const opening = state.prologue, shots = catalog.data.prologue?.shotIds;
       if (!opening || !shots || opening.status !== "playing" || opening.shotId !== e.shotId || state.activeRunRef || state.activeStoryId) v.invalid("prologue", "Stale or completed prologue cursor", "command-not-available");
@@ -168,6 +180,10 @@ export function projectD5Progress(catalog: ValidatedD5Catalog, raw: unknown, rea
     } else if (e.type === "opening-advanced") {
       noRun();
       advanceOpening(catalog.data.opening, state.opening, e);
+    } else if (e.type === "phase-advanced") {
+      const blocked = mansionTimeBlock(state);
+      if (blocked) v.invalid("clock", blocked, "command-not-available");
+      state.clock = nextCampaignClock(state.clock);
     } else if (e.type === "supply-purchased") {
       const {total, stored} = supplyQuote(catalog, state, e);
       state.funds.party -= total;
@@ -179,7 +195,12 @@ export function projectD5Progress(catalog: ValidatedD5Catalog, raw: unknown, rea
       if (runIds.has(e.runId)) v.invalid("runId", "Run identity reused");
       runIds.add(e.runId);
       const expectedRoute = state.manor.takeover ? catalog.data.manor!.maintenanceRouteId : catalog.data.manor!.firstClearRouteId;
-      if (e.routeId !== expectedRoute || !e.partyIds.includes(catalog.data.leaderId) || !e.partyIds.length || e.partyIds.some(id => !state.availableCharacterIds.includes(id))) v.invalid("party", "Unavailable route or party");
+      const tutorial = catalog.data.tutorial;
+      if (tutorial && e.routeId === tutorial.routeId) {
+        if (state.tutorial?.status !== "pending" || !same(e.partyIds, tutorial.partyIds) || !same(e.itemIds, tutorial.itemIds) || e.progress.appliedGrowthIds.length || e.progress.equipment.length) v.invalid("tutorial", "Invalid tutorial departure");
+        state.tutorial = { status: "active", runId: e.runId };
+      } else if (e.routeId !== expectedRoute || state.tutorial && !["completed", "exempt"].includes(state.tutorial.status)) v.invalid("route", "Unavailable route");
+      if (!e.partyIds.includes(catalog.data.leaderId) || !e.partyIds.length || e.partyIds.some(id => !state.availableCharacterIds.includes(id))) v.invalid("party", "Unavailable party");
       if (!same(validateDemoProgress(catalog.data, e.progress), state.progress)) v.invalid("progress", "Departure does not freeze current configuration");
       const supplyIds = departureSupplies(catalog, state, e.runId, e.itemIds).map(s => s.instanceId);
       state.supplies = state.supplies.filter(s => !e.itemIds.includes(s.definitionId));
@@ -193,10 +214,20 @@ export function projectD5Progress(catalog: ValidatedD5Catalog, raw: unknown, rea
       const finalRun = readers.expedition(catalog, e.finalRun);
       if (finalRun.node !== "finished" || !same(finalRun.result, t) || finalRun.run.id !== t.runId || finalRun.run.routeId !== t.routeId || !same(finalRun.run.contentRef, catalog.ref) || !same(finalRun.run.progress, start.event.progress) || !same(finalRun.run.party.map(m => m.id), start.event.partyIds)) v.invalid("terminal", "No validated terminal run explains this settlement");
       if (t.returnedSupplies.length !== start.supplyIds.length || t.returnedSupplies.some(s => start.supplyIds[start.event.itemIds.indexOf(s.definitionId)] !== s.instanceId)) v.invalid("supplies", "Returned supply is not the reserved instance");
+      let tutorialGold = 0;
+      if (t.routeId === catalog.data.tutorial?.routeId) {
+        const spec = catalog.data.tutorial;
+        if (state.tutorial?.status !== "active" || state.tutorial.runId !== t.runId || finalRun.tutorial?.stage !== "claimable" || t.outcome !== "cleared") v.invalid("tutorial.claim", "Complete all encounters and the return before claiming");
+        if (spec.guide) {
+          const rooms = finalRun.run.roomIds.flat(), eventRoom = finalRun.run.roomIds[0][spec.guide.nodes.findIndex(n => n.battle === null)];
+          if (!same(t.completion?.roomIds, rooms) || t.completion?.encounterIds.length !== 4 || finalRun.run.eventResults.filter(r => r.roomId === eventRoom).length !== 1) v.invalid("tutorial.claim", "The guided release requires all five rooms and the event result");
+        }
+        state.tutorial = { status: "completed", runId: t.runId, terminalId: t.id, claimId: entry.id, rewardId: spec.reward.id, cargoIds: [...spec.reward.cargoIds] };
+        tutorialGold = spec.reward.gold;
+      }
       terminalIds.add(t.id); state.settlements.push(structuredClone(t)); state.supplies.push(...structuredClone(t.returnedSupplies));
-      state.funds.party += t.totalGold + applyManorTakeover(catalog.shared, state.manor, t);
-      const n = state.settlements.length;
-      state.clock = { day: 1 + Math.floor(n / 4), phase: (["dawn", "day", "dusk", "night"] as const)[n % 4] };
+      state.funds.party += t.totalGold + tutorialGold + applyManorTakeover(catalog.shared, state.manor, t);
+      state.clock = nextCampaignClock(state.clock);
       state.activeRunRef = null;
       for (const item of state.inventory) if (item.location.kind === "reserved") {
         if (item.location.runId !== t.runId) v.invalid("equipment", "Reservation belongs to another run");

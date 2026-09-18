@@ -1,10 +1,14 @@
+@import "./character-motion.css";
+
 * { box-sizing: border-box; }
 
 /* 画布外一律纯黑(由 stage.css 的 .abyssa-stage-root 负责),
    底纹挂进画布内,随界面缩放并止于画布边界。 */
-.abyssa-stage__canvas {
+.character-status-canvas {
   /* 复用主菜单的月下长廊原图与明暗，不包含菜单内容或实时模糊。 */
-  --abyssa-character-status-backdrop:
+  /* URL 必须在样式表内消费。经 CSS 变量传到内联 background 后，
+     相对 URL 会以 HTML 为基址，正式构建便丢失 assets/ 路径。 */
+  background:
     radial-gradient(ellipse 52% 78% at 75% 49%, rgb(24 91 91 / 34%) 0%, rgb(12 45 46 / 16%) 43%, transparent 72%),
     linear-gradient(180deg, rgb(1 5 6 / 48%) 0%, transparent 22% 78%, rgb(1 4 5 / 12%) 100%),
     linear-gradient(90deg, rgb(11 43 44 / 16%) 0%, rgb(2 7 8 / 28%) 32%, rgb(2 7 8 / 70%) 62%, rgb(5 24 25 / 82%) 79%, rgb(1 5 6 / 94%) 100%),

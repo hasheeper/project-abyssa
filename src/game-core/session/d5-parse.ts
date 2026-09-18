@@ -1,5 +1,7 @@
 import * as v from "../contracts/validation";
 import type { D5ProgressEntry, D5ProgressEvent, D5RunRef } from "./d5-types";
+import { GAME_START_POINTS } from "./d5-types";
+import { MAX_DEPARTURE_SUPPLIES } from "../contracts/journey-limits";
 
 export function parseD5RunRef(raw: unknown): D5RunRef {
   const r = v.record(raw, "runRef");
@@ -9,6 +11,8 @@ export function parseD5RunRef(raw: unknown): D5RunRef {
   return kind === "memory" ? { kind, id, attempt: v.number(r.attempt, "attempt", 1, 10000) } : { kind, id };
 }
 export const D5_EVENT_FIELDS: Record<D5ProgressEvent["type"], readonly string[]> = {
+  "phase-advanced": [],
+  "game-start-selected": ["startAt"],
   "opening-advanced": ["step", "choice"],
   "prologue-advanced": ["shotId"],
   "prologue-completed": ["shotId", "choice"],
@@ -39,12 +43,13 @@ export function parseD5ProgressEntry(raw: unknown): D5ProgressEntry {
   const type = v.choice(event.type, Object.keys(D5_EVENT_FIELDS) as D5ProgressEvent["type"][], "event.type");
   v.record(event, "event", ["type", ...D5_EVENT_FIELDS[type]], type === "memory-read" ? ["choice"] : []);
   v.choice(e.origin, [d5EventOrigin(type)], "entry.origin");
+  if (type === "game-start-selected") v.choice(event.startAt, GAME_START_POINTS, "startAt");
   for (const key of ["runId", "routeId", "terminalId", "chapterId", "templateId", "sessionId", "eventId", "basisId", "instanceId", "shotId"])
     if (key in event) v.id(event[key], key);
   for (const key of ["fromOwnerId", "toOwnerId"])
     if (key in event && event[key] !== null) v.id(event[key], key);
   if ("partyIds" in event) v.ids(event.partyIds, "partyIds", 5);
-  if ("itemIds" in event) v.ids(event.itemIds, "itemIds", 4);
+  if ("itemIds" in event) v.ids(event.itemIds, "itemIds", MAX_DEPARTURE_SUPPLIES);
   if ("seed" in event) v.number(event.seed, "seed", 0, 0xffffffff);
   if (type === "supply-purchased") {
     v.id(event.shopId, "shopId"); v.id(event.definitionId, "definitionId");

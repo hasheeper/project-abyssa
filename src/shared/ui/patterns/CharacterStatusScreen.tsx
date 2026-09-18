@@ -61,6 +61,8 @@ export interface CharacterStatusScreenProps
   extends Omit<HTMLAttributes<HTMLElement>, "onChange"> {
   characters: CharacterProfile[];
   selectedId?: string;
+  /** A presentation controller may defer the dossier while selection responds immediately. */
+  displayedId?: string;
   defaultSelectedId?: string;
   onSelectedIdChange?: (id: string) => void;
   menuItems?: CharacterMenuItem[];
@@ -69,6 +71,8 @@ export interface CharacterStatusScreenProps
   onActiveMenuIdChange?: (id: string) => void;
   /** 按页签渲染面板内容。不传则各页都退回 StatusPanel(旧行为)。 */
   renderTabPanel?: (args: CharacterTabRenderArgs) => ReactNode;
+  /** Optional presentation slot; frame, outfit controls and nameplate stay fixed. */
+  renderPortrait?: (args: { character: CharacterProfile; imageUrl?: string; portrait: ReactNode }) => ReactNode;
   title?: string;
   subtitle?: string;
   interfaceTone?: CharacterInterfaceTone;
@@ -102,6 +106,7 @@ type CharacterScreenStyle = CSSProperties & {
 export function CharacterStatusScreen({
   characters,
   selectedId,
+  displayedId,
   defaultSelectedId,
   onSelectedIdChange,
   menuItems = defaultMenuItems,
@@ -109,6 +114,7 @@ export function CharacterStatusScreen({
   defaultActiveMenuId,
   onActiveMenuIdChange,
   renderTabPanel,
+  renderPortrait,
   title = "STATUS",
   subtitle = "CHARACTER ARCHIVE",
   interfaceTone,
@@ -146,9 +152,10 @@ export function CharacterStatusScreen({
   const [failedPortrait, setFailedPortrait] = useState<string | null>(null);
   const [outfitSelections, setOutfitSelections] = useState<Record<string, string>>({});
   const tabUid = useId().replaceAll(":", "");
-  const currentCharacter =
+  const selectedCharacter =
     characters.find((character) => character.id === currentId && !character.disabled) ??
     characters.find((character) => !character.disabled);
+  const currentCharacter = characters.find((character) => character.id === displayedId && !character.disabled) ?? selectedCharacter;
   const currentMenuIndex = Math.max(
     0,
     menuItems.findIndex((item) => item.id === currentMenuId)
@@ -210,6 +217,20 @@ export function CharacterStatusScreen({
       </section>
     );
   }
+
+  const portrait = <>
+    {currentPortraitUrl && failedPortrait !== currentPortraitUrl ? (
+      <img key={currentPortraitUrl} src={currentPortraitUrl}
+        onError={() => setFailedPortrait(currentPortraitUrl)} alt={currentPortraitAlt} />
+    ) : (
+      <div className="abyssa-character-screen__portrait-placeholder" role="img" aria-label={`${currentCharacter.name}暂无立绘`}>
+        <span>{currentCharacter.number}</span>
+      </div>
+    )}
+    <div className="abyssa-character-screen__appearance" aria-live="polite">
+      <strong>{currentAppearanceLabel}</strong>
+    </div>
+  </>;
 
   return (
     <section
@@ -274,21 +295,7 @@ export function CharacterStatusScreen({
 
             <div className="abyssa-character-screen__portrait-column">
               <RpgFrame className="abyssa-character-screen__portrait" padding="none">
-                {currentPortraitUrl && failedPortrait !== currentPortraitUrl ? (
-                  <img
-                    key={currentPortraitUrl}
-                    src={currentPortraitUrl}
-                    onError={() => setFailedPortrait(currentPortraitUrl)}
-                    alt={currentPortraitAlt}
-                  />
-                ) : (
-                  <div className="abyssa-character-screen__portrait-placeholder" role="img" aria-label={`${currentCharacter.name}暂无立绘`}>
-                    <span>{currentCharacter.number}</span>
-                  </div>
-                )}
-                <div className="abyssa-character-screen__appearance" aria-live="polite">
-                  <strong>{currentAppearanceLabel}</strong>
-                </div>
+                {renderPortrait ? renderPortrait({ character: currentCharacter, imageUrl: currentPortraitUrl, portrait }) : portrait}
               </RpgFrame>
               <Nameplate
                 name={currentCharacter.name}
@@ -344,7 +351,7 @@ export function CharacterStatusScreen({
           tone: character.status.affiliation?.tone,
           disabled: character.disabled
         }))}
-        value={currentCharacter.id}
+        value={selectedCharacter?.id}
         onValueChange={selectCharacter}
         label="角色头像选择"
         loop

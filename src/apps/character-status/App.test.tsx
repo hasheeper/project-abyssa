@@ -7,7 +7,7 @@ import {
   act,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach, describe, it, expect } from "vitest";
+import { afterEach, beforeEach, describe, it, expect, vi } from "vitest";
 import { App, CharacterPage } from "./App";
 import {
   ReadGameGate,
@@ -19,8 +19,12 @@ import { archiveFixture } from "../../game-runtime/testing/archive-fixture";
 import { presentCharacterArchive } from "../../game-client/character-presentation";
 import { DiceLoadoutPanel } from "../../shared/ui/patterns/DiceLoadoutPanel";
 import { LEGACY_VALIDATED_CATALOG } from "../../game-runtime/legacy-context";
+// Data/read-only contracts run without presentation delays. Real motion is
+// covered by CharacterContentSwap/useCharacterIntro and browser frame samples.
+beforeEach(() => vi.stubGlobal("matchMedia", () => ({ matches: true, addEventListener() {}, removeEventListener() {} })));
 afterEach(() => {
   cleanup();
+  vi.unstubAllGlobals();
   window.history.replaceState(null, "", "/");
 });
 async function mount(options: Parameters<typeof archiveFixture>[0] = {}) {

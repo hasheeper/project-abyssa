@@ -1,6 +1,4 @@
 import { useId } from "react";
-import type { Ref } from "react";
-import chestGlyph from "../../assets/icons/items/chest.svg";
 import { CurrencyAmount } from "../../shared/ui/primitives/CurrencyAmount";
 import { DiamondWatermark } from "../../shared/ui/primitives/DiamondWatermark";
 
@@ -41,11 +39,6 @@ const ornamentPath = [
 export interface MansionLedgerProps {
   publicFund: number;
   partyFund: number;
-  stockTotal: number;
-  stockOpen: boolean;
-  onToggleStock: () => void;
-  /** 库存按钮。物品栏关闭后要把焦点还回这里。 */
-  stockButtonRef?: Ref<HTMLButtonElement>;
 }
 
 /** 与牌面共用坐标的凹槽，避免文字层和装饰层各自维护尺寸。 */
@@ -80,11 +73,7 @@ function Well({ x }: { x: number }) {
 
 export function MansionLedger({
   publicFund,
-  partyFund,
-  stockTotal,
-  stockOpen,
-  onToggleStock,
-  stockButtonRef
+  partyFund
 }: MansionLedgerProps) {
   const uid = useId().replace(/:/g, "");
   const patternId = `mansion-ledger-pattern-${uid}`;
@@ -159,34 +148,6 @@ export function MansionLedger({
         </dl>
       </section>
 
-      {/* 圆形入口:传统 RPG 的「道具袋」按钮 —— 一枚圆章挂在铭牌右侧,
-          图标居中,数量做成右上角标。
-          原先是 174x32 的横向长条,写着「领地库存」+ 数字 + 一个折叠箭头,
-          那是网页折叠面板的语汇(而且它现在打开的是模态,不是折叠层,
-          箭头本身就是错的提示)。 */}
-      <button
-        ref={stockButtonRef}
-        type="button"
-        className="mansion-ledger__stock"
-        aria-haspopup="dialog"
-        aria-expanded={stockOpen}
-        aria-label={`领地库存，共 ${stockTotal} 件`}
-        onClick={onToggleStock}
-      >
-        <svg className="mansion-ledger__stock-plate" viewBox="0 0 56 56" aria-hidden="true">
-          {/* 下沉垫底 + 牌面 + 方向性光照 + 三层描边,与相位推进键同族。 */}
-          <circle cx="28" cy="28" r="24" fill="#070c0d" opacity=".6" transform="translate(0 2.5)" />
-          <circle cx="28" cy="28" r="24" fill="var(--mansion-plate-fill)" />
-          <path d="M4 28 A24 24 0 0 1 52 28 Z" fill="#4a5a52" opacity=".42" />
-          <path d="M4 28 A24 24 0 0 0 52 28 Z" fill="#070c0d" opacity=".46" />
-          <circle cx="28" cy="28" r="24" fill="none" stroke="var(--abyssa-frame-dark)" strokeWidth="5" />
-          <circle cx="28" cy="28" r="24" fill="none" stroke="var(--mansion-plate-edge)" strokeWidth="2.4" />
-          <circle cx="28" cy="28" r="24" fill="none" stroke="var(--abyssa-frame-deep)" strokeWidth="1" />
-          <path d="M12 18 A24 24 0 0 1 44 18" fill="none" stroke="#c3d0d0" strokeWidth="1.2" strokeLinecap="round" opacity=".5" />
-        </svg>
-        <img src={chestGlyph} alt="" />
-        {stockTotal > 0 && <b aria-hidden="true">{stockTotal}</b>}
-      </button>
     </>
   );
 }

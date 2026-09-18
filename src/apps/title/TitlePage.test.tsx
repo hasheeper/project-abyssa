@@ -25,15 +25,29 @@ describe("TitlePage", () => {
     // 这两个属性是本屏能成立的前提:默认底板会盖掉整个背景场。
     expect(emblem).toHaveAttribute("data-background", "none");
     expect(emblem).toHaveAttribute("data-crop", "tight");
+    expect(emblem).toHaveAttribute("data-intro", "true");
     expect(emblem.querySelector(":scope > rect")).toBeNull();
 
     // 背景场必须在,且不吃点击。
     expect(container.querySelector(".title-backdrop")).toBeInTheDocument();
   });
 
+  it("keeps the independent logo intro without delaying menu entries", async () => {
+    const { container } = await mountTitle();
+    const emblem = container.querySelector(".abyssa-logo")!;
+    expect(emblem).toHaveAttribute("data-intro", "true");
+    expect(emblem.querySelector("[data-intro]")).not.toBeNull();
+    for (const entry of container.querySelectorAll<HTMLElement>(".title-commands__entry")) {
+      expect(entry).toBeVisible();
+      expect(entry.style.animationDelay).toBe("");
+    }
+    await userEvent.setup().hover(screen.getByRole("button", { name: "新的开始" }));
+    expect(emblem).toHaveAttribute("data-intro", "true");
+  });
+
   it("wraps the screen in AbyssaProvider so reduced-motion applies", async () => {
     // tokens.css 的 prefers-reduced-motion 规则挂在 `.abyssa-theme` 上。
-    // 少了它,背景场的无限自转会无视系统设置 —— 这是无障碍问题,不是样式偏好。
+    // 静态基底仍需提供共享色彩、字体与降低动效设置。
     const { container } = await mountTitle();
     const theme = container.querySelector(".abyssa-theme");
 
@@ -52,11 +66,9 @@ describe("TitlePage", () => {
     );
   });
 
-  it("keeps rotation shells free of a transform attribute", async () => {
-    // SVG 的 transform 属性就是 CSS transform 属性:壳上若已有 translate,
-    // keyframe 会把它覆盖掉,图案整体飞走。壳必须是干净的。
+  it("keeps the static pattern layers free of outer transforms", async () => {
     const { container } = await mountTitle();
-    const shells = container.querySelectorAll(".title-backdrop__spin");
+    const shells = container.querySelectorAll(".title-backdrop__pattern");
 
     expect(shells.length).toBeGreaterThan(0);
     for (const shell of shells) {
@@ -68,11 +80,11 @@ describe("TitlePage", () => {
     // 径向衰减一转就会露出 mask 的矩形边界。
     const { container } = await mountTitle();
 
-    expect(container.querySelector(".title-backdrop__wash")).not.toHaveClass("title-backdrop__spin");
+    expect(container.querySelector(".title-backdrop__wash")).not.toHaveClass("title-backdrop__pattern");
     const field = container.querySelector(".title-backdrop__field")!;
-    expect(field).not.toHaveClass("title-backdrop__spin");
+    expect(field).not.toHaveClass("title-backdrop__pattern");
     expect((field as HTMLElement).style.mask).toMatch(/^url\(#title-field-mask-/);
-    for (const shell of field.querySelectorAll(".title-backdrop__spin")) {
+    for (const shell of field.querySelectorAll(".title-backdrop__pattern")) {
       expect(shell.tagName).toBe("DIV");
       expect(shell.querySelector("svg")).toBeInTheDocument();
     }
@@ -92,7 +104,7 @@ describe("TitlePage", () => {
     }
   });
 
-  it("only loads the current CG during the logo intro", async () => {
+  it("only loads the current CG at startup", async () => {
     const { container } = await mountTitle();
     const left = container.querySelector('.title-cg[data-side="left"]')!;
     const frames = left.querySelectorAll(".title-cg__frame");
@@ -132,33 +144,10 @@ describe("TitlePage", () => {
     expect(container.querySelector(".title-app")).toHaveAttribute("data-theme", "crimson");
   });
 
-  it("switches skins without touching the geometry", async () => {
-    const user = userEvent.setup();
-    const { container } = await mountTitle();
-    const app = container.querySelector(".title-app")!;
-    const emblem = container.querySelector(".title-emblem")!;
-    const before = emblem.className;
-
-    await user.click(screen.getByRole("button", { name: "青幽" }));
-    expect(app).toHaveAttribute("data-theme", "verdigris");
-
-    await user.click(screen.getByRole("button", { name: "黑金" }));
-    expect(app).toHaveAttribute("data-theme", "black-gold");
-
-    // 皮肤只改颜色令牌:构图类名不许因换肤而变化。
-    expect(emblem.className).toBe(before);
-  });
-
-  it("marks the active skin for assistive tech", async () => {
-    const user = userEvent.setup();
+  it("shows only the four title actions without a theme picker", async () => {
     await mountTitle();
-
-    const crimson = screen.getByRole("button", { name: "猩红" });
-    expect(crimson).toHaveAttribute("aria-pressed", "true");
-
-    await user.click(screen.getByRole("button", { name: "青幽" }));
-    expect(crimson).toHaveAttribute("aria-pressed", "false");
-    expect(screen.getByRole("button", { name: "青幽" })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getAllByRole("button").map(button => button.textContent)).toEqual(TITLE_COMMANDS.map(command => command.label));
+    expect(screen.queryByRole("group", { name: "界面主题" })).not.toBeInTheDocument();
   });
 
   it("keeps the footer text out of the centred stack", async () => {
@@ -214,11 +203,13 @@ describe("TitlePage", () => {
 });
 
 describe("title command wiring", () => {
-  it("marks exactly one command as the accent", async () => {
-    // 强调项多于一个就等于没有强调。
-    const accents = TITLE_COMMANDS.filter((command) => command.variant === "teal");
-    expect(accents).toHaveLength(1);
-    expect(accents[0].id).toBe("begin");
+  it("recommends Continue when a readable save exists without making commands toggles", async () => {
+    const { container } = await mountTitle();
+    expect(container.querySelectorAll(".title-commands__item[data-highlighted]")).toHaveLength(1);
+    expect(screen.getByRole("button", { name: "继续游戏" })).toHaveAttribute("data-highlighted");
+    for (const command of TITLE_COMMANDS) {
+      expect(screen.getByRole("button", { name: command.label })).not.toHaveAttribute("aria-pressed");
+    }
   });
 
   it("gives every unwired command a pending explanation", async () => {
@@ -243,7 +234,7 @@ describe("title shade layer", () => {
     const children = Array.from(app.children);
 
     const cgIndexes = children
-      .map((el, index) => (el.classList.contains("title-cg") ? index : -1))
+      .map((el, index) => (el.classList.contains("title-cg-layer") ? index : -1))
       .filter((index) => index >= 0);
     const lastCg = Math.max(...cgIndexes);
     expect(cgIndexes).toHaveLength(2);

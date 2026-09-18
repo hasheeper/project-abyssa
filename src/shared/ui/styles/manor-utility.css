@@ -1,0 +1,106 @@
+/* Manor utility palette, taken from mansion-room-drawer.css.
+   Opt-in only: it must not recolor the world, other game screens or item rarity. */
+.manor-utility {
+  --manor-window-width: 1080px;
+  --manor-window-height: 620px;
+  --manor-window: rgb(19 26 27 / 97%);
+  --manor-void: rgb(10 15 16 / 98%);
+  --manor-well: rgb(6 11 12 / 52%);
+  --manor-edge: #354345;
+  --manor-edge-strong: #687878;
+  --manor-line: rgb(113 137 136 / 42%);
+  --manor-hair: rgb(126 150 145 / 22%);
+  --manor-title: #eee3c7;
+  --manor-body: #cdd5cf;
+  --manor-muted: #8b9c9c;
+  --manor-dim: #667676;
+  --manor-gold: #b9a271;
+  --manor-gold-bright: #e0c67f;
+  --manor-gold-edge: #88784f;
+  --manor-gold-shadow: #7b6d47;
+  --abyssa-text: var(--manor-title);
+  --abyssa-text-soft: var(--manor-body);
+  --abyssa-text-muted: var(--manor-muted);
+  --abyssa-focus: #f0eadb;
+  --abyssa-panel-dark: var(--manor-window);
+  --abyssa-panel-black: var(--manor-well);
+  color: var(--manor-body);
+}
+/* One outer geometry for stock, journal and preparation, including footers.
+   Opt-in keeps the legacy inventory and unrelated library modals unchanged. */
+.manor-utility > .manor-utility__window {
+  width: var(--manor-window-width);
+  height: var(--manor-window-height);
+  max-width: 100%;
+}
+.manor-utility > .manor-utility__window > .abyssa-frame { height: 100%; }
+.manor-utility > .manor-utility__window.abyssa-modal__panel > .abyssa-frame > .abyssa-frame__content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 38px 32px 24px;
+  box-sizing: border-box;
+}
+.manor-utility > .manor-utility__window > .abyssa-frame > .abyssa-frame__content > .abyssa-modal__body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+/* A dark inset with a quiet edge; its depth is independent of content spacing. */
+.manor-utility .manor-utility__inset {
+  border: 1px solid var(--manor-hair);
+  background: var(--manor-well);
+  box-shadow: inset 0 1px rgb(255 255 255 / 3%), 0 1px rgb(0 0 0 / 18%);
+}
+.manor-utility > .abyssa-modal__panel > .abyssa-frame {
+  --abyssa-frame-surface: var(--manor-window);
+  background: var(--manor-void);
+}
+.manor-utility > .abyssa-modal__panel > .abyssa-frame > .abyssa-frame__watermark { opacity: .55; }
+.manor-utility .abyssa-modal__signboard .abyssa-nameplate { --abyssa-nameplate-ink: var(--manor-title); }
+
+/* Existing notched artwork supplies the small-scale relief. Gold is the edge,
+   not a bright slab behind every command. */
+.manor-utility .journal-action {
+  --abyssa-notched-fill: #171b1a;
+  --abyssa-notched-text: var(--manor-body);
+  --abyssa-notched-middle: var(--manor-edge-strong);
+  --abyssa-notched-ornament: var(--manor-edge);
+  --abyssa-notched-pattern-dark: rgb(0 0 0 / 12%);
+  --abyssa-notched-pattern-light: rgb(206 191 146 / 3%);
+}
+.manor-utility .journal-action[data-emphasis="primary"] {
+  --abyssa-notched-text: var(--manor-title);
+  --abyssa-notched-middle: var(--manor-gold-edge);
+  --abyssa-notched-ornament: var(--manor-gold-shadow);
+}
+.manor-utility .journal-action:hover:not(:disabled) { --abyssa-notched-middle: var(--manor-gold); }
+.manor-utility .journal-action:disabled { --abyssa-notched-text: var(--manor-muted); }
+
+/* Warehouse category seals keep their artwork, switching only the selected
+   color roles. ItemSlot's five rarity palettes are deliberately untouched. */
+.manor-utility .abyssa-inventory__rail-item .abyssa-vertical-indicator {
+  --abyssa-indicator-fill: #131a1b;
+  --abyssa-indicator-middle: var(--manor-edge-strong);
+  --abyssa-indicator-ornament: var(--manor-edge);
+  --abyssa-indicator-axis: var(--manor-edge);
+}
+.manor-utility .abyssa-inventory__rail-item[aria-pressed="true"] .abyssa-vertical-indicator {
+  --abyssa-indicator-fill: #171b1a;
+  --abyssa-indicator-middle: var(--manor-gold-edge);
+  --abyssa-indicator-ornament: var(--manor-gold);
+  --abyssa-indicator-axis: var(--manor-gold-shadow);
+  filter: drop-shadow(0 2px 0 #060a0a) drop-shadow(0 3px 3px rgb(0 0 0 / 30%));
+}
+.manor-utility .abyssa-inventory__rail-item[aria-pressed="true"] { color: var(--manor-title); }
+.manor-utility .abyssa-inventory__rail-count { color: var(--manor-muted); }
+.manor-utility .abyssa-inventory__rail-item[aria-pressed="true"] .abyssa-inventory__rail-count,
+.manor-utility .abyssa-inventory__detail-count b { color: var(--manor-gold-bright); }
+.manor-utility .abyssa-inventory__pagination button { border-color: var(--manor-edge); color: var(--manor-gold); }
+.manor-utility .abyssa-inventory__pagination button:hover:not(:disabled) { border-color: var(--manor-gold-edge); background: var(--manor-well); }
+.manor-utility .abyssa-inventory__detail,
+.manor-utility .abyssa-inventory__detail-body,
+.manor-utility .abyssa-inventory__footer { border-color: var(--manor-hair); }
+
+.manor-utility .departure-preparation .departure-preparation__effect { color: var(--manor-body); }

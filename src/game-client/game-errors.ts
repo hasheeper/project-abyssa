@@ -2,6 +2,8 @@ export function gameErrorText(code: string) {
   const messages: Record<string, string> = {
     "insufficient-funds": "小队金币不足。",
     "inventory-full": "这件补给已经备足，请减少数量。",
+    "airp-capacity": "这份档案的叙事容量已满，进度已保留。请先导出备份；当前版本不能继续扩展这份叙事档案。",
+    "online-recovery-required": "这份档案已绑定在线叙事实例，暂不支持复制、升级或新周目。可用完整备份恢复原身份；不会覆盖或复用另一个可写实例。",
     "quote-expired": "货价已经变化，请重新读取。",
     "item-unavailable": "这件补给尚未购入或当前不出售。",
     "run-active": "请先结束当前旅程或片段，再回馆整备。",

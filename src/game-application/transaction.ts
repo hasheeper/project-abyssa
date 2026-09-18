@@ -61,17 +61,21 @@ export function decideCommit<
     head: HeadRef | null,
     error: ReceiptError,
     contentRef: StoredRecord["contentRef"] | null = null,
-  ): C => ({
-    ...structuredClone(proposal.receipt),
-    status: "rejected",
-    before: head,
-    after: head,
-    contentRef:
-      proposal.receipt.version === 1 ? contentRef : proposal.receipt.contentRef,
-    error,
-    events: [],
-    factIds: [],
-  });
+  ): C => {
+    // A losing CAS has no domain effects, even when its proposal carried them.
+    const { combat: _combat, journey: _journey, airp: _airp, airpOnline: _online, archiveOperation: _restore, ...base } = structuredClone(proposal.receipt) as C & { combat?: unknown; journey?: unknown; airp?: unknown; airpOnline?: unknown; archiveOperation?: unknown };
+    return ({
+      ...base,
+      status: "rejected",
+      before: head,
+      after: head,
+      contentRef:
+        proposal.receipt.version === 1 ? contentRef : proposal.receipt.contentRef,
+      error,
+      events: [],
+      factIds: [],
+    }) as unknown as C;
+  };
   if (existing) {
     if (existing.fingerprint === proposal.fingerprint)
       return {

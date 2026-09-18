@@ -34,6 +34,7 @@ for (const prefix of ['/', '/abyssa/']) {
     expect(home.head.saveId).toBe(save);
     expect(home.snapshot.campaign.appliedSettlements).toHaveLength(1);
     expect(home.snapshot.campaign.funds.party).toBe(home.snapshot.campaign.appliedSettlements[0].result.totalGold);
+    await page.getByRole('button', { name: '日志', exact: true }).click();
     await expect(page.getByTestId('campaign-funds')).toContainText(`小队金币 ${home.snapshot.campaign.funds.party}`);
     await expect(page.getByText('已经回到洋馆了，先休息一下吧。')).toBeVisible();
     await page.screenshot({ path: info.outputPath('mansion-after-settlement.png') });
@@ -118,6 +119,7 @@ test('blocked storage does not fake a successful new game', async ({ page }) => 
   await page.addInitScript(() => { Object.defineProperty(window, 'indexedDB', { get() { throw new DOMException('Unavailable', 'SecurityError'); } }); });
   await page.goto('/title.html');
   await page.getByRole('button', { name: '新的开始', exact: true }).click();
+  await page.getByRole('button', { name: '完整开始', exact: true }).click();
   await expect(page).toHaveURL(/#\/title$/);
   await expect(page.getByRole('status')).toContainText('存档');
 });

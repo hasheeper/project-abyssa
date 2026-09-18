@@ -20,6 +20,7 @@ import crossShieldIcon from "../../../assets/icons/game-icon-cross-shield.svg";
 import hospitalCrossIcon from "../../../assets/icons/game-icon-hospital-cross.svg";
 import magicPalmIcon from "../../../assets/icons/game-icon-magic-palm.svg";
 import slashedShieldIcon from "../../../assets/icons/slashed-shield.svg";
+import blankCrossIcon from "../../../assets/icons/blank-cross.svg";
 import scrollIcon from "../../../assets/icons/items/scroll-unfurled.svg";
 import ringIcon from "../../../assets/icons/items/diamond-ring.svg";
 import bookIcon from "../../../assets/icons/items/spell-book.svg";
@@ -54,7 +55,7 @@ import { DICE_NET_PLACEMENTS } from "./diceLoadoutGeometry";
  *   ItemSlot           挂坠格(六层堆叠 + 空槽凹孔 + mask 图标着色)
  *
  * 图标一律走 mask-image 的 SVG 资源,**禁 emoji 与文字符号**;
- * 动作图标与 ExpeditionFlatDieFrame 的 STAMP_ICONS 同源,
+ * 动作图标与 ExpeditionFlatDieFrame 的 EXPEDITION_DIE_STAMP_ICONS 同源,
  * 否则同一动作在骰面上和检视栏里会长成两个样子。
  */
 
@@ -65,7 +66,7 @@ const ACTION_ICONS = {
   coin: swapBagIcon,
   art: magicPalmIcon,
   wild: splitCrossIcon,
-  blank: slashedShieldIcon,
+  blank: blankCrossIcon,
 } as const;
 
 const CHARM_ICONS = {

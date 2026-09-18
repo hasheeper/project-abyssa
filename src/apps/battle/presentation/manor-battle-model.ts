@@ -1,3 +1,5 @@
+import { tideEnemyArt } from "../../../content/presentation/tide-cave";
+import { isPlayerActor, playerDisplayName } from "../../../shared/domain/player-identity";
 import type { DemoJourneyView } from "../../../game-runtime/demo-journey-view";
 import type { DemoEvent } from "../../../game-core/battle";
 import type { ExpeditionDieFace } from "../ExpeditionDie3D";
@@ -6,6 +8,12 @@ import type {
   BattleSurfaceMember,
 } from "./battle-surface-model";
 import { manorEnemyArt } from "../../../content/presentation/old-manor";
+import { ENEMY_ART_BOUNDS } from "./enemy-stage-model";
+
+/** Resolve the historical player ID only at the presentation boundary. */
+export function battleMemberName(member: Pick<DemoJourneyView["party"][number], "id" | "name"> | undefined) {
+  return member ? isPlayerActor(member.id) ? playerDisplayName() : member.name : "伙伴";
+}
 
 export function manorFace(
   face: DemoJourneyView["party"][number]["faces"][number],
@@ -130,7 +138,8 @@ export function manorBattleModel(
     const i = e.intent,
       def = e.definition;
     const bound = e.boundRound === battle?.encounter.round;
-    const target = view.party.find((m) => m.id === i?.targetId);
+    const rawTarget = view.party.find((m) => m.id === i?.targetId);
+    const target = rawTarget && {...rawTarget, name: battleMemberName(rawTarget)};
     const memoryBoss = def.id === "enemy.memory.marietta";
     const clockwork = def.artId === "old-manor.clockwork-beast";
     const title = bound
@@ -138,27 +147,32 @@ export function manorBattleModel(
       : i?.operation === "memory-reorder" ? "收线重排" : memoryBoss && i?.kind === "attack" ? "裁定" : i?.kind === "attack"
         ? def.behavior === "butler"
           ? "落幕"
-          : def.behavior === "heiress" ? "举杯" : clockwork ? "钟鸣重击" : "攻击"
+          : def.behavior === "heiress" ? "举杯" : clockwork ? "钟鸣重击" : def.id === "enemy.intro.crossbowman" ? "射击" : "攻击"
         : i?.kind === "summon"
           ? "补席"
         : i?.kind === "seal"
           ? "门扉闭合"
           : i?.kind === "charge"
-            ? clockwork ? "摆锤蓄势" : "举盘"
+            ? clockwork ? "摆锤蓄势" : view.tutorial?.runRef ? "装填" : "举盘"
             : i?.kind === "repair"
               ? "缝补"
               : "待命";
-    const description = `${memoryBoss ? `侍偶护域：${e.protection ?? 0}。` : ""}${def.name} · ${title}${bound ? "：本回合无法行动" : i?.kind === "attack" ? target?.hp === 0 ? "：锁定目标已力竭，本轮落空" : `：对${target?.name}造成 ${e.damage} 点伤害${i.formula ? `（2＋${view.banquet?.guests ?? 0}位宾客，已格挡${i.blocked}）` : ""}` : i?.kind === "summon" ? `：${view.banquet?.reserve && view.banquet.guests < view.banquet.limit ? "补入一位候席客，下一回合行动" : "已满席或储备耗尽，本轮空过"}；剩余储备${view.banquet?.reserve ?? 0}` : i?.kind === "seal" ? `：下回合封锁${target?.name}的命数骰` : i?.kind === "charge" ? "：蓄力，下回合重击" : i?.kind === "repair" ? "：为锁定的受伤同伴恢复 1 点生命" : i?.operation === "memory-reorder" ? "：调整侍偶邻接位置，既有出手队列不变" : "：暂时待命"}${options.some(o => o.choice === "attack" && o.targetId === e.id) ? `；本次实伤预览 ${options.filter(o => o.choice === "attack" && o.targetId === e.id).map(o => "damage" in o && o.damage && typeof o.damage === "object" && "applied" in o.damage ? o.damage.applied : o.amount).join("／")}` : ""}`;
-    const art = manorEnemyArt[def.artId!];
+    const description = `${memoryBoss ? `侍偶护域：${e.protection ?? 0}。` : ""}${def.name} · ${title}${bound ? "：本回合无法行动" : i?.kind === "attack" ? target?.hp === 0 ? "：锁定目标已力竭，本轮落空" : `：对${target?.name}造成 ${e.damage} 点伤害${i.formula ? `（2＋${view.banquet?.guests ?? 0}位宾客，已格挡${i.blocked}）` : ""}` : i?.kind === "summon" ? `：${view.banquet?.reserve && view.banquet.guests < view.banquet.limit ? "补入一位候席客，下一回合行动" : "已满席或储备耗尽，本轮空过"}；剩余储备${view.banquet?.reserve ?? 0}` : i?.kind === "seal" ? `：下回合封锁${target?.name}的命数骰` : i?.kind === "charge" ? def.id === "enemy.intro.crossbowman" ? "：本轮装填，下回合射击" : "：蓄力，下回合重击" : i?.kind === "repair" ? "：为锁定的受伤同伴恢复 1 点生命" : i?.operation === "memory-reorder" ? "：调整侍偶邻接位置，既有出手队列不变" : "：暂时待命"}${options.some(o => o.choice === "attack" && o.targetId === e.id) ? `；本次实伤预览 ${options.filter(o => o.choice === "attack" && o.targetId === e.id).map(o => "damage" in o && o.damage && typeof o.damage === "object" && "applied" in o.damage ? o.damage.applied : o.amount).join("／")}` : ""}`;
+    const art = tideEnemyArt[def.id] ?? manorEnemyArt[def.artId!];
     return {
       id: e.id,
       name: def.name!,
       hp: e.hp,
       maxHp: def.hp,
       attack: def.attack,
-      art: def.artId!,
+      art: def.artId ?? def.id,
       artUrl: art.url,
-      artStyle: { height: art.height, width: "auto", maxWidth: "100%", objectFit: "contain", objectPosition: "center bottom" },
+      artBounds: ENEMY_ART_BOUNDS[def.id] ?? ENEMY_ART_BOUNDS[def.artId ?? ""],
+      boss: def.id === "enemy.intro.reef-hook-chief" || memoryBoss || clockwork || def.behavior === "heiress",
+      // The authored height is the presentation size. Do not let the current
+      // formation column width shrink it; otherwise a survivor grows when a
+      // neighbouring enemy is removed from the grid.
+      artStyle: { height: art.height, width: "auto", maxWidth: "none", objectFit: "contain", objectPosition: "center bottom" },
       blocked: i?.blocked ?? 0,
       intent: i
         ? {

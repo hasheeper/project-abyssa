@@ -2,6 +2,8 @@
 
 更新：2026-09-09。当前接入范围是洋馆首晨 S1／S2；不改原舞台、用户校准、正式剧情或游戏规则。
 
+2026-09-12接续：已按[用户十二节新稿](FIRST_MORNING_SCREENPLAY_SOURCE_2026_09_12.md)替换首晨文案，保留120节点和五处选择位置，在节点内扩充分镜。当前正文／分页基线为`2d510adaf88960ebc74ad534804266da582c8cee34c4a4d764ff0a73ffa08ed3`；下文旧hash与“未改正文”是09-09迁移阶段的记录。演出与兼容详见[实施记录](FIRST_MORNING_IMPLEMENTATION.md)。
+
 ## 唯一剧情源
 
 [first-morning.json](../../src/content/presentation/scenes/first-morning.json) 控制台词、阅读分页、静默演出、分支、角色表、舞台预设、背景键、默认模式及初始席位。旧的两份 TypeScript 剧本已经移除；[first-morning.ts](../../src/content/presentation/first-morning.ts) 只保留兼容导出，没有第二份台词。
@@ -22,6 +24,8 @@
 | `branch` | 引用前面的 `choiceId`，每个合法选项必须有对应分镜 |
 
 分镜有四种：`dialogue`（`actorId/text/emotion`）、`narration`（`text`）、`direction`（`waitMs`）、`chapter`（章节文字）。可附 `stage`、本地 `effect`、`sound` 和物品展示键 `itemId`。
+
+2026-09-15：定稿岩窟／归馆同样经此边界播放。`stage.direction`（最多500字符）保存作者的走位、手部与物件演出说明，不作为台词、旁白或头顶文字显示；可实现的反应仍由 `emotion / motion / still` 表达。`stage.aside` 保留给短促的屏上附语，不把长篇动作说明塞进附语。正文与作者演出说明均保留原稿，不假装当前立绘已具备手臂骨骼动画。
 
 ```json
 {

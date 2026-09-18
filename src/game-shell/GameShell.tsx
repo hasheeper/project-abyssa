@@ -7,6 +7,8 @@ import { bindNavigator, isGameTarget, readRoute, routeHref, type RouteLocation }
 import { prepareGame } from "../shared/loading/startup";
 import { loadImage } from "../shared/loading/images";
 import { loadRoute, routeTitles, type RouteModule } from "./routes";
+import { TutorialProvider } from "../shared/tutorial";
+import { useSceneRevealRegistry } from "../shared/transition/useSceneReveal";
 
 const paint = () => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
 function pause(ms: number, signal: AbortSignal) {
@@ -22,6 +24,7 @@ type NavigationMode = "push" | "replace" | "history" | "boot";
 /** One document, one active page, one curtain. Cached modules never keep a page mounted. */
 export function GameShell() {
   const [current, setCurrent] = useState<MountedRoute | null>(null);
+  const {mode: reveal, modeRef: revealRef, requestReveal} = useSceneRevealRegistry(current?.page === "battle" ? "panel-drop" : "fade");
   const [phase, setPhase] = useState<SceneTransitionPhase>("closed");
   const [copy, setCopy] = useState<SceneTransitionCopy>({channel:"正在准备",destination:"旅程即将开始"});
   const [progress, setProgress] = useState<number | undefined>(0);
@@ -108,7 +111,8 @@ export function GameShell() {
       visualTimer.abort(); signal.removeEventListener("abort", abortVisual);
       if (stale()) return;
       updatePhase("opening");
-      await pause(route.page === "battle" || route.page === "shop" ? 1_850 : 620, signal);
+      // Pages with a local board score opt into the short backdrop curtain.
+      await pause(revealRef.current === "panel-drop" ? 1_850 : 620, signal);
       if (stale()) return;
       incoming.current = false; pendingHref.current = ""; updatePhase("idle");
     } catch (cause) {
@@ -118,7 +122,7 @@ export function GameShell() {
       setError("连接未完成，请重试。");
       updatePhase("closed");
     }
-  }, [readiness, updatePhase]);
+  }, [readiness, updatePhase, revealRef]);
 
   const navigate = useCallback((target: string, options: SceneNavigationOptions = {}) => {
     const url = new URL(target, window.location.href);
@@ -168,16 +172,16 @@ export function GameShell() {
   useLayoutEffect(() => {
     const root = document.documentElement;
     if (phase !== "idle") root.dataset.sceneTransition = phase; else delete root.dataset.sceneTransition;
-    if (incoming.current) { root.dataset.sceneIncoming = ""; root.dataset.sceneReveal = current?.page === "battle" || current?.page === "shop" ? "panel-drop" : "fade"; }
+    if (incoming.current) { root.dataset.sceneIncoming = ""; root.dataset.sceneReveal = reveal; }
     else { delete root.dataset.sceneIncoming; delete root.dataset.sceneReveal; }
     if (phase !== "idle") document.body.setAttribute("aria-busy", "true"); else document.body.removeAttribute("aria-busy");
     return () => { delete root.dataset.sceneTransition; delete root.dataset.sceneIncoming; delete root.dataset.sceneReveal; document.body.removeAttribute("aria-busy"); };
-  }, [phase, current]);
+  }, [phase, current, reveal]);
 
-  const context = useMemo(() => ({phase,isTransitioning:phase !== "idle",navigate,holdReady:readiness.hold}), [phase,navigate,readiness]);
+  const context = useMemo(() => ({phase,isTransitioning:phase !== "idle",navigate,holdReady:readiness.hold,requestReveal}), [phase,navigate,readiness,requestReveal]);
   const Page = current?.module.default;
-  return <SceneTransitionContext.Provider value={context}>
+  return <SceneTransitionContext.Provider value={context}><TutorialProvider suspended={phase !== "idle"}>
     {Page && <Page key={current!.key}/>}
     <SceneTransition phase={phase} {...copy} progress={progress} error={error} onRetry={() => retry.current()}/>
-  </SceneTransitionContext.Provider>;
+  </TutorialProvider></SceneTransitionContext.Provider>;
 }

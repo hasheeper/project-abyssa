@@ -6,6 +6,9 @@ export type JourneyLogRecord = { snapshot: { campaign: Pick<DemoCampaign, "settl
 export function manorReturnFeedback(c: RuleCatalog, record: JourneyLogRecord): string[] {
   const last=record.snapshot.campaign.settlements.at(-1);
   if(!last)return [];
+  if (last.routeId === "intro.tide-cave.first") return [c.contentVersion >= 12
+    ? last.outcome === "cleared" ? "草药、古籍与旧毛毯都已物归原主。可以在洋馆休整，为下一趟旅程做准备。" : "这次未能完成货物回收，休整后可以再次出发。"
+    : "草药、书和工坊包袱已送回。可自由整备，随后前往克雷格旧庄园。"];
   const lines=[last.outcome === "wipe" ? "余下的配给已收好，休整后还可以再出发。" : last.outcome === "cleared" ? last.routeId === c.manor?.firstClearRouteId ? "玛丽埃塔合上登记簿：今天没有客人。" : "支线残余已清理，庄园重新安静下来。" : record.snapshot.campaign.manor?.takeover ? "这次已保全前三层的维护成果，剩余支线留待下次整理。" : "门厅与走廊的红线暂时安静下来。宴会厅深处，家宴仍未结束。"];
   for(const fact of record.facts) {
     if(fact.runRef?.id!==last.runId || fact.kind!=="event-resolved" || fact.visibility!=="party" || record.retractedFactIds.includes(fact.id))continue;
@@ -23,6 +26,7 @@ export function manorLog(c: RuleCatalog, record: JourneyLogRecord) {
   if (!run) return [];
   const name = (id: unknown): string => {
     if (typeof id !== "string") return "伙伴";
+    if (id === "kael") return "{{user}}";
     if (c.characters[id]) return c.characters[id].name;
     const enemy = record.snapshot.expedition?.encounter?.enemies.find(
       (e) => e.id === id,
@@ -31,7 +35,8 @@ export function manorLog(c: RuleCatalog, record: JourneyLogRecord) {
   };
   let layer = 1,
     round = 1;
-  return record.facts
+  const retryIndex = run.routeId === "intro.tide-cave.first" ? record.facts.reduce((last, f, i) => f.runRef?.id === run.id && f.kind === "tutorial-retried" ? i : last, -1) : -1;
+  return record.facts.slice(Math.max(0, retryIndex))
     .filter(
       (f) => f.runRef?.id === run.id && !record.retractedFactIds.includes(f.id),
     )
@@ -59,11 +64,21 @@ export function manorLog(c: RuleCatalog, record: JourneyLogRecord) {
           text = "使用回忆中的局部补给。";
           break;
         case "expedition-started":
-          text = "踏入克雷格旧庄园。";
+          text = run.routeId === "intro.tide-cave.first" ? "沿车辙进入退潮岩窟。" : "踏入克雷格旧庄园。";
           break;
         case "encounter-started":
-          text = `进入第 ${p.layer} 层，红线牵动了新的宾客。`;
+          text = run.routeId === "intro.tide-cave.first" ? "前方出现敌人，意图已公开。" : `进入第 ${p.layer} 层，红线牵动了新的宾客。`;
           round = 1;
+          break;
+        case "tutorial-retried":
+          text = p.scope === "chapter" ? "从岩窟入口重新开始。" : "已恢复本场起点。";
+          round = 1;
+          break;
+        case "hand-settled":
+          if (run.routeId === "intro.tide-cave.first") text = `${p.name}，回合牌型已结算。`;
+          break;
+        case "covenant-triggered":
+          if (run.routeId === "intro.tide-cave.first") text = `${name(f.actorId)}的铭约触发。`;
           break;
         case "round-started":
           text = `第 ${round} 回合，敌方意图已公开。`;

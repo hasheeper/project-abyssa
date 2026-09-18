@@ -1,4 +1,5 @@
 import { PLAYER_ACTOR_ID } from "../../shared/domain/player-identity";
+import type { AvgPlaybackActor } from "../../shared/domain/avg/playback";
 
 export type UserChoiceTone = "iron" | "seasoned" | "pragmatic";
 
@@ -18,6 +19,7 @@ export type AuthoredDialogueLine = {
   text: string;
   expression?: string;
   emotion?: string;
+  actors?: AvgPlaybackActor[];
 };
 
 export type AuthoredAction = {
@@ -27,6 +29,7 @@ export type AuthoredAction = {
   characterId?: undefined;
   name?: string;
   expression?: undefined;
+  actors?: AvgPlaybackActor[];
 };
 
 export type AuthoredUserChoice = {

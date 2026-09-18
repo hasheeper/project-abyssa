@@ -1,0 +1,21 @@
+.battle-room-loading {
+  position: absolute;
+  inset: 0;
+  z-index: 15;
+  display: grid;
+  place-items: center;
+  background: var(--loading-veil);
+}
+.battle-room-loading__plaque.scene-loading-plaque.abyssa-frame {
+  width: 280px;
+  padding: 22px 24px;
+  text-align: center;
+}
+.battle-room-loading__plaque h2 { margin: 10px 0 8px; }
+.battle-room-loading__plaque p { margin: 0; color: var(--loading-muted); font-size: 13px; }
+.battle-room-loading[data-state="revealing"] {
+  pointer-events: none;
+  animation: battle-room-uncover var(--journey-reveal-ms, 280ms) ease-out both;
+}
+.battle-room-loading[data-state="revealing"][data-reduced] { animation: none; opacity: 0; }
+@keyframes battle-room-uncover { from { opacity: 1; } to { opacity: 0; } }

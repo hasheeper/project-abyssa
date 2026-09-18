@@ -1,4 +1,7 @@
 import type { DemoCatalog, DemoCatalogRef, DemoProgress, ValidatedDemoCatalog } from "./demo";
+import type { TutorialDefinitions } from "./tutorial";
+import type { AirpContent, AirpScript } from "./airp-live";
+import type { AirpPoolContent } from "./airp-pool";
 
 /** The D5 package remains unpublished until its combat and application capabilities exist. */
 export type D5Definitions = {
@@ -30,7 +33,10 @@ export type D5Definitions = {
 };
 export type D5Catalog = Omit<DemoCatalog, "rulesVersion" | "contentVersion"> & {
   rulesVersion: 4;
-  contentVersion: 2 | 3 | 4 | 5 | 6;
+  contentVersion: 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
+  airp?: AirpContent | AirpPoolContent;
+  airpOnline?: { version: 1; definitionId: string; followup: AirpScript };
+  tutorial?: TutorialDefinitions;
   progression: D5Definitions;
   combat: D5CombatDefinitions;
   economy?: { shopId: "shop.mansion"; quoteVersion: 1; freeItemIds: string[]; prices: Record<string, number> };
@@ -43,7 +49,7 @@ export type D5CombatDefinitions = {
 };
 export type D5CatalogRef = Omit<DemoCatalogRef, "rulesVersion" | "contentVersion"> & {
   rulesVersion: 4;
-  contentVersion: 2 | 3 | 4 | 5 | 6;
+  contentVersion: 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
 };
 export type ValidatedD5Catalog = {
   readonly data: D5Catalog;

@@ -1,0 +1,70 @@
+/* Same dark wood / aged brass plane as the roster, not the client debug skin. */
+.map-supplies, .map-supply-entry {
+  --abyssa-panel-black: #211c17;
+  --abyssa-text: #ded2be;
+  --abyssa-frame-dark: #17130f;
+  --abyssa-frame-deep: #090706;
+  --abyssa-frame-light: #806b52;
+  --abyssa-frame-surface: #201b16;
+  --abyssa-ornament: #74604a;
+  --abyssa-ornament-light: #b19b79;
+  --abyssa-ribbon-fill: #211c17;
+  --abyssa-ribbon-text: #e0d1b5;
+  --abyssa-ribbon-pattern: rgb(190 166 121 / 8%);
+  color: #ded2be;
+}
+.map-command .abyssa-ribbon-button__label { padding-inline: 22px; white-space: nowrap; }
+.map-command > .map-command__gem {
+  position: absolute; top: calc(50% - 9px); width: 18px; height: 18px;
+  overflow: visible; pointer-events: none;
+}
+.map-command > .map-command__gem[data-edge="left"] { left: -3px; }
+.map-command > .map-command__gem[data-edge="right"] { right: -3px; }
+.map-supply-entry.abyssa-ribbon-button {
+  position: absolute; top: 22px; left: 22px; z-index: 12;
+  width: 254px; height: 52px; aspect-ratio: auto;
+  filter: drop-shadow(0 3px 4px #0008);
+}
+.map-supply-entry .abyssa-ribbon-button__label { font-size: 18px; letter-spacing: 2px; }
+.map-supply-entry .abyssa-ribbon-button__label > span { margin-left: 4px; font-size: 15px; color: #bda987; }
+.map-supply-entry[aria-expanded="true"] { --abyssa-frame-light: #c2a675; --abyssa-ribbon-fill: #34291d; }
+.map-supplies { position: absolute; top: 106px; left: 126px; width: 1060px; height: 572px; }
+.map-supplies.abyssa-frame[data-padding] > .abyssa-frame__content {
+  height: 100%; display: flex; flex-direction: column; padding: 28px; gap: 22px; overflow: hidden;
+}
+.map-supplies__heading { display: flex; align-items: center; gap: 22px; border-bottom: 1px solid #695744; padding-bottom: 17px; }
+.map-supplies__heading > div { flex: 1; }
+.map-supplies__heading h2 { margin: 5px 0 0; font-size: 27px; font-weight: 500; letter-spacing: 5px; }
+.map-supplies__heading > div > span { color: #a58f70; font-size: 10px; letter-spacing: 3px; }
+.map-supplies__heading p { margin: 0; color: #bda987; font-size: 15px; }
+.map-supplies__heading b { color: #e7d4b2; font-size: 23px; font-weight: 500; }
+.map-supplies__body { display: grid; grid-template-columns: minmax(0, 1fr) 282px; gap: 30px; flex: 1; min-height: 0; }
+.map-supplies__inventory { display: flex; flex-direction: column; gap: 27px; min-width: 0; overflow: auto; scrollbar-color: #685540 #17120e; }
+.map-supplies h3 { margin: 0 0 14px; font-size: 17px; font-weight: 500; letter-spacing: 2px; }
+.map-supplies h3 small { margin-left: 16px; font-size: 12px; letter-spacing: 0; color: #a39480; }
+.map-supplies__carried, .map-supplies__catalogue { display: flex; flex-wrap: wrap; gap: 18px; list-style: none; padding: 0; margin: 0; }
+.map-supplies__carried li { display: grid; width: 76px; gap: 9px; justify-items: center; }
+.map-supplies__carried li > span { font-size: 13px; color: #c5b79f; text-align: center; }
+.map-supplies__catalogue { gap: 16px; }
+.map-supplies__catalogue li { position: relative; display: grid; width: 64px; gap: 7px; justify-items: center; }
+.map-supplies__stock { position: absolute; right: -3px; top: 48px; min-width: 21px; text-align: center; padding: 0 3px; color: #e5d6bc; background: #1a1510; border: 1px solid #68533b; font: 12px/18px var(--abyssa-font-display); pointer-events: none; }
+.map-supplies__check { position: absolute; right: -3px; top: -7px; color: #c8ad78; font-size: 13px; pointer-events: none; }
+.map-supplies__name { font-size: 12px; color: #b8aa95; text-align: center; }
+.map-supplies__catalogue li[data-empty="true"] .abyssa-item-slot i { opacity: .4; }
+.map-supplies .abyssa-item-slot { --abyssa-panel-black: #17130f; --abyssa-frame-light: #74614c; --abyssa-text: #d9c6a6; }
+.map-supplies__detail { border-left: 1px solid #5d4b38; padding-left: 25px; min-height: 0; }
+.map-supplies__identity { display: flex; align-items: center; gap: 16px; }
+.map-supplies__identity .abyssa-item-slot { flex: none; }
+.map-supplies__identity span { font-size: 12px; color: #ac9676; }
+.map-supplies__identity h3 { font-size: 23px; margin: 8px 0 0; letter-spacing: 2px; }
+.map-supplies__detail > p { font-size: 16px; line-height: 1.7; min-height: 28px; margin: 20px 0; }
+.map-supplies__detail dl { display: flex; gap: 45px; margin: 0; }
+.map-supplies__detail dt { font-size: 12px; color: #a79780; }
+.map-supplies__detail dd { margin: 4px 0 0; font: 26px/1.3 var(--abyssa-font-display); color: #dcc7a5; }
+.map-supplies__detail .map-supplies__reason { font-size: 12px; color: #b7a386; margin: 17px 0 7px; min-height: 21px; }
+.map-supplies__toggle.abyssa-ribbon-button { width: 230px; height: 43px; aspect-ratio: auto; }
+.map-supplies__footer { border-top: 1px solid #5d4b38; padding-top: 12px; display: flex; justify-content: space-between; align-items: center; gap: 20px; }
+.map-supplies__footer p { margin: 0; color: #b5a58d; font-size: 13px; line-height: 1.6; }
+.map-supplies__done.abyssa-ribbon-button { width: 180px; height: 44px; aspect-ratio: auto; flex: none; }
+.map-supplies :is(.map-supplies__toggle, .map-supplies__done) .abyssa-ribbon-button__label { font-size: 16px; letter-spacing: 3px; }
+.map-supplies .abyssa-ribbon-button:disabled { opacity: .45; }

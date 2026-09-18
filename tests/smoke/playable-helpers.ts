@@ -15,6 +15,19 @@ export async function ready(page: Page) {
   await expect(page.locator('.game-client-status')).toHaveAttribute('data-status', 'ready');
   await expect(page.locator('html')).not.toHaveAttribute('data-scene-transition', /.+/, { timeout: 15_000 });
 }
+/** All home actions are reached through the player-visible journal, never forced through hidden panels. */
+export async function openManorJournal(page: Page, entry?: string) {
+  if (!await page.getByRole("dialog", {name:"日志",exact:true}).isVisible())
+    await page.getByRole("button", {name:"日志",exact:true}).click();
+  const index = page.getByRole("navigation", {name:"日志条目",exact:true});
+  await expect(index).toBeVisible();
+  if (entry) {
+    const button = index.getByRole("button", {name:`查看记录：${entry}`,exact:true})
+      .or(index.locator(`button[data-journal-entry="${entry}"], button[data-source-id="${entry}"]`));
+    await button.click();
+    await expect(button).toHaveAttribute("aria-current","true");
+  }
+}
 export async function startLegacy(page: Page, prefix = '/') {
   // Test-only initial seed injection; production URLs and runtime remain unchanged.
   await page.addInitScript(() => {
@@ -34,16 +47,17 @@ export async function openSortie(page: Page) {
     await sortie.click(); await sortie.click();
   } else await page.getByRole('link', { name: '出征编队', exact: true }).click();
 }
-export async function depart(page: Page, count = 5) {
+export async function depart(page: Page, count = 5, navigationTimeout = 5000, readDeparture = false) {
   await openSortie(page);
   // The outgoing page also has zero loading indicators. Wait for the destination
   // before checking map readiness, otherwise a fast click races the texture load.
-  await expect(page).toHaveURL(/#\/map\?save=.+&epoch=.+/); await ready(page);
+  await expect(page).toHaveURL(/#\/map\?save=.+&epoch=.+/, {timeout: navigationTimeout}); await ready(page);
   await expect(page.locator('.abyssa-map-loading')).toHaveCount(0, { timeout: 30_000 });
   await page.getByRole('button', { name: '查看出战队伍并编队' }).click();
-  for (const id of ['eustice', 'kororo', 'elora', 'norma'].slice(0, count - 1)) {
+  for (const [index, id] of ['eustice', 'kororo', 'elora', 'norma'].entries()) {
     // Posters expose a stable character id; names remain localized presentation.
-    await page.locator(`.abyssa-sortie-poster[data-member="${id}"]`).click();
+    const poster = page.locator(`.abyssa-sortie-poster[data-member="${id}"]`);
+    if ((await poster.getAttribute('aria-pressed') === 'true') !== (index < count - 1)) await poster.click();
   }
   await page.getByRole('button', { name: '完成编队', exact: true }).click();
   await expect(page.locator('.abyssa-map-viewport')).toHaveAttribute('data-mode', 'map');
@@ -54,8 +68,12 @@ export async function depart(page: Page, count = 5) {
   const point = new Vector3(-0.6, 1, 0.9).project(camera);
   await canvas.click({ position: { x: (point.x + 1) * bounds.width / 2, y: (1 - point.y) * bounds.height / 2 } });
   await page.getByRole('button', { name: '出发', exact: true }).click();
-  await expect(page).toHaveURL(/#\/battle\?save=.+&epoch=.+&expedition=.+/); await ready(page);
-  await expect(page.locator('.abyssa-expedition-party-card')).toHaveCount(count);
+  await expect(page).toHaveURL(/#\/battle\?save=.+&epoch=.+&expedition=.+/, {timeout: navigationTimeout}); await ready(page);
+  if (readDeparture) {
+    await expect(page.locator('.scene-sequence')).toHaveAttribute('data-phase', 'idle', {timeout: navigationTimeout});
+    if (await page.locator('.scene-sequence[data-scene="adv"]').count()) await page.getByRole('button', {name: '跳过本段对白', exact: true}).click();
+  }
+  await expect(page.locator('.abyssa-expedition-party-card')).toHaveCount(count, {timeout: navigationTimeout});
 }
 export async function finishFirstLayer(page: Page) {
   for (let round = 0; round < 16; round++) {

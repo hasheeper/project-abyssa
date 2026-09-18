@@ -6,15 +6,22 @@ import type { AnyGameRecord } from "./demo-contracts";
 import type { D5GameRecord, D5Receipt, D5Store } from "./d5-contracts";
 import { d5FactId, d5ReplayBasis, validateD5Record, validateD5Receipt } from "./d5-validate";
 import { applicationError } from "../service";
+import { airpAtHome, airpCopyBlocked, emptyAirp } from "./airp-replay";
+import { emptyAirpOnline, reduceAirpApplicationCommit } from "../airp/gameplay";
+import { inheritAirpPool } from "./airp-inheritance";
 
 /** Called only with an independently validated source, never a supplied projection. */
 export function deriveD5Baseline(catalog: ValidatedD5Catalog, source: AnyGameRecord, kind: "copy" | "upgrade" | "cycle"): D5Baseline {
+  if (catalog.data.tutorial?.guide && kind !== "copy") v.invalid("source", "The guided release currently supports new saves and exact recovery, not migration", "content-unavailable");
   if (source.schemaVersion !== 3 && source.schemaVersion !== 4) v.invalid("source", "Only full manor saves can continue into D5", "content-unavailable");
   const old = source.snapshot.campaign;
-  const extendingOpening = kind === "upgrade" && source.schemaVersion === 4 && source.contentRef.contentVersion === 5 && catalog.ref.contentVersion === 6 && source.snapshot.campaign.opening?.status !== "skipped" && !!source.snapshot.campaign.opening;
+  if (source.schemaVersion === 4 && source.airpOnline?.connection) v.invalid("source", "An online save requires explicit Session/branch recovery before copying", "online-recovery-required");
+  if (source.schemaVersion === 4 && source.narrative && (airpCopyBlocked(source.narrative) || !airpAtHome(source.snapshot.campaign))) v.invalid("source", "Finish the active AIRP errand before making another save; use full archive restore for recovery", "run-active");
+  const extendingOpening = kind === "upgrade" && source.schemaVersion === 4 && source.contentRef.contentVersion === 5 && catalog.ref.contentVersion >= 6 && source.snapshot.campaign.opening?.status !== "skipped" && !!source.snapshot.campaign.opening;
+  const preservingMorning = kind === "upgrade" && source.schemaVersion === 4 && source.contentRef.contentVersion === 6 && catalog.ref.contentVersion >= 7;
   if (kind === "copy" && (source.schemaVersion !== 4 || v.canonicalJson(source.contentRef) !== v.canonicalJson(catalog.ref))) v.invalid("source", "Copy must retain its exact Catalog", "content-mismatch");
   if (kind !== "copy" && (old.activeRunRef || old.manor?.story?.status === "pending" || source.schemaVersion === 4 && (source.snapshot.campaign.activeStoryId || source.snapshot.campaign.memory && source.snapshot.campaign.memory.node !== "completed"))) v.invalid("source", "Finish the current expedition, memory and return story before continuing", "run-active");
-  if (kind !== "copy" && !extendingOpening && source.schemaVersion === 4 && (source.snapshot.campaign.prologue?.status === "playing" || source.snapshot.campaign.opening?.status === "playing")) v.invalid("source", "Finish or skip the prologue first", "run-active");
+  if (kind !== "copy" && !extendingOpening && !preservingMorning && source.schemaVersion === 4 && (source.snapshot.campaign.prologue?.status === "playing" || source.snapshot.campaign.opening?.status === "playing")) v.invalid("source", "Finish or skip the prologue first", "run-active");
   if (kind === "upgrade" && (catalog.ref.contentVersion < 3 || source.schemaVersion === 4 && source.contentRef.contentVersion >= catalog.ref.contentVersion)) v.invalid("source", "Unsupported upgrade path", "content-unavailable");
   if (kind === "cycle") {
     if (catalog.ref.contentVersion < 3 || source.schemaVersion !== 4 || !source.snapshot.campaign.chapterClaim || !source.snapshot.campaign.chapterCompletion) v.invalid("source", "Complete the memory and present-day conclusion first", "command-not-available");
@@ -47,17 +54,24 @@ export function deriveD5Baseline(catalog: ValidatedD5Catalog, source: AnyGameRec
   if (campaign.chapterCompletion) campaign.chapterCompletion.revision-=offset;
   if (campaign.chapterClaim) campaign.chapterClaim.revision-=offset;
   if (kind === "upgrade") {
-    if (extendingOpening) {
+    if (catalog.data.airp && source.schemaVersion === 4 && source.contentRef.contentVersion >= 7) {
+      // AIRP adds no tutorial: retain actual completed/exempt progress and opening provenance.
+    } else if (extendingOpening) {
       // S1 is an identical prefix. Preserve its choices and resume after its old final page.
       if (campaign.opening?.status === "viewed") campaign.opening = {...campaign.opening,step:67,status:"playing"};
-    } else {
+    } else if (!preservingMorning) {
       if (catalog.data.opening) campaign.opening = {step:catalog.data.opening.lastStep,status:"skipped",choices:[]};
       if (catalog.data.prologue) campaign.prologue = {shotId: catalog.data.prologue.shotIds.at(-1)!, status: "skipped"};
     }
     // Previously free tactical leftovers become finite carried stock, never a refill or sale grant.
     campaign.supplies.forEach(s=>{if(catalog.data.economy!.prices[s.definitionId] !== undefined) s.source="supply.demo.shop";});
+    if (catalog.data.tutorial && !(catalog.data.airp && source.schemaVersion === 4 && source.contentRef.contentVersion >= 7)) {
+      // Existing adventures are exempt, never retroactively labelled as tutorial victories.
+      const newOpening = (preservingMorning || extendingOpening) && !departures.length && !campaign.settlements.length && !campaign.progress.appliedGrowthIds.length && !campaign.inventory.length;
+      campaign.tutorial = newOpening ? { status: "pending" } : { status: "exempt", reason: "pre-tutorial-save" };
+    }
   }
-  return {campaign,run:kind === "copy" && source.schemaVersion === 4 ? structuredClone(source.snapshot.run) : null,departures,anchors:kind === "copy" ? [...(inherited?.anchors ?? [])] : []};
+  return {campaign,run:kind === "copy" && source.schemaVersion === 4 ? structuredClone(source.snapshot.run) : null,departures,anchors:kind === "copy" ? [...(inherited?.anchors ?? [])] : [], ...(catalog.data.airp?.version === 2 ? { narrative: inheritAirpPool(source) } : {})};
 }
 
 /** New save plus origin proof and receipt are committed atomically. Original save is untouched. */
@@ -80,6 +94,10 @@ export function createD5LineageApplication(catalog: ValidatedD5Catalog, store: D
       const head={saveId,epoch,revision:0},profileId=catalog.data.journey!.defaultProfileId,factId=d5FactId(saveId,epoch,0,0);
       const record:D5GameRecord={schemaVersion:4,head,profileId,contentRef:catalog.ref,snapshot:{campaign:baseline.campaign,run:baseline.run},originRef:{kind,source},retractedFactIds:[],undoAnchors:[],commits:[{ref:head,previous:null,requestId,kind:"create",factIds:[factId]}],facts:[{version:4,id:factId,source:head,origin:"present",runRef:null,originRef:null,worldTime:baseline.campaign.clock,visibility:"party",kind:"save-created",payload:{profileId}}]};
       const receipt:D5Receipt={version:4,contentRef:catalog.ref,saveId,epoch,requestId,fingerprint,status:"committed",before:null,after:head,error:null,events:[],factIds:[factId]};
+      if (catalog.data.airp) {
+        const reduced = reduceAirpApplicationCommit(catalog, baseline.narrative ?? emptyAirp(catalog), catalog.data.airpOnline ? emptyAirpOnline() : undefined, { head, before: baseline.campaign, after: baseline.campaign, run: baseline.run?.kind === "expedition" ? baseline.run.state : null, facts: record.facts, group: record.facts, retracted: [] });
+        record.narrative = reduced.narrative; if (reduced.online) record.airpOnline = reduced.online;
+      }
       const committed=await store.commit({saveId,epoch,requestId,fingerprint,expectedHead:null,candidate:validateD5Record(record,catalog,readers),receipt:validateD5Receipt(receipt,catalog,readers)});
       const checked=validateD5Receipt(committed.receipt,catalog,readers);
       return checked.status === "committed" ? {ok:true as const,receipt:checked,replayed:committed.replayed} : {ok:false as const,error:checked.error!};

@@ -55,6 +55,8 @@ const DAY_PLATE = "M8 3 H54 L59 8 V58 L54 63 H8 L3 58 V8 Z";
 
 export interface MansionPhaseBarProps {
   readOnly?: boolean;
+  advanceDisabled?: boolean;
+  advanceHint?: string;
   phases: MansionPhase[];
   value: MansionPhaseId;
   /** 第几天。四相位走完一轮才 +1。 */
@@ -127,6 +129,8 @@ function Facet({ state }: { state: "current" | "elapsed" | "coming" }) {
 
 export function MansionPhaseBar({
   readOnly = false,
+  advanceDisabled = readOnly,
+  advanceHint,
   phases,
   value,
   day,
@@ -170,17 +174,16 @@ export function MansionPhaseBar({
           fill="var(--mansion-well-fill)"
         />
         {/* 已过去的段落染暖色 —— 时间是有方向的。 */}
-        {activeIndex > 0 && (
           <rect
+            className="mansion-phasebar__elapsed"
             x={railLeft}
             y={CENTER_Y - 3}
-            width={slotCenter(activeIndex) - railLeft}
+            width={activeIndex > 0 ? slotCenter(activeIndex) - railLeft : 0}
             height={6}
             fill="var(--mansion-plate-elapsed)"
             opacity=".8"
             clipPath={`url(#${railClip})`}
           />
-        )}
         {/* 上沿压暗、下沿提亮 = 凹槽。 */}
         <path
           d={`M${railLeft} ${CENTER_Y - 3} H${railRight}`}
@@ -261,9 +264,10 @@ export function MansionPhaseBar({
       <button
         type="button"
         className="mansion-phasebar__advance"
-        disabled={readOnly}
+        disabled={advanceDisabled}
         onClick={onAdvance}
         aria-label="推进相位"
+        title={advanceHint}
       >
         <svg viewBox="0 0 50 50" aria-hidden="true">
           <circle cx="25" cy="25" r="20" fill="#070c0d" opacity=".6" transform="translate(0 2.5)" />

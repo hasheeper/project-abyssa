@@ -2,12 +2,27 @@ import * as v from "./validation";
 import { sha256 } from "./sha256";
 import { validateManorCatalog } from "./demo-validation";
 import type { D5Catalog, D5CatalogRef, ValidatedD5Catalog } from "./d5";
+import { validateTutorialDefinitions } from "./tutorial-validation";
+import { validateAirpContent, validateAirpScript } from "./airp-live-validation";
+import { validateAirpPoolContent } from "./airp-pool-validation";
 
 export function validateD5Catalog(raw: unknown, expected?: D5CatalogRef): ValidatedD5Catalog {
   v.assertJson(raw);
-  const c = v.record(raw, "catalog"), { progression, combat, economy, prologue, opening, ...common } = c;
+  const c = v.record(raw, "catalog"), { progression, combat, economy, prologue, opening, tutorial, airp, airpOnline, ...common } = c;
   v.choice(c.rulesVersion, [4], "rulesVersion");
-  const version = v.choice(c.contentVersion, [2, 3, 4, 5, 6], "contentVersion"), clockwork = version >= 3;
+  const version = v.choice(c.contentVersion, [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], "contentVersion"), clockwork = version >= 3;
+  if (version >= 7) validateTutorialDefinitions(c as unknown as D5Catalog);
+  else if (tutorial !== undefined) v.invalid("tutorial", "Earlier content has no tutorial");
+  if (version >= 9) validateAirpPoolContent(c as unknown as D5Catalog);
+  else if (version === 8) validateAirpContent(c as unknown as D5Catalog);
+  else if (airp !== undefined) v.invalid("airp", "Earlier content has no AIRP contract");
+  if (version === 10) {
+    const online = v.record(airpOnline, "airpOnline", ["version", "definitionId", "followup"]);
+    v.choice(online.version, [1], "airpOnline.version");
+    v.choice(online.definitionId, ["ripple.elora.old-medicine-case"], "airpOnline.definitionId");
+    const followup = validateAirpScript(online.followup, ["elora"]);
+    if (followup.nodes.some(n => n.kind !== "beat")) v.invalid("airpOnline.followup", "Followup has no gameplay decisions");
+  } else if (airpOnline !== undefined) v.invalid("airpOnline", "Earlier content has no online protocol");
   if (version >= 4) {
     const opening = v.record(prologue, "prologue", ["id", "shotIds"]);
     v.choice(opening.id, ["prologue.first-morning"], "prologue.id");
@@ -19,13 +34,18 @@ export function validateD5Catalog(raw: unknown, expected?: D5CatalogRef): Valida
     v.choice(intro.id, ["opening.first-morning"], "opening.id");
     v.choice(intro.lastStep, [version === 5 ? 66 : 119], "opening.lastStep");
     if (v.canonicalJson(intro.choiceSteps) !== (version === 5 ? "[6,24,42,58]" : "[6,24,42,58,96]")) v.invalid("opening.choiceSteps", "Authored decision cursors differ");
-    if (version === 6 && v.canonicalJson(intro.choiceOptions) !== v.canonicalJson({"6":["A","B","C"],"24":["A","B","C"],"42":["A","B","C"],"58":["A","B","C"],"96":["A","B"]})) v.invalid("opening.choiceOptions", "Authored decision options differ");
+    if (version >= 6 && v.canonicalJson(intro.choiceOptions) !== v.canonicalJson({"6":["A","B","C"],"24":["A","B","C"],"42":["A","B","C"],"58":["A","B","C"],"96":["A","B"]})) v.invalid("opening.choiceOptions", "Authored decision options differ");
   } else if (opening !== undefined) v.invalid("opening", "Earlier catalogs have no first-morning scene");
   v.choice(c.catalogId, ["abyssa.demo"], "catalogId");
   // Reuse the frozen reader only for the common definition schema. The persisted ref stays v4.
   const routes = { ...v.record(common.routes, "routes") }, journey = v.record(common.journey, "journey"), rooms = { ...v.record(journey.rooms, "rooms") };
   const memoryRoute = routes["memory.marietta"], memoryRoom = rooms["room.memory.marietta"];
   delete routes["memory.marietta"]; delete rooms["room.memory.marietta"];
+  if (version >= 7) {
+    delete routes["intro.tide-cave.first"];
+    for (let i = 1; i <= 4; i++) delete rooms[`room.tide-cave.${i}`];
+    if (version >= 11) delete rooms["room.tide-cave.event.intro"];
+  }
   const shared = validateManorCatalog({ ...common, rulesVersion: 3, routes, journey: { ...journey, rooms } });
   const rules = v.record(combat, "combat", ["mariettaCovenant", "memory"]);
   if (v.canonicalJson(rules.mariettaCovenant) !== v.canonicalJson({ id: "covenant.marietta", pattern: "broad-full-house", budgets: [1, 2] })) v.invalid("combat.covenant", "Wrong covenant definition");

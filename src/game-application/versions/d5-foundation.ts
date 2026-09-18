@@ -8,6 +8,8 @@ import type { ReceiptError } from "../contracts";
 import type { D5GameRecord, D5Receipt, D5Store } from "./d5-contracts";
 import { parseD5Request } from "./d5-parse";
 import { d5FactId, validateD5Receipt, validateD5Record } from "./d5-validate";
+import { emptyAirp } from "./airp-replay";
+import { emptyAirpOnline, reduceAirpApplicationCommit } from "../airp/gameplay";
 
 type Result = { ok: true; receipt: D5Receipt; replayed: boolean } | { ok: false; error: ReceiptError; receipt?: D5Receipt };
 const result = (receipt: D5Receipt, replayed: boolean): Result => receipt.status === "committed" ? { ok: true, receipt, replayed } : { ok: false, error: receipt.error!, receipt };
@@ -46,6 +48,10 @@ export function createD5FoundationApplication(catalog: ValidatedD5Catalog, store
           retractedFactIds: [], undoAnchors: [], originRef: null,
         };
         const receipt: D5Receipt = { version: 4, contentRef: catalog.ref, saveId, epoch, requestId, fingerprint, status: "committed", before: null, after: head, error: null, events: [], factIds: [factId] };
+        if (catalog.data.airp) {
+          const reduced = reduceAirpApplicationCommit(catalog, emptyAirp(catalog), catalog.data.airpOnline ? emptyAirpOnline() : undefined, { head, before: campaign, after: campaign, run: null, facts: record.facts, group: record.facts, retracted: [] });
+          record.narrative = reduced.narrative; if (reduced.online) record.airpOnline = reduced.online;
+        }
         const committed = await store.commit({ saveId, epoch, requestId, fingerprint, expectedHead: null, candidate: validateD5Record(record, catalog), receipt: validateD5Receipt(receipt, catalog) });
         return result(validateD5Receipt(committed.receipt, catalog), committed.replayed);
       } catch (error) { return { ok: false, error: applicationError(error) }; }

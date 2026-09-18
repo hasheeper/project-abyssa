@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "defaultProfile": "gemini",
+  "profiles": {
+    "gemini": {
+      "format": "google",
+      "baseUrl": "",
+      "model": "",
+      "secretKey": "gemini",
+      "apiKeyEnv": "GEMINI_API_KEY",
+      "auth": "x-goog-api-key",
+      "maxOutputTokens": 8192,
+      "maxInputChars": 120000,
+      "timeoutMs": 120000,
+      "maxRetries": 1
+    },
+    "oai": {
+      "format": "oai",
+      "baseUrl": "",
+      "model": "",
+      "secretKey": "oai",
+      "apiKeyEnv": "OPENAI_API_KEY",
+      "auth": "bearer",
+      "outputTokenField": "max_completion_tokens",
+      "maxOutputTokens": 8192
+    },
+    "oai-res": {
+      "format": "oai-res",
+      "baseUrl": "",
+      "model": "",
+      "secretKey": "oai-res",
+      "apiKeyEnv": "OPENAI_API_KEY",
+      "auth": "bearer",
+      "maxOutputTokens": 8192
+    },
+    "anthropic": {
+      "format": "anthropic",
+      "baseUrl": "",
+      "model": "",
+      "secretKey": "anthropic",
+      "apiKeyEnv": "ANTHROPIC_API_KEY",
+      "auth": "x-api-key",
+      "anthropicVersion": "2023-06-01",
+      "maxOutputTokens": 8192
+    }
+  },
+  "server": {
+    "port": 8788,
+    "tokenEnv": "ABYSSA_LLM_SERVER_TOKEN",
+    "allowedOrigins": []
+  }
+}

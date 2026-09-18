@@ -33,6 +33,9 @@ export type {
 } from "./shared/ui/branding/abyssaLogoIntro";
 
 export { AbyssaProvider } from "./shared/ui/primitives/AbyssaProvider";
+export { UiContentTransition } from "./shared/ui/motion/UiContentTransition";
+export type { UiContentTransitionProps } from "./shared/ui/motion/UiContentTransition";
+export type { UiMotionPreference } from "./shared/ui/motion/UiMotionProvider";
 export type { AbyssaProviderProps } from "./shared/ui/primitives/AbyssaProvider";
 export { ArrowButton } from "./shared/ui/primitives/ArrowButton";
 export type { ArrowButtonProps } from "./shared/ui/primitives/ArrowButton";

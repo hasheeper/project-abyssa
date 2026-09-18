@@ -12,6 +12,8 @@ import { d5EvidenceRunRef, d5FactId, d5ReplayBasis, validateD5Receipt, validateD
 import { compactD5CombatEvidence, type D5CombatEvidence } from "./d5-combat-evidence";
 import { compactD5Journey, type D5JourneyEvidence } from "./d5-journey-evidence";
 import type { D5GameRecord, D5Receipt, D5Request, D5Store } from "./d5-contracts";
+import { airpCommandPayload } from "./airp-replay";
+import { parseAirpOnlineIntent, reduceAirpApplicationCommit } from "../airp/gameplay";
 
 export type D5Result = { ok: true; receipt: D5Receipt; replayed: boolean } | { ok: false; error: ReceiptError; receipt?: D5Receipt };
 const result = (receipt: D5Receipt, replayed: boolean): D5Result => receipt.status === "committed" ? { ok: true, receipt, replayed } : { ok: false, error: receipt.error!, receipt };
@@ -40,7 +42,7 @@ export function createD5Application(catalog: ValidatedD5Catalog, store: D5Store,
   async function dispatch(raw: unknown, internal = false): Promise<D5Result> {
     let request: D5Request | undefined, current: D5GameRecord | undefined, fingerprint = "";
     try {
-      request = parseD5Request(raw, internal); fingerprint = v.sha256(v.canonicalJson(raw));
+      request = parseD5Request(raw, internal, catalog.data.airp?.version ?? false, !!catalog.data.airpOnline); fingerprint = v.sha256(v.canonicalJson(raw));
       const prior = await store.receipt(request.saveId, request.expectedHead.epoch, request.clientRequestId);
       if (prior) {
         const receipt = checkedReceipt(prior);
@@ -49,16 +51,36 @@ export function createD5Application(catalog: ValidatedD5Catalog, store: D5Store,
         return result(receipt, true);
       }
       current = await read(request.saveId);
+      // Full archives retain AIRP intent facts, enough to recover their exact transaction
+      // receipts on a fresh database where the local receipt table did not travel with them.
+      const archivedCommit = current.commits.find(c => c.requestId === request!.clientRequestId);
+      if (catalog.data.airp && archivedCommit && ["airp", "airp-online"].includes(archivedCommit.kind)) {
+        const intent = current.facts.find(f => f.id === archivedCommit.factIds[0]);
+        if (!intent || (intent.kind !== "airp" && intent.kind !== "airp-online") || !archivedCommit.previous) v.invalid("archive", "Missing AIRP receipt evidence");
+        const archivedFingerprint = v.sha256(v.canonicalJson({ protocolVersion: 4, saveId: current.head.saveId, expectedHead: archivedCommit.previous, clientRequestId: archivedCommit.requestId, command: intent.payload.command }));
+        if (fingerprint !== archivedFingerprint) v.invalid("clientRequestId", "Request ID reused", "request-id-reused");
+        return result(checkedReceipt({ version: 4, contentRef: catalog.ref, saveId: current.head.saveId, epoch: current.head.epoch,
+          requestId: archivedCommit.requestId, fingerprint, status: "committed", before: archivedCommit.previous, after: archivedCommit.ref,
+          error: null, events: [], factIds: archivedCommit.factIds, ...(intent.kind === "airp" ? { airp: intent.payload } : { airpOnline: intent.payload }) }), true);
+      }
       if (!sameHead(current.head, request.expectedHead)) v.invalid("expectedHead", "Stored head differs", "conflict");
       const record = structuredClone(current), command = request.command, campaign = record.snapshot.campaign;
       const ref = campaign.activeRunRef, chapter = catalog.data.progression.chapter;
       const token = v.sha256(v.canonicalJson([current.head, request.clientRequestId]));
       let event: D5ProgressEvent | null = null, combat: D5CombatEvidence | undefined, journey: D5JourneyEvidence | undefined;
+      const online = command.type.startsWith("airp-online-") ? parseAirpOnlineIntent({ version: 1, command }) : undefined;
+      const airp = !online && command.type.startsWith("airp-") ? airpCommandPayload({ version: catalog.data.airp!.version, command }, catalog.data.airp!.version) : undefined;
       if ("runRef" in command && !same(command.runRef, ref)) {
         // A left attempt has no active run; retry must still match its exact saved attempt.
         if (!(command.type === "retry-memory" && campaign.memory?.node === "left" && same(command.runRef, { kind: "memory", id: campaign.memory.id, attempt: campaign.memory.attempt }))) v.invalid("runRef", "Stale or foreign run/attempt", "no-expedition");
       }
-      if (command.type === "advance-opening") {
+      if (airp || online) {
+        // The shared replay reducer below is the sole narrative state writer.
+      } else if (command.type === "advance-phase") {
+        event = { type: "phase-advanced" };
+      } else if (command.type === "select-game-start") {
+        event = {type: "game-start-selected", startAt: command.startAt};
+      } else if (command.type === "advance-opening") {
         event = {...command,type:"opening-advanced"};
       } else if (command.type === "advance-prologue") {
         event = {type: "prologue-advanced", shotId: command.shotId};
@@ -115,7 +137,12 @@ export function createD5Application(catalog: ValidatedD5Catalog, store: D5Store,
           toOwnerId: command.type === "equip-equipment" ? command.ownerId : command.type === "unequip-equipment" ? null : command.toOwnerId };
       } else if (record.snapshot.run?.kind === "expedition") {
         const before = record.snapshot.run.state;
-        const operation: D5JourneyOperation = command.type === "resume-run" ? { type: "resume" }
+        const operation: D5JourneyOperation = command.type === "tutorial-read" ? { type: command.type, storyId: command.storyId, step: command.step, choice: command.choice }
+          : command.type === "tutorial-retry" ? { type: command.type, attempt: command.attempt, scope: command.scope }
+          : command.type === "tutorial-hints" ? { type: command.type, enabled: command.enabled }
+          : command.type === "tutorial-guide" ? { type: command.type, planId: command.planId, attempt: command.attempt, mode: command.mode }
+          : command.type === "tutorial-observe" ? { type: command.type, planId: command.planId, attempt: command.attempt, stepId: command.stepId, basis: command.basis }
+          : command.type === "resume-run" ? { type: "resume" }
           : command.type === "advance-room" ? { type: "advance", roomId: command.roomId }
           : command.type === "choose-event" ? { type: "event", roomId: command.roomId, choice: command.choiceId, actorId: command.actorId }
           : command.type === "choose-exit" ? { type: "exit", roomId: command.roomId, choice: command.choice }
@@ -141,6 +168,8 @@ export function createD5Application(catalog: ValidatedD5Catalog, store: D5Store,
       record.head = { ...record.head, revision: record.head.revision + 1 };
       const source = { ...record.head }, entries = d5ProgressEntries(record), events: D5ProgressEntry[] = [], factIds: string[] = [];
       const fact = (slot: number) => ({ version: 4 as const, id: d5FactId(source.saveId, source.epoch, source.revision, slot), source, originRef: null, worldTime: current!.snapshot.campaign.clock, visibility: "party" as const });
+      if (airp) { const f = fact(0); record.facts.push({ ...f, kind: "airp", payload: airp, origin: "present", runRef: null }); factIds.push(f.id); }
+      if (online) { const f = fact(0); record.facts.push({ ...f, kind: "airp-online", payload: online, origin: "present", runRef: null }); factIds.push(f.id); }
       if (combat) { const f = fact(0); record.facts.push({ ...f, kind: "combat", payload: compactD5CombatEvidence(combat), origin: "memory", runRef: combat.runRef }); factIds.push(f.id); record.retractedFactIds.push(...combat.retracts); }
       if (journey) { const f = fact(0); record.facts.push({ ...f, kind: "journey", payload: compactD5Journey(journey), origin: "adventure", runRef: journey.runRef }); factIds.push(f.id); record.retractedFactIds.push(...journey.retracts); }
       if (event) {
@@ -148,9 +177,14 @@ export function createD5Application(catalog: ValidatedD5Catalog, store: D5Store,
         record.facts.push({ ...f, kind: "progression", payload: event, origin: entry.origin, runRef: d5EvidenceRunRef(event) }); factIds.push(f.id); entries.push(entry); events.push(entry);
         record.snapshot.campaign = structuredClone(projectD5Progress(catalog, entries, {...readers, baseline: d5ReplayBasis(current).baseline}));
       }
-      record.commits.push({ ref: source, previous: current.head, requestId: request.clientRequestId, kind: journey ? "journey" : combat ? "combat" : event!.type, factIds });
+      record.commits.push({ ref: source, previous: current.head, requestId: request.clientRequestId, kind: online ? "airp-online" : airp ? "airp" : journey ? "journey" : combat ? "combat" : event!.type, factIds });
+      if (catalog.data.airp) {
+        const reduced = reduceAirpApplicationCommit(catalog, current.narrative!, current.airpOnline, { head: source, before: current.snapshot.campaign, after: record.snapshot.campaign,
+          run: record.snapshot.run?.kind === "expedition" ? record.snapshot.run.state : null, facts: record.facts, group: record.facts.slice(current.facts.length), retracted: record.retractedFactIds });
+        record.narrative = reduced.narrative; if (reduced.online) record.airpOnline = reduced.online;
+      }
       const candidate = validateD5Record(record, catalog, readers, current);
-      const receipt = checkedReceipt({ version: 4, contentRef: catalog.ref, saveId: source.saveId, epoch: source.epoch, requestId: request.clientRequestId, fingerprint, status: "committed", before: current.head, after: source, error: null, events, factIds, ...(combat ? { combat } : {}), ...(journey ? { journey } : {}) });
+      const receipt = checkedReceipt({ version: 4, contentRef: catalog.ref, saveId: source.saveId, epoch: source.epoch, requestId: request.clientRequestId, fingerprint, status: "committed", before: current.head, after: source, error: null, events, factIds, ...(combat ? { combat } : {}), ...(journey ? { journey } : {}), ...(airp ? { airp } : {}), ...(online ? { airpOnline: online } : {}) });
       const committed = await store.commit({ saveId: source.saveId, epoch: source.epoch, requestId: request.clientRequestId, fingerprint, expectedHead: current.head, candidate, receipt });
       if (committed.receipt.status === "committed" && !committed.replayed) cached = candidate;
       return result(checkedReceipt(committed.receipt), committed.replayed);

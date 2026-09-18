@@ -20,7 +20,7 @@ let animate: ReturnType<typeof vi.fn>, cancel: ReturnType<typeof vi.fn>;
 const advance = (ms:number) => act(() => vi.advanceTimersByTime(ms));
 beforeEach(() => {
   vi.useFakeTimers(); cancel=vi.fn(); animate=vi.fn(()=>({cancel}));
-  vi.stubGlobal("matchMedia",vi.fn(()=>({matches:false})));
+  vi.stubGlobal("matchMedia",vi.fn(()=>({matches:false,addEventListener:vi.fn(),removeEventListener:vi.fn()})));
   vi.spyOn(document,"hidden","get").mockReturnValue(false);
   Object.defineProperty(HTMLElement.prototype,"animate",{configurable:true,value:animate});
 });

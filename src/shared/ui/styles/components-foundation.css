@@ -57,6 +57,7 @@
 .abyssa-currency-amount[data-currency="crystal"] { color: #c4a3eb; }
 .abyssa-currency-amount[data-currency="crystal"] i { width: 8px; height: 8px; border: 1px solid #3f2658; border-radius: 0; background: linear-gradient(135deg, #efe2ff, #a267d5 48%, #4b286c); box-shadow: 0 0 8px rgb(160 93 220 / 68%); transform: rotate(45deg); }
 .abyssa-currency-amount[data-currency="crystal"] i span { display: none; }
+.abyssa-currency-amount i[data-icon="custom"] { width: 20px; height: 20px; border: 0; border-radius: 0; background: currentColor; box-shadow: none; transform: none; mask-position: center; mask-repeat: no-repeat; mask-size: contain; }
 
 .abyssa-frame,
 .abyssa-toggle,

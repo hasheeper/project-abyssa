@@ -1,5 +1,5 @@
 import { AbyssaProvider } from "../../shared/ui/primitives/AbyssaProvider";
-import { CharacterStatusScreen } from "../../shared/ui/patterns/CharacterStatusScreen";
+import { CharacterBoardScreen } from "./CharacterBoardScreen";
 import type { CharacterMenuItem } from "../../shared/ui/patterns/CharacterStatusScreen";
 import { StatusPanel } from "../../shared/ui/patterns/StatusPanel";
 import { DiceLoadoutPanel } from "../../shared/ui/patterns/DiceLoadoutPanel";
@@ -29,10 +29,9 @@ const MENU_ITEMS: CharacterMenuItem[] = [
 
 export function CharacterPreview() {
   return (
-    <Stage background="var(--abyssa-character-status-backdrop)">
+    <Stage canvasClassName="character-status-canvas">
       <AbyssaProvider className="character-status-app">
-        <main className="character-status-app__main">
-          <CharacterStatusScreen
+          <CharacterBoardScreen
             characters={characterProfiles}
             defaultSelectedId="lenore"
             menuItems={MENU_ITEMS}
@@ -69,7 +68,6 @@ export function CharacterPreview() {
               return <StatusPanel data={character.status} />;
             }}
           />
-        </main>
       </AbyssaProvider>
     </Stage>
   );

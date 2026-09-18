@@ -9,7 +9,9 @@ import { resolveEmotionCue } from "../shared/ui/patterns/emotion-cues";
 
 const spriteBaseUrl = import.meta.env.DEV ? "/src/assets/characters/paper-dolls/" : `${import.meta.env.BASE_URL}character-art/`;
 export function storyActors(lines: readonly AuthoredLine[]): RpActor[] {
-  const ids = new Set(lines.flatMap(line => isUserChoice(line) ? [PLAYER_ACTOR_ID] : "characterId" in line && line.characterId ? [line.characterId] : []));
+  const ids = new Set(lines.flatMap(line => isUserChoice(line) ? [PLAYER_ACTOR_ID] : [
+    ...(line.characterId ? [line.characterId] : []), ...(line.actors?.map(actor => actor.characterId) ?? [])
+  ]));
   return archiveIdentities.filter(a => ids.has(a.id)).map(a => ({
     id: a.id,
     name: isPlayerActor(a.id) ? playerDisplayName() : a.selectorLabel ?? a.name,
@@ -21,9 +23,10 @@ export function storyActors(lines: readonly AuthoredLine[]): RpActor[] {
     emotionProfile: CHARACTER_EMOTION_PROFILES[a.id],
   }));
 }
-export function storySlots(lines: readonly AuthoredLine[]): Partial<Record<RpSeat, string>> {
+export function storySlots(lines: readonly AuthoredLine[], offstageActorId?: string): Partial<Record<RpSeat, string>> {
   const ids = [...new Set(lines.flatMap(line => isUserChoice(line) ? [PLAYER_ACTOR_ID] : "characterId" in line && line.characterId ? [line.characterId] : []))];
-  return {left: ids[0], right: ids[1]};
+  const visible = ids.filter(id => id !== offstageActorId);
+  return {left: visible[0], right: visible[1]};
 }
 export function storyMessages(lines: readonly AuthoredLine[], decisions: ReadonlyMap<number, UserChoiceTone> = new Map()): RpMessage[] {
   return lines.flatMap((source, step): RpMessage[] => {
@@ -31,8 +34,10 @@ export function storyMessages(lines: readonly AuthoredLine[], decisions: Readonl
       ? decisions.has(step) ? selectedChoiceLine(source, decisions.get(step)!) : null
       : source;
     if (!line) return [];
-    if ("characterId" in line && line.characterId) return [{id:line.id,kind:"say",actorId:line.characterId,text:resolvePlayerText(line.text),expression:line.expression,...("emotion" in line && line.emotion ? {emotion:line.emotion} : {})}];
-    return [{id:line.id,kind:"narration",text:resolvePlayerText(line.text)}];
+    const directions: RpMessage[] = (line.actors ?? []).map((actor,i) => ({id:`${line.id}.stage.${i}`,kind:"stage",actorId:actor.characterId,text:"",emotion:actor.emotion}));
+    if (!line.text) return directions;
+    if ("characterId" in line && line.characterId) return [...directions,{id:line.id,kind:"say",actorId:line.characterId,text:resolvePlayerText(line.text),expression:line.expression,...("emotion" in line && line.emotion ? {emotion:line.emotion} : {})}];
+    return [...directions,{id:line.id,kind:"narration",text:resolvePlayerText(line.text)}];
   });
 }
 
@@ -43,8 +48,12 @@ export function storyAssets(lines: readonly AuthoredLine[], background: string):
     if (actor.avatar) urls.add(actor.avatar);
     if (actor.portrait) {urls.add(actor.portrait); continue;}
     urls.add(`${spriteBaseUrl}${actor.id}/base.png`);
-    for (const line of lines.filter(line => "characterId" in line && line.characterId === actor.id)) {
-      const cue = resolveEmotionCue(actor, "emotion" in line && line.emotion ? line.emotion : line.expression ?? "a");
+    const appearances = lines.flatMap(line => isUserChoice(line) ? [] : [
+      ...(line.characterId === actor.id ? [{emotion:"emotion" in line ? line.emotion : undefined,expression:line.expression}] : []),
+      ...(line.actors ?? []).filter(cue=>cue.characterId===actor.id)
+    ]);
+    for (const appearance of appearances) {
+      const cue = resolveEmotionCue(actor, appearance.emotion ?? ("expression" in appearance ? appearance.expression : undefined) ?? "a");
       const parts = getExpressionParts(actor.id,cue.expression);
       if (cue.emote) for (const suffix of ["", "-still"]) urls.add(`${import.meta.env.DEV ? "/src/assets/emote/" : `${import.meta.env.BASE_URL}emote-art/`}${cue.emote}${suffix}.png`);
       if (!parts) continue;

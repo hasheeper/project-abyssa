@@ -17,6 +17,7 @@
 | 风化圣堂 | [landmarks/weathered-sanctum.png](landmarks/weathered-sanctum.png) | [orgrb3.png](https://files.catbox.moe/orgrb3.png) |
 | 废弃哨塔 | [landmarks/abandoned-watchtower.png](landmarks/abandoned-watchtower.png) | [im16jb.png](https://files.catbox.moe/im16jb.png) |
 | 潮声溶洞 | [landmarks/tidecall-grotto.png](landmarks/tidecall-grotto.png) | [vn7j2p.png](https://files.catbox.moe/vn7j2p.png) |
+| 退潮黑礁（待正常副本接线） | [landmarks/map.tide-reef.png](landmarks/map.tide-reef.png) | 用户提供的 `/Users/liuhang/Downloads/map.tide-reef.png` |
 
 2026-09-05 将这四张外链 PNG 原样纳入仓库，均为 1408×768；已与 S3 浏览器验收保存的原始响应核对，字节一致。以上来源链接不参与开发、构建或运行时加载。
 
@@ -25,6 +26,8 @@
 ## 消费与维护
 
 新增的 [landmarks/old-manor.png](landmarks/old-manor.png) 是克雷格旧庄园的待接入图标，来源为本轮 `c1.jpg`，经 ToonOut 去白底。原图保存在 `landmarks/sources/old-manor.jpg`；详情见[庄园素材清单](../battle/old-manor/README.md)。它尚未加入地图配置，不替换现有三处地标。
+
+[landmarks/map.tide-reef.png](landmarks/map.tide-reef.png) 是退潮黑礁教学关与正常副本共用的定稿立牌。下载 PNG 虽为 RGBA，但 alpha 全不透明；正式文件已用 ToonOut 去除外圈白底，原图保存在 [`landmarks/sources/map.tide-reef.png`](landmarks/sources/map.tide-reef.png)。本批不替换现有 `tidecall-grotto.png` 的地图配置，待正常副本内容接线时再启用。
 
 - [地图配置](../../apps/map/types.ts)集中导入底图和三个节点。`church / tower / cave` 是现有交互 ID，保持稳定。
 - [场景构建](../../apps/map/createMapScene.ts)通过 TextureLoader 加载构建后的本地 URL；[纹理处理](../../apps/map/map-textures.ts)在运行时生成纸边、阴影与名牌。

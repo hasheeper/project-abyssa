@@ -74,7 +74,6 @@ export function ExpeditionBattleScreen({
     supportFx,
     enemyTurnFx,
     presentedEnemies,
-    registerEnemyNode,
     isBusy: isPresentationBusy,
     play
   } = battlePresentation;
@@ -156,6 +155,7 @@ export function ExpeditionBattleScreen({
     onSettle={onSettle} inspectHref={inspectHref} saving={saving} uiSkin={uiSkin}
     defaultUiSkin={defaultUiSkin} onUiSkinChange={onUiSkinChange}
     label="裂隙远征战斗界面"
+    formationKey={`legacy:${engine.layer}`}
     party={engine.party.map(member => ({...member, maxHp: MAX_HP, returnHp: DOWNED_RETURN_HP,
       ready: canActWith(engine, member.id), incoming: getIncomingDamageFor(engine, member.id),
       healable: heldVerb === "heal" && heldActor !== member.id && !member.downed && member.hp < MAX_HP,
@@ -168,7 +168,7 @@ export function ExpeditionBattleScreen({
     }))}
     phase={phase} layerClearPending={layerClearPending} interactive={interactive} isRolling={isRolling}
     heldActor={heldActor} attackFx={attackFx} supportFx={supportFx} enemyTurnFx={enemyTurnFx}
-    registerEnemyNode={registerEnemyNode} isPresentationBusy={isPresentationBusy}
+    isPresentationBusy={isPresentationBusy}
     handleMemberCardClick={handleMemberCardClick} handleEnemyClick={handleEnemyClick} handleIntentClick={handleIntentClick}
     dicePanel={<ExpeditionDicePanel
                     engine={engine}

@@ -19,7 +19,6 @@
   container-type: inline-size;
   cursor: pointer;
   place-items: center;
-  transition: filter 120ms ease, transform 100ms ease;
 }
 
 .abyssa-ribbon-button[data-size="sm"] {
@@ -97,9 +96,12 @@
 .abyssa-ribbon-button__icon { display: inline-grid; width: 1em; height: 1em; place-items: center; }
 .abyssa-ribbon-button__icon > svg { width: 100%; height: 100%; }
 
-.abyssa-ribbon-button:hover:not(:disabled) { filter: brightness(1.07); }
-.abyssa-ribbon-button:active:not(:disabled) { transform: translateY(1px); }
-.abyssa-ribbon-button[data-selected] { filter: drop-shadow(0 0 7px rgb(114 179 183 / 60%)); }
+.abyssa-ribbon-button[data-selected] { --abyssa-control-shadow: drop-shadow(0 0 7px rgb(114 179 183 / 60%)); }
+/* The protected title owns its surface/diamond motion, not this legacy fallback. */
+.abyssa-ribbon-button:not(.abyssa-control-motion):where(:not(.title-commands__item)) { transition: filter 120ms ease, transform 100ms ease; }
+.abyssa-ribbon-button:not(.abyssa-control-motion):where(:not(.title-commands__item)):hover:not(:disabled) { filter: brightness(1.07); }
+.abyssa-ribbon-button:not(.abyssa-control-motion):where(:not(.title-commands__item)):active:not(:disabled) { transform: translateY(1px); }
+.abyssa-ribbon-button:not(.abyssa-control-motion):where(:not(.title-commands__item))[data-selected] { filter: var(--abyssa-control-shadow); }
 .abyssa-ribbon-button:disabled { cursor: not-allowed; filter: grayscale(0.75); opacity: 0.46; }
 
 /* Wide symmetric hex button, based on the 920 × 120 visual prototype. */
@@ -639,11 +641,9 @@
 
 .abyssa-shape-button:hover:not(:disabled),
 .abyssa-rpg-tab:hover:not(:disabled),
-.abyssa-back-button:hover:not(:disabled),
-.abyssa-icon-button:hover:not(:disabled) { filter: brightness(1.07); }
+.abyssa-back-button:hover:not(:disabled) { filter: brightness(1.07); }
 .abyssa-shape-button:active:not(:disabled),
-.abyssa-rpg-tab:active:not(:disabled),
-.abyssa-icon-button:active:not(:disabled) { transform: translateY(1px) scale(.99); }
+.abyssa-rpg-tab:active:not(:disabled) { transform: translateY(1px) scale(.99); }
 .abyssa-back-button:active:not(:disabled) { transform: translate(1px, 1px) scale(.99); }
 .abyssa-shape-button:focus-visible,
 .abyssa-rpg-tab:focus-visible,
@@ -651,8 +651,8 @@
 .abyssa-icon-button:focus-visible { outline: 2px solid #eef2f2; outline-offset: 5px; }
 .abyssa-icon-button[data-shape="circle"]:focus-visible { border-radius: 50%; }
 .abyssa-shape-button[data-selected],
-.abyssa-rpg-tab[data-selected],
-.abyssa-icon-button[data-selected] { filter: drop-shadow(0 0 6px rgb(114 179 183 / 55%)); }
+.abyssa-rpg-tab[data-selected] { filter: drop-shadow(0 0 6px rgb(114 179 183 / 55%)); }
+.abyssa-icon-button[data-selected] { --abyssa-control-shadow: drop-shadow(0 0 6px rgb(114 179 183 / 55%)); }
 .abyssa-shape-button:disabled,
 .abyssa-rpg-tab:disabled,
 .abyssa-back-button:disabled,

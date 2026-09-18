@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { SceneTransition, useSceneReady } from "../shared/transition";
 
 const destinations: Record<string, string> = {
-  "menu.html": "守望者之崖", "map.html": "远征地图", "battle.html": "克雷格旧庄园",
+  "menu.html": "守望者之崖", "map.html": "远征地图", "battle.html": "远征",
   "mansion.html": "守望者之崖洋馆", "shop.html": "守望者杂货铺", "character-status.html": "角色档案",
 };
 

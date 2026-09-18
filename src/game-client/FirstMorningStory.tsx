@@ -58,7 +58,7 @@ export function morningMessages(step:number,choices:readonly MorningSelection[],
       const directions:RpMessage[]=(frame.actors??[]).map((actor,i)=>({id:`${frame.id}.stage.${i}`,kind:"stage",actorId:actor.characterId,text:"",emotion:actor.emotion}));
       if(frame.effect==="handoff") return [...directions,{id:frame.id,kind:"chapter" as const,text:frame.text}];
       if(!frame.text) return directions;
-      return [...directions,...storyMessages([{...frame,text:morningPlayerText(frame.text)}]).map(message=>message.kind==="say" && message.actorId===FIRST_MORNING_STORY.player.actorId ? {...message,offstage:true} : message)];
+      return storyMessages([{...frame,text:morningPlayerText(frame.text)}]).map(message=>message.kind==="say" && message.actorId===FIRST_MORNING_STORY.player.actorId ? {...message,offstage:true} : message);
     });
   });
 }
@@ -103,7 +103,8 @@ export function FirstMorningPlayer({step,choices,lastStep=FIRST_MORNING_ENTRIES.
   const typing=layout==="adv" && !decision && !handoff && !silent && !reading && revealed!==key;
   const ready=!typing || settled===key;
   const last=step===lastStep;
-  const pressure=transcript.reduce((active,beat)=>"effect" in beat && beat.effect==="pressure" ? true : "effect" in beat && beat.effect==="release" ? false : active,false);
+  const pressure=transcript.flatMap((beat,index)=>beat.kind==="decision"?[]:morningPages(beat).slice(0,index===transcript.length-1?page+1:undefined))
+    .reduce((active,frame)=>frame.effect==="pressure"?true:frame.effect==="release"?false:active,false);
   const [mutedKey,setMutedKey]=useState<string|null>(()=>step>0?key:null);
   const [visible,setVisible]=useState(()=>!document.hidden);
   const autoAttempt=useRef<string|null>(null);
@@ -211,8 +212,8 @@ export function FirstMorningStory() {
   const [extending,setExtending]=useState(false),[extensionError,setExtensionError]=useState("");
   const progress=record?.schemaVersion===4 ? record.snapshot.campaign.opening : undefined;
   useEffect(()=> {
-    if(progress?.status!=="playing" && !pending.current) transition.navigate(gameHref("mansion",session.locator),{replace:true,cinematic:true,still:background});
-  },[progress?.status,transition,session]);
+    if(progress?.status!=="playing" && !pending.current) transition.navigate(gameHref(record?.schemaVersion===4 && record.snapshot.campaign.tutorial?.status==="pending" ? "battle" : "mansion",session.locator),{replace:true,cinematic:true,still:background});
+  },[progress?.status,transition,session,record]);
   if(!progress) return null;
   const advance=async(choice:"continue"|MorningChoice)=> {
     if(status!=="ready" || pending.current) return;
@@ -233,7 +234,7 @@ export function FirstMorningStory() {
     }
     const batch=await session.dispatch({type:"advance-opening",step:progress.step,choice});
     if(batch?.after.schemaVersion===4 && batch.after.snapshot.campaign.opening?.status==="viewed")
-      transition.navigate(gameHref("mansion",session.locator),{replace:true,cinematic:true,still:background});
+      transition.navigate(gameHref(record?.schemaVersion===4 && record.snapshot.campaign.tutorial?.status==="pending" ? "battle" : "mansion",session.locator),{replace:true,cinematic:true,still:background});
     pending.current=false;
   };
   return <AbyssaProvider><Stage background="var(--abyssa-rp-backdrop)">

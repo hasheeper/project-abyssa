@@ -1,0 +1,284 @@
+{
+  "copyStatus": "g4-authored",
+  "instructions": {
+    "guide.T1.R1.roll.roll": "firstRoll",
+    "guide.T1.R1.kael.fix.fix": "firstFix",
+    "guide.T1.R1.kael.actor": "firstActor",
+    "guide.T1.R1.kael.attack": "firstAttack",
+    "guide.T1.R1.eustice.fix.fix": "focusFix",
+    "guide.T1.R1.eustice.actor": "focusActor",
+    "guide.T1.R1.eustice.attack": "focusSlime",
+    "guide.T1.R1.end.end": "firstEnd",
+    "guide.T1.R2.roll.roll": "nextRound",
+    "guide.T1.R2.eustice.fix.fix": "finishSlimeFix",
+    "guide.T1.R2.eustice.actor": "finishSlimeActor",
+    "guide.T1.R2.eustice.attack": "finishSlime",
+    "guide.T2.R1.roll.roll": "intent",
+    "guide.T2.R1.keep.fix": "keep",
+    "guide.T2.R1.reroll.reroll": "findSupport",
+    "guide.T2.R1.kael.heal.heal": "firstHeal",
+    "guide.T2.R2.roll.roll": "twoAttacks",
+    "guide.T2.R2.guard-bow.guard": "singleGuard",
+    "guide.T3.R1.roll.roll": "teamHand",
+    "guide.T3.R1.focus.kael.fix.fix": "handBonus",
+    "guide.T3.R1.focus.eustice.fix.fix": "qualityBonus",
+    "guide.T3.R1.kororo.attack.fix.fix": "accumulation",
+    "guide.T3.R1.norma.guard.actor": "hand",
+    "guide.T3.R1.focus.eustice.attack": "focusKnife",
+    "guide.T3.R1.end.end": "multiplier",
+    "guide.E1.enter.advance": "toEvent",
+    "guide.T3.enter.advance": "toHaulers"
+  },
+  "observations": {
+    "slimes": {
+      "title": "战况：遭遇低阶软泥",
+      "text": "敌方已亮出攻击意图。建议集中火力优先击倒左侧目标，在敌方行动前削减其出手次数。",
+      "targets": ["battle.enemies"],
+      "actionLabel": "进入战斗"
+    },
+    "sentries": {
+      "title": "战况：前排刀手与后排弩手",
+      "text": "前排刀手本轮发起攻击；后排弩手正在装填，暂不造成伤害。优先处理当前威胁，防范下回合的致命射击。",
+      "targets": ["battle.enemies"],
+      "actionLabel": "开始应对"
+    },
+    "bowReady": {
+      "title": "警告：遭遇多重攻击锁定",
+      "text": "尤斯缇丝同时被两条攻击意图锁定（弩手 2 点 / 刀手 1 点）。必须分配格挡化解高额伤害，同时尽快斩杀前排。",
+      "targets": ["intent:bow"],
+      "contextTargets": ["battle.health:eustice", "intent:knife"],
+      "actionLabel": "组织防御"
+    },
+    "event": {
+      "title": "事件：潮坑中的浸水皮包",
+      "text": "皮包锁扣已严重锈蚀。选择一名具备支援或精细处理能力的队员进行尝试，在不损坏内部物品的前提下拆开锁扣。",
+      "targets": ["battle.event-scene"],
+      "actionLabel": "指派队员"
+    },
+    "haulers": {
+      "title": "战况：拦截搬运小队",
+      "text": "敌方由前排刀手与后排弩手掩护。优先集火击杀残血刀手，同时留意全队骰面组合，利用牌型与铭约建立优势。",
+      "targets": ["battle.enemies"],
+      "actionLabel": "投掷骰面"
+    },
+    "twoPairs": {
+      "title": "战术契机：达成【两对】",
+      "text": "全队骰面已组成【两对】（加成 +0.20），且满足诺玛的铭约条件。回合结束时将提升金币倍率，并触发诺玛的自动飞刀支援。",
+      "targets": ["battle.hand"],
+      "contextTargets": ["battle.dice-tray"],
+      "actionLabel": "执行战术分配"
+    },
+    "pairResult": {
+      "title": "战果：倍率提升与铭约压制",
+      "text": "牌型收益已计入本层，诺玛也补上了一记飞刀。接下来由你自由指挥，击退剩余敌人。",
+      "targets": ["battle.multiplier"],
+      "contextTargets": ["battle.enemies"],
+      "actionLabel": "自由交战"
+    },
+    "boss": {
+      "title": "决战：强盗首领与双弩手",
+      "text": "敌方头目具备持续高额近战伤害，两侧弩手将交替进行装填与强射。可利用弩手装填的间隙逐个击破，或全力集火斩首。全权交由你指挥，肃清全部敌方目标。",
+      "targets": ["battle.enemies"],
+      "actionLabel": "全员迎敌"
+    }
+  },
+  "steps": {
+    "roll": {
+      "title": "投掷行动骰",
+      "text": "点击 ROLL。掷出全队本轮可用的行动骰面。"
+    },
+    "fix": {
+      "title": "固定骰面",
+      "text": "点击高亮骰子进行固定。固定后方可执行行动；未固定的骰子可参与重掷。"
+    },
+    "actor": {
+      "title": "选择行动队员",
+      "text": "点选高亮队员。确认由该角色执行当前已固定的行动。"
+    },
+    "attack": {
+      "title": "发动攻击",
+      "text": "选择目标敌人。按当前战面的攻击力度造成伤害。"
+    },
+    "heal": {
+      "title": "恢复生命",
+      "text": "选择受伤队员恢复生命。满血或已力竭的队员无法作为目标。"
+    },
+    "guard": {
+      "title": "分配格挡",
+      "text": "选择敌人的攻击意图。将格挡值分配给该条攻击，抵消对应伤害。"
+    },
+    "reroll": {
+      "title": "重掷骰子",
+      "text": "点击 REROLL。保留已固定的骰面，重新投掷其余未使用的空闲骰。"
+    },
+    "end": {
+      "title": "结束回合",
+      "text": "点击 END TURN。结算本轮牌型与铭约追击，随后交由存活敌方行动。"
+    },
+    "items": {
+      "title": "战间补给",
+      "text": "打开道具栏。战斗结束后生命不会自动恢复，请在前进前调整队伍状态。",
+      "contextTargets": ["battle.health:kororo"]
+    },
+    "food": {
+      "title": "使用食物",
+      "text": "选择食物，再指定受伤的同伴。本次在战斗间隙补给；战斗行动阶段也能使用，每回合最多使用两件道具。"
+    },
+    "foodTarget": {
+      "title": "指定补给目标",
+      "text": "选择需要补给的队员。消耗 1 次食物使用次数，恢复 1 点生命。"
+    },
+    "participant": {
+      "title": "指派调查队员",
+      "text": "点选艾洛拉。艾洛拉的支援战面拥有更多符合条件的成功判定面（可在右侧预览）。",
+      "contextTargets": ["battle.event-scene"]
+    },
+    "locksmithParticipant": {
+      "title": "让诺玛检查锁扣",
+      "text": "选择诺玛。先查看右侧列出的事件判定面，再由她尝试打开硬皮行囊；这次判定独立于上一场战斗。",
+      "contextTargets": ["battle.event-scene"]
+    },
+    "event": {
+      "title": "独立事件判定",
+      "text": "点击 ROLL 进行尝试。系统将独立抽取该队员的一枚专属骰面，不消耗战斗骰，无法重掷。",
+      "contextTargets": ["battle.event-participant"]
+    },
+    "result": {
+      "title": "结算判定结果",
+      "text": "右侧已显示判定结果。确认成功保全物资后，点击“确认结果”完成事件。",
+      "contextTargets": ["battle.event-result"]
+    },
+    "advance": {
+      "title": "继续前进",
+      "text": "整备完毕。点击“继续前进”前往下一区域。"
+    },
+    "firstRoll": {
+      "title": "投掷行动骰",
+      "text": "点击 ROLL。投掷全队本轮可用的行动骰。",
+      "contextTargets": ["battle.enemies"]
+    },
+    "firstFix": {
+      "title": "固定攻击骰",
+      "text": "点击主角的攻击骰进行固定。只有锁定的骰面方可用于行动。",
+      "contextTargets": ["enemy:slime-left"]
+    },
+    "firstActor": {
+      "title": "选择行动队员",
+      "text": "点选主角角色卡。每名队员每轮限行动 1 次。",
+      "contextTargets": ["battle.die:kael"]
+    },
+    "firstAttack": {
+      "title": "指定攻击目标",
+      "text": "选择左侧软泥造成 1 点伤害。已行动的骰子本轮不可再次使用。"
+    },
+    "focusFix": {
+      "title": "固定接力攻击",
+      "text": "目标剩余 2 点生命。点击固定尤斯缇丝的攻击骰（力度 2）。",
+      "contextTargets": ["enemy-health:slime-left"]
+    },
+    "focusActor": {
+      "title": "选择出战队员",
+      "text": "点选尤斯缇丝的角色卡，准备执行攻击。",
+      "contextTargets": ["enemy-health:slime-left"]
+    },
+    "focusSlime": {
+      "title": "集火击杀目标",
+      "text": "再次选择左侧残血软泥。击杀敌人会直接取消其头顶的攻击意图。"
+    },
+    "firstEnd": {
+      "title": "结束本轮行动",
+      "text": "本轮行动已分配完毕。点击 END TURN，交由存活的剩余敌人行动。",
+      "contextTargets": ["enemy:slime-right", "battle.health:eustice"]
+    },
+    "nextRound": {
+      "title": "新回合开始",
+      "text": "敌方行动结束，全队重获行动机会。点击 ROLL 投掷新一轮骰面。",
+      "contextTargets": ["battle.health:eustice", "enemy:slime-right"]
+    },
+    "finishSlimeFix": {
+      "title": "锁定收尾攻击",
+      "text": "尤斯缇丝掷出力度 3 的攻击骰。点击将其固定，准备完成斩杀。",
+      "contextTargets": ["enemy:slime-right"]
+    },
+    "finishSlimeActor": {
+      "title": "指派收尾行动",
+      "text": "点选尤斯缇丝的角色卡。",
+      "contextTargets": ["enemy:slime-right"]
+    },
+    "finishSlime": {
+      "title": "完成清场",
+      "text": "选择剩余软泥造成致命伤害。清空所有敌人即可赢得战斗。"
+    },
+    "intent": {
+      "title": "观察敌方行动意图",
+      "text": "弩手头顶图标显示“装填”，本轮不会攻击。点击 ROLL 投掷行动骰。",
+      "contextTargets": ["intent:knife", "intent:bow"]
+    },
+    "keep": {
+      "title": "锁定主力攻击",
+      "text": "尤斯缇丝掷出力度 2 的攻击骰。点击将其固定，准备重掷其余骰面。"
+    },
+    "findSupport": {
+      "title": "重掷空闲骰面",
+      "text": "点击 REROLL。已固定的骰面保持不变，其余骰子将重新投掷，尝试寻找治疗面。",
+      "contextTargets": ["battle.die:eustice", "battle.health:eustice"]
+    },
+    "firstHeal": {
+      "title": "执行生命恢复",
+      "text": "点选受伤的尤斯缇丝。消耗主角的治疗骰，为其恢复 1 点生命。",
+      "contextTargets": ["battle.health:eustice"]
+    },
+    "twoAttacks": {
+      "title": "投掷防御与反击骰",
+      "text": "敌方双重攻击来袭。点击 ROLL 投掷本轮骰面，寻找格挡与反击手段。",
+      "contextTargets": ["intent:bow", "intent:knife", "battle.health:eustice"]
+    },
+    "singleGuard": {
+      "title": "指定格挡意图",
+      "text": "点击弩手头顶的攻击意图进行格挡。格挡仅抵消所选的一条意图，刀手的攻击仍需另行处理。",
+      "contextTargets": ["battle.health:eustice", "intent:knife"]
+    },
+    "teamHand": {
+      "title": "投掷全队行动骰",
+      "text": "点击 ROLL。本轮除了分配单体行动，全队骰面还将自动组合为牌型，提升战利品收益。",
+      "contextTargets": ["battle.enemies"]
+    },
+    "handBonus": {
+      "title": "固定主角攻击骰",
+      "text": "两对已成型。固定主角的攻击骰（力度 1）；出过手的骰子仍会保留这手牌，不会拆掉最终牌型。",
+      "contextTargets": ["battle.hand"]
+    },
+    "qualityBonus": {
+      "title": "固定尤斯缇丝攻击骰",
+      "text": "点击固定尤斯缇丝的攻击骰（力度 2），准备集火击杀前排刀手。",
+      "contextTargets": ["enemy-health:knife"]
+    },
+    "focusKnife": {
+      "title": "集火击杀前排刀手",
+      "text": "由尤斯缇丝击杀已受伤的刀手。消灭目标将直接解除其攻击威胁。"
+    },
+    "accumulation": {
+      "title": "指派后排压制",
+      "text": "刀手已清除。固定柯萝萝的高额攻击骰，将火力转向后排弩手。",
+      "contextTargets": ["enemy:bow"]
+    },
+    "hand": {
+      "title": "指派诺玛格挡",
+      "text": "点选诺玛角色卡。利用其固定的格挡面，化解搬运工的来袭伤害。",
+      "contextTargets": ["intent:hauler"]
+    },
+    "multiplier": {
+      "title": "结算牌型与铭约",
+      "text": "两对已成型。点击 END TURN，确认金币倍率上涨与诺玛的飞刀追击。",
+      "contextTargets": ["battle.hand", "battle.multiplier"]
+    },
+    "toEvent": {
+      "title": "发现散落物资",
+      "text": "战斗结束。前方潮水坑中发现散落的强盗包裹，点击“继续前进”前往查看。"
+    },
+    "toHaulers": {
+      "title": "追击搬运队",
+      "text": "物资已回收完毕。前方发现强盗搬运队的踪迹，点击“继续前进”切入战斗。"
+    }
+  }
+}

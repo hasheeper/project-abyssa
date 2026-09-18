@@ -1,4 +1,5 @@
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
+import { useTutorialAnchors } from "../../../shared/tutorial";
 import bagIcon from "../../../assets/icons/items/backpack.svg";
 import { IconButton } from "../../../shared/ui/primitives/IconButton";
 import {
@@ -26,6 +27,7 @@ import type {
 
 export type ExpeditionDicePanelProps = {
   engine: ExpeditionState;
+  entrance?: boolean;
   itemPanel?: {open: boolean; onToggle: () => void; content: ReactNode};
   controls?: ReactNode;
   visuals: Record<CharacterId, ExpeditionDieVisual>;
@@ -33,6 +35,8 @@ export type ExpeditionDicePanelProps = {
   scoringOwners: ReadonlySet<CharacterId>;
   interactive: boolean;
   initialRollReady: boolean;
+  rerollReady?: boolean;
+  endTurnReady?: boolean;
   busy: boolean;
   attackFx: PlayerAttackFx | null;
   supportFx: PlayerSupportFx | null;
@@ -49,6 +53,7 @@ export type ExpeditionDicePanelProps = {
 
 export function ExpeditionDicePanel({
   engine,
+  entrance,
   visuals,
   enemyTurnFx,
   scoringOwners,
@@ -76,7 +81,7 @@ export function ExpeditionDicePanel({
       };
     })}
     awaitingInitialRoll={engine.mode.type === "awaiting-roll"} rerollsRemaining={engine.rerollsRemaining}
-    {...{visuals, enemyTurnFx, scoringOwners, interactive, initialRollReady, busy, attackFx, supportFx,
+    {...{entrance, visuals, enemyTurnFx, scoringOwners, interactive, initialRollReady, busy, attackFx, supportFx,
       hand, undoLabel, undoReady, unloadedRemain, onDieToggle, onUndo, onRoll, onReroll, onEndTurn}}
   />;
 }
@@ -121,10 +126,12 @@ function handExplanation(slots: ExpeditionDiceSlot[], hand: HandEvaluation | nul
 
 export function ExpeditionDiceTray({slots, awaitingInitialRoll, rerollsRemaining, visuals, enemyTurnFx,
   scoringOwners, interactive, initialRollReady, busy, attackFx, supportFx, hand, undoLabel, undoReady,
-  unloadedRemain, onDieToggle, onUndo, onRoll, onReroll, onEndTurn, itemPanel, controls}: ExpeditionDiceTrayProps) {
+  unloadedRemain, onDieToggle, onUndo, onRoll, onReroll, onEndTurn, itemPanel, controls, entrance, rerollReady = true, endTurnReady = true}: ExpeditionDiceTrayProps) {
+  const anchor=useTutorialAnchors();
   return (
-    <section className="abyssa-expedition-region abyssa-expedition-dice-panel" aria-label="骰子区域">
-      <div className="abyssa-expedition-dice-panel__tray">
+    <section className="abyssa-expedition-region abyssa-expedition-dice-panel" aria-label="骰子区域"
+      style={{"--manor-last-die": Math.max(0, slots.length - 1)} as CSSProperties}>
+      <div ref={anchor("battle.dice-tray")} className="abyssa-expedition-dice-panel__tray">
         <span className="abyssa-expedition-dice-panel__pattern" aria-hidden="true" />
         <div className="abyssa-expedition-dice-panel__row">
           {slots.map((die, slotIndex) => {
@@ -143,6 +150,7 @@ export function ExpeditionDiceTray({slots, awaitingInitialRoll, rerollsRemaining
 
             return (
               <div
+                ref={anchor(`battle.die:${ownerId}`)}
                 className="abyssa-expedition-die-slot"
                 data-owner={ownerId}
                 data-event-check={die.eventCheck}
@@ -155,9 +163,12 @@ export function ExpeditionDiceTray({slots, awaitingInitialRoll, rerollsRemaining
                 data-spent={die.spent || undefined}
                 data-unrolled={die.faceIndex === null || undefined}
                 title={handHint}
-                style={{ gridColumn: slotIndex + 1 }}
+                style={{ gridColumn: slotIndex + 1, "--manor-order": slotIndex,
+                  "--manor-die-drift": `${(slotIndex % 2 ? -1 : 1) * (12 + slotIndex % 3 * 3)}px`,
+                  "--manor-die-lean": `${(slotIndex % 2 ? -1 : 1) * (22 + slotIndex % 3 * 4)}deg` } as CSSProperties}
                 key={ownerId}
               >
+                <div className="expedition-die-entry" data-scene-settle={entrance ? "manor-die-land" : undefined}>
                 <ExpeditionDie3D
                   index={slotIndex}
                   value={value}
@@ -183,12 +194,13 @@ export function ExpeditionDiceTray({slots, awaitingInitialRoll, rerollsRemaining
                   handHint={handHint}
                   onToggle={() => onDieToggle(dieIndex)}
                 />
+                </div>
               </div>
             );
           })}
         </div>
       </div>
-      <ActionDock active busy={busy || Boolean(attackFx) || Boolean(supportFx)} alternate={itemPanel && {open: itemPanel.open, label: itemPanel.open ? "返回行动" : "打开道具坞", icon: bagIcon, onToggle: itemPanel.onToggle, panel: itemPanel.content}}
+      <ActionDock active busy={busy || Boolean(attackFx) || Boolean(supportFx)} alternate={itemPanel && {open: itemPanel.open, label: itemPanel.open ? "返回行动" : "打开道具坞", icon: bagIcon, onToggle: itemPanel.onToggle, panel: itemPanel.content, toggleRef: anchor("battle.items")}}
         leading={<IconButton
           className="abyssa-expedition-undo"
           label={undoLabel ? `撤回：${undoLabel}` : "撤回"}
@@ -205,11 +217,12 @@ export function ExpeditionDiceTray({slots, awaitingInitialRoll, rerollsRemaining
       >
         {controls ?? <div className="abyssa-expedition-action-controls">
           <DiceActionButton
+            ref={anchor(awaitingInitialRoll ? "battle.roll" : "battle.reroll")}
             label={awaitingInitialRoll ? "ROLL" : "REROLL"}
             disabled={
               awaitingInitialRoll
                 ? !initialRollReady
-                : !interactive || rerollsRemaining <= 0 || !unloadedRemain
+                : !interactive || !rerollReady || rerollsRemaining <= 0 || !unloadedRemain
             }
             onClick={awaitingInitialRoll ? onRoll : onReroll}
           />
@@ -220,9 +233,10 @@ export function ExpeditionDiceTray({slots, awaitingInitialRoll, rerollsRemaining
           />
           <ExpeditionHandReadout hand={hand} explanation={handExplanation(slots, hand)} />
           <DiceActionButton
+            ref={anchor("battle.end-turn")}
             label="END TURN"
             primary
-            disabled={!interactive}
+            disabled={!interactive || !endTurnReady}
             onClick={onEndTurn}
           />
         </div>}

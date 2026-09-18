@@ -12,6 +12,9 @@ import timeBomb from "../../assets/icons/items/time-bomb.svg";
 import skeletalHand from "../../assets/icons/7-0-skeletal-hand.svg";
 import gooExplosion from "../../assets/icons/4-1-goo-explosion.svg";
 import splitCross from "../../assets/icons/6-0-split-cross.svg";
+import blankCross from "../../assets/icons/blank-cross.svg";
+import crown from "../../assets/icons/items/crown.svg";
+import bowArrow from "../../assets/icons/items/bow-arrow.svg";
 
 /*
  * 战斗界面的图形词表。界面内不出现任何 emoji：
@@ -33,6 +36,9 @@ export type GlyphName =
   | "intent-countdown"
   | "intent-summon"
   | "heart"
+  | "boss"
+  | "enemy-attack"
+  | "enemy-charge"
   | "blocked";
 
 const GLYPH_SOURCES: Record<GlyphName, string> = {
@@ -42,13 +48,16 @@ const GLYPH_SOURCES: Record<GlyphName, string> = {
   coin: swapBag,
   art: magicPalm,
   wild: splitCross,
-  blank: gooExplosion,
+  blank: blankCross,
   "intent-attack": crossedSwords,
   "intent-charge": explosionRays,
   "intent-seal": skeletalHand,
   "intent-countdown": timeBomb,
   "intent-summon": gooExplosion,
   heart: heartDrop,
+  boss: crown,
+  "enemy-attack": plainDagger,
+  "enemy-charge": bowArrow,
   blocked: slashedShield
 };
 

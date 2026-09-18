@@ -1,0 +1,218 @@
+/* A readable field manual inside the existing fixed 1600 × 900 game Stage. */
+/* Keep the manual's canonical cool-gray palette independent of battle/title skins. */
+.tutorial-overview, .handbook-scrim, .handbook {
+  --abyssa-text: #edf0f0;
+  --abyssa-text-soft: #c2cbcb;
+  --abyssa-text-muted: #8f9b9b;
+  --abyssa-teal: #72b3b7;
+  --abyssa-teal-dark: #3d7477;
+  --abyssa-teal-soft: #91c3c6;
+  --abyssa-ornament: #647171;
+  --abyssa-ornament-dark: #364142;
+  --abyssa-ornament-light: #839091;
+  --abyssa-frame-dark: #192020;
+  --abyssa-frame-deep: #101616;
+  --abyssa-frame-light: #a7b3b4;
+  --abyssa-focus: #e9eeee;
+  color: var(--abyssa-text);
+}
+.tutorial-overview { width: 1600px; height: 900px; display: grid; place-items: center; background: linear-gradient(110deg, rgb(5 9 11 / 95%), rgb(5 9 11 / 83%)), url("../../assets/map/quest-backgrounds/tidecall-grotto.jpg") center / cover; }
+.tutorial-overview__frame { width: 1456px; }
+.tutorial-overview__frame > .abyssa-frame__content { padding: 25px 30px 20px; }
+.tutorial-overview__header { padding: 0 8px 19px; }
+.tutorial-overview__eyebrow { margin: 0 0 6px; color: var(--abyssa-teal-soft); font-size: 11px; letter-spacing: .18em; }
+.tutorial-overview__header h1 { margin: 0 0 10px; font-size: 27px; font-weight: 500; letter-spacing: .05em; }
+.tutorial-overview__header > p:last-child { margin: 0; font-size: 15px; line-height: 1.65; color: var(--abyssa-text-soft); }
+.tutorial-overview__footer { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 15px 8px 0; }
+.tutorial-overview__footer p { margin: 0; font-size: 14px; line-height: 1.75; color: var(--abyssa-text-soft); }
+.tutorial-overview__footer .tutorial-overview__status { color: var(--abyssa-text-muted); font-size: 12px; }
+.tutorial-overview__actions { display: flex; flex-shrink: 0; gap: 12px; margin-left: auto; }
+.tutorial-overview__actions .abyssa-shape-button[data-shape="chamfer"], .handbook-modal__return.abyssa-shape-button[data-shape="chamfer"] { width: 190px; }
+.handbook { height: 624px; display: grid; grid-template-columns: 258px minmax(0, 1fr); border-block: 1px solid var(--abyssa-ornament); color: var(--abyssa-text); font-size: 16px; line-height: 1.7; }
+.handbook button { font: inherit; color: inherit; cursor: pointer; }
+.handbook button:disabled { opacity: .25; cursor: default; }
+.handbook button:focus-visible, .handbook__article:focus-visible { outline: 1px solid var(--abyssa-focus); outline-offset: -2px; }
+.handbook__contents { padding: 18px 18px 14px 0; border-right: 1px solid var(--abyssa-ornament-dark); overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--abyssa-ornament) transparent; }
+.handbook__overline { display: flex; justify-content: space-between; margin: 0 0 14px; color: var(--abyssa-teal-soft); font-size: 11px; letter-spacing: .12em; }
+.handbook__overline span { color: var(--abyssa-text-muted); }
+.handbook__chapter > button { width: 100%; display: grid; grid-template-columns: 28px 1fr; gap: 9px; padding: 10px; border: 0; border-left: 2px solid transparent; text-align: left; background: transparent; }
+.handbook__chapter > button:hover { background: rgb(119 172 177 / 6%); }
+.handbook__chapter[data-active] > button { background: linear-gradient(90deg, rgb(119 172 177 / 12%), transparent); border-left-color: var(--abyssa-teal); }
+.handbook__chapter strong { display: block; font-size: 18px; font-weight: 500; }
+.handbook__chapter small { display: block; margin-top: 2px; font-size: 11px; color: var(--abyssa-text-muted); letter-spacing: .02em; }
+.handbook__index { color: var(--abyssa-teal-soft); font-size: 12px; padding-top: 4px; }
+.handbook__chapter ol { margin: 3px 0 8px 23px; padding: 0 0 0 14px; list-style: none; border-left: 1px solid var(--abyssa-ornament-dark); }
+.handbook__chapter li button { display: block; width: 100%; padding: 4px; text-align: left; font-size: 13px; line-height: 1.45; border: 0; background: transparent; color: var(--abyssa-text-soft); }
+.handbook__chapter li button[aria-current="page"] { color: var(--abyssa-teal-soft); }
+.handbook__chapter li button:hover { color: var(--abyssa-text); }
+.handbook__scope { font-size: 11px; margin: 10px 0 0 12px; color: var(--abyssa-text-muted); }
+.handbook__reading { display: flex; min-width: 0; min-height: 0; flex-direction: column; padding: 18px 0 0 28px; }
+.handbook__heading { flex-shrink: 0; padding-right: 20px; }
+.handbook__heading .handbook__overline { margin-bottom: 4px; }
+.handbook__heading h2 { margin: 0 0 7px; font-size: 25px; font-weight: 500; letter-spacing: .04em; }
+.handbook__heading > p { margin: 0 0 15px; color: var(--abyssa-text-muted); font-size: 13px; line-height: 1.65; }
+.handbook__article { min-height: 0; flex: 1; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: auto; scrollbar-color: #52696b #11191b; padding: 0 22px 18px 0; }
+.handbook__article > p { margin: 0 0 15px; color: var(--abyssa-text-soft); }
+.handbook__interface-layout { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 26px; align-items: start; }
+.handbook__interface-map { margin: 0; position: sticky; top: 0; }
+.handbook__interface-map > div { position: relative; }
+.handbook__interface-map img { display: block; width: 100%; height: auto; }
+.handbook__interface-map svg { position: absolute; inset: 0; width: 100%; height: 100%; fill: rgb(114 179 183 / 4%); stroke: var(--abyssa-teal-soft); stroke-width: 1; }
+.handbook__interface-map rect { vector-effect: non-scaling-stroke; }
+.handbook__interface-map figcaption { margin-top: 9px; color: var(--abyssa-text-muted); font-size: 11px; }
+.handbook__interface-map .handbook__mark { width: 22px; height: 22px; }
+.handbook__interface-regions { list-style: none; padding: 0; margin: 0; }
+.handbook__interface-regions li { display: flex; gap: 12px; padding: 0 0 11px; }
+.handbook__interface-regions li + li { padding-top: 10px; border-top: 1px solid var(--abyssa-ornament-dark); }
+.handbook__interface-regions h3 { margin: 0 0 3px; font-size: 16px; font-weight: 500; }
+.handbook__interface-regions p { margin: 0; color: var(--abyssa-text-soft); font-size: 14px; line-height: 1.7; }
+.handbook__interface-operation { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--abyssa-ornament-dark); }
+.handbook__interface-operation h3 { margin: 0 0 14px; font-size: 19px; font-weight: 500; }
+.handbook__interface-controls { margin: 0; }
+.handbook__interface-controls svg { display: block; width: 100%; height: auto; }
+.handbook__interface-controls figcaption { display: grid; grid-template-columns: 58fr 170fr 82fr 144fr 140fr 86fr; color: var(--abyssa-text-soft); font-size: 13px; text-align: center; }
+.handbook__walkthrough { list-style: none; margin: 0; padding: 0; }
+.handbook__walkthrough > li { padding: 18px 0 24px; }
+.handbook__walkthrough > li + li { border-top: 1px solid var(--abyssa-ornament-dark); }
+.handbook__walkthrough h4 { display: flex; align-items: baseline; gap: 14px; margin: 0 0 14px; font-size: 18px; font-weight: 500; }
+.handbook__walkthrough h4 > span { color: var(--abyssa-teal-soft); font-size: 12px; }
+.handbook__walkthrough p { margin: 0 0 12px; max-width: 860px; color: var(--abyssa-text-soft); font-size: 16px; line-height: 1.9; }
+.handbook__walkthrough-illustrated { display: grid; grid-template-columns: minmax(0, 1fr) 282px; gap: 32px; align-items: start; }
+.handbook__walkthrough-detail { margin: 0; }
+.handbook__walkthrough-detail svg { display: block; width: 100%; height: auto; }
+.handbook__walkthrough-detail figcaption { margin-top: 10px; color: var(--abyssa-text-muted); font-size: 12px; text-align: center; }
+.handbook__walkthrough-detail--enemy-intent { width: 260px; justify-self: center; }
+.handbook__walkthrough-detail--actor-die { width: 240px; justify-self: center; }
+.handbook[data-chapter="battle"]:is([data-section="interface"], [data-section="dungeon"]) .handbook__heading > p { max-width: 920px; font-size: 16px; line-height: 1.8; color: var(--abyssa-text-soft); }
+.handbook[data-chapter="battle"][data-section="dungeon"] .handbook__steps { max-width: 960px; }
+.handbook[data-chapter="battle"][data-section="dungeon"] .handbook__steps li { padding-block: 17px; }
+.handbook[data-chapter="battle"][data-section="dungeon"] .handbook__steps h3 { margin-bottom: 8px; font-size: 18px; }
+.handbook[data-chapter="battle"][data-section="dungeon"] .handbook__steps p { max-width: 850px; font-size: 16px; line-height: 1.9; }
+.handbook__key-rules { margin: 0 0 24px; padding-left: 22px; color: var(--abyssa-text-soft); }
+.handbook__key-rules li { margin: 0 0 12px; padding-left: 3px; font-size: 16px; line-height: 1.8; }
+.handbook__key-rules li::marker { color: var(--abyssa-teal-soft); }
+.handbook__key-rules strong { color: var(--abyssa-text); font-weight: 600; }
+.handbook__timeline { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; margin: 0 0 18px; padding: 0; list-style: none; }
+.handbook__timeline li { display: flex; align-items: center; gap: 9px; font-size: 15px; }
+.handbook__timeline b { color: var(--abyssa-teal-soft); font-size: 12px; font-weight: 500; }
+.handbook__timeline-arrow { margin-left: 9px; color: var(--abyssa-text-muted); }
+.handbook__topic { margin: 24px 0 0; padding-top: 20px; border-top: 1px solid var(--abyssa-ornament-dark); }
+.handbook__article > div:empty + .handbook__topic { margin-top: 0; padding-top: 0; border-top: 0; }
+.handbook__topic h3 { margin: 0 0 12px; color: var(--abyssa-text); font-size: 19px; font-weight: 500; }
+.handbook__topic p { margin: 0 0 14px; color: var(--abyssa-text-soft); font-size: 16px; line-height: 1.8; }
+.handbook__topic .handbook__key-rules { margin-bottom: 0; }
+.handbook__topic--illustrated { display: grid; grid-template-columns: minmax(0, 1fr) 496px; gap: 28px; align-items: center; margin-top: 10px; padding-top: 10px; }
+.handbook__topic--illustrated p { margin-bottom: 0; }
+.handbook__topic--illustrated > .handbook__figure { margin: 0; }
+.handbook[data-chapter="battle"]:is([data-section="dungeon"], [data-section="survival"]) .handbook__table { font-size: 15px; }
+.handbook[data-chapter="battle"][data-section="dungeon"] .handbook__table tbody th { width: 16%; }
+.handbook[data-chapter="battle"][data-section="dungeon"] .handbook__table td:nth-child(2) { width: 27%; }
+.handbook__references { display: flex; gap: 20px; margin-top: 12px; }
+.handbook__references button { padding: 3px 0; border: 0; border-bottom: 1px solid var(--abyssa-ornament); background: transparent; color: var(--abyssa-teal-soft); font-size: 13px; }
+.handbook__table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; font-size: 14px; line-height: 1.75; }
+.handbook__table th, .handbook__table td { padding: 11px 13px; border-bottom: 1px solid var(--abyssa-ornament-dark); text-align: left; vertical-align: top; overflow-wrap: anywhere; white-space: pre-line; }
+.handbook__table thead th { padding-top: 8px; padding-bottom: 8px; font-size: 11px; font-weight: 500; color: var(--abyssa-text-muted); background: rgb(119 172 177 / 5%); border-top: 1px solid var(--abyssa-ornament-dark); }
+.handbook__table tbody th { width: 22%; font-weight: 500; color: var(--abyssa-text); }
+.handbook__table td { color: var(--abyssa-text-soft); }
+.handbook__table td:nth-child(2) { min-width: 135px; }
+.handbook[data-chapter="dice"][data-section="turn"] .handbook__table { font-size: 15px; }
+.handbook[data-chapter="dice"][data-section="turn"] .handbook__table tbody th { width: 17%; }
+.handbook[data-chapter="dice"][data-section="turn"] .handbook__table td:nth-child(2),
+.handbook[data-chapter="dice"][data-section="turn"] .handbook__table td:nth-child(3) { width: 19%; }
+.handbook[data-chapter="rewards"][data-section="patterns"] .handbook__table { font-size: 15px; }
+.handbook[data-chapter="rewards"][data-section="patterns"] .handbook__table tbody th { width: 18%; }
+.handbook[data-chapter="rewards"][data-section="patterns"] .handbook__table tr > :last-child { width: 16%; text-align: right; }
+.handbook[data-chapter="rewards"][data-section="patterns"] .handbook__table td:last-child { color: var(--abyssa-teal-soft); font-variant-numeric: tabular-nums; }
+.handbook__explanation { margin-bottom: 24px; }
+.handbook__explanation h3, .handbook__table-title { margin: 0 0 12px; color: var(--abyssa-text); font-size: 19px; font-weight: 500; }
+.handbook__explanation-layout { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 28px; align-items: center; }
+.handbook[data-chapter="other"][data-section="event"] .handbook__explanation-layout { grid-template-columns: minmax(0, 1fr) 220px; align-items: start; }
+.handbook__explanation p, .handbook__explanation li { font-size: 16px; line-height: 1.8; color: var(--abyssa-text-soft); }
+.handbook__explanation p { margin: 0 0 8px; }
+.handbook__explanation ul { margin: 8px 0 12px; padding-left: 22px; }
+.handbook__explanation-layout .handbook__figure { margin: 0; }
+.handbook__power-marks { display: flex; justify-content: space-between; gap: 10px; }
+.handbook__power-marks > div { display: grid; justify-items: center; gap: 9px; font-size: 14px; }
+.handbook__power-crop { position: relative; display: block; width: 64px; height: 64px; overflow: hidden; }
+.handbook__power-crop > .expedition-flat-die-frame { position: absolute; width: 280px; height: 280px; top: -218px; left: -218px; }
+.handbook__table--actions { font-size: 15px; }
+.handbook__table--actions th:nth-child(1), .handbook__table--actions td:nth-child(1) { width: 86px; }
+.handbook__table--actions tbody th { width: 75px; }
+.handbook__table--actions td:nth-child(3) { width: 205px; }
+.handbook__table--items { table-layout: fixed; font-size: 15px; }
+.handbook__table--items tr > :nth-child(1) { width: 16%; }
+.handbook__table--items tr > :nth-child(2) { width: 42%; }
+.handbook__table--items tr > :nth-child(3) { width: 42%; }
+.handbook__action-icon { display: flex; align-items: center; gap: 9px; white-space: nowrap; }
+.handbook__action-icon i { display: inline-block; width: 26px; height: 26px; flex-shrink: 0; background: var(--abyssa-teal-soft); mask-size: contain; mask-position: center; mask-repeat: no-repeat; }
+.handbook__note { margin-top: 16px; padding: 12px 16px; border-left: 2px solid var(--abyssa-teal); background: rgb(119 172 177 / 6%); font-size: 14px; line-height: 1.85; color: var(--abyssa-text); }
+.handbook__article .handbook__formula { margin: 8px 0 22px; padding: 17px 20px; border-block: 1px solid var(--abyssa-ornament); background: rgb(119 172 177 / 4%); color: var(--abyssa-teal-soft); font-size: 21px; text-align: center; letter-spacing: .035em; }
+.handbook__steps { margin: 4px 0 20px; padding: 0; list-style: none; }
+.handbook__steps li { display: grid; grid-template-columns: 32px 1fr; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--abyssa-ornament-dark); }
+.handbook__steps li > span { font-size: 12px; padding-top: 3px; color: var(--abyssa-teal-soft); }
+.handbook__steps h3 { margin: 0 0 4px; font-size: 16px; font-weight: 500; }
+.handbook__steps p { margin: 0; font-size: 14px; color: var(--abyssa-text-soft); }
+.handbook[data-chapter="dice"][data-section="turn"] .handbook__steps li { grid-template-columns: 30px 1fr; }
+.handbook[data-chapter="dice"][data-section="turn"] .handbook__steps li > div { display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 14px; }
+.handbook[data-chapter="dice"][data-section="turn"] .handbook__steps h3 { margin-bottom: 0; }
+.handbook[data-chapter="dice"][data-section="turn"] .handbook__steps p { font-size: 15px; }
+.handbook__page-footer { flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; gap: 24px; min-height: 67px; padding: 10px 0; border-top: 1px solid var(--abyssa-ornament-dark); }
+.handbook__scroll-hint { height: 24px; flex-shrink: 0; text-align: right; padding-right: 24px; }
+.handbook__scroll-hint button { font-size: 11px; color: var(--abyssa-teal-soft); background: transparent; border: 0; }
+.handbook__page-footer > div:first-child > span { font-size: 10px; letter-spacing: .1em; color: var(--abyssa-teal-soft); }
+.handbook__page-footer p { margin: 0; font-size: 12px; line-height: 1.6; color: var(--abyssa-text-soft); }
+.handbook__pagination { display: flex; align-items: center; gap: 14px; flex-shrink: 0; padding-right: 14px; font-size: 12px; color: var(--abyssa-text-muted); }
+.handbook__pagination button { width: 32px; height: 32px; border: 1px solid var(--abyssa-ornament-dark); background: transparent; color: var(--abyssa-teal-soft); font-size: 18px; }
+.handbook__pagination button:not(:disabled):hover { background: rgb(119 172 177 / 10%); }
+.handbook__figure { margin: 12px 0 18px; }
+.handbook__figure img { display: block; max-width: 100%; height: auto; }
+.handbook__figure figcaption { margin: 10px 0 0; color: var(--abyssa-text-muted); font-size: 11px; line-height: 1.65; }
+.handbook__anatomy-layout { display: grid; grid-template-columns: 260px minmax(0, 1fr); gap: 36px; align-items: start; }
+.handbook__anatomy-layout > .handbook__figure { margin-top: 34px; }
+.handbook__anatomy-copy { min-width: 0; }
+.handbook__reading-group + .handbook__reading-group { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--abyssa-ornament-dark); }
+.handbook__reading-group h3 { display: flex; align-items: baseline; gap: 16px; margin: 0 0 9px; color: var(--abyssa-text); font-size: 19px; font-weight: 500; }
+.handbook__reading-group h3 span { font-size: 14px; font-weight: 400; color: var(--abyssa-text-soft); }
+.handbook__reading-group ul { list-style: none; padding: 0; margin: 0; }
+.handbook__reading-group li { display: flex; align-items: flex-start; gap: 12px; margin-top: 7px; }
+.handbook__reading-group p { margin: 0; font-size: 16px; line-height: 1.8; color: var(--abyssa-text-soft); }
+.handbook__reading-group strong { margin-right: .65em; color: var(--abyssa-text); font-weight: 500; }
+.handbook__reading-mark { flex-shrink: 0; display: grid; place-items: center; width: 22px; height: 22px; margin-top: 4px; border: 1px solid var(--abyssa-teal-soft); border-radius: 50%; color: var(--abyssa-teal-soft); font-size: 12px; line-height: 1; }
+.handbook__anatomy-copy .handbook__note { margin-top: 18px; padding: 10px 14px; font-size: 15px; line-height: 1.8; white-space: pre-line; }
+.handbook__anatomy-copy .handbook__references { margin-top: 10px; }
+.handbook__die-diagram { position: relative; width: 214px; height: 214px; margin: 16px 22px; }
+.handbook__die-diagram > .expedition-flat-die-frame { width: 100%; height: 100%; }
+.handbook__die-leaders { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; fill: none; stroke: #aed1cb; stroke-width: .5; }
+.handbook__mark { position: absolute; display: grid; place-items: center; width: 24px; height: 24px; transform: translate(-50%, -50%); color: #081719; background: #aed1cb; border: 1px solid #d8ece4; box-shadow: 0 0 0 3px rgb(8 16 18 / 80%); border-radius: 50%; font: 600 12px/1 var(--abyssa-font-body); }
+.handbook__marks-row { display: flex; gap: 32px; justify-content: center; }
+.handbook__marks-row > div { width: 116px; display: grid; gap: 10px; justify-items: center; font-size: 13px; }
+.handbook__marks-row .expedition-flat-die-frame { width: 108px; height: 108px; }
+.handbook__marks-row--actions { gap: 22px; }
+.handbook__corner-examples { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.handbook__corner-examples--fates { grid-template-columns: repeat(2, 112px); }
+.handbook__corner-examples--seals { grid-template-columns: repeat(3, 112px); }
+.handbook__corner-examples > div { display: grid; justify-items: center; align-content: start; gap: 9px; font-size: 14px; line-height: 20px; }
+.handbook__corner-label { display: flex; align-items: baseline; gap: 7px; }
+.handbook__corner-examples strong { color: var(--abyssa-teal-soft); font-weight: 500; font-size: 16px; }
+.handbook__fate-crop { position: relative; display: block; width: 96px; height: 96px; overflow: hidden; }
+.handbook__fate-crop > .expedition-flat-die-frame { position: absolute; width: 448px; height: 448px; top: 0; left: 0; --suit-plate: var(--abyssa-ornament-dark); --suit-plate-edge: var(--abyssa-frame-dark); }
+.handbook__seal-crop { position: relative; display: block; width: 76px; height: 76px; overflow: hidden; }
+.handbook__seal-crop > .expedition-flat-die-frame { position: absolute; width: 448px; height: 448px; top: -14px; left: -359px; }
+.handbook__crop { position: relative; flex-shrink: 0; width: 360px; border: 1px solid var(--abyssa-ornament); }
+.handbook__figure--event-detail { text-align: center; }
+.handbook__figure--event-detail .handbook__crop { width: 174px; height: 148px; margin-inline: auto; overflow: hidden; }
+.handbook__figure--event-detail img { width: 100%; }
+.handbook__legend { list-style: none; margin: 0; padding: 0; }
+.handbook__legend li { display: flex; align-items: center; gap: 12px; margin: 14px 0; font-size: 14px; }
+.handbook__legend b { flex-shrink: 0; display: grid; place-items: center; border: 1px solid var(--abyssa-teal-soft); color: var(--abyssa-teal-soft); font: 12px var(--abyssa-font-body); width: 24px; height: 24px; border-radius: 50%; }
+.handbook__hand-strip { position: relative; width: 710px; max-width: 100%; }
+.handbook__hand-readouts { display: flex; align-items: center; gap: 24px; padding-top: 12px; }
+.handbook__legend--inline { display: flex; flex-wrap: wrap; gap: 24px; }
+.handbook__legend--inline li { font-size: 12px; margin: 9px 0; }
+.handbook-scrim.abyssa-modal { z-index: 750; background: rgb(4 8 10 / 88%); }
+.handbook-modal.abyssa-modal__panel { width: 1456px; max-width: none; }
+.handbook-modal > .abyssa-frame > .abyssa-frame__content { padding: 20px 30px; }
+.handbook-modal .abyssa-modal__body { max-height: none; overflow: visible; }
+.handbook-modal .abyssa-modal__head { padding: 0 0 16px; margin: 0; border: 0; }
+.handbook-modal__heading h2 { margin: 0; font-size: 25px; font-weight: 500; }
+.handbook-modal .abyssa-modal__foot { margin: 0; border: 0; padding: 15px 0 0; }
