@@ -1,0 +1,20 @@
+[
+  {
+    "id": "eustice",
+    "path": "st/setting/char/2-eustice.txt",
+    "sha256": "f3564aba7db802c8bd55dc82cab25028f4ea557112f6287cddb2476935d827d1",
+    "text": "name：Eustice Griffin (尤斯缇丝·格里芬)\nidentity：【红莲剑姬】盛气凌人的优等生大小姐\ncore_color：出身顶级纹章贵族的学院派优等生。她对自身的才智与教养有着绝对的骄傲，习惯以教科书般的高标准要求一切。但在盛气凌人的大小姐外表下，藏着极度护短的责任心——她将自己视为同伴的保护者，绝不容许自己退缩或抛弃他人。"
+  },
+  {
+    "id": "norma",
+    "path": "st/setting/char/2-norma.txt",
+    "sha256": "34eb1e267d8f7e5585b3dd301f12fabadcc0a74a532a882245dc86bfa010c677",
+    "text": "name：Norma Locke (诺玛·洛克)\nidentity：【黑街潜行者】玩世不恭的亚人斥候\ncore_color：在黑街长大的亚人少女，带着一身精明与散漫的不良痞气。把钱和命看得很重，对大道理嗤之以鼻。她不讲什么高尚的忠诚，只是对混熟了的人与地盘，有着如同野猫般的霸道与占有欲。"
+  },
+  {
+    "id": "kororo",
+    "path": "st/setting/char/2-kororo.txt",
+    "sha256": "8a377bb2fec1ff5b3978ed57fc35015d61bc3e4298886e07a65cc06cacb85f06",
+    "text": "name：Kororo Laplace (柯萝萝·拉普拉斯)\nidentity：【星盘魔法使】娇慵怠惰的天才魔法使\ncore_color：早慧且拥有极高魔法直觉的天才，将聪明才智全点在了“如何活得更轻松”上。习惯用最省力的方式解决问题，这份娇懒既是她的天性，也是她离开家族后最真实的处世态度。"
+  }
+]

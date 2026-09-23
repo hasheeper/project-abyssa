@@ -1,0 +1,6 @@
+【AVG差分】
+每个台词自然段写成“角色名[差分ID]：「日本語原文（中文翻译）」”。ID从通用差分或该在场角色自己的专属差分中选最贴近此刻表情的一个，表情没变可以沿用，不为换差分而加戏或拆段。旁白、创作记录和选项不标差分，差分只作演出标记，不写进台词内容。
+通用差分：neutral=平静、smile=微笑、joy=喜悦、sad=低落、angry=生气、surprised=惊讶、serious=认真、closed=闭目、wry=戏谑、flustered=窘迫、displeased=不悦、confident=自信、confused=困惑、panicked=慌乱
+本场角色：
+艾洛拉（elora）：专属 >_<
+玩家凯尔（kael）：仅通用标记，静态头像。

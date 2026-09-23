@@ -1,0 +1,194 @@
+{
+  "strictBilingualPass": false,
+  "diagnosticOnly": true,
+  "rawSha256": "cfb0dcf7305ee29902bedbbe6499b9a1de88aaaa11bba86e339d7f757338b1b9",
+  "metrics": {
+    "hanCharacters": 491,
+    "nonWhitespaceCharacters": 565,
+    "paragraphs": 23,
+    "dialogueParagraphs": 8,
+    "narrationParagraphs": 15,
+    "dialogueChars": 185,
+    "narrationChars": 380,
+    "dialogueRatioPercent": 32.7,
+    "maxNarrationChars": 42,
+    "commonEmotions": [
+      "smile",
+      "confused",
+      "neutral",
+      "serious"
+    ],
+    "specialCount": 0
+  },
+  "errors": [
+    {
+      "original": "「是看不太清么。」",
+      "diagnosticChinese": "「是看不太清么。」",
+      "error": "台词须包含日文和同一引号内的中文译文。"
+    },
+    {
+      "original": "「嗯……字迹被压到了。要是艾洛拉猜着重抄，万一弄错了，整张羊皮纸就全浪费掉了。（う、うん……インクが擦れちゃってて。当てずっぽうで清書して間違えたら、羊皮紙が丸ごと無駄になっちゃうから。）」",
+      "diagnosticChinese": "「嗯……字迹被压到了。要是艾洛拉猜着重抄，万一弄错了，整张羊皮纸就全浪费掉了。」",
+      "error": "中文译文仍含日文假名，请在编辑阶段完成中文稿。"
+    }
+  ],
+  "lines": [
+    {
+      "paragraph": 1,
+      "kind": "narration",
+      "text": "午后的洋馆广场颇为安静，海风吹过石柱，带来些许咸味。"
+    },
+    {
+      "paragraph": 2,
+      "kind": "narration",
+      "text": "艾洛拉坐在长椅边，怀里抱着沉甸甸的木质写字板，裙摆整齐地搭在小腿旁。"
+    },
+    {
+      "paragraph": 3,
+      "kind": "narration",
+      "text": "她正拿着两张写满字迹的纸页，来回对照着上面的记录。"
+    },
+    {
+      "paragraph": 4,
+      "kind": "narration",
+      "text": "凯尔走上前，在她身旁停下脚步，目光落在那些墨迹上。"
+    },
+    {
+      "paragraph": 5,
+      "kind": "dialogue",
+      "speaker": "elora",
+      "name": "艾洛拉",
+      "emotion": "smile",
+      "scope": "common",
+      "bilingual": "「あ、カエル。お疲れさまです。（啊，凯尔。辛苦啦。）」",
+      "text": "「啊，凯尔。辛苦啦。」"
+    },
+    {
+      "paragraph": 6,
+      "kind": "narration",
+      "text": "少女抬起头，琥珀色的眼眸微微弯起，随后将写字板稍微朝他那边倾斜。"
+    },
+    {
+      "paragraph": 7,
+      "kind": "dialogue",
+      "speaker": "elora",
+      "name": "艾洛拉",
+      "emotion": "confused",
+      "scope": "common",
+      "bilingual": "「あのね、これ……午前の買い出しリストなんだけど、ちょっとだけ困っていて。（那个呢……这是早上的采购清单，艾洛拉稍微有点犯愁。）」",
+      "text": "「那个呢……这是早上的采购清单，艾洛拉稍微有点犯愁。」"
+    },
+    {
+      "paragraph": 8,
+      "kind": "narration",
+      "text": "她伸出指尖，轻轻落在左侧那张纸的边缘。"
+    },
+    {
+      "paragraph": 9,
+      "kind": "narration",
+      "text": "那是尤斯缇丝随手记下的草签，上面的字迹虽然规整漂亮，但在中间几处有些匆忙勾画的痕迹。"
+    },
+    {
+      "paragraph": 10,
+      "kind": "dialogue",
+      "speaker": "elora",
+      "name": "艾洛拉",
+      "emotion": "neutral",
+      "scope": "common",
+      "bilingual": "「こっちのメモだと、傷薬の包み布が……少し多めに書かれているように見えるの。（按这边的便签看，伤药的包布……好像写得多了一点点。）」",
+      "text": "「按这边的便签看，伤药的包布……好像写得多了一点点。」"
+    },
+    {
+      "paragraph": 11,
+      "kind": "narration",
+      "text": "右侧则是艾洛拉自己誊抄的入库单，字迹工整小巧。"
+    },
+    {
+      "paragraph": 12,
+      "kind": "narration",
+      "text": "凯尔看了一眼，两边在耗材数量上的确差了几个记号。"
+    },
+    {
+      "paragraph": 13,
+      "kind": "dialogue",
+      "speaker": "kael",
+      "name": "凯尔",
+      "emotion": "neutral",
+      "scope": "common",
+      "bilingual": "「是看不太清么。」",
+      "text": "「是看不太清么。」"
+    },
+    {
+      "paragraph": 14,
+      "kind": "dialogue",
+      "speaker": "elora",
+      "name": "艾洛拉",
+      "emotion": "confused",
+      "scope": "common",
+      "bilingual": "「嗯……字迹被压到了。要是艾洛拉猜着重抄，万一弄错了，整张羊皮纸就全浪费掉了。（う、うん……インクが擦れちゃってて。当てずっぽうで清書して間違えたら、羊皮紙が丸ごと無駄になっちゃうから。）」",
+      "text": "「嗯……字迹被压到了。要是艾洛拉猜着重抄，万一弄错了，整张羊皮纸就全浪费掉了。」"
+    },
+    {
+      "paragraph": 15,
+      "kind": "narration",
+      "text": "少女轻轻叹了口气，脸颊微微鼓起少许。"
+    },
+    {
+      "paragraph": 16,
+      "kind": "dialogue",
+      "speaker": "elora",
+      "name": "艾洛拉",
+      "emotion": "serious",
+      "scope": "common",
+      "bilingual": "「羊皮紙、結構高いんだよ？（羊皮纸，其实很贵的哦？）」",
+      "text": "「羊皮纸，其实很贵的哦？」"
+    },
+    {
+      "paragraph": 17,
+      "kind": "narration",
+      "text": "艾洛拉把羽毛笔小心地插回墨水瓶旁的插孔里。"
+    },
+    {
+      "paragraph": 18,
+      "kind": "narration",
+      "text": "她合了合手里的木板，仰起脸看着身旁的凯尔。"
+    },
+    {
+      "paragraph": 19,
+      "kind": "dialogue",
+      "speaker": "elora",
+      "name": "艾洛拉",
+      "emotion": "neutral",
+      "scope": "common",
+      "bilingual": "「だからね、直接ユースティスさんに元の紙を見てもらおうと思うんです。（所以呢，我想直接拿原本去给尤斯缇丝小姐看一下。）」",
+      "text": "「所以呢，我想直接拿原本去给尤斯缇丝小姐看一下。」"
+    },
+    {
+      "paragraph": 20,
+      "kind": "dialogue",
+      "speaker": "elora",
+      "name": "艾洛拉",
+      "emotion": "smile",
+      "scope": "common",
+      "bilingual": "「ユースティスさんなら、自分が書いた線を見ればすぐ思い出してくれるはずですし。（要是尤斯缇丝小姐的话，看一眼自己画的笔锋应该马上就能想起来的。）」",
+      "text": "「要是尤斯缇丝小姐的话，看一眼自己画的笔锋应该马上就能想起来的。」"
+    },
+    {
+      "paragraph": 21,
+      "kind": "narration",
+      "text": "她眨了眨眼，等待着他的回应。"
+    },
+    {
+      "paragraph": 22,
+      "kind": "narration",
+      "text": "微风吹起她搭在肩头的铂金麻花辫，金色的小神官帽在日光下泛着柔和的光。"
+    },
+    {
+      "paragraph": 23,
+      "kind": "narration",
+      "text": "少女规规矩矩地端着木夹板，静静站在凯尔身侧。"
+    }
+  ],
+  "body": "午后的洋馆广场颇为安静，海风吹过石柱，带来些许咸味。\n\n艾洛拉坐在长椅边，怀里抱着沉甸甸的木质写字板，裙摆整齐地搭在小腿旁。\n\n她正拿着两张写满字迹的纸页，来回对照着上面的记录。\n\n凯尔走上前，在她身旁停下脚步，目光落在那些墨迹上。\n\n「啊，凯尔。辛苦啦。」\n\n少女抬起头，琥珀色的眼眸微微弯起，随后将写字板稍微朝他那边倾斜。\n\n「那个呢……这是早上的采购清单，艾洛拉稍微有点犯愁。」\n\n\n她伸出指尖，轻轻落在左侧那张纸的边缘。\n\n那是尤斯缇丝随手记下的草签，上面的字迹虽然规整漂亮，但在中间几处有些匆忙勾画的痕迹。\n\n「按这边的便签看，伤药的包布……好像写得多了一点点。」\n\n右侧则是艾洛拉自己誊抄的入库单，字迹工整小巧。\n\n凯尔看了一眼，两边在耗材数量上的确差了几个记号。\n\n「是看不太清么。」\n\n「嗯……字迹被压到了。要是艾洛拉猜着重抄，万一弄错了，整张羊皮纸就全浪费掉了。」\n\n少女轻轻叹了口气，脸颊微微鼓起少许。\n\n「羊皮纸，其实很贵的哦？」\n\n\n艾洛拉把羽毛笔小心地插回墨水瓶旁的插孔里。\n\n她合了合手里的木板，仰起脸看着身旁的凯尔。\n\n「所以呢，我想直接拿原本去给尤斯缇丝小姐看一下。」\n\n「要是尤斯缇丝小姐的话，看一眼自己画的笔锋应该马上就能想起来的。」\n\n她眨了眨眼，等待着他的回应。\n\n微风吹起她搭在肩头的铂金麻花辫，金色的小神官帽在日光下泛着柔和的光。\n\n少女规规矩矩地端着木夹板，静静站在凯尔身侧。",
+  "choices": "【可选回应】\n1. 赞同她的提议，陪她一起去房间找尤斯缇丝\n2. 拿过便签仔细端详，尝试帮她辨认模糊的字迹\n3. 提醒她尤斯缇丝可能还在休息，建议晚些再核对"
+}

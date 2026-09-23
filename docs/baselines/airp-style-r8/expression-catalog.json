@@ -1,0 +1,31 @@
+{
+  "common": {
+    "neutral": "平静",
+    "smile": "微笑",
+    "joy": "喜悦",
+    "sad": "低落",
+    "angry": "生气",
+    "surprised": "惊讶",
+    "serious": "认真",
+    "closed": "闭目",
+    "wry": "戏谑",
+    "flustered": "窘迫",
+    "displeased": "不悦",
+    "confident": "自信",
+    "confused": "困惑",
+    "panicked": "慌乱"
+  },
+  "actors": [
+    {
+      "id": "elora",
+      "name": "艾洛拉",
+      "specials": [
+        ">_<"
+      ]
+    }
+  ],
+  "player": {
+    "id": "kael",
+    "name": "凯尔"
+  }
+}

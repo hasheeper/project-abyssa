@@ -1,0 +1,169 @@
+{
+  "id": "airp-native-gemini-r8-style-only",
+  "version": 1,
+  "acceptedOn": "2026-09-23",
+  "acceptance": {
+    "proseStyle": "accepted-provisional",
+    "storyLogic": "not-accepted",
+    "characterPerformance": "not-accepted",
+    "bilingualProtocol": "failed",
+    "formalGameIntegration": "not-tested"
+  },
+  "userAcceptance": "文风其实还可以了，这部分暂时可以作为基线了；但只是单看文风，逻辑和人物演绎仍有问题。",
+  "scope": "Frozen prompt, complete context, paid request and observed sample. Not a complete game/runtime release.",
+  "source": {
+    "variant": "original-sentence-micro-edits-r8-style-expressions",
+    "originalPresetSha256": "3d394088a2b4c19a6d819a9cfba7bfacb372296a626c1192eaa6cab62c383968",
+    "requestSha256": "5fd9f062d02093a97bc59423200cabe352bcf11db5a648cad52ea32b5ae665e6",
+    "effectivePresetSha256": "4463c28021304707bd952b915498853f165d2b0039946b8c9350d021fd74b118",
+    "responseTextSha256": "cfb0dcf7305ee29902bedbbe6499b9a1de88aaaa11bba86e339d7f757338b1b9",
+    "model": "gemini-3.8-flash",
+    "httpStatus": 200,
+    "finishReason": "stop",
+    "usage": {
+      "prompt_tokens": 22084,
+      "completion_tokens": 2293,
+      "total_tokens": 24377
+    },
+    "elapsedMs": 19586,
+    "storyCall": 135,
+    "storyCallLimit": 200,
+    "paidCallsInThisBaselineFreeze": 0
+  },
+  "context": [
+    {
+      "id": "world",
+      "path": "st/setting/world_setting_bible.txt",
+      "sha256": "c21bf8f171a1b3e3d597b7779b3cf6ae183295998b4d5368c000f1d4c15f4ce9",
+      "characters": 5311,
+      "snapshot": "context/world.txt",
+      "originalBytes": 10949
+    },
+    {
+      "id": "current",
+      "path": "st/setting/current_situation.txt",
+      "sha256": "fb560c9cc190a8ff0ca3d72c204326cd86a398c79b451ed37f0c0c2478c5efef",
+      "characters": 3366,
+      "snapshot": "context/current.txt",
+      "originalBytes": 7970
+    },
+    {
+      "id": "elora",
+      "path": "st/setting/char/2-elora.txt",
+      "sha256": "adaa9dc0b49b9011ff2b433a60f4e5596efe0240e139ef3dad764c6b8ab8ed50",
+      "characters": 4947,
+      "snapshot": "context/elora.txt",
+      "originalBytes": 11416
+    },
+    {
+      "id": "player",
+      "path": "st/setting/user/0-kael.txt",
+      "sha256": "9e5d1a613c5e8900c6392ec3c4d9b46c59fad53df4d94b3349b8325d601f76cd",
+      "characters": 771,
+      "snapshot": "context/player.txt",
+      "originalBytes": 1651
+    }
+  ],
+  "files": [
+    {
+      "path": "choice-output.txt",
+      "bytes": 377,
+      "sha256": "006fa435fae4449f4f242f775997134a505ce02a22041e3a121c9b7fea571589"
+    },
+    {
+      "path": "consultation.md",
+      "bytes": 8125,
+      "sha256": "0150945a6709919d3ba508ed47b2869bd763245c15525ec54e403dc6cfbeec59"
+    },
+    {
+      "path": "context/absent-briefs.json",
+      "bytes": 1663,
+      "sha256": "3c5bbf572240eedb339a0e588a0641d494b2a2a317788f4ec1cc612602f8ccf6"
+    },
+    {
+      "path": "context/current.txt",
+      "bytes": 7971,
+      "sha256": "b4b379b6d1d847e66ba26475082102650db268cb48f30694adfd8a258b49874d"
+    },
+    {
+      "path": "context/elora.txt",
+      "bytes": 11417,
+      "sha256": "97441dbc5f13691d85d8485894dc97c71ae7786d9aaafd0206fe46bcbe8ac438"
+    },
+    {
+      "path": "context/player.txt",
+      "bytes": 1652,
+      "sha256": "109324a7730679e32e83503496adfb96f224654173aa9b69146cbef9fbe69832"
+    },
+    {
+      "path": "context/world.txt",
+      "bytes": 10950,
+      "sha256": "0e533f28223a50ef6fddcb902c8cf1ac27cbec2bd7c857753c6546b76cbb003e"
+    },
+    {
+      "path": "diagnostic-review.json",
+      "bytes": 9172,
+      "sha256": "4ada8e6a9705e6088ebc37117a96d4d932ea9eaf0980402bda9a398d8065db89"
+    },
+    {
+      "path": "expression-catalog.json",
+      "bytes": 544,
+      "sha256": "b83d2f87c0409628f8a7ab4ccea35f463bb2a375fde894d2a7e9c52857983e2b"
+    },
+    {
+      "path": "expression-output.txt",
+      "bytes": 722,
+      "sha256": "54716590c20c7f668751609d424c3b202fb83f39faa52cb7d6f063093cc5f5ca"
+    },
+    {
+      "path": "performance-plan.txt",
+      "bytes": 2297,
+      "sha256": "918f9d52c977204c7feda8446c7c239f1b25337bdf7dfb3f760d3b62bd7ecddf"
+    },
+    {
+      "path": "player-boundary.txt",
+      "bytes": 200,
+      "sha256": "fff6a1c184a10dc8e02543484ba89e9f3077efe1eeddf0693e2d206c7366a799"
+    },
+    {
+      "path": "preset.json",
+      "bytes": 100252,
+      "sha256": "a5d5acc63b5893d9bc3a7a50958e6b7e535c73a3d14f1bed5e87e9bc48aa5f59"
+    },
+    {
+      "path": "prompt-edits.json",
+      "bytes": 3206,
+      "sha256": "e08f855eacac4f54e4bed3bdb453fb20a6768c00037cb93ff29f12131b697bf3"
+    },
+    {
+      "path": "README.md",
+      "bytes": 3527,
+      "sha256": "c8313e0f26ee9cf5bcdd328bc7f23970e55c0fb7fa269a6a7bb16739e2f66f2e"
+    },
+    {
+      "path": "request.json",
+      "bytes": 88004,
+      "sha256": "463209b1d9d5a64184b04bfde1f5dc67ed2d5cf1c49c55d4d3c0c282387ef67e"
+    },
+    {
+      "path": "response.json",
+      "bytes": 8964,
+      "sha256": "73c1ae559906b6f62d9499035840f4f2e6783a72a337feb6fb42b78e9f098e47"
+    },
+    {
+      "path": "sample-cn.md",
+      "bytes": 2549,
+      "sha256": "85ba9cf7ffcf8baac9388a1bd6a95fc3a27a5b06b20721c95c3e8faced998f49"
+    },
+    {
+      "path": "sample-expressions.md",
+      "bytes": 2787,
+      "sha256": "bf41a6956d162c6fe18bc5b7a2363d27184a8affed6b69431fd0ade8bc069837"
+    },
+    {
+      "path": "scene.json",
+      "bytes": 371,
+      "sha256": "afabe5982068439f56d706d2c4c634caf87fa3f878ee16a9b06ff4322bed5d27"
+    }
+  ]
+}
