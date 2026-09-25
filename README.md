@@ -2,9 +2,9 @@
 
 幻想 JRPG 的前端与规则仓库：洋馆生活、角色 AVG、骰子远征、商店与补给生产共用一个本地存档；同时提供 `@abyssa/ui` 组件库、独立演出预览和制作工具。
 
-当前普通新档为 **内容27／规则4**，正式 AIRP 新档为 **内容28／规则4**。普通路线可离线游玩；AIRP 使用玩家在设置中保存的连接，由浏览器直连模型 API。工程闭环已接入，内容质量、平衡与公网发布仍有待办。
+当前普通新档为 **内容27／规则4**，正式 AIRP 新档为 **内容28／规则4**。普通路线可离线游玩；AIRP 使用玩家在设置中保存的连接，由浏览器直连模型 API。工程闭环已接入，内容质量、平衡与完整玩家体验仍需验收。
 
-当前发布阶段为 **Alpha**。源码基线维护在 [GitHub](https://github.com/hasheeper/project-abyssa)，游戏 ABOUT 提供同一链接。Cloudflare 新站点目标为 `abyssa-airp-alpha`；站点地址和实际上线结果以[发布记录](docs/deployment/AIRP_STATIC_HTTPS.md)为准。
+当前发布阶段为 **Alpha**，试玩地址为 **[abyssa-airp-alpha.pages.dev](https://abyssa-airp-alpha.pages.dev/)**。源码基线 `14bf250` 已推送 [GitHub](https://github.com/hasheeper/project-abyssa)，游戏 ABOUT 提供同一仓库链接。Cloudflare 采用独立 Direct Upload，Git 推送不会自动更新站点；部署版本、检查结果与限制见[发布记录](docs/deployment/AIRP_STATIC_HTTPS.md)。
 
 ## 从这里开始
 

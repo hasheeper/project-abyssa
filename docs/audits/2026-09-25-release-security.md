@@ -4,7 +4,7 @@
 
 ## 1. 结论
 
-**本轮扫描没有发现当前真实API Key进入正式game产物、受检报告或Git可达历史。S1～S5已修并通过本地定向复验；源码来源尚未冻结，公网与完整玩家流程尚未验收。**
+**本轮扫描没有发现当前真实 API Key 进入正式 game 产物、受检报告或 Git 可达历史。S1～S5 已修并通过复验；随后以 `14bf250` 冻结来源，通过 S6 严格检查并发布到新建 Alpha 站。完整玩家流程、实际模型生成和更新回退仍待验收。** 初轮阻断与最终发布结果分别见第 6、7 节。
 
 初次审计发现失败重连误填Key、开发服务私档读取、发布隐私门禁、CI报告上传和UI包检查五项问题。已逐项修复；下文保留当时的复现证据及本轮整改结果。
 
@@ -98,8 +98,8 @@
 | 优先级 | 项目 | 当前判断／下一步 |
 | --- | --- | --- |
 | P1 | 正式新档完整试玩与恢复 | 普通27／AIRP28需各走完整起点，核对教程／快捷奖励、首访、途中掉落、三类终局、委托取得／遗失／交付、刷新继续；专项测试通过不能替代整条玩家路径 |
-| P1 | 公网与更新 | 最终HTTPS Origin、API CORS、旧书签、离线缓存更新、存档兼容及更新／回退未完成验收；本地服务成功不足以代表发布成功 |
-| 已修 | 设置旧文案 | [AboutSection.tsx](../../src/game-client/settings/sections/AboutSection.tsx)已改为ABYSSA DEMO、本地存档和Model页连接说明；保留“其他演出设置仅预览”的真实限制，不虚构发行版本 |
+| P1 | 发布后验收 | HTTPS、最终 Origin 的 OPTIONS 预检、旧书签和私档 404 已通过；实际模型调用、完整存档流程、离线缓存更新及回退尚未验收，详见第 7 节 |
+| 已修 | 设置旧文案 | [AboutSection.tsx](../../src/game-client/settings/sections/AboutSection.tsx)已改为 ABYSSA · ALPHA、本地存档和 Model 页连接说明，并增加 GitHub 链接；保留“其他演出设置仅预览”的真实限制 |
 | P2 | 依赖公告 | `npm audit`为0高危／0严重、2中危，均对应Vitest与其mocker的同一公告[GHSA-82fw-gwwq-j7x9](https://github.com/advisories/GHSA-82fw-gwwq-j7x9)。当前Vitest3.2.7，工具建议跨大版本升级；应单独验证，不运行强制修复。`--omit=dev`为0项，但部分devDependencies会被前端打包，不能仅凭该数字宣称运行包完全安全 |
 | P2 | 性能与包体 | game159.71 MiB，仍有大chunk提示、重复／参考洋馆图和整备首次开窗长帧待定位；先检查使用关系，再裁剪，不能直接删除manifest依赖 |
 | P2 | 文本与平衡 | context21人物表现、正式卡池、真人试教、补给压力、日期装备、公款施工产能仍需实际体验；保留r8文风边界 |
@@ -137,7 +137,7 @@
 - 已实际执行`check:pages -- --release`，退出码1，原因为`Release source is not a clean Git revision; publication stopped.`。这是S6尚未冻结的明确阻断；未绕过检查、自动提交既有改动或进行部署。
 - 文档检查148份Markdown、784个本地链接、0错误；`git diff --check`通过。没有运行完整浏览器试玩或新在线生成，未将历史截图当作此次验收。
 
-S1～S5已完成本地整改，S6防误发闸门已接入。下一步审阅并冻结S6来源基线，再按冻结版本重建、严格复核与发布；普通27／AIRP28完整玩家流程、公网HTTPS／CORS及更新回退仍需验收。完成后更新本页与[统一状态](../DESIGN_DECISIONS_AND_CURRENT_STATUS.md)，不再增加重复流水报告。
+本节记录提交前的最终本地复验：当时 S1～S5 已完成，S6 闸门已接入但来源尚未冻结。随后完成的冻结、严格复核与公开发布见第 7 节；普通27／AIRP28完整玩家流程及更新回退仍需验收。
 
 ## 7. Alpha 基线与发布执行
 
@@ -147,3 +147,10 @@ S1～S5已完成本地整改，S6防误发闸门已接入。下一步审阅并�
 - 远端main与本地原HEAD一致，推送空跑通过；本次完整基线涵盖代码、正式素材、作者资料、文档归并及已退役工具删除，不上传`dist`、配置或私有报告。
 - 暂存区扫描3,111文件、226.09 MiB：已知Key／私有端点0命中，无私档或超限大文件。通用形态的两处候选为已有反馈预览／脱敏测试假Key，已人工核实。补清8处末尾空行或行尾空白。
 - ABOUT变更的app类型和4项设置回归通过；本轮不做录屏、截图或视觉验收。Git提交、CI和Cloudflare远端结果分别记录，不将推送成功当作站点上线。
+- 完整源码基线 `14bf2504f18052840971d81f0915958080d8e458` 已推送到公开仓库 main。从干净提交重新准备发布目录，严格 `check:pages -- --release` 与 game 产物检查通过，解决第 6 节的来源阻断。
+- 最终目录仍为 881 文件、159.71 MiB，最大 7.81 MiB；清单 SHA-256 为 `ad83a798e571bef394bcc65ee5c0be663cf1d191a94356fbc81ec0a05a66dba1`。已知 Key／私有端点及通用凭据扫描通过，未上传私有报告。原 `d00df…` 摘要仅对应提交前的候选包。
+- Cloudflare 通过浏览器 OAuth 登录，凭据保存到系统钥匙串；使用 Wrangler 4.140.0 新建 `abyssa-airp-alpha`，仅上传 `dist/game`。Production 部署 `9f866128-a59c-4c1f-a844-aecd56df7a63` 已成功，source 为 `14bf250`。既有站点保持不变。
+- [Alpha 稳定地址](https://abyssa-airp-alpha.pages.dev/)已返回 HTTPS 200；首页与 10 个入口／清单／缓存／ABOUT 相关文件在线字节与本地产物一致。CSP、缓存、防嵌入、nosniff、referrer 与 robots 响应头均与发布配置一致。SHOP／洋馆旧 `.html` 书签正确规范化，跳转目标仍为根入口 hash 路由。
+- 配置、报告、`.env`、`.git/config`、源码、缺失资源和缺失页面共 7 条路径均为真实 404，没有回落到主应用。以最终 Alpha Origin 对规划／写作／更新三阶段共用的模型端点发送 OPTIONS：POST、Authorization 和 Content-Type 均允许；未发送 Key、未执行模型 POST，不代表实际生成通过，也不覆盖所有其他服务商。
+- 全量 880 个可请求静态文件通过 HEAD 可达性与可用长度比对，10 个关键文件 GET 字节比对全部一致。报告保留在本机 `dist/reports/airp-p3/alpha-online.local.json`、`alpha-cors.local.json`，不进 Git 或发布目录。
+- 截至 2026-09-25 23:47（Asia/Shanghai），基线 [GitHub Actions](https://github.com/hasheeper/project-abyssa/actions/runs/36155097102) 的 `compatibility` 已成功；`baseline` 尚在 `npm run check:baseline`，没有最终通过结论。发布后的文档提交仅记录结果，线上运行包仍对应 `14bf250`。完整玩家流程、实际生成、离线更新与回退演练继续保留为待验收项。

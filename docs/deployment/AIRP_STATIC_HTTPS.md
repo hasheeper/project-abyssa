@@ -1,12 +1,34 @@
 # AIRP：Cloudflare Pages 静态发布
 
-当前发布阶段：**Alpha**。用户已确认新建 `abyssa-airp-alpha`，源码仓库为[hasheeper/project-abyssa](https://github.com/hasheeper/project-abyssa)。ABOUT 已增加同一仓库链接，并标识 `ABYSSA · ALPHA`。这次授权包含源码基线推送与新站部署；不再以旧建议名 `abyssa-airp-demo` 创建项目。
+当前发布阶段：**Alpha**。新站为[abyssa-airp-alpha.pages.dev](https://abyssa-airp-alpha.pages.dev/)，源码仓库为[hasheeper/project-abyssa](https://github.com/hasheeper/project-abyssa)。ABOUT 已增加同一仓库链接，并标识 `ABYSSA · ALPHA`。本次新建 Pages 项目，未修改已有站点。
 
-更新：2026-09-25。两人调度、公款和实例奇物对齐后，使用Node 22.23.2／npm 10.9.8重新构建并准备了881文件、159.71 MiB的本地候选包；普通`check:pages`已通过。严格发布检查要求干净的Git来源，当前工作树尚未冻结，会被按预期拒绝。已有历史CSP浏览器预检，本轮未做浏览器／视觉验收，**没有创建Pages项目或上传文件**。用户已选择新建Pages，不修改已有站点；项目名和作者资料公开范围仍需上传前确认。
+更新：2026-09-25。源码基线 `14bf2504f18052840971d81f0915958080d8e458` 已推送到 GitHub main；从该干净提交使用 Node 22.23.2／npm 10.9.8 重建，普通与严格 `check:pages -- --release` 均通过。随后仅上传 `dist/game`，Cloudflare 已确认 production 部署成功。文档后续提交用于记录发布结果，线上运行包仍对应此基线。
 
-最新[发布与密钥审计](../audits/2026-09-25-release-security.md)记录本轮源码／产物扫描与初轮Git历史证据，均未发现已知Key进入相应受检范围；重连误填、开发服务私档、CI报告上传及发布门禁已本地修复并验证。game运行文件879个，增加404与响应头后为881个，最大文件7.81 MiB；这些统计与本地检查不代表公网发布通过。
+| 发布证据 | 本次结果 |
+| --- | --- |
+| Pages 项目／分支 | `abyssa-airp-alpha`／`main`，Direct Upload |
+| Production 部署 ID | `9f866128-a59c-4c1f-a844-aecd56df7a63` |
+| 本次部署地址 | [9f866128.abyssa-airp-alpha.pages.dev](https://9f866128.abyssa-airp-alpha.pages.dev/) |
+| 发布目录 | `dist/game`，881 文件／159.71 MiB，最大 7.81 MiB |
+| 上传结果 | 880 静态文件＋由 Pages 解析的 `_headers` |
+| 清单 SHA-256 | `ad83a798e571bef394bcc65ee5c0be663cf1d191a94356fbc81ec0a05a66dba1` |
 
-当前候选目录为`dist/game`；清单SHA-256为`d00dfdb1e8fd8c7cd2414d571a9a6e4ab24b06993cfd141cf6a2dedbd939587f`。摘要只对应这次本地准备，重建后以重新生成的报告为准，不能跳过严格来源检查。
+最新[发布与密钥审计](../audits/2026-09-25-release-security.md)记录源码／产物扫描与初轮 Git 历史证据，受检范围内没有发现已知 Key 外泄；重连误填、开发服务私档、CI 报告上传和发布门禁已修复。上传范围不含配置、源码地图、私人报告、实验页或工具页。部署成功与完整玩家流程、模型生成、更新回退验收分别记录。
+
+## 本次线上检查
+
+2026-09-25 23:47（Asia/Shanghai）完成非视觉 HTTP 检查：
+
+- 稳定域名 HTTPS 首页 200，内容与本地 `index.html` 一致。
+- 880 个可请求静态文件全部通过 HEAD 可达性与可用 Content-Length 比对；另对 10 个入口 JS／CSS、资源清单、缓存脚本与 ABOUT 所在 chunk 做 GET 字节比对，全部一致。
+- CSP、Cache-Control、nosniff、Referrer-Policy、X-Frame-Options 与 X-Robots-Tag 均与 `_headers` 一致；未注入额外分析脚本。
+- `/shop.html` 和 `/mansion.html` 正确规范化为无后缀路径，页面中的跳转仍解析到根 `index.html` 的对应 hash 路由。
+- 私有配置、私有报告、`.env`、`.git/config`、源码、缺失资源与缺失页面共 7 个探针均返回真正 404，没有返回应用首页。
+- 以最终 Alpha Origin 对本机配置中 planning／writing／updater 共用的端点做无凭据 OPTIONS 预检，允许 POST、Authorization 与 Content-Type。未发送 Key 或模型 POST；此结果不覆盖其他服务商，也不代表生成质量通过。
+
+本机证据保存在 `dist/reports/airp-p3/alpha-online.local.json` 与 `alpha-cors.local.json`，不随站点或 Git 上传。原 `pages-release.local.json` 仍是本地打包门禁报告，其 `published: false` 不作为线上部署状态。
+
+源码基线的 [GitHub Actions](https://github.com/hasheeper/project-abyssa/actions/runs/36155097102) 截至上述时间：`compatibility` 成功，`baseline` 仍运行在 `npm run check:baseline`，尚无最终结论。不能将本地定向回归或已上线写成完整远端 CI 通过；最新结果以该运行页为准。未做录屏、截图或视觉验收，普通／AIRP 完整玩家路径、实际模型生成、缓存更新与回退仍未验收。
 
 ## 为什么可以直接用
 
@@ -23,7 +45,7 @@ Cloudflare Pages可以托管本机构建好的静态文件，提供`https://<项
 
 当日包满足这些限制；当前包以新检查报告为准，可采用免费计划的静态托管能力；账号实际状态、服务条款、最终域名可用性和访问质量仍要创建时核对。模型API按玩家的服务商计费，不因Pages免费而免费。中国大陆访问体验须实测，不承诺所有网络畅通。
 
-选择Direct Upload后，同一Pages项目不能直接改成Git integration，需要另建项目；但该项目可以在网页拖拽与Wrangler上传之间切换。此Demo先不连Git，不上传整个工作区。
+选择Direct Upload后，同一Pages项目不能直接改成Git integration，需要另建项目；但该项目可以在网页拖拽与Wrangler上传之间切换。本 Alpha 的源码已推送 GitHub，Pages 使用独立的 Direct Upload；Git 推送不会自动发布站点，不上传整个工作区。
 
 ## 本地准备与检查
 
@@ -47,13 +69,24 @@ npm run check:pages:browser
 
 ## 发布行为
 
-1. 本次已确认新项目名`abyssa-airp-alpha`；登录后核对目标账号与项目名可用性。静态客户端会向访问者提供完整设定、角色卡、预设与美术；`noindex`不限制访问。
-2. 在[Cloudflare Workers & Pages控制台](https://dash.cloudflare.com/?to=/:account/workers-and-pages)登录。账号密码／Token不用发在聊天中，不写进AIRP模型配置。
-3. 选择创建Pages应用的**Direct Upload／拖拽文件**流程，不创建Workers后端、不选服务器渲染、不启用分析脚本。不购买套餐、不改已有域名DNS。
-4. 审阅并冻结源码后重新构建，在上传前运行`npm run check:pages -- --release`并保存产物摘要。**只拖入`dist/game`目录内容**，确保`index.html`位于站点根；不是项目根、整个`dist`、`dist/reports`或父目录套一层`game`。
-5. 核对平台接受的文件和错误，再发布。得到稳定`<项目名>.pages.dev`后，记录项目／部署ID与产物清单，使用最终地址继续P3-C～F验收。
+本次使用固定 Wrangler 4.140.0，浏览器 OAuth 授权后把凭据保存在系统钥匙串；未把 Token 写进仓库或 AIRP 配置。账号权限限于用户／账号读取与 Pages 写入。静态客户端会向访问者提供完整设定、角色卡、预设与美术；`noindex`不限制访问。
 
-网页拖拽当前有余量；以后超过1,000文件时改用Wrangler，不删除角色卡或资源凑数。若改用Wrangler，固定版本、显式指定已确认项目和production branch，并核查工作目录无`functions`及产物无`_worker.js`，防止工具自动附带后端。未得到项目确认和登录授权前不运行部署命令。
+首次创建时，Wrangler 在代理环境会把新 Pages 项目转交给 Workers 流程。该尝试未成功部署；核对 CLI 实现后，使用创建命令的 `--force` 退出自动转交，成功新建真正的 Pages 项目。此处 `--force` 仅作用于首次创建路径，不覆盖已有项目；后续发布不需要它。
+
+后续更新步骤：
+
+1. 审阅并冻结源码，从干净提交执行 `npm run prepare:pages`、`npm run check:pages -- --release` 和 `npm run check:output -- game`，保留清单摘要。
+2. 核查项目根没有 `functions`、产物没有 `_worker.js`；不创建 Workers 后端、不启用分析脚本、不改域名 DNS。
+3. 用 Node 22.23.2 和 Wrangler 4.140.0 上传，显式指定已有项目及 production branch：
+
+   ```sh
+   wrangler pages deploy dist/game --project-name abyssa-airp-alpha --branch main
+   ```
+
+   Wrangler 从干净工作树读取当前提交。本次首发还显式附上 `--commit-hash 14bf2504f18052840971d81f0915958080d8e458`；后续不得照抄旧提交值。
+4. 只上传 `dist/game` 内容，核对返回的部署 ID 与 source revision；记录新的产物摘要和在线检查。不得上传整个工作区、整个 `dist`、`dist/reports`，也不上传源码地图。
+
+网页拖拽可作备用方式；超过 1,000 文件时继续使用 Wrangler，不删除角色卡或资源凑数。
 
 不要上传`config/airp-test.local.json`、本机档案、测试报告、原项目或用于打包发布目录之外的压缩包。玩家在「设置 → Model」本地导入配置，点击「保存」即可下次自动恢复，无需口令；浏览器管理加密密钥，连接及密钥均不进入发布包。源配置文件仍是明文，见[存储边界](../architecture/AIRP_CONNECTION_SETTINGS.md)。
 
