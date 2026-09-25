@@ -5,7 +5,10 @@ import type { DemoJourneyView } from "../../../game-runtime/demo-journey-view";
 import { tideClientFixture, tideCommand, tideOperation } from "../../../game-client/testing/tide-cave";
 import { guidedTideModel, guidedTideObservation, tideGuideAllows } from "./guided-tide-model";
 import { tideTutorialModel } from "./tide-tutorial-model";
-import { tideEventCopy, tideEventVisible, TideJourneyPanel, TideJourneyActions } from "./TideJourneyPanel";
+import { tideEventCopy, tideEventVisible } from "./TideJourneyPanel";
+import { LootSettlementView } from "../loot/LootSettlementView";
+import { expeditionLootCatalog, expeditionLootView } from "../loot/expedition-loot-view";
+import { UiMotionProvider } from "../../../shared/ui/motion/UiMotionProvider";
 import { ManorJourneyPanel, ManorJourneyActions } from "./ManorJourneyPanel";
 import copy from "../../../content/presentation/tutorial/guided-tide.json";
 import tactical from "../../../content/presentation/tutorial/tide-tactical.json";
@@ -102,7 +105,7 @@ it("points to the hand and reward display without making the player read a formu
   expect(model.targets).toEqual(["battle.end-turn"]);
   expect(model.contextTargets).toEqual(["battle.hand", "battle.multiplier"]);
   expect(model.text).toContain("两对已成型");
-  expect(model.text).toContain("金币倍率上涨");
+  expect(model.text).toContain("收益倍率上涨");
   expect(model.text).toContain("追击");
   expect(model.text).not.toMatch(/×|＋|\d\.\d|品质修正|层深|大地/);
   expect(multiplierBefore.economy).toMatchObject({handFactor:2.7,earthFactor:1.1,layerFactor:1});
@@ -227,10 +230,14 @@ it("only reveals committed outcomes and retains observation when hints are hidde
 });
 
 it("shows the exact normal return plus fee, never just the 8G fee", () => {
-  render(<><TideJourneyPanel view={claim}/><TideJourneyActions view={claim} busy={false} onRetry={()=>{}} onAdvance={()=>{}} onClaim={()=>{}}/></>);
-  expect(screen.getByLabelText("本次结算")).toHaveTextContent("远征实得 36 G · 追回报酬 8 G · 本次总入账 44 G");
+  const loot = expeditionLootView(claim);
+  render(<UiMotionProvider preference="reduced"><LootSettlementView receipt={loot.receipt!} catalog={expeditionLootCatalog(claim)} supplies={loot.supplies}
+    context={{locationName: "退潮岩窟"}} pendingReward={{label: "追回货物报酬", copper: claim.tutorial!.reward.gold}}
+    confirmLabel="领取并返回洋馆" onConfirm={()=>{}}/></UiMotionProvider>);
+  expect(screen.getByRole("group", {name: "带回资金 44 G"})).toHaveTextContent("44");
+  expect(screen.getByRole("dialog")).toHaveTextContent(/追回货物报酬\s*8\s*G/);
   expect(screen.getByRole("button",{name:"领取并返回洋馆"})).toBeEnabled();
-  expect(document.body).toHaveTextContent("三件货物已送回。领取结算后返回洋馆");
+  expect(screen.getByRole("heading", {name: "远征完成"})).toBeInTheDocument();
   expect(document.body).not.toHaveTextContent("不会在领取时再乘一次");
   expect(document.body).not.toHaveTextContent("不受倍率影响");
 });

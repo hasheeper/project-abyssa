@@ -1,4 +1,7 @@
+import { facilitiesView } from "./facilities-view";
+import type { FacilitiesView } from "./facilities-view";
 import { tutorialView } from "./tutorial-view";
+import { lootPockets } from "../game-core/session/expedition-loot";
 import { manorRepriseView } from "./manor-reprise-view";
 import type { DemoGameRecord, D5GameRecord } from "../game-application";
 import type { RuleContext, RuleRun } from "../game-core/battle/domain/rule-state";
@@ -13,24 +16,29 @@ import type { JourneyLogRecord } from "./manor-log";
 import { manorLog, manorReturnFeedback } from "./manor-log";
 import { manorGuestCount } from "../game-core/battle/rules/v3/manor";
 import { demoActionOptions } from "../game-core/battle/rules/v2/combat";
+import { journeyRoutes } from "./journey-routes";
+import { ordinaryExpeditionAvailable } from "../game-core/session/ordinary-expeditions";
+import { publicGameAppraisal } from "../game-application/airp-game/appraisals";
+import type { PublicAppraisal } from "../game-core/contracts/expedition-appraisal";
 
 /** Presentation projection from one committed record. No page decides rule legality. */
 type ViewRecord = JourneyLogRecord & { head: DemoGameRecord["head"]; contentRef: RuleContext["ref"]; snapshot: { campaign: Pick<DemoGameRecord["snapshot"]["campaign"], "supplies" | "settlements" | "manor">; expedition: DemoExpeditionState<RuleRun> | null } };
-function ruleJourneyView(catalog: RuleContext, record: ViewRecord, selected: ReturnType<ReturnType<typeof createDemoBattleEngine>["select"]> | null) {
+function ruleJourneyView(catalog: RuleContext, record: ViewRecord, selected: ReturnType<ReturnType<typeof createDemoBattleEngine>["select"]> | null, demoPatrol = false) {
   const c = catalog.data, journey = c.journey;
   if (!journey) return null;
   const expedition = record.snapshot.expedition, run = expedition?.run;
   const room = run ? demoRoom(c, run.routeId, run.layer, run.room) : null;
   const battle = expedition ? asDemoBattle(expedition) : null;
   const takeover = record.snapshot.campaign.manor?.takeover ?? null;
-  const defaultRouteId = c.manor ? takeover ? c.manor.maintenanceRouteId : c.manor.firstClearRouteId : journey.defaultRouteId;
+  const defaultRouteId = c.manor ? takeover || demoPatrol ? c.manor.maintenanceRouteId : c.manor.firstClearRouteId : journey.defaultRouteId;
   const routeId = run?.routeId ?? defaultRouteId;
+  const routes = journeyRoutes(c), route = routes[routeId];
   const maintenance = routeId === c.manor?.maintenanceRouteId;
   const shop = c.rulesVersion === 4 ? c.economy : undefined;
   const items = Object.values(journey.items).map(def => {
     const storedCharges = record.snapshot.campaign.supplies.find(i => i.definitionId === def.id)?.charges ?? 0;
     const free = !shop || shop.freeItemIds.includes(def.id);
-    return {...def, storedCharges, free, availableCharges: free ? def.capacity : storedCharges};
+    return {...def, storedCharges, storageCapacity: def.capacity, free, availableCharges: free ? def.capacity : storedCharges};
   });
   const supplies = run?.supplies.map(item => {
     const definition = journey.items[item.definitionId];
@@ -38,27 +46,37 @@ function ruleJourneyView(catalog: RuleContext, record: ViewRecord, selected: Ret
     return {...item, definition, targets, unavailableReason: targets.length ? null : !item.charges ? "已用尽" : battle && battle.encounter.itemsUsed >= 2 ? "本回合已使用两件道具" : "当前没有可用目标"};
   }) ?? [];
   return {
-    head: record.head, contentRef: record.contentRef, defaultRouteId,
+    head: record.head, contentRef: record.contentRef, defaultRouteId, routes, facilities: null as FacilitiesView | null,
+    destinations: Object.values(routes).map(r => ({...r, available: r.routeId === defaultRouteId})),
+    settlementScenes: Object.fromEntries(record.snapshot.campaign.settlements.map(t => [t.runId, routes[t.routeId]?.layerSceneIds[t.deepestLayer - 1]])),
+    lootContent: "loot" in c ? c.loot ?? null : null,
+    lootBags: run ? lootPockets(run.carriedLoot ?? [], run.roomIds, run.settledLayers) : null,
+    appraisalLoot: {} as Record<string, Pick<PublicAppraisal, "unknownName" | "appearance">>,
     tutorial: null as ReturnType<typeof tutorialView>,
     reprise: null as ReturnType<typeof manorRepriseView>,
-    fullManor: !!c.manor, maintenance, takeover, story: record.snapshot.campaign.manor?.story ?? null,
+    fullManor: !!c.manor && route?.ending === "manor", maintenance, takeover, story: record.snapshot.campaign.manor?.story ?? null,
     lastSettlement: record.snapshot.campaign.settlements.at(-1) ?? null,
     returnFeedback: manorReturnFeedback(c,record),
     banquet: battle && c.manor && battle.encounter.enemies.some(e => e.definitionId === c.manor!.boss.definitionId) ? {guests: manorGuestCount(battle), limit: c.manor.boss.maxGuests, reserve: c.manor.boss.summonBudget - battle.encounter.manor!.summoned, nextToast: 2 + manorGuestCount(battle)} : null,
-    brief: c.manor ? {flavor: maintenance ? "主位已经收起。清理失去中央权限的支线残余，让旧庄园重新安静。" : "从迎客门厅走到宴会厅，逐区拆开红线，结束等候三百年的家宴。", event: "全程五层，第三层可撤离或深入；后半段通向第五层终场。"} : {flavor: "白布覆盖宾客，红线维系规矩。带领伙伴穿过迎客门厅与服务走廊。", event: "三层庄园考核，各层独立入袋；通过落幕管家后带宝返回。"},
+    brief: route?.brief ?? {flavor: "", event: "", threats: []},
     leaderId: c.leaderId, initialParty: c.initialParty, defaultItems: journey.defaultItems, itemLimit: departureSupplyLimit(catalog.ref), items, supplies,
     expedition, room, roomId: run ? roomInstance(run) : null,
     event: room?.kind === "event" ? journey.events[room.eventId] : null,
     lastEvent: run?.eventResults.find(r => r.roomId === roomInstance(run)) ?? null,
     layerCount: c.routes[routeId].layers.length,
     capPercent: journey.handBonusCapPercent,
-    depthFactors: journey.depthPercent.map(p => p / 100),
+    depthFactors: journey.depthPercent.slice(0, c.routes[routeId].layers.length).map(p => p / 100),
     economy: run ? (() => {
       const bonus = Math.min(journey.handBonusCapPercent, Math.round(run.handBonus * 100));
       const depth = journey.depthPercent[run.layer - 1];
       const earth = run.party.filter(m => m.config.suits.includes("earth")).length >= 4 ? 110 : 100;
       return {handFactor: 1 + bonus / 100, layerFactor: depth / 100, earthFactor: earth / 100,
-        projected: layerGold(run.looseGold, bonus, depth, earth)};
+        projected: layerGold(run.looseGold, bonus, depth, earth),
+        battleGold: "loot" in c && c.loot && room?.kind === "battle" ? (() => {
+          const facts = record.facts.filter(f => f.runRef?.id === run.id && !record.retractedFactIds.includes(f.id));
+          const start = facts.reduce((last, f, i) => ["encounter-started", "tutorial-retried"].includes(f.kind) ? i : last, 0);
+          return facts.slice(start).reduce((gold, f) => gold + (["enemy-defeated", "enemy-released"].includes(f.kind) ? Number((f.payload as Record<string, unknown>).bounty ?? 0) : 0), 0);
+        })() : undefined};
     })() : null,
     log: manorLog(c, record),
     nextLayer: run && run.revealed.includes(`layer:${run.layer + 1}`) ? c.routes[run.routeId].layers[run.layer].map(id => { const r = journey.rooms[id]; return {kind: r.kind, enemies: r.kind === "battle" ? c.encounters[r.encounterId].enemyIds.map(id => c.enemies[id].name ?? id) : []}; }) : null,
@@ -90,8 +108,24 @@ export function d5JourneyView(catalog: ValidatedD5Catalog, record: D5GameRecord)
   const selected = run?.kind === "memory" && run.battle ? createD5MemoryEngine(catalog).select(run.battle)
     : run?.kind === "expedition" && run.state.node === "battle" ? createD5BattleEngine(catalog).select(asDemoBattle(run.state)!) : null;
   // Presentation-only shape retains the actual content reference and run configuration.
-  const view = ruleJourneyView(catalog, { head: record.head, contentRef: record.contentRef, snapshot: { campaign: record.snapshot.campaign, expedition }, facts: withMemoryDialogue(record, d5VisibleEvents(record, record.snapshot.campaign.activeRunRef)), retractedFactIds: [] }, selected);
+  const view = ruleJourneyView(catalog, { head: record.head, contentRef: record.contentRef, snapshot: { campaign: record.snapshot.campaign, expedition }, facts: withMemoryDialogue(record, d5VisibleEvents(record, record.snapshot.campaign.activeRunRef)), retractedFactIds: [] }, selected, !!(catalog.data.airpDirect || catalog.data.airpDirector) && !!record.snapshot.campaign.airpDemoStart);
   if (view) {
+    const campaign = record.snapshot.campaign;
+    const acquired = [...(expedition?.run.carriedLoot ?? []), ...campaign.settlements.flatMap(s => [...(s.returnedLoot ?? []), ...(s.lootLedger?.banked ?? []), ...(s.lootLedger?.unbanked ?? [])])];
+    for (const item of acquired) {
+      const copy = publicGameAppraisal(record, item);
+      if (copy) view.appraisalLoot[item.instanceId] = {unknownName: copy.unknownName, appearance: copy.appearance};
+    }
+    view.facilities = facilitiesView(catalog, record);
+    if (view.facilities) {
+      view.itemLimit = view.facilities.itemLimit;
+      view.items = view.items.map(item => ({...item, free: false, availableCharges: Math.min(item.capacity, item.storedCharges), storageCapacity: view.facilities!.capacities[item.id]}));
+    }
+    for (const fact of record.facts) if (fact.kind === "progression" && fact.payload.type === "expedition-settled") {
+      const run = fact.payload.finalRun.run;
+      view.settlementScenes[run.id] = demoRoom(catalog.data, run.routeId, run.layer, run.room).sceneId;
+    }
+    view.destinations = view.destinations.map(d => ({...d, available: ordinaryExpeditionAvailable(catalog.data, campaign, d.routeId) && !campaign.activeRunRef && !campaign.activeStoryId}));
     view.reprise = manorRepriseView(catalog, record);
     view.tutorial = tutorialView(catalog, record);
     if (view.tutorial?.runRef) {

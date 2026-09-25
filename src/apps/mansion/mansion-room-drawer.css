@@ -109,6 +109,13 @@
   filter: var(--mansion-grade);
   pointer-events: none;
 }
+.mansion-room-card__preview > img.mansion-room-card__preview-art {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: none;
+}
 .mansion-room-card__preview > span {
   position: absolute;
   z-index: 3;

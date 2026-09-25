@@ -1,0 +1,24 @@
+.generation-dock-layer.game-system-layer { z-index: 900; pointer-events: none; --flow-rail-top: 86px; }
+.generation-flow-layer.game-system-layer { pointer-events: none; }
+.generation-flow-layer .abyssa-modal, .generation-flow-layer .rp-app { pointer-events: auto; }
+.flow-footer > .journal-action { padding: 4px 0; min-width: 0; min-height: 0; border: 0; background: none; color: var(--abyssa-text-muted); font: 400 13px/1.6 var(--abyssa-font-body); }
+.flow-footer > .journal-action .journal-action__art { display: none; }
+.flow-footer > .journal-action .journal-action__label { padding: 0; font-size: 13px; }
+.airp-reader--embedded { position: absolute; inset: 0; pointer-events: auto; background: var(--abyssa-rp-backdrop); }
+.flow-reader {position:absolute;inset:0;}
+.flow-reader:focus {outline:none;}
+.flow-reader[data-blocked] {visibility:hidden;pointer-events:none;}
+.flow-reader-shield {position:absolute;inset:0;pointer-events:auto;}
+.flow-footer > .airp-direct-details { margin: 0 0 0 auto; padding: 4px 0; border: 0; font-size: 13px; }
+.flow-footer > .airp-direct-details[open] { flex-basis: 100%; }
+.flow-context > :first-child { margin-top: 0; }
+.flow-context h3 { font-size: 15px; font-weight: 500; color: var(--abyssa-text-soft); }
+.flow-context ul { padding-left: 20px; }
+.flow-context li + li { margin-top: 6px; }
+.flow-context .airp-commission-list { margin: 0; }
+.flow-context .airp-direct-progress { padding: 0; }
+.flow-context .airp-direct-progress > .airp-direct-rail { display: none; }
+.flow-launcher { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+.flow-launcher p { margin: 0; color: var(--abyssa-text-muted); font-size: 14px; }
+.mansion-scene-resident[data-suspended="true"], .airp-game-page[data-suspended="true"] { pointer-events: none; }
+.airp-game-page { display: contents; }

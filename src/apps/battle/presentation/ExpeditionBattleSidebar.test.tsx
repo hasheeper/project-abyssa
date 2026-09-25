@@ -16,7 +16,7 @@ it("右栏仪表保留机械读数，下拉账簿；点击记录后Escape仍归�
   render(<Subject {...base}/>);
   const toggle = screen.getByRole("button", {name: "远征账本"});
   expect(screen.getAllByLabelText("当前总倍率 2.00").filter(el => !el.closest('[aria-hidden="true"]'))).toHaveLength(1);
-  expect(screen.getAllByLabelText("包裹 83 枚金币").filter(el => !el.closest('[aria-hidden="true"]'))).toHaveLength(1);
+  expect(screen.getAllByLabelText("包裹 83 G").filter(el => !el.closest('[aria-hidden="true"]'))).toHaveLength(1);
   expect(screen.queryByRole("region", {name: "账本详情"})).toBeNull();
   fireEvent.click(toggle);
   const panel = screen.getByRole("region", {name: "账本详情"});
@@ -24,8 +24,8 @@ it("右栏仪表保留机械读数，下拉账簿；点击记录后Escape仍归�
   expect(breakdown).toHaveTextContent("牌型 ×1.30 · 层深 ×1.40 · 大地加成 ×1.10 ＝ 总倍率 ×2.00");
   expect(breakdown).toHaveTextContent("本层散金 12 G，按当前倍率清层可得 24 G");
   expect(breakdown).toHaveTextContent("收益倍率不增加攻击伤害");
-  expect(screen.getByLabelText("包裹 83 枚金币").querySelectorAll(".abyssa-expedition-odometer__reel")).toHaveLength(6);
-  expect(screen.getByLabelText("0 枚远古晶石").closest(".abyssa-expedition-purse")).not.toBeNull();
+  expect(screen.getByLabelText("包裹 83 G").querySelectorAll(".abyssa-expedition-odometer__reel")).toHaveLength(6);
+  expect(screen.queryByLabelText("0 枚远古晶石")).toBeNull();
   expect(panel.querySelector(".abyssa-expedition-odometer")).toBeNull();
   expect(within(panel).queryByText("CUMULATIVE MULTIPLIER")).toBeNull();
   expect(within(panel).queryByText("BAG & MATERIALS")).toBeNull();

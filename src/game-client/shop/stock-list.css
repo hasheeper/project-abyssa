@@ -1,0 +1,136 @@
+/* Original ShopTradePanel shelf: compact rows, inset stock/price lanes, copper slots. */
+.new-shop-stock {
+  --counter-value-size: 19px;
+  --counter-ink: #e2d2b1;
+  --counter-soft: #b29a73;
+  --counter-rule: #6c512e;
+  --counter-row-hover: rgb(163 120 61 / 11%);
+  --counter-row-active: rgb(170 125 56 / 20%);
+  --counter-edge-light: rgb(190 149 87 / 25%);
+  --counter-edge-dark: rgb(5 3 2 / 62%);
+  --counter-wood-grain: var(--shop-timber);
+}
+.new-shop-stock { --counter-stock-columns: 52px minmax(0, 1fr) 108px 132px; display: grid; height: 100%; min-height: 0; grid-template-rows: 42px minmax(0, 1fr); padding: 0; }
+.new-shop-stock[data-paginated] { grid-template-rows: 42px minmax(0, 1fr) 32px; }
+.new-shop-stock__columns { display: grid; grid-template-columns: var(--counter-stock-columns); align-items: center; gap: 16px; padding: 0 22px; border-bottom: 1px solid #755634; background: #302112 var(--counter-wood-grain); background-size: var(--shop-timber-size); box-shadow: inset 0 1px #c5984520; color: #bca174; font-size: 16px; letter-spacing: .08em; }
+.new-shop-stock__columns > :first-child { grid-column: 1 / span 2; }
+.new-shop-stock__heading { display: flex; min-width: 0; align-items: center; gap: 20px; padding-left: 68px; }
+.new-shop-stock__label { margin-right: auto; }
+.new-shop-stock__columns > :nth-child(2) { text-align: center; }
+.new-shop-stock__columns > :last-child { text-align: center; }
+/* The shelf is a timber surround; merchandise sits inside its carved well.
+   Keep the stationary bed outside the scroller so depth persists with long stock. */
+.new-shop-stock__well {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  min-height: 0;
+  grid-template-rows: minmax(0, 1fr);
+  background: #21180f;
+  box-shadow: 0 1px 0 rgb(166 128 77 / 48%), 0 -1px 0 #0b0805;
+}
+.new-shop-stock__well::before {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  background: #231a11 var(--counter-wood-grain);
+  background-size: 840px 76px;
+  filter: var(--shop-wood-filter);
+  content: "";
+  pointer-events: none;
+}
+.new-shop-stock__well::after {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  /* Upper/left occlusion and a lower catchlight give the bed inward depth. */
+  box-shadow: inset 0 3px 5px rgb(0 0 0 / 50%), inset 4px 0 6px rgb(0 0 0 / 46%), inset -2px 0 3px rgb(0 0 0 / 30%), inset 0 -1px #57412a;
+  content: "";
+  pointer-events: none;
+}
+.new-shop-stock__column-wells {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  display: grid;
+  grid-template-columns: var(--counter-stock-columns);
+  gap: 16px;
+  padding: 0 22px;
+  pointer-events: none;
+}
+.new-shop-stock__column-wells i {
+  margin-inline: -8px;
+  background: rgb(5 4 3 / 18%);
+  box-shadow: inset 3px 0 4px rgb(0 0 0 / 40%), inset -1px 0 rgb(145 109 66 / 18%);
+}
+.new-shop-stock__column-wells [data-column="owned"] { grid-column: 3; }
+.new-shop-stock__column-wells [data-column="price"] { grid-column: 4; background: rgb(5 4 3 / 28%); }
+.new-shop-stock__footer { display: flex; align-items: center; justify-content: flex-end; padding: 0 12px; border-top: 1px solid #4b3823; background: #20180f; }
+.new-shop-stock__pagination { display: flex; flex-shrink: 0; align-items: center; gap: 7px; }
+.new-shop-stock__pagination button { display: inline-flex; height: 26px; width: 28px; align-items: center; justify-content: center; padding: 0; border: 0; background: transparent; color: #c9ae83; cursor: pointer; }
+.new-shop-stock__pagination button svg { width: 9px; height: 12px; fill: none; stroke: currentColor; stroke-width: 1.7; }
+.new-shop-stock__pagination button:hover:not(:disabled) { color: #f0d6a4; background: #a7854a20; }
+.new-shop-stock__pagination button:active:not(:disabled) { background: #171109; }
+.new-shop-stock__pagination button:focus-visible { outline: 2px solid #b89b62; outline-offset: 2px; }
+.new-shop-stock__pagination button:disabled { color: #665842; cursor: default; }
+.new-shop-stock__page-number { min-width: 42px; height: 24px; color: #958264; font-size: 14px; line-height: 24px; text-align: center; font-variant-numeric: tabular-nums; }
+.new-shop-stock__page-number b { color: #d4be94; font-weight: 400; }
+/* Seven fixed tracks retain room for two-line labels and the optional footer. */
+.new-shop-stock__list { position: relative; z-index: 1; display: grid; min-height: 0; grid-template-rows: repeat(7, minmax(0, 1fr)); padding: 4px 8px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #967348 transparent; }
+.new-shop-stock__item {
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--counter-stock-columns);
+  gap: 16px;
+  align-items: center;
+  width: 100%;
+  min-height: 0;
+  padding: 2px 14px;
+  border: 0;
+  color: #ddcba9;
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+.new-shop-stock__item::after { position: absolute; right: 0; bottom: 0; left: 0; height: 1px; background: rgb(154 119 64 / 17%); pointer-events: none; content: ""; }
+.new-shop-stock__item:hover:not(:disabled) { background: var(--counter-row-hover); }
+.new-shop-stock__item[aria-selected="true"] { color: #ecdbb6; background: var(--counter-row-active); box-shadow: inset 0 0 0 1px #9b773e, inset 2px 0 #bd9851, inset 0 2px 2px #d6b3701f, inset 0 -2px 2px #0b070566; }
+.new-shop-stock__item[aria-selected="true"]::after { display: none; }
+/* No horizontal fade on row surfaces; the material gradients stay inside ItemSlot. */
+/* Keyboard focus remains visible on the item name and the selected item slot. */
+.new-shop .new-shop-stock__item:focus-visible { z-index: 1; outline: none; }
+.new-shop-stock__item:focus-visible .new-shop-stock__name strong { text-decoration: underline; text-decoration-color: #ab9b79; text-decoration-thickness: 1px; text-underline-offset: 5px; }
+.new-shop-stock__item:disabled { cursor: progress; }
+/* Keep the established copper ItemSlot materials; omit the quality gem band. */
+.new-shop-stock__slot { justify-self: center; }
+/* Keep the shared item artwork; only seat its outer rim into this shelf. */
+.new-shop-stock__slot.abyssa-item-slot {
+  border-color: #0d0905;
+  border-bottom-color: #665035;
+  box-shadow: 0 -1px 0 #080604, 0 1px 0 rgb(177 133 72 / 34%), inset 2px 3px 4px rgb(0 0 0 / 75%), inset -1px -1px rgb(104 74 39 / 26%);
+}
+.new-shop-stock__slot.abyssa-item-slot[data-selected] {
+  border-color: #6f512c;
+  border-top-color: #25180a;
+  border-bottom-color: #a3824b;
+  box-shadow: 0 -1px 0 #080604, 0 1px 0 rgb(207 160 87 / 45%), inset 2px 3px 4px rgb(0 0 0 / 72%);
+}
+.new-shop-stock__name { display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: 7px; min-width: 0; }
+.new-shop-stock__name strong { max-width: 100%; overflow: hidden; font-size: 20px; line-height: 23px; font-weight: 500; letter-spacing: .04em; text-overflow: ellipsis; white-space: nowrap; }
+.new-shop-stock__description { width: 100%; overflow: hidden; color: #af9a78; font-size: 14px; line-height: 17px; text-overflow: ellipsis; white-space: nowrap; }
+.new-shop-stock__item[aria-selected="true"] .new-shop-stock__description { color: #c1a981; }
+.new-shop-stock__item[aria-selected="true"] .new-shop-stock__name strong { font-weight: 600; }
+.new-shop-stock__owned { justify-self: center; font-size: var(--counter-value-size); color: #cbb58d; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.new-shop-stock__owned b { font-weight: 400; color: var(--counter-ink); }
+.new-shop-stock__price { justify-self: center; color: #c9af89; font-size: var(--counter-value-size); font-weight: 400; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.new-shop-stock__price .abyssa-currency-amount i { width: 20px; height: 20px; }
+.new-shop-stock__price[data-short] { color: #dcaa88; }
+.new-shop-stock__empty { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; min-height: 0; padding: 40px; text-align: center; }
+.new-shop-stock__empty h2 { margin: 0; color: #c3ae88; font: 500 25px/1.5 var(--abyssa-font-display); letter-spacing: .08em; }
+.new-shop-stock__empty h2:focus { outline: none; }
+.new-shop-stock__empty p { max-width: 440px; margin: 0; color: #958369; font-size: 18px; line-height: 1.7; text-wrap: pretty; }
+.new-shop-stock__empty .new-shop__action { margin-top: 8px; }
+.new-shop-stock__empty [role="alert"] { color: #e0ac8c; }
+
+.new-shop-stock__identified { font-size: 15px; color: #b29a73; }

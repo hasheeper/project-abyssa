@@ -37,8 +37,6 @@
 .campaign-journal__eyebrow { display: block; color: var(--abyssa-text-muted); font: 12px/1.4 var(--abyssa-font-body); letter-spacing: .18em; }
 .campaign-journal__surface > .journal-surface__content { padding: 16px 0; }
 .campaign-journal__return { min-width: 0; }
-.campaign-journal__return .journal-record__heading { padding-bottom: 20px; margin-bottom: 24px; }
-.campaign-journal .campaign-journal__return .journal-record__meta { margin-bottom: 8px; }
 .campaign-journal .campaign-journal__depth { flex-shrink: 0; margin: 0; color: var(--abyssa-text-muted); font-size: 13px; text-align: right; white-space: nowrap; }
 .campaign-journal__depth strong { margin-left: 10px; font-size: 16px; font-weight: 500; color: var(--abyssa-text-soft); }
 .campaign-journal__return-notes { display: grid; gap: 12px; }
@@ -77,8 +75,8 @@
 .campaign-journal__actions .journal-action { width: 100%; }
 .campaign-journal__growth-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 .campaign-journal details { margin-top: 16px; }
-.campaign-journal summary { cursor: pointer; padding: 10px 0; color: var(--abyssa-text-soft); }
-.campaign-journal summary:focus-visible, .campaign-journal a:focus-visible { outline: 2px solid var(--abyssa-focus); outline-offset: 3px; }
+.campaign-journal :where(details:not(.scene-feedback__details)) > summary { cursor: pointer; padding: 10px 0; color: var(--abyssa-text-soft); }
+.campaign-journal :where(details:not(.scene-feedback__details)) > summary:focus-visible, .campaign-journal a:focus-visible { outline: 2px solid var(--abyssa-focus); outline-offset: 3px; }
 .campaign-journal .campaign-journal__archive { margin-top: 18px; padding: 0; border-top: 1px solid var(--journal-line); border-bottom: 1px solid var(--journal-line-faint); }
 .campaign-journal__archive > summary { display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 7px 0; list-style: none; font-size: 14px; box-sizing: border-box; }
 .campaign-journal__archive > summary::-webkit-details-marker { display: none; }

@@ -188,5 +188,5 @@
 - 当前开发接口与位置：[`DEVELOPMENT_GUIDE.md`](../../../src/apps/battle/DEVELOPMENT_GUIDE.md)
 - 当前架构总览：[`README.md`](../../../src/apps/battle/README.md)
 - 当前 canonical state：[`domain/CANONICAL_STATE.md`](/Users/liuhang/Documents/project-abyssa/src/game-core/battle/domain/CANONICAL_STATE.md)
-- 引擎重构计划与验收：[`ENGINE_REFACTOR_PLAN.md`](ENGINE_REFACTOR_PLAN.md)
+- 引擎重构计划与验收：[ABYSSA 当前机制与游戏闭环总览](../../GAME_SYSTEMS_AND_CONTENT_SPEC.md)
 - 内容扩展维护指南：[`docs/README.md`](../../../src/apps/battle/docs/README.md)

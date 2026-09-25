@@ -49,9 +49,10 @@ export async function validateBuildOutput(targetId, directory = resolveTarget(ta
   }
   for (const file of (await listFiles(directory)).filter(file => /\.(html|css)$/.test(file))) {
     const source = await readFile(file, 'utf8');
+    // Consume quoted data URLs whole: an embedded SVG can contain its own url(#id).
     const references = file.endsWith('.html')
       ? [...source.matchAll(/\b(?:src|href)=["']([^"']+)["']/g)].map(match => match[1])
-      : [...source.matchAll(/url\(\s*["']?([^\s"')]+)["']?\s*\)/g)].map(match => match[1]);
+      : [...source.matchAll(/url\(\s*(?:"((?:\\.|[^"\\])*)"|'((?:\\.|[^'\\])*)'|([^\s"')]+))\s*\)/g)].map(match => match[1] ?? match[2] ?? match[3]);
     for (const ref of references) {
       if (!ref || /^(?:[a-z][a-z\d+.-]*:|\/\/|#)/i.test(ref)) continue;
       const pathname = decodeURIComponent(ref.split(/[?#]/)[0] ?? '');

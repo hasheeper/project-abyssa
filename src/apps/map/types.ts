@@ -1,7 +1,7 @@
 import watchersCliffGroundUrl from "../../assets/map/terrain/watchers-cliff-ground.png";
 import weatheredSanctumUrl from "../../assets/map/landmarks/weathered-sanctum.png";
 import abandonedWatchtowerUrl from "../../assets/map/landmarks/abandoned-watchtower.png";
-import tidecallGrottoUrl from "../../assets/map/landmarks/tidecall-grotto.png";
+import tidecallGrottoUrl from "../../assets/map/landmarks/map.tide-reef.png";
 
 export type MapLocationId = "cave" | "tower" | "church";
 

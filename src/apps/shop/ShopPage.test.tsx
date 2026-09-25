@@ -42,7 +42,7 @@ describe("ShopPreview (explicit prototype)", () => {
     expect(screen.getByRole("button", { name: "砍 价" })).toBeDisabled();
     await user.click(screen.getByRole("button", { name: "购 买" }));
 
-    expect(screen.getByLabelText("小队里拉余额 1247")).toBeInTheDocument();
+    expect(screen.getByLabelText("小队资金余额 1,247 G")).toBeInTheDocument();
     expect(screen.getByLabelText("远古晶石余额 3")).toBeInTheDocument();
   });
 

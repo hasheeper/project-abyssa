@@ -1,3 +1,4 @@
+import { validateCommissionPlacements } from "../contracts/commission-rewards";
 import type { ValidatedD5Catalog } from "../contracts/d5";
 import * as v from "../contracts/validation";
 import { departureSupplies } from "./d5-economy";
@@ -5,6 +6,7 @@ import { createRuleBattleEngine } from "../battle/demo-engine";
 import { readD5Battle } from "../battle/d5-engine";
 import { readD5Expedition, readD5BaseExpedition } from "./d5-run-readers";
 import type { D5Projection, D5ExpeditionState } from "./d5-types";
+import { ordinaryExpeditionAvailable } from "./ordinary-expeditions";
 import { fromDemoBattle, asDemoBattle, continueRuleExpedition, advanceRuleRoom, chooseRuleExit } from "./demo-expedition";
 import { chooseRuleEvent, useRuleItem } from "./demo-items-events";
 import type { TutorialOperation } from "./tutorial-types";
@@ -31,19 +33,20 @@ export function createD5ExpeditionEngine(catalog: ValidatedD5Catalog) {
   return {
     restore: read,
     create(campaign: D5Projection, input: D5Departure): D5ExpeditionState {
+      if (input.commissionRewards !== undefined) validateCommissionPlacements(catalog, input.routeId, input.commissionRewards);
       if (campaign.activeRunRef || campaign.activeStoryId) v.invalid("run", "Finish the active run or story", "run-active");
       if (catalog.data.tutorial && input.routeId === catalog.data.tutorial.routeId) {
         const spec = catalog.data.tutorial;
         if (campaign.tutorial?.status !== "pending" || campaign.opening?.status === "playing" || campaign.prologue?.status === "playing" || campaign.progress.appliedGrowthIds.length || campaign.progress.equipment.length || v.canonicalJson(input.partyIds) !== v.canonicalJson(spec.partyIds) || v.canonicalJson(input.itemIds) !== v.canonicalJson(spec.itemIds)) v.invalid("tutorial.departure", "Complete the morning and use the fixed level-one party and allowance");
         const state = battle.create({ runId: input.runId, routeId: spec.routeId, partyIds: spec.partyIds, seed: spec.firstBattleSeed, progress: campaign.progress });
-        state.run.supplies = departureSupplies(catalog, campaign, input.runId, input.itemIds);
+        state.run.supplies = departureSupplies(catalog, campaign, input.runId, input.itemIds, input.supplyQuantities, true);
         return read(beginTutorial(fromDemoBattle(state), catalog, input.seed));
       }
       if (campaign.tutorial && !["completed", "exempt"].includes(campaign.tutorial.status)) v.invalid("tutorial", "Complete the opening before ordinary departure");
-      const routeId = campaign.manor.takeover ? catalog.data.manor!.maintenanceRouteId : catalog.data.manor!.firstClearRouteId;
-      if (input.routeId !== routeId || input.partyIds.some(id => !campaign.availableCharacterIds.includes(id))) v.invalid("departure", "Unavailable route or party");
+      if (!ordinaryExpeditionAvailable(catalog.data, campaign, input.routeId) || input.partyIds.some(id => !campaign.availableCharacterIds.includes(id))) v.invalid("departure", "Unavailable route or party");
       const state = battle.create({ runId: input.runId, routeId: input.routeId, partyIds: input.partyIds, seed: input.seed, progress: campaign.progress });
-      state.run.supplies = departureSupplies(catalog, campaign, input.runId, input.itemIds);
+      state.run.supplies = departureSupplies(catalog, campaign, input.runId, input.itemIds, input.supplyQuantities);
+      if (input.commissionRewards !== undefined) state.run.commissionRewards = {version: 1, manifest: structuredClone(input.commissionRewards), items: []};
       return read(fromDemoBattle(state));
     },
     dispatch(input: D5ExpeditionState, operation: D5JourneyOperation) {

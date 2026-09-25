@@ -1,6 +1,8 @@
 # 第二批验收：药箱样本的来源与上下文
 
-日期：2026-09-12。承接[第一批兼容验收](2026-09-12-airp-package-compatibility.md)，对应[Abyssa推进计划](../plans/ABYSSA_DEMO_NEXT_STEPS.md)第二批。
+> 文档整理说明（2026-09-25）：下文按原实施日期理解；已删除的阶段引用改为文字，不改写当时的结果。原引用文件保存在文档索引列出的仓库外备份。
+
+日期：2026-09-12。承接第一批兼容验收（历史稿已清理），对应[Abyssa推进计划](../DESIGN_DECISIONS_AND_CURRENT_STATUS.md#4-下一步顺序)第二批。
 
 接续状态：本报告保留源码接线时的事实。随后已安装本机0.3.1并做两情境真实调用；Format授权失败且正文有事实越界，第二批仍未退出。详见[本机安装与真实试读](2026-09-12-airp-live-source-acceptance.md)，不再按下文历史“未安装”重复开工。
 
@@ -108,4 +110,4 @@ Pipeline总预算仍16000 tokens；Writing保留4096输出，输入上限11904�
 - [资源分工测试](../../../rp-style-lab/server/test/application-packages/airp/reference-inputs.test.ts)、[最大事实测试](../../../rp-style-lab/server/test/application-packages/airp-context.test.ts)。
 - [原生包链](../../scripts/verify-airp-rp-application.mjs)、[玩家链](../../scripts/verify-airp-player-application.mjs)、[玩家恢复](../../scripts/verify-airp-player-recovery.mjs)。玩家测试使用已校验的`dist/reports/airp-4/checkpoints.json`，没有伪造玩法快照。
 - [浏览器专项](../../tests/smoke/airp-online.spec.ts)；本轮产物、报告和截图位于`/tmp/abyssa-batch2-runtime.uOySdY`，可被系统清理，不是运行依赖。隔离配置不占用原服务，也未覆盖第一批证据。
-- 应用维护口径见[资料切片说明](../../../rp-style-lab/applications/airp/resources/CONTEXT_SLICES.md)，总体排期见[推进计划](../plans/ABYSSA_DEMO_NEXT_STEPS.md)。
+- 应用维护口径见[资料切片说明](../../../rp-style-lab/applications/airp/resources/CONTEXT_SLICES.md)，总体排期见[推进计划](../DESIGN_DECISIONS_AND_CURRENT_STATUS.md#4-下一步顺序)。

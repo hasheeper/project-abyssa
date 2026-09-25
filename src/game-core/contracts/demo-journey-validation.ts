@@ -12,7 +12,7 @@ export function demoEncounterId(catalog: Pick<DemoCatalog, "routes" | "journey" 
 }
 
 /** A release has no executable references to future rooms, enemies or abilities. */
-export function validateDemoJourney(catalog: DemoCatalog) {
+export function validateDemoJourney(catalog: DemoCatalog, ordinaryRoutes = false) {
   const j = v.record(catalog.journey, "journey", ["rooms", "events", "items", "defaultItems", "defaultRouteId", "defaultProfileId", "depthPercent", "handBonusCapPercent"]);
   const rooms = v.record(j.rooms, "rooms"), events = v.record(j.events, "events"), items = v.record(j.items, "items");
   for (const [id, raw] of Object.entries(rooms)) {
@@ -28,7 +28,8 @@ export function validateDemoJourney(catalog: DemoCatalog) {
     const e = v.record(raw, id, ["id", "name", "text", "kind", "cost", "reward"]);
     if (e.id !== id) v.invalid(id, "Event identity mismatch");
     v.id(id, "eventId"); v.text(e.name, id, 100); v.text(e.text, id, 2000);
-    v.choice(e.kind, ["register", "relic", ...(catalog.rulesVersion === 3 ? ["seats"] : [])], id); v.number(e.cost, id, 0, 100); v.number(e.reward, id, 0, 100);
+    const moneyLimit = catalog.contentVersion >= 17 ? 100_000 : 100;
+    v.choice(e.kind, ["register", "relic", ...(catalog.rulesVersion === 3 ? ["seats"] : [])], id); v.number(e.cost, id, 0, moneyLimit); v.number(e.reward, id, 0, moneyLimit);
     if (e.kind !== "relic" && (e.cost !== 0 || e.reward !== 0)) v.invalid(id, "Reading cannot pay rewards");
   }
   const kinds = ["food", "potion", "ward", "holy-water", "maintenance-kit", "lucky-charm", "divination-slip"];
@@ -45,7 +46,7 @@ export function validateDemoJourney(catalog: DemoCatalog) {
   depth.forEach(n => v.number(n, "depth", 100, 300));
   v.number(j.handBonusCapPercent, "handBonusCapPercent", 0, 500);
   for (const route of Object.values(catalog.routes)) {
-    if (route.layers.length !== depth.length) v.invalid(route.id, "Layer multipliers differ");
+    if (ordinaryRoutes ? route.layers.length > depth.length : route.layers.length !== depth.length) v.invalid(route.id, "Layer multipliers differ");
     const visited = new Set<string>(); let hasExit = false;
     route.layers.forEach((ids, layer) => {
       if (catalog.journey!.rooms[ids[0]].kind !== "battle") v.invalid(route.id, "A layer starts with a battle");

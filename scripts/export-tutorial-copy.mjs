@@ -1,7 +1,7 @@
 /** Read-only FULL copy inventory, including scenes and shared UI. Prints JSON only.
- * docs/TUTORIAL_COPY_EDITABLE.json is now the separately curated teaching-only edit.
- * Do not overwrite it with this full inventory; removed entries are preserved in
- * docs/SCENE_COPY_SEPARATED.json. Never updates gameplay or either edited export. */
+ * Historical edited copies live in docs/archive/exports/; never overwrite them.
+ * Their unresolved differences need human review, not automatic writeback.
+ * This script never writes files, gameplay data, or either archived export. */
 import { parse } from "@babel/parser";
 import { readFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
@@ -12,14 +12,16 @@ const sources = [
   ["current", "01 · 教程总览", "src/apps/battle/presentation/TutorialOverview.tsx"],
   ["current", "02 · 全部带做提示（首次说明与复用提示）", "src/content/presentation/tutorial/guided-tide.json"],
   ["current", "03 · 教程专用战术对白", "src/content/presentation/tutorial/tide-tactical.json"],
-  ["current", "04 · S3-1 至 S4-2 剧情、旁白、选择", "src/content/presentation/scenes/tide-cave-guided.json"],
+  ["current", "04 · 内容12六场定稿（S3-1至S3-5、S4-1）", "src/content/presentation/scenes/tide-cave-chapter-one.json"],
+  ["current", "04a · 当前玩法手册（包括段落、操作和规则表）", "src/content/presentation/tutorial/handbook.json"],
+  ["current", "04b · 内容12目录及诺玛E1", "src/content/gameplay/demo-v12/content.ts"],
   ["current", "05 · 事件叙述、战间整备、失败重试与领取", "src/apps/battle/presentation/TideJourneyPanel.tsx"],
   ["current", "06 · 菜单、退出带做、Boss目标", "src/apps/battle/ManorBattleView.tsx"],
   ["current", "07 · 教程出发与返回", "src/apps/battle/TutorialDeparture.tsx"],
   ["current", "08 · 提示确认", "src/apps/battle/presentation/TideTutorialGuide.tsx"],
   ["current", "09 · 场景名称", "src/content/presentation/tide-cave.ts"],
-  ["current", "10 · E1目录名称及备用描述", "src/content/gameplay/demo-v11/content.ts"],
-  ["current", "11 · 教程敌人名称（内容11继承）", "src/content/gameplay/demo-v7/content.ts"],
+  ["legacy", "10 · 内容11 E1目录及旧事件描述（12继承后覆盖）", "src/content/gameplay/demo-v11/content.ts"],
+  ["current", "11 · 教程敌人名称（内容12继承）", "src/content/gameplay/demo-v7/content.ts"],
   ["entrance", "12 · 新游戏章节选择", "src/apps/title/NewGameDialog.tsx"],
   ["entrance", "13 · 前置首晨剧情与选项", "src/content/presentation/scenes/first-morning.json"],
   ["entrance", "14 · 首晨页面提示", "src/game-client/FirstMorningStory.tsx"],
@@ -57,6 +59,7 @@ const sources = [
   ["shared", "46 · 道具效果短说明", "src/content/presentation/supply-icons.ts"],
   ["legacy", "附录A · 旧版四房教程剧情，勿与内容11混用", "src/content/presentation/scenes/tide-cave.json"],
   ["legacy", "附录B · 旧版岩窟提示", "src/content/presentation/tutorial/tide-cave.json"],
+  ["legacy", "附录B2 · 内容11七场旧稿（包括S4-2）", "src/content/presentation/scenes/tide-cave-guided.json"],
   ["shared", "附录C · 手动帮助与旧版基础提示", "src/content/presentation/tutorial/battle-basics.json"],
 ];
 const hasHan = value => /\p{Script=Han}/u.test(value);
@@ -80,6 +83,24 @@ function jsonEntries(data) {
     for (const [key, child] of Object.entries(value)) {
       if (typeof child === "string" && textFields.has(key)) entries.push({key: pointer([...path, key]), ...current, text: child});
       else walk(child, [...path, key], current);
+    }
+  }
+  walk(data);
+  return entries;
+}
+
+// Handbook arrays carry visible prose/table cells, unlike scene metadata.
+// Keep diagram labels and numerical strings, but omit IDs and asset references.
+function handbookEntries(data) {
+  const metadata = new Set(["id", "chapter", "section", "figure", "figureLayout", "rowIcons", "itemIcons", "table"]);
+  const entries = [];
+  function walk(value, path = []) {
+    if (typeof value === "string") {
+      if (value.trim()) entries.push({key: pointer(path), text: value});
+    } else if (Array.isArray(value)) {
+      value.forEach((child, index) => walk(child, [...path, index]));
+    } else if (value && typeof value === "object") {
+      for (const [key, child] of Object.entries(value)) if (!metadata.has(key)) walk(child, [...path, key]);
     }
   }
   walk(data);
@@ -177,15 +198,15 @@ function codeEntries(code, path) {
 const sections = [];
 for (const [scope, title, path] of sources) {
   const code = await readFile(resolve(projectRoot, path), "utf8");
-  const entries = path.endsWith(".json") ? jsonEntries(JSON.parse(code)) : codeEntries(code, path);
+  const entries = path.endsWith("/handbook.json") ? handbookEntries(JSON.parse(code)) : path.endsWith(".json") ? jsonEntries(JSON.parse(code)) : codeEntries(code, path);
   sections.push({scope, title, source: path, sourceSha256: digest(code), entries});
 }
 const guided = JSON.parse(await readFile(resolve(projectRoot, "src/content/presentation/tutorial/guided-tide.json"), "utf8"));
 const output = {
   _readme: {
-    title: "Abyssa 教程全量文案编辑副本",
-    date: "2026-09-13",
-    scope: "当前内容11教程：总览、逐步提示、战术对白、S3/S4剧情、事件、整备、结算；附入口/首晨/序幕、共用界面及旧版文案。不是整个游戏或设定资料全集。",
+    title: "Abyssa 教程文案只读盘点",
+    date: "2026-09-19",
+    scope: "当前内容12：玩法手册、总览、逐步提示、战术对白、六场章一定稿、事件、整备、结算；附入口/首晨/序幕、共用界面及明确标记的旧版文案。不是整个游戏或设定资料全集，也不表示所有候选条目都会显示。",
     status: "原样提取，不润色；未接入运行时，编辑本文件不会立即改变游戏。",
     editing: [
       "主要编辑 sections[].entries[].text。source、key、sourceSha256及bindings用于定位回填，请保留。",
@@ -195,7 +216,7 @@ const output = {
       "jsx条目合并了同一句中的加粗等内联标签；jsx-fragment是条件分支旁的文字片段，不应单独当作完整台词。",
       "accessibility是读屏/辅助标签；同文异处仍分别列出，没有按文字去重。",
       "同一个教学提示可能复用于多步，instructionOverrides列出首次或特殊步骤的覆盖关系。",
-      "需要新增教学内容可写到newCopy，注明希望出现的位置；不受现有86字检查限制，回填时再调整承载界面。",
+      "如需制作新的编辑副本，请另存文件；不要覆盖docs/archive/exports下两份含未决差异的旧稿。newCopy可记录新增建议，但没有自动回填功能。",
       "修改后需人工核对并回填原文件，尤其是共享文案、动态表达式和带目录摘要的内容名称；不要直接用本文件替换存档或内容目录。"
     ],
     sourceCount: sections.length,

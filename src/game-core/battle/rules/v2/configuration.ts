@@ -6,6 +6,7 @@ import type {
   DemoSuit,
 } from "../../../contracts/demo";
 import * as v from "../../../contracts/validation";
+import { equipmentLimit, validateEquipmentAllocation } from "../../../contracts/equipment";
 
 export function validateDemoProgress(
   content: DemoContent & { combat?: D5CombatDefinitions },
@@ -21,28 +22,13 @@ export function validateDemoProgress(
   }
   const instances = new Set<string>(),
     owners = new Set<string>();
-  const equipment = v.list(p.equipment, "equipment", 2).map((raw) => {
-    const e = v.record(raw, "equipment", [
-      "instanceId",
-      "definitionId",
-      "ownerId",
-    ]);
-    const instanceId = v.id(e.instanceId, "instanceId"),
-      ownerId = v.id(e.ownerId, "ownerId"),
-      definitionId = v.id(e.definitionId, "definitionId");
-    v.reference(content.equipment, definitionId, "equipment");
-    const ch = v.reference(content.characters, ownerId, "ownerId");
+  const equipment = v.list(p.equipment, "equipment", equipmentLimit(content)).map((raw) => {
+    const e = validateEquipmentAllocation(content, raw), {instanceId, ownerId} = e;
     if (instances.has(instanceId) || owners.has(ownerId))
       v.invalid("equipment", "Duplicate equipment instance or general slot");
-    if (!ch.faces.some((f) => content.actions[f.actionId].kind === "blank"))
-      v.invalid(
-        "equipment",
-        "Character has no native blank face",
-        "equipment-inapplicable",
-      );
     instances.add(instanceId);
     owners.add(ownerId);
-    return { instanceId, definitionId, ownerId };
+    return e;
   });
   return { appliedGrowthIds: ids, equipment };
 }
@@ -76,9 +62,9 @@ export function resolveDemoCharacter(
     const def = content.equipment[item.definitionId];
     sources.push(item.instanceId);
     for (const f of faces)
-      if (content.actions[f.actionId].kind === "blank") {
-        f.actionId = `action.${def.replacement}`;
-        f.power = def.power;
+      if (def.scope === "native-face" ? f.id === item.targetFaceId : content.actions[f.actionId].kind === "blank") {
+        if (def.scope === "native-face" && def.operation === "boost") f.power += def.power;
+        else { f.actionId = `action.${def.replacement}`; f.power = def.power; }
       }
   }
   return {

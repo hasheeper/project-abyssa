@@ -22,6 +22,8 @@ export interface RpSceneProps extends Omit<HTMLAttributes<HTMLDivElement>, "chil
   crop?: RpCrop;
   /** 日志顶部插槽(章节标题、连接状态等)。 */
   header?: ReactNode;
+  /** In-flow actions below the reading viewport. Callers own their visibility and exit lifecycle. */
+  actions?: ReactNode;
   /**
    * 呈现模式,默认 play(演绎)。
    * play 将最后一条对白作为当前发言；log 将全部消息按历史形态展示。
@@ -29,4 +31,8 @@ export interface RpSceneProps extends Omit<HTMLAttributes<HTMLDivElement>, "chil
   mode?: RpMode;
   /** 挂载时已在场的消息是否跳过入场演出。 */
   hydrate?: boolean;
+  /** Optional reader control: false reveals the current message immediately. */
+  typing?: boolean;
+  /** Current message's CSS text reveal has completed (or is already instantaneous). */
+  onTypingEnd?: () => void;
 }

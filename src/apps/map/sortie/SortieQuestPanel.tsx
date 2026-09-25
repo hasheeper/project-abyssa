@@ -1,4 +1,4 @@
-import type { CSSProperties } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { AvatarFrame } from "../../../shared/ui/primitives/AvatarFrame";
 import { IconButton } from "../../../shared/ui/primitives/IconButton";
 import { RpgFrame } from "../../../shared/ui/primitives/RpgFrame";
@@ -21,6 +21,7 @@ import type { MapLocationConfig } from "../types";
  * 标明缺口，而不是编三段假文案冒充已定稿的设定。 */
 
 export interface SortieQuestPanelProps {
+  commissions?: ReactNode;
   briefOverride?: QuestBrief;
   location: MapLocationConfig;
   side: "left" | "right";
@@ -72,6 +73,7 @@ function PartyFormationIcon() {
 }
 
 export function SortieQuestPanel({
+  commissions,
   briefOverride,
   location,
   side,
@@ -130,6 +132,8 @@ export function SortieQuestPanel({
         </header>
       </div>
 
+      <div className="abyssa-sortie-quest__scroll" tabIndex={0} aria-label="路线与委托详情">
+      {commissions}
       {brief ? (
         <>
           <p className="abyssa-sortie-quest__flavor">{brief.flavor}</p>
@@ -152,7 +156,7 @@ export function SortieQuestPanel({
               <ul className="abyssa-sortie-quest__yields">
                 {brief.yields.map((entry) => (
                   <li key={entry.spoil} data-spoil={entry.spoil}>
-                    {/* 金币与晶石沿用全仓库统一的货币形制；素材走 mask 图标。 */}
+                    {/* 资金与晶石沿用全仓库统一的货币形制；素材走 mask 图标。 */}
                     {entry.spoil === "material" ? (
                       <i
                         className="abyssa-sortie-quest__spoil"
@@ -265,6 +269,7 @@ export function SortieQuestPanel({
         </ul>
       </section>
 
+      </div>
       <RibbonButton
         className="abyssa-sortie-quest__go"
         variant="dark"

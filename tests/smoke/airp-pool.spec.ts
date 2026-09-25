@@ -54,6 +54,8 @@ test("AIRP-3: four forms, real patrol, target conversation and refresh-safe memo
   const errors = await observeArtifacts(page);
   await page.addInitScript(() => { const original = crypto.getRandomValues.bind(crypto); crypto.getRandomValues = values => { if (values instanceof Uint32Array && values.length === 1) { values[0] = 19; return values; } return original(values); }; });
   await page.goto("/"); await page.getByRole("button", { name: "记录", exact: true }).click({ timeout: 60000 });
+  await page.getByRole("button", { name: "档案管理", exact: true }).click();
+  await page.getByRole("button", { name: "导入档案", exact: true }).click();
   await page.getByLabel("导入格式").selectOption("restore");
   await page.getByLabel("导入存档", { exact: true }).setInputFiles({ name: "airp-pool.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify({ archiveVersion: 4, record: pending })) });
   await expect(page).toHaveURL(/#\/menu/, { timeout: 60000 }); await ready(page);
@@ -82,7 +84,7 @@ test("AIRP-3: four forms, real patrol, target conversation and refresh-safe memo
   expect((await saved(page)).narrative.memories).toHaveLength(3);
   // Sortie: actual battle controls and supplies; no patched objective/HP/results.
   await openManorJournal(page, "ripple.elora.old-medicine-case"); await card("ripple.elora.old-medicine-case").getByRole("button").click(); await readConversation(page);
-  await page.getByRole("button", { name: "展开菜单", exact: true }).click(); await depart(page, 5, 30000, true); await ready(page);
+  await depart(page, 5, 30000, true); await ready(page);
   let found = false;
   for (let step = 0; step < 350; step++) {
     await ready(page);
@@ -136,6 +138,8 @@ test("AIRP-3: two missed events have readable aftermaths and no duplicate memory
   test.skip(!source, "Requires the real-return aftermath checkpoint; never synthesize expiry in the browser");
   const errors = await observeArtifacts(page);
   await page.goto("/"); await page.getByRole("button", { name: "记录", exact: true }).click();
+  await page.getByRole("button", { name: "档案管理", exact: true }).click();
+  await page.getByRole("button", { name: "导入档案", exact: true }).click();
   await page.getByLabel("导入格式").selectOption("restore");
   await page.getByLabel("导入存档", { exact: true }).setInputFiles({ name: "aftermath.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify({ archiveVersion: 4, record: source! })) });
   await expect(page).toHaveURL(/#\/menu/, { timeout: 120000 }); await ready(page);
@@ -160,6 +164,8 @@ for (const outcome of ["wipe", "extracted"] as const) test(`AIRP-3: unfinished $
   test.skip(!source, "Requires a real first-clear return followed by a validated departure");
   const errors = await observeArtifacts(page);
   await page.goto("/"); await page.getByRole("button", { name: "记录", exact: true }).click();
+  await page.getByRole("button", { name: "档案管理", exact: true }).click();
+  await page.getByRole("button", { name: "导入档案", exact: true }).click();
   await page.getByLabel("导入格式").selectOption("restore");
   await page.getByLabel("导入存档", { exact: true }).setInputFiles({ name: "reprise.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify({ archiveVersion: 4, record: source! })) });
   await expect(page).toHaveURL(/#\/battle/, { timeout: 60000 }); await ready(page);

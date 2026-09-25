@@ -1,0 +1,163 @@
+/* The sidebar and Stage never move. Only columns 2–3 exchange their content. */
+.menu-stage { overflow: clip; }
+.menu-content {
+  position: relative;
+  isolation: isolate;
+  grid-column: 2 / 4;
+  min-width: 0;
+  min-height: 0;
+}
+.menu-content:focus { outline: none; }
+.menu-home {
+  position: relative;
+  display: grid;
+  height: 100%;
+  grid-template-columns: var(--menu-host-w) var(--menu-dial-w);
+  column-gap: var(--menu-gap);
+}
+.menu-home > .menu-host__fade { left: -254px; right: -32px; bottom: -32px; }
+.menu-home-backdrop, .menu-home-controls { position: absolute; inset: 0; pointer-events: none; }
+.menu-home-backdrop { z-index: 0; }
+.menu-home-controls { z-index: 8; }
+.menu-home-controls .menu-scene-controls { pointer-events: auto; }
+.menu-home-controls[inert] .menu-scene-controls { pointer-events: none; }
+
+/* Translate a separate track, preserving the original HUD scale and camera. */
+.menu-topbar__title-track, .menu-topbar__funds-track { position: absolute; inset: 0; }
+.menu-topbar__hud-frame--section { width: 448px; }
+.menu-topbar__hud-frame--section .menu-hud-frame__outer { stroke-width: 9px; }
+.menu-topbar__hud-frame--section .menu-hud-frame__middle { stroke-width: 3px; }
+.menu-topbar__hud-frame--section .menu-hud-frame__inner { stroke-width: 1px; }
+.menu-topbar__hud-frame--section .menu-hud-frame__inset { opacity: .55; stroke-width: 1px; }
+.menu-topbar__hud-frame--section .menu-hud-frame__pattern { opacity: .45; }
+.menu-topbar__section-title {
+  position: absolute;
+  inset: 18px 0 26px;
+  display: flex;
+  height: auto;
+  margin: 0;
+  padding: 0 28px 0 4px;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  text-shadow: 0 2px 4px rgb(0 0 0 / 72%);
+}
+.menu-topbar__section-title span { color: #a9b8b5; font-size: 18px; line-height: 1; font-weight: 500; letter-spacing: .32em; }
+.menu-topbar__section-title strong { color: #f7edcf; font: 500 40px/1 var(--abyssa-font-display); letter-spacing: .045em; white-space: nowrap; }
+
+/* Open in-scene layout. No connected outline or additional framed window. */
+.menu-content > .abyssa-system-panel--embedded {
+  --abyssa-system-rule: rgb(175 183 181 / 22%);
+  --abyssa-system-rule-strong: rgb(175 183 181 / 28%);
+  position: relative;
+  padding: 24px 32px 0 28px;
+  isolation: isolate;
+  background: none;
+}
+/* Shared by SAVE / LOAD / SETTINGS; never replaced with the panel subtree. */
+.menu-system-backdrop {
+  position: absolute;
+  inset: -24px -32px -32px -100px;
+  z-index: -1;
+  background: linear-gradient(90deg, transparent, rgb(9 16 17 / 76%) 16%, rgb(9 16 17 / 88%) 68%);
+  mask-image: linear-gradient(180deg, transparent, #000 44px, #000 calc(100% - 28px), transparent);
+  pointer-events: none;
+}
+.menu-content > .abyssa-system-panel--embedded::before {
+  position: absolute;
+  top: 0;
+  left: calc(0px - var(--menu-pad) - var(--menu-sidebar-w) - var(--menu-gap));
+  right: calc(0px - var(--menu-pad));
+  height: 1px;
+  background: linear-gradient(90deg, rgb(175 183 181 / 8%), rgb(175 183 181 / 18%) 24%, rgb(175 183 181 / 12%));
+  content: "";
+  pointer-events: none;
+}
+.menu-content .abyssa-system-panel__footer {
+  position: relative;
+  width: 100%;
+  padding: 18px 0 0;
+  margin-top: 18px;
+  border: 0;
+}
+.menu-content .abyssa-system-panel__footer::before {
+  position: absolute;
+  top: 0;
+  left: calc(0px - var(--menu-pad) - var(--menu-sidebar-w) - var(--menu-gap) - 28px);
+  right: calc(0px - var(--menu-pad) - 32px);
+  height: 1px;
+  background: linear-gradient(90deg, rgb(175 183 181 / 8%), rgb(175 183 181 / 16%) 55%, rgb(175 183 181 / 12%));
+  content: "";
+  pointer-events: none;
+}
+.menu-content .abyssa-system-panel__footer .abyssa-hex-button { width: 294px; }
+.menu-content .abyssa-system-panel__heading { padding: 0 0 20px; border: 0; }
+.menu-content .abyssa-system-panel__heading h3 { font-size: 22px; }
+.menu-content .abyssa-system-panel__heading p { font-size: 13px; }
+/* Tabs share the title's reserved header band. They stay in the content subtree
+   for inert/focus; archive choreography reveals them after records are in place. */
+.menu-content .abyssa-system-panel__tabs {
+  position: absolute;
+  top: -128px;
+  left: 188px;
+  right: 32px;
+  height: 72px;
+  display: flex;
+  align-items: center;
+}
+.menu-content .abyssa-system-panel__tabs > .abyssa-system-toolbar { width: 100%; }
+/* The HUD's full-width transparent title track must not intercept these tabs. */
+.menu-entry:not([data-menu-view="home"]) .menu-topbar { pointer-events: none; }
+.menu-content .settings-app__panel { height: 100%; }
+.menu-content .abyssa-system-records__header { border: 0; }
+.menu-content .abyssa-system-records__slot {
+  min-height: 130px;
+  border-color: transparent;
+  background: linear-gradient(90deg, rgb(64 96 87 / 10%), transparent 85%);
+  box-shadow: inset 0 -2px rgb(119 182 165 / 28%);
+  transition: background 160ms ease, box-shadow 160ms ease;
+}
+.menu-content .abyssa-system-records__slot:is(:hover, [aria-pressed="true"]) { border-color: transparent; }
+.menu-content .abyssa-system-records__slot:hover:not(:disabled):not([data-static]) {
+  box-shadow: inset 0 -2px rgb(151 206 190 / 50%);
+}
+.menu-content .abyssa-system-records__slot[aria-pressed="true"] {
+  background: linear-gradient(90deg, rgb(105 163 135 / 16%), transparent 90%);
+  box-shadow: inset 0 -3px rgb(176 223 198 / 75%);
+}
+.menu-content .abyssa-system-records__slot[aria-pressed="true"]:hover:not(:disabled) {
+  box-shadow: inset 0 -3px #c5e9d4;
+}
+.menu-content .abyssa-system-records__slot[aria-pressed="true"] .abyssa-system-records__slot-title { color: #f7edcf; }
+.menu-content .abyssa-system-records__slot:focus-visible { outline-color: #d9ceb0; }
+.menu-content .abyssa-system-records__slot[data-unavailable] { filter: saturate(.35); }
+.menu-content .abyssa-system-records__thumbnail { flex-basis: 224px; width: 224px; min-height: 126px; }
+.menu-content .abyssa-system-records__thumbnail img { width: 224px; height: 126px; }
+.menu-content .abyssa-system-records__slot-title { font-size: 29px; }
+.menu-content .abyssa-system-records__contents { display: grid; height: 100%; min-height: 0; grid-template-rows: auto minmax(0, 1fr) auto; }
+.menu-content .abyssa-system-records__contents > .abyssa-system-records__list { max-height: none; min-height: 0; }
+.menu-content .abyssa-system-records__utility { max-height: calc(100% - 54px); }
+.menu-content .abyssa-system-records__empty { height: 100%; min-height: 220px; }
+.menu-content .abyssa-system-records__empty[data-record-state="empty"] {
+  display: grid;
+  grid-template-columns: 224px minmax(0, 1fr);
+  align-self: start;
+  align-items: center;
+  height: 130px;
+  min-height: 130px;
+  margin: 20px 4px 0;
+  background: linear-gradient(90deg, rgb(3 8 9 / 62%), rgb(7 12 13 / 36%) 72%, transparent);
+  box-shadow: inset 0 3px 9px rgb(0 0 0 / 28%), inset 0 -1px rgb(188 200 193 / 8%);
+  color: var(--abyssa-text-muted);
+}
+.menu-content .abyssa-system-records__empty[data-record-state="empty"] h3 { margin: 0; padding: 0 28px; font-size: 24px; color: inherit; }
+.menu-content .abyssa-system-records__empty-mark {
+  display: grid;
+  height: 100%;
+  place-items: center;
+  color: rgb(177 188 184 / 28%);
+  font: 32px/1 var(--abyssa-font-display);
+  background: repeating-linear-gradient(135deg, rgb(171 188 178 / 2%) 0 1px, transparent 1px 12px);
+}
+.menu-entry[data-menu-reduced] .abyssa-system-records__slot { transition: none; }
+@media (prefers-reduced-motion: reduce) { .menu-content .abyssa-system-records__slot { transition: none; } }

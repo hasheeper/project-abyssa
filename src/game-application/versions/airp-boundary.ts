@@ -11,6 +11,6 @@ export function airpAtHome(c: D5Projection): boolean {
     && c.manor.story?.status !== "pending" && (!c.memory || c.memory.node === "completed" || c.memory.node === "left");
 }
 export function airpEligible(c: D5Projection): boolean {
-  return airpAtHome(c) && !!c.manor.takeover && !!c.manor.story && c.manor.story.status !== "pending"
+  return airpAtHome(c) && (!!c.airpDemoStart || !!c.manor.takeover && !!c.manor.story && c.manor.story.status !== "pending")
     && c.availableCharacterIds.includes("elora") && (c.tutorial?.status === "completed" || c.tutorial?.status === "exempt");
 }

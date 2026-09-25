@@ -95,6 +95,10 @@
   min-height: 0;
 }
 
+/* Geometry only; feedback retains the shared scene-feedback skin. */
+.story-reading { position: relative; }
+.story-reading__feedback { position: absolute; z-index: 40; top: 18px; right: 24px; max-width: 520px; }
+
 /* ============ 底部单栏 ============
    三段:左翻页器 / 中推进指引 / 右工具钮。52px,一条 1px 渐变线与
    舞台分界(与消息流当前条的分隔线同语),无面板无切角。

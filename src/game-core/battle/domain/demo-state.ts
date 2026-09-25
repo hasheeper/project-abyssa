@@ -89,7 +89,7 @@ export type DemoEncounterState = {
   /** V4 historical endurance ending; never a manor release flag. */
   memory?: { bossId: string; puppetId: string; defeated: boolean; released: boolean };
 };
-export type DemoSupply = { instanceId: string; definitionId: string; source: "supply.demo.allowance" | "supply.demo.shop"; charges: number };
+export type DemoSupply = { instanceId: string; definitionId: string; source: "supply.demo.allowance" | "supply.demo.shop" | "supply.mansion.stock"; charges: number };
 export type DemoLayerResult = { layer: number; roomId: string; looseGold: number; handBonusPercent: number; depthPercent: number; earthPercent: number; gold: number };
 export type DemoEventResult = { roomId: string; eventId: string; choiceId: "read" | "attempt" | "skip"; actorId: string | null; faceId: string | null; method: "read" | "skip" | "strong" | "weak" | "failed"; cost: number; reward: number };
 export type DemoRunState<Ref = DemoCatalogRef, Supply = DemoSupply> = {
@@ -110,6 +110,9 @@ export type DemoRunState<Ref = DemoCatalogRef, Supply = DemoSupply> = {
   sequence: number;
   roomIds: string[][];
   completedRoomIds: string[];
+  /** Content 13 only; included in ordinary battle checkpoints and journey replay. */
+  commissionRewards?: import("../../contracts/commission-rewards").CommissionRewardBag;
+  carriedLoot?: import("../../contracts/loot").LootDrop[];
   supplies: Supply[];
   foodUses: Record<string, number>;
   layerResults: DemoLayerResult[];

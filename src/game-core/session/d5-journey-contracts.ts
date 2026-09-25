@@ -2,7 +2,7 @@ import type { DemoBattleCommand } from "../battle/domain/demo-state";
 import type { DemoItemTarget } from "./demo-items-events";
 import type { TutorialOperation } from "./tutorial-types";
 
-export type D5Departure = { runId: string; routeId: string; partyIds: string[]; itemIds: string[]; seed: number };
+export type D5Departure = { runId: string; routeId: string; partyIds: string[]; itemIds: string[]; supplyQuantities?: Record<string, number>; seed: number; commissionRewards?: import("../contracts/commission-rewards").CommissionReward[] };
 export type D5JourneyOperation =
   | TutorialOperation
   | { type: "resume" }

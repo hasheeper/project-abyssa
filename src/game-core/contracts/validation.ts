@@ -154,7 +154,8 @@ export function utf8Size(text: string): number {
   return bytes;
 }
 
-export function assertJson(value: unknown): void {
+/** Structural validation also used before lossless save pooling. */
+export function assertJsonStructure(value: unknown): void {
   let nodes = 0;
   const ancestors = new Set<object>();
   function visit(entry: unknown, path: string, depth: number): void {
@@ -189,6 +190,10 @@ export function assertJson(value: unknown): void {
     ancestors.delete(entry);
   }
   visit(value, "$", 0);
+}
+
+export function assertJson(value: unknown): void {
+  assertJsonStructure(value);
   if (utf8Size(JSON.stringify(value)) > DATA_LIMITS.bytes)
     invalid("$", "JSON size limit exceeded");
 }

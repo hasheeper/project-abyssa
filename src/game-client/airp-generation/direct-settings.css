@@ -1,0 +1,93 @@
+/* Same authored-pixel typography, quiet rules and open surface as Scene/Display.
+   Scoped to the game settings; the independent P1 workbench keeps its layout. */
+.airp-direct-settings {
+  --airp-settings-rule: var(--settings-rule, rgb(147 180 167 / 17%));
+  display: grid;
+  min-width: 0;
+  gap: 28px;
+  color: #ccd6cd;
+  font: 15px/1.6 var(--abyssa-font-body);
+}
+.airp-direct-settings, .airp-direct-settings * { box-sizing: border-box; }
+.airp-direct-settings--panel { height: 100%; min-height: 0; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); column-gap: 48px; }
+.settings-app--scene .airp-direct-settings--panel { column-gap: 72px; }
+.airp-direct-settings--panel:has(> .airp-settings-storage) { grid-template-rows: minmax(0, 1fr) auto; }
+.airp-direct-settings--game.airp-direct-settings--panel { grid-template-columns: minmax(0, .85fr) minmax(0, 1.45fr); }
+.airp-direct-settings--game .airp-connection-shared > .airp-fields { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+.airp-direct-settings--game .airp-settings-main > .airp-settings-help { margin-top: 18px; }
+.airp-direct-settings--game .airp-model { padding-block: 12px 8px; }
+.airp-direct-settings--game .airp-model:first-child { border-top: 0; padding-top: 0; }
+.airp-settings-baseline { color: var(--abyssa-text-muted); font-size: 13px; letter-spacing: .04em; }
+.airp-settings-main, .airp-settings-side { min-width: 0; min-height: 0; }
+.airp-direct-settings--panel > :is(.airp-settings-main, .airp-settings-side) { overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: #526e62 transparent; padding: 0 12px 12px 8px; }
+.airp-direct-settings--inline { padding: 16px 0; }
+.airp-direct-settings .airp-settings-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 30px; margin: 0 0 12px; }
+.airp-direct-settings .airp-settings-heading h3 { margin: 0; color: #bccdc1; font: 500 20px/1.4 var(--abyssa-font-display); letter-spacing: .04em; }
+.airp-direct-settings .airp-settings-import { position: relative; display: inline-flex; flex: none; align-items: center; flex-direction: row; gap: 7px; padding: 3px 0; border-bottom: 1px solid rgb(143 196 173 / 32%); color: #b4c9bd; font-size: 14px; cursor: pointer; }
+.airp-direct-settings .airp-settings-import:hover { color: #f2e9ce; border-color: #bbd6c5; }
+.airp-direct-settings .airp-settings-import input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+.airp-settings-import .save-file-icon { display: inline-block; width: 16px; height: 16px; background: currentColor; mask: center / contain no-repeat; -webkit-mask: center / contain no-repeat; }
+.airp-direct-settings .airp-settings-import:focus-within { outline: 1px solid #bbd6c5; outline-offset: 4px; }
+.airp-direct-settings fieldset { min-width: 0; margin: 0; padding: 0; border: 0; }
+.airp-direct-settings label:not(.abyssa-choice, .airp-settings-import) { display: flex; min-width: 0; flex-direction: column; gap: 6px; color: #a0b2aa; font-size: 14px; }
+.airp-direct-settings input:not([type=checkbox], [type=file]), .airp-direct-settings select {
+  display: block; width: 100%; min-width: 0; height: 38px; padding: 8px 11px;
+  border: 0; border-bottom: 1px solid rgb(147 180 167 / 35%); border-radius: 0;
+  background: transparent;
+  color: #d5dfd4; font: 15px/1.4 var(--abyssa-font-body); color-scheme: dark;
+}
+.airp-direct-settings input::placeholder { color: #7f958a; opacity: 1; }
+.airp-direct-settings input:not([type=checkbox], [type=file]):hover, .airp-direct-settings select:hover { border-bottom-color: #85aa97; }
+.airp-direct-settings input:not([type=checkbox], [type=file]):focus, .airp-direct-settings select:focus { outline: 1px solid #9bbdab; outline-offset: 2px; border-bottom-color: #b5d6c3; background-color: rgb(64 99 81 / 12%); }
+.airp-direct-settings select { padding-right: 24px; }
+.airp-direct-settings select option { color: #d5dfd4; background: #13201a; }
+.airp-direct-settings .airp-fields { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 16px; margin: 0; }
+.airp-direct-settings .airp-endpoint { margin: 7px 0 9px; color: #859e91; font: 12px/1.6 var(--abyssa-font-body); overflow-wrap: anywhere; }
+.airp-direct-settings .airp-model { margin: 0; padding: 8px 0 4px; border: 0; border-top: 1px solid var(--airp-settings-rule); }
+.airp-direct-settings .airp-model__title { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 0 0 7px; }
+.airp-direct-settings .airp-model__title strong { display: flex; align-items: baseline; flex-wrap: wrap; gap: 10px; color: #ccd6cd; font: 500 19px/1.4 var(--abyssa-font-display); }
+.airp-direct-settings .airp-model__index { color: #819e8d; font: 12px/1.4 var(--abyssa-font-display); font-variant-numeric: tabular-nums; }
+.airp-direct-settings .airp-model__title small { color: #81958a; font: 12px/1.5 var(--abyssa-font-body); letter-spacing: .02em; }
+.airp-direct-settings .airp-checkbox { display: flex; flex: none; align-items: center; gap: 7px; }
+.airp-direct-settings .airp-checkbox > label:not(.abyssa-choice) { font-size: 13px; cursor: pointer; }
+.airp-direct-settings .airp-checkbox .abyssa-choice { flex: none; width: 22px; height: 22px; }
+.airp-direct-settings .airp-checkbox:has(input:checked) > label:not(.abyssa-choice) { color: #d8dfc9; }
+.airp-direct-settings .airp-model__row { display: flex; align-items: end; gap: 12px; }
+.airp-direct-settings .airp-model__row > label { flex: 1; }
+.airp-direct-settings .airp-model__separate { margin: 4px 0 12px; }
+.airp-settings-sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; clip-path: inset(50%); overflow: hidden; white-space: nowrap; }
+.airp-direct-settings :is(.airp-settings-help, .airp-model__advanced, .airp-settings-sources, .airp-settings-sources > details) { min-width: 0; margin: 0; }
+.airp-direct-settings :is(.airp-settings-help, .airp-model__advanced, .airp-settings-sources, .airp-settings-sources > details) > summary { display: flex; align-items: baseline; gap: 9px; padding: 6px 0; color: #9ab4a4; font: 14px/1.6 var(--abyssa-font-body); cursor: pointer; list-style: none; }
+.airp-direct-settings :is(.airp-settings-help, .airp-model__advanced, .airp-settings-sources, .airp-settings-sources > details) > summary::-webkit-details-marker { display: none; }
+.airp-direct-settings :is(.airp-settings-help, .airp-model__advanced, .airp-settings-sources, .airp-settings-sources > details) > summary::before { content: "+"; width: 10px; flex: none; color: #819e8d; font: 16px/1.2 var(--abyssa-font-body); }
+.airp-direct-settings :is(.airp-settings-help, .airp-model__advanced, .airp-settings-sources, .airp-settings-sources > details)[open] > summary::before { content: "−"; }
+.airp-direct-settings :is(.airp-settings-help, .airp-model__advanced, .airp-settings-sources, .airp-settings-sources > details) > summary:hover { color: #f2e9ce; }
+.airp-direct-settings :is(.airp-settings-help, .airp-model__advanced, .airp-settings-sources, .airp-settings-sources > details) > summary:focus-visible, .airp-direct-settings .airp-settings-action:focus-visible { outline: 1px solid #bbd6c5; outline-offset: 3px; }
+.airp-direct-settings .airp-model__advanced > summary { justify-content: flex-end; padding: 4px 0 0; font-size: 12px; }
+.airp-direct-settings .airp-model__advanced[open] > summary { padding-bottom: 12px; }
+.airp-direct-settings .airp-fields--numbers { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.airp-direct-settings .airp-muted { margin: 8px 0; color: #94a99c; font: 13px/1.7 var(--abyssa-font-body); }
+.airp-settings-sources pre { max-height: 260px; overflow: auto; margin: 8px 0 12px; padding: 12px 14px; border-left: 1px solid #6f9984; background: rgb(60 90 76 / 7%); color: #b5c8bb; font: 12px/1.8 ui-monospace, monospace; white-space: pre-wrap; overflow-wrap: anywhere; scrollbar-width: thin; }
+.airp-direct-settings .airp-settings-preset__name { margin: 2px 0 18px; color: #d5dfd0; font: 18px/1.6 var(--abyssa-font-display); overflow-wrap: anywhere; }
+.airp-direct-settings .airp-settings-note { margin: 14px 0 10px; color: #9fb3a7; font: 14px/1.8 var(--abyssa-font-body); }
+.airp-direct-settings .airp-settings-sources { margin-top: 8px; }
+.airp-direct-settings .airp-settings-sources p { margin: 12px 0; font-size: 12px; overflow-wrap: anywhere; color: #b0c3b6; }
+.airp-direct-settings .airp-settings-sources p span { color: #829b8b; }
+.airp-settings-storage { display: flex; flex: 1; align-items: center; justify-content: space-between; min-width: 0; gap: 24px; }
+.airp-direct-settings > .airp-settings-storage { grid-column: 1 / -1; padding-top: 12px; border-top: 1px solid var(--airp-settings-rule); }
+.airp-settings-storage-state { display: grid; min-width: 0; gap: 4px; }
+.airp-settings-storage .settings-config-state { color: var(--abyssa-text-muted); font: 14px/1.4 var(--abyssa-font-body); }
+.airp-settings-storage-error { color: var(--abyssa-danger, #e4bda3); font: 13px/1.4 var(--abyssa-font-body); overflow-wrap: anywhere; }
+.airp-settings-storage .airp-settings-save { flex: none; width: 240px; }
+.settings-app > .abyssa-system-panel__footer:has(.airp-settings-storage) { width: 100%; }
+.airp-direct-settings .airp-settings-action { display: inline-block; padding: 4px 0; margin: 0 0 8px; border: 0; border-bottom: 1px solid rgb(143 196 173 / 32%); background: none; color: #b4c9bd; font: 14px/1.5 var(--abyssa-font-body); cursor: pointer; }
+.airp-direct-settings .airp-settings-action:hover:not(:disabled) { color: #f2e9ce; }
+.airp-direct-settings .airp-settings-action:disabled { opacity: .45; cursor: not-allowed; }
+.airp-direct-settings .airp-settings-help p { margin: 8px 0; color: #99afa1; font-size: 13px; line-height: 1.8; }
+.airp-direct-settings .airp-settings-feedback:empty { display: none; }
+.airp-direct-settings .airp-settings-feedback p { margin: 14px 0 0; padding: 10px 0; border-top: 1px solid var(--airp-settings-rule); color: #bcd1bb; font-size: 14px; overflow-wrap: anywhere; }
+.airp-direct-settings .airp-settings-feedback [role=alert] { color: #e4bda3; }
+@media (max-width: 650px) {
+  .airp-direct-settings--inline .airp-fields { grid-template-columns: minmax(0, 1fr); }
+  .airp-direct-settings--inline .airp-fields--numbers { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}

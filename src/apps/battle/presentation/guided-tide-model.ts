@@ -83,7 +83,7 @@ export function guidedTideModel(v: DemoJourneyView, draft: TideGuideDraft) {
     return make("foodTarget", [`battle.item-target:${op.instanceId}`]);
   }
   if (op.type === "event") return draft.eventActorId !== op.actorId
-    ? make(guide.planId === "tide.guide.v2" ? "locksmithParticipant" : "participant", [`battle.member:${op.actorId}`]) : make("event", ["battle.event-confirm"]);
+    ? make(op.actorId === "norma" ? "locksmithParticipant" : "participant", [`battle.member:${op.actorId}`]) : make("event", ["battle.event-confirm"]);
   if (op.type === "tutorial-observe") return make("result", ["battle.event-observe"]);
   if (op.type === "advance") return make("advance", ["battle.advance"]);
   return null;

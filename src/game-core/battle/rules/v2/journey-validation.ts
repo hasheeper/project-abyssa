@@ -13,7 +13,7 @@ export function validateSupplies(catalog: ValidatedDemoCatalog, raw: unknown, ma
     const economy = catalog.data.rulesVersion === 4 ? catalog.data.economy : undefined;
     const source = memory && catalog.ref.rulesVersion === 4 ? "memory.marietta.allowance"
       : economy && !economy.freeItemIds.includes(defId) ? "supply.demo.shop" : "supply.demo.allowance";
-    v.choice(s.source, [source], "supply.source");
+    v.choice(s.source, catalog.data.rulesVersion === 4 && catalog.data.facilities && !memory ? ["supply.mansion.stock", "supply.demo.allowance"] : [source], "supply.source");
     v.number(s.charges, "charges", 0, def.capacity);
     if (seen.has(id) || defs.has(defId)) v.invalid("supplies", "Duplicate supply instance or slot");
     seen.add(id); defs.add(defId);

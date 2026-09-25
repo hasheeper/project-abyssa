@@ -167,3 +167,4 @@
 }
 .menu-sidebar__item:hover { border-color: #304542; color: var(--abyssa-text-soft); filter: brightness(1.1); }
 .menu-sidebar__item:focus-visible { outline: 1px solid var(--abyssa-focus); outline-offset: 2px; }
+.menu-sidebar__item:disabled { opacity: .45; cursor: not-allowed; }

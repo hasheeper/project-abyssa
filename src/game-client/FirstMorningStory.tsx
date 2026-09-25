@@ -4,23 +4,27 @@ import { RpScene, type RpMessage } from "../shared/ui/patterns/RpScene";
 import { SceneSequence, useSceneSequenceBusy } from "../shared/presentation/adv/SceneSequence";
 import { Stage } from "../shared/stage";
 import { AbyssaProvider } from "../shared/ui/primitives/AbyssaProvider";
-import { RibbonButton } from "../shared/ui/primitives/RibbonButton";
+import { StoryChoices } from "../shared/ui/patterns/StoryChoices";
 import { useSceneTransition } from "../shared/transition";
 import { useGameSession, useGameState, gameErrorText } from "./react";
 import { gameHref, rememberSave } from "./navigation";
 import { storyActors, storyAssets, storyMessages } from "./story-actors";
 import { resolveEmotionCue } from "../shared/ui/patterns/emotion-cues";
 import { playerDisplayName, resolvePlayerText } from "../shared/domain/player-identity";
-import { FIRST_MORNING_STORY, FIRST_MORNING_ENTRIES, firstMorningAssetsLines, morningOptionKeys, morningTranscript, morningPages, type MorningChoice, type MorningDecision, type MorningSelection } from "../content/presentation/first-morning";
+import { usePlayerName } from "../shared/domain/PlayerIdentity";
+import { FIRST_MORNING_STORY, FIRST_MORNING_ENTRIES, firstMorningAssetsLines, morningOptionKeys, morningTranscript, morningPages, type MorningChoice, type MorningSelection } from "../content/presentation/first-morning";
 import { MorningEffects } from "./MorningEffects";
 import { StoryItemDisplay } from "./StoryItemDisplay";
 import { storyItem } from "./story-items";
 import { createMorningSound } from "./morning-sound";
 import type { ActorPerformances } from "../shared/domain/presentation/performance";
 import { avgPresentation } from "./avg-assets";
-import bookIcon from "../assets/icons/items/open-book.svg";
-import returnIcon from "../assets/icons/anticlockwise-rotation.svg";
-import "../shared/ui/styles/dialogue.css";
+import { ReadingControls } from "../shared/presentation/adv/ReadingControls";
+import { ReadingTool } from "../shared/presentation/adv/ReadingTool";
+import { useReadingPlayback } from "../shared/presentation/adv/useReadingPlayback";
+import { useReadingReview } from "../shared/presentation/adv/useReadingReview";
+import { useReadingPresentation } from "../shared/presentation/adv/useReadingPresentation";
+import "../shared/ui/styles/components-core.css";
 import "../shared/ui/styles/components-controls.css";
 import "../shared/ui/styles/paper-doll.css";
 import "../shared/ui/styles/rp.css";
@@ -47,18 +51,18 @@ export function morningPlayerText(text:string,name?:string) {
   return resolvePlayerText(source,name);
 }
 
-export function morningMessages(step:number,choices:readonly MorningSelection[],page=Infinity): RpMessage[] {
+export function morningMessages(step:number,choices:readonly MorningSelection[],page=Infinity,playerName?:string): RpMessage[] {
   const transcript=morningTranscript(step,choices);
   return transcript.flatMap((beat,index):RpMessage[]=> {
     if(beat.kind==="decision") {
       const selected=choices.find(c=>FIRST_MORNING_ENTRIES[c.step]?.id===beat.id);
-      return selected ? [{id:beat.id,kind:"narration",text:`〔${beat.options[selected.choice]}〕`}] : [];
+      return selected ? [{id:beat.id,kind:"choice",text:beat.options[selected.choice]!,sequence:choices.indexOf(selected)+1}] : [];
     }
     return morningPages(beat).slice(0,index===transcript.length-1?page+1:undefined).flatMap(frame=> {
       const directions:RpMessage[]=(frame.actors??[]).map((actor,i)=>({id:`${frame.id}.stage.${i}`,kind:"stage",actorId:actor.characterId,text:"",emotion:actor.emotion}));
       if(frame.effect==="handoff") return [...directions,{id:frame.id,kind:"chapter" as const,text:frame.text}];
       if(!frame.text) return directions;
-      return storyMessages([{...frame,text:morningPlayerText(frame.text)}]).map(message=>message.kind==="say" && message.actorId===FIRST_MORNING_STORY.player.actorId ? {...message,offstage:true} : message);
+      return storyMessages([{...frame,text:morningPlayerText(frame.text,playerName)}], undefined, playerName).map(message=>message.kind==="say" && message.actorId===FIRST_MORNING_STORY.player.actorId ? {...message,offstage:true} : message);
     });
   });
 }
@@ -66,7 +70,7 @@ export function morningMessages(step:number,choices:readonly MorningSelection[],
 type FirstMorningPlayerProps = {
   step:number;choices:readonly MorningSelection[];busy?:boolean;error?:string;
   lastStep?:number;
-  onAdvance:(choice:"continue"|MorningChoice)=>void;onExit:()=>void;
+  onAdvance:(choice:"continue"|MorningChoice)=>void|Promise<void>;onExit:()=>void;
 };
 
 /** Breakfast through departure is one continuous scene, with one arrival at its beginning. */
@@ -78,19 +82,25 @@ export function FirstMorningScene({covered = false, ...props}: FirstMorningPlaye
   }}/>;
 }
 
-/** Same two RP layouts and their original transition; one durable cursor and one branch history. */
+/** Shared AVG/NVL layouts and transition; one durable cursor and one branch history. */
 export function FirstMorningPlayer({step,choices,lastStep=FIRST_MORNING_ENTRIES.length-1,busy=false,error,onAdvance,onExit}: FirstMorningPlayerProps) {
+  const playerName = usePlayerName();
+  const actors = useMemo(() => ACTORS.map(actor => actor.id === FIRST_MORNING_STORY.player.actorId ? {...actor, name: playerName} : actor), [playerName]);
   const transitionBusy=useSceneSequenceBusy();
-  const [layout,setLayout]=useState<"adv"|"nvl">(FIRST_MORNING_STORY.presentation.defaultMode);
-  const [morph,setMorph]=useState<"to-adv"|"to-nvl"|null>(null),[phase,setPhase]=useState<"out"|"in">("out");
-  const [reading,setReading]=useState(false),[settled,setSettled]=useState<string|null>(null),[revealed,setRevealed]=useState<string|null>(null);
-  const [switched,setSwitched]=useState(false);
-  const timer=useRef<ReturnType<typeof setTimeout>|undefined>(undefined),switching=useRef(false),stage=useRef<HTMLElement>(null);
+  const presentation = useReadingPresentation(FIRST_MORNING_STORY.presentation.defaultMode);
+  const {layout, reading, morph, phase, switched, switching} = presentation;
+  const [settled,setSettled]=useState<string|null>(null),[revealed,setRevealed]=useState<string|null>(null);
+  const [choicesPresent,setChoicesPresent]=useState(false);
+  const stage=useRef<HTMLElement>(null);
   const initialStep=useRef(step);
   const [pageCursor,setPageCursor]=useState({step,page:0});
   const page=pageCursor.step===step?pageCursor.page:0;
   const transcript=useMemo(()=>morningTranscript(step,choices),[step,choices]);
-  const messages=useMemo(()=>morningMessages(step,choices,page),[step,choices,page]);
+  const liveMessages=useMemo(()=>morningMessages(step,choices,page,playerName),[step,choices,page,playerName]);
+  const reviewPages=useMemo(()=>transcript.flatMap((beat,index)=>beat.kind==="decision" ? [] : morningPages(beat)
+    .slice(0,index===transcript.length-1?page+1:undefined).map((frame,p)=>({id:frame.id,messages:morningMessages(index,choices,p,playerName)}))),[transcript,choices,page,playerName]);
+  const review=useReadingReview([{id:FIRST_MORNING_STORY.id,title:FIRST_MORNING_STORY.title,pages:reviewPages}]);
+  const messages=review.page?.messages ?? liveMessages;
   const node=transcript.at(-1)!;
   const frames=node.kind==="decision"?[]:morningPages(node);
   const current=node.kind==="decision"?node:frames[page];
@@ -98,11 +108,18 @@ export function FirstMorningPlayer({step,choices,lastStep=FIRST_MORNING_ENTRIES.
   const silent=current.kind!=="decision" && !current.text && !!current.holdMs;
   const handoff="effect" in current && current.effect==="handoff";
   const chapter=handoff && "text" in current ? current.text.split("：") : [];
-  const stageMessages=handoff?messages.slice(0,-1):messages;
-  const key=current.id,locked=busy || transitionBusy || !!morph;
-  const typing=layout==="adv" && !decision && !handoff && !silent && !reading && revealed!==key;
+  const stageMessages=handoff && !review.reviewing?messages.slice(0,-1):messages;
+  const choiceExiting=choicesPresent && !decision;
+  const key=current.id,blocked=busy || transitionBusy || !!morph || choiceExiting;
+  const typing=!decision && !handoff && !silent && !reading && !review.reviewing && revealed!==key;
   const ready=!typing || settled===key;
   const last=step===lastStep;
+  const canAdvance=!decision && !handoff && !(last && page>=frames.length-1);
+  const advanceOrdinary=()=>{if(page<frames.length-1) setPageCursor({step,page:page+1});else return onAdvance("continue");};
+  const reveal=()=>{setRevealed(key);setSettled(key);};
+  const playback=useReadingPlayback({key,ready,blocked:blocked || silent,boundary:!canAdvance,suspended:reading || review.reviewing || !!morph,error,
+    reveal,advance:advanceOrdinary});
+  const locked=blocked || playback.pending;
   const pressure=transcript.flatMap((beat,index)=>beat.kind==="decision"?[]:morningPages(beat).slice(0,index===transcript.length-1?page+1:undefined))
     .reduce((active,frame)=>frame.effect==="pressure"?true:frame.effect==="release"?false:active,false);
   const [mutedKey,setMutedKey]=useState<string|null>(()=>step>0?key:null);
@@ -110,7 +127,7 @@ export function FirstMorningPlayer({step,choices,lastStep=FIRST_MORNING_ENTRIES.
   const autoAttempt=useRef<string|null>(null);
   const nextRef=useRef(()=>{});
   const sound=useRef<ReturnType<typeof createMorningSound>|null>(null);
-  const live=!reading && !morph && visible && mutedKey!==key;
+  const live=!reading && !review.reviewing && !morph && visible && mutedKey!==key;
   const performances:ActorPerformances|undefined=live && current.kind!=="decision" ? Object.fromEntries((current.actors??[]).map(actor=>[actor.characterId,{key,motion:actor.motion,aside:actor.aside,still:actor.still}])) : undefined;
   const beat=current.kind!=="decision"?current:undefined;
   useEffect(()=> {
@@ -123,87 +140,71 @@ export function FirstMorningPlayer({step,choices,lastStep=FIRST_MORNING_ENTRIES.
     if(live && !locked && beat?.sound) return sound.current?.play(beat.sound);
   },[key,live,locked,beat?.sound]);
   useEffect(()=> {
-    if(!silent || locked || reading || !visible || error || autoAttempt.current===key) return;
+    if(!silent || locked || reading || review.reviewing || !visible || error || autoAttempt.current===key) return;
     const id=setTimeout(()=>{autoAttempt.current=key;nextRef.current();},beat?.holdMs??600);
     return ()=>clearTimeout(id);
-  },[key,silent,locked,reading,visible,error,beat?.holdMs]);
-  useEffect(()=>()=>clearTimeout(timer.current),[]);
+  },[key,silent,locked,reading,review.reviewing,visible,error,beat?.holdMs]);
   useEffect(()=>{if(!locked && !reading) stage.current?.focus({preventScroll:true});},[key,locked,reading]);
 
-  function changeLayout() {
-    if(locked || handoff || switching.current || !FIRST_MORNING_STORY.presentation.allowRp) return;
+  function changePresentation(nextLayout: "adv" | "nvl", nextReading: boolean) {
+    if(locked || switching.current) return;
+    playback.stop();
     setMutedKey(key);
-    switching.current=true;
-    setReading(false);setMorph(layout==="adv"?"to-nvl":"to-adv");setPhase("out");
-    const half=window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ? 0 : 280;
-    timer.current=setTimeout(()=> {
-      setLayout(layout==="adv"?"nvl":"adv");setRevealed(key);setSettled(key);setSwitched(true);setPhase("in");
-      timer.current=setTimeout(()=>{setMorph(null);switching.current=false;},half);
-    },half);
+    presentation.changePresentation(nextLayout, nextReading, () => {setRevealed(key);setSettled(key);});
   }
+  function changeLayout() {
+    if(handoff || !FIRST_MORNING_STORY.presentation.allowRp) return;
+    changePresentation(layout==="adv"?"nvl":"adv", false);
+  }
+  function toggleReading() {changePresentation(layout, !reading);}
   function next() {
     if(locked || switching.current) return;
-    if(reading) {setReading(false);return;}
+    playback.stop();
+    if(reading) {toggleReading();return;}
+    if(review.reviewing) {review.next();return;}
     if(decision) return;
     if(!ready) {setRevealed(key);return;}
-    if(page<frames.length-1){setPageCursor({step,page:page+1});return;}
-    onAdvance("continue");
+    void playback.run(advanceOrdinary);
   }
-  nextRef.current=next;
-  const label=reading?"返回当前对白":decision?"选择行动":silent?"继续":!ready?"显示全文":last?"结束本场":"下一句";
+  nextRef.current=()=>{void playback.run(advanceOrdinary);};
+  const label=reading?"返回当前对白":review.reviewing?review.atEnd?"返回当前进度":"重播下一句":decision?"选择行动":silent?"继续":!ready?"显示全文":last?"结束本场":"下一句";
   const log=reading || layout==="nvl";
+  const choiceUi = <StoryChoices decision={decision && !reading && !review.reviewing ? {
+    id: decision.id, prompt: decision.prompt,
+    options: morningOptionKeys(decision.options).map(id => ({id, label: decision.options[id]!})),
+  } : null} placement={log ? "inline" : "overlay"} disabled={locked}
+    enterBlocked={transitionBusy || !!morph && phase === "out"} onChoose={async id=>{playback.stop();await onAdvance(id);}} onPresentChange={setChoicesPresent}/>;
   return <main className={PRESENTATION.className} aria-label={FIRST_MORNING_STORY.title} data-layout={log?"nvl":"adv"} data-step={step}
     data-state={reading?"reading":ready?"idle":"typing"} data-decision={!!decision || undefined} data-morph={morph??undefined} data-phase={morph?phase:undefined}
-    data-handoff={handoff && !reading || undefined} data-silent={silent && !reading || undefined}
+    data-handoff={handoff && !reading && !review.reviewing || undefined} data-silent={silent && !reading && !review.reviewing || undefined}
+    data-replaying={review.reviewing || undefined}
     data-effect={live?beat?.effect:undefined} data-pressure={pressure || undefined}
     onPointerDownCapture={()=>{sound.current??=createMorningSound();sound.current?.unlock();}}
     onKeyDownCapture={()=>{sound.current??=createMorningSound();sound.current?.unlock();}}
     style={{"--rp-morph-ms":"560ms"} as CSSProperties}>
-    <section className="rp-app__stage" aria-label={log?"RP 消息流":"AVG 对话"} ref={stage} tabIndex={0}
+    <section className="rp-app__stage" aria-label={log?"NVL 消息流":"AVG 对话"} ref={stage} tabIndex={0}
       onClick={e=>{if(!(e.target as HTMLElement).closest("button") && !reading) next();}}
-      onKeyDown={e=>{if(e.target!==e.currentTarget)return;if([" ","Enter","ArrowRight"].includes(e.key)){e.preventDefault();next();}if(e.key==="Escape")setReading(false);}}>
-      {log ? <RpScene actors={ACTORS} messages={reading?messages:stageMessages} initialSlots={INITIAL_SLOTS} background={background} performances={performances} hydrate mode={reading?"log":"play"}/>
-        : <AdvStage actors={ACTORS} messages={stageMessages} initialSlots={INITIAL_SLOTS} background={background} typing={typing} silent={silent} performances={performances}
+      onKeyDown={e=>{if(e.target!==e.currentTarget)return;if([" ","Enter","ArrowRight"].includes(e.key)){e.preventDefault();next();}if(e.key==="Escape" && reading)toggleReading();}}>
+      {log ? <RpScene actors={actors} messages={reading?messages:stageMessages} initialSlots={INITIAL_SLOTS} background={background} performances={performances} hydrate typing={typing} onTypingEnd={()=>setSettled(key)} mode={reading || review.reviewing?"log":"play"} actions={choiceUi}/>
+        : <AdvStage actors={actors} messages={stageMessages} initialSlots={INITIAL_SLOTS} background={background} typing={typing} silent={silent && !review.reviewing} performances={performances} replay={review.reviewing}
           hydrate={switched || initialStep.current>0} onTypingEnd={()=>setSettled(key)}/>}
-      <MorningEffects beat={beat} pressure={pressure} live={live && !locked} reading={reading}/>
-      <StoryItemDisplay item={!reading && beat?.itemId ? storyItem(beat.itemId) : undefined}/>
-      {decision && !reading && <MorningChoices decision={decision} disabled={locked} onChoose={onAdvance}/>}
-      {handoff && !reading && <div className="first-morning__handoff" role="region" aria-label={current.text}>
+      <MorningEffects beat={beat} pressure={pressure} live={live && !locked} reading={reading || review.reviewing}/>
+      <StoryItemDisplay item={!reading && !review.reviewing && beat?.itemId ? storyItem(beat.itemId) : undefined}/>
+      {!log && choiceUi}
+      {handoff && !reading && !review.reviewing && <div className="first-morning__handoff" role="region" aria-label={current.text}>
         <div className="first-morning__chapter"><p>{chapter[0]}</p><h1>{chapter.slice(1).join("：")}</h1></div>
       </div>}
     </section>
-    <footer className="rp-app__bar">
-      <div className="rp-app__pager"><span className="rp-app__cell"><span className="rp-app__cell-main">{FIRST_MORNING_STORY.title}</span><span className="rp-app__cell-label">{PRESENTATION.locationLabel}</span></span></div>
-      <button className="rp-app__cell rp-app__cue" type="button" aria-label={label} disabled={locked || !!decision && !reading} onClick={next}>
-        <span className="rp-app__cue-line"><span className="rp-app__cue-word">{Array.from(label).map((char,i)=><span key={i}>{char}</span>)}</span></span>
-      </button>
-      <nav className="rp-app__tools" aria-label="演出控制">
-        <button type="button" className="rp-app__cell rp-app__tool" aria-label={reading?"关闭回看":"回看已读对白"} aria-pressed={reading} disabled={locked} onClick={()=>{setMutedKey(key);setRevealed(key);setReading(v=>!v);setSwitched(true);}}>
-          <i className="rp-app__cell-main rp-app__tool-icon" aria-hidden="true" style={{maskImage:`url("${bookIcon}")`,WebkitMaskImage:`url("${bookIcon}")`}}/><span className="rp-app__cell-label">LOG</span>
-        </button>
-        <button type="button" className="rp-app__cell rp-app__tool" aria-label={layout==="adv"?"切换为 RP 舞台":"切换为 AVG 舞台"} disabled={locked || handoff || !FIRST_MORNING_STORY.presentation.allowRp} onClick={changeLayout}>
-          <i className="rp-app__cell-main rp-app__tool-icon" data-glyph="true" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="5" width="18" height="14" strokeWidth="2.2"/>{layout==="adv"?<path d="M9 5v14M15 5v14" strokeWidth="2"/>:<path d="M6 15h12" strokeWidth="3"/>}</svg></i>
-          <span className="rp-app__cell-label">{layout==="adv"?"RP":"AVG"}</span>
-        </button>
-        <button type="button" className="rp-app__cell rp-app__tool" aria-label="保存进度并返回标题" disabled={locked} onClick={onExit}>
-          <i className="rp-app__cell-main rp-app__tool-icon" aria-hidden="true" data-shrink="true" style={{maskImage:`url("${returnIcon}")`,WebkitMaskImage:`url("${returnIcon}")`}}/><span className="rp-app__cell-label">BACK</span>
-        </button>
-      </nav>
-    </footer>
+    <ReadingControls layout={layout} reading={reading} reviewing={review.reviewing} auto={playback.auto} skipping={playback.skipping} disabled={locked}
+      layoutDisabled={handoff || !FIRST_MORNING_STORY.presentation.allowRp} canReplay={review.canReplay}
+      canPlay={canAdvance && !reading && !review.reviewing} canSkip={!reading && !review.reviewing && (canAdvance || !ready)}
+      sceneIndex={review.index} sceneTotal={review.total} location={PRESENTATION.locationLabel} label={label} nextDisabled={!!decision && !reading && !review.reviewing}
+      onLayout={changeLayout} onLog={toggleReading} onReplay={()=>{playback.stop();setMutedKey(key);reveal();if(review.reviewing)review.exit();else review.replay();}}
+      onScene={index=>{playback.stop();setMutedKey(key);review.go(index);}} onAuto={()=>playback.toggle("auto")}
+      onSkip={()=>{if(canAdvance)playback.toggle("skip");else reveal();}} onNext={next}
+      actions={<ReadingTool label="保存进度并返回标题" caption="BACK" glyph="back" disabled={locked} onClick={()=>{playback.stop();onExit();}}/>}/>
     {error && <p className="game-client-status" role="alert">{error}</p>}
   </main>;
-}
-
-function MorningChoices({decision,disabled,onChoose}:{decision:MorningDecision;disabled:boolean;onChoose:(choice:MorningChoice)=>void}) {
-  return <section className="first-morning__choices" aria-label={decision.prompt} onClick={e=>e.stopPropagation()}>
-    <p className="first-morning__choice-prompt">{decision.prompt}</p>
-    <div className="first-morning__choice-list">
-      {morningOptionKeys(decision.options).map(choice=><RibbonButton
-        key={choice} className="first-morning__choice" variant="dark" size="lg" fullWidth
-        disabled={disabled} onClick={()=>onChoose(choice)}
-      >{decision.options[choice]}</RibbonButton>)}
-    </div>
-  </section>;
 }
 
 export function FirstMorningStory() {
@@ -232,13 +233,17 @@ export function FirstMorningStory() {
       finally {if(!leaving){pending.current=false;setExtending(false);}}
       return;
     }
-    const batch=await session.dispatch({type:"advance-opening",step:progress.step,choice});
+    let batch;
+    try {batch=await session.dispatch({type:"advance-opening",step:progress.step,choice});}
+    finally {pending.current=false;}
+    // Session reports rejected writes as null, not a rejected Promise. Let the
+    // choice presenter restore its selected row without changing save semantics.
+    if(!batch && choice!=="continue") throw new Error("Opening choice was not committed");
     if(batch?.after.schemaVersion===4 && batch.after.snapshot.campaign.opening?.status==="viewed")
       transition.navigate(gameHref(record?.schemaVersion===4 && record.snapshot.campaign.tutorial?.status==="pending" ? "battle" : "mansion",session.locator),{replace:true,cinematic:true,still:background});
-    pending.current=false;
   };
   return <AbyssaProvider><Stage background="var(--abyssa-rp-backdrop)">
     <FirstMorningScene covered={transition.isTransitioning} step={progress.step} choices={progress.choices} lastStep={record?.contentRef.contentVersion===5?66:undefined} busy={extending || status!=="ready" || progress.status!=="playing"}
-      error={extensionError || (error?gameErrorText(error.code):undefined)} onAdvance={choice=>void advance(choice)} onExit={()=>transition.navigate(gameHref("title"))}/>
+      error={extensionError || (error?gameErrorText(error.code):undefined)} onAdvance={advance} onExit={()=>transition.navigate(gameHref("title"))}/>
   </Stage></AbyssaProvider>;
 }

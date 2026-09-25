@@ -1,0 +1,29 @@
+/* The long rail starts at the scene edge. The shorter sign hangs in front of it. */
+.new-shop__navigation { position: absolute; z-index: 3; top: 0; left: 161px; bottom: 22px; width: 145px; isolation: isolate; }
+.new-shop__navigation-art { position: absolute; z-index: -1; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+.new-shop__navigation-art[data-part="body"] { filter: drop-shadow(3px 5px 3px #000a) drop-shadow(5px 8px 8px #0005); }
+.new-shop__navigation-art[data-part="banner"] { filter: drop-shadow(0 6px 2px #000c) drop-shadow(2px 10px 7px #0007); }
+.new-shop__banner { position: relative; isolation: isolate; height: 222px; display: flex; flex-direction: column; align-items: center; gap: 13px; padding-top: 38px; color: #b59a68; }
+.new-shop__banner .new-shop__symbol { width: 54px; height: 72px; mask-size: 100% 100%; background: #b59a68; filter: drop-shadow(0 1px 1px #0008); }
+.new-shop__banner > span:last-child { font-family: Georgia, serif; font-size: 17px; line-height: 22px; letter-spacing: 6px; padding-left: 6px; color: #b59a68; text-shadow: 0 1px 1px #0009; }
+.new-shop__modes { position: relative; display: flex; flex-direction: column; gap: 16px; margin-top: 24px; }
+.new-shop__modes button { position: relative; isolation: isolate; display: grid; grid-template-columns: 38px 1fr; align-items: center; column-gap: 13px; width: calc(100% + 14px); height: 76px; padding: 0 17px; background: transparent; border: 1px solid transparent; color: #b7a07b; text-align: left; font-size: 22px; }
+.new-shop__modes button .new-shop__symbol { justify-self: center; width: 36px; height: 36px; background: currentColor; filter: drop-shadow(0 1px 1px #0008); }
+.new-shop__modes button .new-shop__mode-icon--sell { width: 38px; height: 38px; }
+.new-shop__mode-label { line-height: 1; white-space: nowrap; text-shadow: 0 1px 1px #0009; }
+.new-shop__mode-plate { position: absolute; z-index: -1; inset: -1px; width: calc(100% + 2px); height: calc(100% + 2px); overflow: visible; opacity: 0; filter: drop-shadow(0 3px 2px #000b) drop-shadow(1px 6px 5px #0005); pointer-events: none; }
+.new-shop__modes button[aria-selected="true"] {
+  color: #e8d5ad;
+}
+.new-shop__modes button[aria-selected="true"] .new-shop__mode-plate { opacity: 1; }
+.new-shop__modes button:hover:not(:disabled):not([aria-selected="true"]) { color: #e5cfa7; background-color: #6b50232b; }
+.new-shop__modes button[aria-selected="true"]:hover:not(:disabled) .new-shop__mode-plate { filter: brightness(1.08) drop-shadow(0 3px 2px #000b) drop-shadow(1px 6px 5px #0005); }
+.new-shop__modes small { position: absolute; right: 26px; top: 16px; color: #c8ad78; font: 12px/1 Georgia, serif; font-variant-numeric: tabular-nums; }
+.new-shop__nav-foot { position: absolute; bottom: 62px; inset-inline: 19px; display: grid; gap: 22px; text-align: center; color: #9a7c477a; }
+.new-shop__nav-foot > span { display: flex; align-items: center; gap: 7px; font-size: 29px; }
+.new-shop__nav-foot > span::before, .new-shop__nav-foot > span::after { content: ""; flex: 1; height: 1px; background: #84673950; }
+.new-shop__nav-foot button { border: 0; padding: 8px 0; background: none; color: #9d8a6d; font-size: 19px; }
+.new-shop__nav-foot button span { margin-left: 8px; font-size: 14px; }
+.new-shop__nav-foot button:disabled { opacity: .45; }
+.new-shop__preview-tools { display: flex; justify-content: space-between; gap: 8px; margin-top: -16px; }
+.new-shop__preview-tools button { padding: 4px 0; font-size: 12px; }

@@ -1,3 +1,5 @@
+import { parseCommissionRewards } from "../../game-core/contracts";
+import { parseSupplyQuantities } from "../../game-core/contracts";
 import * as v from "../../game-core/contracts";
 import type { ValidatedD5Catalog } from "../../game-core/contracts";
 import { createD5ExpeditionEngine, parseDemoItemTarget, parseTutorialOperation } from "../../game-core/session";
@@ -25,8 +27,8 @@ function parseOperation(raw: unknown): D5JourneyEvidence["operation"] {
   const fields = { start: ["input"], resume: [], battle: ["command"], advance: ["roomId"], event: ["roomId", "choice", "actorId"], exit: ["roomId", "choice"], item: ["instanceId", "target"] };
   v.record(r, "operation", ["type", ...fields[type]]);
   if (type === "start") {
-    const i = v.record(r.input, "departure", ["runId", "routeId", "partyIds", "itemIds", "seed"]);
-    return { type, input: { runId: v.id(i.runId, "runId"), routeId: v.id(i.routeId, "routeId"), partyIds: v.ids(i.partyIds, "partyIds", 5), itemIds: v.ids(i.itemIds, "itemIds", v.MAX_DEPARTURE_SUPPLIES), seed: v.number(i.seed, "seed", 0, 0xffffffff) } };
+    const i = v.record(r.input, "departure", ["runId", "routeId", "partyIds", "itemIds", "seed"], ["supplyQuantities", "commissionRewards"]);
+    return { type, input: { ...(i.commissionRewards === undefined ? {} : {commissionRewards: parseCommissionRewards(i.commissionRewards)}), runId: v.id(i.runId, "runId"), routeId: v.id(i.routeId, "routeId"), partyIds: v.ids(i.partyIds, "partyIds", 5), itemIds: v.ids(i.itemIds, "itemIds", v.MAX_DEPARTURE_SUPPLIES), ...(i.supplyQuantities ? {supplyQuantities: parseSupplyQuantities(i.supplyQuantities)} : {}), seed: v.number(i.seed, "seed", 0, 0xffffffff) } };
   }
   if (type === "resume") return { type };
   if (type === "battle") return { type, command: parseDemoBattleCommand(r.command) };

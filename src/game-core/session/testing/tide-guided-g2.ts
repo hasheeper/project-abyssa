@@ -15,6 +15,7 @@ export function g2Next(catalog: ValidatedD5Catalog, state: D5ExpeditionState, ch
   const t = state.tutorial!;
   if (t.stage === "claimable" || t.stage === "failed") return null;
   if (t.guide?.mode === "guided") {
+    if (t.stage === "active" && layerReady(catalog.data, state)) return {type: "resume"};
     const op = tutorialGuideOperation(catalog, state);
     if (op) return op;
     if (t.stage === "active" && state.encounter && (state.encounter.phase === "enemy" || state.encounter.phase === "complete" || state.encounter.phase === "act" && !state.encounter.formation.length)) return {type: "resume"};

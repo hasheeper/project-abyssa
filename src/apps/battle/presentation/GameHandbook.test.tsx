@@ -125,7 +125,9 @@ it("locates the UI and teaches a complete round with control and target details"
   expect(flow).toHaveTextContent("攻击图标旁的数字是伤害");
   expect(flow).toHaveTextContent("掷骰只决定可用动作，不会自动发动攻击");
   expect(flow).toHaveTextContent("ROLL 按钮会切换为 REROLL");
-  expect(flow).toHaveTextContent("固定骰子之后，点击它上方的队员卡");
+  expect(flow).toHaveTextContent("固定骰子后已自动选中对应队员，不必再点角色卡");
+  expect(flow).toHaveTextContent("不会解除前一枚的固定");
+  expect(flow).not.toHaveTextContent("固定骰子之后，点击它上方的队员卡");
   expect(flow).toHaveTextContent("盾面点要拦截的那条攻击意图");
   expect(flow).toHaveTextContent("治疗面点受伤队员");
   expect(flow).toHaveTextContent("对应骰子会变灰");
@@ -136,7 +138,7 @@ it("locates the UI and teaches a complete round with control and target details"
   expect(article).toHaveTextContent("格挡点对应的攻击意图");
   expect(article).toHaveTextContent("左侧菜单可展开名称");
   expect(within(article).queryByRole("table")).toBeNull();
-  expect(article).not.toHaveTextContent(/最多|上限|×3|配给|后续开放|金币保留一半/);
+  expect(article).not.toHaveTextContent(/最多|上限|×3|配给|后续开放|资金保留一半/);
 });
 
 it("teaches the expedition from departure through fights, rest, layer settlement and return", async () => {
@@ -152,13 +154,13 @@ it("teaches the expedition from departure through fights, rest, layer settlement
   expect(steps).toHaveTextContent("点击「继续前进」");
   expect(steps).toHaveTextContent("消耗过的药水和食物却不会随之补满");
   expect(steps).toHaveTextContent("本层散金 × 当前总倍率");
-  expect(steps).toHaveTextContent("已入袋金币继续保留；散金和牌型加成则从起点重新积累");
+  expect(steps).toHaveTextContent("已入袋资金继续保留；散金和牌型加成则从起点重新积累");
   expect(steps).toHaveTextContent("到达指定出口时，可以选择撤离");
-  expect(steps).toHaveTextContent("领取结算后，本趟带回的金币才会写入长期钱包");
+  expect(steps).toHaveTextContent("领取结算后，本趟带回的资金才会写入长期钱包");
   const table = within(article).getByRole("table", {name: "这些进度分别在什么时候更新 · 规则表"});
   expect(within(table).getAllByRole("rowheader").map(node => node.textContent)).toEqual(["一轮（Turn）", "一场（Room）", "一层（Floor）", "一趟（Run）"]);
   expect(table).toHaveTextContent("重新获得行动资格与重掷机会");
-  expect(table).toHaveTextContent("收益转为已入袋金币");
+  expect(table).toHaveTextContent("收益转为已入袋资金");
   expect(table).toHaveTextContent("返馆领取本趟结算");
   expect(table).toHaveTextContent("从指定出口撤离");
   expect(article.querySelectorAll(".handbook__key-rules, .handbook__note")).toHaveLength(0);
@@ -205,16 +207,16 @@ it("keeps life and downed recovery together and moves financial outcomes to the 
   expect(rules).toHaveTextContent("不倒扣此前已累计的倍率");
   expect(rules).toHaveTextContent("下一场战斗以 1 点生命归队");
   expect(within(article).queryByRole("table")).toBeNull();
-  expect(article).not.toHaveTextContent(/雨夜之盟|金币|退潮岩窟教程|重试本场|不推进世界时间/);
+  expect(article).not.toHaveTextContent(/雨夜之盟|资金|退潮岩窟教程|重试本场|不推进世界时间/);
   await user.click(screen.getByRole("button", {name: "倍率机制"}));
-  await user.click(screen.getByRole("button", {name: "总倍率与金币结算"}));
+  await user.click(screen.getByRole("button", {name: "总倍率与资金结算"}));
   const payout = screen.getByRole("region", {name: "散金 → 入袋 → 钱包"});
   expect(payout).toHaveTextContent("四舍五入为整数");
   expect(payout).toHaveTextContent("散金归零");
   expect(payout).toHaveTextContent("撤离时不再乘一次倍率");
-  expect(payout).toHaveTextContent("入袋金币全额带回");
+  expect(payout).toHaveTextContent("入袋资金全额带回");
   expect(payout).toHaveTextContent("本层散金全部丢失");
-  expect(payout).toHaveTextContent("入袋金币保留一半并向下取整");
+  expect(payout).toHaveTextContent("入袋资金保留一半并向下取整");
   expect(payout).toHaveTextContent("长期钱包已有存款不受影响");
   expect(within(payout).getAllByRole("rowheader")).toHaveLength(2);
 });
@@ -235,7 +237,7 @@ it("explains both die layers and links to the multiplier table only in the rewar
   expect(screen.getByRole("table").querySelectorAll("tbody tr")).toHaveLength(10);
   expect(screen.getByRole("table").querySelectorAll("thead th")).toHaveLength(3);
   const rewardsTable = screen.getByRole("table").innerHTML;
-  await user.click(screen.getByRole("button", {name: "总倍率与金币结算"}));
+  await user.click(screen.getByRole("button", {name: "总倍率与资金结算"}));
   expect(screen.getByRole("article")).toHaveTextContent("×2.97 升至 ×3.30");
   await user.click(screen.getByRole("button", {name: "牌型机制：回合末自动凑牌"}));
   expect(screen.getByRole("table").innerHTML).toBe(rewardsTable);
@@ -463,7 +465,7 @@ it("gives each detailed rule one home and removes obsolete fragment pages", () =
     [/全队每轮最多 2 次/, "other/use"],
     [/可携带种类以行囊槽位为准/, "other/use"],
     [/下一场战斗以 1 点生命归队/, "battle/survival"],
-    [/入袋金币保留一半/, "rewards/factors"],
+    [/入袋资金保留一半/, "rewards/factors"],
     [/主／副花色含尘世/, "rewards/factors"],
   ] as const) expect(texts.filter(s => pattern.test(s.text)).map(s => s.id)).toEqual([owner]);
   expect(copy.chapters.every(c => c.summary === "")).toBe(true);
@@ -535,7 +537,7 @@ it("keeps situational instructions direct and leaves detailed multiplier arithme
   expect(guidedCopy.steps.participant.text).toContain("成功判定面");
   expect(guidedCopy.steps.participant.text).not.toMatch(/事件由一名队员尝试|不是全队/);
   expect(guidedCopy.steps.multiplier.text).toContain("两对已成型");
-  expect(guidedCopy.steps.multiplier.text).toContain("金币倍率上涨");
+  expect(guidedCopy.steps.multiplier.text).toContain("收益倍率上涨");
   expect(guidedCopy.steps.multiplier.text).toContain("追击");
   expect(JSON.stringify(guidedCopy)).not.toMatch(/稳住|记住|金钟罩|\{\w+\}/);
   expect(JSON.stringify(copy)).toContain("×2.70");

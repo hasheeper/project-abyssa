@@ -2,6 +2,7 @@ import * as v from "./validation";
 import { validateDemoJourney } from "./demo-journey-validation";
 import { sha256 } from "./sha256";
 import { validateManorContent } from "./manor";
+import { validateEquipmentDefinition, validateEquipmentAllocation, equipmentLimit } from "./equipment";
 import type {
   DemoContent,
   DemoCatalog,
@@ -33,6 +34,7 @@ function definition(value: unknown, key: string, fields: string[]) {
 export function validateDemoContent(
   raw: unknown,
   deferredCovenants: readonly string[] = [],
+  expandedEquipment = false,
 ): DemoContent {
   v.assertJson(raw);
   const c = v.record(raw, "content", contentKeys);
@@ -172,12 +174,7 @@ export function validateDemoContent(
     }
   }
   for (const [key, value] of Object.entries(equipment)) {
-    const e = definition(value, key, ["slot", "replacement", "power", "scope"]);
-    v.choice(key, ["equipment.spare-blade", "equipment.emergency-pouch"], key);
-    v.choice(e.slot, ["general"], key);
-    v.choice(e.replacement, ["attack", "heal"], key);
-    v.choice(e.power, [1], key);
-    v.choice(e.scope, ["all-native-blanks"], key);
+    const e = validateEquipmentDefinition(value, key, expandedEquipment);
     v.reference(actions, `action.${e.replacement}`, key);
   }
   v.reference(chars, c.leaderId, "leaderId");
@@ -201,7 +198,12 @@ export function validateDemoCatalog(
 export function validateManorCatalog(raw: unknown, expected?: DemoCatalogRef): ValidatedDemoCatalog {
   return validateVersionedDemoCatalog(raw, 3, expected);
 }
-function validateVersionedDemoCatalog(raw: unknown, version: 2 | 3, expected?: DemoCatalogRef): ValidatedDemoCatalog {
+/** Full structural projection for v4 ordinary routes; frozen v2/v3 readers stay strict. */
+export function validateOrdinarySharedCatalog(raw: unknown): ValidatedDemoCatalog {
+  v.choice(v.record(raw, "catalog").contentVersion, [20, 21, 22, 23, 24, 25, 26, 27, 28], "contentVersion");
+  return validateVersionedDemoCatalog(raw, 3, undefined, true);
+}
+function validateVersionedDemoCatalog(raw: unknown, version: 2 | 3, expected?: DemoCatalogRef, ordinaryRoutes = false): ValidatedDemoCatalog {
   v.assertJson(raw);
   const c = v.record(raw, "catalog", [
     ...contentKeys,
@@ -218,7 +220,7 @@ function validateVersionedDemoCatalog(raw: unknown, version: 2 | 3, expected?: D
   v.id(c.catalogId, "catalogId");
   v.number(c.contentVersion, "contentVersion", 1);
   v.choice(c.rulesVersion, [version], "rulesVersion");
-  validateDemoContent(Object.fromEntries(contentKeys.map((k) => [k, c[k]])));
+  const content = validateDemoContent(Object.fromEntries(contentKeys.map((k) => [k, c[k]])), [], ordinaryRoutes && Number(c.contentVersion) >= 23);
   const enemies = table(c.enemies, "enemies"),
     encounters = table(c.encounters, "encounters"),
     routes = table(c.routes, "routes");
@@ -278,27 +280,16 @@ function validateVersionedDemoCatalog(raw: unknown, version: 2 | 3, expected?: D
     }
     const instances = new Set<string>(),
       owners = new Set<string>();
-    v.list(progress.equipment, key, 2).forEach((raw) => {
-      const e = v.record(raw, key, ["instanceId", "definitionId", "ownerId"]),
-        instance = v.id(e.instanceId, key),
-        owner = v.choice(e.ownerId, ids, key);
-      v.reference(c.equipment as Record<string, unknown>, e.definitionId, key);
-      const ch = (c.characters as DemoContent["characters"])[owner];
-      if (
-        instances.has(instance) ||
-        owners.has(owner) ||
-        !ch.faces.some(
-          (f) =>
-            (c.actions as DemoContent["actions"])[f.actionId].kind === "blank",
-        )
-      )
+    v.list(progress.equipment, key, equipmentLimit(content)).forEach((raw) => {
+      const e = validateEquipmentAllocation(content, raw), instance = e.instanceId, owner = v.choice(e.ownerId, ids, key);
+      if (instances.has(instance) || owners.has(owner))
         v.invalid(key, "Invalid equipment allocation");
       instances.add(instance);
       owners.add(owner);
     });
   }
-  if (c.journey !== undefined) validateDemoJourney(raw as DemoCatalog);
-  if (version === 3) validateManorContent(raw as DemoCatalog);
+  if (c.journey !== undefined) validateDemoJourney(raw as DemoCatalog, ordinaryRoutes);
+  if (version === 3) validateManorContent(raw as DemoCatalog, ordinaryRoutes);
   const ref: DemoCatalogRef = {
     catalogId: c.catalogId as string,
     contentVersion: c.contentVersion as number,

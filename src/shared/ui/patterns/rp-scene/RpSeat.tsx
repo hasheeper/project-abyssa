@@ -72,7 +72,7 @@ export function RpSeatView({
           actor={actor}
           seat={seat}
           phase="enter"
-          active={actor.id === activeActorId || !!performances?.[actor.id]}
+          active={actor.id === activeActorId || !!performances?.[actor.id]?.motion || !!performances?.[actor.id]?.aside}
           performance={performances?.[actor.id]}
           expression={emotions.get(actor.id)?.expression ?? expressionByActor.get(actor.id) ?? actor.expression ?? "a"}
           crop={crop}

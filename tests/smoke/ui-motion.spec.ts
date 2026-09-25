@@ -1,5 +1,6 @@
 import { test, expect, type Locator, type Page } from "@playwright/test";
 import { ready } from "./playable-helpers";
+import { confirmNewGame } from "./new-game-helpers";
 
 async function enterMenu(page: Page, motion: "reduce" | "no-preference" = "no-preference") {
   // This test owns menu motion, not the independent title Logo timeline.
@@ -7,7 +8,7 @@ async function enterMenu(page: Page, motion: "reduce" | "no-preference" = "no-pr
   await page.goto("/");
   await page.getByRole("button", { name: "新的开始", exact: true }).click();
   await page.emulateMedia({ reducedMotion: motion });
-  await page.getByRole("button", { name: "跳过教程", exact: true }).click();
+  await confirmNewGame(page, "自由行动");
   await expect(page).toHaveURL(/#\/menu\?/);
   await ready(page);
   await expect(page.locator(".menu-entry")).toHaveAttribute("data-menu-intro", "ready");
@@ -57,7 +58,7 @@ async function installCharacterRecorder(page: Page) {
   });
 }
 async function openCharacter(page: Page) {
-  const button = page.getByRole("button", { name: "角色", exact: true });
+  const button = page.getByRole("button", { name: "角色 · 查看角色档案", exact: true });
   await button.click(); await button.click();
   await expect(page).toHaveURL(/#\/character-status\?/);
   await ready(page);
@@ -291,13 +292,13 @@ async function recordDialFeedback(page: Page, event: "pointerover" | "click", ac
   await page.evaluate(event => {
     (window as DialSamplingWindow).dialFeedback = new Promise(resolve => {
       const begin = (input: Event) => {
-        if (!(input.target instanceof Element) || !input.target.matches('.menu-dial__button[data-command="storage"]')) return;
+        if (!(input.target instanceof Element) || !input.target.matches('.menu-dial__button[data-command="roster"]')) return;
         document.removeEventListener(event, begin, true);
         const start = performance.now(), frames: DialFeedbackFrame[] = [];
         function sample(time: number) {
-          const panel = document.querySelector('.menu-dial__panel[data-command="storage"]')!;
+          const panel = document.querySelector('.menu-dial__panel[data-command="roster"]')!;
           const css = getComputedStyle(panel), matrix = new DOMMatrixReadOnly(css.transform);
-          const text = new DOMMatrixReadOnly(getComputedStyle(document.querySelector('.menu-dial__content-motion[data-command="storage"]')!).transform);
+          const text = new DOMMatrixReadOnly(getComputedStyle(document.querySelector('.menu-dial__content-motion[data-command="roster"]')!).transform);
           const flash = panel.querySelector(".menu-dial__response");
           frames.push({ x: matrix.m41, scale: matrix.m11, textX: text.m41, textScale: text.m11,
             fill: getComputedStyle(panel.querySelector(".menu-dial__panel-fill")!).fill,
@@ -315,14 +316,14 @@ async function recordDialFeedback(page: Page, event: "pointerover" | "click", ac
 
 test("menu dial feedback animates the real plates with stable input and synchronized labels", async ({ page }, info) => {
   await enterMenu(page);
-  const storage = page.getByRole("button", { name: /仓库 ·/ });
-  const panel = page.locator('.menu-dial__panel[data-command="storage"]');
-  const relativeHit = () => storage.evaluate(el => {
+  const roster = page.getByRole("button", { name: /角色 ·/ });
+  const panel = page.locator('.menu-dial__panel[data-command="roster"]');
+  const relativeHit = () => roster.evaluate(el => {
     const button = el.getBoundingClientRect(), dial = el.closest(".menu-dial")!.getBoundingClientRect();
     return [button.x - dial.x, button.y - dial.y, button.width, button.height];
   });
   const beforeHit = await relativeHit();
-  const hover = await recordDialFeedback(page, "pointerover", () => storage.hover());
+  const hover = await recordDialFeedback(page, "pointerover", () => roster.hover());
   await info.attach("dial-hover-frames", { body: JSON.stringify(hover), contentType: "application/json" });
   expectIntermediate(hover.map(f => f.x), 0, -7);
   expect(new Set(hover.map(f => f.fill)).size).toBeGreaterThan(3);
@@ -331,7 +332,7 @@ test("menu dial feedback animates the real plates with stable input and synchron
     expect(frame.textScale).toBeCloseTo(frame.scale, 3);
     expect(frame.fill).toBe(frame.surface);
   }
-  await expect(storage).toHaveAttribute("aria-pressed", "false");
+  await expect(roster).toHaveAttribute("aria-pressed", "false");
   await expect(page.getByRole("button", { name: /府邸 ·/ })).toHaveAttribute("aria-pressed", "true");
   const afterHit = await relativeHit();
   afterHit.forEach((value, i) => expect(value).toBeCloseTo(beforeHit[i], 1));
@@ -343,12 +344,8 @@ test("menu dial feedback animates the real plates with stable input and synchron
   expect(new Set(selected.map(f => f.fill)).size).toBeGreaterThan(3);
   expectIntermediate(selected.map(f => f.flash), 0, .55);
   for (const frame of selected) expect(frame.fill).toBe(frame.surface);
-  await expect(storage).toHaveAttribute("aria-pressed", "true");
+  await expect(roster).toHaveAttribute("aria-pressed", "true");
   await page.screenshot({ path: info.outputPath("menu-dial-selected-hover.png") });
-  const confirmed = await recordDialFeedback(page, "click", () => storage.click());
-  expectIntermediate(confirmed.map(f => f.flash), 0, 1);
-  await expect(panel.locator(".menu-dial__response")).toHaveAttribute("data-kind", "confirm");
-  await expect(panel.locator(".menu-dial__response")).toHaveCSS("opacity", "0");
   await page.mouse.move(800, 100);
   await expect(panel.locator(".menu-dial__panel-fill")).toHaveCSS("fill", "rgb(83, 127, 130)");
   await page.keyboard.press("Tab");
@@ -357,8 +354,12 @@ test("menu dial feedback animates the real plates with stable input and synchron
   await expect(page.locator('.menu-dial__panel[data-command="shop"] .menu-dial__panel-focus')).toHaveCSS("opacity", "1");
   await page.keyboard.press("Enter");
   await expect(shop).toHaveAttribute("aria-pressed", "true");
+  await page.keyboard.press("Shift+Tab");
+  await expect(roster).toBeFocused();
   await page.keyboard.press("Enter");
-  await expect(page).toHaveURL(/#\/shop\?/);
+  await expect(roster).toHaveAttribute("aria-pressed", "true");
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL(/#\/character-status\?/);
   await expect(page.locator(".menu-entry")).toHaveCount(0);
 });
 
@@ -367,15 +368,15 @@ test("menu dial feedback supports touch without sticky hover", async ({ browser,
   try {
     const page = await context.newPage();
     await enterMenu(page);
-    const storage = page.getByRole("button", { name: /仓库 ·/ });
-    await storage.tap();
-    await expect(storage).toHaveAttribute("aria-pressed", "true");
-    const panel = page.locator('.menu-dial__panel[data-command="storage"]');
+    const roster = page.getByRole("button", { name: /角色 ·/ });
+    await roster.tap();
+    await expect(roster).toHaveAttribute("aria-pressed", "true");
+    const panel = page.locator('.menu-dial__panel[data-command="roster"]');
     await expect(panel.locator(".menu-dial__panel-fill")).toHaveCSS("fill", "rgb(83, 127, 130)");
     expect(await panel.evaluate(el => getComputedStyle(el).getPropertyValue("--menu-feedback-distance").trim())).toBe("3.4");
-    await storage.tap();
-    await expect(panel.locator(".menu-dial__response")).toHaveAttribute("data-kind", "confirm");
     await expect(page.locator(".menu-entry")).not.toHaveAttribute("data-menu-looking");
+    await roster.tap();
+    await expect(page).toHaveURL(/#\/character-status\?/);
   } finally { await context.close(); }
 });
 
@@ -398,7 +399,7 @@ async function installMenuEntranceRecorder(page: Page) {
         function sample(time: number) {
           frames.push({ time: time - start,
             portrait: opacity(".menu-host__figure"), hud: opacity(".menu-topbar__hud-frame--time"),
-            plates: ["estate", "storage", "shop", "sortie"].map(id => opacity(`.menu-dial__panel-entry[data-command="${id}"]`)),
+            plates: ["estate", "roster", "shop", "sortie"].map(id => opacity(`.menu-dial__panel-entry[data-command="${id}"]`)),
             dialogue: opacity(".menu-dial__dialogue") });
           if (time - start < 1550) requestAnimationFrame(sample); else resolve(frames);
         }
@@ -539,10 +540,10 @@ test("menu layered camera keeps depth, masking, scale and hit areas intact", asy
   scaledLayout.forEach((value, i) => expect(value).toBeCloseTo(fullLayout[i], 1));
   await page.mouse.move(1250, 740); await settle(); await coverage();
   await page.screenshot({ path: info.outputPath("menu-letterboxed-mask.png") });
-  await page.getByRole("button", { name: /仓库 ·/ }).click();
-  await expect(page.getByRole("button", { name: /仓库 ·/ })).toHaveAttribute("aria-pressed", "true");
-  await page.getByRole("button", { name: "角色", exact: true }).click();
-  await expect(page.getByRole("button", { name: "角色", exact: true })).toHaveAttribute("aria-pressed", "true");
+  await page.getByRole("button", { name: /角色 ·/ }).click();
+  await expect(page.getByRole("button", { name: /角色 ·/ })).toHaveAttribute("aria-pressed", "true");
+  await page.getByRole("button", { name: "成就", exact: true }).click();
+  await expect(page.getByRole("button", { name: "成就", exact: true })).toHaveAttribute("aria-pressed", "true");
   await page.mouse.move(640, 10); await settle();
   for (const layer of await transforms()) expect(layer.x).toBe(0);
 });
@@ -731,8 +732,9 @@ for (const reducedMotion of ["no-preference", "reduce"] as const) {
       // Repeated open/close must not retain a hidden panel or an input lock.
       for (let i = 0; i < 2; i++) {
         await begin.click();
-        const dialog = page.getByRole("dialog", { name: "选择旅程起点" });
+        const dialog = page.getByRole("dialog", { name: "新的开始" });
         await expect(dialog).toBeVisible();
+        await expect(page.getByRole("textbox")).toBeEnabled();
         await expectSurfaceSettled(dialog);
         await expect.poll(() => page.locator(".title-scene").evaluate(el => Number((el as HTMLElement).style.getPropertyValue("--title-look-x")))).toBe(0);
         await expectNoLocalKeyframes(dialog);
@@ -759,10 +761,10 @@ test("UI motion preference persists across routes and reload and follows live sy
   await page.mouse.move(1200, 100);
   await expect.poll(() => page.locator(".title-scene").evaluate(el => Number((el as HTMLElement).style.getPropertyValue("--title-look-x")))).toBe(0);
   await page.getByRole("button", { name: "新的开始", exact: true }).click();
-  await expect(page.locator(".abyssa-modal")).toHaveAttribute("data-ui-motion", "reduced");
+  await expect(page.locator(".new-game-opening")).toHaveAttribute("data-ui-motion", "reduced");
   await page.reload();
   await page.getByRole("button", { name: "新的开始", exact: true }).click();
-  await expect(page.locator(".abyssa-modal")).toHaveAttribute("data-ui-motion", "reduced");
+  await expect(page.locator(".new-game-opening")).toHaveAttribute("data-ui-motion", "reduced");
   // Route removal must release the old modal's input capture.
   await page.goto("/#/settings");
   await page.getByRole("button", { name: "恢复默认设置" }).click();
@@ -780,8 +782,8 @@ test("protected title supports touch activation without duplicate commands", asy
     const page = await context.newPage();
     await page.goto("/");
     await page.getByRole("button", { name: "新的开始", exact: true }).tap();
-    await expect(page.getByRole("dialog", { name: "选择旅程起点" })).toHaveCount(1);
-    await page.getByRole("button", { name: "关闭选择旅程起点", exact: true }).tap();
+    await expect(page.getByRole("dialog", { name: "新的开始" })).toHaveCount(1);
+    await page.getByRole("button", { name: "返回标题", exact: true }).tap();
     await expect(page.getByRole("dialog")).toHaveCount(0);
     await expect(page.getByRole("button", { name: "新的开始", exact: true })).toBeFocused();
     await expect(page.locator(".title-commands__gem")).toHaveCount(2);
@@ -810,7 +812,7 @@ for (const reducedMotion of ["no-preference", "reduce"] as const) {
     });
     await page.goto("/");
     await page.getByRole("button", { name: "新的开始", exact: true }).click();
-    await page.getByRole("button", { name: "跳过教程", exact: true }).click();
+    await confirmNewGame(page, "自由行动");
     await expect(page).toHaveURL(/#\/menu\?/);
     await ready(page);
     await expect(page.locator(".menu-entry")).toHaveAttribute("data-menu-intro", "ready");
@@ -821,7 +823,7 @@ for (const reducedMotion of ["no-preference", "reduce"] as const) {
     }
     await expect(page.locator(".menu-dial__dialogue")).toContainText("……今天也没什么大事吧？那就好。");
     await page.screenshot({ path: info.outputPath("menu-restored.png") });
-    await page.getByRole("button", { name: /仓库 ·/ }).click();
+    await page.getByRole("button", { name: /角色 ·/ }).click();
     const manor = page.getByRole("button", { name: "府邸 · 回到守望者之崖洋馆", exact: true });
     await manor.click(); await manor.click();
     await expect(page).toHaveURL(/#\/mansion\?/);
@@ -833,9 +835,11 @@ for (const reducedMotion of ["no-preference", "reduce"] as const) {
     await page.screenshot({ path: info.outputPath("mansion-restored.png") });
     await room.getByRole("button", { name: "关闭房间详情" }).click();
     await expect(room).toHaveCount(0);
-    const railFrames = await sampleTransition(page, ".game-menu", () => page.getByRole("button", { name: "展开菜单", exact: true }).click());
-    await expect(page.locator(".game-menu")).toHaveCSS("width", "194px");
-    if (reducedMotion === "no-preference") expectIntermediate(railFrames.map(f => f.width), 58, 194);
+    await expect(page.locator(".game-menu")).toHaveCSS("width", "64px");
+    const railFrames = await sampleTransition(page, ".game-menu", () => page.getByRole("button", {name: "展开菜单", exact: true}).click());
+    await expect(page.locator(".game-menu")).toHaveCSS("width", "132px");
+    if (reducedMotion === "no-preference") expectIntermediate(railFrames.map(f => f.width), 64, 132);
+    await expect(page.locator(".game-menu__entry .game-menu__label--expanded")).toHaveText(["MENU", "MANOR", "SORTIE", "TITLE", "SAVE", "LOAD", "SETTINGS"]);
     await page.getByRole("link", { name: "出征编队", exact: true }).click();
     await expect(page).toHaveURL(/#\/map\?/);
     await ready(page);

@@ -7,13 +7,13 @@ import type { DepartureSupply } from "./useDepartureLoadout";
 
 afterEach(cleanup);
 const items: DepartureSupply[] = [
-  {id:"food",kind:"food",name:"食物",capacity:4,free:true,storedCharges:1,availableCharges:4},
-  {id:"potion",kind:"potion",name:"药水",capacity:2,free:true,storedCharges:0,availableCharges:2},
-  {id:"ward",kind:"ward",name:"护符",capacity:2,free:false,storedCharges:2,availableCharges:2},
-  {id:"water",kind:"holy-water",name:"圣水",capacity:2,free:false,storedCharges:1,availableCharges:1},
-  {id:"tools",kind:"maintenance-kit",name:"保养工具",capacity:1,free:false,storedCharges:1,availableCharges:1},
-  {id:"charm",kind:"lucky-charm",name:"幸运符",capacity:1,free:false,storedCharges:0,availableCharges:0},
-  {id:"slip",kind:"divination-slip",name:"卦签",capacity:2,free:false,storedCharges:0,availableCharges:0},
+  {id:"food",kind:"food",name:"食物",capacity:4,storageCapacity:4,free:true,storedCharges:1,availableCharges:4},
+  {id:"potion",kind:"potion",name:"药水",capacity:2,storageCapacity:2,free:true,storedCharges:0,availableCharges:2},
+  {id:"ward",kind:"ward",name:"护符",capacity:2,storageCapacity:2,free:false,storedCharges:2,availableCharges:2},
+  {id:"water",kind:"holy-water",name:"圣水",capacity:2,storageCapacity:2,free:false,storedCharges:1,availableCharges:1},
+  {id:"tools",kind:"maintenance-kit",name:"保养工具",capacity:1,storageCapacity:1,free:false,storedCharges:1,availableCharges:1},
+  {id:"charm",kind:"lucky-charm",name:"幸运符",capacity:1,storageCapacity:1,free:false,storedCharges:0,availableCharges:0},
+  {id:"slip",kind:"divination-slip",name:"卦签",capacity:2,storageCapacity:2,free:false,storedCharges:0,availableCharges:0},
 ];
 function Preparation({lockedReason, stocked = false, itemLimit}: {lockedReason?:string; stocked?:boolean; itemLimit?:number}) {
   const [selectedIds,onChange] = useState(["food","potion"]);
@@ -77,7 +77,7 @@ it("uses the warehouse interface artwork and corner counts without nested trays 
 it("uses three identifiable icon balances and only one framed footer command", () => {
   const {container} = render(<Preparation/>);
   const funds = screen.getByTestId("campaign-funds");
-  for (const label of ["公款 0", "小队金币 44", "晶石 0"]) {
+  for (const label of ["公款 0 G", "小队资金 44 G", "晶石 0"]) {
     expect(within(funds).getByRole("img", {name: label})).toHaveAttribute("tabindex", "0");
   }
   expect(funds.querySelectorAll(".abyssa-currency-amount")).toHaveLength(3);
@@ -120,4 +120,18 @@ it("locks carry changes while keeping item details inspectable", async () => {
   await user.click(screen.getByRole("button",{name:"查看护符详情"}));
   expect(screen.getByRole("button",{name:"加入行囊"})).toBeDisabled();
   expect(screen.getByRole("complementary",{name:"补给详情"})).toHaveTextContent("抵挡 2 点攻击伤害");
+});
+
+it("edits actual selected quantities without changing the warehouse count", async () => {
+  function ActualStock() {
+    const [quantities, setQuantities] = useState({food: 3});
+    return <DeparturePreparation items={[{...items[0], free: false, storedCharges: 8, availableCharges: 4, storageCapacity: 12}]} selectedIds={["food"]} onChange={() => {}}
+      quantities={quantities} onQuantity={(_, value) => setQuantities({food: value})} itemLimit={4} funds={{public:0,party:0,crystals:0}} mapHref="/map.html" shopHref="/shop.html" equipmentHref="/character-status.html"/>;
+  }
+  const user = userEvent.setup(); render(<ActualStock/>);
+  await user.click(screen.getByRole("button", {name: "减少食物携带数量"}));
+  expect(screen.getByRole("group", {name: "食物携带数量"})).toHaveTextContent("2");
+  expect(screen.getByRole("complementary", {name: "补给详情"})).toHaveTextContent("当前库存8 份出征携带2 份");
+  expect(screen.getByRole("button", {name: "行囊第 1 格：食物"})).toHaveAccessibleDescription("出征携带 2 份");
+  expect(screen.queryByText("免费配给")).toBeNull();
 });

@@ -1,0 +1,102 @@
+/* Appraisal keeps its item reveal; ordinary trades use ShopTradePanel. */
+.shop-loot { display: grid; min-width: 0; min-height: 0; color: var(--counter-ink); }
+.shop-loot__frame { height: 100%; }
+.shop-loot__frame > .abyssa-frame__content { height: 100%; }
+.shop-loot__counter {
+  position: relative;
+  display: grid;
+  grid-template-rows: 36px minmax(0, 1fr) auto;
+  gap: 12px;
+  height: 100%;
+  min-height: 0;
+  padding: 18px 20px;
+}
+.shop-loot__tools { position: relative; z-index: 3; display: flex; align-items: center; justify-content: space-between; gap: 20px; min-width: 0; padding: 0 14px 6px; border-bottom: 1px solid var(--counter-rule); }
+.shop-loot__quantity { display: block; margin-top: 14px; color: #b19a77; font: 17px/1.4 var(--abyssa-font-body); font-variant-numeric: tabular-nums; letter-spacing: .04em; }
+.shop-loot__object {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: safe center;
+  gap: 30px;
+  height: 100%;
+  min-height: 0;
+  padding: 36px 34px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  text-align: center;
+}
+.shop-loot__emblem { flex-shrink: 0; }
+.shop-loot__copy { flex-shrink: 0; max-width: 550px; }
+.shop-loot__copy h2 { margin: 0; color: #f0dfb8; font: 600 30px/1.4 var(--abyssa-font-display); letter-spacing: .08em; }
+.shop-loot__copy h2:focus { outline: none; }
+.shop-loot__copy h2::after { display: block; width: 56px; height: 1px; margin: 20px auto 0; background: #765833; box-shadow: 0 1px #090603; content: ""; }
+.shop-loot__copy p { margin: 20px 0 0; color: #bca98a; font-size: 20px; line-height: 1.85; text-wrap: pretty; }
+.shop-loot__sold { display: block; margin-bottom: 12px; color: var(--counter-soft); font-size: 17px; letter-spacing: .15em; }
+.shop-loot__checkout {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  min-height: 70px;
+  padding: 6px 14px 2px;
+}
+.shop-loot__checkout .shop-counter__total .abyssa-currency-amount { font-size: 28px; }
+.shop-loot__decisions { display: flex; align-items: center; gap: 24px; margin-left: auto; }
+.shop-loot__quiet, .shop-loot__next {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 32px;
+  padding: 4px 3px;
+  border: 0;
+  background: none;
+  color: var(--counter-soft);
+  font: 17px/1.4 var(--abyssa-font-body);
+  cursor: pointer;
+}
+.shop-loot__quiet svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.3; }
+.shop-loot__quiet:hover:not(:disabled), .shop-loot__next:hover:not(:disabled) { color: #f0d6a4; }
+.shop-loot__quiet:focus-visible, .shop-loot__next:focus-visible { outline: 1px solid #dcc08c; outline-offset: 4px; }
+.shop-loot__quiet:disabled, .shop-loot__next:disabled { opacity: .6; cursor: wait; }
+.shop-loot__history { position: relative; z-index: 3; margin-left: auto; flex-shrink: 0; }
+.shop-loot__history > button { font-size: 16px; }
+.shop-counter__stock-heading > .shop-loot__history { margin-left: 0; }
+.shop-counter__stock-heading > .shop-loot__history > button { min-height: 24px; padding: 0 2px; gap: 6px; font-size: 15px; white-space: nowrap; }
+.shop-counter__stock-heading > .shop-loot__history svg { width: 17px; height: 17px; }
+.shop-counter__stock-heading .shop-loot__records { right: auto; left: 0; }
+.shop-loot__records {
+  position: absolute;
+  z-index: 5;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 330px;
+  max-height: 320px;
+  padding: 16px;
+  overflow-y: auto;
+  border: 1px solid var(--counter-rule);
+  background: #21170e;
+  box-shadow: 0 6px 18px #0009, inset 0 1px var(--counter-edge-light), inset 0 -1px var(--counter-edge-dark);
+  scrollbar-width: thin;
+}
+.shop-loot__records p { margin: 0 0 10px; color: var(--counter-soft); font-size: 15px; }
+.shop-loot__records button { display: flex; width: 100%; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0; border: 0; border-top: 1px solid rgb(154 119 64 / 24%); background: none; color: var(--counter-ink); font: 18px/1.5 var(--abyssa-font-body); text-align: left; cursor: pointer; }
+.shop-loot__records button:hover { color: #f4d493; }
+.shop-loot__records button:focus-visible { outline: 1px solid #dcc08c; outline-offset: 3px; }
+.shop-loot__records small { flex-shrink: 0; color: var(--counter-soft); font-size: 14px; }
+/* Routine receipts are announced once; only a blocking explanation uses space. */
+.shop-loot__status:not([data-visible]) { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.shop-loot__status[data-visible] { position: absolute; right: 38px; bottom: 116px; left: 38px; margin: 0; color: #dfad8c; font-size: 17px; line-height: 1.6; }
+.shop-loot__empty { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px; padding: 34px; text-align: center; }
+.shop-loot__empty h2 { margin: 0; color: var(--counter-soft); font: 26px/1.5 var(--abyssa-font-display); letter-spacing: .1em; }
+.shop-loot__empty p { margin: 0; color: var(--counter-soft); font-size: 19px; line-height: 1.7; }
+
+.shop-loot__next { flex-shrink: 0; align-self: flex-end; margin-top: auto; font-size: 16px; color: #d6bb8c; pointer-events: auto; }
+.shop-loot__next svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 1.5; }
+
+/* The listing uses the exact shelf columns and rows used by normal trades. */
+.shop-loot__counter[data-view="list"] { grid-template-rows: minmax(0, 1fr); padding: 0; gap: 0; }

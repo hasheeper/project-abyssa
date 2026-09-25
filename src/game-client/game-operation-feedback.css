@@ -1,0 +1,6 @@
+/* Only arrangement here; dialog, disclosure and controls own their materials. */
+.game-operation-details { margin-top: 18px; text-align: start; }
+.game-operation-details > .scene-feedback__details { margin: 0; padding: 0; }
+.game-operation-details > .scene-feedback__details > summary { margin-inline: auto; }
+.game-operation-details .journal-action { margin-top: 12px; }
+.game-operation-details > [role="alert"] { margin: 12px 0 0; color: var(--abyssa-danger); font-size: 14px; text-align: center; }

@@ -1,0 +1,51 @@
+{
+  "sourceCommit": "82d948812bfe3f269ef8f731dcdb07b08160edc4",
+  "processing": "Removed background and normalized foreground to white for the existing icon mask; paths unchanged.",
+  "icons": [
+    {
+      "id": "spring",
+      "author": "Delapouite",
+      "license": "CC BY 3.0",
+      "source": "https://github.com/game-icons/icons/blob/82d948812bfe3f269ef8f731dcdb07b08160edc4/delapouite/spring.svg",
+      "page": "https://game-icons.net/1x1/delapouite/spring.html",
+      "sourceSha256": "2b1e0efa96d39d3d8a1ff7fdc421b6902b5f202e7aabf3fd97b9b4b6baab141e",
+      "sha256": "fe7342853c7d1e7e996293b04e0c96dd5148e2b4aafe26bf3a60619f17ecc3af"
+    },
+    {
+      "id": "clockwork",
+      "author": "Lorc",
+      "license": "CC BY 3.0",
+      "source": "https://github.com/game-icons/icons/blob/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/clockwork.svg",
+      "page": "https://game-icons.net/1x1/lorc/clockwork.html",
+      "sourceSha256": "87bb90e5f9ea77a8e407ebcd4b3c4bb555ec9b245b82a065a8178ec948367327",
+      "sha256": "5fb5ea0201b08fd1e9967dbf4ed1a7ad6760b753dfcfb0b201d742f91d1c93ec"
+    },
+    {
+      "id": "cog",
+      "author": "Lorc",
+      "license": "CC BY 3.0",
+      "source": "https://github.com/game-icons/icons/blob/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/cog.svg",
+      "page": "https://game-icons.net/1x1/lorc/cog.html",
+      "sourceSha256": "79adb133e3bc3a9a38a0db715ecd1cb08d55bc012c70157a7bb9d650fb7cea6e",
+      "sha256": "fee3f1f2b64cdf681c21e0e7c5db8b597ace45d050f9653933edae48e6143a8f"
+    },
+    {
+      "id": "alligator-clip",
+      "author": "Lorc",
+      "license": "CC BY 3.0",
+      "source": "https://github.com/game-icons/icons/blob/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/alligator-clip.svg",
+      "page": "https://game-icons.net/1x1/lorc/alligator-clip.html",
+      "sourceSha256": "478e1e95d21ea091afc3956156e785f8d9ba11cae64404822a0f8257fa489889",
+      "sha256": "e1bbb27ebd165615af28ab82f23437abbc78a22a7fe45a99a118f50f559b6ada"
+    },
+    {
+      "id": "resonance",
+      "author": "Lorc",
+      "license": "CC BY 3.0",
+      "source": "https://github.com/game-icons/icons/blob/82d948812bfe3f269ef8f731dcdb07b08160edc4/lorc/resonance.svg",
+      "page": "https://game-icons.net/1x1/lorc/resonance.html",
+      "sourceSha256": "6b7804fdeec1b08db029fed639b56fda363a372c74fd79be48ca31fe8d3d9a26",
+      "sha256": "869bd8c54091dd4efce46d628162a435cba8c60dde3cda4ac9bb98d5e8f0f78f"
+    }
+  ]
+}

@@ -1,3 +1,4 @@
+import { QuantityStepper } from "../../shared/ui/primitives/QuantityStepper";
 import { useState } from "react";
 import { RpgFrame } from "../../shared/ui/primitives/RpgFrame";
 import { ItemSlot, ItemSlotStatic } from "../../shared/ui/primitives/ItemSlot";
@@ -10,14 +11,16 @@ export interface MapLoadoutItem {
   icon?: string;
   description: string;
   quantity: number;
+  maximum?: number;
   stock?: number;
   source: string;
   selected: boolean;
   blocked?: string;
 }
 
-export function MapLoadoutPanel({ items, limit, notice, onToggle, onClose }: {
+export function MapLoadoutPanel({ items, limit, notice, onToggle, onClose, onQuantity }: {
   items: MapLoadoutItem[]; limit: number; notice?: string;
+  onQuantity?: (id: string, value: number) => void;
   onToggle: (id: string) => void; onClose: () => void;
 }) {
   const [inspectedId, inspect] = useState(items.find(item => item.selected)?.id ?? items[0]?.id);
@@ -56,13 +59,14 @@ export function MapLoadoutPanel({ items, limit, notice, onToggle, onClose }: {
           <div><span>{inspected.source}</span><h3>{inspected.name}</h3></div></div>
         <p>{inspected.description}</p>
         <dl><div><dt>现有库存</dt><dd>{inspected.stock ?? inspected.quantity}</dd></div><div><dt>出征携带</dt><dd>{inspected.quantity}</dd></div></dl>
+        {onQuantity && <QuantityStepper label={`${inspected.name}携带数量`} maximum={inspected.maximum ?? 0} value={inspected.quantity} disabled={!inspected.maximum || !!inspected.blocked} onChange={value => onQuantity(inspected.id, value)}/>}
         <p className="map-supplies__reason" role="status">{inspected.blocked ?? (inspected.selected ? "已装入行囊" : "尚未携带")}</p>
         <MapCommand className="map-supplies__toggle" disabled={!!inspected.blocked} onClick={() => onToggle(inspected.id)}>
           {inspected.selected ? "移出行囊" : "加入行囊"}
         </MapCommand>
       </aside> : <p>营地暂无物品，可以空包出征。</p>}
     </div>
-    <footer className="map-supplies__footer"><p>{notice ?? "食物与药水出发时补足；战术补给使用现有库存。"}</p>
+    <footer className="map-supplies__footer"><p>{notice ?? (onQuantity ? "补给从馆内库存取用，未携带的物资留在储藏室。" : "食物与药水出发时补足；战术补给使用现有库存。")}</p>
       <MapCommand className="map-supplies__done" onClick={onClose}>完成整备</MapCommand></footer>
   </RpgFrame>;
 }

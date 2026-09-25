@@ -10,6 +10,7 @@ import { PrologueCanvas, type CanvasHandle, type SceneClock } from "./PrologueCa
 import { PrologueTransition, type OutgoingFrame } from "./PrologueTransition";
 import { loadCg, retainCgs } from "./renderer";
 import { resolvePlayerText } from "../../shared/domain/player-identity";
+import { usePlayerName } from "../../shared/domain/PlayerIdentity";
 
 export function ProloguePage() {
   return <AbyssaProvider><Stage canvasClassName="prologue-stage"><SceneTransitionProvider minimumBlackoutMs={0}>
@@ -18,11 +19,13 @@ export function ProloguePage() {
 }
 
 function ProloguePlayer() {
+  const playerName = usePlayerName();
   const session=useGameSession(),state=useGameState(),transition=useSceneTransition();
   const progress=state.record?.schemaVersion===4?state.record.snapshot.campaign.prologue:undefined;
   const initialIndex=Math.max(0,PROLOGUE_SHOTS.findIndex(s=>s.id===progress?.shotId));
   const [index,setIndex]=useState(initialIndex),shot=PROLOGUE_SHOTS[index];
-  const [beatIndex,setBeatIndex]=useState(0),beat=shot.beats[beatIndex];
+  const [beatIndex,setBeatIndex]=useState(0),rawBeat=shot.beats[beatIndex];
+  const beat = useMemo(() => ({...rawBeat, text: resolvePlayerText(rawBeat.text, playerName)}), [rawBeat, playerName]);
   const [shown,setShown]=useState(false),[full,setFull]=useState(false),[fading,setFading]=useState(false);
   const [auto,setAuto]=useState(false),[history,setHistory]=useState(false),[hidden,setHidden]=useState(false);
   const [busy,setBusy]=useState(false),[loaded,setLoaded]=useState(false),[error,setError]=useState(false),[retry,setRetry]=useState(0);
@@ -165,7 +168,7 @@ function ProloguePlayer() {
     <div className="prologue-ui" data-visible={showUi} inert={!showUi || history || !!outgoing}>
       <div className="prologue-act" aria-label={`第${numerals[shot.act-1]}幕 ${actNames[shot.act-1]}`}><span>{numerals[shot.act-1]}</span><i/>{actNames[shot.act-1]}</div>
       {shot.effect!=="black" && shown && beat?.text && <div key={`${shot.id}-${beatIndex}`} className="prologue-subtitles" data-fading={fading} data-full={full}>
-        {beat.speaker && <div className="prologue-speaker">{resolvePlayerText(beat.speaker)}</div>}
+        {beat.speaker && <div className="prologue-speaker">{resolvePlayerText(beat.speaker, playerName)}</div>}
         <p aria-live="polite" aria-atomic="true"><span className="prologue-sr">{beat.text}</span><span aria-hidden="true">{Array.from(beat.text).map((c,i)=>c==="\n"?<br key={i}/>:<span key={i} className="prologue-char" style={{"--char-delay":`${i*CHARACTER_FADE_MS}ms`} as CSSProperties}>{c}</span>)}</span></p>
       </div>}
       <div className="prologue-controls">
@@ -183,7 +186,7 @@ function ProloguePlayer() {
     {error && <div className="prologue-load-error" role="alert"><p>这幅画面暂时未能载入。</p><button onClick={()=>{setError(false);setRetry(n=>n+1);}}>重新载入</button><a href={gameHref("title")}>返回标题</a></div>}
     {history && <div className="prologue-history-shade" onClick={()=>setHistory(false)}><section className="prologue-history" role="dialog" aria-modal="true" aria-label="序幕回看" onClick={e=>e.stopPropagation()}>
       <header><span>已读的故事</span><button ref={historyClose} onClick={()=>setHistory(false)} aria-label="关闭回看">×</button></header>
-      <div className="prologue-history__lines">{log.map((b,i)=><div key={b.key}>{(i===0 || log[i-1].act!==b.act) && <h2>{actNames[b.act-1]}</h2>}{b.speaker && <small>{resolvePlayerText(b.speaker)}</small>}<p>{b.text}</p></div>)}</div>
+      <div className="prologue-history__lines">{log.map((b,i)=><div key={b.key}>{(i===0 || log[i-1].act!==b.act) && <h2>{actNames[b.act-1]}</h2>}{b.speaker && <small>{resolvePlayerText(b.speaker, playerName)}</small>}<p>{resolvePlayerText(b.text, playerName)}</p></div>)}</div>
     </section></div>}
   </main>;
 }

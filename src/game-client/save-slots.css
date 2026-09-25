@@ -1,0 +1,93 @@
+/* Numbered places on two continuous rails, not a collection of boxed windows. */
+.save-slots button:not(.abyssa-hex-button) { cursor: pointer; }
+.save-slots__import button, .save-slots__loading button { border: 0; padding: 8px 0; color: #a6bbb5; background: none; font-size: 16px; }
+.save-slots__import button:hover { color: #f7edcf; }
+.menu-content > .save-slots > .abyssa-system-panel__body { display: flex; flex-direction: column; overflow: visible; }
+.save-slots__grid { display: grid; grid-template-rows: repeat(2, minmax(0, 1fr)); row-gap: 26px; flex: 1; min-height: 0; padding: 0 0 26px; }
+.save-slots__rail { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); column-gap: 20px; position: relative; min-height: 0; transition: grid-template-columns var(--slot-select-ms, 320ms) cubic-bezier(.2, .7, .2, 1); }
+/* Half a slot-pitch between the two rails. Padding keeps both endpoints inside
+   the scene while their light tracks still extend uninterrupted to the edges. */
+.save-slots__rail:first-child { padding-right: calc((100% + 20px) / 11); }
+.save-slots__rail:last-child { padding-left: calc((100% + 20px) / 11); }
+.save-slots__rail::after {
+  position: absolute; left: -128px; right: -64px; bottom: 0; height: 3px; pointer-events: none; content: "";
+  background: linear-gradient(90deg, transparent, rgb(105 174 164 / 50%) 12%, #72b7aa 42%, #6ba498 84%, rgb(87 153 139 / 15%));
+  box-shadow: 0 0 9px rgb(85 204 179 / 20%);
+  /* Reveal the fixed light track, never scale/squash its gradient or glow. */
+  clip-path: inset(-12px calc((1 - var(--slot-rail-scale, 1)) * 100%) -12px 0);
+}
+.save-slots[data-slot-motion] .save-slots__rail { --slot-rail-scale: 0; }
+.save-slots[data-slot-motion]::before {
+  opacity: calc(var(--slot-surface-opacity, 0) * var(--slot-mode-opacity, 1));
+}
+.save-slots[data-slot-motion] .abyssa-system-panel__footer::before { opacity: calc(var(--slot-surface-opacity, 0) * var(--slot-mode-opacity, 1)); }
+/* A mode swap fades the contents, never the shared Menu backdrop or rails.
+   Keep this on parents so it composes with per-item entrance/page motion. */
+.save-slots .save-slots__cell { opacity: var(--slot-mode-opacity, 1); }
+.save-slots__cell { position: relative; min-width: 0; min-height: 0; }
+.save-slots__slot { display: flex; position: relative; width: 100%; height: 100%; flex-direction: column; align-items: stretch; padding: 8px 12px 24px; border: 0; text-align: left; color: #c3d0ca; background: transparent; isolation: isolate; }
+.save-slots__body { display: flex; flex: 1; min-height: 0; flex-direction: column; align-items: stretch; transform-origin: center bottom; scale: 1; transition: scale var(--slot-select-ms, 320ms) cubic-bezier(.2, .7, .2, 1), filter 160ms ease; }
+.save-slots__cell[data-selected] .save-slots__body { scale: var(--slot-selected-scale, 1.025); }
+.save-slots__slot:hover:not(:disabled) .save-slots__body { filter: brightness(1.12); }
+.save-slots[data-slot-motion] .save-slots__body, .save-slots[data-slot-motion] .save-slots__anchor { opacity: 0; }
+.save-slots__slot::before { position: absolute; inset: 0 -3px 0; z-index: -1; content: ""; pointer-events: none; opacity: 0; background: radial-gradient(ellipse at 50% 110%, rgb(82 164 144 / 15%), transparent 70%); transition: opacity 180ms ease; }
+.save-slots[data-slot-motion] .save-slots__slot::before { visibility: hidden; }
+.save-slots[data-slot-motion] .save-slots__cell:has(.save-slots__body) .save-slots__slot::before { visibility: visible; opacity: 0; }
+.save-slots[data-slot-motion] .save-slots__cell[data-selected] .save-slots__slot::before,
+.save-slots[data-slot-motion] .save-slots__slot:hover::before { opacity: var(--slot-body-opacity, 0); }
+.save-slots__slot:hover::before, .save-slots__cell[data-selected] .save-slots__slot::before { opacity: 1; }
+.save-slots__number { display: flex; align-items: baseline; gap: 9px; height: 34px; flex-shrink: 0; color: #b0c1ba; font: 29px/1 var(--abyssa-font-display); letter-spacing: .04em; }
+.save-slots__number small { font-size: 11px; letter-spacing: .17em; opacity: .6; }
+.save-slots__image { display: block; min-height: 0; height: 98px; flex-shrink: 1; margin: 9px -3px 9px; overflow: hidden; mask-image: linear-gradient(180deg, #000 50%, transparent); }
+.save-slots__image img { display: block; width: 100%; height: 100%; object-fit: cover; opacity: .75; }
+.save-slots__title { font: 21px/1.25 var(--abyssa-font-display); letter-spacing: .04em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.save-slots__world { display: flex; justify-content: space-between; gap: 8px; margin-top: 9px; font-size: 13px; line-height: 1.35; color: #a0b4ad; }
+.save-slots__world > span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.save-slots__world > span:last-child { flex-shrink: 0; }
+.save-slots__date { margin-top: 7px; font-size: 12px; font-variant-numeric: tabular-nums; color: #859c93; }
+.save-slots__placeholder { display: flex; flex: 1; flex-direction: column; align-items: center; justify-content: center; gap: 24px; padding-bottom: 20px; color: #7a9389; font-size: 17px; letter-spacing: .15em; }
+.save-slots__placeholder i { display: block; width: 12px; height: 12px; border: 1px solid #506c60; transform: rotate(45deg); }
+.save-slots__cell[data-state="empty"] .save-slots__number { color: #71897e; }
+.save-slots__anchor { position: absolute; z-index: 1; height: 3px; bottom: 0; left: 6px; right: 6px; background: transparent; }
+.save-slots__anchor::after { content: ""; position: absolute; left: calc(50% - 4px); top: -9px; width: 7px; height: 7px; transform: rotate(45deg); background: #7fae9f; }
+.save-slots__cell[data-state="empty"] .save-slots__anchor::after { background: #18372e; border: 1px solid #6b998a; }
+.save-slots__cell[data-selected] .save-slots__anchor { background: linear-gradient(90deg, transparent, #bce8d7 24%, #bce8d7 76%, transparent); box-shadow: 0 0 12px rgb(139 232 204 / 60%); }
+.save-slots__cell[data-selected] .save-slots__anchor::after { width: 10px; height: 10px; top: -12px; left: calc(50% - 5px); background: #f0e4c5; border: 1px solid #d4ebd4; box-shadow: 0 0 12px rgb(149 235 207 / 65%); }
+.save-slots__cell[data-selected] .save-slots__number, .save-slots__cell[data-selected] .save-slots__title { color: #f7edcf; }
+.save-slots__cell[data-selected] .save-slots__placeholder { color: #bccdbb; }
+.save-file-icon { display: block; width: 24px; height: 24px; mask: no-repeat center / contain; background: currentColor; }
+.abyssa-system-toolbar__actions .save-slots__import-button { display: grid; place-items: center; width: 44px; height: 44px; padding: 8px; }
+.save-slots__export { display: grid; place-items: center; position: absolute; top: 4px; right: 41px; width: 34px; height: 36px; padding: 7px; border: 0; background: none; color: #b9cfc3; opacity: calc(var(--slot-chrome-opacity, 1) * var(--slot-export-hover, 0)); pointer-events: none; }
+.save-slots__delete { right: 5px; }
+.save-slots__delete:hover:not(:disabled) { color: #e5a89a; }
+.save-slots__delete:disabled { color: #64786e; cursor: not-allowed; }
+.save-slots__export .save-file-icon { width: 22px; height: 22px; }
+.save-slots__export:hover, .save-slots__import-button:hover { color: #f7edcf; filter: drop-shadow(0 0 5px rgb(154 229 205 / 32%)); }
+.save-slots__cell:hover .save-slots__export, .save-slots__cell:focus-within .save-slots__export { --slot-export-hover: 1; pointer-events: auto; }
+.archive-feedback { position: absolute; z-index: 950; top: 44px; right: 56px; width: 480px; pointer-events: none; }
+.confirmation-dialog__content > .scene-feedback__inline { margin-top: 20px; }
+.save-slots__feedback .scene-feedback__inline { padding: 10px 20px; font-size: 15px; }
+@media (hover: none) { .save-slots__export { --slot-export-hover: 1; pointer-events: auto; } }
+.save-slots__footer-actions { display: flex; width: 100%; align-items: center; gap: 14px; }
+.save-slots__feedback { margin-right: auto; max-width: 550px; font-size: 17px; line-height: 1.5; color: #b6c9bf; }
+.menu-content .save-slots .abyssa-system-panel__footer { align-items: center; margin-top: 0; padding-top: 15px; }
+.menu-content .save-slots .abyssa-system-panel__footer .abyssa-hex-button { width: 228px; }
+.save-slots__loading { position: absolute; inset: 40% 0 auto; display: grid; place-items: center; color: #a5b9af; font-size: 18px; }
+.save-slots__loading-status { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+/* The waiting state inhabits the same nodes/rails as the real records. Nothing
+   replaces the grid when IndexedDB finishes, so its geometry cannot jump. */
+.save-slots__probe { position: absolute; z-index: 1; bottom: 6px; left: calc(50% - 4px); width: 7px; height: 7px; rotate: 45deg; opacity: 0; pointer-events: none; transition: opacity 180ms ease; }
+.save-slots__probe::after { content: ""; position: absolute; inset: 0; border: 1px solid #90bfb0; opacity: .4; }
+.save-slots[data-slot-waiting]:not([data-slot-exiting]) .save-slots__probe { opacity: var(--slot-rail-scale, 1); }
+.save-slots[data-slot-waiting]:not([data-slot-exiting]):not([data-slot-reduced]) .save-slots__probe::after { animation: slot-probe 1600ms ease-in-out infinite; animation-delay: inherit; }
+.save-slots__grid[data-loading] .save-slots__anchor { visibility: hidden; }
+@keyframes slot-probe { 0%, 100% { opacity: .08; } 45% { opacity: .7; box-shadow: 0 0 9px rgb(126 215 185 / 45%); } }
+.save-slots__import { display: flex; gap: 24px; align-items: center; flex-shrink: 0; margin-bottom: 14px; padding: 4px 12px; color: #b6c9bf; font-size: 14px; background: linear-gradient(90deg, rgb(64 105 87 / 12%), transparent); }
+.save-slots__import select { padding: 8px; margin-left: 12px; border: 1px solid #537669; background: #10221c; color: inherit; font: inherit; }
+.save-slots button:focus-visible { outline: 1px solid #bbd6c5; outline-offset: 4px; }
+.save-slots__slot:focus-visible { outline: none; }
+.save-slots__slot:focus-visible .save-slots__number { text-decoration: underline; text-underline-offset: 6px; }
+.menu-entry[data-menu-reduced] .save-slots__slot::before { transition: none; }
+.save-slots[data-slot-reduced] .save-slots__body, .save-slots[data-slot-reduced] .save-slots__rail { transition: none; }
+.save-slots[data-slot-reduced] .save-slots__cell[data-selected] .save-slots__body { scale: 1; }
+@media (prefers-reduced-motion: reduce) { .save-slots__slot::before, .save-slots__body, .save-slots__rail, .save-slots__probe { transition: none; } .save-slots__probe::after { animation: none !important; } }

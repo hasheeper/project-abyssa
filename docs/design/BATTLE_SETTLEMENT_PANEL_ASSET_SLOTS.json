@@ -1,0 +1,79 @@
+{
+  "version": 1,
+  "date": "2026-09-21",
+  "status": "deferred-transparent-direction",
+  "decisionDate": "2026-09-22",
+  "runtimeConnected": false,
+  "brief": "BATTLE_SETTLEMENT_PANEL_ART_BRIEF.md",
+  "designCanvas": { "width": 1600, "height": 900 },
+  "dimensionsAreProvisional": true,
+  "slots": [
+    {
+      "id": "ui.settlement.panel-head",
+      "required": true,
+      "status": "missing",
+      "source": null,
+      "plannedPath": "src/assets/ui/settlement/ui.settlement.panel-head.webp",
+      "sourcePixels": [1760, 240],
+      "displayPixels": [880, 120],
+      "fit": "fixed-height-transparent-top-with-title-safe-area"
+    },
+    {
+      "id": "ui.settlement.panel-sides",
+      "required": true,
+      "status": "missing",
+      "source": null,
+      "plannedPath": "src/assets/ui/settlement/ui.settlement.panel-sides.webp",
+      "sourcePixels": [1760, 64],
+      "displayPixels": [880, 32],
+      "fit": "repeat-y-transparent-center"
+    },
+    {
+      "id": "ui.settlement.panel-foot",
+      "required": true,
+      "status": "missing",
+      "source": null,
+      "plannedPath": "src/assets/ui/settlement/ui.settlement.panel-foot.webp",
+      "sourcePixels": [1760, 168],
+      "displayPixels": [880, 84],
+      "fit": "fixed-height-transparent-bottom-with-action-safe-area"
+    },
+    {
+      "id": "ui.settlement.surface",
+      "required": true,
+      "status": "missing",
+      "source": null,
+      "plannedPath": "src/assets/ui/settlement/ui.settlement.surface.webp",
+      "sourcePixels": [512, 512],
+      "displayPixels": [256, 256],
+      "fit": "repeat-xy-quiet-borderless-material"
+    },
+    {
+      "id": "ui.settlement.result-marks",
+      "required": false,
+      "status": "deferred",
+      "source": null,
+      "variants": ["cleared", "retreated", "failed"],
+      "sourcePixelsPerVariant": [256, 256],
+      "maxDisplayPixelsPerVariant": [64, 64],
+      "fit": "contain-transparent-no-text",
+      "missingBehavior": "omit"
+    }
+  ],
+  "reuse": [
+    "current-currency-and-item-icons",
+    "project-fonts",
+    "DiceActionButton",
+    "LootRewards",
+    "LootHoverDetail",
+    "SceneFeedback"
+  ],
+  "placeholderPolicy": {
+    "current": "documentation-only",
+    "futureMissingLabels": "F2-art-debug-only",
+    "svgOrnamentFallback": false,
+    "themeSpecificFrameFallback": false,
+    "thirdPartyGameArtworkImport": false,
+    "bakedTextOrNumbers": false
+  }
+}

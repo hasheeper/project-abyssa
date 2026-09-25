@@ -1,0 +1,62 @@
+import { expect, it } from "vitest";
+import { clbHost, clbInput } from "../testing/airp-settlement-fixture";
+import { emptyUsage } from "../airp-generation/contracts";
+import { emptySettlementProposal, createSettlementFrame, compileSettlementRequest } from "../airp-settlement/context";
+import { createSettlementService, validateSettlementSnapshot } from "../airp-settlement/service";
+import { admitMemoryCorrections, effectiveMemory, effectiveThreads, memoryTargets } from "./effective";
+import type { MemoryContext } from "./contracts";
+import type { SettlementHostPort } from "../airp-settlement/contracts";
+import { sha256 } from "../../game-core/contracts";
+
+it("normal settlement cannot resurrect old evidence, new commitment works, original receipts still replay", async () => {
+  const {input, materials} = clbInput(), f = clbHost(input), first = await f.service.enqueue(input, materials);
+  const p = emptySettlementProposal(input);
+  const point = {kind: "fact" as const, speakerId: null, text: "等待实际答复。", knownBy: ["player", "npc-a"], basisIds: [input.evidence[0].id]};
+  p.memory.open = [{...point, key: "answer", until: "resolved"}];
+  await f.service.begin(first, {id: "first", model: "mock", connectionHash: "1".repeat(64), at: 1});
+  await f.service.result({jobId: first, attemptId: "first", output: JSON.stringify(p), usage: emptyUsage(), at: 2});
+  await f.service.apply(first);
+  const original = f.raw().ledger, thread = original.openThreads[0];
+  const targets = memoryTargets(original.memories, [thread]), base = await f.port.read();
+  const context: MemoryContext = {...effectiveMemory(targets, []), sourceHead: base.head, evidence: [{id: input.evidence[0].id, head: input.evidence[0].head, knownBy: point.knownBy}]};
+  const corrections = admitMemoryCorrections({memoryCorrections: [{reason: "模拟GM已确认解决", basisIds: [input.evidence[0].id], changes: [{kind: "close-thread", targetId: thread.id, expectedHash: targets[0].hash}]}]}, context, {jobId: "mock-gm", attemptId: "gm", recordedHead: base.head});
+  const view = (s: Awaited<ReturnType<typeof f.port.read>>) => effectiveMemory(memoryTargets(s.ledger.memories, s.ledger.memories.flatMap(m => m.opened)), corrections);
+  const port: SettlementHostPort = {async read() {const s = await f.port.read(); return {...s, memoryView: view(s)};}, async commit(c) {const s = await f.port.commit(c); return {...s, memoryView: view(s)};} };
+  const service = createSettlementService(port);
+  f.advanceWorld();
+  const snapshot = await service.read(), next = {...structuredClone(input), state: snapshot.ledger.state, grants: [], priorReceipts: snapshot.ledger.receipts, openThreads: snapshot.ledger.openThreads, scope: {...input.scope, boundaryId: "later-old-source"}};
+  const nextMaterials = {...structuredClone(materials), memoryView: snapshot.memoryView}, nextProposal = emptySettlementProposal(next);
+  nextProposal.memory.open = p.memory.open; nextProposal.memory.close = [{id: thread.id, basisIds: point.basisIds}];
+  const id = await service.enqueue(next, nextMaterials);
+  const request = await service.begin(id, {id: "second", model: "mock", connectionHash: "1".repeat(64), at: 3});
+  expect(JSON.parse(request.messages[1].content).input.openThreads).toEqual([]);
+  await service.result({jobId: id, attemptId: "second", output: JSON.stringify(nextProposal), usage: emptyUsage(), at: 4}); await service.apply(id);
+  expect((await service.contextForNextGm()).openThreads).toEqual([]);
+  expect(f.raw().ledger.jobs[1].attempts[0].output).toBe(JSON.stringify(nextProposal));
+  expect(f.raw().ledger.memories[1].opened).toEqual([]);
+  expect(f.raw().ledger.openThreads).toEqual([thread]); // physical history untouched
+  f.advanceWorld();
+  const later = await service.read(), fresh = structuredClone(next), freshMaterials = structuredClone(materials);
+  fresh.state = later.ledger.state; fresh.priorReceipts = later.ledger.receipts; fresh.openThreads = later.ledger.openThreads; fresh.scope.boundaryId = "genuine-new-promise";
+  const evidence = fresh.evidence[0]; if (evidence.kind !== "program-fact") throw Error("fixture");
+  evidence.id = "fact:new-promise"; evidence.factId = evidence.id; evidence.head = later.worldHead; evidence.phase = later.ledger.state.phase;
+  freshMaterials.evidence[0] = {sourceId: evidence.id, text: "玩家现在明确提出新的约定。", digest: sha256("玩家现在明确提出新的约定。")};
+  const freshP = emptySettlementProposal(fresh); freshP.memory.open = [{...point, basisIds: [evidence.id], key: "answer", until: "resolved"}];
+  const freshId = await service.enqueue(fresh, {...freshMaterials, memoryView: later.memoryView});
+  await service.begin(freshId, {id: "third", model: "mock", connectionHash: "1".repeat(64), at: 5});
+  await service.result({jobId: freshId, attemptId: "third", output: JSON.stringify(freshP), usage: emptyUsage(), at: 6}); await service.apply(freshId);
+  const final = await service.read();
+  expect(effectiveThreads(final.memoryView!)).toHaveLength(1);
+  expect(effectiveThreads(final.memoryView!)[0].id).not.toBe(thread.id);
+  expect(final.ledger.receipts[0]).toEqual(original.receipts[0]); expect(final.ledger.memories[0]).toEqual(original.memories[0]);
+  expect(() => validateSettlementSnapshot(final)).not.toThrow();
+});
+
+it("new frozen settlement request presents only effective threads and leaves old frame bytes intact", () => {
+  const {input, materials} = clbInput(), old = createSettlementFrame(input, materials), oldRequest = compileSettlementRequest(old, 0);
+  const frame = createSettlementFrame(input, {...materials, memoryView: effectiveMemory([], [])});
+  expect(frame.promptVersion).toBe("cl-b-settlement-memory-19");
+  expect(frame.instruction).toContain("不重新评判已生效更正");
+  expect(frame.materials.cards).toEqual(old.materials.cards); expect(frame.materials.evidence).toEqual(old.materials.evidence);
+  expect(compileSettlementRequest(old, 0)).toEqual(oldRequest);
+});

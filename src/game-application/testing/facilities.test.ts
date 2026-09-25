@@ -1,0 +1,51 @@
+import { expect, it } from "vitest";
+import { facilitiesFixture as fixture } from "./facilities-fixture";
+import { FACILITIES_CATALOG } from "../../game-runtime/facilities-context";
+import { quoteConstruction, completeConstruction, startConstruction } from "../../game-core/session/facility-construction";
+
+it.each([25, 26])("stores scheduled food, purchased and crafted potions in the same durable inventory (content %s)", async version => {
+  const f = await fixture(version);
+  expect(f.state().facilities?.levels.storage).toBe(1);
+  expect(f.state().supplies.find(s => s.definitionId === "item.food")?.charges).toBe(3);
+  await f.tick(4);
+  const batch = f.state().facilities!.batches.kitchen!;
+  await f.commit({type: "facility-collect", roomId: "kitchen", batchId: batch.id, quantity: 2});
+  expect(f.state().supplies.find(s => s.definitionId === "item.food")?.charges).toBe(5);
+  await f.commit({type: "facility-enable", roomId: "greenhouse"});
+  await f.tick(8);
+  const herbs = f.state().facilities!.batches.greenhouse!;
+  await f.commit({type: "facility-collect", roomId: "greenhouse", batchId: herbs.id, quantity: 3});
+  await f.commit({type: "facility-enable", roomId: "workshop"});
+  const money = f.state().funds.party;
+  await f.commit({type: "facility-craft", recipeId: "recipe.potion", quantity: 1});
+  expect(f.state().funds.party).toBe(money - 100);
+  expect(f.state().facilities!.materials["material.medicinal-herb"]).toBe(1);
+  await f.tick();
+  await f.commit({type: "facility-claim", orderId: f.state().facilities!.order!.id});
+  await f.commit({type: "purchase-product", shopId: "shop.mansion", productId: "product.item.potion", quantity: 2, day: f.state().clock.day, quoteVersion: 1, scheduleVersion: 1});
+  expect(f.state().supplies.filter(s => s.definitionId === "item.potion")).toHaveLength(1);
+  expect(f.state().supplies.find(s => s.definitionId === "item.potion")?.charges).toBe(5);
+  expect((await f.runtime.application.open(f.saveId)).ok).toBe(true);
+  const exported = await f.runtime.application.exportSave(f.saveId);
+  expect(exported.ok).toBe(true);
+});
+it("splits departure amounts, preserves stock and reserves return capacity", async () => {
+  const f = await fixture();
+  await f.commit({type: "start-expedition", runId: "split-run", routeId: "old-manor.first-clear", partyIds: [...FACILITIES_CATALOG.data.initialParty], itemIds: ["item.food", "item.potion"], supplyQuantities: {"item.food": 1, "item.potion": 1}, seed: 19});
+  expect(f.state().supplies.find(s => s.definitionId === "item.food")?.charges).toBe(2);
+  expect(f.state().supplies.find(s => s.definitionId === "item.potion")?.charges).toBe(1);
+  expect(f.state().facilities!.reservations).toEqual({"item.food": 1, "item.potion": 1});
+  expect((await f.runtime.application.open(f.saveId)).ok).toBe(true);
+});
+it("construction costs are level based, exclude self discounts, and keep existing production batches", async () => {
+  const f = await fixture(), state = structuredClone(f.state().facilities!);
+  state.levels.maid = 2;
+  const q = quoteConstruction(FACILITIES_CATALOG.data.facilities!, state, "kitchen", 200_000, 0);
+  expect(q).toMatchObject({cost: 180_000, readyAt: 4, toLevel: 2});
+  expect(quoteConstruction(FACILITIES_CATALOG.data.facilities!, state, "maid", 200_000, 0).cost).toBe(400_000);
+  expect(() => startConstruction(FACILITIES_CATALOG.data.facilities!, state, q, "storage", 200_000, 0)).toThrow();
+  const after = completeConstruction(state, q, 4);
+  expect(after.levels.kitchen).toBe(2);
+  expect(after.batches).toEqual(state.batches);
+  expect(() => completeConstruction(after, q, 4)).toThrow();
+});

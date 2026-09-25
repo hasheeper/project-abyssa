@@ -66,7 +66,7 @@
 .departure-preparation__balance .abyssa-currency-amount { gap: 8px; font: 20px/1 var(--abyssa-font-display); font-variant-numeric: tabular-nums; }
 .departure-preparation__balance[data-currency="gold"] { color: var(--journal-gold); }
 .departure-preparation__balance[data-currency="crystal"] { color: var(--journal-crystal); }
-.departure-preparation__balance .abyssa-currency-amount[data-currency="gold"] i { width: 18px; height: 18px; }
+.departure-preparation__balance .abyssa-currency-amount[data-currency="lira"] i { width: 18px; height: 18px; }
 .departure-preparation__balance .abyssa-currency-amount i[data-icon="custom"] { width: 22px; height: 22px; }
 .departure-preparation__balance .abyssa-currency-amount[data-currency="crystal"] i { width: 12px; height: 12px; margin: 0 3px; }
 .departure-preparation__balance .departure-preparation__balance-hint { position: absolute; bottom: calc(100% + 6px); left: 0; z-index: 20; padding: 5px 9px; border: 1px solid var(--manor-edge); background: var(--manor-void); color: var(--abyssa-text-soft); font: 11px/1.5 var(--abyssa-font-body); white-space: nowrap; opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 120ms ease; }

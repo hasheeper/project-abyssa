@@ -1,0 +1,16 @@
+.mansion-facility { margin-top: 16px; padding-top: 12px; border-top: 1px solid #bcb09a38; color: #d8d0bd; font-size: 14px; line-height: 1.6; }
+.mansion-facility__line { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 8px; }
+.mansion-facility small, .mansion-facility p { color: #a9a897; }
+.mansion-facility p { margin: 8px 0 14px; }
+.mansion-facility__crops { display: flex; align-items: center; gap: 12px; margin-top: 16px; }
+.mansion-facility__crops button { padding: 5px 10px; font: inherit; color: #bfc2ae; background: #1b2928; border: 1px solid #61716b; cursor: pointer; }
+.mansion-facility__crops button[aria-pressed="true"] { color: #e2e1cd; border-color: #a6b3a2; background: #354540; }
+.mansion-facility__crops button:disabled { cursor: default; }
+.mansion-facility__footnote { display: block; margin-top: 14px; font-size: 12px; }
+.mansion-facility__return { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 12px; }
+.mansion-facility__construction { margin-top: 18px; padding-top: 14px; border-top: 1px solid #bcb09a38; }
+.mansion-facility__construction progress { width: 100%; height: 5px; accent-color: #8fb7ac; }
+.mansion-facility__balance { margin-top: 16px; }
+.mansion-facility__line > :last-child { flex-shrink: 0; }
+.mansion-facility .abyssa-currency-amount { white-space: nowrap; }
+.mansion-facility-feedback { position: absolute; top: 86px; right: 24px; z-index: 110; pointer-events: none; }

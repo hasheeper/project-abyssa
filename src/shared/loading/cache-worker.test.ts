@@ -16,7 +16,7 @@ function worker(assets:Asset[],network:(url:string)=>Promise<Response>,saved=new
   });
   return {
     saved,
-    prepare:async(version='test')=>{const messages:any[]=[];let task:Promise<void>|undefined;handlers.get('message')!({data:{type:'prepare',version},ports:[{postMessage:(m:any)=>messages.push(m),close:()=>{}}],waitUntil:(p:Promise<void>)=>{task=p;}});await task;return messages;},
+    prepare:async(version='test',background=false)=>{const messages:any[]=[];let task:Promise<void>|undefined;handlers.get('message')!({data:{type:'prepare',version,background},ports:[{postMessage:(m:any)=>messages.push(m),close:()=>{}}],waitUntil:(p:Promise<void>)=>{task=p;}});await task;return messages;},
     request:async(path:string,method='GET',mode='cors')=>{let reply:Promise<Response>|undefined;handlers.get('fetch')!({request:{url:'https://example.test/abyssa/'+path,method,mode},respondWith:(p:Promise<Response>)=>{reply=p;}});return reply;},
   };
 }
@@ -63,4 +63,12 @@ it('bounds network concurrency while preparing the complete manifest',async()=>{
   const runtime=worker(assets,async url=>{active++;peak=Math.max(peak,active);await new Promise(resolve=>setTimeout(resolve,2));active--;return new Response(url.split('/').at(-1));});
   const messages=await runtime.prepare();expect(peak).toBeLessThanOrEqual(6);
   expect(messages.at(-2)).toMatchObject({completed:15,loadedBytes:assets.reduce((sum,a)=>sum+a.bytes,0)});
+});
+it('bounds background preparation to two transfers without changing cache integrity checks',async()=>{
+  let active=0,peak=0;
+  const runtime=worker(Array.from({length:7},(_,i)=>asset(`bg-${i}.png`)),async url=>{
+    active++;peak=Math.max(peak,active);await new Promise(resolve=>setTimeout(resolve,2));active--;
+    return new Response(url.split('/').at(-1));
+  });
+  expect((await runtime.prepare('test',true)).at(-1)).toEqual({type:'ready'});expect(peak).toBe(2);
 });

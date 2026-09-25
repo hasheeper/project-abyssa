@@ -53,7 +53,7 @@ describe("content10 actual command and archive integration", () => {
     const node = view.scene!.body.nodes[0];
     await rejected(f, { type: "airp-read", instanceId: e.instanceId, sceneId: e.sceneId, nodeId: node.id });
     expect(() => parseD5Request({ protocolVersion: 4, saveId: "pool", expectedHead: gate.head, clientRequestId: "old", command: { type: "airp-online-request", sceneId: e.sceneId } }, false, 2)).toThrow();
-    expect(f.runtime.defaultCreation.contentVersion).toBe(12); // offline chapter; online10 remains explicit
+    expect(f.runtime.defaultCreation.contentVersion).toBe(23); // offline chapter; online10 remains explicit
   }, 60000);
   it("persists the exact request at its resulting gameplay head, without model-owned quest effects", async () => {
     const f = poolTestRuntime(gate), r = await request(f), e = entry(r);

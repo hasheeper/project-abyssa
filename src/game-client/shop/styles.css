@@ -1,0 +1,9 @@
+/* Shop-owned skin only. Entry points load shared primitives once. */
+@import "./new-shop.css";
+@import "./navigation.css";
+@import "./counter-material.css";
+@import "./stock-categories.css";
+@import "./stock-list.css";
+@import "./trade-detail.css";
+@import "./entrance.css";
+@import "./lantern.css";

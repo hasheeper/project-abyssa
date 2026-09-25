@@ -12,11 +12,9 @@ import "./title.css";
 import "./title-interaction.css";
 
 export async function prepare() {
-  const [{ TITLE_CG_FRAMES }, { loadImage }] = await Promise.all([import("./titleCg"), import("../../shared/loading/images")]);
-  // 两列轮播共用解码结果，不挂载额外的立绘或整页。
-  for (let i = 0; i < TITLE_CG_FRAMES.length; i += 2) {
-    await Promise.all(TITLE_CG_FRAMES.slice(i, i + 2).map(frame => loadImage(frame.src)));
-  }
+  const [{ TITLE_CG_FRAMES, TITLE_CG_RIGHT_OFFSET }, { loadImage }] = await Promise.all([import("./titleCg"), import("../../shared/loading/images")]);
+  // 首屏只等待左右起始帧；后续帧由后台预读和 TitleCgPanel 的下一帧检查接力。
+  await Promise.all([0, TITLE_CG_RIGHT_OFFSET].map(index => loadImage(TITLE_CG_FRAMES[index].src)));
 }
 
 export default function Page() {

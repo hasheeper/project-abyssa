@@ -1,6 +1,10 @@
 import { CurrencyAmount } from "../../shared/ui/primitives/CurrencyAmount";
 import { RpgFacetDiamond } from "../../shared/ui/primitives/RpgFacetDiamond";
 import { MenuHudFrame } from "./MenuHudFrame";
+import { motion, type MotionValue } from "motion/react";
+import type { MenuView } from "./useMenuView";
+
+const sectionTitles = { save: ["存档", "SAVE", 380], load: ["读档", "LOAD", 380], settings: ["设置", "SETTINGS", 448] } as const;
 
 /* ============ 顶栏 ============
  * 左「天数 + 相位」/ 中留空 / 右「三笔资源」。
@@ -31,19 +35,25 @@ export interface MenuTopBarProps {
   publicFund: number;
   partyFund: number;
   crystals: number;
+  view: MenuView;
+  opacity: MotionValue<number>;
+  titleX: MotionValue<number>;
 }
 
-export function MenuTopBar({ day, phase, publicFund, partyFund, crystals }: MenuTopBarProps) {
+export function MenuTopBar({ day, phase, publicFund, partyFund, crystals, view, opacity, titleX }: MenuTopBarProps) {
   const activeIndex = MENU_PHASES.findIndex((item) => item.id === phase);
 
   return (
     <header className="menu-topbar">
+      <motion.div className="menu-topbar__title-track" style={{ x: titleX, opacity }}>
       <MenuHudFrame
-        className="menu-topbar__hud-frame menu-topbar__hud-frame--time"
-        label="时间与相位"
+        className={`menu-topbar__hud-frame menu-topbar__hud-frame--time${view !== "home" ? " menu-topbar__hud-frame--section" : ""}`}
+        label={view === "home" ? "时间与相位" : `${sectionTitles[view][0]} · ${sectionTitles[view][1]}`}
         side="left"
+        compact={view !== "home"}
+        compactWidth={view === "home" ? undefined : sectionTitles[view][2]}
       >
-        <div className="menu-topbar__time">
+        {view !== "home" ? <h1 className="menu-topbar__section-title" aria-label={`${sectionTitles[view][0]} ${sectionTitles[view][1]}`}><span>{sectionTitles[view][0]}</span><strong>{sectionTitles[view][1]}</strong></h1> : <div className="menu-topbar__time">
           <div className="menu-topbar__day" aria-label={`第 ${day} 天`}>
             <small aria-hidden="true">DAY</small>
             <b aria-hidden="true">{day}</b>
@@ -70,9 +80,10 @@ export function MenuTopBar({ day, phase, publicFund, partyFund, crystals }: Menu
               />
             ))}
           </div>
-        </div>
+        </div>}
       </MenuHudFrame>
-
+      </motion.div>
+      {view === "home" && <div className="menu-topbar__funds-track">
       <MenuHudFrame
         className="menu-topbar__hud-frame menu-topbar__hud-frame--funds"
         label="持有资源"
@@ -86,7 +97,7 @@ export function MenuTopBar({ day, phase, publicFund, partyFund, crystals }: Menu
               <i className="menu-topbar__funds-face" aria-hidden="true" />
               <dt>维稳公款</dt>
               <dd>
-                <CurrencyAmount value={publicFund} currency="gold" label={`维稳公款 ${publicFund}`} />
+                <CurrencyAmount value={publicFund} currency="gold" label="维稳公款" />
               </dd>
             </div>
             <div>
@@ -95,7 +106,7 @@ export function MenuTopBar({ day, phase, publicFund, partyFund, crystals }: Menu
               <i className="menu-topbar__funds-face" aria-hidden="true" />
               <dt>小队资金</dt>
               <dd>
-                <CurrencyAmount value={partyFund} currency="gold" label={`小队资金 ${partyFund}`} />
+                <CurrencyAmount value={partyFund} currency="gold" label="小队资金" />
               </dd>
             </div>
             <div>
@@ -107,13 +118,14 @@ export function MenuTopBar({ day, phase, publicFund, partyFund, crystals }: Menu
                 <CurrencyAmount
                   value={crystals}
                   currency="crystal"
-                  label={`远古晶石 ${crystals}`}
+                  label="远古晶石"
                 />
               </dd>
             </div>
           </dl>
         </div>
       </MenuHudFrame>
+      </div>}
     </header>
   );
 }

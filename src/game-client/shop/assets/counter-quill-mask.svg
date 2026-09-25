@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="quill-opacity" x1="0" y1="80" x2="0" y2="295" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#858585"/>
+      <stop offset=".5" stop-color="#9b9b9b"/>
+      <stop offset=".82" stop-color="#d4d4d4"/>
+      <stop offset="1" stop-color="#fff"/>
+    </linearGradient>
+  </defs>
+  <path fill="#fff" d="M0 0h1024v1024H0z"/>
+  <path fill="url(#quill-opacity)" d="M751 61 773 62 752 124 717 195 677 261 636 294 626 275 652 214 682 151 718 99Z"/>
+</svg>

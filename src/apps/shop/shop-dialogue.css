@@ -1,0 +1,10 @@
+/* Every mode fills the same fixed merchant slot, including while text types. */
+.shop-counter__portrait .abyssa-paper-doll { display: block; width: 116%; margin-left: -8%; }
+.shop-merchant-dialogue { position: relative; height: 100%; min-height: 0; }
+.shop-counter__merchant .shop-merchant-dialogue .abyssa-dialogue { height: 100%; min-height: 100%; }
+.shop-counter__merchant .shop-merchant-dialogue .abyssa-dialogue__content { height: 100%; min-height: 0; padding: 24px 26px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; pointer-events: auto; text-wrap: pretty; }
+.shop-merchant-dialogue[data-typing="true"] .abyssa-dialogue,
+.shop-merchant-dialogue[data-continuable] .abyssa-dialogue { cursor: pointer; }
+.shop-merchant-dialogue .abyssa-dialogue:focus-visible { outline: 1px solid #dcc08c; outline-offset: 3px; }
+.shop-counter__merchant .shop-merchant-dialogue[data-continuable] .abyssa-dialogue__content { padding-bottom: 54px; }
+.shop-merchant-dialogue .shop-loot__next { position: absolute; z-index: 2; right: 26px; bottom: 16px; margin: 0; }

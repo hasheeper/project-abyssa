@@ -1,0 +1,79 @@
+/* Deliberate, centered choices share the feedback material and chamfer controls.
+   No portal or viewport geometry: fixed follows the transformed Stage canvas. */
+.confirmation-dialog.abyssa-modal {
+  box-sizing: border-box;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  padding: 20px;
+  background: transparent;
+  backdrop-filter: none;
+}
+.confirmation-dialog > .abyssa-modal__scrim { position: absolute; inset: 0; pointer-events: none; background: rgb(5 9 10 / 48%); }
+.confirmation-dialog__panel {
+  z-index: 1;
+  width: 620px;
+  max-width: 100%;
+  min-width: 0;
+  min-height: 0;
+  max-height: 100%;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--abyssa-ornament-dark) transparent;
+  container-type: inline-size;
+}
+.confirmation-dialog__panel > .scene-feedback__announcement { inset: 0 auto auto 0; }
+.confirmation-dialog__surface {
+  --confirmation-accent: var(--abyssa-teal-soft);
+  padding: 32px 48px 38px;
+  text-align: center;
+}
+.confirmation-dialog__surface[data-tone="danger"] { --confirmation-accent: var(--abyssa-danger); }
+.confirmation-dialog__backing {
+  --feedback-edge-inline: 40px;
+  --feedback-edge-block: 18px;
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+.confirmation-dialog__backing::before {
+  inset: 0;
+  background: rgb(10 18 19 / 64%);
+}
+.confirmation-dialog__surface::before,
+.confirmation-dialog__surface::after,
+.confirmation-dialog__backing::after { display: none; }
+.confirmation-dialog__crest { display: flex; align-items: center; justify-content: center; gap: 14px; height: 12px; margin-bottom: 19px; color: var(--confirmation-accent); }
+.confirmation-dialog__crest::before,
+.confirmation-dialog__crest::after { content: ""; height: 1px; width: 134px; max-width: 32%; background: linear-gradient(90deg, transparent, currentColor); opacity: .4; }
+.confirmation-dialog__crest::after { rotate: 180deg; }
+.confirmation-dialog__crest > i { display: block; width: 6px; height: 6px; border: 1px solid currentColor; rotate: 45deg; opacity: .85; }
+.confirmation-dialog__title { margin: 0; color: var(--feedback-title); font: 500 26px/1.45 var(--abyssa-font-body); letter-spacing: .08em; overflow-wrap: anywhere; }
+.confirmation-dialog__description { margin: 16px auto 0; max-width: 450px; color: var(--abyssa-text-soft); font-size: 17px; line-height: 1.9; white-space: pre-line; overflow-wrap: anywhere; }
+.confirmation-dialog__actions { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 12px 24px; margin-top: 28px; }
+.confirmation-dialog__action { width: 156px; max-width: 100%; }
+.confirmation-dialog__action > .scene-feedback__action { width: 100%; margin: 0; }
+.confirmation-dialog__cancel.abyssa-shape-button { --abyssa-shape-middle: color-mix(in srgb, var(--abyssa-ornament-light) 56%, transparent); }
+.confirmation-dialog__cancel > .abyssa-shape-button__content { color: var(--abyssa-text-soft); }
+.confirmation-dialog__confirm.abyssa-shape-button { --abyssa-shape-middle: color-mix(in srgb, var(--confirmation-accent) 80%, transparent); }
+.confirmation-dialog__confirm > .abyssa-shape-button__content { color: var(--confirmation-accent); }
+.confirmation-dialog__confirm.abyssa-shape-button:is(:hover, :focus-visible):not([aria-disabled="true"]) { --abyssa-shape-middle: var(--confirmation-accent); }
+/* Focus follows the chamfer artwork, never a second rectangular button frame. */
+.confirmation-dialog__actions .scene-feedback__action:focus-visible {
+  outline: none;
+  --abyssa-shape-middle: var(--abyssa-focus);
+}
+.confirmation-dialog__actions .scene-feedback__action:focus-visible [data-part="frame-middle"] { stroke-width: 3; }
+.confirmation-dialog__actions .scene-feedback__action[aria-disabled="true"] { --abyssa-shape-fill: rgb(18 27 28 / 14%); cursor: wait; filter: none; }
+.confirmation-dialog__actions .scene-feedback__action[aria-disabled="true"] > :is(svg, .abyssa-shape-button__content) { translate: 0 0; }
+.confirmation-dialog__cancel[aria-disabled="true"] { opacity: .5; }
+@container (max-width: 430px) {
+  .confirmation-dialog__backing { --feedback-edge-inline: 22px; --feedback-edge-block: 16px; }
+  .confirmation-dialog__surface { padding: 26px 22px 30px; }
+  .confirmation-dialog__title { font-size: 23px; }
+  .confirmation-dialog__description { font-size: 16px; }
+  .confirmation-dialog__actions { gap: 12px; margin-top: 24px; }
+  .confirmation-dialog__action { width: min(156px, calc((100% - 12px) / 2)); }
+  .confirmation-dialog__actions .abyssa-shape-button__content { padding-inline: 10px; font-size: 16px; letter-spacing: .06em; }
+}

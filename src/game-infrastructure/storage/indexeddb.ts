@@ -1,5 +1,7 @@
 import { decideCommit, requestKey } from "../../game-application/transaction";
 import { GameStorageError } from "../../game-application/contracts";
+import { GAME_DATABASE_VERSION, upgradeGameDatabase } from "./game-database";
+import { decodeStoredRecord, encodeStoredRecord } from "../../game-application/save-codec";
 import type {
   GameStorePort,
   GameRecord,
@@ -43,13 +45,9 @@ export class IndexedDbGameStore<
     if (this.connection) return this.connection;
     const pending = new Promise<IDBDatabase>((resolve, reject) => {
       let rejected = false;
-      const request = this.factory.open(this.name, 1);
-      request.onupgradeneeded = () => {
-        const db = request.result;
-        if (!db.objectStoreNames.contains("saves"))
-          db.createObjectStore("saves");
-        if (!db.objectStoreNames.contains("receipts"))
-          db.createObjectStore("receipts");
+      const request = this.factory.open(this.name, GAME_DATABASE_VERSION);
+      request.onupgradeneeded = (event) => {
+        upgradeGameDatabase(request.result, event.oldVersion);
       };
       request.onblocked = () => {
         rejected = true;
@@ -117,7 +115,7 @@ export class IndexedDbGameStore<
     }
   }
   async read(saveId: string) {
-    return (await this.readValue<R | undefined>("saves", saveId)) ?? null;
+    return decodeStoredRecord<R>(await this.readValue<unknown>("saves", saveId));
   }
   async receipt(saveId: string, epoch: string, requestId: string) {
     return (
@@ -137,6 +135,7 @@ export class IndexedDbGameStore<
       // Detach the caller's mutable proposal before any asynchronous operation.
       const input = structuredClone(proposal),
         db = await this.connect();
+      const encoded = input.candidate ? encodeStoredRecord(input.candidate) : null;
       return await new Promise<CommitResult<C>>((resolve, reject) => {
         const tx = db.transaction(["saves", "receipts"], "readwrite"),
           saves = tx.objectStore("saves"),
@@ -151,13 +150,13 @@ export class IndexedDbGameStore<
           if (++completedReads !== 2) return;
           try {
             const decision = decideCommit(
-              readSave.result ?? null,
+              decodeStoredRecord<R>(readSave.result),
               readReceipt.result ?? null,
               input,
             );
             result = decision.result;
             if (decision.write) {
-              if (decision.record) saves.put(decision.record, input.saveId);
+              if (decision.record) saves.put(encoded, input.saveId);
               receipts.put(result.receipt, key);
             }
           } catch (caught) {

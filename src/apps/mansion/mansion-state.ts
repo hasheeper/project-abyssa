@@ -228,7 +228,7 @@ export function promoteMansionFacility(
   if (state.funds[detail.fund] < cost) {
     return {
       state,
-      notice: `${fundName(detail.fund)}不足，升级需 ${cost} 金币`
+      notice: `${fundName(detail.fund)}不足，升级需 ${cost} G`
     };
   }
 

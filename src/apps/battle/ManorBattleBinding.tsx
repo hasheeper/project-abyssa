@@ -1,5 +1,11 @@
+import { useTutorialAnchors } from "../../shared/tutorial";
 import { useSceneTransition } from "../../shared/transition";
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { SceneFeedback } from "../../shared/ui/patterns/SceneFeedback";
+import { LootLedger } from "./loot/LootLedger";
+import { LootSettlementView } from "./loot/LootSettlementView";
+import { expeditionLootCatalog, expeditionLootView, expeditionLocation } from "./loot/expedition-loot-view";
+import { useExpeditionLootFeedback } from "./loot/useExpeditionLootFeedback";
 import { useGameSession, useGameState } from "../../game-client/react";
 import { storyAssets } from "../../game-client/story-actors";
 import { clockworkMemoryScript } from "../../content/presentation/clockwork-memory";
@@ -26,7 +32,7 @@ import { TutorialOverview } from "./presentation/TutorialOverview";
 import { gameErrorText } from "../../game-client/game-errors";
 import { gameHref } from "../../game-client/navigation";
 import { useSceneReveal } from "../../shared/transition/useSceneReveal";
-import { manorScene } from "./presentation/manor-scene";
+import { manorScene, settlementScene } from "./presentation/manor-scene";
 import { useBattleSceneAssets } from "./presentation/useBattleSceneAssets";
 import { BattleRoomLoading } from "./presentation/BattleRoomLoading";
 import "./battle-motion.css";
@@ -35,14 +41,18 @@ import "./battle-entry-content.css";
 /** The battle queue stays mounted across every local story boundary, including the final hit. */
 export function ManorBattleBinding({reviewing = false, ...props}: ExpeditionBattleScreenProps & {reviewing?: boolean}) {
   const session = useGameSession(), game = useGameState(), record = game.record!;
-  const p = useManorBattlePresentation({coordinateRoomAssets:true}), v = p.view;
+  const lootFeedback = useExpeditionLootFeedback(`${record.head.saveId}:${record.head.epoch}:${session.locator.expeditionId}:${game.generation}`);
+  const p = useManorBattlePresentation({coordinateRoomAssets:true, onEventPresented: lootFeedback.onEventPresented}), v = p.view;
   const transition = useSceneTransition();
+  const anchor = useTutorialAnchors();
   const progress = useSceneReadingProgress(`${record.head.saveId}:${record.head.epoch}`);
   const [review, setReview] = useState<{step:number; line:number} | null>(null);
   const confirmingOverview = useRef(false);
   const memory = record.schemaVersion === 4 ? record.snapshot.campaign.memory : null;
   const matchesMemory = !!memory && session.locator.memory?.id === memory.id && session.locator.memory.attempt === memory.attempt;
-  const scene = !matchesMemory && !reviewing ? manorScene(v, props.uiSkin) : undefined;
+  const terminal = record.schemaVersion !== 1 ? record.snapshot.campaign.settlements.find(t => t.runId === session.locator.expeditionId) : null;
+  const scene = !matchesMemory ? (!reviewing && v.expedition ? manorScene(v, props.uiSkin)
+    : terminal ? settlementScene(v, terminal, props.uiSkin) : undefined) : undefined;
   const incomingScene=p.pendingRoom ? manorScene(p.pendingRoom.view,props.uiSkin) : undefined;
   const preparation = useBattleSceneAssets(incomingScene?.assets ?? scene?.assets);
   // A pending destination must not hide the already-ready, still-displayed board.
@@ -54,7 +64,12 @@ export function ManorBattleBinding({reviewing = false, ...props}: ExpeditionBatt
     ? <BattleRoomLoading state={p.journeyMotion==="loaded"?"revealing":preparation.status==="error"?"error":"loading"}
         location={(incomingScene??scene)?.location} onRetry={preparation.retry}/> : undefined;
   useSceneReveal(scene ? "fade" : undefined);
-  const terminal = record.schemaVersion !== 1 ? record.snapshot.campaign.settlements.find(t => t.runId === session.locator.expeditionId) : null;
+  const lootCatalog = useMemo(() => expeditionLootCatalog(v, terminal), [v.lootContent, v.items, v.expedition?.run.commissionRewards, terminal]);
+  const projectedLoot = useMemo(() => expeditionLootView(v, terminal), [v, terminal]);
+  const presentedLoot = useRef(projectedLoot);
+  // Committed rewards cannot precede their final hit, room completion or banking beat.
+  if (!p.presenting) presentedLoot.current = projectedLoot;
+  const loot = presentedLoot.current;
   const story = v.story?.terminalId === terminal?.id ? v.story : null;
   const endingStep = review?.step ?? (story?.status === "pending" ? story.step : null);
   const tutorial = v.tutorial?.runRef ? v.tutorial : null;
@@ -69,6 +84,22 @@ export function ManorBattleBinding({reviewing = false, ...props}: ExpeditionBatt
     ? `airp:${narrative.instance!.id}:${narrative.binding.runId}:${narrative.carrying ? "found" : "departure"}` : null;
   const event = !reviewing && !tutorial ? manorJourneyStory(v) : null;
   const reading = event && progress.read(event.id) < event.lines.length;
+  const ordinary = !tutorial && !matchesMemory;
+  const lootResult = !matchesMemory && (ordinary || tutorial?.canClaim) && !p.presenting && loot.receipt ? <LootSettlementView
+    receipt={loot.receipt} catalog={lootCatalog} supplies={loot.supplies}
+    context={{locationName: v.routes[terminal?.routeId ?? v.expedition?.run.routeId ?? ""]?.name ?? expeditionLocation(terminal?.routeId ?? v.expedition?.run.routeId), progressLabel: `第 ${loot.receipt.layer} 层`}}
+    bonusFunds={terminal && v.takeover?.terminalId === terminal.id ? v.takeover.gold : 0}
+    pendingReward={tutorial?.canClaim ? {label: "追回货物报酬", copper: tutorial.reward.gold} : undefined}
+    onReview={story && endingStep === null ? () => setReview({step:0,line:0}) : undefined}
+    busy={game.status !== "error" && !!props.saving || transition.isTransitioning || !["ready", "error"].includes(game.status)} error={game.error ? gameErrorText(game.error.code) : undefined}
+    confirmRef={tutorial ? anchor("battle.claim") : undefined}
+    confirmLabel={tutorial ? "领取并返回洋馆" : "返回洋馆"} onConfirm={props.onSettle}/> : null;
+  const lootSlots = !matchesMemory ? {
+    renderLedger: (onClose: () => void) => <LootLedger run={loot.ledger} catalog={lootCatalog} log={v.log} onClose={onClose} tutorial={!!tutorial}/>,
+    terminal: lootResult ?? <></>,
+    feedback: !tutorial && <SceneFeedback dock entries={lootFeedback.entries.slice(0, 4)} edge="right" className="battle-loot-feedback" paused={!!lootResult}
+      onDismiss={lootFeedback.dismiss}/>,
+  } : undefined;
   let frame: SceneFrame;
   if (overviewVisible) {
     const beginBattle = async () => {
@@ -93,17 +124,21 @@ export function ManorBattleBinding({reviewing = false, ...props}: ExpeditionBatt
     const key = tutorialReadingKey;
     const cursor = Math.min(progress.read(key), scene.lines.length - 1);
     const chosen = tutorial.choices.find(c => c.storyId === slot.id)?.choice;
-    const finish = (choice: "continue" | "A" | "B" | "C" = "continue") => {
+    const finish = async (choice: "continue" | "A" | "B" | "C" = "continue") => {
       // The last opening-story input opens the manual, not the first encounter.
       // This is a reading position only; confirmation commits the original tutorial-read.
       if (firstSceneOverview) { progress.write(key, scene.lines.length); return; }
-      if (session.getSnapshot().status === "ready") void session.dispatch({type: "tutorial-read", runRef: tutorial.runRef!, storyId: slot.id, step: slot.step, choice});
+      if (session.getSnapshot().status !== "ready") {
+        if (choice !== "continue") throw Error("当前进度尚未就绪，请重试。");
+        return;
+      }
+      const result = await session.dispatch({type: "tutorial-read", runRef: tutorial.runRef!, storyId: slot.id, step: slot.step, choice});
+      if (!result && choice !== "continue") throw Error("选择未能保存，请重试。");
     };
     frame = {id: `tutorial:${slot.id.startsWith("S4") ? "home" : slot.id}`, kind: "adv", backdrop: scene.stages[cursor].background, assets: [...new Set([...storyAssets(scene.lines, scene.background), ...scene.backgrounds])], arrival: slot.id === "S3-1" ? {background:scene.background,eyebrow:"CHAPTER 01",title:"雾滩·退潮岩窟"} : undefined, content: <StoryReading
       {...scene} {...scene.stages[cursor]} wide cursor={cursor} busy={game.status !== "ready"} finalLabel={firstSceneOverview ? "玩法总览" : scene.isFinal ? "完成阅读" : "继续"}
       choice={chosen ? null : scene.choice} onChoose={finish}
-      onNext={() => cursor < scene.lines.length - 1 ? progress.write(key, cursor + 1) : finish()}
-      onSkip={() => scene.choice && !chosen ? progress.write(key, scene.lines.length - 1) : finish()}/>};
+      error={game.error} onNext={() => cursor < scene.lines.length - 1 ? progress.write(key, cursor + 1) : finish()}/>};
   } else if (matchesMemory && memory.node !== "battle" && !p.busy) {
     const scripts = memory.templateId === "profile.memory.clockwork.v1" ? clockworkMemoryScript : mariettaMemoryScript;
     const lines = scripts[memory.node as keyof typeof scripts] ?? scripts["return-pending"];
@@ -116,28 +151,27 @@ export function ManorBattleBinding({reviewing = false, ...props}: ExpeditionBatt
     const prefix = atHome ? [] : manorConclusionDialogue.slice(0,step).flat();
     const lines = [...prefix,...manorConclusionDialogue[step]];
     const line = Math.min(review?.line ?? progress.read(stepKey),manorConclusionDialogue[step].length-1);
-    const finishStep = (skip: boolean) => {
+    const finishStep = () => {
       if (game.status !== "ready") return;
-      if (review) { setReview(skip || step === 4 ? null : {step:step+1,line:0}); return; }
-      if (story) void session.dispatch({type:"acknowledge-story",terminalId:story.terminalId,step:story.step,choice:skip ? "skip" : "continue"});
+      if (review) { setReview(step === 4 ? null : {step:step+1,line:0}); return; }
+      if (story) return session.dispatch({type:"acknowledge-story",terminalId:story.terminalId,step:story.step,choice:"continue"});
     };
     frame = {assets:storyAssets(manorConclusionDialogue.flat(),atHome ? manorHome : manorScenes["old-manor.banquet-hall"]),id:`ending:${atHome ? "home" : "banquet"}`,kind:"adv",content:<StoryReading
       title="家宴落幕" location={atHome ? "洋馆 · 餐桌" : "克雷格旧庄园 · 宴会厅"} background={atHome ? manorHome : manorScenes["old-manor.banquet-hall"]}
       lines={lines} replay={!!review} cursor={prefix.length+line} busy={game.status !== "ready"} finalLabel={step === 4 ? "完成阅读" : "继续"}
-      onNext={() => {if (line === manorConclusionDialogue[step].length-1) finishStep(false); else if (review) setReview({...review,line:line+1}); else progress.write(stepKey,line+1);}}
-      onSkip={() => finishStep(true)}/>};
+      error={game.error} onNext={() => {if (line === manorConclusionDialogue[step].length-1) return finishStep(); else if (review) setReview({...review,line:line+1}); else progress.write(stepKey,line+1);}}/>};
   } else if (!reviewing && cueKey && narrative?.cue && progress.read(cueKey) === 0 && !p.busy) {
     const lines = [{ id: cueKey, kind: "action" as const, text: narrative.cue }];
     const background = manorScenes[v.room!.sceneId];
-    frame = { id: cueKey, kind: "adv", assets: storyAssets(lines, background), content: <StoryReading title={narrative.title} location="克雷格旧庄园 · 巡守" background={background} lines={lines} cursor={0} finalLabel="继续巡守" onNext={() => progress.write(cueKey, 1)} onSkip={() => progress.write(cueKey, 1)}/> };
+    frame = { id: cueKey, kind: "adv", assets: storyAssets(lines, background), content: <StoryReading title={narrative.title} location="克雷格旧庄园 · 巡守" background={background} lines={lines} cursor={0} finalLabel="继续巡守" onNext={() => progress.write(cueKey, 1)}/> };
   } else if (event && reading && !p.busy) {
     const cursor = progress.read(event.id);
     frame = {assets:storyAssets(event.lines,manorScenes[v.room!.sceneId]),id:`event:${event.id}`,kind:"adv",content:<StoryReading title={event.title} location="克雷格旧庄园" background={manorScenes[v.room!.sceneId]}
-      lines={event.lines} cursor={cursor} finalLabel="返回行动" onNext={() => progress.write(event.id,cursor+1)} onSkip={() => progress.write(event.id,event.lines.length)}/>};
+      lines={event.lines} cursor={cursor} finalLabel="返回行动" onNext={() => progress.write(event.id,cursor+1)}/>};
   } else {
     frame = {id:"battle",kind:"battle",battleMotion:scene ? "board" : undefined,assets:scene?.assets ?? (tutorialStage ? [tutorialStage.background] : undefined),content:<>{!v.expedition || reviewing
-      ? <ManorConclusion {...props} record={record} onReview={() => setReview({step:0,line:0})}/>
-      : <ManorBattleView {...props} presentation={p} scene={scene} sceneReady={sceneReady} roomLoading={roomLoading}/>}<CampaignPanel/>{!v.expedition && !reviewing && <aside className="campaign-panel campaign-panel--report"><AirpPanel compact/></aside>}</>};
+      ? <ManorConclusion {...props} record={record} overlay={lootResult} renderLedger={lootSlots?.renderLedger}/>
+      : <ManorBattleView {...props} slots={lootSlots} presentation={p} scene={scene} sceneReady={sceneReady} roomLoading={roomLoading}/>}<CampaignPanel/>{!v.expedition && !reviewing && <aside className="campaign-panel campaign-panel--report"><AirpPanel compact/></aside>}</>};
   }
   const battle = frame.kind === "battle";
   frame.content = <div className={battle ? `battle-story-shell abyssa-battle-stage abyssa-battle-stage--${props.uiSkin ?? "old-manor"}` : "battle-story-shell"}
@@ -147,9 +181,12 @@ export function ManorBattleBinding({reviewing = false, ...props}: ExpeditionBatt
   </div>;
   return <><SceneSequence frame={frame} blocked={p.busy || !!scene && !sceneReady}
     openingBlocked={transition.isTransitioning || !!scene && !sceneReady}/>
+    {/* Tutorial pickups survive the immediate battle → return-story boundary. */}
+    {tutorial && <AbyssaProvider className="tutorial-reward-feedback" hidden={!!lootResult}><SceneFeedback dock entries={lootFeedback.entries.slice(0, 4)} edge="right"
+      className="battle-loot-feedback" paused={!!lootResult || transition.isTransitioning} onDismiss={lootFeedback.dismiss}/></AbyssaProvider>}
     {battle && scene && !p.pendingRoom && preparation.status !== "ready" && <div className="battle-scene-preparation" role={preparation.status === "error" ? "alert" : "status"}>
       <div><h2>{preparation.status === "error" ? "战场画面准备失败" : "正在准备战场"}</h2>
-        <p>{preparation.status === "error" ? "场景或立绘未能加载，进度未受影响。" : `克雷格旧庄园 · ${scene.location}`}</p>
+        <p>{preparation.status === "error" ? "场景或立绘未能加载，进度未受影响。" : `${v.routes[terminal?.routeId ?? v.expedition?.run.routeId ?? ""]?.name ?? "远征"} · ${scene.location}`}</p>
         {preparation.status === "error" && <button className="abyssa-ribbon-button" onClick={preparation.retry}>重新加载画面</button>}
       </div>
     </div>}

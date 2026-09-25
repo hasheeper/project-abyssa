@@ -29,6 +29,8 @@ export type RpMessage =
   /** Authored silent blocking. Updates the cast/face, never the dialogue or RP log. */
   | { id: string; kind: "stage"; actorId: string; text: ""; emotion?: string; expression?: ExpressionId }
   | { id: string; kind: "narration"; text: string }
+  /** A committed player decision: a reading-history anchor, not dialogue or an interactive option. */
+  | { id: string; kind: "choice"; text: string; sequence?: number }
   | { id: string; kind: "chapter"; text: string }
   | { id: string; kind: "system"; text: string }
   | {

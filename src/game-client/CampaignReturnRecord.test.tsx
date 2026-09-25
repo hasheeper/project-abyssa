@@ -44,7 +44,7 @@ it("keeps the shared value/unit columns for zero and multiple large credits", ()
     {id:"quest",label:"委托酬金",gold:8}, {id:"takeover",label:"接管奖励",gold:1234}
   ]}><p>本次远征已结束。</p></CampaignReturnRecord>);
   expect(screen.getByTestId("journal-expedition-gold")).toHaveTextContent("0 G");
-  expect(screen.getByTestId("journal-credit-takeover")).toHaveTextContent("1234 G");
-  expect(screen.getByTestId("journal-total-gold")).toHaveTextContent("1242 G");
+  expect(screen.getByTestId("journal-credit-takeover")).toHaveTextContent("1,234 G");
+  expect(screen.getByTestId("journal-total-gold")).toHaveTextContent("1,242 G");
   expect(screen.getAllByText("G")).toHaveLength(4);
 });

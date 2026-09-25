@@ -1,6 +1,6 @@
 # Battle 页面与演出
 
-本目录负责玩家输入、战斗／事件／AVG画面和提交后的演出。当前默认为**应用／规则4、内容3**；旧独立Battle的schema4／rules1／content1只是另一套兼容格式。
+本目录负责玩家输入、战斗／事件／AVG画面和提交后的演出。当前普通／AIRP新档为**内容25／26、应用与规则4**；旧独立Battle的schema4／rules1／content1只是另一套兼容格式。
 
 玩法数值、流程与完成度见[当前机制总览](../../../docs/GAME_SYSTEMS_AND_CONTENT_SPEC.md)，UI基线见[UI_PRESENTATION_BASELINE](UI_PRESENTATION_BASELINE.md)。旧设计日志与工程计划已进[历史档案](../../../docs/archive/README.md)。
 
@@ -35,7 +35,7 @@ UI → controller → game-client → application → core
 | `engine.ts` | 旧规则转发门面，仅兼容／测试；正式入口禁止依赖 |
 | `src/game-core/battle/` | 分版本纯战斗规则、校验、RNG与selectors |
 | `src/game-core/session/` | 远征、房间、资产、成长与结算 |
-| `src/content/gameplay/demo-v3/` | 当前默认内容装配；legacy-v1仅用于旧档 |
+| `src/content/gameplay/demo-v25/`、`demo-v26/` | 当前普通／AIRP内容装配；较早版本保留恢复与定义复用 |
 
 ## Command、effect 与 event
 
@@ -65,7 +65,7 @@ Command表示请求；Event表示规则产生的事实，不能重新当作命�
 - `useEnemyStageLayout` 负责合并外部测量、批量读写与 420ms 补位。固定 left，逐帧仅更新 translate 和缓存的 SVG 端点；不要重新引入逐帧 React state、几何读取或 DOM 查询。
 - `ExpeditionEnemyStage` 持有悬浮／键盘预览状态，避免带动我方和画框渲染；教学锚点使用稳定 ref。战斗队列与命中时序不受装饰暂停影响。
 
-本次范围、测试证据及未完成的性能验收见[战斗动效优化计划](../../../docs/plans/2026-09-18-battle-motion-performance.md)。减弱动态在此覆盖装饰与补位，不代表所有历史战斗演出已统一适配。
+本次范围、测试证据及未完成的性能验收见[UI Motion：共享动作与参数](../../shared/ui/motion/README.md)。减弱动态在此覆盖装饰与补位，不代表所有历史战斗演出已统一适配。
 
 ## 验证命令
 

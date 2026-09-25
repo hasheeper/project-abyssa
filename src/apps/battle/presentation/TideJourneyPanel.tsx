@@ -29,20 +29,19 @@ export function TideJourneyPanel({view}: {view: DemoJourneyView}) {
   return <section className="manor-journey" aria-label={tideJourneyTitle(view)} data-kind="rest">
     <div className="manor-journey__reading">
       <header className="manor-journey__heading"><i style={{maskImage: `url("${camp}")`}} aria-hidden="true"/><div>
-        <small>{t.canClaim ? "守望者之崖洋馆" : `退潮岩窟 · 遭遇 ${t.encounter} / 4`}</small><h2>{tideJourneyTitle(view)}</h2>
+        <small>{`退潮岩窟 · 第 ${view.expedition!.run.layer} / ${view.layerCount} 层 · 遭遇 ${t.encounter} / 4`}</small><h2>{tideJourneyTitle(view)}</h2>
       </div></header>
       <div className="manor-journey__text">
-        <p>{t.canRetry ? "选择重试本场，或从岩窟入口重新开始。" : t.canClaim ? "三件货物已送回。领取结算后返回洋馆。" : "伤势与剩余补给保留至下一场，可使用道具恢复生命。"}</p>
-        {t.canClaim && <p aria-label="本次结算">远征实得 {view.expedition!.result!.totalGold} G · 追回报酬 {t.reward.gold} G · 本次总入账 <b>{view.expedition!.result!.totalGold + t.reward.gold} G</b></p>}
+        <p>{t.canRetry ? "选择重试本场，或从岩窟入口重新开始。" : "伤势与剩余补给保留至下一场，可使用道具恢复生命。"}</p>
       </div>
     </div>
   </section>;
 }
-export function TideJourneyActions({view, busy, onRetry, onAdvance, onClaim, canAdvance = true}: {view: DemoJourneyView; busy: boolean; onRetry: (scope: "encounter" | "chapter") => void; onAdvance: () => void; onClaim: () => void; canAdvance?: boolean}) {
+export function TideJourneyActions({view, busy, onRetry, onAdvance, canAdvance = true}: {view: DemoJourneyView; busy: boolean; onRetry: (scope: "encounter" | "chapter") => void; onAdvance: () => void; canAdvance?: boolean}) {
   const t = view.tutorial!, anchor = useTutorialAnchors();
   return <div className="manor-journey-actions">
     {t.canRetry ? <DiceActionButton label="从入口重来" disabled={busy} onClick={() => onRetry("chapter")}/> : <span/>}
-    <span>{t.canRetry ? "恢复对应起点" : t.canClaim ? `本次总入账 · ${view.expedition!.result!.totalGold + t.reward.gold} G` : "可使用道具整备"}</span>
-    <DiceActionButton primary ref={t.canRetry ? undefined : anchor(t.canClaim ? "battle.claim" : "battle.advance")} label={t.canRetry ? "重试本场" : t.canClaim ? "领取并返回洋馆" : "继续前进"} disabled={busy || !t.canRetry && !t.canClaim && !canAdvance} onClick={t.canRetry ? () => onRetry("encounter") : t.canClaim ? onClaim : onAdvance}/>
+    <span>{t.canRetry ? "恢复对应起点" : "可使用道具整备"}</span>
+    <DiceActionButton primary ref={t.canRetry ? undefined : anchor("battle.advance")} label={t.canRetry ? "重试本场" : "继续前进"} disabled={busy || !t.canRetry && !canAdvance} onClick={t.canRetry ? () => onRetry("encounter") : onAdvance}/>
   </div>;
 }

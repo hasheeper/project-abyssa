@@ -4,7 +4,7 @@ import type { CharacterChronicle, ChronicleEntry } from "../shared/domain/charac
 import { resolvePlayerText } from "../shared/domain/player-identity";
 
 /** The character journal keeps milestones; combat telemetry stays in the source history. */
-export function presentCharacterChronicle(characterId: string, history: readonly CharacterHistoryEntry[]): CharacterChronicle {
+export function presentCharacterChronicle(characterId: string, history: readonly CharacterHistoryEntry[], playerName?: string): CharacterChronicle {
   const seen = new Set<string>();
   const blocks: CharacterChronicle["blocks"] = [];
   for (const event of history) {
@@ -15,7 +15,7 @@ export function presentCharacterChronicle(characterId: string, history: readonly
     if (story) {
       key = story.eventId;
       content = {
-        title: story.title, body: resolvePlayerText(story.chronicleText), categories: ["bond"],
+        title: story.title, body: resolvePlayerText(story.chronicleText, playerName), categories: ["bond"],
         marker: event.kind === "team-milestone" ? "milestone" : "node",
         tone: event.kind === "team-milestone" ? "accent" : "default",
       };

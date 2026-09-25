@@ -73,7 +73,7 @@ it("projects E1 as a readable event, counts battles independently, and supports 
   expect(q.tutorial(result.checkpoints["boss-after"])).toMatchObject({encounter: 4, guide: {mode: "free", operation: null}});
   expect(q.tutorial(result.checkpoints.claimable)?.canClaim).toBe(true);
   const player = createPlayerRuntime(h.store, {newId: () => "id", newSeed: () => 1, close: () => {}});
-  expect(player.defaultCreation.contentVersion).toBe(12);
+  expect(player.defaultCreation.contentVersion).toBe(21);
   expect(await player.application.create({protocolVersion: 4, contentVersion: 11, saveId: "explicit-v11", epoch: "new", clientRequestId: "create", profileId: catalog.data.journey!.defaultProfileId})).toMatchObject({ok: true});
   const opened = await player.application.open("explicit-v11");
   expect(opened).toMatchObject({ok: true, record: {contentRef: {contentVersion: 11}}});

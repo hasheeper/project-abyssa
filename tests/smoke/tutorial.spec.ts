@@ -68,6 +68,8 @@ for (const prefix of ["/", "/abyssa/"]) {
     await page.emulateMedia({ reducedMotion: "no-preference" });
     await page.goto(prefix);
     await page.getByRole("button", { name: "记录", exact: true }).click({ timeout: 60_000 });
+    await page.getByRole("button", { name: "档案管理", exact: true }).click();
+    await page.getByRole("button", { name: "导入档案", exact: true }).click();
     await page.getByLabel("导入格式").selectOption("application");
     await page.getByLabel("导入存档", { exact: true }).setInputFiles({
       name: "tutorial-fixture.json", mimeType: "application/json", buffer: Buffer.from(archive),
@@ -98,7 +100,6 @@ for (const prefix of ["/", "/abyssa/"]) {
     await expect(page.locator(".abyssa-tutorial[data-visible]")).toHaveCount(0);
     await page.keyboard.press("Escape");
     await step(page, "attack");
-    await page.getByRole("button", { name: "展开菜单", exact: true }).click();
     await expect(page.locator(".abyssa-tutorial[data-visible]")).toHaveCount(0);
     await page.keyboard.press("Escape");
     await step(page, "attack");

@@ -130,7 +130,7 @@ export function reduceAirpPoolCommit(catalog: ValidatedD5Catalog, previous: Airp
       }
     }
   }
-  const boundary = input.group.some(f => f.kind === "save-created" || f.kind === "airp" || f.kind === "progression" && ["manor-story", "expedition-settled", "story-completed", "phase-advanced"].includes(f.payload.type));
+  const boundary = input.group.some(f => f.kind === "save-created" || f.kind === "airp" || f.kind === "progression" && (["manor-story", "expedition-settled", "story-completed", "phase-advanced"].includes(f.payload.type) || !!catalog.data.airpDirect && f.payload.type === "game-start-selected"));
   if (boundary) scheduleAirpPool(content, state, { phase, phaseName: after.clock.phase, head, factId: current.id, eligible: airpEligible(after), availableActorIds: after.availableCharacterIds,
     setback: after.settlements.filter(t => t.routeId === catalog.data.manor!.maintenanceRouteId).at(-1)?.outcome === "wipe" });
   checkAirpPoolCapacity(state); return state;

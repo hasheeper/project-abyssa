@@ -61,6 +61,8 @@ async function ready(page: Page) {
 }
 async function openGate(page: Page) {
   await page.goto('/'); await page.getByRole('button', { name: '记录', exact: true }).click({ timeout: 60000 });
+  await page.getByRole('button', { name: '档案管理', exact: true }).click();
+  await page.getByRole('button', { name: '导入档案', exact: true }).click();
   await page.getByLabel('导入格式').selectOption('restore');
   await page.getByLabel('导入存档', { exact: true }).setInputFiles({ name: 'airp-online.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify({ archiveVersion: 4, record: gate })) });
   await expect(page).toHaveURL(/#\/menu/, { timeout: 60000 });

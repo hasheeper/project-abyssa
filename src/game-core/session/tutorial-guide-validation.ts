@@ -23,7 +23,7 @@ export function readTutorialGuide(catalog: ValidatedD5Catalog, raw: unknown, bas
   proofs.forEach((raw, index) => {
     const p = v.record(raw, "guide.proof", ["stepId", "roomId", "encounterId", "attempt", "eventIds"]), step = plan.steps[index];
     const nodeIndex = plan.nodes.findIndex(n => n.roomId === step.roomId), node = plan.nodes[nodeIndex];
-    if (p.stepId !== step.id || p.roomId !== base.run.roomIds[0][nodeIndex] || p.encounterId !== (node.battle ? `${base.run.id}:encounter:${node.battle}` : null)) v.invalid("guide.proof", "Step/room/encounter mismatch");
+    if (p.stepId !== step.id || p.roomId !== base.run.roomIds.flat()[nodeIndex] || p.encounterId !== (node.battle ? `${base.run.id}:encounter:${node.battle}` : null)) v.invalid("guide.proof", "Step/room/encounter mismatch");
     v.number(p.attempt, "guide.proof.attempt", 1, attempt);
     const ids = v.ids(p.eventIds, "guide.proof.eventIds", 8);
     if (!ids.length) v.invalid("guide.proof", "Empty proof");
@@ -35,8 +35,8 @@ export function readTutorialGuide(catalog: ValidatedD5Catalog, raw: unknown, bas
 /** Extra v11 invariants; earlier readers and their published digests stay unchanged. */
 export function validateGuidedJourney(catalog: ValidatedD5Catalog, base: D5BaseExpeditionState, continuationSeed: unknown) {
   const plan = catalog.data.tutorial!.guide!;
-  if (continuationSeed !== plan.continuationSeed || base.run.rng.combat.seed !== (base.run.room === 0 ? catalog.data.tutorial!.firstBattleSeed : plan.continuationSeed)) v.invalid("guide.seed", "Tutorial seed is owned by its content release");
-  const eventIndex = plan.nodes.findIndex(n => n.battle === null), roomId = base.run.roomIds[0][eventIndex];
+  if (continuationSeed !== plan.continuationSeed || base.run.rng.combat.seed !== (base.run.layer === 1 && base.run.room === 0 ? catalog.data.tutorial!.firstBattleSeed : plan.continuationSeed)) v.invalid("guide.seed", "Tutorial seed is owned by its content release");
+  const eventIndex = plan.nodes.findIndex(n => n.battle === null), roomId = base.run.roomIds.flat()[eventIndex];
   const results = base.run.eventResults.filter(e => e.roomId === roomId);
   if (base.run.eventResults.length !== results.length || results.length !== (base.run.completedRoomIds.includes(roomId) ? 1 : 0)) v.invalid("guide.event", "A completed event room needs one unique result");
   const result = results[0];

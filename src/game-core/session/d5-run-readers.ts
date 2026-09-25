@@ -1,3 +1,4 @@
+import { commissionReceipt } from "../contracts/commission-rewards";
 import type { ValidatedD5Catalog } from "../contracts/d5";
 import * as v from "../contracts/validation";
 import type { D5BaseExpeditionState, D5ExpeditionState, D5RunReaders } from "./d5-types";
@@ -5,7 +6,9 @@ import { validateTutorialRun } from "./tutorial-validation";
 import { readD5Battle, readD5MemoryBattle } from "../battle/d5-engine";
 import { validateRuleRunState } from "../battle/rules/v2/validation";
 import { validateTerminal } from "./demo-expedition";
+import { lootPockets } from "./expedition-loot";
 import { demoRoom } from "../contracts/demo-journey-validation";
+import { isOrdinaryExpedition } from "./ordinary-expeditions";
 
 export function readD5Expedition(catalog: ValidatedD5Catalog, raw: unknown): D5ExpeditionState {
   const value = v.record(raw, "expedition", ["run", "node", "encounter", "undo", "result"], ["tutorial"]);
@@ -19,7 +22,7 @@ export function readD5Expedition(catalog: ValidatedD5Catalog, raw: unknown): D5E
 export function readD5BaseExpedition(catalog: ValidatedD5Catalog, raw: unknown): D5BaseExpeditionState {
   v.assertJson(raw);
   const s = v.record(raw, "expedition", ["run", "node", "encounter", "undo", "result"]), run = validateRuleRunState(catalog, s.run);
-  if (![catalog.data.manor!.firstClearRouteId, catalog.data.manor!.maintenanceRouteId, catalog.data.tutorial?.routeId].includes(run.routeId)) v.invalid("run.kind", "Ordinary expedition route required");
+  if (!isOrdinaryExpedition(catalog.data, run.routeId) && run.routeId !== catalog.data.tutorial?.routeId) v.invalid("run.kind", "Ordinary expedition route required");
   const layers = catalog.data.routes[run.routeId].layers.length;
   const node = v.choice(s.node, ["battle", "event", "room-complete", "exit", "finished"], "node"), def = demoRoom(catalog.data, run.routeId, run.layer, run.room);
   const room = run.roomIds[run.layer - 1][run.room], same = (a: unknown, b: unknown) => v.canonicalJson(a) === v.canonicalJson(b);
@@ -30,6 +33,9 @@ export function readD5BaseExpedition(catalog: ValidatedD5Catalog, raw: unknown):
     if (s.encounter !== null || v.list(s.undo, "undo").length) v.invalid("node", "Non-battle retains combat");
     if (node === "finished") {
       const t = validateTerminal(catalog, s.result);
+      if (!same(t.commissionRewards ?? null, run.commissionRewards ? commissionReceipt(run.commissionRewards, run.completedRoomIds, run.settledLayers, t.outcome) : null)) v.invalid("commissionRewards", "Quest receipt differs from run");
+      if (t.lootProof && !same(t.lootProof, {seed: run.rng.loot.seed, completedRoomIds: run.completedRoomIds})) v.invalid("lootProof", "Loot proof differs from run");
+      if (t.lootLedger && !same(t.lootLedger, lootPockets(run.carriedLoot ?? [], run.roomIds, run.settledLayers))) v.invalid("lootLedger", "Loot receipt differs from run");
       if (t.runId !== run.id || t.routeId !== run.routeId || t.deepestLayer !== run.layer || t.bankedGold !== run.bankedGold || !same(t.partyIds, run.party.map(m => m.id)) || !same(t.layerResults, run.layerResults) || !same(t.returnedSupplies, run.supplies)) v.invalid("terminal", "Terminal differs from run");
       if (t.outcome === "wipe" ? run.party.some(m => m.hp > 0) : t.outcome === "cleared" ? run.layer !== layers || run.settledLayers.length !== layers || !run.roomIds.flat().every(id => run.completedRoomIds.includes(id)) || !run.party.some(m => m.hp > 0) || !same(t.completion, {roomIds: run.completedRoomIds, encounterIds: run.completedEncounterIds}) : def.kind !== "exit" || !run.settledLayers.includes(run.layer)) v.invalid("terminal", "No legal terminal cause");
     } else {

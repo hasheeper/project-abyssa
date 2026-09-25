@@ -1,5 +1,7 @@
 # AIRP 0.2.x 三段流与后处理验收
 
+> 文档整理说明（2026-09-25）：下文按原实施日期理解；已删除的阶段引用改为文字，不改写当时的结果。原引用文件保存在文档索引列出的仓库外备份。
+
 日期：2026-09-10。当前版本0.2.1；三段流、原生接口、恢复专项和两场真实闭环通过。0.2.0的读后更新失败被保留，未冒充完整通过。这里验收任务分工及运行链路，不等于全DEMO内容或正式文学质量验收。
 
 目标：Claude纯文字大纲 → Gemini纯正文 → DeepSeek格式化／修复 → AVG阅读 → DeepSeek授权记忆更新。无需新增供应商配置。只在原生rp执行和存储，Abyssa不直接调用模型。
@@ -43,12 +45,12 @@ Release `1884d2b2-82fb-4394-ae0c-353147f48b5c`。玩家Session `4b0d3980-51b6-44
 
 已逐项核对原生输入／输出：大纲、正文均为纯文字；格式化消费的原稿等于writer原始Result，最终逐行拼接与原稿一致（仅去掉声明的行首标签及空白）。两次摘要都被原生接纳；第一次实际summary及精确ID进入第二次大纲和文本的编译输入，不是靠“又提到药箱”猜测记忆成功。
 
-原生成与确认请求实际重放均`replayed:true`，新增楼层、Run、attempt为0，资金不变。证据：[原生摘要](../../dist/reports/airp-4/live-scy-a-51c92407/native-summary.json)、[完整输入／执行证据](../../dist/reports/airp-4/live-scy-a-51c92407/native-evidence.json)、[来源与重放检查](../../dist/reports/airp-4/live-scy-a-51c92407/verification.json)。
+原生成与确认请求实际重放均`replayed:true`，新增楼层、Run、attempt为0，资金不变。证据：原生摘要（历史附件当前不可访问：`../../dist/reports/airp-4/live-scy-a-51c92407/native-summary.json`）、完整输入／执行证据（历史附件当前不可访问：`../../dist/reports/airp-4/live-scy-a-51c92407/native-evidence.json`）、来源与重放检查（历史附件当前不可访问：`../../dist/reports/airp-4/live-scy-a-51c92407/verification.json`）。
 
-两个真实冻结档经正常导入UI通过AVG展示检查：正文、角色表情、展开的创作记录均可读，1440×900面板不越界；截图已人工查看，无未捕获错误、无额外API POST。证据：[浏览器记录](../../dist/reports/airp-4/live-scy-a-51c92407/browser-qa.json)、[归来画面](../../dist/reports/airp-4/live-scy-a-51c92407/return-avg.png)、[后续创作记录](../../dist/reports/airp-4/live-scy-a-51c92407/followup-creation-record.png)。旧本地5176静态服务出现空响应，已原端口重启为现有构建预览服务，未更改游戏存档。
+两个真实冻结档经正常导入UI通过AVG展示检查：正文、角色表情、展开的创作记录均可读，1440×900面板不越界；截图已人工查看，无未捕获错误、无额外API POST。证据：浏览器记录（历史附件当前不可访问：`../../dist/reports/airp-4/live-scy-a-51c92407/browser-qa.json`）、归来画面（历史附件当前不可访问：`../../dist/reports/airp-4/live-scy-a-51c92407/return-avg.png`）、后续创作记录（历史附件当前不可访问：`../../dist/reports/airp-4/live-scy-a-51c92407/followup-creation-record.png`）。旧本地5176静态服务出现空响应，已原端口重启为现有构建预览服务，未更改游戏存档。
 
 四次DeepSeek已知用量合计12,575 tokens；Claude／Gemini未返回usage，不能记作零费用。本轮另有0.2.0诊断的9次真实Run，因此此次修改共17次真实调用，不能只报最终8次。
 
 仍需后续内容调优：原稿有从“侧门撤离”补成“走得急”的无依据推断，且搭扣动作描写偏多。后处理应保留并暴露原稿问题，不能偷偷润色来掩盖；这不影响本轮分工与接口验收，但不能称为正式精修文学稿。摘要只写连续性，硬变量、奖励和关系阶段未授权给模型。
 
-历史0.1.x记录见[旧验收](2026-09-09-airp-live-acceptance.md)。
+历史0.1.x记录见旧验收（历史稿已清理）。

@@ -193,3 +193,8 @@
 .battle-ledger-toggle:focus-visible, .battle-ledger-drawer__close:focus-visible { outline: 2px solid var(--battle-skin-accent-soft); outline-offset: 3px; }
 .battle-sidebar-readouts__note { color: var(--battle-skin-accent-soft); margin: 0; font-size: 14px; text-align: center; line-height: 1.8; letter-spacing: .1em; }
 .battle-sidebar-readouts__note small { color: var(--battle-skin-muted); font-size: 11px; }
+
+/* A gain annotates the cash-slot caption instead of adding another readout row. */
+.battle-sidebar-readouts__gold { display: flex; align-items: baseline; gap: 5px; margin-left: auto; color: var(--battle-skin-accent-soft); font: 12px/1.4 var(--font-body); }
+.battle-sidebar-readouts__gold b { color: var(--battle-skin-accent-bright); font: 18px/1.2 var(--font-display); font-variant-numeric: lining-nums tabular-nums; text-shadow: 0 1px 2px var(--battle-frame-deep); }
+.battle-sidebar-readouts .battle-ledger-toggle { width: 26px; margin-left: 8px; }

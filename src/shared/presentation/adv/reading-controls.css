@@ -1,11 +1,33 @@
 .rp-app__bar {
   position: relative;
+  isolation: isolate;
   flex: none;
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
   height: 52px;
   padding-inline: 16px;
+  background: linear-gradient(180deg, rgb(18 25 25 / 24%), rgb(10 16 16 / 36%));
+}
+
+/* Low-contrast surface grain, not a checkerboard band. Leave the central cue
+   clear and fade again behind the small labels; control contrast is unchanged. */
+.rp-app__bar-watermark {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  color: var(--abyssa-ornament-light);
+  pointer-events: none;
+  -webkit-mask-image:
+    linear-gradient(90deg, transparent, #000 18%, rgb(0 0 0 / 10%) 34%, transparent 42%, transparent 58%, rgb(0 0 0 / 10%) 66%, #000 82%, transparent),
+    linear-gradient(180deg, transparent, rgb(0 0 0 / 60%) 28%, #000 48%, rgb(0 0 0 / 35%));
+  mask-image:
+    linear-gradient(90deg, transparent, #000 18%, rgb(0 0 0 / 10%) 34%, transparent 42%, transparent 58%, rgb(0 0 0 / 10%) 66%, #000 82%, transparent),
+    linear-gradient(180deg, transparent, rgb(0 0 0 / 60%) 28%, #000 48%, rgb(0 0 0 / 35%));
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
 }
 
 .rp-app__bar::before {
@@ -15,12 +37,13 @@
   right: 10px;
   left: 10px;
   height: 1px;
+  pointer-events: none;
   background: linear-gradient(
     90deg,
     transparent,
-    rgb(100 113 113 / 30%) 25%,
-    rgb(100 113 113 / 42%) 50%,
-    rgb(100 113 113 / 30%) 75%,
+    rgb(100 113 113 / 15%) 25%,
+    rgb(100 113 113 / 22%) 50%,
+    rgb(100 113 113 / 15%) 75%,
     transparent
   );
 }
@@ -40,6 +63,9 @@
   gap: 2px;
   justify-self: end;
 }
+
+/* Business actions append to the same rail and inherit its spacing. */
+.rp-app__scene-actions { display: contents; }
 
 /* ---- 底栏工具钮:图标 + 小字标签,无框 ----
    静默态图标压暗;悬停亮起;开关态(aria-pressed)teal 染色 + 底部
@@ -140,8 +166,7 @@
   mask-size: 82%;
 }
 
-/* 自绘图标(版式钮):不走 mask,直接内联 SVG。
-   它需要按状态切换两种图形,mask 做不到,只能内联。 */
+/* 版式、返回、关闭共用内联 SVG 的画幅与线稿样式，不使用 mask 底色。 */
 .rp-app__tool-icon[data-glyph] {
   background: none;
   display: grid;
@@ -272,50 +297,4 @@
   font-style: normal;
   font-size: 0.7em;
   opacity: 0.4;
-}
-
-/* ---- 幕内进度:独立一格 ----
-   大页码回答"第几幕",这一格回答"这一幕读到哪"。
-   与其余格同构(主视觉 + 标签两层),所以基线自动对齐,
-   也不必再跟幕号抢那 60px 的宽度。 */
-/* ---- 中央推进指引 ----
-   无边框纯文字 + ▼ caret:它不是控件,是状态回声(舞台整个是热区,
-   这里只是提示语落点)。可点只是顺手。 */
-/* User decision beats stay inside the ADV stage instead of opening a web modal. */
-.story-choice {
-  position: absolute;
-  z-index: 20;
-  left: 50%;
-  bottom: clamp(150px, 18vh, 220px);
-  width: min(820px, calc(100% - 96px));
-  padding: 14px 16px 16px;
-  transform: translateX(-50%);
-  color: #e9e1d1;
-  background: linear-gradient(180deg, rgba(25, 24, 25, .94), rgba(10, 11, 13, .97));
-  border: 1px solid rgba(183, 164, 128, .52);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, .55), inset 0 0 0 1px rgba(255, 255, 255, .035);
-}
-.story-choice::before,
-.story-choice::after { content:""; position:absolute; top:8px; bottom:8px; width:1px; background:rgba(141, 45, 42, .62); }
-.story-choice::before { left:7px; }
-.story-choice::after { right:7px; }
-.story-choice__prompt { margin:0 0 10px; color:#b9ad98; font-size:13px; letter-spacing:.16em; text-align:center; }
-.story-choice__options { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:8px; }
-.story-choice__options button {
-  min-height:58px;
-  padding:9px 12px;
-  color:#ded5c5;
-  text-align:left;
-  background:linear-gradient(180deg, rgba(61, 58, 55, .72), rgba(27, 27, 29, .88));
-  border:1px solid rgba(168, 151, 122, .32);
-  cursor:pointer;
-}
-.story-choice__options button:hover:not(:disabled),
-.story-choice__options button:focus-visible { border-color:rgba(194, 171, 127, .82); background:linear-gradient(180deg, rgba(82, 72, 64, .84), rgba(35, 31, 32, .94)); outline:none; }
-.story-choice__options button:disabled { opacity:.45; cursor:default; }
-.story-choice__options small { display:block; margin-bottom:4px; color:#9d8770; font-size:10px; letter-spacing:.18em; }
-.story-choice__options strong { display:block; font-size:15px; font-weight:500; line-height:1.45; }
-@media (max-width: 760px) {
-  .story-choice { bottom:132px; width:calc(100% - 28px); }
-  .story-choice__options { grid-template-columns:1fr; }
 }

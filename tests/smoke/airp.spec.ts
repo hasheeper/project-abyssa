@@ -67,6 +67,8 @@ test("AIRP: accept, real patrol, refresh with case, return and exactly one share
   });
   await page.goto("/");
   await page.getByRole("button", { name: "记录", exact: true }).click({ timeout: 60000 });
+  await page.getByRole("button", { name: "档案管理", exact: true }).click();
+  await page.getByRole("button", { name: "导入档案", exact: true }).click();
   await page.getByLabel("导入格式").selectOption("restore");
   await page.getByLabel("导入存档", { exact: true }).setInputFiles({ name: "airp.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify({ archiveVersion: 4, record: pending })) });
   await expect(page).toHaveURL(/#\/menu/, { timeout: 60000 }); await ready(page);
@@ -77,7 +79,7 @@ test("AIRP: accept, real patrol, refresh with case, return and exactly one share
   await page.reload(); await ready(page);
   await openManorJournal(page, "旧药箱的搭扣"); await page.getByRole("button", { name: "继续谈药箱", exact: true }).click(); await readConversation(page);
   expect((await saved(page)).narrative!.instance).toMatchObject({ status: "accepted", stance: "pragmatic" });
-  await page.getByRole("button", { name: "展开菜单", exact: true }).click(); await depart(page, 5, 30000, true); await ready(page);
+  await depart(page, 5, 30000, true); await ready(page);
   let photographed = false;
   for (let i = 0; i < 300; i++) {
     await ready(page);

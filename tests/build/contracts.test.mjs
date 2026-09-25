@@ -7,9 +7,18 @@ import { entryClosure } from '../../config/entries.mjs';
 import { assertOutputDirectory, distRoot, projectRoot } from '../../config/paths.mjs';
 import { validateEntries } from '../../scripts/check-entries.mjs';
 import { createArtifactServer } from '../../scripts/serve-built.mjs';
+import { createTargetConfig } from '../../config/vite/create-config.mjs';
 
 /** @param {string} id @param {string[]} navigationDependencies @returns {import('../../config/types.js').Entry} */
 const entry = (id, navigationDependencies) => ({ id, html: `${id}.html`, kind: 'lab', port: 5173, navigationDependencies, assetProfiles: [] });
+
+test('a lab with game dependencies keeps its own entry alongside the game shell', () => {
+  const config = createTargetConfig('entry:battle-loot');
+  const input = config.build?.rollupOptions?.input;
+  assert(input && typeof input === 'object' && !Array.isArray(input));
+  assert.equal(input.game, resolve(projectRoot, 'index.html'));
+  assert.equal(input['battle-loot'], resolve(projectRoot, 'entries/lab/battle-loot.html'));
+});
 
 test('navigation closure terminates on real back links and rejects missing destinations', () => {
   const catalog = [entry('one', ['two']), entry('two', ['one'])];
@@ -70,4 +79,15 @@ test('navigation hidden in an imported route table must belong to the entry clos
   await writeFile(resolve(root, 'src/apps/one/main.tsx'), 'import { href } from "../../game-client/navigation";');
   await writeFile(resolve(root, 'src/game-client/navigation.ts'), 'export const href = { missing: "missing.html" };');
   assert((await validateEntries([entry('one', [])], root)).some(error => error.includes('missing.html')));
+});
+
+test('a nested battle lab entry validates its explicit module without accepting traversal', async t => {
+  const root = await mkdtemp(resolve(tmpdir(), 'abyssa-nested-lab-'));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  await mkdir(resolve(root, 'src/apps/battle/loot-lab'), { recursive: true });
+  await writeFile(resolve(root, 'battle-loot.html'), '<script type="module" src="/src/apps/battle/loot-lab/main.tsx"></script>');
+  await writeFile(resolve(root, 'src/apps/battle/loot-lab/main.tsx'), 'export const fixture = true;');
+  const nested = { ...entry('battle-loot', []), sourceModule: '/src/apps/battle/loot-lab/main.tsx' };
+  assert.deepEqual(await validateEntries([nested], root), []);
+  assert((await validateEntries([{ ...nested, sourceModule: '/src/apps/../battle/loot-lab/main.tsx' }], root)).some(error => error.includes('Invalid sourceModule')));
 });

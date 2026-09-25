@@ -1,0 +1,119 @@
+/* Direct generation uses the current manor modal and AVG background.
+   Desktop composition only; nested settings and old RP retain their own skin. */
+.airp-generation-scene { position: absolute; inset: 0; background: #101616; font-family: var(--abyssa-font-body); isolation: isolate; }
+.airp-generation-scene__backdrop { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.airp-generation-scene__backdrop img { width: 100%; height: 100%; object-fit: cover; object-position: center; filter: brightness(.5) saturate(.85); }
+.airp-generation-scene__backdrop::after {
+  position: absolute; inset: 0; content: "";
+  background: radial-gradient(88% 88% at 50% 42%, transparent 48%, rgb(4 7 7 / 72%) 100%);
+}
+.airp-generation-modal { position: absolute; inset: 0; display: grid; place-items: center; background: rgb(5 9 10 / 20%); }
+.airp-direct-gate.abyssa-modal__panel { width: 600px; }
+.airp-direct-gate > .abyssa-frame {
+  --abyssa-frame-surface: var(--manor-window); --abyssa-frame-light: var(--manor-edge-strong);
+  --abyssa-ornament: var(--manor-edge); --abyssa-ornament-light: var(--manor-edge-strong);
+  --abyssa-shadow: 0 18px 55px rgb(0 0 0 / 45%); background: var(--manor-void);
+}
+.airp-direct-gate > .abyssa-frame > .abyssa-frame__watermark { opacity: .3; }
+/* Keep the frame's breathing room outside the scrollport. Padding inside a
+   scroller scrolls away and lets partially visible fields paint over the rim. */
+.airp-direct-gate.abyssa-modal__panel > .abyssa-frame > .abyssa-frame__content { padding: 20px 16px; }
+.airp-direct-gate__body { box-sizing: border-box; max-height: calc(100dvh - 200px); overflow: auto; padding: 10px 14px 8px; overscroll-behavior: contain; scrollbar-gutter: stable both-edges; scrollbar-width: thin; scrollbar-color: #8b9c9c transparent; }
+.airp-direct-gate__heading { padding-bottom: 12px; border-bottom: 1px solid var(--manor-hair); text-align: center; }
+.airp-direct-gate__heading h1 { margin: 0; color: var(--manor-title); font: 500 23px/1.5 var(--abyssa-font-body); letter-spacing: .04em; overflow-wrap: anywhere; }
+.airp-direct-gate__heading p { margin: 4px 0 0; color: var(--manor-muted); font: 12px/1.5 var(--abyssa-font-body); }
+.airp-generation-modal .abyssa-modal__signboard[data-variant="slim"] .abyssa-nameplate__content { min-height: 34px; padding: 5px 38px; }
+.airp-generation-modal .abyssa-modal__signboard[data-variant="slim"] .abyssa-nameplate__content strong { font-size: 17px; letter-spacing: .18em; padding-left: .18em; }
+
+.airp-direct-progress {
+  --airp-ink: var(--manor-title, #eee3c7); --airp-body: var(--manor-body, #cdd5cf);
+  --airp-muted: var(--manor-muted, #8b9c9c); --airp-rule: var(--manor-hair, rgb(126 150 145 / 22%));
+  min-width: 0; color: var(--airp-body); font: 14px/1.7 var(--abyssa-font-body); overflow-wrap: anywhere;
+}
+.airp-direct-rail { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); list-style: none; margin: 0; padding: 16px 0; }
+.airp-direct-rail > li { position: relative; display: flex; flex-direction: column; align-items: center; gap: 5px; min-width: 0; color: var(--airp-body); text-align: center; }
+.airp-direct-rail > li:not(:last-child)::after {
+  position: absolute; content: ""; top: 20px; left: calc(50% + 26px); width: calc(100% - 52px); height: 3px;
+  border-block: 1px solid #354345; background: #0b1011;
+}
+.airp-direct-rail__index.abyssa-facet-diamond { --abyssa-facet-size: 42px; }
+.airp-direct-rail__index b { font: 500 13px/1 var(--abyssa-font-display); font-variant-numeric: tabular-nums; }
+.airp-direct-rail__label { font-size: 14px; letter-spacing: .06em; }
+.airp-direct-rail small { display: block; margin-top: 3px; color: var(--airp-muted); font: 11px/1.5 var(--abyssa-font-body); letter-spacing: .02em; }
+.airp-direct-rail > [data-state="已保存"]::after { border-top-color: #657a74; }
+.airp-direct-rail [aria-current="step"] { color: var(--airp-ink); }
+.airp-direct-rail [aria-current="step"] small { color: #cabc96; }
+.airp-direct-rail [aria-current="step"] .airp-direct-rail__index { animation: airp-direct-breathe 2.4s ease-in-out infinite; }
+.airp-direct-rail > :is([data-state="未完成"], [data-state="未保存"], [data-state="待确认"]) .airp-direct-rail__index {
+  --abyssa-facet-edge: #b09573; --abyssa-facet-rim: #cdb297; --abyssa-facet-ink: #e4c6aa;
+}
+.airp-direct-current { min-height: 0; padding: 11px 16px; border-block: 1px solid var(--airp-rule); background: rgb(6 11 12 / 26%); text-align: center; }
+.airp-direct-progress .airp-direct-status__title { margin: 0; color: var(--airp-ink); font: 500 17px/1.6 var(--abyssa-font-body); letter-spacing: .04em; }
+.airp-direct-progress[data-tone="warning"] .airp-direct-current { border-left: 2px solid #b09573; }
+.airp-direct-progress[data-tone="warning"] .airp-direct-status__title { color: #e4c6aa; }
+.airp-direct-progress .airp-direct-note { margin: 8px 0 0; color: var(--airp-muted); font: 13px/1.7 var(--abyssa-font-body); letter-spacing: 0; }
+.airp-direct-elapsed { display: block; margin-top: 8px; color: #b4c2bc; font-size: 12px; font-variant-numeric: tabular-nums; letter-spacing: .06em; }
+.airp-direct-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px 10px; margin: 14px 0; }
+.airp-direct-actions:empty { display: none; }
+.airp-direct-actions > .scene-feedback__action { margin-inline: 0; }
+.airp-direct-recovery { display: flex; flex-wrap: wrap; gap: 12px; padding-block: 8px 12px; }
+.airp-direct-progress > .scene-feedback__inline { margin-block: 12px; }
+.airp-direct-reopen { position: fixed; right: 24px; top: 80px; z-index: 90; }
+.airp-direct-details > summary:focus-visible { outline: 1px solid var(--abyssa-focus); outline-offset: 3px; }
+.airp-direct-disclosures { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 20px; margin-top: 12px; border-top: 1px solid var(--airp-rule); }
+.airp-direct-details { min-width: 0; margin-top: 14px; border-top: 1px solid var(--airp-rule, rgb(126 150 145 / 22%)); }
+.airp-direct-disclosures > .airp-direct-details { margin: 0; border: 0; }
+.airp-direct-disclosures > .airp-direct-details[open] { grid-column: 1 / -1; }
+.airp-direct-details > summary {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0;
+  color: #a9bbb1; cursor: pointer; font: 13px/1.6 var(--abyssa-font-body); list-style: none;
+}
+.airp-direct-details > summary::-webkit-details-marker { display: none; }
+.airp-direct-details > summary::after { content: "+"; flex: none; color: #b9a271; font: 18px/1 var(--abyssa-font-display); }
+.airp-direct-details[open] > summary::after { content: "−"; }
+.airp-direct-details > summary:hover { color: #eee3c7; }
+.airp-direct-diagnostics { color: var(--airp-muted); font-size: 12px; }
+.airp-direct-diagnostics details { margin: 12px 0; }
+.airp-direct-diagnostics summary { cursor: pointer; }
+.airp-direct-diagnostics pre { max-height: 300px; overflow: auto; padding: 12px; border-left: 1px solid #687878; background: rgb(6 11 12 / 30%); white-space: pre-wrap; overflow-wrap: anywhere; scrollbar-width: thin; font: 12px/1.8 ui-monospace, monospace; }
+
+/* Embedded history stays light; only the floating reader record needs its own frame. */
+.airp-direct-record { min-width: 0; margin: 12px 0; }
+.airp-direct-record--docked { margin: 0; }
+.airp-direct-memory { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; color: #a9bdb1; font: 12px/1.6 var(--abyssa-font-body); }
+.airp-direct-memory > span { display: flex; align-items: baseline; gap: 8px; }
+.airp-direct-memory > span::before { content: ""; flex: none; width: 5px; height: 5px; border: 1px solid currentColor; transform: rotate(45deg); }
+.airp-direct-memory[data-tone="warning"] { color: #e4c6aa; }
+.airp-direct-record .airp-direct-current { min-height: 0; padding: 14px; }
+.airp-direct-record .airp-direct-status__title { font-size: 17px; }
+.airp-direct-record .airp-direct-rail { padding-top: 12px; }
+.airp-direct-record .airp-story-tools__panel.airp-direct-record__panel {
+  --abyssa-frame-surface: rgb(19 26 27 / 98%); --abyssa-frame-light: #687878;
+  position: absolute; width: 420px; max-width: calc(100vw - 32px); max-height: none; padding: 0;
+  overflow: visible; background: #0a0f10; border: 1px solid var(--abyssa-frame-deep);
+  box-shadow: 0 0 0 2px #687878, 0 0 0 5px #192020, 0 12px 32px #0008;
+}
+.airp-direct-record__panel > .abyssa-frame__watermark { opacity: .3; }
+.airp-direct-record__panel.abyssa-frame[data-padding="none"] > .abyssa-frame__content { padding: 12px; }
+.airp-direct-record__body { box-sizing: border-box; max-height: calc(55vh - 24px); padding: 4px 8px 0; overflow: auto; overscroll-behavior: contain; scrollbar-gutter: stable both-edges; scrollbar-width: thin; scrollbar-color: #8b9c9c transparent; }
+.airp-direct-record--docked .airp-story-tools > summary { list-style: none; }
+.airp-direct-record--docked .airp-story-tools > summary::-webkit-details-marker { display: none; }
+.airp-direct-record--docked .airp-story-tools > summary::before { content: "◇"; margin-right: 8px; color: #b9a271; }
+.airp-direct-record--docked .airp-story-tools[open] > summary { color: #eee3c7; background: rgb(104 120 120 / 12%); }
+.airp-direct-record--docked .airp-story-tools > summary:focus-visible { outline: 1px solid var(--abyssa-focus); outline-offset: -3px; }
+
+/* Compact desktop history surface, not a mobile breakpoint. */
+.airp-direct-record .airp-direct-rail { padding: 12px 0 16px; }
+.airp-direct-record .airp-direct-rail__index.abyssa-facet-diamond { --abyssa-facet-size: 34px; }
+.airp-direct-record .airp-direct-rail > li:not(:last-child)::after { top: 16px; left: calc(50% + 23px); width: calc(100% - 46px); }
+.airp-direct-record .airp-direct-disclosures { grid-template-columns: minmax(0, 1fr); }
+.airp-direct-record .airp-direct-disclosures > .airp-direct-details + .airp-direct-details { border-top: 1px solid var(--airp-rule); }
+.airp-direct-record .airp-direct-disclosures .airp-fields { grid-template-columns: minmax(0, 1fr); }
+.airp-direct-record .airp-direct-disclosures .airp-fields--numbers { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.airp-direct-disclosures > .airp-direct-details:only-child { grid-column: 1 / -1; }
+
+@keyframes airp-direct-breathe { 50% { opacity: .65; } }
+.airp-direct-progress[data-ui-motion="reduced"] .airp-direct-rail__index { animation: none; }
+@media (prefers-reduced-motion: reduce) {
+  .airp-direct-rail [aria-current="step"] .airp-direct-rail__index { animation: none; }
+}

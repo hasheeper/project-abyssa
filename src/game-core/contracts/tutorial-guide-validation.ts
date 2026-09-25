@@ -3,10 +3,10 @@ import type { D5Catalog } from "./d5";
 
 export function validateTutorialGuide(catalog: D5Catalog) {
   const spec = catalog.tutorial!, g = v.record(spec.guide, "tutorial.guide", ["version", "id", "continuationSeed", "nodes", "steps", ...(catalog.contentVersion >= 12 ? ["eventSeed"] : [])]);
-  v.choice(g.version, [1], "guide.version"); v.choice(g.id, [catalog.contentVersion >= 12 ? "tide.guide.v2" : "tide.guide.v1"], "guide.id");
+  v.choice(g.version, [1], "guide.version"); v.choice(g.id, [catalog.contentVersion >= 14 ? "tide.guide.v3" : catalog.contentVersion >= 12 ? "tide.guide.v2" : "tide.guide.v1"], "guide.id");
   v.choice(g.continuationSeed, [11395852], "guide.seed"); v.choice(spec.firstBattleSeed, [8267], "guide.firstSeed");
   if (catalog.contentVersion >= 12) v.choice(g.eventSeed,[7],"guide.eventSeed");
-  v.choice(spec.reward.gold, [8], "guide.reward");
+  v.choice(spec.reward.gold, [catalog.contentVersion >= 17 ? 800 : 8], "guide.reward");
   const expected = [
     {roomId: "room.tide-cave.1", battle: 1, storyAfter: "S3-2"},
     {roomId: "room.tide-cave.2", battle: 2, storyAfter: "S3-3"},

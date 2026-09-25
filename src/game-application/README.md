@@ -4,18 +4,29 @@
 
 依赖仅限自身与 core 公共入口。Storage 和 AI 都是注入 Port；此目录不读浏览器、不调用网络、不加载具体 Catalog。实际页面从 [browser runtime](/Users/liuhang/Documents/project-abyssa/src/game-runtime/browser.ts) 装配。
 
+## 正式AIRP服务
+
+内容22起的正式root已安装副本GM、Low节点与独立结算，当前AIRP新档28继承；早期开发root夹具不代表这些能力仍未接入。
+
+- [airp-expedition-gm](airp-expedition-gm/service.ts)：冻结路线／队伍／能力、委托与全文上下文，校验并保存计划。新委托实物清单固定取得条件，真实出征必须有票据及程序事实。
+- [airp-expedition-play](airp-expedition-play/service.ts)：按真实slot与依赖开放当前节点；[airp-low](airp-low/native.ts)生成正文并封装，阅读游标、玩家选择和引擎动作分别保存。
+- [airp-settlement](airp-settlement/service.ts)：冻结已发生边界、已读全文和允许变更，小模型提案经规则校验后原子写入变量／记忆／待办。未就绪的资产操作不能部分落账。
+- 各host通过同一拥有者root与存储Port提交；网络在runtime驱动，记录／回放本身不发请求。已开始旧任务保持冻结协议，不借新能力放宽历史reader。
+
+完整职责和当前限制见[LLM与AIRP](../../docs/architecture/LLM_AND_AIRP.md)。技术集成、真实模型样本和文学验收分别判断。
+
 ## 当前正式入口（规则／协议4）
 
-新档默认使用内容3。`versions/d5-service.ts` 的 `createD5Application(catalog, store, readers)` 执行v4普通远征、回忆、成长／赠物、装备与补给交易；`versions/d5-lineage.ts` 处理显式复制升级及二周目。runtime按完整内容引用选择服务，不由UI猜测版本。
+普通新档由runtime选择内容27，正式AIRP起点选择内容28。`versions/d5-service.ts` 的 `createD5Application(catalog, store, readers)` 执行v4普通远征、回忆、成长／赠物、装备、补给／装备交易、战利品鉴定／出售、设施生产及真实委托物品；`versions/d5-lineage.ts` 处理显式复制升级及二周目。runtime按完整内容引用选择服务，不由UI猜测版本。
 
 | 能力 | 当前入口／约束 |
 | --- | --- |
 | 建档、读取与导入导出 | 经版本化runtime选Catalog与reader；只接受注册profile，不开放任意资产patch |
 | 普通出征与结算 | `start-expedition`／`settle-expedition`，绑定run与终局证据；归来资产、剩余补给、时间与接管一次提交 |
 | 战斗与续行 | 命令按普通／历史run分派到D5引擎；已保存敌方位置逐步续行，UI演出不写规则 |
-| 回忆与当下结果 | 固定历史配置、重试／暂离及篇章证据；当前内容3使用刻仪兽，旧内容2保留本尊战 |
+| 回忆与当下结果 | 固定历史配置、重试／暂离及篇章证据；内容3及后续使用刻仪兽，旧内容2保留本尊战 |
 | 成长／赠物／装备 | 显式故事完成后授予；装卸／转交校验唯一实例、适用者、槽位和出征保管 |
-| 商店 | `purchase-supply`，校验报价、充能上限、金币与当前流程；仅支持有economy定义的内容包 |
+| 商店 | `purchase-supply`，校验报价、数量、库存容量、小队资金与当前流程；仅支持有economy定义的内容包 |
 | 档案继承 | 不覆盖来源档；升级要求来源可升级且无活动流程，二周目重置当下资产／成长并保留篇章证明 |
 
 通用head／幂等／CAS／存储Port原则仍适用；下文显式标为v1的命令结构、余额语义和Battle导入格式仅供兼容维护。具体机制和现行版本表见[总览](../../docs/GAME_SYSTEMS_AND_CONTENT_SPEC.md)。
@@ -129,10 +140,10 @@ S3 没有改变 GameRecord/schema、Catalog digest、公开游戏命令或旧经
 
 规则 2 创建只接受已注册 profile，该版没有任意 initial 覆写或实际成长授予命令。end-turn 在一次 CAS 中保存手牌加成、四约效果与待执行队列；resume-run 推进一条已保存意图。重试读回执，写入失败不落候选状态。undo 恢复 RNG／阵位／线状态并追加事实撤回记录。
 
-导入要求新 saveId／epoch，显式映射 run／encounter／敌人／事实／检查点引用，保留角色和定义 ID；adventure／simulation 与导入 originRef 分开。玩家事实查询过滤模拟和已撤回效果；现有 AI Port 暂不接收 v2 record。详见 [D1 实施验收](../../docs/archive/audits/2026-09-06-demo-d1-implementation.md)。
+导入要求新 saveId／epoch，显式映射 run／encounter／敌人／事实／检查点引用，保留角色和定义 ID；adventure／simulation 与导入 originRef 分开。玩家事实查询过滤模拟和已撤回效果；现有 AI Port 暂不接收 v2 record。详见 [ABYSSA 当前机制与游戏闭环总览](../../docs/GAME_SYSTEMS_AND_CONTENT_SPEC.md)。
 
 ## D4 规则 3 补充
 
 完整庄园复用 `createDemoApplication`，严格按 Catalog rulesVersion 选择 schema／protocol／receipt／fact 版本。v3 增加有限召唤来源、席位与解除事实、五层完成证据、接管／奖励和剧情游标；v2 不接受这些字段。`versions/manor-history.ts` 核对终局与已提交胜利、房间、原子结算及阅读记录。
 
-普通收益、剩余配给、时间、清 active run、一次接管与20G奖励同一事务提交；阅读继续／跳过只更新游标。导入重定位全部相关引用并保留领奖状态。AI Port 未扩为 v2／v3 管线，游戏与本地反馈不依赖它。验证与待补项见 [D4 实施记录](../../docs/archive/audits/2026-09-06-demo-d4-implementation.md)。
+普通收益、剩余配给、时间、清 active run、一次接管与20G奖励同一事务提交；阅读继续／跳过只更新游标。导入重定位全部相关引用并保留领奖状态。AI Port 未扩为 v2／v3 管线，游戏与本地反馈不依赖它。验证与待补项见 [ABYSSA 当前机制与游戏闭环总览](../../docs/GAME_SYSTEMS_AND_CONTENT_SPEC.md)。

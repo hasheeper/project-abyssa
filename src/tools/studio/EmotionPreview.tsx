@@ -9,7 +9,7 @@ import { MOTION_LABELS } from "../../shared/ui/patterns/motions";
 import type { RpActor, RpMessage, RpSeat } from "../../shared/ui/patterns/rp-stage";
 import { ROSTER, NAME_BY_ID } from "./characters";
 import background from "../../assets/backgrounds/manor-night-gallery.jpg";
-import "../../shared/ui/styles/dialogue.css";
+import "../../shared/ui/styles/components-core.css";
 import "./emotion-preview.css";
 
 /** Real stage, real profiles. Controls are tooling only, never part of a game dialogue. */

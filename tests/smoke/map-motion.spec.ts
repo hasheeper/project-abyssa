@@ -1,5 +1,6 @@
 import { test, expect, type Page } from "@playwright/test";
 import { ready, openSortie } from "./playable-helpers";
+import { confirmNewGame } from "./new-game-helpers";
 
 type IntroFrame = { time: number; wood: number; y: number; map: number; party: number; entry: number; veil: number };
 type MapWindow = Window & { mapEntrance?: Promise<IntroFrame[]>; panelSamples?: Promise<{ opacity: number; x: number; y: number }[]> };
@@ -9,7 +10,7 @@ async function menu(page: Page, reduced = false) {
   await page.goto("/");
   await page.getByRole("button", { name: "新的开始", exact: true }).click();
   await page.emulateMedia({ reducedMotion: reduced ? "reduce" : "no-preference" });
-  await page.getByRole("button", { name: "跳过教程", exact: true }).click();
+  await confirmNewGame(page, "自由行动");
   await expect(page).toHaveURL(/#\/menu\?/); await ready(page);
   await expect(page.locator(".menu-entry")).toHaveAttribute("data-menu-intro", "ready");
 }

@@ -65,7 +65,7 @@ export interface RpgModalProps {
   returnFocusRef?: React.RefObject<HTMLElement | null>;
   /** 与背景 inert／快捷键门禁同步，false 只在退出完成或宿主卸载后通知。 */
   onPresentChange?: (present: boolean) => void;
-  motionPreset?: UiModalProps["motionPreset"];
+  motionPreset?: Exclude<UiModalProps["motionPreset"], "confirmation">;
 }
 
 export function RpgModal({ open, onClose, title, header, navigation, children, footer,

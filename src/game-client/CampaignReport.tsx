@@ -1,3 +1,4 @@
+import { MoneyText } from "../shared/ui/primitives/Money";
 import { useMemo, useState } from "react";
 import type { AnyGameRecord } from "../game-application";
 import { navigateTo } from "../shared/routing/location";
@@ -9,11 +10,16 @@ import { useDepartureLoadout } from "./useDepartureLoadout";
 import { activeRunId } from "./session";
 import { growthJournalEntries } from "./GrowthEvents";
 import { airpJournalEntries } from "./AirpJournalEntries";
+import { directorJournalEntries } from "./airp-director/DirectorJournal";
 import { AirpOnlineControls } from "./AirpOnlineControls";
 import { JournalBrowser, JournalRecordHeading, type JournalEntry } from "./JournalBrowser";
 import "./airp.css";
 import { useGameSession, useGameState } from "./react";
+import { shopLootPresentation } from "../content/presentation/shop-loot";
+import { appraisalHref } from "./shop-navigation";
 import { gameHref, recordLocator } from "./navigation";
+import { JournalAppraisal } from "./JournalAppraisal";
+import { pendingAppraisalGroups } from "./journal-appraisal";
 
 type ModernRecord = Exclude<AnyGameRecord, {schemaVersion: 1}>;
 export function CampaignReport({record, view, onViewChange, onPresentChange, returnFocusRefs, renderEntries, onReviewGrowth}: CampaignReportControls & {
@@ -52,11 +58,15 @@ export function CampaignReport({record, view, onViewChange, onPresentChange, ret
     </div>
   </>;
   const entries: JournalEntry[] = [];
+  const pendingLoot = pendingAppraisalGroups(record.schemaVersion === 4 ? record.snapshot.campaign.loot ?? [] : [], journey?.appraisalLoot);
+  if (pendingLoot.length) entries.push({id: "shop:pending-appraisal", title: "待鉴定的收获", meta: `缇比的杂货铺 · ${pendingLoot.reduce((count, item) => count + item.quantity, 0)} 件`, kind: "return", group: "current", actionable: true,
+    content: <JournalAppraisal items={pendingLoot} href={appraisalHref(locator)}/>});
   if (last) entries.push({id: `return:${last.runId}`, title: outcome, meta: "最近归来 · 已结算", kind: "return", group: "archive",
     content: <CampaignReturnRecord title={outcome} settlement={last} credits={credits}>
+      {last.returnedLoot?.map(item => <p key={item.instanceId}>带回物品：{journey?.appraisalLoot[item.instanceId]?.unknownName ?? shopLootPresentation[item.definitionId].unknownName} × {shopLootPresentation[item.definitionId].quantity ?? 1} · 已领取</p>)}
       {journey?.returnFeedback.map((line, index) => <p key={index}>{line}</p>)}
       {journey?.takeover && <p className="campaign-journal__note">
-        {journey.takeover.runId !== last.runId && <>首次接管奖励 {journey.takeover.gold}G 已入账。 </>}
+        {journey.takeover.runId !== last.runId && <>首次接管奖励 <MoneyText value={journey.takeover.gold}/> 已入账。 </>}
         <a href={gameHref("battle",{saveId:locator.saveId,epoch:locator.epoch,expeditionId:journey.takeover.runId})}>{journey.story?.status === "pending" ? "继续家宴落幕" : "回顾家宴落幕"}</a>
       </p>}
     </CampaignReturnRecord>});
@@ -64,6 +74,7 @@ export function CampaignReport({record, view, onViewChange, onPresentChange, ret
     gameHref("character-status",locator,{characterId:"eustice",tab:"dice",from:"menu"}),
     onReviewGrowth ? id => {onViewChange(null); onReviewGrowth(id);} : undefined));
   entries.push(...airpJournalEntries(narrative, session, busy));
+  entries.push(...directorJournalEntries(record, session, busy, () => onViewChange(null)));
   if (memory) entries.push({id: memory.chapterId, title: memoryTitle,
     meta: `玛丽埃塔 · ${!memory.available ? "尚未开放" : memory.claim ? "已完成" : "回忆"}`,
     kind: "memory", group: !memory.available ? "locked" : memory.claim ? "archive" : "current",
@@ -72,7 +83,7 @@ export function CampaignReport({record, view, onViewChange, onPresentChange, ret
   const rank = {current: 0, archive: 1, locked: 2};
   entries.sort((a,b) => rank[a.group] - rank[b.group] || Number(!!b.actionable) - Number(!!a.actionable));
   return <>
-    {renderEntries?.(entries.filter(e => e.actionable).length)}
+    {renderEntries?.(entries.filter(e => e.actionable || e.ongoing).length)}
     <CampaignJournal browser open={view === "journal"} onClose={() => onViewChange(null)} onPresentChange={present => onPresentChange?.("journal", present)} title="日志" returnFocusRef={returnFocusRefs?.journal}>
       <JournalBrowser entries={entries} selectedId={selectedId} onSelect={setSelectedId}
         empty={<section className="campaign-journal__empty"><h3>旅途尚未留下足迹</h3><p>完成远征后，带回的收获与归来记录会留在这里。</p><JournalLink href={gameHref("map",locator)} label="前往出征编队"/></section>}
@@ -83,7 +94,7 @@ export function CampaignReport({record, view, onViewChange, onPresentChange, ret
         </>}/>
     </CampaignJournal>
     <CampaignJournal open={view === "preparation"} onClose={() => onViewChange(null)} onPresentChange={present => onPresentChange?.("preparation", present)} title="整备" returnFocusRef={returnFocusRefs?.preparation}>
-    <DeparturePreparation items={journey?.items ?? []} selectedIds={loadout.ids} onChange={loadout.setIds} itemLimit={loadout.itemLimit}
+    <DeparturePreparation items={journey?.items ?? []} quantities={loadout.quantities} onQuantity={journey?.facilities ? loadout.setQuantity : undefined} selectedIds={loadout.ids} onChange={loadout.setIds} itemLimit={loadout.itemLimit}
       lockedReason={busy ? "正在保存或恢复进度" : activeRunId(record) ? "远征期间不能调整行囊" : undefined}
       storageUnavailable={loadout.storageUnavailable} funds={campaign.funds} mapHref={gameHref("map",locator)}
       equipmentHref={gameHref("character-status",locator,{characterId:"eustice",tab:"dice",from:"menu"})} shopHref={gameHref("shop",locator)}/>

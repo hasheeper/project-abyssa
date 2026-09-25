@@ -1,0 +1,41 @@
+.new-shop-detail { height: 100%; padding: 16px 20px 14px; display: flex; flex-direction: column; justify-content: space-between; color: #e4d2ae; }
+.new-shop-detail__description { display: grid; grid-template-columns: 98px minmax(0, 1fr); gap: 16px; align-items: stretch; min-height: 86px; padding-inline: 9px; }
+.new-shop-detail__emblem { display: grid; place-items: center; padding-right: 18px; border-right: 1px solid #0a0704a6; box-shadow: 1px 0 #9a753f33; }
+.new-shop-detail__slot.abyssa-item-slot { border-color: #0d0905; border-bottom-color: #665035; box-shadow: 0 -1px #080604, 0 1px #b1854857, inset 2px 3px 4px #000c, inset -1px -1px #684a2742; }
+.new-shop-detail__copy { min-width: 0; }
+.new-shop-detail__heading { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 14px; min-height: 40px; }
+.new-shop-detail__heading::after { position: absolute; right: 0; bottom: 0; left: 12px; height: 1px; background: linear-gradient(90deg, #a4824566, #80603433 62%, transparent); content: ""; pointer-events: none; }
+.new-shop-detail__heading h2 { flex: 0 1 250px; min-width: 0; margin: 0; padding: 7px 12px 8px; font-size: 22px; font-weight: 600; line-height: 1.2; letter-spacing: .04em; overflow-wrap: anywhere; background: linear-gradient(90deg, transparent, #08050229 12%, #0805021a 60%, transparent); text-shadow: 0 2px 3px #08050273; }
+.new-shop-detail__copy > p { margin: 9px 0 0; padding-inline: 12px; color: #c5b18e; font-size: 16px; line-height: 1.5; overflow-wrap: anywhere; }
+.new-shop-detail__capacity { display: inline-flex; flex-shrink: 0; gap: 8px; align-items: baseline; padding: 5px 0 5px 6px; color: #b29a73; font-size: 14px; line-height: 1.25; white-space: nowrap; }
+.new-shop-detail__capacity b, .new-shop-detail__capacity output { color: #d0bc96; font-size: 17px; font-weight: 400; font-variant-numeric: tabular-nums; }
+.new-shop-detail__capacity output { color: #dfc18a; }
+.new-shop-detail__arrow { color: #8f7957; }
+.new-shop-detail__full { color: #95876c; }
+.new-shop-detail__checkout { display: grid; grid-template-columns: minmax(165px, 1fr) auto 190px; align-items: center; gap: 20px; margin-top: 10px; padding: 0 9px; }
+.new-shop-detail__quantity { display: flex; align-items: center; gap: 12px; }
+.new-shop-detail__quantity > span, .new-shop-detail__total > span:first-child { color: #b29a73; font-size: 16px; line-height: 1.2; white-space: nowrap; }
+.new-shop-detail__quantity > div { display: inline-flex; align-items: center; gap: 10px; padding: 3px 8px; background: #15100b; border: 1px solid #2e2114; box-shadow: inset 0 2px 4px #0009, 0 1px #9d774552; }
+.new-shop-detail__quantity .abyssa-icon-button { --abyssa-icon-size: 34px; }
+.new-shop-detail__quantity .abyssa-icon-button[data-variant="teal"] { --abyssa-icon-fill: #97804e; --abyssa-icon-middle: #756039; --abyssa-icon-ornament: #5f482a; --abyssa-icon-ink: #2d2213; }
+.new-shop-detail__quantity output { min-width: 23px; font-size: 23px; line-height: 1; text-align: center; font-variant-numeric: tabular-nums; }
+.new-shop-detail__total { display: flex; align-items: center; gap: 10px; }
+.new-shop-detail__total .abyssa-currency-amount { display: flex; min-height: 32px; align-items: center; color: #dfc18a; font-size: 22px; font-weight: 500; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.new-shop-detail__total .abyssa-currency-amount i { width: 20px; height: 20px; }
+.new-shop-detail__purchase { position: relative; }
+.new-shop-detail__purchase .new-shop__action { width: 190px; height: 48px; }
+.new-shop-detail__help { position: absolute; z-index: 5; top: -6px; right: -8px; }
+.new-shop-detail__help > button { display: grid; place-items: center; width: 25px; height: 25px; padding: 0; border: 1px solid #80663e; border-radius: 50%; background: #21170d; color: #cbb58d; font: 16px/1 var(--abyssa-font-body); cursor: help; }
+.new-shop-detail__help > p { position: absolute; right: 0; bottom: calc(100% + 8px); width: 300px; margin: 0; padding: 12px 16px; border: 1px solid #806137; color: #d1bfa0; background: #21170e; font-size: 16px; line-height: 1.5; }
+.new-shop-detail__help > p::after { content: ""; position: absolute; top: 100%; right: -1px; width: 100%; height: 10px; }
+.new-shop-detail__appraisal-status { color: #b29a73; font-size: 15px; }
+.new-shop-detail__empty { margin: auto; color: #a08c6d; font-size: 17px; }
+
+.new-shop-detail__total { flex-wrap: wrap; column-gap: 8px; row-gap: 2px; }
+.new-shop-detail__total > small { flex-basis: 100%; font-size: 12px; color: #b39b7c; }
+.new-shop-detail__total > small .abyssa-currency-amount { display: inline-flex; min-height: 0; font-size: inherit; }
+.new-shop-detail__total > small .abyssa-currency-amount i { display: none; }
+
+.new-shop-detail__preview { margin: 5px 12px 0; padding: 0; font: inherit; font-size: 13px; color: #cab784; background: none; border: 0; border-bottom: 1px solid #8e7a5266; cursor: pointer; }
+
+.new-shop-stock__new { margin-left: 12px; font-size: 11px; color: #b5a47f; font-weight: normal; letter-spacing: .1em; }

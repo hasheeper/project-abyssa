@@ -53,12 +53,35 @@ const mountManor = async () => {
   const board = screen.getByRole("main", { name: "克雷格旧庄园战斗界面" });
   await click(screen.getByRole("button", { name: "ROLL" }));
   await finish();
-  /* 装载艾洛拉的骰子并拿起她：与裂隙版同一手势。 */
+  /* 固定骰子即选中艾洛拉，不再补点角色卡。 */
   await click(board.querySelector('[data-owner="elora"] .expedition-die')!);
   await finish();
-  await click(board.querySelector('[data-character="elora"]')!);
+  expect(board.querySelector('[data-character="elora"]')).toHaveAttribute("data-held", "true");
   return { f, view, board };
 };
+
+it("固定即选中，固定其他队员切换选中，再次点击只解除该枚固定", async () => {
+  const {f, board} = await mountManor();
+  const die = (id: string) => board.querySelector(`[data-owner="${id}"] .expedition-die`)!;
+  const card = (id: string) => board.querySelector(`[data-character="${id}"]`)!;
+  const read = () => f.runtime.queries.journey(f.session.getSnapshot().record!)!;
+  const hp = read().battle!.enemies.map(enemy => enemy.hp);
+
+  await click(die("eustice")); await finish();
+  expect(card("eustice")).toHaveAttribute("data-held", "true");
+  expect(card("elora")).not.toHaveAttribute("data-held");
+  expect(read().party.filter(m => ["elora", "eustice"].includes(m.id)).every(m => m.die?.loaded)).toBe(true);
+  expect(read().battle!.enemies.map(enemy => enemy.hp)).toEqual(hp);
+  expect(read().party.every(m => !m.die?.spent)).toBe(true);
+
+  // Unfixing a different held die must not steal the selected actor.
+  await click(die("elora")); await finish();
+  expect(card("eustice")).toHaveAttribute("data-held", "true");
+  expect(read().party.find(m => m.id === "elora")!.die?.loaded).toBe(false);
+  await click(die("eustice")); await finish();
+  expect(board.querySelectorAll(".abyssa-expedition-party-card[data-held]")).toHaveLength(0);
+  expect(read().party.find(m => m.id === "eustice")!.die?.loaded).toBe(false);
+});
 
 it("拿盾骰点被攻击的队友即格挡其最大威胁，与裂隙版交互一致", async () => {
   const { board } = await mountManor();
@@ -186,18 +209,14 @@ it("左侧菜单读取最新合法状态，结束回合走现有提交，导航�
   await enter();
   // Scope menu queries so each assertion does not walk all thirty die SVGs.
   const menu = within(screen.getByRole("complementary",{name:"游戏导航"}));
-  await click(menu.getByRole("button",{name:"展开菜单"}));
   expect(menu.getByRole("button",{name:/结束回合/})).toBeDisabled();
-  await click(menu.getByRole("button",{name:"收起菜单"}));
   await click(screen.getByRole("button",{name:"ROLL"}));await finish();
   const read=() => f.runtime.queries.journey(f.session.getSnapshot().record!)!;
   const round=read().battle!.encounter.round;
-  await click(menu.getByRole("button",{name:"展开菜单"}));
   expect(menu.getByRole("button",{name:/撤退/})).toBeDisabled();
   await click(menu.getByRole("button",{name:/结束回合/}));await finish();
   expect(read().battle!.encounter.round).toBe(round+1);
   const before=f.session.getSnapshot().record!.head.revision;
-  await click(menu.getByRole("button",{name:"展开菜单"}));
   expect(menu.getByRole("link",{name:/继续远征/})).toHaveAttribute("href",expect.stringContaining("expedition=manor-run"));
   expect(f.session.getSnapshot().record!.head.revision).toBe(before);
 });

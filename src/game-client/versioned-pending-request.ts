@@ -17,7 +17,8 @@ export function readVersionedPending(
   const raw = storage.getItem(key(record));
   if (!raw) return null;
   try {
-    if (raw.length > 64_000) throw new Error("Oversized pending request");
+    const max = record.schemaVersion === 4 && (record.airpDirect || record.airpDirector) ? 2 * 1024 * 1024 + 4096 : 64_000;
+    if (raw.length > max) throw new Error("Oversized pending request");
     const input = JSON.parse(raw),
       request = parseVersionedRequest(
         input,
@@ -56,7 +57,8 @@ export function writeVersionedPending(
     ["resume-run", "resume-enemy-turn"].includes(request.command.type),
   );
   const raw = JSON.stringify(request);
-  if (raw.length > 64_000) throw new Error("Oversized pending request");
+  const max = request.protocolVersion === 4 && (request.command.type.startsWith("airp-direct-") || request.command.type.startsWith("airp-director-")) ? 2 * 1024 * 1024 + 4096 : 64_000;
+  if (raw.length > max) throw new Error("Oversized pending request");
   storage.setItem(
     key({ schemaVersion: request.protocolVersion, head: request.expectedHead }),
     raw,

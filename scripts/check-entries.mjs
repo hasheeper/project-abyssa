@@ -26,11 +26,14 @@ export async function validateEntries(catalog = entries, root = projectRoot) {
     if (!existsSync(html)) { errors.push(`Missing HTML: ${entry.html}`); continue; }
     const source = await readFile(html, 'utf8');
     const modulePath = /<script\b[^>]*\btype="module"[^>]*\bsrc="([^\"]+)"/.exec(source)?.[1];
-    const expectedModule = entry.kind === 'game' ? '/src/game-shell/main.tsx' : `/src/${entry.kind === 'tool' ? 'tools' : 'apps'}/${entry.id}/main.tsx`;
+    if (entry.sourceModule && (entry.kind === 'game' || !/^\/src\/(?:apps|tools)\/[a-z0-9-]+(?:\/[a-z0-9-]+)*\/main\.tsx$/.test(entry.sourceModule))) {
+      errors.push(`Invalid sourceModule for ${entry.id}`); continue;
+    }
+    const expectedModule = entry.kind === 'game' ? '/src/game-shell/main.tsx' : entry.sourceModule ?? `/src/${entry.kind === 'tool' ? 'tools' : 'apps'}/${entry.id}/main.tsx`;
     if (modulePath !== expectedModule || !existsSync(resolve(root, `.${expectedModule}`))) { errors.push(`Invalid module for ${entry.html}: expected ${expectedModule}`); continue; }
     if (entry.kind === 'game' && !existsSync(resolve(root, `src/apps/${entry.id}/route.tsx`))) errors.push(`Missing game route: ${entry.id}`);
     const allowed = new Set((entry.kind === 'game' ? catalog.filter(item => item.kind === 'game') : closure).map(item => item.html));
-    if (entry.kind === 'game') allowed.add('index.html');
+    if (closure.some(item => item.kind === 'game')) allowed.add('index.html');
     for (const file of await navigationSources(resolve(root, `.${expectedModule}`))) {
       visitSource(await readFile(file, 'utf8'), file, node => {
         if (node.type === 'StringLiteral' && typeof node.value === 'string') {

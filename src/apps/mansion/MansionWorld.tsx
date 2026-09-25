@@ -1,9 +1,8 @@
-import { memo, useMemo, type CSSProperties } from "react";
+import { memo, useEffect, useMemo, type CSSProperties } from "react";
 import type {
   PointerEventHandler,
   ReactNode,
-  RefObject,
-  WheelEventHandler
+  RefObject
 } from "react";
 import type { MansionArtwork } from "./mansion-assets";
 import {
@@ -11,6 +10,7 @@ import {
   MANSION_WORLD_WIDTH,
   MANSION_ROOM_DETAILS,
   fallbackRoomDetail,
+  type MansionProduction,
   type MansionCharacter
 } from "./data";
 import type { RoomLight } from "./lighting";
@@ -41,6 +41,7 @@ import {
 export interface CharacterPlacement extends Point {
   character: MansionCharacter;
   roomId: string;
+  eventSignal?: {card: {form: string}; status: string; actionPhase: number | null; role: string};
 }
 
 export type MansionRoomLight = {
@@ -61,6 +62,7 @@ export type MansionWorldProps = {
   selectedRegionId: string | null;
   hoveredRegionId: string | null;
   readyProduction: ReadonlySet<string>;
+  production?: Readonly<Record<string, Pick<MansionProduction, "label" | "amount" | "icon">>>;
   levels: Readonly<Record<string, number>>;
   repairProgress: Readonly<Record<string, number>>;
   damaged: ReadonlySet<string>;
@@ -70,7 +72,7 @@ export type MansionWorldProps = {
   onPointerDown: PointerEventHandler<HTMLDivElement>;
   onPointerMove: PointerEventHandler<HTMLDivElement>;
   onPointerUp: PointerEventHandler<HTMLDivElement>;
-  onWheel: WheelEventHandler<HTMLDivElement>;
+  onWheel: (event: WheelEvent) => void;
   onHoverRegion: (regionId: string | null) => void;
   onOpenRegion: (regionId: string) => void;
   onCollectProduction: (roomId: string) => void;
@@ -90,6 +92,7 @@ export const MansionWorld = memo(function MansionWorld({
   selectedRegionId,
   hoveredRegionId,
   readyProduction,
+  production,
   levels,
   repairProgress,
   damaged,
@@ -105,6 +108,13 @@ export const MansionWorld = memo(function MansionWorld({
   onCollectProduction,
   onActivateCharacter
 }: MansionWorldProps) {
+  useEffect(()=>{
+    const viewport=viewportRef.current;
+    if(!viewport || inert)return;
+    // React delegates wheel events passively; this viewport owns horizontal pan.
+    viewport.addEventListener("wheel",onWheel,{passive:false});
+    return ()=>viewport.removeEventListener("wheel",onWheel);
+  },[viewportRef,onWheel,inert]);
   // Input ownership/camera updates do not rebuild the illustrated world tree.
   const plane = useMemo(() => (
         <div className="mansion-world-plane">
@@ -182,7 +192,8 @@ export const MansionWorld = memo(function MansionWorld({
               node: ReactNode;
             }> = [];
 
-            if (detail.production && readyProduction.has(region.id)) {
+            const output = production ? production[region.id] : detail.production;
+            if (output && readyProduction.has(region.id)) {
               pins.push({
                 kind: "production",
                 node: (
@@ -190,14 +201,14 @@ export const MansionWorld = memo(function MansionWorld({
                     type="button"
                     className="mansion-marker mansion-marker--production"
                     data-no-pan
-                    aria-label={`收取${cleanRegionLabel(region.label)}的${detail.production.label}`}
+                    aria-label={`收取${cleanRegionLabel(region.label)}的${output.label}`}
                     onClick={(event) => {
                       event.stopPropagation();
                       onCollectProduction(region.id);
                     }}
                   >
-                    <ProductionIcon icon={detail.production.icon} />
-                    <b className="mansion-marker__badge">{detail.production.amount}</b>
+                    <ProductionIcon icon={output.icon} />
+                    <b className="mansion-marker__badge">{output.amount}</b>
                   </button>
                 )
               });
@@ -245,7 +256,7 @@ export const MansionWorld = memo(function MansionWorld({
                     data-state={isUpgrading ? "working" : "damaged"}
                     data-no-pan
                     aria-label={isUpgrading
-                      ? `${cleanRegionLabel(region.label)}修缮中，还需 ${upgrading[region.id]} 相位`
+                      ? `${cleanRegionLabel(region.label)}施工中，还需 ${upgrading[region.id]} 相位`
                       : `${cleanRegionLabel(region.label)}出现损坏，查看修缮`}
                     onClick={(event) => {
                       event.stopPropagation();
@@ -275,7 +286,7 @@ export const MansionWorld = memo(function MansionWorld({
             });
           })}
 
-          {characterPlacements.map(({ character, roomId, x, y }, index) => {
+          {characterPlacements.map(({ character, roomId, x, y, eventSignal }, index) => {
             const avatar = getMansionAvatar(character.id);
             return (
               <button
@@ -286,6 +297,7 @@ export const MansionWorld = memo(function MansionWorld({
                 }`}
                 data-faction={character.faction}
                 data-room={roomId}
+                data-event-active={!!eventSignal && !(eventSignal.actionPhase !== null && eventSignal.role === "action") || undefined}
                 data-no-pan
                 style={{ left: x, top: y, "--mansion-resident-order": index % 5 } as CSSProperties}
                 aria-label={`与${character.name}交谈`}
@@ -301,9 +313,10 @@ export const MansionWorld = memo(function MansionWorld({
                     <b aria-hidden="true">{character.name.slice(0, 1)}</b>
                   )}
                 </span>
-                <span className="mansion-character__bubble" aria-hidden="true">
+                {eventSignal && !(eventSignal.actionPhase !== null && eventSignal.role === "action") && <span className="mansion-character__bubble" data-event-kind={eventSignal.card.form} data-event-state={eventSignal.status} aria-hidden="true">
                   <DialogueBubble />
-                </span>
+                  <b className="mansion-character__event-mark">{eventSignal.status === "ready" ? "✓" : eventSignal.status === "feedback" ? "↩" : eventSignal.card.form === "sortie" ? "!" : eventSignal.card.form === "liaison" ? "↗" : eventSignal.card.form === "household" ? "◇" : "·"}</b>
+                </span>}
                 <span className="mansion-character__name">{character.name}</span>
               </button>
             );
@@ -324,7 +337,7 @@ export const MansionWorld = memo(function MansionWorld({
             );
           })}
         </div>
-  ), [artwork, sceneRegions, selectedRegionId, hoveredRegionId, readyProduction, levels,
+  ), [artwork, sceneRegions, selectedRegionId, hoveredRegionId, readyProduction, production, levels,
     repairProgress, damaged, upgrading, characterPlacements, roomLights,
     onHoverRegion, onOpenRegion, onCollectProduction, onActivateCharacter]);
   return (
@@ -341,7 +354,6 @@ export const MansionWorld = memo(function MansionWorld({
       onPointerCancel={onPointerUp}
       onLostPointerCapture={onPointerUp}
       onKeyDownCapture={onResumeHover}
-      onWheel={onWheel}
     >
       <div
         className="mansion-world-pan"

@@ -63,7 +63,7 @@ export function decideCommit<
     contentRef: StoredRecord["contentRef"] | null = null,
   ): C => {
     // A losing CAS has no domain effects, even when its proposal carried them.
-    const { combat: _combat, journey: _journey, airp: _airp, airpOnline: _online, archiveOperation: _restore, ...base } = structuredClone(proposal.receipt) as C & { combat?: unknown; journey?: unknown; airp?: unknown; airpOnline?: unknown; archiveOperation?: unknown };
+    const { combat: _combat, journey: _journey, airp: _airp, airpOnline: _online, airpDirect: _direct, archiveOperation: _restore, ...base } = structuredClone(proposal.receipt) as C & { combat?: unknown; journey?: unknown; airp?: unknown; airpOnline?: unknown; airpDirect?: unknown; archiveOperation?: unknown };
     return ({
       ...base,
       status: "rejected",

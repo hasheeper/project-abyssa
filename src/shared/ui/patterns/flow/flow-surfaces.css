@@ -1,0 +1,131 @@
+/* A wide, feathered backing; focus blur belongs only to the entrance motion. */
+.flow-dialog__panel { width: 640px; max-height: min(820px, 100%); }
+.flow-surface { --flow-accent: var(--abyssa-teal-soft); --confirmation-accent: var(--flow-accent); padding: 30px 60px 28px; }
+/* Keep the scene behind the translucent backing sharp at rest. */
+.flow-surface > .flow-backing {
+  --flow-backing-edge: 1;
+  --gi: calc(88px * var(--flow-backing-edge));
+  --gb: calc(30px * var(--flow-backing-edge));
+  mask-image:
+    linear-gradient(90deg, transparent 0,
+      rgb(0 0 0 / 12%) calc(var(--gi) * .22), rgb(0 0 0 / 42%) calc(var(--gi) * .46),
+      rgb(0 0 0 / 76%) calc(var(--gi) * .72), #000 var(--gi), #000 calc(100% - var(--gi)),
+      rgb(0 0 0 / 76%) calc(100% - var(--gi) * .72), rgb(0 0 0 / 42%) calc(100% - var(--gi) * .46),
+      rgb(0 0 0 / 12%) calc(100% - var(--gi) * .22), transparent 100%),
+    linear-gradient(180deg, transparent 0,
+      rgb(0 0 0 / 12%) calc(var(--gb) * .22), rgb(0 0 0 / 42%) calc(var(--gb) * .46),
+      rgb(0 0 0 / 76%) calc(var(--gb) * .72), #000 var(--gb), #000 calc(100% - var(--gb)),
+      rgb(0 0 0 / 76%) calc(100% - var(--gb) * .72), rgb(0 0 0 / 42%) calc(100% - var(--gb) * .46),
+      rgb(0 0 0 / 12%) calc(100% - var(--gb) * .22), transparent 100%);
+  mask-composite: intersect;
+}
+.flow-surface > .flow-backing::before,
+.flow-surface > .flow-backing::after { display: none; }
+.flow-surface > .flow-backing > .scene-feedback__texture { z-index: 1; mask-image: none; }
+.flow-backing__tint { position: absolute; inset: 0; background: rgb(9 16 17 / 62%); }
+.flow-rule { position: absolute; left: 0; right: 0; height: 1px; pointer-events: none; }
+.flow-rule[data-edge="top"] {
+  top: 0;
+  background: linear-gradient(90deg, transparent 9%, color-mix(in srgb, var(--abyssa-teal-soft) 22%, transparent) 34% 66%, transparent 91%);
+}
+.flow-rule[data-edge="bottom"] {
+  bottom: 0;
+  background: linear-gradient(90deg, transparent 14%, color-mix(in srgb, var(--abyssa-ornament-light) 14%, transparent) 38% 62%, transparent 86%);
+}
+.flow-surface[data-phase="readable"] { --flow-accent: var(--feedback-gold); }
+.flow-surface[data-tone="attention"] { --flow-accent: #b09573; }
+.flow-surface .confirmation-dialog__crest { margin-bottom: 18px; transition: color 240ms; }
+.flow-surface[data-phase="unsaved"] .confirmation-dialog__crest > i { background: currentColor; }
+.flow-location { margin: 0 0 6px; color: var(--abyssa-text-muted); font-size: 13px; line-height: 1.6; letter-spacing: .16em; }
+.flow-stages { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px 22px; margin: 12px 0 0; padding: 0; list-style: none; }
+.flow-stages > li { display: flex; align-items: center; gap: 8px; color: var(--abyssa-text-muted); font-size: 13px; line-height: 20px; }
+.flow-stages > li::before { content: ""; width: 5px; height: 5px; border: 1px solid currentColor; rotate: 45deg; }
+.flow-stages > [data-state="current"] { color: var(--feedback-title); }
+.flow-stages > [data-state="current"]::before { background: var(--flow-accent); border-color: var(--flow-accent); }
+.flow-stages > [data-state="next"] { opacity: .45; }
+.flow-state-copy { position: relative; box-sizing: border-box; min-height: 88px; margin-top: 22px; padding: 16px 0; }
+.flow-state-copy::before { content: ""; position: absolute; inset: 0 0 auto; height: 1px; background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--abyssa-ornament-light) 18%, transparent) 30% 70%, transparent); }
+.flow-status { display: flex; justify-content: center; align-items: baseline; flex-wrap: wrap; gap: 6px 12px; }
+.flow-status p { margin: 0; color: var(--feedback-title); font-size: 18px; line-height: 1.6; letter-spacing: .04em; }
+.flow-surface[data-tone="attention"] .flow-status p { color: #e4c6aa; }
+.flow-elapsed { color: var(--abyssa-text-muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+.flow-detail { margin: 6px auto 0; max-width: 460px; color: var(--abyssa-text-muted); font-size: 14px; line-height: 1.8; }
+.flow-context { max-height: 280px; margin: 16px 0 0; overflow: auto; overscroll-behavior: contain; text-align: left; scrollbar-width: thin; font-size: 14px; line-height: 1.8; }
+.flow-surface .confirmation-dialog__actions { margin-top: 24px; }
+.flow-surface .confirmation-dialog__action[data-kind="primary"] { width: 172px; }
+.flow-surface .confirmation-dialog__action .abyssa-shape-button__content { padding-inline: 16px; letter-spacing: .08em; white-space: nowrap; overflow-wrap: normal; }
+.flow-collapse { position: absolute; top: 18px; right: 22px; width: 28px; height: 28px; padding: 0; border: 0; background: none; color: var(--abyssa-text-muted); cursor: pointer; }
+.flow-collapse > i { display: block; width: 14px; height: 1px; margin: auto; background: currentColor; }
+.flow-collapse:is(:hover, :focus-visible):not([aria-disabled="true"]) { color: var(--feedback-title); }
+.flow-collapse[aria-disabled="true"] { opacity: .45; cursor: default; }
+.flow-collapse:focus-visible { outline: 1px solid var(--abyssa-focus); outline-offset: -2px; }
+.flow-utilities { display: flex; justify-content: center; align-items: baseline; flex-wrap: wrap; gap: 6px 24px; margin-top: 14px; }
+.flow-utilities > button, .flow-extra-actions > button, .flow-footer > button, .flow-diagnostics > summary, .flow-task-overflow {
+  appearance: none; border: 0; border-radius: 0; padding: 4px 0; background: none;
+  color: var(--abyssa-text-muted); font: 400 13px/1.6 var(--abyssa-font-body); cursor: pointer;
+}
+.flow-utilities button:disabled, .flow-footer button:disabled { opacity: .45; cursor: default; }
+.flow-utilities button:hover:not(:disabled), .flow-footer button:hover:not(:disabled), .flow-diagnostics > summary:hover { color: var(--abyssa-text-soft); }
+.flow-utilities button:focus-visible, .flow-footer button:focus-visible, .flow-diagnostics > summary:focus-visible, .flow-task-overflow:focus-visible { outline: 1px solid var(--abyssa-focus); outline-offset: 4px; }
+.flow-extra-actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 12px 24px; }
+.flow-diagnostics { min-width: 0; }
+.flow-diagnostics > summary { list-style: none; }
+.flow-diagnostics > summary::-webkit-details-marker { display: none; }
+.flow-diagnostics[open] { flex-basis: 100%; }
+.flow-diagnostics > div { max-height: 180px; overflow: auto; text-align: left; padding-top: 12px; scrollbar-width: thin; }
+.flow-footer { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 20px; min-height: 36px; margin-top: 22px; border-top: 1px solid color-mix(in srgb, var(--abyssa-ornament-light) 14%, transparent); }
+
+/* Host supplies a safe inset when scene currency/header occupies the upper corner. */
+.flow-side-rail { position: absolute; top: var(--flow-rail-top, 28px); right: var(--flow-rail-right, 32px); z-index: 110; width: 480px; max-width: calc(100% - 64px); pointer-events: none; }
+.flow-task-list { display: grid; gap: 10px; list-style: none; padding: 0; margin: 0; }
+.flow-task { min-width: 0; }
+.flow-task__surface { --flow-accent: var(--abyssa-teal-soft); --feedback-edge-inline: 26px; --feedback-edge-block: 12px; }
+.flow-task[data-phase="readable"] .flow-task__surface { --flow-accent: var(--feedback-gold); }
+.flow-task[data-tone="attention"] .flow-task__surface { --flow-accent: #b09573; }
+.flow-task__open {
+  display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; align-items: center; gap: 14px; width: 100%; min-height: 60px;
+  box-sizing: border-box; padding: 12px 26px; appearance: none; border: 0; border-radius: 0;
+  background: none; font-family: var(--abyssa-font-body); text-align: left; cursor: pointer; pointer-events: auto;
+}
+.flow-task__mark { justify-self: center; width: 9px; height: 9px; border: 1px solid var(--flow-accent); rotate: 45deg; opacity: .85; }
+.flow-task[data-phase="readable"] .flow-task__mark, .flow-task[data-phase="unsaved"] .flow-task__mark { background: var(--flow-accent); }
+.flow-task__copy { display: grid; gap: 2px; min-width: 0; }
+.flow-task__copy strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--feedback-title); font-size: 15px; font-weight: 500; line-height: 1.5; }
+.flow-task__copy > div > span { color: var(--abyssa-text-muted); font-size: 13px; line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.flow-task__entry { max-width: 96px; color: var(--abyssa-text-muted); font-size: 13px; }
+.flow-task__open:hover:not([aria-disabled="true"]) .flow-task__entry { color: var(--abyssa-teal-soft); }
+.flow-task__open:focus-visible { outline: 1px solid var(--abyssa-focus); outline-offset: -4px; }
+.flow-task__open[aria-disabled="true"] { opacity: .6; cursor: default; }
+.flow-task[data-tone="attention"] .flow-task__copy > div > span { color: #e4c6aa; }
+.flow-task-overflow { display: block; width: 100%; min-height: 36px; text-align: right; padding: 6px 26px; pointer-events: auto; }
+.flow-side-rail[data-has-tasks="true"] .flow-reward-slot { padding-top: 16px; }
+.flow-rewards, .flow-rewards .scene-feedback__presentation, .flow-rewards .scene-feedback__result { width: 100%; }
+
+.flow-track { position: absolute; inset: auto 8% 0; height: 1px; background: color-mix(in srgb, var(--flow-accent) 30%, transparent); overflow: hidden; pointer-events: none; }
+[data-phase="running"] > .flow-task__surface .flow-track::after,
+.flow-surface[data-phase="running"] .flow-track::after { content: ""; position: absolute; inset: 0 auto 0 -30%; width: 30%; background: linear-gradient(90deg, transparent, var(--flow-accent), transparent); animation: flow-sweep 2.8s linear infinite; }
+.flow-surface[data-phase="unsaved"] .flow-track, .flow-task[data-phase="unsaved"] .flow-track { animation: flow-breathe 1.6s ease-in-out infinite alternate; }
+@keyframes flow-sweep { to { translate: 433% 0; } }
+@keyframes flow-breathe { from { opacity: .35; } to { opacity: .7; } }
+.flow-surface[data-ui-motion="reduced"] .flow-track, .flow-surface[data-ui-motion="reduced"] .flow-track::after,
+.flow-task[data-ui-motion="reduced"] .flow-track, .flow-task[data-ui-motion="reduced"] .flow-track::after { animation: none; }
+.flow-surface[data-ui-motion="reduced"] .confirmation-dialog__crest { transition: none; }
+/* Preference changes can arrive halfway through the inline mask animation. */
+.flow-surface[data-ui-motion="reduced"] > .flow-backing { --flow-backing-edge: 1 !important; }
+
+.flow-inbox { list-style: none; margin: 0; padding: 0; }
+.flow-inbox > li + li { border-top: 1px solid color-mix(in srgb, var(--abyssa-ornament-light) 14%, transparent); }
+.flow-inbox button { display: flex; align-items: center; justify-content: space-between; gap: 24px; width: 100%; min-height: 64px; padding: 12px 8px; appearance: none; border: 0; background: none; font: inherit; text-align: left; cursor: pointer; }
+.flow-inbox button > span { display: grid; gap: 4px; min-width: 0; }
+.flow-inbox strong { color: var(--abyssa-text-soft); font-size: 16px; font-weight: 500; }
+.flow-inbox small { color: var(--abyssa-text-muted); font-size: 13px; }
+.flow-inbox em { color: var(--abyssa-teal-soft); font-size: 13px; font-style: normal; }
+.flow-inbox [data-tone="attention"] small { color: #e4c6aa; }
+.flow-inbox button:focus-visible { outline: 1px solid var(--abyssa-focus); outline-offset: -3px; }
+.flow-inbox button:hover strong { color: var(--feedback-title); }
+.flow-inbox button[aria-disabled="true"] { opacity: .6; cursor: default; }
+@container (max-width: 430px) {
+  .flow-surface { padding: 26px 22px 24px; }
+  .flow-surface > .flow-backing { --gi: calc(40px * var(--flow-backing-edge)); --gb: calc(24px * var(--flow-backing-edge)); }
+  .flow-surface .confirmation-dialog__action[data-kind="primary"] { width: min(172px, calc((100% - 12px) / 2)); }
+}

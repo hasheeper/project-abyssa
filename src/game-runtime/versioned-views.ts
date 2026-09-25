@@ -1,3 +1,10 @@
+import { shopVisitView } from "../game-core/session/shop-first-visit";
+import { lootQuantity } from "../game-core/contracts/loot";
+import { supplyStorageCapacity, supplyStorageRoom } from "../game-core/session/facilities";
+import { equipmentPreview } from "./equipment-view";
+import { expandedEquipment } from "../game-core/contracts/equipment";
+import { offeredProducts, productRemaining } from "../game-core/session/shop-schedule";
+import { shopIntroductionView } from "../game-core/session/shop-introduction";
 import { d5EncounterView, d5MemoryView, d5ProgressionView } from "./d5-views";
 import { tutorialView } from "./tutorial-view";
 import { airpView } from "./airp-view";
@@ -24,6 +31,9 @@ import { parseCommandRequest } from "../game-application/parse";
 import type { CatalogRegistry } from "./catalogs";
 import { createCharacterArchiveQuery } from "./character-views";
 import { demoJourneyView, d5JourneyView } from "./demo-journey-view";
+import { lootAppraisalFee, lootSalePrice } from "../game-core/contracts/loot";
+import { bundledLoot, lootStackable } from "../game-core/session/d5-loot";
+import { publicGameAppraisal, gameAppraisal } from "../game-application/airp-game/appraisals";
 
 export function parseVersionedRequest(
   raw: unknown,
@@ -32,7 +42,7 @@ export function parseVersionedRequest(
   v.assertJson(raw);
   const envelope = v.record(raw, "request");
   // The application applies the selected Catalog gate; this shared client parser only checks syntax.
-  if (envelope.protocolVersion === 4) return parseD5Request(raw, internal, 2, true); // grammar only; authoritative content gating is in D5 application
+  if (envelope.protocolVersion === 4) return parseD5Request(raw, internal, 2, true, true, true); // grammar only; authoritative content gating is in D5 application
   if (envelope.protocolVersion === 1) return parseCommandRequest(raw, internal);
   if (envelope.protocolVersion === 2 || envelope.protocolVersion === 3) return parseDemoRequest(raw, internal, envelope.protocolVersion);
   return v.invalid(
@@ -59,13 +69,46 @@ export function createVersionedQueries(registry: CatalogRegistry) {
       const record = registry.read(raw), entry = registry.resolve(record.schemaVersion, record.contentRef);
       return record.schemaVersion === 4 && entry.version === 4 ? tutorialView(entry.catalog, record) : null;
     },
+    startReward(raw: AnyGameRecord) {
+      const record = registry.read(raw), entry = registry.resolve(record.schemaVersion, record.contentRef);
+      if (record.schemaVersion !== 4 || entry.version !== 4 || !record.snapshot.campaign.startReward) return null;
+      const receipt = record.snapshot.campaign.startReward;
+      // Only the original new-game arrival gets this prompt. A manual-save copy
+      // retains the receipt as provenance, but must not replay an old gain popup.
+      if (record.head.revision !== 1 || !record.facts.some(f => f.id === receipt.id && f.kind === "progression" && f.payload.type === "game-start-selected")) return null;
+      return {...receipt, supplies: receipt.supplies.map(supply => ({...supply,
+        definition: entry.catalog.data.journey!.items[supply.definitionId]}))};
+    },
     shop(raw: AnyGameRecord) {
       const record = registry.read(raw), entry = registry.resolve(record.schemaVersion, record.contentRef);
       if (record.schemaVersion !== 4 || entry.version !== 4 || !entry.catalog.data.economy) return null;
       const c = record.snapshot.campaign, e = entry.catalog.data.economy;
-      return {shopId: e.shopId, quoteVersion: e.quoteVersion, funds: c.funds.party, crystals: c.funds.crystals,
+      const individualDefinitions = new Set((c.loot ?? []).filter(item => gameAppraisal(record, item)).map(item => item.definitionId));
+      return {shopId: e.shopId, quoteVersion: entry.catalog.data.shop?.quoteVersion ?? e.quoteVersion, day: c.shop?.day, scheduleVersion: entry.catalog.data.shop?.version, funds: c.funds.party, crystals: c.funds.crystals,
+        introduction: shopIntroductionView(entry.catalog, c),
+        firstVisit: shopVisitView(entry.catalog, c),
         available: !c.activeRunRef && !c.activeStoryId,
-        products: Object.entries(e.prices).map(([id, price]) => ({...entry.catalog.data.journey!.items[id], price, stored: c.supplies.find(s => s.definitionId === id)?.charges ?? 0}))};
+        ...(entry.catalog.data.loot ? {loot: {
+          quoteVersion: entry.catalog.data.loot.quoteVersion,
+          items: c.loot!.map(item => {
+            const definition = entry.catalog.data.loot!.definitions[item.definitionId];
+            const salePrice = lootSalePrice(definition, item);
+            return {...item, definition, generatedAppraisal: publicGameAppraisal(record, item), stackable: !individualDefinitions.has(item.definitionId) && lootStackable(entry.catalog, item), appraisalFee: lootAppraisalFee(definition, item), salePrice,
+              appraisable: !definition.initiallyKnown, refused: definition.sellable === false,
+              quantity: lootQuantity(definition, item),
+              bundleTotal: bundledLoot(entry.catalog, c, item).reduce((sum, b) => sum + b.gold, 0)};
+          }),
+          history: c.lootTrades!.map(trade => ({...trade, generatedAppraisal: publicGameAppraisal(record, trade.item), definition: entry.catalog.data.loot!.definitions[trade.item.definitionId]})),
+        }} : {}),
+        products: entry.catalog.data.shop ? (c.shop ? offeredProducts(entry.catalog.data.shop, c.shop).map(product => {
+          const gear = product.delivery === "equipment", supply = entry.catalog.data.journey!.items[product.definitionId];
+          const stored = gear ? c.inventory.filter(i => i.definitionId === product.definitionId).length : c.supplies.find(s => s.definitionId === product.definitionId)?.charges ?? 0;
+          const remaining = product.mode === "rotation" ? c.shop!.offers.find(o => o.productId === product.id)!.remaining : productRemaining(c.shop!, product);
+          return {id: product.id, definitionId: product.definitionId, name: product.name, kind: gear ? "equipment" : supply.kind, delivery: product.delivery,
+            price: product.price, stored, isNew: product.availableFromDay === c.shop!.day, capacity: gear ? undefined : supplyStorageCapacity(entry.catalog, c, product.definitionId), remaining,
+            purchaseMaximum: gear ? remaining ?? 0 : supplyStorageRoom(entry.catalog, c, product.definitionId),
+            preview: gear ? equipmentPreview(entry.catalog, c, product.definitionId) : undefined};
+        }) : []) : Object.entries(e.prices).map(([id, price]) => ({...entry.catalog.data.journey!.items[id], definitionId: id, delivery: "supply" as const, price, stored: c.supplies.find(s => s.definitionId === id)?.charges ?? 0, remaining: null, isNew: false, purchaseMaximum: undefined, preview: undefined}))};
     },
     memory(raw: AnyGameRecord) { const record = registry.read(raw); return record.schemaVersion === 4 ? d5MemoryView(record) : null; },
     progression(raw: AnyGameRecord) {
@@ -96,7 +139,7 @@ export function createVersionedQueries(registry: CatalogRegistry) {
               ? view.config.level + 1
               : null,
           equipmentSlots: {
-            general: entry.catalog.data.characters[id].faces.some(
+            general: expandedEquipment(entry.catalog.data) || entry.catalog.data.characters[id].faces.some(
               (f) => entry.catalog.data.actions[f.actionId].kind === "blank",
             ),
             exclusive: false,
@@ -201,7 +244,8 @@ export function createVersionedQueries(registry: CatalogRegistry) {
           if (run.state.tutorial && run.state.tutorial.stage !== "active") return null;
           const e = run.state.encounter, runRef = {kind: "expedition" as const, id: run.id};
           if (e && (e.phase === "enemy" || e.phase === "complete" || e.phase === "act" && !e.formation.length) || layerReady(entry.catalog.data, run.state) || routeComplete(entry.catalog.data, run.state)) command = {type: "resume-run", runRef};
-          else if (run.state.node === "finished" && run.state.result.outcome === "cleared") command = {type: "settle-expedition", runRef, terminalRef: run.state.result.id};
+          // Manor clears commit before their ending ADV. Plain results wait for the return button.
+          else if (run.state.node === "finished" && run.state.result.outcome === "cleared" && entry.catalog.data.expeditions?.[run.state.run.routeId]?.ending !== "plain") command = {type: "settle-expedition", runRef, terminalRef: run.state.result.id};
         }
       } else if (
         entry.version !== 1 && entry.version !== 4 &&

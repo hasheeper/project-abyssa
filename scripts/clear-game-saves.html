@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ABYSSA 本机存档清理</title>
+<style>
+  :root{color-scheme:dark;font:16px/1.7 system-ui;background:#151317;color:#eee8df}
+  main{max-width:680px;margin:8vh auto;padding:28px}h1{font-size:25px}code{overflow-wrap:anywhere;color:#e3bc7d}
+  label{display:block;margin:24px 0}button,a{font:inherit}button{padding:10px 20px;cursor:pointer}
+  button:disabled{cursor:not-allowed;opacity:.5}a{color:#e3bc7d}output{display:block;white-space:pre-wrap;margin:24px 0}
+</style>
+<main>
+  <h1>清空当前浏览器的全部游戏存档</h1>
+  <p>当前站点：<code id="origin"></code><br>目标数据库：<code>abyssa-game-v1</code>、<code>abyssa-save-slots-v1</code></p>
+  <p>请在原来的游戏标签页打开本页，并关闭该站点的其他游戏标签页，避免旧会话重新写入。</p>
+  <p>仅删除全部游戏存档、操作回执、槽位及存档提示。保留 API 配置、音量、显示、动效设置和素材缓存。此操作无法在游戏内撤销；需要保留的存档请先在游戏中导出。</p>
+  <output id="status" role="status">正在检查存档…</output>
+  <label><input type="checkbox" id="confirm" disabled> 我确认清空以上站点的全部游戏存档</label>
+  <button id="clear" disabled>清空全部存档</button>
+  <p><a href="/">返回游戏</a></p>
+</main>
+<script type="module">
+  import {readSaveCounts,deleteGameDatabase,deleteSaveSlotDatabase,clearSaveHints} from './clear-game-saves.mjs';
+  const status=document.querySelector('#status'), confirm=document.querySelector('#confirm'), clear=document.querySelector('#clear');
+  document.querySelector('#origin').textContent=location.origin;
+  if (!import.meta.env.DEV || !['127.0.0.1','localhost','[::1]'].includes(location.hostname)) {
+    status.textContent='此工具仅用于本机开发环境。';
+  } else {
+    try {
+      const counts=await readSaveCounts(indexedDB);
+      status.textContent=`当前浏览器共有 ${counts.saves} 份存档、${counts.receipts} 条操作回执。`;
+      confirm.disabled=false;
+    } catch (error) {status.textContent=`检查失败，未删除任何数据：${error}`;}
+    confirm.addEventListener('change',()=>{clear.disabled=!confirm.checked;});
+    clear.addEventListener('click',async()=>{
+      if (!confirm.checked || clear.disabled) return;
+      clear.disabled=confirm.disabled=true;
+      status.textContent='正在清空存档…';
+      let deleted=false;
+      try {
+        await deleteSaveSlotDatabase(indexedDB,()=>{status.textContent='等待其他页面关闭槽位目录，请关闭它们。';});
+        await deleteGameDatabase(indexedDB,()=>{status.textContent='等待其他游戏标签页关闭数据库。请关闭它们；关闭后将继续清理。';});
+        deleted=true;
+        clearSaveHints(localStorage,sessionStorage);
+        const counts=await readSaveCounts(indexedDB);
+        status.textContent=counts.saves===0 && counts.receipts===0
+          ? '清理完成：存档 0，操作回执 0。设置与素材缓存已保留。'
+          : '检测到其他标签页重新写入。请关闭它们后刷新本页，再次清理。';
+      } catch (error) {
+        status.textContent=deleted ? `存档数据库已删除，但提示标记清理或复核失败：${error}` : `清理失败：${error}`;
+        confirm.disabled=false; clear.disabled=!confirm.checked;
+      }
+    });
+  }
+</script>
+</html>

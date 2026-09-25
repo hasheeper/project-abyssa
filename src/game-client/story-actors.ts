@@ -1,22 +1,24 @@
 import { getExpressionParts } from "../shared/ui/patterns/expressions";
-import { archiveIdentities } from "../content/characters/identities";
+import { storyIdentities } from "../content/characters/story-identities";
 import type { RpActor, RpMessage, RpSeat } from "../shared/ui/patterns/rp-stage";
 import { isUserChoice, selectedChoiceLine } from "../content/presentation/authored-story";
 import type { AuthoredLine, UserChoiceTone } from "../content/presentation/authored-story";
 import { isPlayerActor, playerDisplayName, resolvePlayerText, PLAYER_ACTOR_ID } from "../shared/domain/player-identity";
 import { CHARACTER_EMOTION_PROFILES } from "../content/presentation/character-emotions";
+import { CHARACTER_DIALOGUE_ACCENTS } from "../content/presentation/character-dialogue-colors";
 import { resolveEmotionCue } from "../shared/ui/patterns/emotion-cues";
 
 const spriteBaseUrl = import.meta.env.DEV ? "/src/assets/characters/paper-dolls/" : `${import.meta.env.BASE_URL}character-art/`;
-export function storyActors(lines: readonly AuthoredLine[]): RpActor[] {
+export function storyActors(lines: readonly AuthoredLine[], playerName?: string): RpActor[] {
   const ids = new Set(lines.flatMap(line => isUserChoice(line) ? [PLAYER_ACTOR_ID] : [
     ...(line.characterId ? [line.characterId] : []), ...(line.actors?.map(actor => actor.characterId) ?? [])
   ]));
-  return archiveIdentities.filter(a => ids.has(a.id)).map(a => ({
+  return storyIdentities.filter(a => ids.has(a.id)).map(a => ({
     id: a.id,
-    name: isPlayerActor(a.id) ? playerDisplayName() : a.selectorLabel ?? a.name,
+    name: isPlayerActor(a.id) ? playerDisplayName(playerName) : a.selectorLabel ?? a.name,
     secondaryName: isPlayerActor(a.id) ? "USER" : a.secondaryName,
     avatar: a.thumbnailUrl,
+    accent: CHARACTER_DIALOGUE_ACCENTS[a.id],
     spriteBaseUrl,
     portrait: isPlayerActor(a.id) ? a.portraitUrl : undefined,
     expression: lines.find(line => "characterId" in line && line.characterId === a.id)?.expression ?? "a",
@@ -28,7 +30,7 @@ export function storySlots(lines: readonly AuthoredLine[], offstageActorId?: str
   const visible = ids.filter(id => id !== offstageActorId);
   return {left: visible[0], right: visible[1]};
 }
-export function storyMessages(lines: readonly AuthoredLine[], decisions: ReadonlyMap<number, UserChoiceTone> = new Map()): RpMessage[] {
+export function storyMessages(lines: readonly AuthoredLine[], decisions: ReadonlyMap<number, UserChoiceTone> = new Map(), playerName?: string): RpMessage[] {
   return lines.flatMap((source, step): RpMessage[] => {
     const line = isUserChoice(source)
       ? decisions.has(step) ? selectedChoiceLine(source, decisions.get(step)!) : null
@@ -36,15 +38,16 @@ export function storyMessages(lines: readonly AuthoredLine[], decisions: Readonl
     if (!line) return [];
     const directions: RpMessage[] = (line.actors ?? []).map((actor,i) => ({id:`${line.id}.stage.${i}`,kind:"stage",actorId:actor.characterId,text:"",emotion:actor.emotion}));
     if (!line.text) return directions;
-    if ("characterId" in line && line.characterId) return [...directions,{id:line.id,kind:"say",actorId:line.characterId,text:resolvePlayerText(line.text),expression:line.expression,...("emotion" in line && line.emotion ? {emotion:line.emotion} : {})}];
-    return [...directions,{id:line.id,kind:"narration",text:resolvePlayerText(line.text)}];
+    if ("characterId" in line && line.characterId) return [...directions,{id:line.id,kind:"say",actorId:line.characterId,text:resolvePlayerText(line.text, playerName),expression:line.expression,...("emotion" in line && line.emotion ? {emotion:line.emotion} : {})}];
+    return [...directions,{id:line.id,kind:"narration",text:resolvePlayerText(line.text, playerName)}];
   });
 }
 
 /** Decode the complete authored expression set before the scene enters. No hidden live scene. */
-export function storyAssets(lines: readonly AuthoredLine[], background: string): string[] {
+export function storyAssets(lines: readonly AuthoredLine[], background: string, offstageActorId?: string): string[] {
   const urls = new Set([background]);
   for (const actor of storyActors(lines)) {
+    if (actor.id === offstageActorId) continue;
     if (actor.avatar) urls.add(actor.avatar);
     if (actor.portrait) {urls.add(actor.portrait); continue;}
     urls.add(`${spriteBaseUrl}${actor.id}/base.png`);

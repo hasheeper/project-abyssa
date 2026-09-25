@@ -1,4 +1,5 @@
-import { GameMenu } from "../shared/ui/patterns/game-menu/GameMenu";
+import { MoneyText, formatMoney } from "../shared/ui/primitives/Money";
+import { GameSystemMenu } from "./GameSystemMenu";
 import { useCampaignMenuScene } from "./CampaignMenuScope";
 import { activeRunId } from "./session";
 import { d5EncounterView } from "../game-runtime/d5-views";
@@ -18,7 +19,7 @@ function factText(fact: GameFact): string | null {
     case "healing-applied": return `${name(p.targetId)}恢复 ${p.applied} 点生命。`;
     case "layer-cleared": return `完成第 ${p.layer} 层。`;
     case "expedition-finished": return p.wiped ? "队伍强行撤离。" : "队伍带宝离场。";
-    case "expedition-settled": return `已带回 ${p.totalGold} 金币${p.crystal ? "和 1 枚晶石" : ""}。`;
+    case "expedition-settled": return `已带回 ${formatMoney(Number(p.totalGold), 100)}${p.crystal ? "和 1 枚晶石" : ""}。`;
     default: return null;
   }
 }
@@ -42,18 +43,18 @@ function LegacyCampaignPanel({ report, record }: { report?: CampaignReportContro
     return () => { active = false; task.cancel(); coordinator.dispose(); };
   }, [session, showReport, record.head.revision, last?.id]);
   return <><aside className="campaign-panel" aria-label="游戏导航">
-    <GameMenu {...menuScene} busy={!!report?.view || menuScene.busy || session.getSnapshot().status !== "ready"} navigationHint="离开页面后，可继续当前旅程" navigation={[
-      {id:"menu", label:"返回菜单", href:gameHref("menu", locator)},
+    <GameSystemMenu record={record} runtime={session.runtime} {...menuScene} busy={!!report?.view || menuScene.busy || session.getSnapshot().status !== "ready"} navigationHint="离开页面后，可继续当前旅程" navigation={[
+      {id:"menu", label:"返回菜单", shortLabel:"MENU", href:gameHref("menu", locator)},
       {id:"mansion", label:"洋馆", href:gameHref("mansion", locator)},
-      {id:"journey", label:record.snapshot.expedition ? record.pendingSettlement ? "完成远征结算" : "继续远征" : "出征编队", href:gameHref(record.snapshot.expedition ? "battle" : "map", locator)},
-      {id:"archive", label:"档案", href:gameHref("title")},
+      {id:"journey", label:record.snapshot.expedition ? record.pendingSettlement ? "完成远征结算" : "继续远征" : "出征编队", shortLabel:record.snapshot.expedition ? record.pendingSettlement ? "CLAIM" : "RESUME" : "SORTIE", href:gameHref(record.snapshot.expedition ? "battle" : "map", locator)},
+      {id:"archive", label:"返回标题", shortLabel:"TITLE", href:gameHref("title")},
     ]}/>
   </aside>
     {report && <>
     {report.renderEntries?.(0)}
     <CampaignJournal open={report.view === "journal"} onClose={() => report.onViewChange(null)} onPresentChange={present => report.onPresentChange?.("journal", present)} title="日志" returnFocusRef={report.returnFocusRefs?.journal}>
-    <section aria-label="远征归来"><h3>远征归来</h3><p data-testid="campaign-funds">公款 {campaign.funds.public} · 小队金币 {campaign.funds.party} · 晶石 {campaign.funds.crystals}</p>
-      {last ? <><p>最近远征：第 {last.result.deepestLayer} 层 · 已入账 {last.result.totalGold} 金币</p><ul className="campaign-history">{playerHistory(record, last.expeditionId).flatMap(f => { const text = factText(f); return text ? [<li key={f.id}>{text}</li>] : []; })}</ul></> : <p>还没有完成的远征。</p>}
+    <section aria-label="远征归来"><h3>远征归来</h3><p data-testid="campaign-funds">公款 <MoneyText value={campaign.funds.public}/> · 小队资金 <MoneyText value={campaign.funds.party}/> · 晶石 {campaign.funds.crystals}</p>
+      {last ? <><p>最近远征：第 {last.result.deepestLayer} 层 · 已入账 <MoneyText value={last.result.totalGold}/></p><ul className="campaign-history">{playerHistory(record, last.expeditionId).flatMap(f => { const text = factText(f); return text ? [<li key={f.id}>{text}</li>] : []; })}</ul></> : <p>还没有完成的远征。</p>}
       {reaction.map((line, i) => <p key={i}>{line}</p>)}
       <details><summary>营地库存（{campaign.inventory.items.length + campaign.inventory.equipment.length}/{campaign.inventory.capacity}）</summary>{[...campaign.inventory.items, ...campaign.inventory.equipment].map(item => <p key={item.instanceId}>{item.definitionId} · {item.instanceId}</p>)}</details>
     </section>
@@ -75,12 +76,16 @@ export function CampaignPanel({report, onReviewGrowth}: {report?: CampaignReport
   if (record.schemaVersion === 1) return <LegacyCampaignPanel record={record} report={report}/>;
   const e = record.schemaVersion === 4 ? d5EncounterView(record) : record.snapshot.expedition, locator = recordLocator(record);
   const memory = record.schemaVersion === 4 ? session.runtime.queries.memory(record) : null;
+  const tutorial = session.runtime.queries.tutorial(record);
+  const inTutorial = !!tutorial?.runRef && tutorial.runRef.id === session.locator.expeditionId;
   return <><aside className="campaign-panel" aria-label="游戏导航">
-    <GameMenu {...menuScene} busy={!!report?.view || menuScene.busy || session.getSnapshot().status !== "ready"} navigationHint="离开页面后，可继续当前旅程" navigation={[
-      {id:"menu", label:"返回菜单", href:gameHref("menu", locator)},
-      {id:"mansion", label:"洋馆", href:gameHref("mansion", locator)},
-      {id:"journey", label:memory?.runRef?.kind === "memory" ? "继续回忆" : e ? e.node === "finished" ? "完成远征结算" : "继续远征" : "出征编队", href:gameHref(activeRunId(record) ? "battle" : "map", locator)},
-      {id:"archive", label:"档案", href:gameHref("title")},
+    <GameSystemMenu record={record} runtime={session.runtime} {...menuScene} busy={!!report?.view || menuScene.busy || session.getSnapshot().status !== "ready"} navigationHint={inTutorial ? "教学进度会保留，可从标题继续" : "离开页面后，可继续当前旅程"} navigation={[
+      ...(!inTutorial ? [
+        {id:"menu", label:"返回菜单", shortLabel:"MENU", href:gameHref("menu", locator)},
+        {id:"mansion", label:"洋馆", href:gameHref("mansion", locator)},
+        {id:"journey", label:memory?.runRef?.kind === "memory" ? "继续回忆" : e ? e.node === "finished" ? "完成远征结算" : "继续远征" : "出征编队", shortLabel:memory?.runRef?.kind === "memory" ? "MEMORY" : e ? e.node === "finished" ? "CLAIM" : "RESUME" : "SORTIE", href:gameHref(activeRunId(record) ? "battle" : "map", locator)},
+      ] : []),
+      {id:"archive", label:"返回标题", shortLabel:"TITLE", href:gameHref("title")},
     ]}/>
   </aside>
     {report && <CampaignReport record={record} {...report} onReviewGrowth={onReviewGrowth}/>}

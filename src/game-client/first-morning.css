@@ -7,29 +7,6 @@
 /* The mansion's established AVG has no enclosing RP demo frame. Keep the dialogue skin. */
 .first-morning .rp-adv::after,
 .first-morning .rp-adv__frame-ornaments { display: none; }
-/* The library ribbon owns the button skin and proportions; this scene only places the stack. */
-.first-morning__choices {
-  position: absolute;
-  z-index: 20;
-  left: 50%;
-  bottom: 240px;
-  width: 760px;
-  max-width: calc(100% - 80px);
-  transform: translateX(-50%);
-}
-.first-morning__choice-prompt {
-  margin: 0 0 16px;
-  color: var(--abyssa-text-soft);
-  font-size: 16px;
-  line-height: 1.5;
-  letter-spacing: .12em;
-  text-align: center;
-  text-shadow: 0 2px 6px #080d0d;
-}
-.first-morning__choice-list { display: grid; grid-template-columns: 1fr; gap: 12px; }
-.first-morning__choice .abyssa-ribbon-button__label { letter-spacing: .06em; line-height: 1.4; }
-.first-morning[data-layout="nvl"] .first-morning__choices { bottom: 26px; width: 680px; }
-.first-morning[data-layout="nvl"][data-decision] .abyssa-rp__log { padding-bottom: 286px; }
 .first-morning__pressure, .first-morning__impact { position:absolute; inset:0; pointer-events:none; z-index:8; }
 .first-morning__pressure { opacity:0; background:radial-gradient(ellipse at 50% 45%,transparent 28%,rgba(9,8,19,.55) 100%); transition:opacity 900ms ease; }
 .first-morning__pressure[data-active="true"] { opacity:1; }
@@ -53,6 +30,8 @@
 @media(prefers-reduced-motion:reduce) { .first-morning__handoff, .first-morning__chapter {animation:none;} }
 /* Direction layers sit within the stage and leave the established UI geometry alone. */
 .first-morning .rp-adv__dialogue { z-index: 12; }
+/* Inline choices and reading chrome must stay above the scene-owned shadow (2). */
+.first-morning .abyssa-rp__center { z-index: 3; }
 .first-morning__pressure { z-index: 2; }
 .first-morning .rp-adv__bg,
 .first-morning .abyssa-rp__bg { transition:filter 1000ms ease; }

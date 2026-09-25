@@ -70,3 +70,27 @@ it("does not mistake a fresh scene entrance for restored emotion history", () =>
   expect(animate).toHaveBeenCalledTimes(1);
   expect(view.container.querySelector(".abyssa-dialogue__content")).toHaveTextContent(/^知$/);
 });
+
+it("does not replace the AVG dialogue or speaker with a saved choice record", () => {
+  const messages: RpMessage[] = [line, {id:"choice",kind:"choice",text:"故意找茬",sequence:2}];
+  const view=render(<AdvStage actors={actors} messages={messages} typing={false} hydrate/>);
+  expect(view.container.querySelector(".abyssa-dialogue__content")).toHaveTextContent("知道了。");
+  expect(view.container.querySelector(".rp-adv__dialogue")).not.toHaveTextContent("故意找茬");
+});
+
+it("does not spotlight silent still poses or flicker when their cue is suspended during a save", () => {
+  const narration: RpMessage = {id:"hold",kind:"narration",text:"她合上账本。"};
+  const still = {elora:{key:narration.id,still:true}};
+  const draw = (withCue: boolean, speaking = false) => <AdvStage actors={actors} initialSlots={{left:"elora"}}
+    messages={[speaking ? line : narration]} performances={withCue ? still : undefined} typing={false} hydrate/>;
+  const view = render(draw(true));
+  const actor = view.container.querySelector('.rp-adv__actor[data-character="elora"]');
+  expect(actor).toHaveAttribute("data-active", "false");
+  for (const withCue of [false, true]) {
+    view.rerender(draw(withCue));
+    expect(view.container.querySelector('.rp-adv__actor[data-character="elora"]')).toBe(actor);
+    expect(actor).toHaveAttribute("data-active", "false");
+  }
+  view.rerender(draw(true, true));
+  expect(actor).toHaveAttribute("data-active", "true");
+});

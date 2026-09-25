@@ -1,0 +1,16 @@
+.shop-live__scrap { margin: 18px 18px 0; color: #c1a77c; font-size: 14px; line-height: 1.6; text-align: center; }
+.shop-visit-actions { position: absolute; z-index: 20; right: 28px; bottom: 24px; display: flex; align-items: center; gap: 12px; color: #d1bf9f; font-size: 15px; }
+.shop-visit-actions button, .shop-visit-loading button { padding: 10px 20px; border: 1px solid #a28658; background: #271d12; color: #f0dfbc; cursor: pointer; font: inherit; }
+.shop-visit-actions button:disabled { opacity: .5; cursor: default; }
+.shop-visit .new-shop__ledger:has(.shop-visit-sale) { grid-template-rows: minmax(0, 1fr) 320px; }
+.shop-visit .new-shop__ledger:has(.shop-visit-sale) .new-shop-stock__list { grid-template-rows: repeat(3, 64px); align-content: start; }
+.shop-visit-sale { display: flex; flex-direction: column; height: 100%; padding: 20px 30px; color: #e6d1ad; }
+.shop-visit-sale h2 { margin: 0 0 12px; font-size: 22px; line-height: 26px; }
+.shop-visit-sale ul { margin: 0; padding: 0; list-style: none; }
+.shop-visit-sale li { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid #8a70403b; line-height: 23px; }
+.shop-visit-sale li > :last-child { margin-left: auto; }
+.shop-visit-sale p { margin: 8px 0; font-size: 15px; line-height: 1.5; }
+.shop-visit-sale__checkout { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-top: auto; padding-top: 12px; }
+.shop-visit-sale__total { display: flex; align-items: center; gap: 16px; }
+.shop-visit-loading { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 20px; color: #e6d1ad; background: #20170f; }
+.new-shop-detail__total del { font-size: 15px; opacity: .65; }

@@ -55,13 +55,21 @@ export function useModalPresentation(
       document.removeEventListener("focusin", focus, true);
       current.current.onPresentChange?.(false);
       restoreFrame.current = requestAnimationFrame(() => {
-        // Route removal or another modal must not restore focus to an old page.
-        if (!host?.isConnected || document.querySelector("[data-ui-modal-present]")) return;
+        // A standalone portal may remove its temporary Stage after exit while
+        // its trigger remains on the current page. A removed route has neither.
+        if (!host?.isConnected && !source.current?.isConnected) return;
         const target = source.current;
+        const remaining = [...document.querySelectorAll<HTMLElement>("[data-ui-modal-present]")].filter(node => !node.closest("[inert]")).at(-1);
+        // Nested confirmation returning to the still-open LOAD scene is valid.
+        // Never hand focus to the game behind an unrelated/new modal.
+        if (remaining && (!target || !remaining.contains(target))) {
+          const next = modalFocusables(remaining)[0] ?? remaining.querySelector<HTMLElement>('[role="dialog"]');
+          next?.focus({preventScroll: true}); source.current = null; return;
+        }
         if (target?.isConnected && !target.closest("[inert],[hidden]") && !target.matches(":disabled") &&
           (target.checkVisibility?.({ visibilityProperty: true }) ?? getComputedStyle(target).display !== "none")) {
           target.focus({ preventScroll: true });
-        } else if (!host.closest("[inert]")) {
+        } else if (host?.isConnected && !host.closest("[inert]")) {
           const fallback = modalFocusables(host)[0];
           if (fallback) fallback.focus({ preventScroll: true });
           else {

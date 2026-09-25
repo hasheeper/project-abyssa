@@ -1,3 +1,4 @@
+import { useMoney } from "../../shared/ui/primitives/Money";
 import { useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 
@@ -89,6 +90,7 @@ type Cell =
 
 function buildCells(value: number, digits: number, decimals: number): Cell[] {
   const scaled = Math.max(0, Math.round(value * 10 ** decimals));
+  digits = Math.max(digits, String(Math.floor(Math.max(0, value))).length);
   const total = digits + decimals;
   const numerals = [...String(scaled).padStart(total, "0").slice(-total)].map(Number);
 
@@ -147,7 +149,7 @@ export function ExpeditionOdometer({
  * 层清后可能直接离场，不可等待一个并不存在的下一回合再刷新。
  */
 export function ExpeditionBagOdometer({
-  value,
+  value: rawValue,
   className,
   label
 }: {
@@ -155,6 +157,7 @@ export function ExpeditionBagOdometer({
   className?: string;
   label?: string;
 }) {
+  const money = useMoney(), value = money.copper(rawValue);
   const [shown, setShown] = useState(value);
   const [banking, setBanking] = useState(false);
   const timerRef = useRef<number | null>(null);
@@ -185,7 +188,7 @@ export function ExpeditionBagOdometer({
       className={["abyssa-expedition-bag-odometer", className].filter(Boolean).join(" ")}
       data-banking={banking || undefined}
     >
-      <ExpeditionOdometer value={shown} digits={6} label={label} />
+      <ExpeditionOdometer value={shown} digits={6} label={`${label ?? "包裹"} ${money.format(rawValue)}`} />
     </span>
   );
 }

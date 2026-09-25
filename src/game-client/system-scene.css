@@ -1,0 +1,20 @@
+/* One open system surface for Title LOAD, Title SETTINGS and direct settings. */
+.system-scene { position: absolute; inset: 0; z-index: 30; isolation: isolate; }
+.system-scene__backdrop {
+  position: absolute; inset: 0; pointer-events: none; opacity: var(--system-scene-surface, 0);
+  background: radial-gradient(ellipse at 68% 40%, rgb(28 56 51 / 24%), transparent 72%),
+    linear-gradient(180deg, rgb(6 13 14 / 82%), rgb(6 13 14 / 94%) 38%, rgb(6 13 14 / 92%) 75%, rgb(6 13 14 / 78%));
+}
+.system-scene__panel { position: absolute; inset: 48px 88px 38px; outline: none; }
+.system-scene__interaction { height: 100%; }
+.system-scene .system-scene__layout { grid-template-rows: 142px minmax(0, 1fr) 74px; background: none; }
+.system-scene__layout > .abyssa-system-panel__toolbar { position: relative; }
+.system-scene__layout .abyssa-system-panel__heading { position: absolute; top: 6px; left: 14px; padding: 0; border: 0; }
+.system-scene__heading { display: flex; flex-direction: column; gap: 12px; margin: 0; opacity: var(--system-scene-heading, 0); }
+.system-scene__heading > span { padding-left: 5px; color: #abc2b7; font: 21px/1.2 var(--abyssa-font-display); letter-spacing: .38em; }
+.system-scene__heading > strong { color: #f1e7cf; font: 500 82px/.92 var(--abyssa-font-display); letter-spacing: .06em; text-shadow: 0 3px 18px rgb(0 0 0 / 35%); }
+.system-scene__layout .abyssa-system-panel__tabs { position: absolute; right: 8px; top: 48px; left: 540px; }
+.system-scene__layout .abyssa-system-toolbar { gap: 26px; justify-content: flex-end; }
+.system-scene__layout > .abyssa-system-panel__body { overflow: visible; }
+.system-scene__layout .abyssa-system-panel__footer { width: 100%; align-items: center; margin: 0; padding: 12px 10px 0; }
+.system-scene__layout .abyssa-system-panel__footer .abyssa-hex-button { width: 240px; }

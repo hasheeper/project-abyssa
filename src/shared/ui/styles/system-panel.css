@@ -1,0 +1,34 @@
+/* The established Settings / SystemConfig chrome. No per-screen palette. */
+:root {
+  --abyssa-system-backdrop:
+    radial-gradient(circle at 50% 18%, rgb(74 102 100 / 16%), transparent 58%),
+    linear-gradient(90deg, rgb(255 255 255 / 1.2%) 1px, transparent 1px) 0 0 / 48px 48px,
+    linear-gradient(rgb(255 255 255 / 1.2%) 1px, transparent 1px) 0 0 / 48px 48px,
+    #0b1010;
+  --abyssa-system-backdrop-plain: #0b1010;
+  --abyssa-system-rule: #3c4747;
+  --abyssa-system-rule-strong: #485454;
+  --abyssa-system-well: rgb(9 14 14 / 42%);
+}
+.abyssa-system-panel, .abyssa-system-panel * { box-sizing: border-box; }
+.abyssa-system-panel { display: grid; width: 1250px; color: var(--abyssa-text); font-family: var(--abyssa-font-body); }
+.abyssa-system-panel > .abyssa-rpg-header { width: 660px; margin: 0 auto -4px; pointer-events: none; }
+.abyssa-system-panel > .abyssa-rpg-header text { font-size: 36px; letter-spacing: 3px; }
+.abyssa-system-panel__frame { width: 100%; }
+.abyssa-system-panel__frame > .abyssa-frame__content { display: grid; padding: 30px; gap: 0; grid-template-rows: auto 1fr auto; }
+.abyssa-system-panel__body { min-width: 0; min-height: 0; }
+.abyssa-system-panel__heading { display: flex; align-items: start; justify-content: space-between; padding-bottom: 22px; border-bottom: 1px solid var(--abyssa-system-rule-strong); gap: 20px; }
+.abyssa-system-panel__heading > div { display: grid; gap: 6px; }
+.abyssa-system-panel__heading h3 { margin: 0; color: var(--abyssa-text); font-family: var(--abyssa-font-display); font-size: 1.28rem; font-weight: 500; letter-spacing: .08em; }
+.abyssa-system-panel__heading p { margin: 0; color: var(--abyssa-text-muted); font-size: .7rem; }
+.abyssa-system-panel__footer { display: flex; width: max-content; max-width: 100%; align-items: center; justify-content: flex-end; margin: 22px 0 0 auto; gap: 14px; }
+.abyssa-system-panel__footer .abyssa-notch-button { flex: none; width: 82px; height: 82px; cursor: pointer; }
+.abyssa-system-panel__footer .abyssa-hex-button { flex: none; width: 380px; }
+.abyssa-system-panel .abyssa-hex-button__label { font-size: 20px; }
+.abyssa-system-panel button:disabled { opacity: .4; cursor: not-allowed; }
+.abyssa-system-overlay { background: rgb(5 9 9 / 85%); }
+.abyssa-system-overlay > .abyssa-modal__panel { width: 1250px; }
+
+/* No RpgHeader/RpgFrame in embedded mode: the host owns the title and surface. */
+.abyssa-system-panel--embedded { width: 100%; height: 100%; min-height: 0; grid-template-rows: auto minmax(0, 1fr) auto; }
+.abyssa-system-panel--embedded > .abyssa-system-panel__body { overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: var(--abyssa-ornament) transparent; }

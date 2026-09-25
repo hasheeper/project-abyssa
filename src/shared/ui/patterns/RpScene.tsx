@@ -1,4 +1,4 @@
-import { forwardRef, useMemo, useRef } from "react";
+import { forwardRef, useLayoutEffect, useMemo, useRef } from "react";
 import { cx } from "../../lib/cx";
 import { deriveRpStage } from "./rp-stage";
 import type { RpActor, RpMessage } from "./rp-stage";
@@ -25,7 +25,7 @@ export type { RpSceneProps } from "./rp-scene/types";
  * 替换更久未发言的一侧。历史对白保留发生时的席位。
  */
 export const RpScene = forwardRef<HTMLDivElement, RpSceneProps>(function RpScene(
-  { actors, messages, background, initialSlots, crop = "knee", header, performances, mode = "play", hydrate = false, className, ...props },
+  { actors, messages, background, initialSlots, crop = "knee", header, actions, performances, mode = "play", hydrate = false, typing, onTypingEnd, className, ...props },
   ref
 ) {
   // 挂载时已经存在的消息是一份不再更新的“出生证明”。
@@ -47,6 +47,19 @@ export const RpScene = forwardRef<HTMLDivElement, RpSceneProps>(function RpScene
   const expressionByActor = useMemo(() => deriveExpressionByActor(messages), [messages]);
   const emotions = useMemo(() => deriveActorEmotions(actors, messages), [actors, messages]);
   const { logRef, stick, onScroll, jumpToLatest } = useRpAutoScroll(messages);
+  const last = messages.at(-1), typingEnd = useRef(onTypingEnd); typingEnd.current = onTypingEnd;
+  useLayoutEffect(() => {
+    if (!typingEnd.current) return;
+    let active = true;
+    const message = logRef.current?.lastElementChild;
+    const characters = message?.querySelectorAll<HTMLElement>(".abyssa-rp__type-char");
+    const tail = characters?.[characters.length - 1];
+    // Observe the existing CSS animation, not another duration/typing clock.
+    const animations = typing !== false && mode === "play" ? tail?.getAnimations?.() ?? [] : [];
+    if (!animations.length) typingEnd.current();
+    else void Promise.all(animations.map(animation => animation.finished)).then(() => {if (active) typingEnd.current?.();}, () => {});
+    return () => {active = false;};
+  }, [last?.id, typing, mode, logRef]);
 
   const lastSpeakerId = currentSay?.actorId;
   const focusId = mode === "play" ? currentSay?.id : undefined;
@@ -74,6 +87,7 @@ export const RpScene = forwardRef<HTMLDivElement, RpSceneProps>(function RpScene
 
       <div className="abyssa-rp__center">
         {header && <div className="abyssa-rp__header">{header}</div>}
+        <div className="abyssa-rp__reading">
         <div ref={logRef} className="abyssa-rp__log" onScroll={onScroll} aria-live="polite">
           {messages.map((message: RpMessage) => (
             <RpMessageView
@@ -85,13 +99,15 @@ export const RpScene = forwardRef<HTMLDivElement, RpSceneProps>(function RpScene
               focusId={focusId}
               litAux={litAux}
               mode={mode}
-              settled={hydratedIds.current?.has(message.id) || undefined}
+              settled={hydratedIds.current?.has(message.id) || (typing === false && message.id === last?.id) || undefined}
             />
           ))}
         </div>
         <button type="button" className="abyssa-rp__jump" data-show={!stick || undefined} onClick={jumpToLatest}>
           ▼ 回到最新
         </button>
+        </div>
+        <div className="abyssa-rp__actions">{actions}</div>
       </div>
 
       <RpSeatView

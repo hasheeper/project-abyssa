@@ -1,0 +1,290 @@
+/* 远征结算：沿用战斗弹窗外壳，只加印章、深度刻度与队伍名册。 */
+
+.abyssa-expedition-modal.abyssa-settle {
+  position: relative;
+  width: min(600px, 100%);
+  padding: 22px 30px 20px;
+  animation: abyssa-settle-in 260ms ease-out both;
+}
+
+.abyssa-settle__head {
+  position: relative;
+  display: grid;
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--battle-detail-line-soft, rgb(124 94 48 / 42%));
+  gap: 6px;
+  justify-items: center;
+}
+
+.abyssa-settle__head > small {
+  color: var(--battle-detail-copy-muted, #857659);
+  font-family: var(--font-display);
+  font-size: 9px;
+  letter-spacing: .28em;
+}
+
+.abyssa-settle__head h3 {
+  margin: 0;
+}
+
+/* 印章：唯一的"手作"元素，盖在标题右上。 */
+.abyssa-settle__seal {
+  position: absolute;
+  top: -6px;
+  right: -8px;
+  display: grid;
+  width: 62px;
+  height: 62px;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 3px transparent, inset 0 0 0 4px currentColor;
+  color: color-mix(in srgb, var(--battle-currency-gold, #c7ad76) 78%, transparent);
+  align-content: center;
+  justify-items: center;
+  opacity: .82;
+  transform: rotate(-12deg);
+  animation: abyssa-settle-stamp 420ms 520ms cubic-bezier(.3, 1.6, .5, 1) both;
+}
+
+.abyssa-settle[data-outcome="wipe"] .abyssa-settle__seal {
+  color: color-mix(in srgb, var(--abyssa-danger, #cf8074) 82%, transparent);
+}
+
+.abyssa-settle__seal b {
+  font-family: var(--font-body);
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.abyssa-settle__seal small {
+  margin-top: 3px;
+  font-family: var(--font-display);
+  font-size: 6px;
+  letter-spacing: .12em;
+}
+
+/* 深度刻度：已过的层点亮，最深层描金（倒下则描红）。 */
+.abyssa-settle__depth {
+  position: relative;
+  display: flex;
+  width: 86%;
+  margin: 0 auto 4px;
+  padding: 0;
+  justify-content: space-between;
+  list-style: none;
+}
+
+.abyssa-settle__depth::before {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  left: 12px;
+  height: 1px;
+  background: var(--battle-detail-line-soft, rgb(124 94 48 / 42%));
+  content: "";
+}
+
+.abyssa-settle__depth li {
+  position: relative;
+  display: grid;
+  min-width: 30px;
+  height: 20px;
+  padding: 0 5px;
+  border: 1px solid var(--battle-detail-line-faint, rgb(122 92 46 / 26%));
+  background: var(--battle-detail-surface, #1a1008);
+  color: var(--battle-detail-copy-muted, #6e6150);
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: .06em;
+  place-items: center;
+  animation: abyssa-settle-fade 220ms calc(120ms + var(--i) * 45ms) ease-out both;
+}
+
+.abyssa-settle__depth li[data-state="passed"] {
+  border-color: var(--battle-detail-line-soft, #5f4524);
+  color: var(--battle-detail-copy, #b3a084);
+}
+
+.abyssa-settle__depth li[data-state="left"] {
+  border-color: var(--battle-currency-gold, #c7ad76);
+  color: var(--battle-currency-gold-strong, #e2c47d);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--battle-currency-gold, #c7ad76) 28%, transparent);
+}
+
+.abyssa-settle__depth li[data-state="fell"] {
+  border-color: var(--abyssa-danger, #cf8074);
+  color: var(--abyssa-danger, #cf8074);
+  box-shadow: 0 0 10px rgb(207 128 116 / 24%);
+}
+
+.abyssa-settle__purse {
+  text-align: center;
+}
+
+.abyssa-settle__purse .abyssa-expedition-modal__total {
+  margin: 6px 0 4px !important;
+  font-size: 26px;
+}
+
+.abyssa-settle__lines {
+  display: grid;
+  width: 78%;
+  margin: 0 auto 4px;
+  gap: 2px;
+  color: var(--battle-detail-copy, #b3a084);
+  font-size: 12px;
+  line-height: 1.8;
+  text-align: left;
+}
+
+.abyssa-settle__lines > div {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.abyssa-settle__lines > div::after {
+  order: 1;
+  flex: 1;
+  border-bottom: 1px dotted var(--battle-detail-line-soft, rgb(124 94 48 / 42%));
+  content: "";
+}
+
+.abyssa-settle__lines dd {
+  order: 2;
+  margin: 0;
+  color: var(--battle-detail-copy-strong, #ead8aa);
+  font-variant-numeric: tabular-nums;
+}
+
+.abyssa-settle__lines dd[data-currency="gold"] {
+  color: var(--battle-currency-gold, #c7ad76);
+}
+
+.abyssa-settle__lines [data-tone="bad"] dt,
+.abyssa-settle__lines [data-tone="bad"] dd {
+  color: var(--abyssa-danger, #cf8074);
+}
+
+/* 队伍名册：五人一排，头像 + 生命菱格，力竭者褪色划线。 */
+.abyssa-settle__party {
+  display: grid;
+  margin: 14px 0 0;
+  padding: 12px 0 0;
+  border-top: 1px solid var(--battle-detail-line-soft, rgb(124 94 48 / 42%));
+  gap: 8px;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  list-style: none;
+}
+
+.abyssa-settle__party li {
+  display: grid;
+  min-width: 0;
+  gap: 5px;
+  justify-items: center;
+  animation: abyssa-settle-fade 240ms calc(260ms + var(--i) * 60ms) ease-out both;
+}
+
+.abyssa-settle__party img {
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--acc, var(--battle-skin-accent, #7a5c2e));
+  background: var(--battle-detail-surface-deep, #0d0906);
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 70%), 0 2px 6px rgb(0 0 0 / 50%);
+  object-fit: cover;
+  object-position: 50% 18%;
+}
+
+.abyssa-settle__party b {
+  overflow: hidden;
+  max-width: 100%;
+  color: var(--battle-detail-copy-strong, #ead8aa);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: .08em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.abyssa-settle__party span {
+  display: flex;
+  gap: 3px;
+}
+
+.abyssa-settle__party span i {
+  width: 6px;
+  height: 6px;
+  border: 1px solid rgb(207 128 116 / 45%);
+  transform: rotate(45deg);
+}
+
+.abyssa-settle__party span i[data-full] {
+  border-color: #cf8074;
+  background: #b9665c;
+}
+
+.abyssa-settle__party li[data-downed] img {
+  filter: grayscale(1) brightness(.55);
+}
+
+.abyssa-settle__party li[data-downed] b {
+  color: var(--battle-detail-copy-muted, #857659);
+  text-decoration: line-through;
+  text-decoration-color: rgb(207 128 116 / 60%);
+}
+
+.abyssa-settle__notes {
+  margin: 12px 0 14px;
+  padding: 8px 14px;
+}
+
+.abyssa-settle__notes ul {
+  color: var(--battle-detail-copy, #b3a084);
+  font-size: 11px;
+  line-height: 1.8;
+}
+
+.abyssa-settle__notes li {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.abyssa-settle__notes li small {
+  margin-right: 8px;
+  color: var(--battle-detail-copy-muted, #857659);
+  font-family: var(--font-display);
+  font-size: 9px;
+  letter-spacing: .08em;
+}
+
+.abyssa-settle > .abyssa-expedition-modal__actions {
+  margin-top: 14px;
+}
+
+.abyssa-settle__notes + .abyssa-expedition-modal__actions {
+  margin-top: 0;
+}
+
+@keyframes abyssa-settle-in {
+  from { opacity: 0; transform: translateY(8px); }
+}
+
+@keyframes abyssa-settle-fade {
+  from { opacity: 0; }
+}
+
+@keyframes abyssa-settle-stamp {
+  from { opacity: 0; transform: rotate(-12deg) scale(1.8); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .abyssa-expedition-modal.abyssa-settle,
+  .abyssa-settle__seal,
+  .abyssa-settle__depth li,
+  .abyssa-settle__party li {
+    animation: none;
+  }
+}

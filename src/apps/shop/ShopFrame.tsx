@@ -7,12 +7,16 @@ import { SceneArrivalTitle } from "../../shared/transition";
 import type { ShopIntroState } from "./useShopIntro";
 
 /** Shop-local frame: preserve the established geometry and route entrance. */
-export function ShopFrame({ children, className = "", intro }: {
+export function ShopFrame({ children, className = "", intro, feedback, navigation, embedded = false }: {
   children: ReactNode;
+  feedback?: ReactNode;
+  navigation?: ReactNode;
+  /** The route owns the single canvas when switching between AVG and counter. */
+  embedded?: boolean;
   className?: string;
   intro?: { state: ShopIntroState; reduced: boolean };
 }) {
-  return <Stage background="var(--abyssa-shop-backdrop)" canvasClassName="abyssa-shop-stage">
+  const content = <>
     <SceneArrivalTitle eyebrow="WATCHER'S CLIFF · MARKET" title="守望者杂货铺" tone="gold" />
     <AbyssaProvider className={`abyssa-shop-screen ${intro ? "" : "abyssa-scene-panel"} ${className}`} data-skin="black-gold"
       data-shop-intro={intro?.state} data-shop-reduced={intro?.reduced}>
@@ -30,6 +34,9 @@ export function ShopFrame({ children, className = "", intro }: {
           </div>
         </div>
       </div>
+      {feedback}
     </AbyssaProvider>
-  </Stage>;
+    {navigation}
+  </>;
+  return embedded ? content : <Stage background="var(--abyssa-shop-backdrop)" canvasClassName="abyssa-shop-stage">{content}</Stage>;
 }

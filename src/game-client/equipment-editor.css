@@ -1,0 +1,14 @@
+.equipment-editor { width: min(680px, 80vw); max-height: 75vh; overflow-y: auto; color: var(--abyssa-text, #d2cbbb); }
+.equipment-editor select, .equipment-preview select { font: inherit; color: inherit; background: #182523; border: 1px solid #53635c; padding: 7px 12px; }
+.equipment-editor__item { display: flex; align-items: center; gap: 18px; margin-block: 20px; }
+.equipment-editor__item p { margin: 8px 0 0; line-height: 1.6; }
+.equipment-editor__actions { margin-top: 20px; }
+.equipment-preview { margin-block: 16px; }
+.equipment-preview__owner { display: flex; align-items: center; gap: 16px; }
+.equipment-preview__hint { font-size: 13px; line-height: 1.65; opacity: .72; }
+.equipment-preview__faces { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; }
+.equipment-preview__face { padding: 5px; background: transparent; border: 1px solid transparent; color: inherit; font: inherit; cursor: pointer; }
+.equipment-preview__face:disabled { opacity: 1; cursor: default; }
+.equipment-preview__face[data-changed] { border-color: #9c8759; background: #9c875912; }
+.equipment-preview__face:focus-visible { outline: 2px solid #9bb8ac; outline-offset: 3px; }
+.equipment-preview__face > span { display: block; font-size: 11px; line-height: 1.5; margin-top: 6px; }

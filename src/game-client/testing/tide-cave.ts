@@ -27,7 +27,7 @@ export function tideCommand(op: D5JourneyOperation): Exclude<D5Command, {type:"r
   }
 }
 /** All snapshots in tests originate from accepted application commands, including the authored opening. */
-export async function tideClientFixture(contentVersion: 7 | 9 | 11 | 12 | "current" = 7) {
+export async function tideClientFixture(contentVersion: 7 | 9 | 11 | 12 | 13 | 14 | "current" = 7) {
   const database = new MemoryGameDatabase<AnyGameRecord, AnyReceipt>(), store = new MemoryGameStore(database);
   let sequence = 0;
   const runtime = createPlayerRuntime(store, {newId: () => `tide-request-${++sequence}`, newSeed: () => 19, close() {}});

@@ -1,3 +1,4 @@
+import { equipmentArt } from "../../content/presentation/equipment";
 import { resolveItemIcon } from "../../assets/icons/items/catalog";
 import { supplyArt } from "../../content/presentation/supply-icons";
 import { archiveIdentities } from "../../content/characters/identities";
@@ -26,7 +27,7 @@ export function mansionResourceEntries(
       quantity: item.storedCharges, unit: "份",
       type: item.free ? "基础配给" : "战术补给",
       description: supplyArt[item.kind]?.description,
-      note: item.free ? "出征时补齐所选配给。" : "按实际库存携带，可在杂货铺补充。",
+      note: item.free ? "出征时补齐所选配给。" : `按实际库存携带${item.storageCapacity ? ` · 储存上限 ${item.storageCapacity}` : ""}。`,
     }));
   return {
     fixedEntries: FIXED_SUPPLY_IDS.flatMap(id => supplyEntries.filter(item => item.id === id)),
@@ -38,9 +39,9 @@ export function mansionResourceEntries(
       const owner = archiveIdentities.find(identity => identity.id === ownerId)?.selectorLabel ?? ownerId;
       return {
         id: item.instanceId, name,
-        icon: resolveItemIcon({name, category: "装备"}).assetUrl,
+        icon: equipmentArt[item.definitionId]?.icon ?? resolveItemIcon({name, category: "装备"}).assetUrl,
         quantity: 1, unit: "件", type: "通用装备",
-        description: item.definition ? `所有原生空面变为${item.definition.replacement === "attack" ? "攻击" : "治疗"} ${item.definition.power}。` : undefined,
+        description: equipmentArt[item.definitionId]?.description,
         status: item.location.kind === "inventory" ? undefined : item.location.kind === "equipped" ? "已装备" : "远征中",
         ownership: item.location.kind === "inventory" ? "馆内库存 · 未装备"
           : item.location.kind === "equipped" ? `由${owner}携带` : `由${owner}携带 · 本次远征占用`,

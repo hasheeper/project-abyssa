@@ -2,7 +2,7 @@
 .airp-panel h3 { margin: 0 0 .45rem; font-size: 1rem; }
 .airp-panel p { margin: .45rem 0; line-height: 1.6; }
 .airp-panel__meta { opacity: .7; font-size: .8rem; }
-.airp-panel button:not(.abyssa-ribbon-button), .airp-control { color: inherit; font: inherit; cursor: pointer; border: 1px solid #ad9672; background: #322f25; padding: .5rem .7rem; }
+.airp-panel button:not([class]), .airp-control { color: inherit; font: inherit; cursor: pointer; border: 1px solid #ad9672; background: #322f25; padding: .5rem .7rem; }
 .airp-control { margin: .3rem; font-size: .85rem; }
 .airp-saved { padding: 1rem; opacity: .65; font-size: .75rem; }
 .airp-panel details { margin: .55rem 0; }

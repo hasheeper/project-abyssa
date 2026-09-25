@@ -1,0 +1,13 @@
+.commission-list { min-width: 0; padding-block: .7rem; border-top: 1px solid #ad96725c; font-size: .85rem; line-height: 1.55; overflow-wrap: anywhere; }
+.commission-list > h3 { margin: 0 0 .55rem; font-size: .95rem; }
+.commission-list > p { margin: .4rem 0; }
+.commission-card { padding: .65rem 0; }
+.commission-card + .commission-card { border-top: 1px solid #ad967230; }
+.commission-card header { display: flex; flex-wrap: wrap; align-items: baseline; gap: .3rem .7rem; }
+.commission-card h4 { margin: 0; font-size: .95rem; }
+.commission-card header > span { font-size: .78rem; color: #d9c392; }
+.commission-card p { margin: .4rem 0; }
+.commission-card__target, .commission-card small { opacity: .8; }
+.commission-card[data-commission-state="return"] header > span,
+.commission-card[data-commission-state="delivery"] header > span { color: #bdd2b2; }
+.abyssa-sortie-quest .commission-list { margin-block: .8rem; }

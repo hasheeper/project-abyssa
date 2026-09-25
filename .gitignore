@@ -20,3 +20,7 @@ test-results
 !.env.example
 __pycache__/
 *.py[cod]
+
+# AIRP BYOK test credentials: import locally in the browser, never bundle or commit.
+/config/airp-test.local.json
+*.local.json

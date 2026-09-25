@@ -1,19 +1,20 @@
 export type GameAsset = {url: string; bytes: number; revision: string};
 export type GameAssetManifest = {version: string; development: boolean; assets: GameAsset[]};
 export type LoadProgress = {loadedBytes: number; totalBytes: number; completed: number; total: number};
+export type ResourcePreparationOptions = {background?: boolean};
 export const resourceUrl = (url: string, base = document.baseURI) => { const resolved = new URL(url, base); resolved.hash = ''; return resolved.href; };
 const downloaded = new Map<string, Promise<void>>();
 const failedTransfers = new Set<string>();
 
 /** No-SW/development fallback: shared requests, bounded transfer concurrency, retryable failures. */
-export function downloadResource(url: string, expectedRevision?: string) {
+export function downloadResource(url: string, expectedRevision?: string, background = false) {
   const address = resourceUrl(url), key = address + (expectedRevision ? '#' + expectedRevision : '');
   let task = downloaded.get(key);
   if (!task) {
     task = (async () => {
       const controller = new AbortController(), timer = setTimeout(() => controller.abort(), 30_000);
       try {
-        const response = await fetch(address, {cache: failedTransfers.has(key) ? 'reload' : 'force-cache', signal: controller.signal});
+        const response = await fetch(address, {cache: failedTransfers.has(key) ? 'reload' : 'force-cache', signal: controller.signal, priority: background ? 'low' : 'auto'});
         if (!response.ok) throw new Error(`资源未能加载：${url}`);
         // Consume the body before reporting ready; fetch resolves at headers, not at end of transfer.
         const bytes = await response.arrayBuffer();
@@ -29,15 +30,15 @@ export function downloadResource(url: string, expectedRevision?: string) {
   }
   return task;
 }
-export async function downloadResources(manifest: GameAssetManifest, progress: (state: LoadProgress) => void) {
+export async function downloadResources(manifest: GameAssetManifest, progress: (state: LoadProgress) => void, options: ResourcePreparationOptions = {}) {
   const assets = [...new Map(manifest.assets.map(asset => [resourceUrl(asset.url), asset])).values()];
   let cursor = 0;
   const state = {loadedBytes: 0, totalBytes: assets.reduce((sum, a) => sum + a.bytes, 0), completed: 0, total: assets.length};
   const failures: string[] = [];
-  await Promise.all(Array.from({length: 6}, async () => {
+  await Promise.all(Array.from({length: options.background ? 2 : 6}, async () => {
     while (cursor < assets.length) {
       const asset = assets[cursor++];
-      try { await downloadResource(asset.url, manifest.development ? undefined : asset.revision); state.loadedBytes += asset.bytes; }
+      try { await downloadResource(asset.url, manifest.development ? undefined : asset.revision, options.background); state.loadedBytes += asset.bytes; }
       catch { failures.push(asset.url); }
       state.completed++; progress({...state});
     }
@@ -79,15 +80,15 @@ async function activateCacheWorker() {
   return candidate;
 }
 
-export async function prepareResources(manifest: GameAssetManifest, progress: (state: LoadProgress) => void) {
-  if (manifest.development || !('serviceWorker' in navigator) || !window.isSecureContext) return downloadResources(manifest, progress);
+export async function prepareResources(manifest: GameAssetManifest, progress: (state: LoadProgress) => void, options: ResourcePreparationOptions = {}) {
+  if (manifest.development || !('serviceWorker' in navigator) || !window.isSecureContext) return downloadResources(manifest, progress, options);
   let worker: ServiceWorker;
   // Hosts which forbid persistent workers still get the same gate and bounded HTTP prefetch.
   try { worker = await activateCacheWorker(); }
   catch {
     // Offline revisits can keep using the already active worker even when update() cannot reach the host.
     if (navigator.serviceWorker.controller) worker = navigator.serviceWorker.controller;
-    else return downloadResources(manifest, progress);
+    else return downloadResources(manifest, progress, options);
   }
   await new Promise<void>((resolve, reject) => {
     const channel = new MessageChannel();
@@ -101,6 +102,6 @@ export async function prepareResources(manifest: GameAssetManifest, progress: (s
       else if (event.data?.type === 'error') finish(new Error(event.data.message));
     };
     channel.port1.onmessageerror = () => finish(new Error('资源加载进度未能读取'));
-    arm(); worker.postMessage({type: 'prepare', version: manifest.version}, [channel.port2]);
+    arm(); worker.postMessage({type: 'prepare', version: manifest.version, background: options.background === true}, [channel.port2]);
   });
 }

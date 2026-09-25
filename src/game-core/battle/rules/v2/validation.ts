@@ -1,8 +1,11 @@
+import { validateCommissionBag } from "../../../contracts/commission-rewards";
 import type { RuleContext, RuleBattleState, RuleCheckpoint } from "../../domain/rule-state";
 import { validateManorEncounter } from "../v3/manor";
 import { validateMemoryEncounter } from "../v4/validation";
 import type { ValidatedDemoCatalog } from "../../../contracts/demo";
 import { demoEncounterId } from "../../../contracts/demo-journey-validation";
+import { earnedLoot } from "../../../contracts/loot";
+import { createBattleRngState } from "../../persistence/rng";
 import { validateJourneyRun } from "./journey-validation";
 import * as v from "../../../contracts/validation";
 import type {
@@ -182,7 +185,8 @@ function validateRun(catalog: RuleContext, raw: unknown) {
       "settledLayers",
       "rng",
       "sequence", "roomIds", "completedRoomIds", "supplies", "foodUses", "layerResults", "eventResults", "revealed", "eventRng",
-    ]);
+      ...("loot" in catalog.data && catalog.data.loot ? ["carriedLoot"] : []),
+    ], ["commissionRewards"]);
     const runId = v.id(r.id, "run.id");
     if (v.canonicalJson(r.contentRef) !== v.canonicalJson(catalog.ref))
       v.invalid("run.contentRef", "Frozen content differs", "content-mismatch");
@@ -242,6 +246,15 @@ function validateRun(catalog: RuleContext, raw: unknown) {
     if (!partyIds.includes(catalog.data.leaderId))
       v.invalid("party", "Leader required");
     validateJourneyRun(catalog, r);
+    if (r.commissionRewards !== undefined) validateCommissionBag(catalog, r.routeId as string, runId, r.roomIds as string[][], r.completedRoomIds as string[], r.settledLayers as number[], r.commissionRewards);
+    if ("loot" in catalog.data && catalog.data.loot) {
+      const lootSeed = (r.rng as RuleBattleState["run"]["rng"]).loot;
+      if (catalog.data.loot.dropTables?.rooms.some(room => room.routeId === r.routeId) &&
+        (lootSeed.seed !== createBattleRngState((r.rng as RuleBattleState["run"]["rng"]).combat.seed).loot.seed || lootSeed.cursor !== 0))
+        v.invalid("loot.rng", "Loot seed must derive from departure without consuming combat draws");
+      const expected = earnedLoot(catalog.data.loot, catalog.data.routes, runId, r.routeId as string, r.completedRoomIds as string[], lootSeed.seed);
+      if (v.canonicalJson(r.carriedLoot) !== v.canonicalJson(expected)) v.invalid("carriedLoot", "Loot differs from completed room evidence");
+    }
     return {r, runId, route, layer, room, partyIds, completed};
 }
 export function validateRuleRunState(catalog: RuleContext, raw: unknown): RuleBattleState["run"] {

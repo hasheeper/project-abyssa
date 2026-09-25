@@ -1,0 +1,31 @@
+/* Shared optional full-board outcome slot. Loot uses LootSettlementView. */
+.abyssa-expedition[data-outcome] .abyssa-expedition-skin-switch { display: none; }
+.abyssa-expedition .expedition-outcome {
+  grid-column: 1 / -1;
+  display: grid;
+  isolation: isolate;
+  background-position: center;
+  background-size: cover;
+}
+.expedition-outcome::after {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  content: "";
+  background:
+    radial-gradient(ellipse at 50% 42%, color-mix(in srgb, var(--battle-frame-deep) 82%, transparent), transparent 75%),
+    linear-gradient(0deg, var(--battle-frame-deep), transparent 55%);
+  pointer-events: none;
+}
+.expedition-outcome__content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 64px;
+  padding: 64px;
+  color: var(--battle-detail-copy, #cdbda1);
+  text-align: center;
+}

@@ -1,3 +1,4 @@
+import { expandedEquipment } from "../game-core/contracts/equipment";
 import { d5EncounterView } from "./d5-views";
 import type { AnyGameRecord } from "../game-application";
 import { projectCharacterHistory } from "../game-application";
@@ -121,7 +122,7 @@ export function createCharacterArchiveQuery(registry: CatalogRegistry) {
             equipment: progress.equipment
               .filter((e) => e.ownerId === ch.id)
               .map((e) => ({ ...e, definition: c.equipment[e.definitionId] })),
-            generalApplicable: ch.faces.some(
+            generalApplicable: expandedEquipment(c) || ch.faces.some(
               (f) => c.actions[f.actionId].kind === "blank",
             ),
             formationCovenant: entry.version === 4 && ch.id === "marietta",

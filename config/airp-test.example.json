@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "connection": {
+    "baseUrl": "",
+    "apiKey": ""
+  },
+  "models": {
+    "planning": {
+      "model": "gpt-5.6-sol",
+      "max_tokens": 32768,
+      "timeoutMs": 180000
+    },
+    "writing": {
+      "model": "gemini-3.8-flash",
+      "max_tokens": 16384,
+      "timeoutMs": 180000
+    },
+    "updater": {
+      "model": "deepseek-flash",
+      "max_tokens": 32768,
+      "timeoutMs": 180000
+    }
+  }
+}

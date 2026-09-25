@@ -15,7 +15,8 @@
  * 不要拆成两张表。
  */
 
-export type ItemRarity = "bronze" | "silver" | "gold" | "amethyst" | "mythic";
+import type { ItemRarity } from "../../domain/item-rarity";
+export type { ItemRarity } from "../../domain/item-rarity";
 
 /** 稀有度序号 1..5。既是宝石格数,也是传给图标解析器的 quality。 */
 export const ITEM_RARITY_RANKS: Record<ItemRarity, number> = {

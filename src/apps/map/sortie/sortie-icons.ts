@@ -27,7 +27,7 @@ export const SORTIE_ACTION_ICONS: Record<DieFaceAction, string> = {
 };
 
 /* 只有素材需要 mask 图标。
-   金币与晶石走 .abyssa-currency-amount 的货币形制 —— 那是全仓库统一的
+   资金与晶石走 .abyssa-currency-amount 的货币形制 —— 那是全仓库统一的
    货币长相（商店、枢纽顶栏都在用），收益行另找 game-icons 会让
    同一种货币在两处呈现两种样子。 */
 export const SORTIE_SPOIL_ICONS: Pick<Record<QuestSpoil, string>, "material"> = {

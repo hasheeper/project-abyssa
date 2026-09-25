@@ -5,7 +5,7 @@ import { createBattleRngState } from "../battle/persistence/rng";
 import type { D5BaseExpeditionState, D5ExpeditionState } from "./d5-types";
 import type { D5JourneyOperation } from "./d5-journey-contracts";
 import type { TutorialLesson, TutorialOperation, TutorialRunState } from "./tutorial-types";
-import { journeyEvent } from "./demo-expedition";
+import { journeyEvent, roomInstance } from "./demo-expedition";
 import { advanceTutorialGuide, initialTutorialGuide, tutorialGuideAllows, tutorialNode } from "./tutorial-guide";
 
 export function beginTutorial(base: D5BaseExpeditionState, catalog: ValidatedD5Catalog, continuationSeed: number): D5ExpeditionState {
@@ -60,7 +60,7 @@ export function resolveTutorial(catalog: ValidatedD5Catalog, input: D5Expedition
   } else {
     if (result.state.undo.length > input.undo.length) t.undoGuides!.push(structuredClone(guide));
     else if (!result.state.undo.length) t.undoGuides = [];
-    if (operation.type === "advance" && result.state.node === "event") result.events.push(journeyEvent(result.state, "tutorial-node-entered", {roomId: result.state.run.roomIds[0][result.state.run.room], nodeId: tutorialNode(catalog, result.state)!.roomId}));
+    if (operation.type === "advance" && result.state.node === "event") result.events.push(journeyEvent(result.state, "tutorial-node-entered", {roomId: roomInstance(result.state.run), nodeId: tutorialNode(catalog, result.state)!.roomId}));
     if (guide.mode === "guided") {
       const step = plan.steps[guide.cursor];
       if (operation.type !== "resume" || step.input.kind === "automatic") advanceTutorialGuide(catalog, input, result.state, result.events, operation.type !== "resume");
@@ -120,10 +120,10 @@ function resolveTutorialPolicy(catalog: ValidatedD5Catalog, input: D5ExpeditionS
   if (operation.type === "exit" || operation.type === "event" && !spec.guide) v.invalid("tutorial.route", "This route has no exit or dice-event room");
   if (operation.type === "resume" && base.node === "battle" && base.encounter.phase === "complete" && base.encounter.outcome === "wipe") {
     t.stage = "failed"; t.undoLessons = [];
-    return local("tutorial-failed", { attempt: t.attempt, roomId: base.run.roomIds[0][base.run.room] });
+    return local("tutorial-failed", { attempt: t.attempt, roomId: roomInstance(base.run) });
   }
   // T1 uses the opening seed; T2 onward keeps the saved continuation seed (authored in v11).
-  if (operation.type === "advance" && base.run.room === 0) {
+  if (operation.type === "advance" && base.run.layer === 1 && base.run.room === 0) {
     base.run.rng = createBattleRngState(t.continuationSeed);
     base.run.eventRng = createBattleRngState(spec.guide?.eventSeed ?? ((t.continuationSeed ^ 0x3c6ef372) >>> 0)).combat;
   }

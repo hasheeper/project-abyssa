@@ -1,6 +1,6 @@
 # Battle 开发手册
 
-> 版本适用说明（2026-09-07）：当前默认为应用／规则4、内容3。正式页面使用game-client与应用事务，权威命令先提交，impact只更新视觉副本。下文保留的BattleCommand、AtomicEffect、三条RNG及独立BattleSaveDto主要是**规则1兼容API**，不能直接套到D5；UI演出原则仍有效。入口、取消与恢复见 [Battle README](README.md#s3-演出合同) 和 [客户端说明](../../game-client/README.md)。
+> 版本适用说明（2026-09-25）：当前普通／AIRP新档为内容25／26，应用与规则4。正式页面使用game-client与应用事务，权威命令先提交，impact只更新视觉副本。下文保留的BattleCommand、AtomicEffect、三条RNG及独立BattleSaveDto主要是**规则1兼容API**，不能直接套到D5；UI演出原则仍有效。入口、取消与恢复见[Battle README](README.md#s3-演出合同)和[客户端说明](../../game-client/README.md)。
 
 > 旧独立Battle格式：schema v4 / rules v1 / content v1；它与应用v4存档不同。
 > 适用目录：`src/apps/battle/` 与 `src/game-core/battle/`

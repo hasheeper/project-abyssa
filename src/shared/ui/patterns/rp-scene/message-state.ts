@@ -3,8 +3,9 @@ import type { RpMessage } from "../rp-stage";
 
 export type RpSayMessage = Extract<RpMessage, { kind: "say" }>;
 
-/** chapter 是结构分隔；其余非对白消息是对白附近的功能气泡。 */
-const AUX_KINDS = new Set<RpMessage["kind"]>(["narration", "roll", "system"]);
+/** Chapters divide beats. Choices may sit between a line and its reaction;
+ * include them in the contiguous beat without dimming the record itself. */
+const AUX_KINDS = new Set<RpMessage["kind"]>(["narration", "roll", "system", "choice"]);
 
 function isAux(message: RpMessage) {
   return AUX_KINDS.has(message.kind);
@@ -37,6 +38,7 @@ export function deriveLitAux(messages: readonly RpMessage[]) {
   if (hasAnchor) {
     for (let index = anchor + 1; index < messages.length; index += 1) {
       const message = messages[index];
+      if (message.kind === "stage") continue;
       if (!isAux(message)) break;
       lit.add(message.id);
     }
@@ -45,6 +47,7 @@ export function deriveLitAux(messages: readonly RpMessage[]) {
 
   for (let index = hasAnchor ? anchor - 1 : messages.length - 1; index >= 0; index -= 1) {
     const message = messages[index];
+    if (message.kind === "stage") continue;
     if (!isAux(message)) break;
     lit.add(message.id);
   }

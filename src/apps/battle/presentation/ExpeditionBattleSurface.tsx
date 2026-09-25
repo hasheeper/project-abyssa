@@ -3,7 +3,8 @@ import { useTutorialAnchors } from "../../../shared/tutorial";
 import { useSceneSequenceBusy } from "../../../shared/presentation/adv/SceneSequence";
 import { getNextBattleUiSkin } from "../battleUiSkins";
 import type { ExpeditionBattleScreenProps } from "../ExpeditionBattleScreen";
-import { PARTY_VISUALS } from "./expedition-visuals";
+import { partyVisual } from "./expedition-visuals";
+import { usePlayerName } from "../../../shared/domain/PlayerIdentity";
 import { useEnemyStageLayout } from "./useEnemyStageLayout";
 import { useBattleMotionPolicy } from "./useBattleMotionPolicy";
 import { ExpeditionEnemyStage } from "./ExpeditionEnemyStage";
@@ -12,6 +13,7 @@ import { ExpeditionBattleFrame } from "./ExpeditionBattleFrame";
 import { JOURNEY_MOTION_MS, type JourneyMotion } from "./journey-motion";
 import type { BattleSurfaceMember, BattleSurfaceEnemy, BattleEnemyFx } from "./battle-surface-model";
 import type { PlayerAttackFx, PlayerSupportFx } from "./useExpeditionBattlePresentation";
+import "./expedition-outcome.css";
 
 export type BattleSurfaceProps = ExpeditionBattleScreenProps & {
   inert?: boolean;
@@ -24,6 +26,8 @@ export type BattleSurfaceProps = ExpeditionBattleScreenProps & {
   handleMemberCardClick: (id: string) => void; handleEnemyClick: (id: string) => void; handleIntentClick: (id: string) => void;
   dicePanel: ReactNode; sidebar: ReactNode; overlays: ReactNode; sceneStyle?: CSSProperties; title?: string; location?: string;
   journey?: { content: ReactNode; key: string; label: string };
+  /** Receipts share the scene and frame, without inactive combat instruments. */
+  outcome?: ReactNode;
   journeyMotion?: JourneyMotion | null;
   roomLoading?: ReactNode;
   partyChoice?: { selectedId: string; disabled: boolean; canSelect?: (id: string) => boolean; onSelect: (id: string) => void };
@@ -35,9 +39,10 @@ export function ExpeditionBattleSurface({
   label, party, presentedEnemies, phase, layerClearPending, isRolling, interactive,
   heldActor, attackFx, supportFx, enemyTurnFx, isPresentationBusy,
   handleMemberCardClick, handleEnemyClick, handleIntentClick, dicePanel, sidebar, overlays, sceneStyle, title, location,
-  journey, journeyMotion, roomLoading, partyChoice, canSelectMember,
+  journey, journeyMotion, roomLoading, partyChoice, canSelectMember, outcome,
   inert, entrance, formationKey = "battle",
 }: BattleSurfaceProps) {
+  const playerName = usePlayerName();
   const anchor=useTutorialAnchors();
   const sequenceBusy = useSceneSequenceBusy();
   const enemyLayout = useEnemyStageLayout(presentedEnemies,formationKey,party.map(member=>member.id),!sequenceBusy);
@@ -84,6 +89,7 @@ export function ExpeditionBattleSurface({
       data-layer-clear-pending={layerClearPending || undefined}
       data-journey-motion={journeyMotion || undefined}
       data-journey-node={journey ? true : undefined}
+      data-outcome={outcome ? true : undefined}
       aria-busy={
         isRolling ||
         Boolean(attackFx) ||
@@ -94,6 +100,9 @@ export function ExpeditionBattleSurface({
       aria-label={label}
     >
       <ExpeditionBattleFrame title={title} location={location} skin={activeUiSkin} onCycleSkin={cycleUiSkin}>
+        {outcome ? <section className="abyssa-expedition-region expedition-outcome" style={sceneStyle}>
+          <div className="expedition-outcome__content">{outcome}</div>
+        </section> : <>
         <div className="abyssa-expedition-regions__battlefield">
                   {/* ==================== 敌方区域 ==================== */}
                   <ExpeditionEnemyStage
@@ -109,7 +118,7 @@ export function ExpeditionBattleSurface({
                   <section className="abyssa-expedition-region abyssa-expedition-party" aria-label="我方区域">
                     <div className="abyssa-expedition-party__cards">
                       {party.map((member, memberIndex) => {
-                        const visual = PARTY_VISUALS[member.id];
+                        const visual = partyVisual(member.id, playerName);
                         const held = heldActor === member.id;
                         const attacking = attackFx?.actorId === member.id;
                         const supporting = supportFx?.actorId === member.id;
@@ -335,6 +344,7 @@ export function ExpeditionBattleSurface({
                   {dicePanel}
                 </div>
         {sidebar}
+        </>}
       </ExpeditionBattleFrame>
 
       {overlays}

@@ -15,6 +15,20 @@ import { validateBuildOutput } from '../../scripts/check-build-output.mjs';
 
 const execute = promisify(execFile);
 
+test('CSS artifact validation ignores nested SVG fragment URLs but still finds missing files', async t => {
+  const outDir = await mkdtemp(resolve(tmpdir(), 'abyssa-css-urls-'));
+  t.after(() => rm(outDir, { recursive: true, force: true }));
+  await writeFile(resolve(outDir, 'valid.svg'), '<svg/>');
+  await writeFile(resolve(outDir, 'skin.css'), `
+    .quill { mask: url("data:image/svg+xml,%3Csvg%3E%3Cpath fill='url(%23quill-opacity)'/%3E%3C/svg%3E"); }
+    .quoted { mask: url('data:image/svg+xml,%3Cpath fill="url(%23other)"/%3E'); }
+    .local { filter: url(#glow); background: url("valid.svg#art"); }
+  `);
+  assert.deepEqual(await validateBuildOutput('ui', outDir), []);
+  await rm(resolve(outDir, 'valid.svg'));
+  assert.deepEqual(await validateBuildOutput('ui', outDir), ['skin.css: missing or unsafe artifact valid.svg']);
+});
+
 test('mansion build closes navigation and detects missing pages, chunks and dynamic art', async t => {
   const temporary = await mkdtemp(resolve(tmpdir(), 'abyssa-assets-'));
   t.after(() => rm(temporary, { recursive: true, force: true }));

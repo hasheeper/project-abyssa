@@ -32,6 +32,18 @@ it('rejects invalid manifest entries instead of releasing the game', async () =>
   vi.stubGlobal('fetch', async () => ({ok: true, json: async () => ({version:'v1',assets:[{url:'https://foreign.invalid/x',bytes:1,revision}]})}));
   await expect(readAssetManifest()).rejects.toThrow('资源清单无效');
 });
+it('uses two low-priority transfers for background warmup', async () => {
+  let active=0,peak=0;
+  const fetcher=vi.fn(async () => {
+    active++;peak=Math.max(peak,active);await new Promise(resolve=>setTimeout(resolve,1));active--;
+    return {ok:true,arrayBuffer:async()=>new ArrayBuffer(1)};
+  });
+  vi.stubGlobal('fetch',fetcher);
+  const manifest={version:'background',development:true,assets:Array.from({length:7},(_,i)=>({url:`./background-${i}.webp`,bytes:1,revision}))};
+  await downloadResources(manifest,()=>{},{background:true});
+  expect(peak).toBe(2);
+  expect(fetcher).toHaveBeenCalledWith(expect.any(String),expect.objectContaining({priority:'low'}));
+});
 it('resolves a deployment subdirectory without making assets origin-root relative', () => {
   expect(resourceUrl('./assets/image.webp', 'https://example.test/games/abyssa/title.html?save=test')).toBe('https://example.test/games/abyssa/assets/image.webp');
 });

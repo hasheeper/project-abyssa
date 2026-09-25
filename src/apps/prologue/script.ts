@@ -1,4 +1,5 @@
 import { PLAYER_NAME_TOKEN } from "../../shared/domain/player-identity";
+
 /** Author's Chinese prologue, verbatim; only screen breaks and presentation cues are added. */
 export type PrologueCue = "sword-release" | "embrace-warmth";
 export type PrologueBeat = { text: string; speaker?: typeof PLAYER_NAME_TOKEN | "艾比希斯"; hold?: number; cue?: PrologueCue };
@@ -25,66 +26,78 @@ export type PrologueShot = {
   beats: PrologueBeat[];
   effect: "gold" | "hero" | "tyrant" | "glass" | "rain" | "fire" | "chess" | "rift" | "vortex" | "sword" | "embrace" | "sea" | "black" | "kitchen" | "tentacle" | "morning" | "title";
 };
+
 const assets = import.meta.glob<string>("../../assets/cg/prologue/*.webp", { eager: true, query: "?url", import: "default" });
 const cg = (name: string) => assets[`../../assets/cg/prologue/${name}.webp`];
 const frame = (scale = 1, x = .5, y = .5, angle = 0): CameraKey => ({ scale, x, y, angle });
+
 // Act I reads as illustrated records. Later acts retain their authored movement.
 const still = (y = .5): PrologueCamera => ({ kind: "still", frame: frame(1, .5, y) });
 const move = (from: CameraKey, to: CameraKey, duration: number, handheld = 0): PrologueCamera => ({ kind: "move", from, to, duration, handheld });
+
 export const PROLOGUE_SHOTS: readonly PrologueShot[] = [
-  { id: "A1-01", name: "大教堂", act: 1, image: cg("01-cathedral"), duration: 5500, delay: 2800, transition: 1400,
+  // ==================== 第一幕【神话】 ====================
+  { id: "A1-01", name: "大教堂", act: 1, image: cg("01-cathedral"), duration: 6000, delay: 2000, transition: 1400,
     camera: still(.48), effect: "gold",
     beats: [
-      {"text": "很久很久以前，世界曾被黑暗笼罩。"},
-      {"text": "可怕的怪物在大地上肆虐，人们只能在恐惧中苟延残喘。"}
+      {"text": "那是凡世曾被无尽长夜笼罩的年代。"},
+      {"text": "死气与灾厄席卷大地，万民在绝望中祈求神明的救赎。"}
     ] },
-  { id: "A1-02", name: "光之勇者", act: 1, image: cg("02-hero-of-light"), duration: 5500, delay: 700, transition: 1600,
+  { id: "A1-02", name: "光之勇者", act: 1, image: cg("02-hero-of-light"), duration: 6000, delay: 700, transition: 1600,
     camera: still(.42), effect: "hero",
     beats: [
-      {"text": "为了拯救陷入绝望的人们，神明将圣剑赐给了一位少年。"},
-      {"text": "身披光芒、讨伐邪恶的希望象征——勇者。"}
+      {"text": "为了斩断绝望，神明将讨伐黑暗的圣剑赐予凡人。"},
+      {"text": "身披晨曦之光、背负万民期望的救世之剑——勇者。"}
     ] },
-  { id: "A1-03", name: "异形魔王", act: 1, image: cg("03-stained-glass-tyrant"), duration: 5500, delay: 1100, transition: 1400,
+  { id: "A1-03", name: "异形魔王", act: 1, image: cg("03-stained-glass-tyrant"), duration: 6000, delay: 800, transition: 1400,
     camera: still(.45), effect: "tyrant",
     beats: [
-      {"text": "挡在他面前的，是君临黑暗深处、绝对的恐怖——魔王。"}
+      {"text": "而在长夜的最深处，盘踞着撕裂大地的终极梦魇。"},
+      {"text": "以千万猩红之眼俯瞰现世、执掌深渊的死敌——魔王。"},
+      {"text": "为了诛灭这头灾厄，救世的远征席卷了整座大陆。"}
     ] },
-  { id: "A1-04", name: "激突与破碎", act: 1, image: cg("04-sword-and-shattered-glass"), duration: 5500, delay: 500, transition: 1900,
+  { id: "A1-04", name: "激突与破碎", act: 1, image: cg("04-sword-and-shattered-glass"), duration: 6500, delay: 500, transition: 1900,
     camera: still(.43), effect: "glass",
     beats: [
-      {"text": "经历了惨烈的激战，勇者的剑终于贯穿了魔王的心脏。"},
-      {"text": "怪物被消灭，世界迎回了光明与和平。"},
-      {"text": "——教会的圣典上，一直都是这么写的。", "hold": 2200}
+      {"text": "十余年的惨烈鏖战，圣剑终于贯穿了魔王的心脏。"},
+      {"text": "长夜散尽，诸王之座迎回了光明的庇护与和平。"},
+      {"text": "——大教堂的圣典上，百年来，一直都是这么写的。", "hold": 2400}
     ] },
+
+  // ==================== 第二幕【现实】 ====================
   { id: "A2-01", name: "战壕", act: 2, image: cg("05-muddy-trenches"), duration: 6000, delay: 1900, transition: 600,
     camera: move(frame(1.015, .5, .50), frame(1.035, .5, .48), 6000, 2.3), effect: "rain",
     beats: [
-      {"text": "死人是读不了历史书的。"},
-      {"text": "前线留下的，只有不断腐烂的血肉与白骨。"}
+      {"text": "王都的文书上，把这趟出征叫作‘第四次圣战’。"},
+      {"text": "但大军停在边境要塞后面，真正被赶过界线、推进这片烂泥里的……只有我们。"}
     ] },
   { id: "A2-02", name: "营火", act: 2, image: cg("06-rainy-campfire"), duration: 7000, delay: 800, transition: 600,
     camera: move(frame(1.06, .478, .47), frame(1.06, .522, .47), 7000, 1.2), effect: "fire",
     beats: [
-      {"text": "所谓的远征军，根本不是什么英雄。"},
-      {"text": "几个失势的名门小姐，还有我这么个毫无背景的步兵。"},
+      {"text": "所谓的远征先锋，其实谁心里都清楚。"},
+      {"text": "几个失势的名门小姐，加上我这么个凑数的步兵。"},
       {"text": "从一开始，上头就没打算让任何人活着回去。"}
     ] },
   { id: "A2-03", name: "棋子", act: 2, image: cg("07-discarded-pawns"), duration: 5000, delay: 500, transition: 300,
     camera: move(frame(), frame(1.015), 5000), effect: "chess",
     beats: [
-      {"text": "缩在安全区里的大人物们以为，只要斩下魔王的头，一切就都万事大吉了。\n然而——"}
+      {"text": "坐在后方的人，把前线的死活算成了彼此制衡的筹码。"},
+      {"text": "他们算计着政敌的存亡，算计着战后的权柄，以为整座大陆的命运全在掌心里。"}
     ] },
   { id: "A2-04", name: "逆行", act: 2, image: cg("08-against-the-tide"), duration: 6000, delay: 1000, transition: 800,
     camera: move(frame(1.015, .5, .50), frame(1.075, .5, .51), 6000, 2.3), effect: "rift",
     beats: [
-      {"text": "凡人是杀不死天灾的。"},
-      {"text": "当天坑深处彻底决堤的那一刻，所有算计都在瞬间变成了废纸。"}
+      {"text": "直到地底深处彻底决堤。"},
+      {"text": "黑泥吞没防线的那一刻，所有的算计，在瞬间全变成了废纸。"}
     ] },
+
+  // ==================== 第三幕【决断】 ====================
   { id: "A3-01", name: "深渊之底", act: 3, image: cg("09-abyss-bound-child"), duration: 5500, delay: 1000, transition: 600,
     camera: move(frame(1.02, .5, .47), frame(1.07, .5, .47, 4), 5500), effect: "vortex",
     beats: [
-      {"text": "大坑的底下，既没有王座，也没有军队。"},
-      {"text": "有的——只是一个被迫灌满了烂泥、连哭泣都已经忘却的孩子。"}
+      {"text": "深渊的最底下，既没有王座，也没有军队。"},
+      {"text": "没有传闻里的暴君，更没有什么吃人的怪物。"},
+      {"text": "悬在风暴正中间的，只是个被锁链死死缠住的白发少女。"}
     ] },
   { id: "A3-02", name: "弃剑", act: 3, image: cg("10-fallen-sword"), duration: 5000, delay: 500, transition: 800,
     camera: still(.53), effect: "sword",
@@ -100,14 +113,18 @@ export const PROLOGUE_SHOTS: readonly PrologueShot[] = [
       {"text": "刚才还疯了一样的黑泥，在碰到的那一瞬间，全停下了。", "hold": 1800},
       {"text": "", "hold": 3200}
     ] },
-  { id: "A3-04", name: "黑海", act: 3, image: cg("12-sleeping-black-sea"), duration: 5000, delay: 800, transition: 1500,
-    camera: { kind: "move", from: frame(1.08, .5, .51), to: frame(1, .5, .5), duration: 5000, easing: "retreat" }, effect: "sea",
+  { id: "A3-04", name: "黑海", act: 3, image: cg("12-sleeping-black-sea"), duration: 6000, delay: 800, transition: 1500,
+    camera: { kind: "move", from: frame(1.08, .5, .51), to: frame(1, .5, .5), duration: 6000, easing: "retreat" }, effect: "sea",
     beats: [
-      {"text": "暴走停下来了，世界只是——暂时睡着了。"},
-      {"text": "被同归于尽吓破了胆的人类和魔族，就在当天草草定了停战。"}
+      {"text": "沸腾的风暴彻底沉成了死水。"},
+      {"text": "怀里的灾厄没了动静，就这么安安静静地睡了过去。"},
+      {"text": "目睹了那场几乎毁掉一切的狂澜之后，人类和魔族，终于在恐惧里坐上了谈判桌。"}
     ] },
+
+  // ==================== 第四幕【日常】 ====================
   { id: "sound-bridge", name: "三年后", act: 4, duration: 4500, delay: 1500, transition: 800,
-    camera: still(), effect: "black", beats: [
+    camera: still(), effect: "black",
+    beats: [
       {"text": "三年后"}
     ] },
   { id: "A4-01", name: "厨房", act: 4, image: cg("13-morning-kitchen"), duration: 6000, delay: 1000, transition: 500,
@@ -125,13 +142,17 @@ export const PROLOGUE_SHOTS: readonly PrologueShot[] = [
   { id: "A4-03", name: "晨景全貌", act: 4, image: cg("15-watchers-cliff-morning"), duration: 6500, delay: 900, transition: 0,
     camera: move(frame(1.01, .5, .49), frame(1.06, .515, .49), 6500, 2.3), effect: "morning",
     beats: [
-      {"text": "仗算是彻底打完了，同伴们也全都赖在这里不走。"},
+      {"text": "仗打完了，到头来，谁也没打算回王都，大家就这么在悬崖边安了家。"},
       {"text": "沙发上的银发魔王裹着毛毯四仰八叉地睡着回笼觉；"},
       {"text": "脚底下的阴影里，小黑泥精正心满意足地叼着刚偷来的香肠溜走。"},
-      {"text": "至于什么世界的命运——\n比起赶在那家伙闹脾气把悬崖整个扬掉之前、让她吃上一顿热乎的早饭，那都是天大的闲事。", "hold": 2200}
+      {"text": "至于什么世界的命运——"},
+      {"text": "在让她吃上一顿热乎的早饭之前，那都是天大的闲事。", "hold": 2200}
     ] },
   { id: "title-card", name: "标题", act: 4, image: cg("15-watchers-cliff-morning"), duration: 5000, delay: 0, transition: 1100,
-    camera: { kind: "still", frame: frame(1.06, .515, .49) }, effect: "title", beats: [] },
+    camera: { kind: "still", frame: frame(1.06, .515, .49) }, effect: "title",
+    beats: [
+      {"text": "", "hold": 5000} // ← 补上空节拍，驱动标题卡停留5秒
+    ] },
 ];
 
 export const CHARACTER_FADE_MS = 25;

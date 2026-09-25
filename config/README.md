@@ -8,7 +8,8 @@
 | --- | --- | --- |
 | `npm run dev` | 组件目录，5173 | — |
 | `npm run dev:game` | 单入口＋十个懒加载路由，5190 | `npm run build:game` → `dist/game` |
-| `npm run dev:lab` | catalog／loading／novel／rp，5191 | `npm run build:lab` → `dist/lab` |
+| `npm run dev:lab` | catalog／loading／novel／rp／new-shop／airp等实验页，5191 | `npm run build:lab` → `dist/lab` |
+| `npm run dev:airp` | 独立AIRP试读，5195 | `npm run build:airp` → `dist/entries/airp` |
 | `npm run dev:tools` | 五个制作工具，5192 | `npm run build:tools` → `dist/tools` |
 | `npm run build` | UI 包及类型声明 | `dist/ui` |
 | 旧 `dev:<name>`／`build:<name>`／`preview:<name>` | 对应页面／默认路由，保留已登记端口 | `dist/entries/<name>` |
@@ -17,10 +18,14 @@
 
 所有目标默认关闭远程骰局接口。`--ai` 仅显式开启仍待迁移的旧实验适配器，不是当前 rp-style-lab 的正式接入方案。启动与构建不会自动执行 setup 或创建外部应用。
 
+AIRP试读使用玩家自己的兼容端点，不需要 `--ai`。本地测试配置是开发机上的可选例外，按[配置说明](AIRP_TEST_CONFIG.md)填写被Git忽略的 `airp-test.local.json`，由页面手动选择文件后读取；不打包、不经HTTP提供、不自动发请求。分享模板不含密钥。
+
+Cloudflare Pages本地准备：`npm run prepare:pages`构建game并添加真实404与安全响应头；`npm run check:pages`复核上传清单与已知私密值，`npm run check:pages:browser`执行零模型调用的本机CSP冒烟。三条命令均不登录、不上传。只允许发布`dist/game`，细节见[静态HTTPS发布说明](../docs/deployment/AIRP_STATIC_HTTPS.md)；正式HTTPS／跨域／回退另行验收。
+
 ## 新增与修改入口
 
 1. 在 `entries.mjs` 登记 ID、HTML、用途、开发端口、下游页面和动态资源需求。
-2. 游戏只有根 `index.html`，指向 `src/game-shell/main.tsx`。页面源码在 `src/apps/<id>`；`route.tsx` 导出页面组件、导入原样式，并在 `src/game-shell/routes.ts` 与共享 route 表登记懒加载入口。实验／工具 HTML 位于 `entries/lab`／`entries/tools`，用 `sourceHtml` 登记源码路径，仍以原扁平 URL 发行。
+2. 游戏只有根 `index.html`，指向 `src/game-shell/main.tsx`。页面源码在 `src/apps/<id>`；`route.tsx` 导出页面组件、导入原样式，并在 `src/game-shell/routes.ts` 与共享 route 表登记懒加载入口。实验／工具 HTML 位于 `entries/lab`／`entries/tools`，用 `sourceHtml` 登记源码路径，仍以原扁平 URL 发行。依附既有应用的独立实验可用 `sourceModule` 指向应用内部的 `main.tsx`，例如战利品测试保留在 `battle/loot-lab`，避免跨应用导入。
 3. 只有新增一种实际构建策略时才修改 `targets.mjs`／Vite 工厂，不复制整份配置。普通入口可通过运行器直接访问，无需增加配置文件。
 4. 执行 `npm run check:entries`、对应目标构建与 `check:output`，补充有必要的浏览器操作检查。
 
@@ -30,7 +35,7 @@ node scripts/run-target.mjs build entry:title
 node scripts/check-build-output.mjs entry:title
 ```
 
-游戏入口命令均构建同一完整路由壳，区别是默认落点。实验和工具仍按入口依赖构建；往返链接合法，未知页面失败。group 归属表示发行用途，不意味着页面已经拥有完整玩法。Battle 纯规则已在 S1 迁出，统一存档与场景结算继续按 S2/S3 推进。
+游戏入口命令均构建同一完整路由壳，区别是默认落点。实验和工具仍按入口依赖构建；往返链接合法，未知页面失败。group 归属表示发行用途，不意味着页面已经拥有完整玩法。Battle 纯规则已在 S1 迁出，统一存档与场景结算已经接入；当前功能边界见项目状态页。
 
 ## 输出与资源
 
@@ -56,10 +61,12 @@ npm run check:auxiliary
 npm run build-storybook
 ```
 
-测试位于 `src`：`config/vitest/core.config.ts` 运行无 DOM 的 Node 内核项目，`app.config.ts` 运行 jsdom 应用项目，根配置统一发现并限制并发。`npm test` 运行两者；`npm run test:core` 仅运行内核。构建/边界测试位于 `tests/build`，浏览器检查位于 `tests/smoke`。浏览器服务器没有源码兜底或 SPA fallback，缺失页面／脚本返回 404；端口默认 5199，可用 `ABYSSA_SMOKE_PORT` 调整。已有浏览器二进制可通过 `ABYSSA_BROWSER_EXECUTABLE` 显式指定；CI 默认使用 Playwright 安装的版本。
+测试位于 `src`：`config/vitest/core.config.ts` 运行无 DOM 的 Node 内核项目，`application.config.ts`运行应用事务，`app.config.ts`运行jsdom前端项目，根配置统一发现并限制并发。`npm test`运行已登记项目；`test:core`／`test:application`／`test:app`可定向执行。构建/边界测试位于 `tests/build`，浏览器检查位于 `tests/smoke`。浏览器服务器没有源码兜底或 SPA fallback，缺失页面／脚本返回 404；端口默认 5199，可用 `ABYSSA_SMOKE_PORT` 调整。已有浏览器二进制可通过 `ABYSSA_BROWSER_EXECUTABLE` 显式指定；CI 默认使用 Playwright 安装的版本。
 
 `npm run check:core` 覆盖无 DOM 类型、AST 依赖边界、Node 测试和独立 ESM 导入；这些检查同时纳入 `check:baseline`。S1 报告写入 `dist/reports/s1`，不会进入 UI 包。使用两种测试环境不代表存在两份规则实现。
 
 `check:auxiliary` 只在临时目录验证静态预览，并核对原分享文件未被改写。主动执行 `build:preview` 仍会更新 `static-preview`。CI 与本地命令相同，不自动部署或发布。
 
 TypeScript 7 不再提供旧的 JavaScript compiler API，静态导航检查使用独立 Babel parser 解析 TS／TSX；Babel 仅属于构建工具依赖，不进入游戏运行包。
+
+开发服务按目标隔离 Vite 依赖缓存：`node_modules/.vite/game`、`node_modules/.vite/entry-new-shop` 等。可同时运行正式游戏与独立测试页；启用 AI 的配置使用独立后缀。避免一个入口优化依赖后覆盖另一个入口的 Three.js / GSAP 文件并引发 `504 Outdated Optimize Dep`。更改此配置后需重启开发服务。

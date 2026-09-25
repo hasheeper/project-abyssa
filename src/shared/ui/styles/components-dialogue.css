@@ -9,9 +9,11 @@
   --abyssa-dialogue-pattern-second: rgb(255 255 255 / 1.2%);
   position: relative;
   display: block;
+  box-sizing: border-box;
   width: 100%;
   aspect-ratio: 1200 / 260;
   color: var(--abyssa-dialogue-text);
+  font-family: var(--abyssa-font-body, "Songti SC", serif);
   container-type: inline-size;
 }
 .abyssa-dialogue[data-variant="light"] {

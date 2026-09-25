@@ -1,4 +1,4 @@
-import { GameMenu } from "../../shared/ui/patterns/game-menu/GameMenu";
+import { GameSystemMenu } from "../../game-client/GameSystemMenu";
 import { gameHref, recentSave } from "../../game-client/navigation";
 import { getLumenPriorityScore } from "./game";
 import { ActionDock } from "../../shared/ui/patterns/action-dock/ActionDock";
@@ -175,15 +175,15 @@ export function DiceApp() {
           </main>
         </DiceOuterFrame>
       </div>
-      <GameMenu title="骰局菜单" navigationHint="离开骰局后，本局不会保留" busy={game.busy} commands={[
+      <GameSystemMenu title="骰局菜单" saveUnavailableReason="独立骰局暂不支持存档" navigationHint="离开骰局后，本局不会保留" busy={game.busy} commands={[
         {id:"finish", label:game.phase === "public-lock" ? "确认公锁" : "结束锁骰", detail: game.phase === "public-lock" ? "确认当前选中的骰子" : "保留当前骰面", disabled:game.turn !== "player" || !["public-lock","private-lock"].includes(game.phase), onSelect:() => {
           if(game.busy || game.turn !== "player") return;
           if(game.phase === "public-lock") void confirmPublicLocks();
           if(game.phase === "private-lock") void finishPrivateLocks(false);
         }},
       ]} navigation={[
-        {id:"menu",label:"菜单",href:gameHref("menu",recentSave())},
-        {id:"archive",label:"档案",href:gameHref("title")},
+        {id:"menu",label:"返回菜单",shortLabel:"MENU",href:gameHref("menu",recentSave())},
+        {id:"archive",label:"返回标题",shortLabel:"TITLE",href:gameHref("title")},
       ]}/>
       <TurnBanner {...banner} />
       {resultOpen && game.winner && (

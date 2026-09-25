@@ -4,7 +4,7 @@ import type { TutorialGuideState } from "./tutorial-types";
 import type { D5ExpeditionState } from "./d5-types";
 import type { D5JourneyOperation } from "./d5-journey-contracts";
 import type { DemoEvent } from "../battle/domain/demo-state";
-import { asDemoBattle, roomInstance } from "./demo-expedition";
+import { asDemoBattle, layerReady, roomInstance } from "./demo-expedition";
 import { demoActionOptions } from "../battle/rules/v2/combat";
 import { demoItemTargets } from "./demo-items-events";
 import { sha256 } from "../contracts/sha256";
@@ -32,7 +32,7 @@ export function tutorialGuideOperation(catalog: ValidatedD5Catalog, state: D5Exp
   if (i.kind === "story") return t!.stage === "story" && t!.story?.id === i.storyId
     ? {type: "tutorial-read", storyId: i.storyId, step: t!.story.step, choice: "continue"} : null;
   if (t!.stage !== "active") return null;
-  if (i.kind === "advance") return state.node === "room-complete" ? {type: "advance", roomId: roomInstance(state.run)} : null;
+  if (i.kind === "advance") return state.node === "room-complete" && !layerReady(catalog.data, state) ? {type: "advance", roomId: roomInstance(state.run)} : null;
   if (i.kind === "observe-result") return state.node === "room-complete" && state.run.eventResults.some(r => r.roomId === roomInstance(state.run))
     ? {type: "tutorial-observe", planId: plan.id, stepId: step.id, attempt: t!.attempt, basis: tutorialGuideBasis(state, step)} : null;
   if (i.kind === "event") return state.node === "event" && state.run.party.some(m => m.id === i.actorId && m.hp > 0)

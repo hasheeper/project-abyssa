@@ -1,0 +1,63 @@
+@import "./motion-tokens.css";
+
+/* Shared ribbon art, title-like cadence. No sheen or perpetual decorative animation. */
+.story-choices { outline: none; }
+.story-choices[data-placement="overlay"] {
+  position: absolute; z-index: 20; left: 50%; bottom: 240px;
+  width: 620px; max-width: calc(100% - 80px); transform: translateX(-50%);
+}
+.story-choices[data-placement="inline"] { width: min(100%, 680px); margin-inline: auto; padding: 14px 30px 18px; }
+.story-choices__list { position: relative; display: grid; gap: var(--choice-row-gap); }
+.story-choices__button.abyssa-ribbon-button {
+  height: var(--choice-row-height); aspect-ratio: auto; outline: none;
+  --abyssa-ribbon-text: #bbc6c1;
+  --abyssa-control-shadow: none;
+  transition: none;
+}
+.story-choices__button .abyssa-ribbon-button__label {
+  font-size: 17px; line-height: 1.45; letter-spacing: .06em; overflow-wrap: anywhere;
+  text-shadow: 0 1px 2px #080d0d;
+  transition: color var(--abyssa-motion-hover) var(--abyssa-motion-ease), transform var(--abyssa-motion-press) var(--abyssa-motion-ease);
+}
+.story-choices__button[data-highlighted] {
+  --abyssa-ribbon-fill: #263833; --abyssa-ribbon-text: #d6e1dc;
+  --abyssa-frame-light: #91aaa2;
+}
+.story-choices__button:focus-visible,
+.story-choices__button[data-selected] {
+  --abyssa-ribbon-fill: #314840; --abyssa-ribbon-text: #eff2df; --abyssa-frame-light: #c3cec0;
+}
+.story-choices__surface {
+  position: absolute; inset: 0; pointer-events: none; transform: scaleX(1);
+  transition: transform var(--choice-surface-ms) var(--abyssa-motion-ease);
+}
+.story-choices__surface .abyssa-ribbon-button__art :is(path, rect) {
+  transition: fill var(--abyssa-motion-hover) var(--abyssa-motion-ease), stroke var(--abyssa-motion-hover) var(--abyssa-motion-ease);
+}
+.story-choices__button[data-highlighted] .story-choices__surface { transform: scaleX(var(--choice-surface-scale)); }
+.story-choices__button:active:not(:disabled) .story-choices__surface {
+  transform: translateY(1px) scaleX(1.006); transition-duration: var(--abyssa-motion-press);
+}
+.story-choices__button:active:not(:disabled) .abyssa-ribbon-button__label { transform: translateY(1px); }
+/* This preset owns pressure, so the legacy ribbon fallback cannot move the click target. */
+.story-choices .story-choices__button.abyssa-ribbon-button:is(:hover, :active, [data-selected], :disabled) {
+  filter: none; transform: none;
+}
+/* Scene handoff locks are not unavailable choices: avoid a gray-to-bright flash after the fade. */
+.story-choices__button:disabled { opacity: 1; cursor: default; }
+.story-choices__markers { position: absolute; z-index: 2; inset: 0; pointer-events: none; }
+.story-choices__cursor { position: absolute; top: 0; left: 0; width: 100%; height: var(--choice-row-height); }
+.story-choices__gem-seat { position: absolute; top: 50%; left: 1.8%; width: 12px; height: 12px; transform: translate(-50%, -50%); }
+.story-choices__cursor--right .story-choices__gem-seat { left: 98.2%; }
+.story-choices__gem {
+  position: absolute; inset: 0; transform: rotate(45deg);
+  border: 1px solid #a9bdb1; background: #15201d;
+  box-shadow: 1px 1px 0 #080d0d;
+}
+.story-choices__gem::before { position: absolute; content: ""; inset: 3px; background: #c2c9af; }
+.story-choices[data-pending] .story-choices__gem { border-color: #e0e5cc; }
+.story-choices__error { margin: 10px 0 0; color: #c39287; font-size: 14px; text-align: center; }
+.story-choices[data-ui-motion="reduced"] *,
+.story-choices[data-ui-motion="reduced"] .story-choices__surface .abyssa-ribbon-button__art :is(path, rect) { transition: none; }
+.story-choices[data-ui-motion="reduced"] .story-choices__surface,
+.story-choices[data-ui-motion="reduced"] .abyssa-ribbon-button__label { transform: none; }

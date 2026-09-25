@@ -1,0 +1,12 @@
+.menu-starting-rewards { position: absolute; z-index: 320; bottom: 106px; left: 24px; width: 400px; pointer-events: none; }
+.menu-starting-rewards .scene-feedback__result { padding: 18px 24px; }
+.menu-starting-rewards .scene-feedback__result h3 { font-size: 21px; }
+.menu-starting-rewards .scene-feedback__result-heading { gap: 12px; }
+.menu-starting-rewards .scene-feedback__result-heading .scene-feedback__mark { width: 30px; height: 30px; }
+.menu-starting-rewards .scene-feedback__heading-rule { display: none; }
+.menu-starting-rewards .scene-feedback__rewards { display: grid; gap: 10px; margin-top: 12px; padding-top: 12px; }
+.menu-starting-rewards .scene-feedback__rewards > li { width: 100%; gap: 8px; }
+.menu-starting-rewards .scene-feedback__rewards > li[data-kind="currency"] { position: absolute; top: -42px; right: 0; width: auto; }
+.menu-starting-rewards .scene-feedback__rewards .abyssa-currency-amount { font-size: 20px; }
+.menu-starting-rewards .scene-feedback__rewards .abyssa-item-slot { --slot-size: 32px !important; }
+.menu-starting-rewards .scene-feedback__quantity { margin-left: auto; }

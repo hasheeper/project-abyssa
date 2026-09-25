@@ -1,0 +1,217 @@
+{
+  "version": 1,
+  "purpose": "31处洋馆地点的AVG背景首批；大厅采用已认可画风样板，杂货铺沿用现有资产，其余29处新绘",
+  "excluded": {
+    "hall": "大厅v5样板已生成，计入本批画风基线",
+    "tibby": "杂货铺已有正式背景，本批不再生成"
+  },
+  "common": {
+    "interior": "在图1的空白16:9画布上，从零绘制一张2D ACGN AVG场景背景。图2只提供成熟的动漫手绘厚涂笔触、灰石与木纹材质块面、细腻明暗和空气感；不要复制图2的大厅家具、窗、壁炉或构图。场景依据下述原PSD房间物件清单重新取景，人物进入其中会话，视角自然平视，空间尺度亲近。轮廓由明暗和材质成立，不做粗黑线平涂Q版、照片或3D渲染。无角色、剪影、文字、UI、水印。",
+    "exterior": "在图1的空白16:9画布上，从零绘制一张2D ACGN AVG场景背景。图2只提供成熟的动漫手绘厚涂笔触、环境材质与光影层次；不要复制图2的海蚀洞、货车、泥滩、战斗平台或阴冷配色。场景依据下述原PSD地点物件清单重新取景，从人物能站立交谈的位置自然平视。保留空间尺度和可进入感，不做粗黑线平涂Q版、照片或3D渲染。无角色、剪影、文字、UI、水印。"
+  },
+  "jobs": [
+    {
+      "locationId": "elora",
+      "assetId": "bg.interior.herb-bedroom.base",
+      "label": "艾洛拉房间",
+      "style": "interior",
+      "scene": "一间向阳而紧凑的私人卧室。左侧朴素木床与白色寝具，后墙明亮直角窗，窗台两盆植物，窗上方悬挂晾晒药草；右侧木桌放纸张、小器具和天平。镜头从门内斜看，床、桌、窗有真实前后遮挡。木地板、浅色墙、柔和日光和少量使用痕迹；药草只是居住细节，不变成药店或实验室。不要画出原图墙上的字。"
+    },
+    {
+      "locationId": "library",
+      "assetId": "bg.interior.blueflame-library.base",
+      "label": "禁书库",
+      "style": "interior",
+      "scene": "地下的紧凑禁书库。深色石墙和肋拱顶，两侧密集木书架，中景写字桌上摊着书卷、纸张与羽毛笔，角落有旧卷轴和少量骨骸；几簇蓝火悬浮在不同纵深。镜头从入口斜看书桌与书架通道，局部蓝光照出石、木、纸的固有色，暗部仍可读。没有日光窗，不扩成宏伟教堂。"
+    },
+    {
+      "locationId": "terrace",
+      "assetId": "bg.exterior.stone-terrace.base",
+      "label": "日光露台",
+      "style": "exterior",
+      "scene": "洋馆外的日光露台，原图可见石栏、浅色遮阳伞、供休憩的长沙发或躺椅、小边桌、抱枕与盆栽。玩家站在露台内斜看座位与栏杆，远处只有符合海崖领地的柔和天空和远景；自然白昼，清爽且有居住感。不是战斗平台，不凭空加人物。"
+    },
+    {
+      "locationId": "lounge",
+      "assetId": "bg.interior.table-game-room.base",
+      "label": "娱乐室（棋牌室）",
+      "style": "interior",
+      "scene": "洋馆二层的小型娱乐室。后墙一扇直角木窗，窗下圆木游戏桌放着纸牌、彩色游戏件和杯子，三把弧背木椅围桌；深蓝圆地毯。左墙低柜上有茶具，柜内叠游戏盒，右侧一盆绿植。镜头从门侧自然平视，桌椅有前后关系，白昼柔和，像刚有人玩过。不是沙发起居室、赌场或魔法桌游场。"
+    },
+    {
+      "locationId": "plaza",
+      "assetId": "bg.exterior.village-campfire-square.base",
+      "label": "小广场",
+      "style": "exterior",
+      "scene": "领地小广场的日常一角。原图的低木围栏、简朴篝火架、木箱与果篮是识别点，旁侧有草坡和临近村舍的朴素环境。镜头像玩家站在广场边缘平视，地面能供几人停下交谈；午后自然光，不扩大成竞技场，也不加入战斗残骸。"
+    },
+    {
+      "locationId": "greenhouse",
+      "assetId": "bg.interior.glass-herb-house.base",
+      "label": "温室药圃",
+      "style": "interior",
+      "scene": "从温室门内平视看进去：明确的玻璃骨架与分格窗、窄通道、两侧高低植物盆架，蔬果藤蔓与药草繁茂但留有人可走的地方；原图近门处有陶盆、浇水壶和一株蓝色微光植物。日光穿过玻璃落在叶片和木架上，温暖潮润。不要画成无边热带丛林或现代科研实验室。"
+    },
+    {
+      "locationId": "abyssa",
+      "assetId": "bg.interior.red-canopy-bedroom.base",
+      "label": "魔王寝室",
+      "style": "interior",
+      "scene": "亲近尺度的私人寝室。原图的深红床幔围着一张宽床，床上寝具略凌乱，床侧一盏青色微光灯，右侧红软座与深木护墙板，后墙有窗和厚帘。镜头从门口斜看床与软座，窗外光和青色小灯轻轻交叠，沉静而有人住。不是王座厅、战斗室或哥特教堂。"
+    },
+    {
+      "locationId": "kitchen",
+      "assetId": "bg.interior.working-kitchen.base",
+      "label": "厨房",
+      "style": "interior",
+      "scene": "洋馆有人使用的厨房。后墙直角窗，右侧原图可见的金属炉灶与排烟罩、悬挂的锅铲和平底锅，左侧食材和罐子架；中景备餐木台上有面包、蔬菜和锅具。镜头从门侧平视，留出在台边交谈的位置。晨间自然光与炉火暖色，器具保留原图的生活化混合时代感，不强行改成现代不锈钢厨房。"
+    },
+    {
+      "locationId": "dining",
+      "assetId": "bg.interior.small-dining-room.base",
+      "label": "餐厅",
+      "style": "interior",
+      "scene": "洋馆的紧凑小餐厅。后墙一扇直角窗，左右各有陈列盘碟的深木餐具柜，中间白桌布的小餐桌，原图只显示两侧座位，桌上少量餐具和花。镜头从门侧斜看，桌布与木柜承接柔和日光，能看清家具距离。不要扩成宴会长厅，不画人数众多的餐桌。"
+    },
+    {
+      "locationId": "salon",
+      "assetId": "bg.interior.parlor.base",
+      "label": "沙龙",
+      "style": "interior",
+      "scene": "比大厅更精致而仍紧凑的会客沙龙。后墙直角高窗和蓝灰窗帘，浅色软垫长沙发，两侧各一把配套扶手椅，小茶几、吊灯、深木护墙板和旧红毯。镜头从入门一侧斜看会客座位，柔和日光与室内暖色形成安静的谈话氛围；不画成舞厅或宫殿。"
+    },
+    {
+      "locationId": "foyer",
+      "assetId": "bg.interior.piano-foyer.base",
+      "label": "门厅",
+      "style": "interior",
+      "scene": "洋馆入口旁的小门厅。原图左侧高书架、前方一架黑色钢琴与琴凳、后墙直角高窗、右侧挂衣钩和外套、木地板与护墙板。镜头从入口侧斜看钢琴与书架，有足够近的室内纵深；自然日光落在琴盖和木墙上。不要以泛用宏大门廊替换钢琴。"
+    },
+    {
+      "locationId": "bath",
+      "assetId": "bg.interior.clawfoot-bathroom.base",
+      "label": "浴室",
+      "style": "interior",
+      "scene": "原图的私人尺度浴室：白色脚爪浴缸在后墙窗下，旁边盥洗台、圆镜、毛巾架与瓷砖地面，深木墙裙。镜头从门侧自然平视，浴缸和洗手台有前后距离，柔和散射日光照出瓷、金属和水面质感。无人使用，不画人物倒影；不是大浴池、泳池或现代豪华水疗。"
+    },
+    {
+      "locationId": "attic",
+      "assetId": "bg.interior.observatory-attic.base",
+      "label": "阁楼观星室",
+      "style": "interior",
+      "scene": "人在洋馆斜顶阁楼内部，能看到木梁、斜屋顶和天窗。原图一侧壁炉或烟道、书物架，中央地面散着星图与书卷，另一侧架着长望远镜、星球仪与软座寝具。镜头从楼梯口斜看屋内，天窗淡光照亮木与布，保留紧凑的居住观测混合空间。不要画成剖面小屋或露天祭坛。"
+    },
+    {
+      "locationId": "eustice",
+      "assetId": "bg.interior.armor-bedroom.base",
+      "label": "尤斯缇丝房间",
+      "style": "interior",
+      "scene": "朴素而规整的私人卧室。左墙悬一套护甲和长剑，左侧窄木床；后墙直角窗；右侧有深木衣柜、整理桌与彩色布线或小物篮。玩家从门侧平视，床与衣柜错开形成真实进深，日光干净，金属、木与布的材质不同。不要统一复用艾洛拉的药草卧室。"
+    },
+    {
+      "locationId": "norma",
+      "assetId": "bg.interior.hammock-bedroom.base",
+      "label": "诺玛房间",
+      "style": "interior",
+      "scene": "有自己性格的紧凑卧室：原图不是普通床，而是一张绳索吊床斜跨左右墙面；后墙直角窗，小木桌和矮凳，墙上盾牌或挂件，木地板及少量散放物。镜头从门侧平视，吊床在中景形成柔和斜线，窗光照出绳与木纹。不要改成四柱床或套用其他人的房间。"
+    },
+    {
+      "locationId": "kororo",
+      "assetId": "bg.interior.pillow-bedroom.base",
+      "label": "柯萝萝房间",
+      "style": "interior",
+      "scene": "原图偏暗、慵懒而略凌乱的卧室。地上厚寝具和几只靠枕形成睡出的凹陷，左侧深木衣柜，后墙有深蓝窗帘，右侧小桌、书本、纸杯与散物，空气里几粒微弱蓝光。玩家站在门口平视，软物、柜子和窗有清楚的纵深；保持夜间私密感，但暗部可读。不要画成白昼旅馆房，也不要生成墙上告示文字。"
+    },
+    {
+      "locationId": "kaelHut",
+      "assetId": "bg.interior.clifftop-wood-hut.base",
+      "label": "守望小屋",
+      "style": "interior",
+      "scene": "海崖村边的小型守望木屋。左侧窄床与深色毯子，后墙小直角窗，中央木桌、椅子与瓶罐，右侧砖石壁炉和搁在旁边的工具；灰泥墙、旧木板与朴素梁柱。镜头从门口斜看，火光与窗光在小空间里交叠。不要套用主宅豪华装饰，也不加人物。"
+    },
+    {
+      "locationId": "armory",
+      "assetId": "bg.interior.weapon-room.base",
+      "label": "武备库",
+      "style": "interior",
+      "scene": "洋馆的实用武备室。后墙与右侧高架上整齐陈列长枪、剑与盾，左侧小维护台有油瓶和手工具，右侧木柜放折叠衣物或护具；石地面、浅墙与木梁。镜头从门侧平视，武器架和工作台有可走的间距，柔和侧光擦过金属与木纹。不是正在交战的战场，也不变成现代武器库。"
+    },
+    {
+      "locationId": "workshop",
+      "assetId": "bg.interior.forge-workshop.base",
+      "label": "工坊",
+      "style": "interior",
+      "scene": "地下实用铁匠工坊。左侧原图的砖石炉膛里有小火，中间厚重铁砧与砧座，右侧工具木台，后墙挂着几把剑和护甲；灰石墙、石地面、粗木梁。镜头从门侧平视，炉火给铁件和石面局部暖光，室内可走动，不堆成机械厂或科幻车间。"
+    },
+    {
+      "locationId": "storage",
+      "assetId": "bg.interior.supply-storeroom.base",
+      "label": "储藏室",
+      "style": "interior",
+      "scene": "石墙木梁下的紧凑储藏室。后墙木架分层摆着布包、粮袋、藤筐和成捆物资，两侧有几只木桶、铲子与小工具；石地面有可走的窄通道。镜头从入口斜看货架，暖暗照明但物件可辨，朴素生活感。不要把画面塞满成仓储超市，也不要画现代纸箱。"
+    },
+    {
+      "locationId": "laundry",
+      "assetId": "bg.interior.wash-room.base",
+      "label": "洗衣房",
+      "style": "interior",
+      "scene": "洋馆地下的小洗衣房。后墙一杆挂着不同颜色的毛巾和布，左侧木盆立在小桌上，右侧洗涤木桶与篮子，石地面、木梁与灰墙。镜头从门侧平视，布料、湿木和石面有柔和生活化光影；工作空间紧凑干净。没有现代洗衣机或人物。"
+    },
+    {
+      "locationId": "maid",
+      "assetId": "bg.interior.sewing-workroom.base",
+      "label": "女仆工作间",
+      "style": "interior",
+      "scene": "地下石墙旁的女仆工作间。原图左侧旧式脚踏缝纫机和卷起的布料、后墙挂布和毛巾、右侧高木柜放针线与整理物；石地面、横木梁。玩家从门侧平视，工作台与柜架形成可走的空间，暖暗光落在布与木头上。它是工作间，不是卧室或现代工厂。"
+    },
+    {
+      "locationId": "cellar",
+      "assetId": "bg.interior.stone-wine-cellar.base",
+      "label": "酒窖",
+      "style": "interior",
+      "scene": "地下石壁酒窖。后墙密集木酒架与瓶罐，右侧几只大木桶，近中景一张小品酒桌放杯子和瓶子；上方粗木梁，石地面留有通道。镜头从入口斜看，温暖低光在玻璃、木桶和粗石上有层次，深处仍可读。不是宴会厅或酒吧。"
+    },
+    {
+      "locationId": "array",
+      "assetId": "bg.interior.crimson-crystal-room.base",
+      "label": "结界核心室",
+      "style": "interior",
+      "scene": "地下深处的封闭石室，拱肋与石柱围住中央圆形基座，原图的红色晶体悬在其上，墙面有细线般的红色纹路，两侧少量蓝火。玩家从入口平视斜看基座，红光在石面有局部反射，暗部不死黑；神秘但尺度真实。不要画成科幻控制室或凭空开窗。"
+    },
+    {
+      "locationId": "seal",
+      "assetId": "bg.interior.chained-stone-door.base",
+      "label": "封印之门",
+      "style": "interior",
+      "scene": "地下石廊尽头一扇紧闭的厚重双扇石门。原图的旧红锁链横缠门扇，门面有暗红符文与石雕，拱顶和石墙给出压迫的门外空间。镜头站在门外自然平视，锁链仍完整、门未开启，火光或符文只局部照亮纹理。只画门外，不展示门后世界。"
+    },
+    {
+      "locationId": "dock",
+      "assetId": "bg.exterior.wooden-sea-dock.base",
+      "label": "小码头",
+      "style": "exterior",
+      "scene": "领地海边的小木码头。原图的木栈台伸向静水，一艘带浅色布帆的小木船系泊在旁，后方是草坡与灰岩海崖；有绳索与少量货箱。视点在栈台内侧，平视船与水岸，清爽海风和柔和日光，能供人停下交谈。不加翻覆货车、战场残骸或海蚀洞。"
+    },
+    {
+      "locationId": "gate",
+      "assetId": "bg.exterior.stone-gatehouse.base",
+      "label": "正门",
+      "style": "exterior",
+      "scene": "从地面接近洋馆领地正门。原图的浅灰石门楼、尖屋顶、两扇深色铁木大门与旁侧短墙是识别点；门保持闭合，前方有一小段可站立交谈的路面。自然日光照出石材接缝与木纹，远处仅少量山坡和天空。不要扩成巨大城堡、凯旋门或战斗关卡。"
+    },
+    {
+      "locationId": "towerTop",
+      "assetId": "bg.exterior.tower-lookout.base",
+      "label": "瞭望台",
+      "style": "exterior",
+      "scene": "站在塔顶瞭望平台内部向外平视。原图有蓝灰尖顶小亭屋盖、支撑木柱、半高木栏与两具指向远方的望远镜；栏外是领地海崖与柔和天空。屋盖与木栏保留真实尺度，风吹旧木的质感清楚，能供两人并肩观察。不要把整座塔画成剖面或竞技场。"
+    },
+    {
+      "locationId": "towerHall",
+      "assetId": "bg.interior.spiral-watch-hall.base",
+      "label": "岗哨厅",
+      "style": "interior",
+      "scene": "高塔内部能停步交谈的一段螺旋梯与小落脚平台。粗石塔壁贴着向上盘旋的木楼梯和扶栏，窄窗或壁灯给局部微光，木级踏面有磨损。镜头站在一处平台平视下一段楼梯与弯曲塔壁，体现真实可走的纵深；不要从外面把整座塔剖开，也不要凭空扩成大厅。"
+    }
+  ]
+}

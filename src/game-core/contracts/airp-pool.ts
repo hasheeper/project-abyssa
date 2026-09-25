@@ -30,7 +30,7 @@ export type AirpPoolInstance = {
   closedPhase: number | null; reason: "declined" | "expired-seen" | "reserved" | "missed" | null;
   resolvedPhase: number | null; receiptId: string | null; aftermathRead: boolean;
 };
-export type AirpPoolScene = Omit<AirpFrozenScene, "role"> & { role: AirpPoolRole };
+export type AirpPoolScene = Omit<AirpFrozenScene, "role" | "source"> & { role: AirpPoolRole; source: AirpFrozenScene["source"] | "browser-direct" };
 export type AirpPoolState = {
   version: 2; instances: AirpPoolInstance[]; scenes: AirpPoolScene[]; reading: AirpReading | null;
   memories: AirpKnowledgeEntry[];

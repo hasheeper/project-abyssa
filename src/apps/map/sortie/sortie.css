@@ -1259,6 +1259,19 @@
   right: var(--sortie-inset);
 }
 
+.abyssa-sortie-quest__scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-right: 4px;
+}
+.abyssa-sortie-quest__scroll > * { flex-shrink: 0; }
+
 .abyssa-sortie-quest[data-side="left"] {
   left: var(--sortie-inset);
 }

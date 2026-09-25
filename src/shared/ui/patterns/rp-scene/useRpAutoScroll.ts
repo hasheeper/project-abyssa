@@ -7,16 +7,27 @@ const STICK_THRESHOLD = 48;
 export function useRpAutoScroll(messages: readonly RpMessage[]) {
   const logRef = useRef<HTMLDivElement>(null);
   const [stick, setStick] = useState(true);
+  const stickRef = useRef(true);
   useLayoutEffect(() => {
     const log=logRef.current;
     // Restoring RP must land on the current line before paint, not scroll through the whole script.
     if(log) log.scrollTop=log.scrollHeight;
   }, []);
 
+  useEffect(() => {
+    const log = logRef.current;
+    if (!log || typeof ResizeObserver === "undefined") return;
+    // Dock height changes are layout events, not new messages. Preserve a reader's history position.
+    const observer = new ResizeObserver(() => {if (stickRef.current) log.scrollTop = log.scrollHeight;});
+    observer.observe(log);
+    return () => observer.disconnect();
+  }, []);
+
   const onScroll = useCallback(() => {
     const log = logRef.current;
     if (!log) return;
-    setStick(log.scrollHeight - log.scrollTop - log.clientHeight < STICK_THRESHOLD);
+    stickRef.current = log.scrollHeight - log.scrollTop - log.clientHeight < STICK_THRESHOLD;
+    setStick(stickRef.current);
   }, []);
 
   useEffect(() => {
@@ -28,6 +39,7 @@ export function useRpAutoScroll(messages: readonly RpMessage[]) {
   const jumpToLatest = useCallback(() => {
     const log = logRef.current;
     if (!log) return;
+    stickRef.current = true;
     setStick(true);
     log.scrollTo({ top: log.scrollHeight, behavior: "smooth" });
   }, []);

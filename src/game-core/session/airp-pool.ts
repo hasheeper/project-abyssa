@@ -71,6 +71,6 @@ export function scheduleAirpPool(content: AirpPoolContent, state: AirpPoolState,
   }
 }
 export function checkAirpPoolCapacity(state: AirpPoolState) {
-  // This is a storage guard, not a parser: source=rp is admitted only by content10's evidence replay.
-  return measureAirpCapacity({ instances: state.instances, scenes: state.scenes, memories: state.memories, jobs: [], metadata: { reserve: state.reserve, cooldowns: state.cooldowns, daily: state.daily, nextForm: state.nextForm, lastBoundaryId: state.lastBoundaryId, reading: state.reading, capacityStopped: state.capacityStopped } }, state.scenes.some(s => s.source === "rp") ? 48 * 1024 : AIRP_LIMITS.sceneBytes);
+  // Storage guard only: replay admits rp in content10, browser-direct in content18.
+  return measureAirpCapacity({ instances: state.instances, scenes: state.scenes, memories: state.memories, jobs: [], metadata: { reserve: state.reserve, cooldowns: state.cooldowns, daily: state.daily, nextForm: state.nextForm, lastBoundaryId: state.lastBoundaryId, reading: state.reading, capacityStopped: state.capacityStopped } }, state.scenes.some(s => s.source === "browser-direct") ? 256 * 1024 : state.scenes.some(s => s.source === "rp") ? 48 * 1024 : AIRP_LIMITS.sceneBytes);
 }

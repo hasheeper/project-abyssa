@@ -1,0 +1,99 @@
+/* A scene composition on the shared 1600 × 900 Stage. No shop or global skin overrides. */
+.new-shop-stage { background: #17120d; }
+.new-shop { --shop-frame-edge: #806744; --shop-timber: url("../../assets/ui/shop/wood-grain-v1.webp"); --shop-timber-size: 840px 76px; --shop-ledger-left: 350px; --shop-ledger-width: 744px; --shop-column-gap: 28px; --shop-merchant-width: 400px; --shop-content-top: 174px; --shop-category-height: 44px; --shop-header-height: 132px; --shop-ink: #e5d6b9; --shop-muted: #a6967c; --shop-gold: #a88b59; --abyssa-frame-dark: #120e0a; --abyssa-frame-deep: #0b0805; --abyssa-frame-light: #735c3c; --abyssa-text: #e5d6b9; --abyssa-text-soft: #c5b69b; --abyssa-teal-soft: #c4aa75; position: absolute; inset: 0; overflow: hidden; color: var(--shop-ink); font-family: var(--abyssa-font-body, "Songti SC", serif); isolation: isolate; }
+.new-shop *, .new-shop *::before, .new-shop *::after { box-sizing: border-box; }
+.new-shop button { font: inherit; color: inherit; cursor: pointer; }
+.new-shop button:disabled { cursor: default; }
+.new-shop button:focus-visible, .new-shop [tabindex]:focus-visible { outline: 2px solid #b6a37e; outline-offset: 4px; }
+.new-shop__room, .new-shop__room-shade { position: absolute; inset: 0; pointer-events: none; }
+.new-shop__room { z-index: -3; background: url("../../assets/backgrounds/shop-bg3.jpg") center / cover; }
+.new-shop__room-shade { z-index: -2; background: #0e0b08ad; }
+.new-shop__symbol { display: inline-block; flex: none; width: 44px; height: 44px; background: currentColor; mask: var(--symbol) center / contain no-repeat; }
+.new-shop__counter-plane { position: absolute; z-index: 2; inset: 0; pointer-events: none; }
+.new-shop__counter-plane > :is(header, main, aside) { pointer-events: auto; }
+
+/* The cornice sits on the content edge; breathing room belongs above it. */
+.new-shop__header {
+  --shop-cornice-face: #302112;
+  position: absolute;
+  z-index: 4;
+  left: calc(var(--shop-ledger-left) - 5px);
+  top: calc(var(--shop-content-top) - var(--shop-header-height));
+  width: calc(var(--shop-ledger-width) + var(--shop-column-gap) + var(--shop-merchant-width) + 10px);
+  height: var(--shop-header-height);
+  display: grid;
+  grid-template-columns: var(--shop-ledger-width) var(--shop-merchant-width);
+  column-gap: var(--shop-column-gap);
+  padding: 0 5px;
+}
+.new-shop__header::before {
+  content: "";
+  position: absolute;
+  right: 5px;
+  bottom: 0;
+  left: 3px;
+  height: 18px;
+  /* Align the outer returns with the shelf's 2px rim and the window border. */
+  border-top: 1px solid var(--shop-frame-edge);
+  border-inline: 1px solid var(--shop-frame-edge);
+  background: var(--shop-cornice-face) var(--shop-timber) 0 -44px / var(--shop-timber-size);
+  box-shadow: inset 0 1px #a07b4133, inset 0 -2px #100a0699, 0 -1px #130d08;
+  pointer-events: none;
+}
+.new-shop__header::after {
+  content: "";
+  position: absolute;
+  right: 6px;
+  bottom: 0;
+  left: 4px;
+  height: 1px;
+  background: #70502d;
+  box-shadow: 0 1px #100a05;
+  pointer-events: none;
+}
+.new-shop__header-title { position: relative; z-index: 1; grid-column: 1 / -1; grid-row: 1; height: 100%; }
+.new-shop__sign { position: absolute; top: -23px; left: calc(44% + 24px); width: 560px; transform: translateX(-50%); }
+.new-shop__sign .abyssa-rpg-header { --abyssa-header-fill: #241d14; --abyssa-header-text: #ddc594; --abyssa-header-ornament: #6e5839; --abyssa-header-middle-frame: #8b7048; --abyssa-header-pattern: #b3996720; width: 100%; }
+.new-shop__sign svg { display: block; width: 100%; height: auto; }
+.new-shop__sign > .new-shop__sign-hangers { position: absolute; top: -80px; left: 0; width: 100%; height: 114px; pointer-events: none; }
+.new-shop__sign h1 { position: absolute; top: 25px; left: 0; right: 0; margin: 0; color: #ddc594; font: 500 25px/31px var(--abyssa-font-display); letter-spacing: 2.8px; text-align: center; }
+.new-shop__balances { position: relative; z-index: 1; grid-column: 2; grid-row: 1; align-self: end; justify-self: end; display: grid; grid-template-columns: 1.25fr 1fr; width: 330px; height: 52px; margin: 0 0 74px; }
+.new-shop__balances > div { min-width: 0; display: grid; grid-template-columns: 16px minmax(0, 1fr); grid-template-rows: 30px 20px; gap: 2px 9px; padding-left: 24px; }
+.new-shop__balances > div + div { border-left: 1px solid #9a753f66; }
+.new-shop__balance-label { grid-column: 2; color: #b8a07a; font-size: 14px; line-height: 20px; white-space: nowrap; }
+.new-shop .new-shop__balances .abyssa-currency-amount { grid-column: 1 / -1; display: inline-flex; flex-wrap: nowrap; align-items: center; font-size: 23px; gap: 7px; line-height: 30px; color: #f1debb; }
+.new-shop .new-shop__balances .abyssa-currency-amount i { box-sizing: border-box; width: 18px; height: 18px; }
+/* A 45-degree diamond needs a smaller side to match the coin’s 18px outer bounds. */
+.new-shop .new-shop__balances .abyssa-currency-amount[data-currency="crystal"] i { width: 12.7px; height: 12.7px; margin-inline: 2.65px; box-shadow: 0 0 5px rgb(160 93 220 / 42%); }
+
+/* The original stock shelf and detail frame share one aligned column. */
+.new-shop__ledger { position: absolute; z-index: 2; left: var(--shop-ledger-left); top: var(--shop-content-top); width: var(--shop-ledger-width); height: 684px; display: grid; grid-template-rows: minmax(0, 1fr) 192px; gap: 20px; }
+.new-shop .new-shop-stock-shell > .abyssa-frame__content { height: 100%; padding: 0 6px 18px; }
+.new-shop__category-panel { height: 100%; min-height: 0; }
+.new-shop .new-shop__action { --abyssa-notched-fill: #49361d; --abyssa-notched-text: #e7d1a3; --abyssa-notched-middle: #96743d; --abyssa-notched-ornament: #b2955b; --abyssa-notched-pattern-dark: #1c120818; --abyssa-notched-pattern-light: #e3c48a0a; width: 179px; height: 45px; }
+.new-shop .new-shop__action:disabled { --abyssa-notched-fill: #28241d; --abyssa-notched-text: #89816f; --abyssa-notched-middle: #514b3d; --abyssa-notched-ornament: #3b372e; opacity: 1; filter: none; }
+/* Keep the half-body crop. The whole window and speech sit behind the foreground desk. */
+.new-shop__merchant { position: absolute; z-index: 2; left: calc(var(--shop-ledger-left) + var(--shop-ledger-width) + var(--shop-column-gap)); top: var(--shop-content-top); width: var(--shop-merchant-width); height: 600px; padding: 0 8px; display: grid; grid-template-rows: 1fr 168px; border-inline: 1px solid var(--shop-frame-edge); background: #30271c; box-shadow: -3px 0 #120e0a, 3px 0 #120e0a; }
+.new-shop__opening { position: relative; overflow: hidden; min-height: 0; background: #23180e; }
+.new-shop__interior { position: absolute; inset: 0; background: url("../../assets/backgrounds/shop-bg2.png") center 34% / cover; }
+.new-shop__interior::after { content: ""; position: absolute; inset: 0; background: #17110a35; }
+.new-shop__actor { position: absolute; left: 50%; top: 5px; width: 430px; transform: translateX(-50%); }
+.new-shop__window-depth { position: absolute; pointer-events: none; inset: 0; border: 1px solid #4a3823; border-top: 4px solid #160f08; box-shadow: inset 5px 0 #17110a70, inset -5px 0 #17110a70; }
+.new-shop__speech { position: relative; z-index: 3; padding: 0; background: #1d1812; }
+.new-shop__speech-frame { position: absolute; inset: 0; width: 100%; height: 100%; fill: none; pointer-events: none; }
+.new-shop .new-shop__nameplate { --abyssa-nameplate-fill: #2a2217; --abyssa-nameplate-ink: #e2d0ac; --abyssa-nameplate-secondary: #ad956c; position: absolute; z-index: 4; left: 50%; top: -23px; width: 300px; transform: translateX(-50%); }
+.new-shop__nameplate .abyssa-nameplate__content { min-height: 35px; padding: 5px 22px; }
+.new-shop__nameplate .abyssa-nameplate__content strong { font-size: 18px; letter-spacing: 2px; }
+.new-shop__nameplate .abyssa-nameplate__content span { font-size: 9px; }
+.new-shop__speech .abyssa-dialogue { width: 100%; height: 100%; min-height: 0; color: #e0ccaa; cursor: pointer; }
+.new-shop__speech .abyssa-dialogue__auto-frame { display: none; }
+.new-shop__speech .abyssa-dialogue[data-auto-height] .abyssa-dialogue__content { min-height: 0; height: 100%; padding: 40px 28px 28px; color: inherit; font-size: 19px; line-height: 1.6; overflow-y: auto; scrollbar-width: thin; }
+.new-shop__sill { position: absolute; z-index: 4; left: -8px; right: -8px; bottom: -12px; height: 12px; background: #3a2d1d; border-top: 2px solid #79613c; border-bottom: 4px solid #17110b; box-shadow: 0 3px #0d0906; }
+/* Cast the shadow from the cutout, so the desk stands forward without a rectangular halo. */
+.new-shop__foreground { position: absolute; z-index: 5; left: calc(var(--shop-ledger-left) + var(--shop-ledger-width) + var(--shop-column-gap) + (var(--shop-merchant-width) - 560px) / 2); bottom: -260px; width: 560px; height: 560px; pointer-events: none; }
+.new-shop__counter-art { display: block; width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 12px 7px #000b) drop-shadow(-8px 22px 16px #0007); mask: url("./assets/counter-quill-mask.svg") center / 100% 100% no-repeat; mask-mode: luminance; }
+.new-shop .new-shop__feedback { position: absolute; z-index: 10; top: 112px; right: 48px; width: 410px; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .new-shop__modes button, .new-shop__action { transition: color .16s, background-color .16s, box-shadow .16s; }
+}

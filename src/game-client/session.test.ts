@@ -79,6 +79,22 @@ describe("persisted game client", () => {
 });
 
 describe('session invalidation', () => {
+  it('awaits the latest overlapping refresh before accepting the next command', async () => {
+    const f=await clientFixture(),open=f.runtime.application.open;
+    let first!:()=>void,second!:()=>void;
+    const a=new Promise<void>(r=>{first=r;}),b=new Promise<void>(r=>{second=r;});
+    const spy=vi.spyOn(f.runtime.application,'open')
+      .mockImplementationOnce(async id=>{await a;return open(id);})
+      .mockImplementationOnce(async id=>{await b;return open(id);});
+    const requested=f.session.refresh({background:true});
+    const external=f.session.refresh({background:true});
+    first(); await vi.waitFor(()=>expect(spy).toHaveBeenCalledTimes(2));
+    expect(await Promise.race([requested.then(()=>"returned"),new Promise(resolve=>setTimeout(()=>resolve("waiting"),10))])).toBe("waiting");
+    second();await Promise.all([requested,external]);
+    expect(f.session.getSnapshot().status).toBe('ready');
+    expect(await f.session.dispatch({type:'battle-command',expeditionId:'run',command:{type:'roll-dice'}})).not.toBeNull();
+    f.session.dispose();
+  });
   it('retains the current scene after revalidating an unchanged save, but invalidates a newer head', async () => {
     const f = await clientFixture();
     const before = f.session.getSnapshot();

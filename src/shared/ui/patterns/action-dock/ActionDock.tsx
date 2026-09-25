@@ -1,3 +1,4 @@
+import { useMoney } from "../../primitives/Money";
 import { useRef, type ReactNode, type RefCallback } from "react";
 import { CurrencyAmount } from "../../primitives/CurrencyAmount";
 import { IconButton } from "../../primitives/IconButton";
@@ -28,6 +29,7 @@ export function ActionDockSlot({ caption, label, value }: ActionDockSlotProps) {
 }
 
 export function ActionDock({ active, busy = false, balance, children, leading, alternate }: ActionDockProps) {
+  const money = useMoney();
   const hasFunds = balance !== undefined;
   const toggle = useRef<HTMLButtonElement>(null);
 
@@ -48,9 +50,9 @@ export function ActionDock({ active, busy = false, balance, children, leading, a
         {hasFunds && (
           <>
             <span className="action-dock__divider" aria-hidden="true" />
-            <output className="action-dock__funds" aria-label={`资金 ${balance} G`}>
+            <output className="action-dock__funds" aria-label={`资金 ${money.format(balance)}`}>
               <span>资金</span>
-              <CurrencyAmount value={balance} label={`资金 ${balance}`} />
+              <CurrencyAmount value={balance} label="资金" />
             </output>
           </>
         )}

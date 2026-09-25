@@ -1,21 +1,21 @@
 import { useId } from "react";
 import bookPileIcon from "../../assets/icons/items/book-pile.svg";
 import crystalBallIcon from "../../assets/icons/items/crystal-ball.svg";
-import diamondTrophyIcon from "../../assets/icons/items/diamond-trophy.svg";
-import hoodIcon from "../../assets/icons/items/hood.svg";
-import monkeyWrenchIcon from "../../assets/icons/items/monkey-wrench.svg";
-import pocketWatchIcon from "../../assets/icons/items/pocket-watch.svg";
+import achievementIcon from "../../assets/icons/items/trophy-cup.svg";
+import gearIcon from "../../assets/icons/menu/gear-fill.svg";
+import saveIcon from "../../assets/icons/menu/save.svg";
+import loadIcon from "../../assets/icons/menu/load.svg";
 import { DiamondWatermark } from "../../shared/ui/primitives/DiamondWatermark";
 
-/* 图鉴 / 角色 / 设置 / 记忆 / 回顾 / 成就是查阅入口，使用标准横向侧栏。 */
+/* 查阅、存读档与设置共用六项侧栏，不压缩原有条目。 */
 
 export type MenuSectionId =
   | "codex"
-  | "roster"
+  | "achievements"
   | "settings"
-  | "memory"
-  | "replay"
-  | "achievements";
+  | "save"
+  | "load"
+  | "memory";
 
 interface MenuSection {
   id: MenuSectionId;
@@ -25,19 +25,21 @@ interface MenuSection {
 
 const MENU_SECTIONS: readonly MenuSection[] = [
   { id: "codex", label: "图鉴", icon: bookPileIcon },
-  { id: "roster", label: "角色", icon: hoodIcon },
+  { id: "achievements", label: "成就", icon: achievementIcon },
   { id: "memory", label: "记忆", icon: crystalBallIcon },
-  { id: "replay", label: "回顾", icon: pocketWatchIcon },
-  { id: "achievements", label: "成就", icon: diamondTrophyIcon },
-  { id: "settings", label: "设置", icon: monkeyWrenchIcon }
+  { id: "save", label: "存档", icon: saveIcon },
+  { id: "load", label: "读档", icon: loadIcon },
+  { id: "settings", label: "设置", icon: gearIcon }
 ];
 
 export interface MenuSidebarProps {
   selectedId: MenuSectionId | null;
   onSelect: (id: MenuSectionId) => void;
+  archiveDisabled?: boolean;
+  disabled?: boolean;
 }
 
-export function MenuSidebar({ selectedId, onSelect }: MenuSidebarProps) {
+export function MenuSidebar({ selectedId, onSelect, archiveDisabled = false, disabled = false }: MenuSidebarProps) {
   const uid = useId().replace(/:/g, "");
   const patternId = `menu-sidebar-pattern-${uid}`;
 
@@ -67,10 +69,12 @@ export function MenuSidebar({ selectedId, onSelect }: MenuSidebarProps) {
           return (
             <button
               key={section.id}
+              data-section={section.id}
               type="button"
               className="menu-sidebar__item"
               aria-label={section.label}
               aria-pressed={active}
+              disabled={disabled || (archiveDisabled && (section.id === "save" || section.id === "load"))}
               onClick={() => onSelect(section.id)}
             >
               <i

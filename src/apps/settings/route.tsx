@@ -8,7 +8,6 @@ import "../../shared/ui/styles/tokens.css";
 import "../../shared/ui/styles/components-core.css";
 import "../../shared/ui/styles/rp-typing.css";
 import "../../shared/stage/stage.css";
-import "./settings.css";
 
 export default function Page() {
   return (

@@ -1,4 +1,7 @@
+import { applyShopVisit } from "./shop-first-visit";
+import { advanceFacilities, applyFacilityCommand, storeFacilitySupply, supplyStorageRoom } from "./facilities";
 import { advanceOpening, validateOpeningChoice } from "./opening-progress";
+import { advanceShopIntroduction, validateShopIntroductionAdvance } from "./shop-introduction";
 import * as v from "../contracts/validation";
 import { sha256 } from "../contracts/sha256";
 import type { ValidatedD5Catalog } from "../contracts/d5";
@@ -8,8 +11,12 @@ import { validateTerminal } from "./demo-expedition";
 import { applyManorTakeover, MANOR_STORY_LAST_STEP } from "./manor-progression";
 import { parseD5ProgressEntry, parseD5RunRef } from "./d5-parse";
 import type { D5MemoryBattleState, D5ProgressEntry, D5Projection, D5RunReaders, D5RunRef, D5StorySession } from "./d5-types";
+import { initializeShop, advanceShopToDay, productQuote, commitProductStock } from "./shop-schedule";
+import { validateEquipmentAllocation } from "../contracts/equipment";
+import { lootQuote } from "./d5-loot";
 import { departureSupplies, supplyQuote } from "./d5-economy";
 import { applyGameStart, validateGameStart } from "./game-start";
+import { ordinaryExpeditionAvailable, ordinaryReturnGrantsGrowth } from "./ordinary-expeditions";
 import { mansionTimeBlock, nextCampaignClock } from "./d5-clock";
 
 const same = (a: unknown, b: unknown) => v.canonicalJson(a) === v.canonicalJson(b);
@@ -19,8 +26,12 @@ export { d5MemorySupplyId };
 export function initialD5Projection(catalog: ValidatedD5Catalog): D5Projection {
   return {
     ...(catalog.data.tutorial ? {tutorial: {status: "pending" as const}} : {}),
+    ...(catalog.data.shopIntroduction ? {shopIntroduction: {step: 0, status: "pending" as const}} : {}),
     ...(catalog.data.opening ? {opening: {step:0,status:"playing" as const,choices:[]}} : {}),
     ...(catalog.data.prologue ? {prologue: {shotId: catalog.data.prologue.shotIds[0], status: "playing" as const}} : {}),
+    ...(catalog.data.facilities ? {facilities: null} : {}),
+    ...(catalog.data.shop ? {shop: null} : {}),
+    ...(catalog.data.loot ? {loot: [], lootTrades: []} : {}),
     clock: { day: 1, phase: "dawn" }, funds: { public: 0, party: 0, crystals: 0 }, supplies: [], settlements: [],
     manor: { takeover: null, story: null }, progress: { appliedGrowthIds: [], equipment: [] }, inventory: [],
     availableCharacterIds: [...catalog.data.initialParty], activeRunRef: null, memory: null, stories: [], activeStoryId: null,
@@ -65,17 +76,30 @@ function memoryVictory(catalog: ValidatedD5Catalog, battle: D5MemoryBattleState)
 /** Content-aware validation for receipts that do not carry the previous campaign snapshot. */
 export function validateD5EvidenceContent(catalog: ValidatedD5Catalog, entry: D5ProgressEntry, readers: D5RunReaders = {}): void {
   const e = entry.event, spec = catalog.data.progression;
-  if (e.type === "game-start-selected") {
+  if (e.type === "shop-visit-operated") {
+    if (catalog.ref.contentVersion < 17) v.invalid("shopVisit", "Unavailable content", "content-unavailable");
+  } else if (e.type === "facility-operated") {
+    if (!catalog.data.facilities) v.invalid("facilities", "Unavailable content", "content-unavailable");
+  } else if (e.type === "game-start-selected") {
     validateGameStart(catalog, e.startAt);
+  } else if (e.type === "shop-introduction-advanced") {
+    validateShopIntroductionAdvance(catalog, e);
   } else if (e.type === "opening-advanced") {
     if (!catalog.data.opening) v.invalid("opening", "Opening is not in this catalog");
     validateOpeningChoice(catalog.data.opening,e);
   } else if (e.type === "prologue-advanced" || e.type === "prologue-completed") {
     if (!catalog.data.prologue?.shotIds.includes(e.shotId)) v.invalid("prologue", "Unknown prologue shot");
+  } else if (e.type === "product-purchased") {
+    if (!catalog.data.shop || e.shopId !== catalog.data.economy?.shopId || e.quoteVersion !== catalog.data.shop.quoteVersion || e.scheduleVersion !== catalog.data.shop.version) v.invalid("product", "Unknown shop quote");
+    v.reference(catalog.data.shop.products, e.productId, "productId");
   } else if (e.type === "supply-purchased") {
+    if (catalog.data.shop) v.invalid("purchase", "Use a dated product quote");
     const economy=catalog.data.economy;
     if(!economy || e.shopId!==economy.shopId || e.quoteVersion!==economy.quoteVersion || !economy.prices[e.definitionId]) v.invalid("purchase", "Unknown supply quote");
     v.number(e.quantity,"quantity",1,catalog.data.journey!.items[e.definitionId].capacity);
+  } else if (e.type === "loot-appraised" || e.type === "loot-sold") {
+    if (!catalog.data.loot || e.shopId !== catalog.data.economy?.shopId || e.quoteVersion !== catalog.data.loot.quoteVersion) v.invalid("loot", "Unknown loot quote", "content-unavailable");
+    if (e.type === "loot-sold" && e.quantity !== undefined && catalog.ref.contentVersion < 21) v.invalid("loot.quantity", "Earlier content only supports individual sales");
   } else if(e.type === "memory-inherited") {
     if(e.chapterId!==spec.chapter.id) v.invalid("chapterId","Unknown chapter");
   } else if (e.type === "expedition-started") {
@@ -101,6 +125,7 @@ export function validateD5EvidenceContent(catalog: ValidatedD5Catalog, entry: D5
     if (e.eventId !== spec.chapter.storyId && e.eventId !== spec.gift.eventId) v.reference(spec.growthEvents, e.eventId, "eventId");
   } else if (e.type === "manor-story") v.number(e.step, "step", 0, MANOR_STORY_LAST_STEP);
   else if (e.type === "equipment-moved") {
+    if (e.targetFaceId !== undefined && (!catalog.data.shop || e.toOwnerId === null)) v.invalid("targetFaceId", "Face selection is unavailable");
     for (const id of [e.fromOwnerId, e.toOwnerId]) if (id !== null) v.reference(catalog.data.characters, id, "ownerId");
   }
 }
@@ -118,7 +143,7 @@ export function d5EventEligibility(catalog: ValidatedD5Catalog, state: D5Project
   if (state.activeRunRef) v.invalid("activeRunRef", "Operation requires the mansion", "run-active");
   const terminal = state.settlements.find(t => t.id === basisId), start = terminal && starts.get(terminal.runId);
   if (terminal && terminal.routeId === catalog.data.tutorial?.routeId) v.invalid("basisId", "Tutorial returns do not grant growth or equipment");
-  if (!terminal || start === undefined || terminal.outcome === "wipe" || !(terminal.outcome === "extracted" && terminal.deepestLayer === 3 || terminal.outcome === "cleared" && terminal.deepestLayer === 5)) v.invalid("basisId", "No qualifying ordinary return");
+  if (!terminal || start === undefined || !ordinaryReturnGrantsGrowth(catalog.data, terminal.routeId) || terminal.outcome === "wipe" || !(terminal.outcome === "extracted" && terminal.deepestLayer === 3 || terminal.outcome === "cleared" && terminal.deepestLayer === 5)) v.invalid("basisId", "No qualifying ordinary return");
   if (eventId === spec.gift.eventId) {
     if (state.giftGrantId) v.invalid("gift", "Gift already claimed");
     return spec.gift.lastStep;
@@ -158,7 +183,9 @@ export function projectD5Progress(catalog: ValidatedD5Catalog, raw: unknown, rea
     const e = entry.event;
     if (e.type === "game-start-selected") {
       if (entry.revision !== 1 || readers.baseline) v.invalid("startAt", "Only a fresh, unplayed save can select its start", "command-not-available");
-      applyGameStart(catalog, state, e.startAt);
+      applyGameStart(catalog, state, e.startAt, entry.id, e.playerName);
+      if (catalog.data.shop) state.shop = initializeShop(catalog.data.shop, entry.id);
+      advanceFacilities(catalog, state, entry.id);
       continue;
     }
     const openingEvent = e.type === "prologue-advanced" || e.type === "prologue-completed";
@@ -180,30 +207,57 @@ export function projectD5Progress(catalog: ValidatedD5Catalog, raw: unknown, rea
     } else if (e.type === "opening-advanced") {
       noRun();
       advanceOpening(catalog.data.opening, state.opening, e);
+    } else if (e.type === "shop-visit-operated") {
+      applyShopVisit(catalog, state, e.command, entry.id);
+    } else if (e.type === "shop-introduction-advanced") {
+      advanceShopIntroduction(catalog, state, e);
+    } else if (e.type === "facility-operated") {
+      applyFacilityCommand(catalog, state, e.command, entry.id);
     } else if (e.type === "phase-advanced") {
       const blocked = mansionTimeBlock(state);
       if (blocked) v.invalid("clock", blocked, "command-not-available");
       state.clock = nextCampaignClock(state.clock);
+    } else if (e.type === "product-purchased") {
+      const {product, total, stored, quantity} = productQuote(catalog, state, e);
+      state.funds.party -= total;
+      if (product.delivery === "equipment") state.inventory.push({instanceId: d5EquipmentId(entry.id, product.definitionId), definitionId: product.definitionId, grantId: entry.id, location: {kind: "inventory"}});
+      else if (catalog.data.facilities) storeFacilitySupply(state, product.definitionId, quantity, entry.id);
+      else if (stored) stored.charges += quantity;
+      else state.supplies.push({instanceId: `purchase:${sha256(entry.id).slice(0, 32)}`, definitionId: product.definitionId, source: "supply.demo.shop", charges: quantity});
+      commitProductStock(state.shop!, product, quantity);
     } else if (e.type === "supply-purchased") {
+      if (catalog.data.shop) v.invalid("purchase", "Use a dated product quote");
       const {total, stored} = supplyQuote(catalog, state, e);
       state.funds.party -= total;
       if (stored) stored.charges += e.quantity;
       else state.supplies.push({instanceId: `purchase:${sha256(entry.id).slice(0, 32)}`, definitionId: e.definitionId, source: "supply.demo.shop", charges: e.quantity});
+    } else if (e.type === "loot-appraised" || e.type === "loot-sold") {
+      const {item, definition, gold, bundled, soldItems} = lootQuote(catalog, state, e);
+      if (e.type === "loot-appraised") { state.funds.party -= gold; item.resultId = definition.resultId; }
+      else { state.funds.party += gold; state.loot = state.loot!.filter(i => !soldItems.some(sold => sold.instanceId === i.instanceId) && !bundled.some(b => b.item.instanceId === i.instanceId)); }
+      const unitGold = (gold - bundled.reduce((sum, b) => sum + b.gold, 0)) / soldItems.length;
+      soldItems.forEach((soldItem, index) => state.lootTrades!.push({id: index === 0 ? entry.id : `${entry.id}:item:${soldItem.instanceId}`, kind: e.type === "loot-appraised" ? "appraise" : "sell", item: structuredClone(soldItem), gold: unitGold}));
+      for (const included of bundled) state.lootTrades!.push({id: `${entry.id}:bundle:${included.item.instanceId}`, kind: "sell", item: structuredClone(included.item), gold: included.gold});
     } else if (e.type === "expedition-started") {
       noRun();
       if (state.activeStoryId) v.invalid("story", "Finish or defer the active story before departure");
       if (runIds.has(e.runId)) v.invalid("runId", "Run identity reused");
       runIds.add(e.runId);
-      const expectedRoute = state.manor.takeover ? catalog.data.manor!.maintenanceRouteId : catalog.data.manor!.firstClearRouteId;
       const tutorial = catalog.data.tutorial;
       if (tutorial && e.routeId === tutorial.routeId) {
         if (state.tutorial?.status !== "pending" || !same(e.partyIds, tutorial.partyIds) || !same(e.itemIds, tutorial.itemIds) || e.progress.appliedGrowthIds.length || e.progress.equipment.length) v.invalid("tutorial", "Invalid tutorial departure");
         state.tutorial = { status: "active", runId: e.runId };
-      } else if (e.routeId !== expectedRoute || state.tutorial && !["completed", "exempt"].includes(state.tutorial.status)) v.invalid("route", "Unavailable route");
+      } else if (!ordinaryExpeditionAvailable(catalog.data, state, e.routeId)) v.invalid("route", "Unavailable route");
       if (!e.partyIds.includes(catalog.data.leaderId) || !e.partyIds.length || e.partyIds.some(id => !state.availableCharacterIds.includes(id))) v.invalid("party", "Unavailable party");
       if (!same(validateDemoProgress(catalog.data, e.progress), state.progress)) v.invalid("progress", "Departure does not freeze current configuration");
-      const supplyIds = departureSupplies(catalog, state, e.runId, e.itemIds).map(s => s.instanceId);
-      state.supplies = state.supplies.filter(s => !e.itemIds.includes(s.definitionId));
+      const selected = departureSupplies(catalog, state, e.runId, e.itemIds, e.supplyQuantities, e.routeId === tutorial?.routeId);
+      const supplyIds = selected.map(s => s.instanceId);
+      if (catalog.data.facilities) {
+        if (e.routeId !== tutorial?.routeId) for (const supply of selected) {
+          state.supplies.find(s => s.definitionId === supply.definitionId)!.charges -= supply.charges;
+          state.facilities!.reservations[supply.definitionId] = supply.charges;
+        }
+      } else state.supplies = state.supplies.filter(s => !e.itemIds.includes(s.definitionId));
       runs.set(e.runId, { revision, event: e, supplyIds });
       state.activeRunRef = { kind: "expedition", id: e.runId };
       for (const item of state.inventory) if (item.location.kind === "equipped" && e.partyIds.includes(item.location.ownerId)) item.location = { kind: "reserved", ownerId: item.location.ownerId, runId: e.runId };
@@ -219,13 +273,26 @@ export function projectD5Progress(catalog: ValidatedD5Catalog, raw: unknown, rea
         const spec = catalog.data.tutorial;
         if (state.tutorial?.status !== "active" || state.tutorial.runId !== t.runId || finalRun.tutorial?.stage !== "claimable" || t.outcome !== "cleared") v.invalid("tutorial.claim", "Complete all encounters and the return before claiming");
         if (spec.guide) {
-          const rooms = finalRun.run.roomIds.flat(), eventRoom = finalRun.run.roomIds[0][spec.guide.nodes.findIndex(n => n.battle === null)];
+          const rooms = finalRun.run.roomIds.flat(), eventRoom = rooms[spec.guide.nodes.findIndex(n => n.battle === null)];
           if (!same(t.completion?.roomIds, rooms) || t.completion?.encounterIds.length !== 4 || finalRun.run.eventResults.filter(r => r.roomId === eventRoom).length !== 1) v.invalid("tutorial.claim", "The guided release requires all five rooms and the event result");
         }
         state.tutorial = { status: "completed", runId: t.runId, terminalId: t.id, claimId: entry.id, rewardId: spec.reward.id, cargoIds: [...spec.reward.cargoIds] };
         tutorialGold = spec.reward.gold;
       }
-      terminalIds.add(t.id); state.settlements.push(structuredClone(t)); state.supplies.push(...structuredClone(t.returnedSupplies));
+      if (catalog.data.loot) for (const drop of t.returnedLoot!) {
+        if (state.loot!.some(item => item.instanceId === drop.instanceId) || state.lootTrades!.some(trade => trade.item.instanceId === drop.instanceId)) v.invalid("loot", "Loot already granted");
+        const definition = catalog.data.loot.definitions[drop.definitionId];
+        state.loot!.push({...structuredClone(drop), claimId: entry.id, resultId: definition.initiallyKnown ? definition.resultId : null});
+      }
+      terminalIds.add(t.id); state.settlements.push(structuredClone(t));
+      if (catalog.data.facilities) {
+        if (state.facilities) state.facilities.reservations = {};
+        for (const supply of t.returnedSupplies) {
+          const amount = Math.min(supply.charges, supplyStorageRoom(catalog, state, supply.definitionId));
+          storeFacilitySupply(state, supply.definitionId, amount, entry.id);
+          if (amount < supply.charges && state.facilities) state.facilities.overflow[supply.definitionId] = (state.facilities.overflow[supply.definitionId] ?? 0) + supply.charges - amount;
+        }
+      } else state.supplies.push(...structuredClone(t.returnedSupplies));
       state.funds.party += t.totalGold + tutorialGold + applyManorTakeover(catalog.shared, state.manor, t);
       state.clock = nextCampaignClock(state.clock);
       state.activeRunRef = null;
@@ -321,7 +388,7 @@ export function projectD5Progress(catalog: ValidatedD5Catalog, raw: unknown, rea
           state.memory!.node = "completed"; state.activeRunRef = null;
         } else if (s.eventId === spec.gift.eventId) {
           state.giftGrantId = entry.id;
-          state.inventory = spec.gift.definitionIds.map(definitionId => ({ instanceId: d5EquipmentId(entry.id, definitionId), definitionId, grantId: entry.id, location: { kind: "inventory" } }));
+          state.inventory = [...(catalog.data.shop ? state.inventory : []), ...spec.gift.definitionIds.map(definitionId => ({ instanceId: d5EquipmentId(entry.id, definitionId), definitionId, grantId: entry.id, location: { kind: "inventory" as const } }))];
         } else {
           const growthId = spec.growthEvents[s.eventId].growthId;
           state.growthGrants.push({ id: entry.id, growthId, basisId: s.basisId, revision });
@@ -336,11 +403,19 @@ export function projectD5Progress(catalog: ValidatedD5Catalog, raw: unknown, rea
       if (!item || item.location.kind === "reserved" || (item.location.kind === "equipped" ? item.location.ownerId : null) !== e.fromOwnerId || e.toOwnerId === e.fromOwnerId) v.invalid("equipment", "No matching owned item/allocation");
       if (e.toOwnerId !== null) {
         const ch = v.reference(catalog.data.characters, e.toOwnerId, "ownerId");
-        if (!state.availableCharacterIds.includes(ch.id) || !ch.faces.some(f => catalog.data.actions[f.actionId].kind === "blank") || state.inventory.some(i => i.location.kind === "equipped" && i.location.ownerId === ch.id)) v.invalid("equipment", "Target is unavailable, inapplicable or occupied");
+        if (!state.availableCharacterIds.includes(ch.id) || state.inventory.some(i => i.location.kind === "equipped" && i.location.ownerId === ch.id)) v.invalid("equipment", "Target is unavailable, inapplicable or occupied");
+        const allocation = validateEquipmentAllocation(catalog.data, {instanceId: item.instanceId, definitionId: item.definitionId, ownerId: ch.id, ...(e.targetFaceId ? {targetFaceId: e.targetFaceId} : {})});
+        if (allocation.targetFaceId) item.targetFaceId = allocation.targetFaceId;
+        else delete item.targetFaceId;
         item.location = { kind: "equipped", ownerId: ch.id };
-      } else item.location = { kind: "inventory" };
+      } else {
+        if (e.targetFaceId !== undefined) v.invalid("targetFaceId", "Unequip has no target face");
+        item.location = { kind: "inventory" }; delete item.targetFaceId;
+      }
     }
-    state.progress.equipment = state.inventory.flatMap(i => i.location.kind === "inventory" ? [] : [{ instanceId: i.instanceId, definitionId: i.definitionId, ownerId: i.location.ownerId }]);
+    advanceFacilities(catalog, state, entry.id);
+    state.progress.equipment = state.inventory.flatMap(i => i.location.kind === "inventory" ? [] : [{ instanceId: i.instanceId, definitionId: i.definitionId, ownerId: i.location.ownerId, ...(i.targetFaceId ? {targetFaceId: i.targetFaceId} : {}) }]);
+    if (catalog.data.shop && state.shop) advanceShopToDay(catalog.data.shop, state.shop, state.clock.day);
   }
   return v.freezeData(state);
 }

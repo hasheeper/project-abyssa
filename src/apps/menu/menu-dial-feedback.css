@@ -3,7 +3,7 @@
 @property --menu-cmd-fill { syntax: "<color>"; inherits: true; initial-value: #101717; }
 
 .menu-dial [data-command="estate"] { --menu-command-axis-x: 0; --menu-command-axis-y: -1; }
-.menu-dial [data-command="storage"] { --menu-command-axis-x: -1; --menu-command-axis-y: 0; }
+.menu-dial [data-command="roster"] { --menu-command-axis-x: -1; --menu-command-axis-y: 0; }
 .menu-dial [data-command="shop"] { --menu-command-axis-x: 1; --menu-command-axis-y: 0; }
 .menu-dial [data-command="sortie"] { --menu-command-axis-x: 0; --menu-command-axis-y: 1; }
 
@@ -39,7 +39,7 @@
    matching art and text, without mousemove state or an always-running loop. */
 @media (hover: hover) and (pointer: fine) {
   .menu-dial:has(.menu-dial__button[data-command="estate"]:hover) :is(.menu-dial__panel, .menu-dial__content-motion)[data-command="estate"],
-  .menu-dial:has(.menu-dial__button[data-command="storage"]:hover) :is(.menu-dial__panel, .menu-dial__content-motion)[data-command="storage"],
+  .menu-dial:has(.menu-dial__button[data-command="roster"]:hover) :is(.menu-dial__panel, .menu-dial__content-motion)[data-command="roster"],
   .menu-dial:has(.menu-dial__button[data-command="shop"]:hover) :is(.menu-dial__panel, .menu-dial__content-motion)[data-command="shop"],
   .menu-dial:has(.menu-dial__button[data-command="sortie"]:hover) :is(.menu-dial__panel, .menu-dial__content-motion)[data-command="sortie"] {
     --menu-feedback-distance: 7;
@@ -53,7 +53,7 @@
     --menu-feedback-rule-opacity: 1;
   }
   .menu-dial:has(.menu-dial__button[data-command="estate"]:hover) .menu-dial__panel[data-command="estate"][data-selected],
-  .menu-dial:has(.menu-dial__button[data-command="storage"]:hover) .menu-dial__panel[data-command="storage"][data-selected],
+  .menu-dial:has(.menu-dial__button[data-command="roster"]:hover) .menu-dial__panel[data-command="roster"][data-selected],
   .menu-dial:has(.menu-dial__button[data-command="shop"]:hover) .menu-dial__panel[data-command="shop"][data-selected],
   .menu-dial:has(.menu-dial__button[data-command="sortie"]:hover) .menu-dial__panel[data-command="sortie"][data-selected] {
     --menu-cmd-fill: #628d8e;
@@ -61,7 +61,7 @@
   }
 }
 .menu-dial:has(.menu-dial__button[data-command="estate"]:focus-visible) :is(.menu-dial__panel, .menu-dial__content-motion)[data-command="estate"],
-.menu-dial:has(.menu-dial__button[data-command="storage"]:focus-visible) :is(.menu-dial__panel, .menu-dial__content-motion)[data-command="storage"],
+.menu-dial:has(.menu-dial__button[data-command="roster"]:focus-visible) :is(.menu-dial__panel, .menu-dial__content-motion)[data-command="roster"],
 .menu-dial:has(.menu-dial__button[data-command="shop"]:focus-visible) :is(.menu-dial__panel, .menu-dial__content-motion)[data-command="shop"],
 .menu-dial:has(.menu-dial__button[data-command="sortie"]:focus-visible) :is(.menu-dial__panel, .menu-dial__content-motion)[data-command="sortie"] {
   --menu-feedback-distance: 7;
@@ -80,7 +80,7 @@
 .menu-dial__content[data-selected] .menu-dial__label-rule { opacity: var(--menu-feedback-rule-opacity, .78); }
 
 .menu-dial:has(.menu-dial__button[data-command="estate"]:active) :is(.menu-dial__panel, .menu-dial__content-motion)[data-command="estate"],
-.menu-dial:has(.menu-dial__button[data-command="storage"]:active) :is(.menu-dial__panel, .menu-dial__content-motion)[data-command="storage"],
+.menu-dial:has(.menu-dial__button[data-command="roster"]:active) :is(.menu-dial__panel, .menu-dial__content-motion)[data-command="roster"],
 .menu-dial:has(.menu-dial__button[data-command="shop"]:active) :is(.menu-dial__panel, .menu-dial__content-motion)[data-command="shop"],
 .menu-dial:has(.menu-dial__button[data-command="sortie"]:active) :is(.menu-dial__panel, .menu-dial__content-motion)[data-command="sortie"] {
   --menu-feedback-distance: 1;

@@ -1,0 +1,35 @@
+/* Story-only scene. This stylesheet and its background never enter game builds. */
+.feedback-preview { min-height: 100vh; padding: 42px max(28px, calc((100vw - 1260px) / 2)); background-size: cover; background-position: center 42%; display: flex; flex-direction: column; }
+.feedback-preview__heading { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+.feedback-preview__heading span,
+.feedback-specimens header > span { font-size: 17px; color: #abc2b7; letter-spacing: .25em; }
+.feedback-preview__heading h1,
+.feedback-specimens h1 { margin: 10px 0 0; color: #eee3c7; font: 500 50px/1.2 var(--abyssa-font-display); letter-spacing: .07em; }
+.feedback-preview__heading > p { color: var(--abyssa-text-soft); font-size: 14px; }
+.feedback-preview__scene { position: relative; flex: 1; min-height: 330px; display: grid; place-items: center; padding: 34px 0; }
+.feedback-preview__anchor { width: 580px; max-width: 100%; }
+.feedback-preview__controls { border-top: 1px solid rgb(145 195 198 / 22%); padding-top: 22px; }
+.feedback-preview__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+.feedback-preview__actions > .abyssa-notched-pill { width: 160px; }
+.feedback-preview__local { width: 680px; max-width: 100%; min-height: 74px; margin: 16px auto 0; display: grid; align-items: center; }
+.feedback-preview__local > p { margin: 0; color: var(--abyssa-text-muted); font-size: 14px; text-align: center; }
+.feedback-preview__options { display: flex; justify-content: center; gap: 14px; }
+.feedback-preview__options > .abyssa-notched-pill { width: 140px; }
+.feedback-api-preview__body { width: 760px; max-width: 100%; min-height: 370px; margin: 68px auto 38px; flex: 1; }
+.feedback-api-preview__body[data-narrow] { width: 320px; }
+.feedback-api-preview .feedback-preview__controls { margin-top: auto; }
+.feedback-specimens { min-height: 100vh; padding: 42px; background-size: cover; background-attachment: fixed; background-position: center; }
+.feedback-specimens__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 520px), 1fr)); gap: 32px 48px; margin: 34px auto 0; max-width: 1260px; }
+.feedback-specimens__grid[data-narrow] { grid-template-columns: minmax(0, 320px); justify-content: center; }
+.feedback-specimens__grid > section { min-width: 0; display: flex; flex-direction: column; gap: 22px; }
+.feedback-specimens__grid h2 { margin: 0; color: var(--abyssa-text-muted); font-size: 15px; font-weight: 400; letter-spacing: .12em; }
+@media (max-width: 700px) {
+  .feedback-preview { padding: 26px 20px; }
+  .feedback-preview__heading { display: block; }
+  .feedback-preview__heading h1,
+  .feedback-specimens h1 { font-size: 34px; }
+  .feedback-preview__heading > p { margin-top: 18px; }
+  .feedback-preview__scene { min-height: 280px; }
+  .feedback-preview__actions > .abyssa-notched-pill { width: 138px; }
+  .feedback-specimens { padding: 28px 20px; }
+}

@@ -1,6 +1,6 @@
 # 0.3.1 本机安装与两情境真实试读
 
-日期：2026-09-12。承接[资料接线验收](2026-09-12-airp-source-context.md)，对应[推进计划](../plans/ABYSSA_DEMO_NEXT_STEPS.md)第二批的真实验收，不是四型／多人扩版。
+日期：2026-09-12。承接[资料接线验收](2026-09-12-airp-source-context.md)，对应[推进计划](../DESIGN_DECISIONS_AND_CURRENT_STATUS.md#4-下一步顺序)第二批的真实验收，不是四型／多人扩版。
 
 接续：用户随后明确小模型正确名称为`deepseek-flash`。已在0.3.2创建正确目标并修正Writing，当前补验见[0.3.2记录](2026-09-12-airp-032-acceptance.md)。下文保留当时实际误配、失败与用量，不将错误名称事后替换成成功历史。
 

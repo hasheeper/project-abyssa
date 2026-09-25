@@ -1,6 +1,6 @@
 # 共用教程画布
 
-O3-U，2026-09-09；G3补充，2026-09-13。宿主、锚点、定位／避让和暂停已实施；普通战斗可从左侧菜单「操作指引」手动开启。默认内容11的四战＋事件教程直接消费权威步骤；旧7～10保留O3-T帮助，不能用手动帮助观看状态代替正式教学证明。
+O3-U，2026-09-09；G3补充，2026-09-13。宿主、锚点、定位／避让和暂停已实施；普通战斗可从左侧菜单「操作指引」手动开启。内容11起的四战＋事件教程消费权威步骤；当前25／26继承四层五房结构；旧7～10保留O3-T帮助，不能用手动帮助观看状态代替正式教学证明。
 
 ## 使用
 
@@ -67,6 +67,8 @@ useTutorialSuspension(panelOpen || busy);
 
 `BattleOperationGuide`是当前手动操作帮助，跟随`DemoJourneyView`的实际骰面、合法行动和回合。`afterFixOptions`由runtime调用正式行动查询生成只读预览，避免提示玩家固定满血治疗面或没有目标的提线面；不另写教程战斗规则。UNDO后重新读取当前状态，不靠累计点击数推进。
 
+点击固定骰子成功后，演出层自动选中该骰主；带做指引由固定直接转到目标，不再要求多点一次角色卡。取消选中或读档后仍保留「选择行动队员」作为恢复提示。再次点击未用固定骰解除固定并清除它的选中；固定另一枚只切换选中者，其他固定状态不变。自动选中不等于出手，不写入新的教程步骤或存档字段。
+
 岩窟自动帮助由 `TideTutorialGuide` 接入同一宿主。`battle.items`／`battle.advance`／`battle.ledger`分别定位原道具开关、战间推进与账本。内容11的 guided 步骤设置 `collapseOnDismiss`：×／Escape 仅收起当前说明，保留目标轮廓及「继续教学」入口，不提交 `tutorial-hints`、不清空选择或解除步骤限制。步骤 ID 改变后自动展开；菜单「操作指引」通过 `expandKey` 重开当前步骤。旧档已关闭的 `hintsEnabled` 仍可通过该菜单恢复。旧版非强制帮助保留原关闭语义。
 
 G3新版通过`guided-tide-model`读取runtime投影，UI草稿只调整当前锚点；系统提示位于`guided-tide.json`，G4角色战术对白单独维护。G4感知修订通过`guidedTideObservation`在入场／关键局势变化时先聚焦敌阵、事件或牌型，确认只记标签页阅读位置。普通操作仍自动推进；唯一持久观察确认是E1结果，按钮在原操作栏而非教程卡内。收起说明与菜单「退出带做」是两个独立操作，只有后者切换为自由操作。Boss只给一次入场观察，无新增操作锁，也不自动弹旧课程卡。
@@ -87,4 +89,4 @@ npm exec playwright -- test tutorial.spec.ts -c config/playwright.config.ts --pr
 
 完整岩窟链路复验：`npm exec playwright -- test tide-cave.spec.ts -c config/playwright.config.ts --project=game --workers=1`。
 
-新版五房复验：`npm exec playwright -- test tide-guided.spec.ts -c config/playwright.config.ts --project=game --workers=1`；旧`tide-cave.spec.ts`显式保留内容9四房回归，并另验当前新建档默认入口。范围与证据见[G3验收](../../../docs/audits/2026-09-13-tide-guided-g3.md)。
+新版五房复验：`npm exec playwright -- test tide-guided.spec.ts -c config/playwright.config.ts --project=game --workers=1`；旧`tide-cave.spec.ts`显式保留内容9四房回归，并另验当前新建档默认入口。范围与证据见[第一章与教学：当前内容说明](../../../docs/design/CHAPTER_ONE_AND_TUTORIAL.md)。

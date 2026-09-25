@@ -126,6 +126,7 @@ export function createRuleBattleEngine<S extends RuleBattleState>(catalog: RuleC
         rng: createBattleRngState(seed),
         sequence: 0,
         roomIds: catalog.data.routes[routeId].layers.map((rooms, l) => rooms.map((_, r) => `${runId}:room:${l + 1}:${r + 1}`)),
+        ...("loot" in catalog.data && catalog.data.loot ? {carriedLoot: []} : {}),
         completedRoomIds: [], supplies: [], foodUses: {}, layerResults: [], eventResults: [], revealed: [],
         eventRng: createBattleRngState((seed ^ 0x3c6ef372) >>> 0).combat,
       };

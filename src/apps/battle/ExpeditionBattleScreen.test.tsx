@@ -253,6 +253,12 @@ describe("ExpeditionBattleScreen", () => {
     expect(slots[2]!.dataset.loaded).toBe("true");
     expect(slots[3]!.dataset.loaded).toBeUndefined();
     expect(slots[4]!.dataset.loaded).toBe("true");
+    expect(partyCards()[4]).toHaveAttribute("data-held", "true");
+    expect(board().querySelectorAll(".abyssa-expedition-party-card[data-held]")).toHaveLength(1);
+
+    await click(list[0]!);
+    expect(dieSlots()[0]).not.toHaveAttribute("data-loaded");
+    expect(partyCards()[4]).toHaveAttribute("data-held", "true");
   });
 
   it("再次点击骰子即卸载", async () => {
@@ -261,34 +267,38 @@ describe("ExpeditionBattleScreen", () => {
 
     await click(list[1]!);
     expect(dieSlots()[1]!.dataset.loaded).toBe("true");
+    expect(partyCards()[1]).toHaveAttribute("data-held", "true");
 
     await click(list[1]!);
     expect(dieSlots()[1]!.dataset.loaded).toBeUndefined();
+    expect(partyCards()[1]).not.toHaveAttribute("data-held");
   });
 
-  it("未装载时角色卡不可指挥；装载后才待命", async () => {
+  it("未固定时角色卡不可指挥；固定后直接选中", async () => {
     await mount();
 
     expect(partyCards()[0]!.dataset.ready).toBeUndefined();
 
     await click(dice()[0]!);
-    expect(partyCards()[0]!.dataset.ready).toBe("true");
+    expect(partyCards()[0]).toHaveAttribute("data-held", "true");
+    expect(partyCards()[0]).toHaveAttribute("data-clickable", "true");
   });
 
-  it("点角色卡拿起，再点一次放下", async () => {
+  it("固定骰自动选中，角色卡仍可取消和重新选中", async () => {
     /* 固定凯尔为攻击面，避免随机到可对自己施放的格挡面。 */
     await mount(() => 0);
 
     await click(dice()[0]!);
-    await click(partyCards()[0]!);
-    expect(partyCards()[0]!.dataset.held).toBe("true");
+    expect(partyCards()[0]).toHaveAttribute("data-held", "true");
     expect(board().querySelectorAll(".abyssa-expedition-party-column[data-active]")).toHaveLength(1);
 
     await click(partyCards()[0]!);
     expect(partyCards()[0]!.dataset.held).toBeUndefined();
+    await click(partyCards()[0]!);
+    expect(partyCards()[0]!.dataset.held).toBe("true");
   });
 
-  it("装载即点亮曲线光束，拿起后再加强", async () => {
+  it("固定骰即点亮曲线光束并自动进入选中档", async () => {
     await mount();
 
     /* 未装载：光束不亮 */
@@ -302,8 +312,7 @@ describe("ExpeditionBattleScreen", () => {
       board().querySelector(".abyssa-expedition-party-column[data-active] .abyssa-expedition-party-link__main")
     ).not.toBeNull();
 
-    /* 拿起角色卡 → 加强档 */
-    await click(partyCards()[0]!);
+    /* 固定同时选中，不再补点角色卡。 */
     expect(board().querySelectorAll(".abyssa-expedition-party-column[data-held]")).toHaveLength(1);
   });
 
@@ -464,7 +473,7 @@ describe("ExpeditionBattleScreen", () => {
     await mount(() => 0.4);
 
     await click(dice()[0]!);
-    await click(partyCards()[0]!);
+    expect(partyCards()[0]).toHaveAttribute("data-held", "true");
     await click(
       enemies()[0]!.querySelector<HTMLButtonElement>(".abyssa-expedition-intent")!
     );
@@ -497,7 +506,7 @@ describe("ExpeditionBattleScreen", () => {
 
   it("狂暴预警在提交演出结束后更新，强化攻击随新回合公开", async () => {
     await mount(() => 0);
-    await click(dice()[3]!); await click(partyCards()[3]!); await click(enemies()[1]!); await settle();
+    await click(dice()[3]!); await click(enemies()[1]!); await settle();
     await click(screen.getByRole("button", { name: "END TURN" })); await settleAsync();
     const warning = board().querySelector(".abyssa-expedition-enemy__frenzy-status");
     expect(warning).toHaveTextContent("狂暴预警");
@@ -648,9 +657,8 @@ describe("ExpeditionBattleScreen", () => {
     const index = [...partyCards()].indexOf(targeted);
     expect(index).toBeGreaterThanOrEqual(0);
 
-    /* 装载该角色的骰子并拿起 */
+    /* 固定骰子即选中，不再补点已选中的角色卡。 */
     await click(dice()[index]!);
-    await click(targeted);
 
     const after = board().querySelector<HTMLElement>(
       `.abyssa-expedition-party-card[data-character="${memberId}"]`
@@ -794,7 +802,7 @@ describe("ExpeditionBattleScreen", () => {
   it("已行动和已固定的骰子在其他骰子重掷时保持原姿态", async () => {
     await mount(() => 0);
     await click(dice()[0]!);
-    await click(partyCards()[0]!);
+    expect(partyCards()[0]).toHaveAttribute("data-held", "true");
     await click(enemies()[0]!);
     await settle();
     expect(dieSlots()[0]).toHaveAttribute("data-spent", "true");
@@ -839,7 +847,7 @@ describe("ExpeditionBattleScreen", () => {
 
     /* 凯尔一面是 1 点攻击；第一只怪物有 2 点生命，不会斩杀。 */
     await click(dice()[0]!);
-    await click(partyCards()[0]!);
+    expect(partyCards()[0]).toHaveAttribute("data-held", "true");
     const target = enemies()[0]!;
     const health = target.querySelector(".abyssa-expedition-enemy__health")!;
     await click(target);
@@ -877,7 +885,7 @@ describe("ExpeditionBattleScreen", () => {
 
     /* 柯萝萝一面是 4 点攻击，足以斩杀第一只 2 血怪物。 */
     await click(dice()[3]!);
-    await click(partyCards()[3]!);
+    expect(partyCards()[3]).toHaveAttribute("data-held", "true");
     const target = enemies()[0]!;
     await click(target);
 
@@ -913,7 +921,7 @@ describe("ExpeditionBattleScreen", () => {
     await mount(() => 0.4);
 
     await click(dice()[1]!);
-    await click(partyCards()[1]!);
+    expect(partyCards()[1]).toHaveAttribute("data-held", "true");
     await click(enemies()[0]!);
     await advance(101);
     await advance(71);
@@ -922,7 +930,7 @@ describe("ExpeditionBattleScreen", () => {
     expect(enemies()).toHaveLength(1);
 
     await click(dice()[3]!);
-    await click(partyCards()[3]!);
+    expect(partyCards()[3]).toHaveAttribute("data-held", "true");
     await click(enemies()[0]!);
     await advance(101);
     await advance(71);
@@ -943,7 +951,7 @@ describe("ExpeditionBattleScreen", () => {
     expect(greedDialog).toHaveTextContent("第 1 层战利品已全部结算入包裹");
     const settlement = screen.getByRole("region", { name: /第 1 层结算/ });
     expect(settlement.getAttribute("aria-label")).toMatch(
-      /本层散金 \d+ 金币，乘牌型倍率 \d+\.\d{2}，乘层倍率 1，本层入袋 \d+ 金币/
+      /本层散金 [\d,]+ G，乘牌型倍率 \d+\.\d{2}，乘层倍率 1，本层入袋 [\d,]+ G/
     );
     expect(settlement).toHaveTextContent("最后回合");
     expect(settlement).toHaveTextContent("已计入最终牌型倍率");
@@ -951,9 +959,9 @@ describe("ExpeditionBattleScreen", () => {
     const purseLabel = board()
       .querySelector(".battle-sidebar-readouts .abyssa-expedition-bag-odometer output")!
       .getAttribute("aria-label")!;
-    const bagGold = Number(purseLabel.match(/包裹 (\d+) 枚金币/)?.[1] ?? 0);
+    const bagGold = Number(purseLabel.match(/包裹 ([\d,]+) G/)?.[1].replaceAll(",", "") ?? 0);
     expect(bagGold).toBeGreaterThan(0);
-    expect(greedDialog).toHaveTextContent(`现在离场可带回 ${bagGold}G`);
+    expect(greedDialog).toHaveTextContent(`现在离场可带回 ${bagGold.toLocaleString("en-US")} G`);
 
     /* 视觉转轮与 aria 数值同步，不再等一个不存在的下一回合。 */
     const shownBagDigits = [...board().querySelectorAll(
@@ -964,7 +972,7 @@ describe("ExpeditionBattleScreen", () => {
     await click(screen.getByRole("button", { name: "带宝离场" }));
     const resultDialog = screen.getByRole("dialog", { name: "远征结算" });
     expect(resultDialog).toHaveTextContent(
-      `＋${bagGold} G`
+      `＋${bagGold.toLocaleString("en-US")} G`
     );
     expect(resultDialog.querySelector(".abyssa-expedition-modal__settlement"))
       .toHaveTextContent("已计入最终牌型倍率");
@@ -975,7 +983,7 @@ describe("ExpeditionBattleScreen", () => {
     await mount(() => 0.4);
 
     await click(dice()[0]!);
-    await click(partyCards()[0]!);
+    expect(partyCards()[0]).toHaveAttribute("data-held", "true");
     const target = partyCards()[2]!;
     const shield = target.querySelector(".abyssa-expedition-party-card__shield")!;
     await click(target);
@@ -1026,7 +1034,7 @@ describe("ExpeditionBattleScreen", () => {
     await mount(() => 0.4);
 
     await click(dice()[0]!);
-    await click(partyCards()[0]!);
+    expect(partyCards()[0]).toHaveAttribute("data-held", "true");
     const target = partyCards()[2]!;
     const intent = enemies()[0]!.querySelector<HTMLButtonElement>(
       ".abyssa-expedition-intent"
@@ -1063,7 +1071,7 @@ describe("ExpeditionBattleScreen", () => {
     await mount(() => 0.4);
 
     await click(dice()[0]!);
-    await click(partyCards()[0]!);
+    expect(partyCards()[0]).toHaveAttribute("data-held", "true");
     await click(enemies()[0]!);
 
     const target = partyCards()[2]!;
@@ -1111,7 +1119,7 @@ describe("ExpeditionBattleScreen", () => {
     expect(dice()[2]!.getAttribute("aria-label")).toContain("金铭 1 面");
 
     await click(dice()[2]!);
-    await click(partyCards()[2]!);
+    expect(partyCards()[2]).toHaveAttribute("data-held", "true");
     await click(target);
 
     expect(board()).toHaveAttribute("data-support-kind", "heal");
@@ -1154,7 +1162,7 @@ describe("ExpeditionBattleScreen", () => {
     await mount(() => 0);
 
     await click(dice()[2]!);
-    await click(partyCards()[2]!);
+    expect(partyCards()[2]).toHaveAttribute("data-held", "true");
     const fullHealthTarget = partyCards()[1]!;
     await click(fullHealthTarget);
 
@@ -1174,7 +1182,7 @@ describe("ExpeditionBattleScreen", () => {
     await mount(() => 0.9);
 
     await click(dice()[0]!);
-    await click(partyCards()[0]!);
+    expect(partyCards()[0]).toHaveAttribute("data-held", "true");
     const target = partyCards()[4]!;
     await click(target);
 

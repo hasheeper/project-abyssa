@@ -45,3 +45,7 @@ export type * from "./tutorial-types";
 export { parseTutorialOperation, tutorialPaused } from "./tutorial-validation";
 export { tutorialGuideOperation, tutorialGuideAllows, tutorialNode } from "./tutorial-guide";
 export * from "./airp-pool";
+export { directorDay, directorHash, directorActorLocation, directorSceneId, validateDirectorCapability, validateDirectorPlan } from "./airp-director-rules";
+export { prepareAirpSettlement, settlementTaskIdentity, settlementEffectId, projectSettlementActorState } from "./airp-settlement";
+export { expeditionPlanHash, expeditionTaskId, validateExpeditionPlanInput, validateExpeditionPlan, expeditionReviewRequired } from "./airp-expedition-plan";
+export { expeditionAppraisalSlots } from "./expedition-appraisal";

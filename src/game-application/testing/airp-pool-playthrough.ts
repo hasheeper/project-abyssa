@@ -7,17 +7,17 @@ import { firstAirpOffer } from "./airp-playthrough";
 import { nextD5PlayCommand } from "./d5-playthrough";
 
 export type PoolRecord = D5GameRecord & { narrative: AirpPoolState };
-export function poolTestRuntime(source?: D5GameRecord) {
+export function poolTestRuntime(source?: D5GameRecord, saveId = "pool") {
   const database = new MemoryGameDatabase<AnyGameRecord, AnyReceipt>();
   if (source) database.records.set(source.head.saveId, structuredClone(source));
   const store = new MemoryGameStore(database);
   let seq = Math.max(0, ...(source?.commits.map(c => Number(c.requestId.split(":").at(-1)) || 0) ?? []));
   const runtime = createPlayerRuntime(store, { newId: () => `pool-client:${++seq}`, newSeed: () => 19, close() {} });
-  const read = async () => (await store.read("pool")) as PoolRecord;
+  const read = async () => (await store.read(saveId)) as PoolRecord;
   const send = async (command: D5Command) => {
     await new Promise<void>(resolve => setTimeout(resolve, 0));
     const r = await read();
-    const result = await (command.type === "resume-run" ? runtime.application.resume : runtime.application.dispatch)({ protocolVersion: 4, saveId: "pool", expectedHead: r.head, clientRequestId: `pool-play:${++seq}`, command });
+    const result = await (command.type === "resume-run" ? runtime.application.resume : runtime.application.dispatch)({ protocolVersion: 4, saveId, expectedHead: r.head, clientRequestId: `pool-play:${++seq}`, command });
     if (!result.ok) throw Error(JSON.stringify({ command, result }));
     return read();
   };

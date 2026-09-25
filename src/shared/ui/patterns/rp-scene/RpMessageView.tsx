@@ -140,6 +140,7 @@ export function RpMessageView({
       <div
         className="abyssa-rp__message"
         data-kind="say"
+        data-actor-id={message.actorId}
         data-settled={settled}
         data-seat={seat}
         data-current={message.id === focusId || undefined}
@@ -180,6 +181,16 @@ export function RpMessageView({
         </div>
       </div>
     );
+  }
+
+  if (message.kind === "choice") {
+    return <div className="abyssa-rp__message" data-kind="choice" data-choice-record={message.id} data-settled={settled}>
+      <div className="abyssa-rp__choice-record" role="note" aria-label={`选择记录：${message.text}`}>
+        <span className="abyssa-rp__choice-seal" aria-hidden="true"/>
+        <span className="abyssa-rp__choice-meta">已选择{message.sequence !== undefined && <small>{String(message.sequence).padStart(2, "0")}</small>}</span>
+        <span className="abyssa-rp__choice-text">{message.text}</span>
+      </div>
+    </div>;
   }
 
   if (message.kind === "roll") {

@@ -1,6 +1,6 @@
 # Abyssa 游戏内核
 
-纯规则层，不依赖具体内容、浏览器、React、存储或 AI；不进入 `@abyssa/ui` 导出。当前默认是规则4／内容3，实际机制以[当前总览](../../docs/GAME_SYSTEMS_AND_CONTENT_SPEC.md)为准。
+纯规则层，不依赖具体内容、浏览器、React、存储或 AI；不进入 `@abyssa/ui` 导出。当前普通新档为规则4／内容27，正式AIRP新档为内容28，实际机制以[当前总览](../../docs/GAME_SYSTEMS_AND_CONTENT_SPEC.md)为准。
 
 ## 正式入口
 
@@ -41,8 +41,8 @@ core/application 各有不加载 DOM、React、Node ambient types 的类型门�
 
 `npm test` 包含 core（Node）、application（Node）和 app（jsdom）三个项目。冻结兼容测试位于 `src/game-runtime/testing/battle`；S1 956 步的 JSON fixture 保留原路径与原字节。禁止用 `UPDATE_BATTLE_BASELINE=1` 重录预期。纯闭包和独立 Node 进程验证结果在 `dist/reports/s2/import`。
 
-历史实施记录见 [S2 计划](../../docs/archive/plans/S2_APPLICATION_FOUNDATION_PLAN.md)。实际页面／回馆已经接通；复杂rp-style-lab适配仍未进入正式游戏。
+实际页面／回馆已经接通，玩法见[机制总览](../../docs/GAME_SYSTEMS_AND_CONTENT_SPEC.md)。正式AIRP使用应用层与浏览器基础设施，旧内容10另保留rp服务适配；两者均不把模型调用放入纯规则核心，详见[AIRP架构](../../docs/architecture/LLM_AND_AIRP.md)。
 
 ## 版本复用与当前庄园
 
-`createDemoBattleEngine` 按 Catalog rulesVersion 复用角色与战斗规则，`rules/v3/manor.ts` 提供关联意图、有限补席与批次末救离。`session/manor-progression.ts` 负责五层证据及接管前置，应用层另验事实历史。v4进一步提供玛铭约、历史战、成长／装备、经济与继承；当前内容3把回忆和维护终战改为刻仪兽。各旧版reader继续保留，不能用旧文档中的schema编号判断当前规则。
+`createDemoBattleEngine` 按 Catalog rulesVersion 复用角色与战斗规则，`rules/v3/manor.ts` 提供关联意图、有限补席与批次末救离。`session/manor-progression.ts` 负责五层证据及接管前置，应用层另验事实历史。v4进一步提供玛铭约、历史战、成长／装备、经济与继承；内容3起把回忆和维护终战改为刻仪兽。各旧版reader继续保留，不能用旧文档中的schema编号判断当前规则。

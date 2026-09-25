@@ -57,6 +57,16 @@
 @keyframes scene-dialogue-out {from {opacity: 1; translate: 0 0;} to {opacity: 0; translate: 0 10px;}}
 @keyframes scene-wash-in {from {opacity: 0;} to {opacity: 1;}}
 @keyframes scene-wash-out {from {opacity: 1;} to {opacity: 0;}}
+/* A room already fills the stage. Keep its background opaque and reveal only
+   the cast, dialogue and chrome; no second full-scene wash or actor slide. */
+.scene-sequence[data-adv-entrance="dissolve"][data-phase="prepare"] .scene-sequence__frame,
+.scene-sequence[data-adv-entrance="dissolve"][data-phase="in"] .scene-sequence__frame {opacity:1;animation:none;}
+.scene-sequence[data-adv-entrance="dissolve"][data-phase="prepare"] :is(.rp-adv__cast,.rp-adv__dialogue,.rp-adv__frame-ornaments,.rp-app__bar,.story-reading__feedback,.abyssa-rp__seat,.abyssa-rp__center) {opacity:0;}
+.scene-sequence[data-adv-entrance="dissolve"][data-phase="in"] .rp-adv__actor[data-phase="enter"] .rp-adv__actor-body {animation:none;}
+.scene-sequence[data-adv-entrance="dissolve"][data-phase="in"] :is(.rp-adv__cast,.abyssa-rp__seat) {animation:scene-wash-in 480ms 60ms cubic-bezier(.2,.7,.2,1) both;}
+.scene-sequence[data-adv-entrance="dissolve"][data-phase="in"] :is(.rp-adv__dialogue,.abyssa-rp__center) {animation:scene-wash-in 420ms 180ms cubic-bezier(.2,.7,.2,1) both;}
+.scene-sequence[data-adv-entrance="dissolve"][data-phase="in"] :is(.rp-app__bar,.story-reading__feedback,.rp-adv__frame-ornaments) {animation:scene-wash-in 360ms 320ms cubic-bezier(.2,.7,.2,1) both;}
+.scene-sequence[data-adv-entrance="dissolve"][data-reduced="true"][data-phase="in"] :is(.rp-adv__cast,.rp-adv__dialogue,.rp-adv__frame-ornaments,.rp-app__bar,.story-reading__feedback,.abyssa-rp__seat,.abyssa-rp__center) {animation-duration:80ms;animation-delay:0ms;}
 @media (prefers-reduced-motion: reduce) {
   .scene-sequence *, .scene-sequence *::before, .scene-sequence *::after {animation-duration: .01ms !important; animation-delay: 0ms !important; transition-duration: .01ms !important;}
 }

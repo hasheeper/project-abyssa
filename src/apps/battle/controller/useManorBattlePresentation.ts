@@ -12,6 +12,7 @@ import {
   useState,
 } from "react";
 import { useGameSession, useGameState } from "../../../game-client/react";
+import { usePlayerName } from "../../../shared/domain/PlayerIdentity";
 import type { DemoCommand, D5Command, DemoReceipt } from "../../../game-application";
 import type { DemoJourneyView } from "../../../game-runtime/demo-journey-view";
 import { sameHead } from "../../../game-runtime/views";
@@ -21,6 +22,7 @@ import {
   nextExpeditionDieRotation,
 } from "../ExpeditionDie3D";
 import { usePresentationQueue } from "./usePresentationQueue";
+import { selectionAfterDieToggle } from "./die-selection";
 import type {
   ExpeditionDieVisual,
   PlayerAttackFx,
@@ -42,7 +44,9 @@ function duration(ms: number) {
     : ms;
 }
 /** Same animation phases and die timing as the original battle, driven by committed Demo receipts. */
-export function useManorBattlePresentation({coordinateRoomAssets = false}: {coordinateRoomAssets?: boolean} = {}) {
+export function useManorBattlePresentation({coordinateRoomAssets = false, onEventPresented}: {coordinateRoomAssets?: boolean; onEventPresented?: (event: DemoReceipt["events"][number], view: DemoJourneyView) => void} = {}) {
+  const eventListener = useRef(onEventPresented); eventListener.current = onEventPresented;
+  const playerName = usePlayerName();
   const reactions = useBattleReaction();
   const session = useGameSession(),
     game = useGameState(),
@@ -77,14 +81,14 @@ export function useManorBattlePresentation({coordinateRoomAssets = false}: {coor
     return tideCueMemory(`${committed.head.saveId}:${committed.head.epoch}`, storage);
   }, [committed.head.saveId, committed.head.epoch]);
   const observeTide = useCallback((next: ReturnType<typeof tideOpeningCue>) => reactions.observe(cueMemory.take(next)), [cueMemory, reactions.observe]);
-  const reset = () => {
+  const reset = (nextHeldActor: string | null = null) => {
     cancelRoom();
     setShown(null);
     setRolls({});
     setAttackFx(null);
     setSupportFx(null);
     setEnemyTurnFx(null);
-    holdActor(null);
+    holdActor(nextHeldActor);
     setJourneyMotion(null);
     setEventRoll(null);
   };
@@ -112,6 +116,7 @@ export function useManorBattlePresentation({coordinateRoomAssets = false}: {coor
     const runId = queue.begin();
     if (runId === null) return;
     setShown(committed);
+    let nextHeldActor: string | null = null;
     try {
       const batch = await session.dispatch(command);
       if (!batch?.presentable || !queue.isCurrent(runId))
@@ -134,10 +139,18 @@ export function useManorBattlePresentation({coordinateRoomAssets = false}: {coor
         announce();
         for (const receipt of batch.receipts) {
           const events = committedDemoEvents(receipt);
-          for (const event of events) observeTide(tideImpactCue(after, event, events));
+          for (const event of events) {
+            observeTide(tideImpactCue(after, event, events));
+            eventListener.current?.(event, after);
+          }
         }
       };
       if (!current()) return;
+      if (command.type === "battle-command" && command.command.type === "toggle-load") {
+        const owner = command.command.actorId;
+        const die = after.party.find(member => member.id === owner)?.die;
+        if (die) nextHeldActor = selectionAfterDieToggle(heldActor, owner, die.loaded);
+      }
       const eventDie = eventAttempt ? manorEventDie(after) : null;
       if (eventDie) {
         if (!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
@@ -222,6 +235,7 @@ export function useManorBattlePresentation({coordinateRoomAssets = false}: {coor
       const apply = (event: DemoReceipt["events"][number]) => {
         visible = showManorEvent(visible, event, after);
         setShown(visible);
+        eventListener.current?.(event, visible);
       };
       for (const receipt of batch.receipts) {
         if (receipt.version === 1 || !current()) return;
@@ -264,7 +278,7 @@ export function useManorBattlePresentation({coordinateRoomAssets = false}: {coor
           (e) => e.type === "enemy-intent-resolved",
         );
         if (resolution) {
-          const enemy = manorBattleModel(visible, null).enemies.find(
+          const enemy = manorBattleModel(visible, null, playerName).enemies.find(
             (e) => e.id === resolution.actorId,
           );
           if (
@@ -376,7 +390,7 @@ export function useManorBattlePresentation({coordinateRoomAssets = false}: {coor
       }
     } finally {
       if (queue.isCurrent(runId)) {
-        reset();
+        reset(nextHeldActor);
         queue.complete(runId);
       }
     }
@@ -394,7 +408,7 @@ export function useManorBattlePresentation({coordinateRoomAssets = false}: {coor
       },
     ]),
   );
-  const model = manorBattleModel(view, heldActor);
+  const model = manorBattleModel(view, heldActor, playerName);
   const presentedEnemies = model.enemies.filter(
     (e) =>
       !e.defeated ||
@@ -405,6 +419,8 @@ export function useManorBattlePresentation({coordinateRoomAssets = false}: {coor
   // screen-space entrance/resize rects and fought the stage's local positions.
   const busy = queue.busy || game.status !== "ready";
   return {
+    // Result surfaces stay mounted while saving or showing a recoverable error.
+    presenting: queue.busy,
     reaction: reactions.reaction,
     view,
     memory: game.record?.schemaVersion === 4 ? session.runtime.queries.memory(game.record) : null,

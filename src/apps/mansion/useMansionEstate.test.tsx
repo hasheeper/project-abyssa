@@ -14,8 +14,8 @@ it("wires modern equipment into stock without counting worn gear or zero-stock c
     const before = structuredClone(record);
     const progression = fixture.runtime.queries.progression(record)!;
     const query = vi.spyOn(fixture.runtime.queries, "progression").mockReturnValue({...progression, inventory: [
-      {instanceId: "stored", definitionId: "equipment.spare-blade", grantId: "grant-1", location: {kind: "inventory"}, definition: {id: "equipment.spare-blade", slot: "general", replacement: "attack", power: 1, scope: "all-native-blanks"}},
-      {instanceId: "worn", definitionId: "equipment.spare-blade", grantId: "grant-2", location: {kind: "equipped", ownerId: "eustice"}, definition: {id: "equipment.spare-blade", slot: "general", replacement: "attack", power: 1, scope: "all-native-blanks"}},
+      {instanceId: "stored", definitionId: "equipment.spare-blade", grantId: "grant-1", preview: [], location: {kind: "inventory"}, definition: {id: "equipment.spare-blade", slot: "general", replacement: "attack", power: 1, scope: "all-native-blanks"}},
+      {instanceId: "worn", definitionId: "equipment.spare-blade", grantId: "grant-2", preview: [], location: {kind: "equipped", ownerId: "eustice"}, definition: {id: "equipment.spare-blade", slot: "general", replacement: "attack", power: 1, scope: "all-native-blanks"}},
     ]});
     const supplies = fixture.runtime.queries.journey(record)!.items;
     const {result, rerender} = renderHook(useMansionEstate, {

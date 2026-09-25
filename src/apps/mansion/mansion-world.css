@@ -238,6 +238,7 @@
 }
 
 .mansion-character > * { pointer-events: none; }
+.mansion-character[data-event-active] { z-index: 145; }
 
 /* 阵营色只用在描边环上 —— 这套 data-faction 配色本身是对的,保留。 */
 .mansion-character[data-faction="lord"] { --character-color: #c4677f; }
@@ -294,6 +295,8 @@
   transition: opacity 150ms ease, transform 150ms ease;
 }
 .mansion-character__bubble svg { display: block; width: 100%; height: 100%; overflow: visible; shape-rendering: geometricPrecision; }
+.mansion-character__bubble[data-event-kind] svg g { display: none; }
+.mansion-character__event-mark { position: absolute; inset: 0 0 7px; display: grid; place-items: center; color: #28363a; font: 700 17px/1 Georgia, serif; }
 
 .mansion-character__name {
   position: absolute;

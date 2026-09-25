@@ -9,13 +9,16 @@ import { applicationError } from "../service";
 import { airpAtHome, airpCopyBlocked, emptyAirp } from "./airp-replay";
 import { emptyAirpOnline, reduceAirpApplicationCommit } from "../airp/gameplay";
 import { inheritAirpPool } from "./airp-inheritance";
+import { directCopyBlocked } from "../airp-direct-gameplay/reducer";
 
 /** Called only with an independently validated source, never a supplied projection. */
 export function deriveD5Baseline(catalog: ValidatedD5Catalog, source: AnyGameRecord, kind: "copy" | "upgrade" | "cycle"): D5Baseline {
   if (catalog.data.tutorial?.guide && kind !== "copy") v.invalid("source", "The guided release currently supports new saves and exact recovery, not migration", "content-unavailable");
   if (source.schemaVersion !== 3 && source.schemaVersion !== 4) v.invalid("source", "Only full manor saves can continue into D5", "content-unavailable");
   const old = source.snapshot.campaign;
+  if (source.schemaVersion === 4 && (source.airpDirector || source.airpGame)) v.invalid("source", "Director archives support exact restore; cross-identity copying is not installed", "content-unavailable");
   if (source.schemaVersion === 4 && source.airpOnline?.connection) v.invalid("source", "An online save requires explicit Session/branch recovery before copying", "online-recovery-required");
+  if (source.schemaVersion === 4 && source.airpDirect && directCopyBlocked(source.airpDirect)) v.invalid("source", "Finish generation, reading and memory before copying; automatic saves and full restore remain available", "run-active");
   if (source.schemaVersion === 4 && source.narrative && (airpCopyBlocked(source.narrative) || !airpAtHome(source.snapshot.campaign))) v.invalid("source", "Finish the active AIRP errand before making another save; use full archive restore for recovery", "run-active");
   const extendingOpening = kind === "upgrade" && source.schemaVersion === 4 && source.contentRef.contentVersion === 5 && catalog.ref.contentVersion >= 6 && source.snapshot.campaign.opening?.status !== "skipped" && !!source.snapshot.campaign.opening;
   const preservingMorning = kind === "upgrade" && source.schemaVersion === 4 && source.contentRef.contentVersion === 6 && catalog.ref.contentVersion >= 7;
@@ -95,8 +98,8 @@ export function createD5LineageApplication(catalog: ValidatedD5Catalog, store: D
       const record:D5GameRecord={schemaVersion:4,head,profileId,contentRef:catalog.ref,snapshot:{campaign:baseline.campaign,run:baseline.run},originRef:{kind,source},retractedFactIds:[],undoAnchors:[],commits:[{ref:head,previous:null,requestId,kind:"create",factIds:[factId]}],facts:[{version:4,id:factId,source:head,origin:"present",runRef:null,originRef:null,worldTime:baseline.campaign.clock,visibility:"party",kind:"save-created",payload:{profileId}}]};
       const receipt:D5Receipt={version:4,contentRef:catalog.ref,saveId,epoch,requestId,fingerprint,status:"committed",before:null,after:head,error:null,events:[],factIds:[factId]};
       if (catalog.data.airp) {
-        const reduced = reduceAirpApplicationCommit(catalog, baseline.narrative ?? emptyAirp(catalog), catalog.data.airpOnline ? emptyAirpOnline() : undefined, { head, before: baseline.campaign, after: baseline.campaign, run: baseline.run?.kind === "expedition" ? baseline.run.state : null, facts: record.facts, group: record.facts, retracted: [] });
-        record.narrative = reduced.narrative; if (reduced.online) record.airpOnline = reduced.online;
+        const reduced = reduceAirpApplicationCommit(catalog, baseline.narrative ?? emptyAirp(catalog), catalog.data.airpOnline ? emptyAirpOnline() : undefined, { head, before: baseline.campaign, after: baseline.campaign, run: baseline.run?.kind === "expedition" ? baseline.run.state : null, facts: record.facts, group: record.facts, retracted: [] }, source.schemaVersion === 4 ? source.airpDirect : undefined);
+        record.narrative = reduced.narrative; if (reduced.online) record.airpOnline = reduced.online; if (reduced.direct) record.airpDirect = reduced.direct;
       }
       const committed=await store.commit({saveId,epoch,requestId,fingerprint,expectedHead:null,candidate:validateD5Record(record,catalog,readers),receipt:validateD5Receipt(receipt,catalog,readers)});
       const checked=validateD5Receipt(committed.receipt,catalog,readers);

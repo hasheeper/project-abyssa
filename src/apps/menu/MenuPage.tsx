@@ -1,11 +1,17 @@
 import { activeRunId } from "../../game-client/session";
-import { useState } from "react";
-import { GameProvider, GameGate, useGameState } from "../../game-client/react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { motion } from "motion/react";
+import { GameProvider, GameGate, useGameSession, useGameState } from "../../game-client/react";
+import { createManualSaveAttempt, type ManualSaveAttempt } from "../../game-client/manual-save";
+import { SaveSlotsPanel } from "../../game-client/SaveSlotsPanel";
+import { SettingsPanel } from "../../game-client/settings/SettingsPanel";
+import { sameHead } from "../../game-runtime/views";
 import { gameHref, recordLocator, type GamePage } from "../../game-client/navigation";
 import type { CSSProperties } from "react";
 import { AbyssaProvider } from "../../shared/ui/primitives/AbyssaProvider";
 import { RpgDialogue } from "../../shared/ui/primitives/RpgDialogue";
 import { Stage } from "../../shared/stage";
+import { ArchiveOverlayScope } from "../../game-client/ArchiveFeedback";
 import { SceneTransitionProvider, useSceneTransition } from "../../shared/transition";
 import { characterIdentities } from "../../content/characters/identities";
 import manorNightGallery from "../../assets/backgrounds/manor-night-gallery.jpg";
@@ -16,8 +22,11 @@ import { MenuSceneControls } from "./MenuSceneControls";
 import { MenuSidebar } from "./MenuSidebar";
 import type { MenuSectionId } from "./MenuSidebar";
 import { MenuTopBar } from "./MenuTopBar";
+import { MenuSystemBackdrop } from "./MenuSystemBackdrop";
+import { StartingRewards } from "./StartingRewards";
 import { useMenuIntro } from "./useMenuIntro";
 import { useMenuParallax } from "./useMenuParallax";
+import { useMenuView, type MenuView } from "./useMenuView";
 
 /* ============ 枢纽主界面 ============
  *
@@ -27,7 +36,7 @@ import { useMenuParallax } from "./useMenuParallax";
  *   pad32 | 侧栏190 | gap32 | 立绘栏518 | gap32 | 命令盘764 | pad32 = 1600
  *   顶栏 104 高,内容区 y152..868(高 716)
  *
- * 左「查阅」(图鉴/角色/…) · 中「人」(立绘 + 吐槽) · 右「去处」(府邸/出征/仓库/商店)
+ * 左「查阅」(图鉴/成就/…) · 中「人」(立绘 + 吐槽) · 右「去处」(府邸/角色/商店/出征)
  * 三者是三种不同性质的入口,所以分三列而不是堆一处。
  */
 
@@ -35,17 +44,17 @@ const IDLE_LINE = "……今天也没什么大事吧？那就好。";
 
 const COMMAND_LINES: Record<MenuCommandId, string> = {
   estate: "回洋馆吗？大家都在。",
-  storage: "仓库的东西，我都记着数。",
+  roster: "想看谁的档案？",
   shop: "去杂货铺的话……记得别被缇比宰了。",
   sortie: "要出去了？那我去准备。"
 };
 
 const SECTION_LINES: Record<MenuSectionId, string> = {
   codex: "图鉴又添了新条目。慢慢看吧。",
-  roster: "想看谁的档案？",
+  achievements: "成就记录尚未开放。",
   memory: "有些事，记着比忘了好。",
-  replay: "回头看看走过的路，也不坏。",
-  achievements: "这些都是你做到的事。",
+  save: "把这一刻记下来吧。",
+  load: "要从哪一段旅程继续？",
   settings: "要调什么？我等着。"
 };
 
@@ -72,13 +81,18 @@ const MENU_BACKGROUNDS = [
   }
 ] as const;
 
-const COMMAND_DESTINATIONS: Partial<
+const COMMAND_DESTINATIONS:
   Record<MenuCommandId, { href: string; destination: string; channel: string }>
-> = {
+= {
   estate: {
     href: "./mansion.html",
     destination: "守望者之崖洋馆",
     channel: "正在返回"
+  },
+  roster: {
+    href: "./character-status.html",
+    destination: "角色档案",
+    channel: "正在翻阅"
   },
   shop: {
     href: "./shop.html",
@@ -89,18 +103,6 @@ const COMMAND_DESTINATIONS: Partial<
     href: "./map.html",
     destination: "裂隙远征",
     channel: "正在进入"
-  }
-};
-
-/* 左栏档案入口的跳转表。与 COMMAND_DESTINATIONS 同形:未列出的条目仍是
-   纯占位,点了只说话不跳页。目前只有「角色」接到了 STATUS。 */
-const SECTION_DESTINATIONS: Partial<
-  Record<MenuSectionId, { href: string; destination: string; channel: string }>
-> = {
-  roster: {
-    href: "./character-status.html",
-    destination: "角色档案",
-    channel: "正在翻阅"
   }
 };
 
@@ -115,8 +117,41 @@ export function MenuPage() {
 function MenuPageContent() {
   const { navigate, phase: scenePhase } = useSceneTransition();
   const intro = useMenuIntro(scenePhase);
-  useMenuParallax(intro.ref, intro.blocked);
+  const session = useGameSession();
   const game = useGameState(), record = game.record!, locator = recordLocator(record);
+  const view = useMenuView(intro.ref, true);
+  const startingReward = useMemo(() => session.runtime.queries.startReward(record), [record, session]);
+  const [operationBusy, setOperationBusy] = useState(false);
+  const operationLock = useRef(false);
+  const onBusyChange = useCallback((busy: boolean) => { operationLock.current = busy; setOperationBusy(busy); }, []);
+  const saveAttempt = useRef<ManualSaveAttempt | null>(null);
+  const lastSection = useRef<MenuView>("home");
+  const contentRef = useRef<HTMLDivElement>(null);
+  const home = view.displayed === "home";
+  useMenuParallax(intro.ref, intro.blocked || view.target !== "home" || !home || view.transitioning);
+  function openSystem(next: Exclude<MenuView, "home">) {
+    if (operationLock.current || view.target === next || (next !== "settings" && game.status !== "ready")) return;
+    if (next === "save" && view.displayed !== "save" && (!saveAttempt.current || saveAttempt.current.completed || !sameHead(saveAttempt.current.source.head, record.head)))
+      saveAttempt.current = createManualSaveAttempt(session.runtime, record);
+    lastSection.current = next;
+    view.request(next);
+  }
+  const requestView = view.request;
+  const back = useCallback(() => { if (!operationLock.current) requestView("home"); }, [requestView]);
+  useEffect(() => {
+    if (view.target === "home") return;
+    const escape = (event: KeyboardEvent) => {
+      if (event.key !== "Escape" || event.defaultPrevented || event.repeat || event.isComposing || event.altKey || event.ctrlKey || event.metaKey) return;
+      event.preventDefault(); back();
+    };
+    window.addEventListener("keydown", escape);
+    return () => window.removeEventListener("keydown", escape);
+  }, [view.target, back]);
+  useEffect(() => {
+    if (view.transitioning || lastSection.current === "home") return;
+    if (home) intro.ref.current?.querySelector<HTMLButtonElement>(`[data-section="${lastSection.current}"]`)?.focus({ preventScroll: true });
+    else contentRef.current?.focus({ preventScroll: true });
+  }, [view.transitioning, home, view.displayed, intro.ref]);
   const route = (href: string) => gameHref(href.replace(/^\.\//, "").replace(/\.html$/, "") as GamePage, locator);
   const [selectedCommand, setSelectedCommand] = useState<MenuCommandId>("estate");
   const [selectedSection, setSelectedSection] = useState<MenuSectionId | null>(null);
@@ -142,30 +177,35 @@ function MenuPageContent() {
       canvasClassName="menu-stage"
       style={
         {
-          "--menu-scene-image": `url("${activeBackground.imageUrl}")`
+          "--menu-scene-image": `url("${activeBackground.imageUrl}")`,
         } as CSSProperties
       }
     >
-      <div
+      <ArchiveOverlayScope><div
         ref={intro.ref}
         className="menu-entry"
         data-menu-intro={intro.state}
         data-menu-reduced={intro.reducedMotion || undefined}
+        data-menu-view={view.displayed}
+        data-menu-view-phase={view.phase}
         inert={intro.blocked}
       >
       <div className="menu-scenery" aria-hidden="true" />
       <div className="menu-scenery-shade" aria-hidden="true" />
       <AbyssaProvider className="menu-app">
-        <MenuBackdrop />
-        <div className="menu-host__fade" aria-hidden="true" />
+        {home && <div className="menu-home-backdrop" aria-hidden="true"><MenuBackdrop /></div>}
         <MenuTopBar
           day={day}
           phase={phase}
           publicFund={funds.public}
           partyFund={funds.party}
           crystals={funds.crystals}
+          view={view.displayed}
+          opacity={view.titleOpacity}
+          titleX={view.titleX}
         />
 
+        {home && <div className="menu-home-controls" inert={view.transitioning}>
         <MenuSceneControls
           characterName={host?.selectorLabel ?? host?.name ?? "未配置"}
           characterIndex={hostIndex}
@@ -191,27 +231,26 @@ function MenuPageContent() {
             );
           }}
         />
+        </div>}
 
         <div className="menu-app__body">
           <MenuSidebar
-            selectedId={selectedSection}
+            selectedId={view.target === "home" ? selectedSection : view.target}
+            archiveDisabled={game.status !== "ready"}
+            disabled={operationBusy}
             onSelect={(id) => {
-              /* 与命令盘同一套交互:先选中说话,再点已选中的才跳页
-                 (MenuCommandDial.tsx:196 的 select-then-activate)。
-                 左栏没有 onActivate,所以在这里自己判重复点击。 */
-              const target = SECTION_DESTINATIONS[id];
-              if (target && id === selectedSection) {
-                navigate(route(target.href), {
-                  destination: target.destination,
-                  channel: target.channel
-                });
-                return;
-              }
+              if (operationLock.current) return;
+              if (id === "save" || id === "load" || id === "settings") { openSystem(id); return; }
+              // 图鉴、成就、记忆仍仅占位；角色从右侧四键进入原页面。
+              view.request("home");
               setSelectedSection(id);
               say(SECTION_LINES[id]);
             }}
           />
-
+          <motion.div ref={contentRef} className="menu-content"
+            tabIndex={-1} inert={view.transitioning} aria-label={home ? "主菜单内容" : "菜单栏目内容"}>
+          <MenuSystemBackdrop displayed={view.displayed} target={view.target} skip={view.archiveMotion.skip} />
+          {home ? <div className="menu-home">
           {/* ============ 立绘栏:破窗,无边框 ============
               **不用 RpgFrame** —— 给立绘套画框会把人物困在一个小窗里,
               读起来像贴纸而不是站在场景里。这里让立绘:
@@ -230,6 +269,7 @@ function MenuPageContent() {
               />
             )}
           </div>
+          <div className="menu-host__fade" aria-hidden="true" />
 
           <div className="menu-app__dial">
             <MenuCommandDial
@@ -241,10 +281,6 @@ function MenuPageContent() {
               }}
               onActivate={(id) => {
                 const target = COMMAND_DESTINATIONS[id];
-                if (!target) {
-                  say(`${COMMAND_LINES[id]}（仓库界面尚未接入）`);
-                  return;
-                }
                 navigate(id === "sortie" && activeRunId(record) ? gameHref("battle", locator) : route(target.href), {
                   destination: target.destination,
                   channel: target.channel
@@ -263,9 +299,19 @@ function MenuPageContent() {
               aria-live="polite"
             />
           </div>
+          </div> : (view.displayed === "save" && saveAttempt.current || view.displayed === "load") ? <SaveSlotsPanel
+              {...view.displayed === "save" ? { mode: "save" as const, attempt: saveAttempt.current!, ready: game.status === "ready" } : { mode: "load" as const }}
+              onClose={back} onBusyChange={onBusyChange}
+              sceneMotion={view.archiveMotion}
+              navigate={href => navigate(href, { destination: "存档进度", channel: "正在读取" })} />
+            : view.displayed === "settings" ? <SettingsPanel embedded onBack={back} sceneMotion={view.settingsMotion} /> : null}
+          </motion.div>
         </div>
+        {startingReward && <StartingRewards key={`${record.head.saveId}:${record.head.epoch}:${startingReward.id}`}
+          reward={startingReward} saveId={record.head.saveId} epoch={record.head.epoch}
+          paused={intro.blocked || intro.state !== "ready" || !home || view.transitioning || view.target !== "home"}/>}
       </AbyssaProvider>
-      </div>
+      </div></ArchiveOverlayScope>
     </Stage>
   );
 }

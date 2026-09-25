@@ -11,13 +11,16 @@ export function validateTutorialDefinitions(catalog: D5Catalog) {
   v.number(t.firstBattleSeed, "tutorial.firstBattleSeed", 0, 0xffffffff);
   const reward = v.record(t.reward, "tutorial.reward", ["id", "gold", "cargoIds"]);
   v.choice(reward.id, ["reward.tide-cave.return"], "tutorial.reward.id");
-  v.number(reward.gold, "tutorial.reward.gold", 0, 100);
+  v.number(reward.gold, "tutorial.reward.gold", 0, catalog.contentVersion >= 17 ? 10_000 : 100);
   if (v.canonicalJson(reward.cargoIds) !== '["cargo.herbs","cargo.books","cargo.workshop-parcel"]') v.invalid("tutorial.reward", "All three cargo facts are required");
   const route = v.reference(catalog.routes, t.routeId, "tutorial.routeId");
   const expectedRooms = ["room.tide-cave.1", "room.tide-cave.2", ...(guided ? ["room.tide-cave.event.intro"] : []), "room.tide-cave.3", "room.tide-cave.4"];
-  if (v.canonicalJson(route.layers) !== v.canonicalJson([expectedRooms])) v.invalid("tutorial.route", "Ordered version-specific opening route required");
+  const expectedLayers = catalog.contentVersion >= 14
+    ? [[expectedRooms[0]], [expectedRooms[1], expectedRooms[2]], [expectedRooms[3]], [expectedRooms[4]]]
+    : [expectedRooms];
+  if (v.canonicalJson(route.layers) !== v.canonicalJson(expectedLayers)) v.invalid("tutorial.route", "Ordered version-specific opening route required");
   let battle = 0;
-  for (const id of route.layers[0]) {
+  for (const id of route.layers.flat()) {
     const room = v.reference(catalog.journey!.rooms, id, "tutorial.room");
     if (guided && id === "room.tide-cave.event.intro") {
       v.record(room, "tutorial.event.room", ["id", "kind", "eventId", "sceneId"]);

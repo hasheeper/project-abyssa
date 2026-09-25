@@ -1,0 +1,86 @@
+import { expect, it } from "vitest";
+import { formalAirpFixture } from "../testing/airp-game-fixture";
+import { directorTestMaterial } from "../testing/airp-director-fixture";
+import { directorPlan, directorOutput } from "../testing/airp-director-playthrough";
+import { lowR8Source } from "../../content/presentation/airp/low-r8-source";
+import { mockNodeWriting } from "../testing/airp-node-fixture";
+import { readLowWriting } from "../airp-low/output";
+import { emptyUsage } from "../airp-generation/contracts";
+import { directorStage } from "./jobs";
+import { readD5Archive } from "../versions/d5-validate";
+import { AIRP_GAME_CATALOG } from "../../game-runtime/airp-game-context";
+import { D5_RUN_READERS } from "../../game-core/session";
+import { directorLowFrame } from "./low";
+import { LOW_ATTITUDE_HANDOFF, LOW_CURRENT_RESPONSE_HANDOFF, LOW_INTERACTION_HANDOFF } from "../airp-low/continuity";
+
+it.each([2, 3, 4] as const)("explicit reader %i revalidation preserves old attempts/input/replay, then only formats", async readerVersion => {
+  const f = await formalAirpFixture(); await f.flow.sync();
+  await f.send({ type: "airp-director-configure", material: directorTestMaterial(), lowMaterial: lowR8Source });
+  const wf = { read: async () => f.raw(), send: f.send };
+  await directorPlan(wf, { kind: "fixed", definitionId: "ripple.elora.old-medicine-case" });
+  await f.send({ type: "advance-phase" }); await f.send({ type: "advance-phase" });
+  await f.send({ type: "airp-director-open", eventId: f.raw().airpDirector!.events[0].id });
+  const id = f.raw().airpDirector!.reading!.jobId, current = () => f.raw().airpDirector!.jobs.find(j => j.id === id)!;
+  const output = readerVersion === 2 ? mockNodeWriting().replace("行こうか？（门就在前面，要走了吗？）", "门就在前面，要走了吗？（行こうか？）")
+    : readerVersion === 3 ? mockNodeWriting().replace(/^(<planning>[\s\S]*?<\/planning>)<Interleaving>/, "<Interleaving>$1")
+    : mockNodeWriting().replace("「行こうか？（门就在前面，要走了吗？）」", "「行こうか？」（门就在前面，要走了吗？）");
+  await f.send({ type: "airp-director-begin", jobId: id, attemptId: "old-v1", stage: "writing", at: 1 });
+  await f.send({ type: "airp-director-result", jobId: id, attemptId: "old-v1", output, usage: emptyUsage(), at: 2 });
+  const failed = structuredClone(current()); expect(failed.attempts[0].status).toBe("failed");
+  await f.send({ type: "airp-director-configure", material: directorTestMaterial(), lowMaterial: lowR8Source, lowReadVersion: readerVersion, lowContextVersion: 2 });
+  expect(current()).toEqual(failed); // New defaults cannot rewrite an already frozen scene.
+  await f.send({ type: "airp-director-revalidate-low", jobId: id, readerVersion });
+  expect(current().attempts).toEqual(failed.attempts); expect(current().lowFrame).toEqual(failed.lowFrame);
+  expect(directorStage(current())).toBe("formatting");
+  await directorOutput(wf, current(), "formatting", JSON.stringify(readLowWriting(output, current().lowFrame!, readerVersion).text));
+  expect(current().text!.lines[1].text).toBe("「门就在前面，要走了吗？」");
+  expect(current().attempts.map(a => a.stage)).toEqual(["writing", "formatting"]);
+  await f.send({ type: "airp-director-show", jobId: id });
+  for (let cursor = 0; cursor < current().text!.lines.length; cursor++) await f.send({ type: "airp-director-read", jobId: id, cursor });
+  const eventId = f.raw().airpDirector!.events[0].id;
+  await f.send({ type: "airp-director-choose", eventId, choiceId: "participate" });
+  await f.send({ type: "airp-director-open", eventId });
+  const next = f.raw().airpDirector!.jobs.at(-1)!;
+  expect(next).toMatchObject({ lowReadVersion: readerVersion, lowContextVersion: 2, scene: { role: "acceptance" } });
+  expect(next.lowFrame!.scene.scenario).toContain("时段：黄昏；地点：小广场");
+  expect(next.lowFrame!.scene.scenario).toContain("只承接程序已记录的那个选择");
+  expect(next.lowFrame!.sources).toEqual(failed.lowFrame!.sources);
+  expect(current().lowFrame).toEqual(failed.lowFrame);
+  const exported = await f.runtime.application.exportSave("formal-airp"); if (!exported.ok) throw Error("Export failed");
+  expect(readD5Archive(exported.archive, AIRP_GAME_CATALOG, D5_RUN_READERS)).toEqual(f.raw());
+}, 30000);
+
+it("v5 only appends the attitude handoff, preserving v4 sources/order/sampling and frozen requests", async () => {
+  const f = await formalAirpFixture(); await f.flow.sync();
+  await f.send({ type: "airp-director-configure", material: directorTestMaterial(), lowMaterial: lowR8Source, lowReadVersion: 2, lowContextVersion: 4 });
+  await directorPlan({ read: async () => f.raw(), send: f.send }, { kind: "fixed", definitionId: "ripple.elora.old-medicine-case" });
+  await f.send({ type: "advance-phase" }); await f.send({ type: "advance-phase" });
+  await f.send({ type: "airp-director-open", eventId: f.raw().airpDirector!.events[0].id });
+  const job = structuredClone(f.raw().airpDirector!.jobs.at(-1)!), old = job.lowFrame!;
+  const next = directorLowFrame(lowR8Source, job.scene!, 5);
+  expect(next.sources).toEqual(old.sources); expect(next.briefs).toEqual(old.briefs);
+  expect(next.trace).toEqual(old.trace); expect(next.sampling).toEqual(old.sampling);
+  expect(next.scene.currentTurn).toBe(`${old.scene.currentTurn}\n${LOW_ATTITUDE_HANDOFF}`);
+  expect(next.messages.slice(0, -1)).toEqual(old.messages.slice(0, -1));
+  expect(next.messages.at(-1)!.content).toBe(`${old.messages.at(-1)!.content}\n${LOW_ATTITUDE_HANDOFF}`);
+  const latest = directorLowFrame(lowR8Source, job.scene!, 6);
+  expect(latest.sources).toEqual(old.sources); expect(latest.trace).toEqual(old.trace); expect(latest.sampling).toEqual(old.sampling);
+  expect(latest.messages.slice(0, -1)).toEqual(old.messages.slice(0, -1));
+  expect(latest.scene.currentTurn).toContain(LOW_CURRENT_RESPONSE_HANDOFF);
+  expect(latest.scene.currentTurn).not.toContain(LOW_ATTITUDE_HANDOFF);
+  expect(latest.scene.currentTurn).not.toContain("末尾三个候选表现不同立场或关注点");
+  const interaction = directorLowFrame(lowR8Source, job.scene!, 7);
+  expect(interaction.sources).toEqual(latest.sources); expect(interaction.trace).toEqual(latest.trace); expect(interaction.sampling).toEqual(latest.sampling);
+  expect(interaction.messages.slice(0, -1)).toEqual(latest.messages.slice(0, -1));
+  expect(interaction.scene.currentTurn).toContain(LOW_INTERACTION_HANDOFF);
+  expect(interaction.scene.currentTurn).not.toContain(LOW_CURRENT_RESPONSE_HANDOFF);
+  await f.send({ type: "airp-director-configure", material: directorTestMaterial(), lowMaterial: lowR8Source, lowReadVersion: 2, lowContextVersion: 5 });
+  expect(f.raw().airpDirector!.jobs.find(j => j.id === job.id)).toEqual(job);
+  await f.send({ type: "airp-director-configure", material: directorTestMaterial(), lowMaterial: lowR8Source, lowReadVersion: 2, lowContextVersion: 6 });
+  expect(f.raw().airpDirector!.jobs.find(j => j.id === job.id)).toEqual(job);
+  await f.send({ type: "airp-director-configure", material: directorTestMaterial(), lowMaterial: lowR8Source, lowReadVersion: 3, lowContextVersion: 7 });
+  expect(f.raw().airpDirector!.jobs.find(j => j.id === job.id)).toEqual(job);
+  expect(f.raw().airpDirector).toMatchObject({ lowReadVersion: 3, lowContextVersion: 7 });
+  const exported = await f.runtime.application.exportSave("formal-airp"); if (!exported.ok) throw Error("Export failed");
+  expect(readD5Archive(exported.archive, AIRP_GAME_CATALOG, D5_RUN_READERS)).toEqual(f.raw());
+}, 30000);

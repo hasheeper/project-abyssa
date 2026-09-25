@@ -9,7 +9,7 @@ import { isPlayerActor, playerDisplayName } from "../../../shared/domain/player-
 /** Real archive dice drive the roster. Legacy faces keep `live.suitKnown: false`
  *  so the panel can render the shared die frames without advertising suits
  *  the v1 rules never implemented. */
-export function liveParty(view: CharacterArchiveView): {
+export function liveParty(view: CharacterArchiveView, playerName?: string): {
   roster: SortieMember[];
   leader: SortieLeader;
 } {
@@ -18,8 +18,8 @@ export function liveParty(view: CharacterArchiveView): {
       dice = presentDice(ch, view.leaderId);
     return {
       id: ch.id,
-      name: isPlayerActor(ch.id) ? playerDisplayName() : art?.name ?? ch.name,
-      shortName: isPlayerActor(ch.id) ? playerDisplayName() : art?.selectorLabel ?? ch.name,
+      name: isPlayerActor(ch.id) ? playerDisplayName(playerName) : art?.name ?? ch.name,
+      shortName: isPlayerActor(ch.id) ? playerDisplayName(playerName) : art?.selectorLabel ?? ch.name,
       secondaryName: isPlayerActor(ch.id) ? "USER" : art?.secondaryName,
       title: art?.status.title ?? "远征伙伴",
       faction: art?.status.affiliation?.tone ?? "hero-party",

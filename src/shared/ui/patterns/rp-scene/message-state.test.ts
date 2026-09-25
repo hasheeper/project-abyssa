@@ -68,6 +68,13 @@ describe("RP message state", () => {
     ]);
   });
 
+  it("keeps a reaction after a committed choice in the current reading beat", () => {
+    const messages: RpMessage[] = [say("question"), {id:"hold",kind:"stage",actorId:"abyssa",text:"",emotion:"displeased"},
+      {id:"choice",kind:"choice",text:"端走盘子",sequence:1}, {id:"reaction-face",kind:"stage",actorId:"abyssa",text:"",emotion:"surprised"},
+      {id:"reaction",kind:"narration",text:"你扣住盘沿，向后拽开半尺。"}];
+    expect([...deriveLitAux(messages)]).toEqual(["choice", "reaction"]);
+  });
+
   it("counts Unicode code points while excluding whitespace from typing timing", () => {
     expect(countTypedChars("A 😀\n中")).toBe(3);
   });

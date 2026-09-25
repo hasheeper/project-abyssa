@@ -1,4 +1,6 @@
+import { equipmentArt } from "../content/presentation/equipment";
 import { archiveIdentities } from "../content/characters/identities";
+import { isPlayerActor, playerDisplayName } from "../shared/domain/player-identity";
 import { presentCharacterChronicle } from "./character-chronicle";
 import { relationshipArt } from "../content/characters/relationshipArt";
 import type {
@@ -55,7 +57,7 @@ const actions: Record<
     icon: "heal",
     label: "昂贵治疗",
     description:
-      "治疗受伤的存活同伴并支付 10 散金；不足时扣除现有散金，仍能治疗。",
+      "治疗受伤的存活同伴并支付 1,000 G 散金；不足时扣除现有散金，仍能治疗。",
   },
   "cleave-left": {
     icon: "attack",
@@ -86,6 +88,7 @@ const actions: Record<
     description: "攻击指定目标；若目标有缠线，消费该缠线并使本次伤害 +2。",
   },
 };
+export { actions as demoActionPresentation };
 const legacyActions: Record<string, string> = {
   attack: "攻击",
   guard: "格挡",
@@ -95,8 +98,7 @@ const legacyActions: Record<string, string> = {
   blank: "空面",
 };
 export const equipmentNames: Record<string, string> = {
-  "equipment.spare-blade": "备用短刃",
-  "equipment.emergency-pouch": "应急药囊",
+  ...Object.fromEntries(Object.entries(equipmentArt).map(([id, art]) => [id, art.name])),
 };
 const covenantNames: Record<string, string> = {
   "covenant.eustice": "王权领域",
@@ -237,7 +239,7 @@ export function presentDice(
       description: !ch.generalApplicable
         ? "没有原生空面，不适用空面装备。"
         : item
-          ? `全部原生空面改为${item.definition.replacement === "attack" ? "攻击" : "治疗"} ${item.definition.power}；不改变命数、品质、点数或花色。`
+          ? `${equipmentArt[item.definitionId]?.description ?? "通用装备"}；保留命数、品质、点数与花色。`
           : "当前配置未装备通用物品。",
       ...(item
         ? {
@@ -273,7 +275,7 @@ export function presentDice(
           actionLabel: a.label,
           description: a.description,
           rust: ch.temporaryRust.includes(f.id) ? "temporary" : f.rust,
-          ...(base.actionId !== f.actionId && item
+          ...((base.actionId !== f.actionId || base.power !== f.power) && item
             ? {
                 replacement: `${equipmentNames[item.definitionId]}：${actions[ch.actions[base.actionId].kind].label}→${a.label} ${f.power}`,
               }
@@ -283,7 +285,7 @@ export function presentDice(
     }),
   };
 }
-export function presentCharacterArchive(view: CharacterArchiveView) {
+export function presentCharacterArchive(view: CharacterArchiveView, playerName?: string) {
   const order = ["kael", "eustice", "elora", "kororo", "norma", "marietta"];
   const ids = [
     ...new Set([
@@ -305,6 +307,7 @@ export function presentCharacterArchive(view: CharacterArchiveView) {
           name: ch?.name ?? "未知角色",
           status: { title: "角色资料" },
         };
+    if (isPlayerActor(id)) { profile.name = playerDisplayName(playerName); profile.selectorLabel = profile.name; }
     profile.status.statusChips = ch
       ? [
           {
@@ -375,7 +378,7 @@ export function presentCharacterArchive(view: CharacterArchiveView) {
       dice,
       notes,
       chronicle: ch
-        ? presentCharacterChronicle(ch.id, ch.history)
+        ? presentCharacterChronicle(ch.id, ch.history, playerName)
         : ({
             characterId: id,
             blocks: [],

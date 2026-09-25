@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
-vi.mock("../shared/loading/startup", () => ({prepareGame:vi.fn(async () => {})}));
+vi.mock("../shared/loading/startup", () => ({prepareGame:vi.fn(async () => {}),warmGameResources:vi.fn(async () => {})}));
 vi.mock("./routes", () => ({loadRoute:vi.fn(),routeTitles:{title:"标题",map:"地图",mansion:"洋馆",shop:"商店",battle:"战斗"}}));
-import { prepareGame } from "../shared/loading/startup";
+import { prepareGame, warmGameResources } from "../shared/loading/startup";
 import { loadRoute } from "./routes";
 import { navigateTo } from "../shared/routing/location";
 import { SceneTransitionProvider, useSceneReady } from "../shared/transition/TransitionProvider";
@@ -13,6 +13,28 @@ import { useSceneReveal } from "../shared/transition/useSceneReveal";
 const advance = (ms = 1500) => act(() => vi.advanceTimersByTimeAsync(ms));
 beforeEach(() => { vi.useFakeTimers(); vi.clearAllMocks(); history.replaceState(null,"","/abyssa/#/title"); });
 afterEach(() => { cleanup(); vi.useRealTimers(); });
+
+it("loads the first route alongside fonts and reveals without waiting for background downloads", async () => {
+  let ready!: () => void;
+  vi.mocked(prepareGame).mockImplementationOnce(() => new Promise(resolve => {ready=resolve;}));
+  vi.mocked(warmGameResources).mockImplementationOnce(() => new Promise(() => {}));
+  vi.mocked(loadRoute).mockResolvedValue({default:() => <p>可用的标题</p>});
+  const {container} = render(<GameShell/>); await advance(1);
+  expect(loadRoute).toHaveBeenCalledWith("title"); expect(warmGameResources).not.toHaveBeenCalled();
+  expect(screen.queryByText("可用的标题")).toBeNull();
+  await act(async () => ready()); await advance();
+  expect(container.querySelector(".scene-transition")).toHaveAttribute("data-phase", "idle");
+  expect(warmGameResources).toHaveBeenCalledTimes(1);
+});
+
+it("starts the target route during closing without mounting it early", async () => {
+  vi.mocked(loadRoute).mockImplementation(async page => ({default:() => <p>page:{page}</p>}));
+  render(<GameShell/>); await advance();
+  act(() => {navigateTo("#/map");}); await advance(50);
+  expect(loadRoute).toHaveBeenLastCalledWith("map"); expect(screen.queryByText("page:map")).toBeNull();
+  expect(screen.getByText("page:title")).toBeInTheDocument();
+  await advance(); expect(screen.getByText("page:map")).toBeInTheDocument();
+});
 
 it("prepares once, shares one curtain, and unmounts the old page's live effects", async () => {
   let live = 0, disposed = 0;

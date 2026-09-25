@@ -10,7 +10,7 @@ import mariettaPortrait from "../../../assets/characters/portraits/marietta.png"
 import blightedSentinel from "../../../assets/battle/enemy-blighted-sentinel.png";
 import crystallineChoir from "../../../assets/battle/enemy-crystalline-choir.png";
 import miasmaAmalgam from "../../../assets/battle/enemy-miasma-amalgam.png";
-import { DEFAULT_PLAYER_NAME } from "../../../shared/domain/player-identity";
+import { DEFAULT_PLAYER_NAME, isPlayerActor, playerDisplayName } from "../../../shared/domain/player-identity";
 
 export interface PartyVisual {
   id: CharacterId;
@@ -85,6 +85,11 @@ export const ENEMY_ART: Record<EnemyState["art"], string> = {
   amalgam: miasmaAmalgam,
   choir: crystallineChoir
 };
+
+export function partyVisual(id: keyof typeof PARTY_VISUALS, playerName?: string) {
+  const base = PARTY_VISUALS[id], name = playerDisplayName(playerName);
+  return isPlayerActor(id) && base.name !== name ? {...base, name} : base;
+}
 
 export const INTENT_GLYPH: Record<string, GlyphName> = {
   repair: "heal",

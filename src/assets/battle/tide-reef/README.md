@@ -11,10 +11,12 @@
 | [`enemy.outlaw.crossbow`](enemy.outlaw.crossbow.png) | 亡命徒·弩手 | 亡命徒·弩手 | 教学关，替换灰盒；可派生黑礁走私团红头巾变体 |
 | [`enemy.outlaw.hauler`](enemy.outlaw.hauler.png) | 亡命徒·扛夫 | 亡命徒·扛夫 | 教学关，替换灰盒；可派生黑礁走私团红头巾变体 |
 | [`enemy.outlaw.chief`](enemy.outlaw.chief.png) | 亡命头目 | 匪首「礁钩」 | 教学关 Boss；立绘不烘焙称号，可换称号和微调配色复用 |
-| [`enemy.beast.reef-crab`](enemy.beast.reef-crab.png) | 硬壳礁蟹 | 待正常副本内容定案 | 第二批归档，规则方向待定，未接玩法 |
-| [`enemy.beast.shell-leech`](enemy.beast.shell-leech.png) | 藏壳海蛭 | 待正常副本内容定案 | 第二批归档，按非恐怖“缩壳讨嫌”方向，未接玩法 |
+| [`enemy.beast.reef-crab`](enemy.beast.reef-crab.png) | 硬壳礁蟹 | 硬壳礁蟹 | 内容 20 普通溶洞第一／二层；高耐久普通攻击 |
+| [`enemy.beast.shell-leech`](enemy.beast.shell-leech.png) | 藏壳海蛭 | 藏壳海蛭 | 内容 20 普通溶洞第二层；下一回合封骰干扰 |
 
 教学关继续使用既有 `enemy.intro.*` 玩法定义和脚底锚点，只在表现映射中换成上述五张正式 PNG；不因美术换图改动规则、存档或已发布内容摘要。
+
+2026-09-24：普通路线已接入六种敌人（史莱姆、刀手、弩手、扛夫、礁蟹、海蛭），由 `artId` 查询共享美术目录；头目仍只服务教程。礁蟹／海蛭显示基准高度分别为 170／210 px，1376×768 原画布不改；非零 alpha 包络分别为 `[59,36,1281,743]`／`[198,161,1240,687]`。本轮仅检查资产数据与接线，没有视觉验收。
 
 显示尺寸不按源 PNG 的画布尺寸自动决定，而按抠图后主体块头校准。史莱姆为小型档；弩手因蹲姿略低于普通人形；刀手为普通人形档；头目明显大于普通人形；扛夫因体格、背架和长柄镐为本批最大。美术基准画布高度依次为 145／180／216／266／280 px。
 
@@ -28,8 +30,10 @@
 | --- | --- | --- |
 | [`bg.tide-reef.shore`](../../backgrounds/tide-reef/bg.tide-reef.shore.jpg) | 雾滩洞口；含翻覆货车正典物 | 定稿教学关第 1 战；AVG 洞口进场与出洞返程 |
 | [`bg.tide-reef.cargo`](../../backgrounds/tide-reef/bg.tide-reef.cargo.jpg) | 上层货台；与三件货剧情绑定 | 教学关第 4 战／Boss；AVG 货台接敌与战后收拾货物；不建议刷本复用 |
-| [`bg.tide-reef.boardwalk`](../../backgrounds/tide-reef/bg.tide-reef.boardwalk.jpg) | 人去楼空的走私栈道 | 正常副本归档，未接玩法；只留空桶、破网、缺板等残骸 |
-| [`map.tide-reef`](../../map/landmarks/map.tide-reef.png) | 教学关与正常副本共用地图立牌 | 已归档，未替换现有地图节点；只含可切割地貌实体 |
+| [`bg.tide-reef.boardwalk`](../../backgrounds/tide-reef/bg.tide-reef.boardwalk.jpg) | 人去楼空的走私栈道 | 内容 20 普通溶洞第三层与通关结果；不放可重复领取的剧情货物 |
+| [`map.tide-reef`](../../map/landmarks/map.tide-reef.png) | 教学关与正常副本共用地图立牌 | 已替换地图 cave 图源，保留原节点位置、展示高度与点击逻辑 |
+
+普通溶洞独立使用 `scene.tide-reef.shore / grotto / boardwalk`：第一层雾滩、第二层及出口洞内石阶、第三层栈道。结算按实际终局房间恢复背景，第二层撤离不会显示栈道或庄园。地图立牌非零 alpha 包络为 `[36,30,1342,739]`，由现有纸片地标管线定位主体。
 
 当前场景裁决以 2026-09-17 最新剧情对齐要求为准：定稿版第 1 战使用 `bg1`／`bg.tide-reef.shore`；第二场开战前已越过洞口，因此第 2、3 战及洞内开锁事件均使用 `map/quest-backgrounds/tidecall-grotto.jpg`；第 4 战／Boss 使用 `bg2`／`bg.tide-reef.cargo`；`bg3` 留给正常副本。此项取代此前“第 1、2 战均使用 bg1”的配置。旧版对白未写入洞内，继续按各自文本地点显示，不改已发布剧情和存档。
 

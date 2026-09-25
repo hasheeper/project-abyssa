@@ -1,4 +1,4 @@
-import type { RefObject } from "react";
+import type { ReactNode, RefObject } from "react";
 import { CurrencyAmount } from "../../shared/ui/primitives/CurrencyAmount";
 import { IconButton } from "../../shared/ui/primitives/IconButton";
 import { RpgFrame } from "../../shared/ui/primitives/RpgFrame";
@@ -19,6 +19,8 @@ import {
 
 export type MansionRoomDrawerProps = {
   readOnly?: boolean;
+  facilitiesEnabled?: boolean;
+  facilityPanel?: ReactNode;
   region: SceneRegion;
   detail: MansionRoomDetail;
   side: DrawerSide;
@@ -41,6 +43,8 @@ export type MansionRoomDrawerProps = {
 
 export function MansionRoomDrawer({
   readOnly = false,
+  facilitiesEnabled = false,
+  facilityPanel,
   region,
   detail,
   side,
@@ -123,9 +127,11 @@ export function MansionRoomDrawer({
           <small><i aria-hidden="true" />生活痕迹</small>
           <p>{detail.trace}</p>
         </div>
-        {readOnly && <p className="mansion-room-card__description">建设与生产尚未开放</p>}
+        {readOnly && !facilitiesEnabled && <p className="mansion-room-card__description">建设与生产尚未开放</p>}
 
-        {detail.production && (
+        {facilityPanel}
+
+        {!facilitiesEnabled && detail.production && (
           <div className="mansion-room-card__harvest">
             <small>本相位产出</small>
             <button
@@ -157,7 +163,7 @@ export function MansionRoomDrawer({
           </div>
         )}
 
-        {detail.state !== "sealed" && detail.state !== "provisional" && (
+        {!facilitiesEnabled && detail.state !== "sealed" && detail.state !== "provisional" && (
           <div className="mansion-room-card__tier" role="group" aria-label="设施状态">
             <span className="mansion-room-card__tier-label">设施档位</span>
             <span
@@ -212,14 +218,14 @@ export function MansionRoomDrawer({
           </div>
         )}
 
-        {(detail.upgradeCost || (detail.href && detail.actionLabel)) && (
+        {((!facilitiesEnabled && detail.upgradeCost) || (detail.href && detail.actionLabel)) && (
           <div className="mansion-room-card__footer">
             <div className="mansion-room-card__actions">
-              {detail.upgradeCost && detail.fund && canPromote && (
+              {!facilitiesEnabled && detail.upgradeCost && detail.fund && canPromote && (
                 <button
                   type="button"
                   className="mansion-room-card__promote"
-                  aria-label={`升级至 Lv.${level + 1}，花费 ${promoteCost(detail.upgradeCost)} 金币`}
+                  aria-label={`升级至 Lv.${level + 1}，花费 ${promoteCost(detail.upgradeCost)} G`}
                   disabled={readOnly || funds[detail.fund] < promoteCost(detail.upgradeCost)}
                   onClick={() => onPromoteFacility(region.id)}
                 >
@@ -232,11 +238,11 @@ export function MansionRoomDrawer({
                   <strong>升级建筑</strong>
                   <CurrencyAmount
                     value={promoteCost(detail.upgradeCost)}
-                    label={`金币 ${promoteCost(detail.upgradeCost)}`}
+                    label="升级费用"
                   />
                 </button>
               )}
-              {detail.upgradeCost && detail.fund && !canPromote && (
+              {!facilitiesEnabled && detail.upgradeCost && detail.fund && !canPromote && (
                 <button
                   type="button"
                   className="mansion-room-card__repair"
@@ -244,7 +250,7 @@ export function MansionRoomDrawer({
                     ? `修缮中，还需 ${upgradeRemaining} 相位`
                     : repairComplete
                       ? `修缮已完成，Lv.${MAX_FACILITY_LEVEL}`
-                      : `修缮，花费 ${detail.upgradeCost} 金币`}
+                      : `修缮，花费 ${detail.upgradeCost} G`}
                   disabled={readOnly || Boolean(upgradeRemaining) || repairComplete}
                   onClick={() => onStartUpgrade(region.id)}
                 >
@@ -257,7 +263,7 @@ export function MansionRoomDrawer({
                   ) : (
                     <CurrencyAmount
                       value={detail.upgradeCost}
-                      label={`金币 ${detail.upgradeCost}`}
+                      label="修缮费用"
                     />
                   )}
                 </button>

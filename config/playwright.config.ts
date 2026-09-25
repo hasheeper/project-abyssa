@@ -17,7 +17,7 @@ export default defineConfig({
     launchOptions: { args: ['--enable-unsafe-swiftshader'], executablePath: process.env.ABYSSA_BROWSER_EXECUTABLE },
   },
   projects: [
-    { name: 'game', testMatch: ['game.spec.ts', 'game-start.spec.ts', 'ui-motion.spec.ts', 'map-motion.spec.ts', 'character.spec.ts', 'manor.spec.ts', 'memory.spec.ts', 'growth.spec.ts', 'tutorial.spec.ts', 'tide-cave.spec.ts', 'tide-guided.spec.ts', 'chapter-one.spec.ts', 'first-morning.spec.ts', 'airp.spec.ts', 'airp-pool.spec.ts', 'airp-online.spec.ts'] },
+    { name: 'game', testMatch: ['game.spec.ts', 'game-start.spec.ts', 'ui-motion.spec.ts', 'map-motion.spec.ts', 'character.spec.ts', 'manor.spec.ts', 'memory.spec.ts', 'growth.spec.ts', 'tutorial.spec.ts', 'tide-cave.spec.ts', 'tide-guided.spec.ts', 'chapter-one.spec.ts', 'shop-foundation.spec.ts', 'copper-economy.spec.ts', 'shop-introduction.spec.ts', 'shop-first-visit.spec.ts', 'shop-generated-appraisal.spec.ts', 'first-morning.spec.ts', 'airp.spec.ts', 'airp-pool.spec.ts', 'airp-online.spec.ts'] },
     { name: 'workbench', testMatch: 'workbench.spec.ts' },
     { name: 'storage', testMatch: 'storage.spec.ts' },
   ],

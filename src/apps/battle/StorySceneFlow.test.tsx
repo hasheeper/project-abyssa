@@ -22,7 +22,7 @@ it("event story surrounds the real reading decision; dialogue never commits rewa
   await act(async()=>{fireEvent.click(screen.getByRole("button",{name:"继续前进"}));});
   await flush();
   expect(screen.queryByRole("dialog")).toBeNull();
-  expect(screen.getByRole("region",{name:"ADV 对话"})).toBeVisible();
+  expect(screen.getByRole("region",{name:"AVG 对话"})).toBeVisible();
   expect(screen.queryByRole("main",{name:"克雷格旧庄园战斗界面"})).toBeNull();
   const committed=f.session.getSnapshot().record!.head;
   if(screen.queryByRole("button",{name:"显示全文"})) await act(async()=>{fireEvent.click(screen.getByRole("button",{name:"显示全文"}));});
@@ -36,12 +36,15 @@ it("event story surrounds the real reading decision; dialogue never commits rewa
   expect(document.querySelector(".abyssa-dialogue__content")).toHaveTextContent(dialogue!);
   expect(f.session.getSnapshot().record!.head).toEqual(committed);
   await act(async()=>{fireEvent.click(screen.getByRole("button",{name:"跳过本段对白"}));});await flush();
+  expect(screen.queryByRole("button",{name:"阅读迎宾簿"})).toBeNull();
+  await act(async()=>{fireEvent.click(screen.getByRole("button",{name:"返回行动"}));});await flush();
   await act(async()=>{fireEvent.click(screen.getByRole("button",{name:"阅读迎宾簿"}));});await flush();
   expect(journeyOf(f).lastEvent?.method).toBe("read");
   expect(screen.getByRole("main",{name:"庄园记录"})).toBeVisible();
   expect(screen.queryByRole("dialog")).toBeNull();
   const result=f.session.getSnapshot().record!.head;
   await act(async()=>{fireEvent.click(screen.getByRole("button",{name:"跳过本段对白"}));});await flush();
+  await act(async()=>{fireEvent.click(screen.getByRole("button",{name:"返回行动"}));});await flush();
   expect(screen.getByRole("button",{name:"继续前进"})).toBeEnabled();
   expect(f.session.getSnapshot().record!.head).toEqual(result);
 },60000);

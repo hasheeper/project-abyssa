@@ -6,12 +6,19 @@ import { gameHref, parseLocator, recordLocator, locatorMatchesRun } from "./navi
 import "./game-client.css";
 import { observeCommits } from "./observe-commits";
 import { GameLoading } from "./GameLoading";
+import { PlayerIdentityScope } from "./PlayerIdentityScope";
+import { AirpGameGate } from "./airp-game/AirpGameGate";
+import { GameFeedbackScope, GameOperationFeedback } from "./GameOperationFeedback";
+import { InlineFeedback } from "../shared/ui/patterns/SceneFeedback";
+import { GenerationFeedbackScope } from "./airp-generation/GenerationFeedbackScope";
+import { activateBackgroundIdentity, registerBackgroundFactory } from "./airp-generation/background-tasks";
+import { EstateFeedback } from "./EstateFeedback";
 
 import { downloadJson, gameErrorText } from "./game-errors";
 export { downloadJson, gameErrorText } from "./game-errors";
 
 const Context = createContext<GameSession | null>(null);
-export function GameSessionScope({ session, children }: { session: GameSession; children: ReactNode }) { return <Context.Provider value={session}>{children}</Context.Provider>; }
+export function GameSessionScope({ session, children }: { session: GameSession; children: ReactNode }) { return <Context.Provider value={session}><PlayerIdentityScope session={session}><GameFeedbackScope><GenerationFeedbackScope session={session}>{children}<EstateFeedback session={session}/></GenerationFeedbackScope></GameFeedbackScope></PlayerIdentityScope></Context.Provider>; }
 export function useGameSession() { const session = useContext(Context); if (!session) throw new Error("Game session required"); return session; }
 export function useGameState() { const session = useGameSession(); return useSyncExternalStore(session.subscribe, session.getSnapshot); }
 export function GameProvider({ children, factory = createBrowserGameRuntime }: { children: ReactNode; factory?: () => ClientRuntime }) {
@@ -27,6 +34,7 @@ export function GameProvider({ children, factory = createBrowserGameRuntime }: {
       if (cancelled) return;
       try {
         active = new GameSession(factory(), locator, window.sessionStorage, record => observer?.notify(record.head));
+        activateBackgroundIdentity(locator); registerBackgroundFactory(active, factory);
         const instance = active;
         observer = observeCommits(locator, () => instance.refresh({background:true}));
         setSession(instance); void instance.refresh();
@@ -36,7 +44,7 @@ export function GameProvider({ children, factory = createBrowserGameRuntime }: {
   }, [factory]);
   if (error) return <div className="game-client-gate" role="alert"><p>{error}</p><a href={gameHref("title")}>选择档案</a></div>;
   if (!session) return <GameLoading/>;
-  return <Context.Provider value={session}>{children}</Context.Provider>;
+  return <GameSessionScope session={session}>{children}</GameSessionScope>;
 }
 export function GameGate({ children, allowPrologue = false, allowOpening = false, allowTutorial = false, allowAirp = false }: { children: ReactNode; allowPrologue?: boolean; allowOpening?: boolean; allowTutorial?: boolean; allowAirp?: boolean }) {
   const session = useGameSession(), state = useGameState();
@@ -45,7 +53,8 @@ export function GameGate({ children, allowPrologue = false, allowOpening = false
   const needsPrologue = !allowPrologue && state.record?.schemaVersion === 4 && state.record.snapshot.campaign.prologue?.status === "playing";
   const needsOpening = !allowOpening && !allowPrologue && !needsPrologue && state.record?.schemaVersion === 4 && state.record.snapshot.campaign.opening?.status === "playing";
   const tutorial = state.record && session.runtime.queries.tutorial(state.record);
-  const needsAirp = !allowAirp && !!state.record && !!session.runtime.queries.narrative(state.record)?.locked;
+  const directorReading = state.record?.schemaVersion === 4 ? state.record.airpDirector?.reading : null;
+  const needsAirp = !allowAirp && !!state.record && (!!session.runtime.queries.narrative(state.record)?.locked || !!directorReading && !directorReading.paused);
   const needsTutorial = !!tutorial && ["pending", "active"].includes(tutorial.progress.status) && !needsPrologue && !needsOpening && !allowPrologue && !openingEntered.current &&
     (!allowTutorial || tutorial.progress.status === "active" && !locatorMatchesRun(state.record!, session.locator));
   useEffect(() => {
@@ -62,9 +71,9 @@ export function GameGate({ children, allowPrologue = false, allowOpening = false
     {state.error && <><button onClick={() => void session.refresh()}>重试读取</button><button onClick={() => void downloadDiagnostic(session)}>导出诊断</button><a href={gameHref("title")}>选择档案</a></>}
   </div>;
   return <><div className="game-client-status" data-save-id={state.record.head.saveId} data-revision={state.record.head.revision} data-status={state.status}>
-    {state.status === "recovering" ? <span role="status">正在恢复进度…</span> : null}
-    {state.error && <span role="alert">{gameErrorText(state.error.code)} <button onClick={() => void session.refresh()}>重新读取 / 重试</button><button onClick={() => void downloadDiagnostic(session)}>导出诊断</button></span>}
-  </div>{children}</>;
+    {state.status === "recovering" ? <InlineFeedback tone="info" message="正在恢复进度…"/> : null}
+    <GameOperationFeedback session={session} state={state}/>
+  </div><AirpGameGate>{children}</AirpGameGate></>;
 }
 async function downloadDiagnostic(session: GameSession) {
   const result = await session.runtime.application.exportDiagnostic(session.locator.saveId);

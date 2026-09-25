@@ -12,12 +12,15 @@
     ]
   },
   "include": [
+    "src/vite-env.d.ts",
     "config/**/*",
     "vite.config.ts",
     "vitest.config.ts",
     "scripts/run-target.mjs",
     "scripts/check-entries.mjs",
     "scripts/check-build-output.mjs",
+    "scripts/prepare-airp-pages.mjs",
+    "scripts/check-airp-pages-browser.mjs",
     "scripts/check-package-release.mjs",
     "scripts/build-static-preview.mjs",
     "scripts/check-entry-builds.mjs",

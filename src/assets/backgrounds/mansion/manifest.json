@@ -1,0 +1,762 @@
+{
+  "version": 1,
+  "scope": "31 mansion locations; one base-lighting pass; no night variants",
+  "encoding": {
+    "width": 2048,
+    "quality": 94,
+    "previewWidth": 640,
+    "previewQuality": 88,
+    "method": 6,
+    "sharpYuv": true,
+    "metadata": "icc-only",
+    "resize": "Lanczos, full frame, no upscaling",
+    "cwebp": "1.5.0\nlibsharpyuv: 0.4.1"
+  },
+  "locations": [
+    {
+      "locationId": "hall",
+      "label": "大厅",
+      "assetId": "bg.interior.fireplace-lounge.base",
+      "source": "samples/hall-v5.png",
+      "review": "style-approved",
+      "sourceWidth": 2752,
+      "sourceHeight": 1536,
+      "sourceSha256": "e159c767644ffa3323bf23db4927abbe07e38529313afa88113f858c8d286311",
+      "preview": {
+        "file": "src/assets/backgrounds/mansion/previews/bg.interior.fireplace-lounge.base.webp",
+        "width": 640,
+        "height": 357,
+        "bytes": 44494,
+        "sha256": "3a795ab8c180a1a7c1d81d309df442c98b89088c60a356201b9b6858d8230250"
+      },
+      "image": {
+        "file": "src/assets/backgrounds/mansion/bg.interior.fireplace-lounge.base.webp",
+        "width": 2048,
+        "height": 1143,
+        "bytes": 441208,
+        "sha256": "a82145d320e7db75b5a50b35691bf2c6d3a36eaec9d45370e818863026206053"
+      }
+    },
+    {
+      "locationId": "elora",
+      "label": "艾洛拉房间",
+      "assetId": "bg.interior.herb-bedroom.base",
+      "source": "batch-v1/elora.png",
+      "review": "integration-candidate",
+      "sourceWidth": 2752,
+      "sourceHeight": 1536,
+      "sourceSha256": "0b0bebf206997d5e70612a562cbe72a8701750c89b2937f16f2b903f89b2c6dc",
+      "preview": {
+        "file": "src/assets/backgrounds/mansion/previews/bg.interior.herb-bedroom.base.webp",
+        "width": 640,
+        "height": 357,
+        "bytes": 24018,
+        "sha256": "4afe816434744f7d1fd5365b2376d991dd96da5c02a9fa407bb435f957323f0a"
+      },
+      "image": {
+        "file": "src/assets/backgrounds/mansion/bg.interior.herb-bedroom.base.webp",
+        "width": 2048,
+        "height": 1143,
+        "bytes": 261018,
+        "sha256": "30f3a38602c197821bfd69abfc8bd5487d1c96b32e6041a9ebb8dfa3d35b4232"
+      }
+    },
+    {
+      "locationId": "library",
+      "label": "禁书库",
+      "assetId": "bg.interior.blueflame-library.base",
+      "source": "batch-v1/library.png",
+      "review": "integration-candidate",
+      "sourceWidth": 2752,
+      "sourceHeight": 1536,
+      "sourceSha256": "66e0d33bc2bd77d9af9f3679fcdc01f312639ae747b7f13e7740bdef345badcc",
+      "preview": {
+        "file": "src/assets/backgrounds/mansion/previews/bg.interior.blueflame-library.base.webp",
+        "width": 640,
+        "height": 357,
+        "bytes": 39060,
+        "sha256": "655cef7e6ab0d1c796ea82fe0f11e3daee2c113da33a144e54cec1118a050f2c"
+      },
+      "image": {
+        "file": "src/assets/backgrounds/mansion/bg.interior.blueflame-library.base.webp",
+        "width": 2048,
+        "height": 1143,
+        "bytes": 351100,
+        "sha256": "55ff8baf1e63093d4a171f406031b6ddd04dfa623d1edeaaa888dc8c3109be88"
+      }
+    },
+    {
+      "locationId": "terrace",
+      "label": "日光露台",
+      "assetId": "bg.exterior.stone-terrace.base",
+      "source": "batch-v1/terrace.png",
+      "review": "integration-candidate",
+      "sourceWidth": 2752,
+      "sourceHeight": 1536,
+      "sourceSha256": "de285279df702219c49cf051c54fce6503438601dbff43724783ac07921b497c",
+      "preview": {
+        "file": "src/assets/backgrounds/mansion/previews/bg.exterior.stone-terrace.base.webp",
+        "width": 640,
+        "height": 357,
+        "bytes": 50390,
+        "sha256": "0161a78fb325fc6420e67b7d8da8455f70fc59d9b71eaf95257da999e7413a7c"
+      },
+      "image": {
+        "file": "src/assets/backgrounds/mansion/bg.exterior.stone-terrace.base.webp",
+        "width": 2048,
+        "height": 1143,
+        "bytes": 464810,
+        "sha256": "ec377bb74f40203f2c98c1b6dcdf018286514206ae1391ef55002bbcf0413ec3"
+      }
+    },
+    {
+      "locationId": "lounge",
+      "label": "娱乐室（棋牌室）",
+      "assetId": "bg.interior.table-game-room.base",
+      "source": "batch-v1/lounge.png",
+      "review": "integration-candidate",
+      "sourceWidth": 2752,
+      "sourceHeight": 1536,
+      "sourceSha256": "19481dcacbfb5b29c8155165743d7c18acd28fd42a0d79d837d5341f6d9922c0",
+      "preview": {
+        "file": "src/assets/backgrounds/mansion/previews/bg.interior.table-game-room.base.webp",
+        "width": 640,
+        "height": 357,
+        "bytes": 39572,
+        "sha256": "0886a55fb4bb23743d52ee88976d674928b5a8260dfbdc5515bf99d9374b513f"
+      },
+      "image": {
+        "file": "src/assets/backgrounds/mansion/bg.interior.table-game-room.base.webp",
+        "width": 2048,
+        "height": 1143,
+        "bytes": 360350,
+        "sha256": "75a1c2e5d29b0df9d0dc1ce268b71e05f788b48dca43c696a880e1db6003378a"
+      }
+    },
+    {
+      "locationId": "plaza",
+      "label": "小广场",
+      "assetId": "bg.exterior.village-campfire-square.base",
+      "source": "batch-v1/plaza.png",
+      "review": "integration-candidate",
+      "sourceWidth": 2752,
+      "sourceHeight": 1536,
+      "sourceSha256": "67139b4c4ec810c0695c2f1173a71bf245458dfb614eae7ff8366536058fd297",
+      "preview": {
+        "file": "src/assets/backgrounds/mansion/previews/bg.exterior.village-campfire-square.base.webp",
+        "width": 640,
+        "height": 357,
+        "bytes": 49158,
+        "sha256": "9841076104dd1cbbbd093c833116c7b10afea1e5ddec9ab42b184bf4dee4cca4"
+      },
+      "image": {
+        "file": "src/assets/backgrounds/mansion/bg.exterior.village-campfire-square.base.webp",
+        "width": 2048,
+        "height": 1143,
+        "bytes": 508278,
+        "sha256": "da6eddf93482440a8597897cc000b90f7c09348a7b9329fc2eb920375ee79289"
+      }
+    },
+    {
+      "locationId": "greenhouse",
+      "label": "温室药圃",
+      "assetId": "bg.interior.glass-herb-house.base",
+      "source": "batch-v1/greenhouse.png",
+      "review": "integration-candidate",
+      "sourceWidth": 2752,
+      "sourceHeight": 1536,
+      "sourceSha256": "bef38e9c8d43165d9e790c05d72184f6307e1a5211f169dcac51062bb14b288c",
+      "preview": {
+        "file": "src/assets/backgrounds/mansion/previews/bg.interior.glass-herb-house.base.webp",
+        "width": 640,
+        "height": 357,
+        "bytes": 67706,
+        "sha256": "56d30ff1943a31ea2d8e88d0380bda384d83090979ac6f84de4320ad7c9b8748"
+      },
+      "image": {
+        "file": "src/assets/backgrounds/mansion/bg.interior.glass-herb-house.base.webp",
+        "width": 2048,
+        "height": 1143,
+        "bytes": 500010,
+        "sha256": "b89e9e2bb3fa1b9c54bf60e9292b37fb25ca9b2c56a144d252220e47cfe20c28"
+      }
+    },
+    {
+      "locationId": "abyssa",
+      "label": "魔王寝室",
+      "assetId": "bg.interior.red-canopy-bedroom.base",
+      "source": "batch-v1/abyssa.png",
+      "review": "integration-candidate",
+      "sourceWidth": 2752,
+      "sourceHeight": 1536,
+      "sourceSha256": "cf4e278b287669eb5505fbe52eb719906ca25504ec855f1d5e9ebb3aa1bb2d14",
+      "preview": {
+        "file": "src/assets/backgrounds/mansion/previews/bg.interior.red-canopy-bedroom.base.webp",
+        "width": 640,
+        "height": 357,
+        "bytes": 31078,
+        "sha256": "44c8f746cab94df4e559717db2cfcf276f4b1437210893582c223efd89efb6a7"
+      },
+      "image": {
+        "file": "src/assets/backgrounds/mansion/bg.interior.red-canopy-bedroom.base.webp",
+        "width": 2048,
+        "height": 1143,
+        "bytes": 306126,
+        "sha256": "9b71a640d97e8c724204d3e965b3b6b99809f8fb3ad5abbd2c9c3151279afeac"
+      }
+    },
+    {
+      "locationId": "kitchen",
+      "label": "厨房",
+      "assetId": "bg.interior.working-kitchen.base",
+      "source": "batch-v1/kitchen.png",
+      "review": "integration-candidate",
+      "sourceWidth": 2752,
+      "sourceHeight": 1536,
+      "sourceSha256": "d564ea49b0f67805da98c3f37382dcf69bc61fb377c7c2f6c09106d816be28ab",
+      "preview": {
+        "file": "src/assets/backgrounds/mansion/previews/bg.interior.working-kitchen.base.webp",
+        "width": 640,
+        "height": 357,
+        "bytes": 40854,
+        "sha256": "02bfc462bbee9390210dc7059cb2772caf38e1bc708770ba201d247bf8ec1d3e"
+      },
+      "image": {
+        "file": "src/assets/backgrounds/mansion/bg.interior.working-kitchen.base.webp",
+        "width": 2048,
+        "height": 1143,
+        "bytes": 375286,
+        "sha256": "d31190616c3742d8a6dce3390bab3eaf03a9199526a6a96d1bf3877ba66cf6a0"
+      }
+    },
+    {
+      "locationId": "dining",
+      "label": "餐厅",
+      "assetId": "bg.interior.small-dining-room.base",
+      "source": "batch-v1/dining.png",
+      "review": "integration-candidate",
+      "sourceWidth": 2752,
+      "sourceHeight": 1536,
+      "sourceSha256": "5af12e47cdcc6e018eb8889ea3064b95a4273af2853bacbd14a2351af0a09d3e",
+      "preview": {
+        "file": "src/assets/backgrounds/mansion/previews/bg.interior.small-dining-room.base.webp",
+        "width": 640,
+        "height": 357,
+        "bytes": 32178,
+        "sha256": "d47f9f795a29314027f2df98b626d5350c560a3cf5381edcc6fdf8f45a70eda9"
+      },
+      "image": {
+        "file": "src/assets/backgrounds/mansion/bg.interior.small-dining-room.base.webp",
+        "width": 2048,
+        "height": 1143,
+        "bytes": 321100,
+        "sha256": "d785669916529872950c4bbb570c3238219fe657292907d1dd9667f8afa3e555"
+      }
+    },
+    {
+      "locationId": "salon",
+      "label": "沙龙",
+      "assetId": "bg.interior.parlor.base",
+      "source": "batch-v1/salon.png",
+      "review": "integration-candidate",
+      "sourceWidth": 2752,
+      "sourceHeight": 1536,
+      "sourceSha256": "6e7edf535ebe9c510003cb008bc18565b3afb38831063e0fbf4ae2d8ccbf1760",
+      "preview": {
+        "file": "src/assets/backgrounds/mansion/previews/bg.interior.parlor.base.webp",
+        "width": 640,
+        "height": 357,
+        "bytes": 42786,
+        "sha256": "f28120122ed935a2ee0e8fbc3f2f0e950d832b652b8cb11b52cf9de77fe9db7e"
+      },
+      "image": {
+        "file": "src/assets/backgrounds/mansion/bg.interior.parlor.base.webp",
+        "width": 2048,
+        "height": 1143,
+        "bytes": 449750,
+        "sha256": "b17aa8d6c9303ef79762a4fd88ccde9a32477baf7ca6b1d83f2798deba8d16d7"
+      }
+    },
+    {
+      "locationId": "foyer",
+      "label": "门厅",
+      "assetId": "bg.interior.piano-foyer.base",
+      "source": "batch-v1/foyer.png",
+      "review": "integration-candidate",
+      "sourceWidth": 2752,
+      "sourceHeight": 1536,
+      "sourceSha256": "dc5262731a82f54182b370086b3569b1fe90b7f9fc2859ad7187d21875434f4f",
+      "preview": {
+        "file": "src/assets/backgrounds/mansion/previews/bg.interior.piano-foyer.base.webp",
+        "width": 640,
+        "height": 357,
+        "bytes": 34218,
+        "sha256": "6ceac7d352ab33b0e32b72bdb070f6352243285b6804b0d7a1d53a88ebf37025"
+      },
+      "image": {
+        "file": "src/assets/backgrounds/mansion/bg.interior.piano-foyer.base.webp",
+        "width": 2048,
+        "height": 1143,
+        "bytes": 312878,
+        "sha256": "bb3ba2f24678eaf68e40c92d922b6c892fcdf48af8f95cdc9911643c6816937c"
+      }
+    },
+    {
+      "locationId": "bath",
+      "label": "浴室",
+      "assetId": "bg.interior.clawfoot-bathroom.base",
+      "source": "batch-v1/bath.png",
+      "review": "integration-candidate",
+      "sourceWidth": 2752,
+      "sourceHeight": 1536,
+      "sourceSha256": "0d2ed8dc625649668fda31611368f50002765494766a2fdb7fa66e7d9f70be64",
+      "preview": {
+        "file": "src/assets/backgrounds/mansion/previews/bg.interior.clawfoot-bathroom.base.webp",
+        "width": 640,
+        "height": 357,
+        "bytes": 27426,
+        "sha256": "c1e810c7979d91e8df3b0770b64f7617179c04bdb256552e0eb5aaa1a23d4b04"
+      },
+      "image": {
+        "file": "src/assets/backgrounds/mansion/bg.interior.clawfoot-bathroom.base.webp",
+        "width": 2048,
+        "height": 1143,
+        "bytes": 308504,
+        "sha256": "2d445ddefdced016442fe15a339c1ee476f549f94797206367246c5fcef9f907"
+      }
+    },
+    {
+      "locationId": "attic",
+      "label": "阁楼观星室",
+      "assetId": "bg.interior.observatory-attic.base",
+      "source": "batch-v1/attic.png",
+      "review": "integration-candidate",
+      "sourceWidth": 2752,
+      "sourceHeight": 1536,
+      "sourceSha256": "125bef3bd4b03f2a76e1c6ffddcb27029c0d70da2c96ac095ef996eebba0b238",
+      "preview": {
+        "file": "src/assets/backgrounds/mansion/previews/bg.interior.observatory-attic.base.webp",
+        "width": 640,
+        "height": 357,
+        "bytes": 49332,
+        "sha256": "b49b7407b54fef784518fbb544b0595308bf21949d7e9d8a14843b3ddd4b3059"
+      },
+      "image": {
+        "file": "src/assets/backgrounds/mansion/bg.interior.observatory-attic.base.webp",
+        "width": 2048,
+        "height": 1143,
+        "bytes": 484482,
+        "sha256": "b58abf216cca7431d5c26ae33e19e878c8d86260f3cd5b67ec1ce2e0afe5e3bd"
+      }
+    },
+    {
+      "locationId": "eustice",
+      "label": "尤斯缇丝房间",
+      "assetId": "bg.interior.armor-bedroom.base",
+      "source": "batch-v1/eustice.png",
+      "review": "integration-candidate",
+      "sourceWidth": 2752,
+      "sourceHeight": 1536,
+      "sourceSha256": "572f856be840106252ea1e1393e646abb1099452be1996b9836392769ce37b2c",
+      "preview": {
+        "file": "src/assets/backgrounds/mansion/previews/bg.interior.armor-bedroom.base.webp",
+        "width": 640,
+        "height": 357,
+        "bytes": 34640,
+        "sha256": "43bce4e512cbc5789a90e09b0e704d3405b848edb6d7eed8ae18ec05b5898dbd"
+      },
+      "image": {
+        "file": "src/assets/backgrounds/mansion/bg.interior.armor-bedroom.base.webp",
+        "width": 2048,
+        "height": 1143,
+        "bytes": 324222,
+        "sha256": "b74a4918b8ee0ca72e5bfb0d8ba7a01efdb03349c821c8c9a75c61450e25953f"
+      }
+    },
+    {
+      "locationId": "norma",
+      "label": "诺玛房间",
+      "assetId": "bg.interior.hammock-bedroom.base",
+      "source": "batch-v1/norma.png",
+      "review": "integration-candidate",
+      "sourceWidth": 2752,
+      "sourceHeight": 1536,
+      "sourceSha256": "ea51992eb010e3bdd207730d24bfcef51cd3760bb0adc57959f5c29f3fe3a0bc",
+      "preview": {
+        "file": "src/assets/backgrounds/mansion/previews/bg.interior.hammock-bedroom.base.webp",
+        "width": 640,
+        "height": 357,
+        "bytes": 43348,
+        "sha256": "1455c641f0f98b9d2b0c7e5552bdb37db4deac8fb219917a15474e09660d1f4e"
+      },
+      "image": {
+        "file": "src/assets/backgrounds/mansion/bg.interior.hammock-bedroom.base.webp",
+        "width": 2048,
+        "height": 1143,
+        "bytes": 428914,
+        "sha256": "0f48da9adaa38c3d0a8e95c0c8b157d9084c6dec6b51af41ce36872751ee7dee"
+      }
+    },
+    {
+      "locationId": "kororo",
+      "label": "柯萝萝房间",
+      "assetId": "bg.interior.pillow-bedroom.base",
+      "source": "batch-v1/kororo.png",
+      "review": "integration-candidate",
+      "sourceWidth": 2752,
+      "sourceHeight": 1536,
+      "sourceSha256": "ff5fd801eb84380fdd757f72b6f77ea94fd579262e909ffd2bdcc4c4af34598e",
+      "preview": {
+        "file": "src/assets/backgrounds/mansion/previews/bg.interior.pillow-bedroom.base.webp",
+        "width": 640,
+        "height": 357,
+        "bytes": 23226,
+        "sha256": "1d2430a1c38edcb9eab5bf30423619fdb1428d2d27ae2b16749825f288b6e8c6"
+      },
+      "image": {
+        "file": "src/assets/backgrounds/mansion/bg.interior.pillow-bedroom.base.webp",
+        "width": 2048,
+        "height": 1143,
+        "bytes": 253506,
+        "sha256": "0c13fddb61287c554d9d0c520784e3e6388b78bad80773034ea3103391eed13a"
+      }
+    },
+    {
+      "locationId": "kaelHut",
+      "label": "守望小屋",
+      "assetId": "bg.interior.clifftop-wood-hut.base",
+      "source": "batch-v1/kaelHut.png",
+      "review": "integration-candidate",
+      "sourceWidth": 2752,
+      "sourceHeight": 1536,
+      "sourceSha256": "4a0b20177e9a38d5aff8f198447a4ed67810410cf41d4600c32c9f66f8060a3e",
+      "preview": {
+        "file": "src/assets/backgrounds/mansion/previews/bg.interior.clifftop-wood-hut.base.webp",
+        "width": 640,
+        "height": 357,
+        "bytes": 43918,
+        "sha256": "da310857a49176d70506be208d8672e45f0ea8a801a271811a742ed3c8609a6d"
+      },
+      "image": {
+        "file": "src/assets/backgrounds/mansion/bg.interior.clifftop-wood-hut.base.webp",
+        "width": 2048,
+        "height": 1143,
+        "bytes": 437038,
+        "sha256": "3789032baed2e0c8ffdb8bd43b873a36cba9751f75fdf927d373e6d0538bc30f"
+      }
+    },
+    {
+      "locationId": "armory",
+      "label": "武备库",
+      "assetId": "bg.interior.weapon-room.base",
+      "source": "batch-v1/armory.png",
+      "review": "integration-candidate",
+      "sourceWidth": 2752,
+      "sourceHeight": 1536,
+      "sourceSha256": "9a0facb8d8a8bbb357b829c95d7e4813ec1f0ed63c9b3301b1bf65c44a77a7ff",
+      "preview": {
+        "file": "src/assets/backgrounds/mansion/previews/bg.interior.weapon-room.base.webp",
+        "width": 640,
+        "height": 357,
+        "bytes": 41950,
+        "sha256": "a6a30d5ac154475c2f1095e274a3d718afdb4b82d874d1f226974b3f53b94f76"
+      },
+      "image": {
+        "file": "src/assets/backgrounds/mansion/bg.interior.weapon-room.base.webp",
+        "width": 2048,
+        "height": 1143,
+        "bytes": 369758,
+        "sha256": "d51c3de184e28163da98a1d446d0d512ee20e83b15387b017220abdf61d6e4cc"
+      }
+    },
+    {
+      "locationId": "workshop",
+      "label": "工坊",
+      "assetId": "bg.interior.forge-workshop.base",
+      "source": "batch-v1/workshop.png",
+      "review": "integration-candidate",
+      "sourceWidth": 2752,
+      "sourceHeight": 1536,
+      "sourceSha256": "40b28a4ab3620c11e49886d2e6f6e8af8d9a1981b3a16056db7f1d005c871905",
+      "preview": {
+        "file": "src/assets/backgrounds/mansion/previews/bg.interior.forge-workshop.base.webp",
+        "width": 640,
+        "height": 357,
+        "bytes": 49150,
+        "sha256": "8b5f84e3034a03345f8a25ba0c4e46fc5df79ed255a6e0f83bd6b6e2e81a1286"
+      },
+      "image": {
+        "file": "src/assets/backgrounds/mansion/bg.interior.forge-workshop.base.webp",
+        "width": 2048,
+        "height": 1143,
+        "bytes": 420220,
+        "sha256": "6d2654625d28d4a8e39c2cd67568559bc22e32c9e9eebcb97b83af03026bf29c"
+      }
+    },
+    {
+      "locationId": "storage",
+      "label": "储藏室",
+      "assetId": "bg.interior.supply-storeroom.base",
+      "source": "batch-v1/storage.png",
+      "review": "integration-candidate",
+      "sourceWidth": 2752,
+      "sourceHeight": 1536,
+      "sourceSha256": "549eb61718526fdce176b81a38bae728bcd1a21140398f7c6d26578636b408ac",
+      "preview": {
+        "file": "src/assets/backgrounds/mansion/previews/bg.interior.supply-storeroom.base.webp",
+        "width": 640,
+        "height": 357,
+        "bytes": 46370,
+        "sha256": "3687a1681cc661d23ad8858e29cfb25f2a98e20dfa72df2963c5099f56074977"
+      },
+      "image": {
+        "file": "src/assets/backgrounds/mansion/bg.interior.supply-storeroom.base.webp",
+        "width": 2048,
+        "height": 1143,
+        "bytes": 405624,
+        "sha256": "3bd99a17f311c578fb145517e586b659d41c2af90d87e1074af0b1bfa2377acf"
+      }
+    },
+    {
+      "locationId": "laundry",
+      "label": "洗衣房",
+      "assetId": "bg.interior.wash-room.base",
+      "source": "batch-v1/laundry.png",
+      "review": "integration-candidate",
+      "sourceWidth": 2752,
+      "sourceHeight": 1536,
+      "sourceSha256": "38b598459d43282b55025090aaf23fedb85f4cf7607bb79720072f3db0b4e423",
+      "preview": {
+        "file": "src/assets/backgrounds/mansion/previews/bg.interior.wash-room.base.webp",
+        "width": 640,
+        "height": 357,
+        "bytes": 44266,
+        "sha256": "a0cd0c5c2970a839d38a479b91358088408759adf6a93bf2c3ebf9226af364c5"
+      },
+      "image": {
+        "file": "src/assets/backgrounds/mansion/bg.interior.wash-room.base.webp",
+        "width": 2048,
+        "height": 1143,
+        "bytes": 411616,
+        "sha256": "401700fdd3543193559c364c358cf367cad3ee7277d5542d9385b133b75d6d35"
+      }
+    },
+    {
+      "locationId": "maid",
+      "label": "女仆工作间",
+      "assetId": "bg.interior.sewing-workroom.base",
+      "source": "batch-v1/maid.png",
+      "review": "integration-candidate",
+      "sourceWidth": 2752,
+      "sourceHeight": 1536,
+      "sourceSha256": "21bd8f84dd7326f840a2ea47067fb0852d25c02e9feb5a14647c65e0181bbd36",
+      "preview": {
+        "file": "src/assets/backgrounds/mansion/previews/bg.interior.sewing-workroom.base.webp",
+        "width": 640,
+        "height": 357,
+        "bytes": 49288,
+        "sha256": "1214dc58918f21a7758ce7aa756676e3bc4160c8faa7c9338fb61c76d69be2ec"
+      },
+      "image": {
+        "file": "src/assets/backgrounds/mansion/bg.interior.sewing-workroom.base.webp",
+        "width": 2048,
+        "height": 1143,
+        "bytes": 442408,
+        "sha256": "e3d92f5f0cf05e81bf86fb78f6ce0b959cd68c68199203c26f1a8f7763f53ba7"
+      }
+    },
+    {
+      "locationId": "cellar",
+      "label": "酒窖",
+      "assetId": "bg.interior.stone-wine-cellar.base",
+      "source": "batch-v1/cellar.png",
+      "review": "integration-candidate",
+      "sourceWidth": 2752,
+      "sourceHeight": 1536,
+      "sourceSha256": "19eca273c98d0096cedb5e39ac22c0dc54035dc6fd8054cb52aa89116f1a983d",
+      "preview": {
+        "file": "src/assets/backgrounds/mansion/previews/bg.interior.stone-wine-cellar.base.webp",
+        "width": 640,
+        "height": 357,
+        "bytes": 41868,
+        "sha256": "284fb11ed546a0b5e79431d28fae641a2daaf01b7c91ebcfc07b008e82a03855"
+      },
+      "image": {
+        "file": "src/assets/backgrounds/mansion/bg.interior.stone-wine-cellar.base.webp",
+        "width": 2048,
+        "height": 1143,
+        "bytes": 373454,
+        "sha256": "e58898daa84a94a9812efab10867ead79dc45a73ec8e96e8098472f50ae76ff6"
+      }
+    },
+    {
+      "locationId": "array",
+      "label": "结界核心室",
+      "assetId": "bg.interior.crimson-crystal-room.base",
+      "source": "batch-v1/array.png",
+      "review": "integration-candidate",
+      "sourceWidth": 2752,
+      "sourceHeight": 1536,
+      "sourceSha256": "873cda0fed4834fab1fc651234fedacfc602fea65ed87a7a5785a8583ab1a57d",
+      "preview": {
+        "file": "src/assets/backgrounds/mansion/previews/bg.interior.crimson-crystal-room.base.webp",
+        "width": 640,
+        "height": 357,
+        "bytes": 36664,
+        "sha256": "9c6573dee687039c251d26192dc0d902e6fbcea17b373632ba537865acb66b77"
+      },
+      "image": {
+        "file": "src/assets/backgrounds/mansion/bg.interior.crimson-crystal-room.base.webp",
+        "width": 2048,
+        "height": 1143,
+        "bytes": 336070,
+        "sha256": "ab0d85d36ae4189d7d3712181500c404c2e8d65bea7b101c6d408dc3e161aee0"
+      }
+    },
+    {
+      "locationId": "seal",
+      "label": "封印之门",
+      "assetId": "bg.interior.chained-stone-door.base",
+      "source": "batch-v1/seal.png",
+      "review": "integration-candidate",
+      "sourceWidth": 2752,
+      "sourceHeight": 1536,
+      "sourceSha256": "222421502c639f51a7365e13894b5fc60ce40eb9d4542c7f8cd8dd13960f5787",
+      "preview": {
+        "file": "src/assets/backgrounds/mansion/previews/bg.interior.chained-stone-door.base.webp",
+        "width": 640,
+        "height": 357,
+        "bytes": 42132,
+        "sha256": "09d01c98cfa0e45bda03d19d7c6616777b2a16b7c2ab3c93aaa8ec4c592b6f7d"
+      },
+      "image": {
+        "file": "src/assets/backgrounds/mansion/bg.interior.chained-stone-door.base.webp",
+        "width": 2048,
+        "height": 1143,
+        "bytes": 376004,
+        "sha256": "985a8b65cff335526475e2203ab178611d96429cb2b76dcd2641717283c82379"
+      }
+    },
+    {
+      "locationId": "dock",
+      "label": "小码头",
+      "assetId": "bg.exterior.wooden-sea-dock.base",
+      "source": "batch-v1/dock.png",
+      "review": "integration-candidate",
+      "sourceWidth": 2752,
+      "sourceHeight": 1536,
+      "sourceSha256": "529c5174b43ed11964c6413aeab29f6b6a7b79224c4e5065269e02b8c0269f05",
+      "preview": {
+        "file": "src/assets/backgrounds/mansion/previews/bg.exterior.wooden-sea-dock.base.webp",
+        "width": 640,
+        "height": 357,
+        "bytes": 49652,
+        "sha256": "2d0ffea8ea073a3590b366db3c9e4d605584b44a883b67dccbe933be55fdb66d"
+      },
+      "image": {
+        "file": "src/assets/backgrounds/mansion/bg.exterior.wooden-sea-dock.base.webp",
+        "width": 2048,
+        "height": 1143,
+        "bytes": 514162,
+        "sha256": "3c8a74ec14694a36fde4373a9ecfd7fe4a7c8e604264fb8a16b70dd69a688c19"
+      }
+    },
+    {
+      "locationId": "gate",
+      "label": "正门",
+      "assetId": "bg.exterior.stone-gatehouse.base",
+      "source": "batch-v1/gate.png",
+      "review": "integration-candidate",
+      "sourceWidth": 2752,
+      "sourceHeight": 1536,
+      "sourceSha256": "3d609f94b4e54bc50710a8c00ba4d2f63582a94a98f9296d1dfccf41ea885fb0",
+      "preview": {
+        "file": "src/assets/backgrounds/mansion/previews/bg.exterior.stone-gatehouse.base.webp",
+        "width": 640,
+        "height": 357,
+        "bytes": 48004,
+        "sha256": "a1e6fc7e1db038265301854b05f811430706eabf0b4f48613b3367db8582a667"
+      },
+      "image": {
+        "file": "src/assets/backgrounds/mansion/bg.exterior.stone-gatehouse.base.webp",
+        "width": 2048,
+        "height": 1143,
+        "bytes": 476564,
+        "sha256": "39c566d877902055515815015c19f9dc30ab4b8d706fa8f5df10ba989ad7f3fa"
+      }
+    },
+    {
+      "locationId": "towerTop",
+      "label": "瞭望台",
+      "assetId": "bg.exterior.tower-lookout.base",
+      "source": "batch-v1/towerTop.png",
+      "review": "integration-candidate",
+      "sourceWidth": 2752,
+      "sourceHeight": 1536,
+      "sourceSha256": "61de697a9ac97a772b4b513458ddf62d505f9a885788d97d20eff503c5b9cd2b",
+      "preview": {
+        "file": "src/assets/backgrounds/mansion/previews/bg.exterior.tower-lookout.base.webp",
+        "width": 640,
+        "height": 357,
+        "bytes": 39096,
+        "sha256": "a67fe3a55ba8b109856b827923264741bb675082a249c8e1fde36ab2a57bbc0b"
+      },
+      "image": {
+        "file": "src/assets/backgrounds/mansion/bg.exterior.tower-lookout.base.webp",
+        "width": 2048,
+        "height": 1143,
+        "bytes": 340750,
+        "sha256": "7bd651a186d0d866b20f60be94f6a56ac9935a6ff97aa5dbd417e8d9ab501aa3"
+      }
+    },
+    {
+      "locationId": "towerHall",
+      "label": "岗哨厅",
+      "assetId": "bg.interior.spiral-watch-hall.base",
+      "source": "batch-v1/towerHall.png",
+      "review": "integration-candidate",
+      "sourceWidth": 2752,
+      "sourceHeight": 1536,
+      "sourceSha256": "e90e1109ac6da95989cd829f30487a41ecb792e2ce7469e4944e0274022d812d",
+      "preview": {
+        "file": "src/assets/backgrounds/mansion/previews/bg.interior.spiral-watch-hall.base.webp",
+        "width": 640,
+        "height": 357,
+        "bytes": 44622,
+        "sha256": "fde3fe3d11205efc3463b6675b490416d1eea98200a24e779b9ebd2d7569d341"
+      },
+      "image": {
+        "file": "src/assets/backgrounds/mansion/bg.interior.spiral-watch-hall.base.webp",
+        "width": 2048,
+        "height": 1143,
+        "bytes": 495406,
+        "sha256": "d45299e302a27c27af18fade85dcd306465f2cac9010711556a1925e607da994"
+      }
+    },
+    {
+      "locationId": "tibby",
+      "label": "缇比杂货铺",
+      "assetId": "bg.interior.shop-counter.base",
+      "source": "src/assets/backgrounds/shop-bg3.jpg",
+      "review": "existing-asset",
+      "reuse": true,
+      "sourceWidth": 1376,
+      "sourceHeight": 768,
+      "sourceSha256": "5d65212657c0264a81e3e016109adc0896ff1d5815d114c7cbc521a5cba8c031",
+      "preview": {
+        "file": "src/assets/backgrounds/mansion/previews/bg.interior.shop-counter.base.webp",
+        "width": 640,
+        "height": 357,
+        "bytes": 44162,
+        "sha256": "f3ae5184cf9252f602343be60b3e6ad66e27bffd93d3252115063a0dfe73e5fe"
+      },
+      "image": {
+        "file": "src/assets/backgrounds/shop-bg3.jpg",
+        "width": 1376,
+        "height": 768,
+        "bytes": 731797,
+        "sha256": "5d65212657c0264a81e3e016109adc0896ff1d5815d114c7cbc521a5cba8c031"
+      }
+    }
+  ]
+}

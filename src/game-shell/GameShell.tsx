@@ -4,7 +4,7 @@ import { SceneTransition } from "../shared/transition/SceneTransition";
 import { SceneTransitionContext } from "../shared/transition/TransitionProvider";
 import type { SceneNavigationOptions, SceneTransitionCopy, SceneTransitionPhase } from "../shared/transition/types";
 import { bindNavigator, isGameTarget, readRoute, routeHref, type RouteLocation } from "../shared/routing/location";
-import { prepareGame } from "../shared/loading/startup";
+import { prepareGame, warmGameResources } from "../shared/loading/startup";
 import { loadImage } from "../shared/loading/images";
 import { loadRoute, routeTitles, type RouteModule } from "./routes";
 import { TutorialProvider } from "../shared/tutorial";
@@ -27,7 +27,6 @@ export function GameShell() {
   const {mode: reveal, modeRef: revealRef, requestReveal} = useSceneRevealRegistry(current?.page === "battle" ? "panel-drop" : "fade");
   const [phase, setPhase] = useState<SceneTransitionPhase>("closed");
   const [copy, setCopy] = useState<SceneTransitionCopy>({channel:"正在准备",destination:"旅程即将开始"});
-  const [progress, setProgress] = useState<number | undefined>(0);
   const [error, setError] = useState<string>();
   const retry = useRef<() => void>(() => {});
   const phaseRef = useRef(phase);
@@ -64,27 +63,26 @@ export function GameShell() {
     retry.current = () => { void enter(url, mode, options); };
     setError(undefined);
     try {
+      // Attach rejection handlers immediately: an early chunk failure must remain retryable
+      // even while the curtain/font task is still pending. Importing never mounts a page.
+      const loading = loadRoute(route.page);
+      let preparation: Promise<void> = Promise.resolve();
       if (mode === "boot") {
         updatePhase("closed");
-        await prepareGame(state => {
-          if (!stale()) setProgress(Math.min(99, Math.floor(100 * state.loadedBytes / Math.max(1, state.totalBytes))));
-        });
+        preparation = prepareGame();
       } else {
-        setProgress(undefined);
         setCopy({destination:routeTitles[route.page],channel:"正在前往",...options});
         // Data gates can redirect while the curtain is closed (unfinished prologue, etc.).
         if (phaseRef.current !== "closed") {
           incoming.current = false;
           updatePhase("closing");
-          await pause(560, signal);
+          preparation = pause(560, signal).then(() => { if (!stale()) updatePhase("closed"); });
         }
       }
+      const [module] = await Promise.all([loading, preparation]);
       if (stale()) return;
       updatePhase("closed");
-      const module = await loadRoute(route.page);
-      if (stale()) return;
       incoming.current = true;
-      setProgress(undefined);
       // The old React tree is unmounted in this commit: WebGL/RAF/readers release ownership
       // before effects from the new page start. Only inert modules and decoded assets persist.
       flushSync(() => {
@@ -99,6 +97,9 @@ export function GameShell() {
       // Data readiness is not timed out. Image decoding is bounded and shares the LRU cache.
       await paint(); await readiness.wait(signal);
       if (stale()) return;
+      // Only fonts used by the mounted page, not every declared unicode subset.
+      if (document.fonts) await document.fonts.ready;
+      if (stale()) return;
       await paint(); await readiness.wait(signal);
       if (stale()) return;
       const visualTimer = new AbortController();
@@ -111,6 +112,9 @@ export function GameShell() {
       visualTimer.abort(); signal.removeEventListener("abort", abortVisual);
       if (stale()) return;
       updatePhase("opening");
+      // No full-manifest dependency remains on the first-screen critical path.
+      // Background byte transfers overlap the title intro; per-page data/image gates stay above.
+      void warmGameResources();
       // Pages with a local board score opt into the short backdrop curtain.
       await pause(revealRef.current === "panel-drop" ? 1_850 : 620, signal);
       if (stale()) return;
@@ -182,6 +186,6 @@ export function GameShell() {
   const Page = current?.module.default;
   return <SceneTransitionContext.Provider value={context}><TutorialProvider suspended={phase !== "idle"}>
     {Page && <Page key={current!.key}/>}
-    <SceneTransition phase={phase} {...copy} progress={progress} error={error} onRetry={() => retry.current()}/>
+    <SceneTransition phase={phase} {...copy} error={error} onRetry={() => retry.current()}/>
   </TutorialProvider></SceneTransitionContext.Provider>;
 }

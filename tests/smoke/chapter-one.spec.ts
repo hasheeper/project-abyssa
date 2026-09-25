@@ -42,6 +42,8 @@ async function ready(page: Page) {
 async function load(page: Page, id: string) {
   await page.goto("/");
   await page.getByRole("button",{name:"记录",exact:true}).click();
+  await page.getByRole("button", { name: "档案管理", exact: true }).click();
+  await page.getByRole("button", { name: "导入档案", exact: true }).click();
   await page.getByLabel("导入格式").selectOption("restore");
   await page.getByLabel("导入存档",{exact:true}).setInputFiles({name:`chapter-${id}.json`,mimeType:"application/json",buffer:Buffer.from(archives[id])});
   await expect(page).toHaveURL(id === "home" ? /#\/menu/ : /#\/(battle|mansion)/,{timeout:30000});

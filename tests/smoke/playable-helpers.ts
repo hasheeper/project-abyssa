@@ -36,6 +36,8 @@ export async function startLegacy(page: Page, prefix = '/') {
   });
   // Existing rift scenarios explicitly import their original rules through player UI.
   await page.goto(prefix); await page.getByRole('button', { name: '记录', exact: true }).click();
+  await page.getByRole('button', { name: '档案管理', exact: true }).click();
+  await page.getByRole('button', { name: '导入档案', exact: true }).click();
   await page.getByLabel('导入格式').selectOption('application');
   await page.getByLabel('导入存档', {exact: true}).setInputFiles({name: 'legacy-campaign.json', mimeType: 'application/json', buffer: Buffer.from(await legacyCampaignArchive())});
   await expect(page).toHaveURL(/#\/menu\?save=.+&epoch=.+/); await ready(page);
@@ -100,6 +102,8 @@ export async function finishFirstLayer(page: Page) {
 export async function importSample(page: Page, kind: Parameters<typeof interruptionArchive>[0], prefix = '/') {
   await page.goto(`${prefix}title.html`);
   await page.getByRole('button', { name: '记录', exact: true }).click();
+  await page.getByRole('button', { name: '档案管理', exact: true }).click();
+  await page.getByRole('button', { name: '导入档案', exact: true }).click();
   await page.getByLabel('导入格式').selectOption('legacy');
   await page.getByLabel('导入存档', { exact: true }).setInputFiles({ name: `${kind}.json`, mimeType: 'application/json', buffer: Buffer.from(interruptionArchive(kind)) });
   await expect(page).toHaveURL(/#\/battle\?save=.+&epoch=.+&expedition=.+/); await ready(page);

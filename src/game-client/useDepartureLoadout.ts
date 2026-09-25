@@ -39,5 +39,17 @@ export function useDepartureLoadout(record: AnyGameRecord, journey: DepartureJou
     try { sessionStorage.setItem(key,JSON.stringify(next)); setFailedKey(null); }
     catch { setFailedKey(key); }
   };
-  return {ids, setIds, itemLimit, storageUnavailable:failedKey === key};
+  const quantityKey = `${key}:quantities`;
+  const readQuantities = () => { try { const raw = JSON.parse(sessionStorage.getItem(quantityKey) ?? "{}"); return raw && !Array.isArray(raw) && typeof raw === "object" ? raw as Record<string, number> : {}; } catch { return {}; } };
+  const [quantityDraft, setQuantityDraft] = useState(() => ({key, values: readQuantities()}));
+  const values = quantityDraft.key === key ? quantityDraft.values : readQuantities();
+  const quantities = Object.fromEntries((journey?.items ?? []).map(item => [item.id, Math.max(0, Math.min(item.availableCharges, Number.isInteger(values[item.id]) && values[item.id] > 0 ? values[item.id] : item.availableCharges))]));
+  const setQuantity = (id: string, value: number) => {
+    const item = journey?.items.find(i => i.id === id);
+    if (!item || !Number.isInteger(value) || value < 1 || value > item.availableCharges) return;
+    const next = {...quantities, [id]: value}; setQuantityDraft({key, values: next});
+    try { sessionStorage.setItem(quantityKey, JSON.stringify(next)); } catch { setFailedKey(key); }
+  };
+  const selection = journey?.facilities ? {supplyQuantities: Object.fromEntries(ids.map(id => [id, quantities[id]]))} : {};
+  return {ids, setIds, itemLimit, quantities, setQuantity, selection, storageUnavailable:failedKey === key};
 }

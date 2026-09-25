@@ -3,8 +3,8 @@ import { mansionResourceEntries, mansionNarrativeItems, type StockEquipment, typ
 import type { DemoJourneyView } from "../../game-runtime/demo-journey-view";
 
 const supplies: DemoJourneyView["items"] = [
-  {id: "item.food", name: "食物", kind: "food", capacity: 3, free: true, storedCharges: 0, availableCharges: 3},
-  {id: "item.potion", name: "药水", kind: "potion", capacity: 2, free: false, storedCharges: 2, availableCharges: 2},
+  {id: "item.food", name: "食物", kind: "food", capacity: 3,storageCapacity:3, free: true, storedCharges: 0, availableCharges: 3},
+  {id: "item.potion", name: "药水", kind: "potion", capacity: 2,storageCapacity:2, free: false, storedCharges: 2, availableCharges: 2},
 ];
 const equipment: StockEquipment[] = [
   {instanceId: "stored", definitionId: "equipment.spare-blade", location: {kind: "inventory"}, definition: {id: "equipment.spare-blade", slot: "general", scope: "all-native-blanks", replacement: "attack", power: 1}},
@@ -23,11 +23,11 @@ describe("warehouse projection", () => {
     const before = structuredClone({supplies, equipment});
     const stock = mansionResourceEntries(supplies, equipment), entries = [...stock.fixedEntries, ...stock.sandboxEntries];
     expect(entries).toHaveLength(5);
-    expect(entries[2]).toMatchObject({id: "stored", name: "备用短刃", quantity: 1, ownership: "馆内库存 · 未装备", description: "所有原生空面变为攻击 1。"});
+    expect(entries[2]).toMatchObject({id: "stored", name: "备用短刃", quantity: 1, ownership: "馆内库存 · 未装备", description: "全部原生空面改为攻击 1"});
     expect(entries[2].status).toBeUndefined();
-    expect(entries[3]).toMatchObject({status: "已装备", ownership: "由艾洛拉携带", description: "所有原生空面变为治疗 1。"});
+    expect(entries[3]).toMatchObject({status: "已装备", ownership: "由艾洛拉携带", description: "全部原生空面改为治疗 1"});
     expect(entries[4]).toMatchObject({status: "远征中", ownership: "由尤斯缇丝携带 · 本次远征占用"});
-    expect(entries[4].description).toBeUndefined();
+    expect(entries[4].description).toBe("全部原生空面改为攻击 1");
     expect({supplies, equipment}).toEqual(before);
   });
   it("preserves fixed identities/order and puts any other catalogue objects in the open inventory", () => {

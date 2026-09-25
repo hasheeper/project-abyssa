@@ -1,3 +1,4 @@
+import potionGlyph from "../../assets/icons/items/health-potion.svg";
 import cargoCrateGlyph from "../../assets/icons/items/cargo-crate.svg";
 import hammerNailsGlyph from "../../assets/icons/items/hammer-nails.svg";
 import herbsBundleGlyph from "../../assets/icons/items/herbs-bundle.svg";
@@ -128,6 +129,7 @@ export const PRODUCTION_GLYPHS: Record<MansionProductionIcon, string> = {
   maintenance: toolboxGlyph,
   supplies: cargoCrateGlyph,
   records: scrollQuillGlyph,
+  potion: potionGlyph,
   herbs: herbsBundleGlyph
 };
 

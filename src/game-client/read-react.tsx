@@ -14,6 +14,7 @@ import { gameHref, parseLocator } from "./navigation";
 import { downloadJson, gameErrorText } from "./game-errors";
 import "./game-client.css";
 import { GameLoading } from "./GameLoading";
+import { PlayerIdentityScope } from "./PlayerIdentityScope";
 
 const Context = createContext<ReadGameSession | null>(null);
 export function ReadSessionScope({
@@ -23,7 +24,7 @@ export function ReadSessionScope({
   session: ReadGameSession;
   children: ReactNode;
 }) {
-  return <Context.Provider value={session}>{children}</Context.Provider>;
+  return <Context.Provider value={session}><PlayerIdentityScope session={session}>{children}</PlayerIdentityScope></Context.Provider>;
 }
 export function useReadSession() {
   const session = useContext(Context);

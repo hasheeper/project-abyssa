@@ -41,7 +41,7 @@ async function saved(page: Page): Promise<D5GameRecord> {
   return page.evaluate(async () => {
     const id = new URLSearchParams(location.hash.split("?")[1]).get("save")!;
     return new Promise<any>((resolve, reject) => {
-      const open = indexedDB.open("abyssa-game-v1", 1);
+      const open = indexedDB.open("abyssa-game-v1");
       open.onerror = () => reject(open.error);
       open.onsuccess = () => {
         const db = open.result, read = db.transaction("saves", "readonly").objectStore("saves").get(id);
@@ -65,6 +65,8 @@ async function settled(page: Page) {
 async function load(page: Page, archive: string, prefix = "/") {
   await page.goto(prefix);
   await page.getByRole("button", {name:"记录",exact:true}).click({timeout:60000});
+  await page.getByRole("button", { name: "档案管理", exact: true }).click();
+  await page.getByRole("button", { name: "导入档案", exact: true }).click();
   await page.getByLabel("导入格式").selectOption("restore");
   await page.getByLabel("导入存档", {exact:true}).setInputFiles({name:"guided.json",mimeType:"application/json",buffer:Buffer.from(archive)});
   await expect(page).toHaveURL(/#\/(battle|mansion)/, {timeout:60000});
@@ -114,7 +116,6 @@ async function clearGeometry(page: Page) {
   })).toBe(true);
 }
 async function menu(page: Page, label: string) {
-  await button(page,"展开菜单").click();
   await page.getByRole("button", {name:new RegExp(`^${label}`)}).click();
   await settled(page);
 }
@@ -200,7 +201,6 @@ for (const kind of ["battle", "event"] as const) test(`handbook returns to the s
     const selected = page.locator(kind === "battle" ? `.abyssa-expedition-party-card[data-character="${actor}"]` : '.manor-journey');
     const selectedBefore = await selected.first().innerHTML();
     await expect(page.locator(".abyssa-tutorial[data-visible]")).toHaveCount(1);
-    await button(page, "展开菜单").click();
     await button(page, "玩法手册").click();
     const dialog = page.getByRole("dialog", {name: "战斗与探索规则总览"});
     await expect(dialog).toBeVisible();
@@ -224,7 +224,7 @@ for (const kind of ["battle", "event"] as const) test(`handbook returns to the s
     await page.keyboard.press("Escape");
     await expect(dialog).toHaveCount(0);
     await expect(page.locator(".abyssa-expedition")).not.toHaveAttribute("inert");
-    await expect(button(page, "展开菜单")).toBeFocused();
+    await expect(button(page, "玩法手册")).toBeFocused();
     await expect(page.locator(".abyssa-tutorial[data-visible]")).toHaveCount(1);
     expect(await saved(page)).toEqual(before);
     expect(await selected.first().innerHTML()).toEqual(selectedBefore);
@@ -360,10 +360,8 @@ test("G4: authored reading, truthful cues, five-room controls, recovery and exac
       await expect(button(page,"END TURN")).toBeDisabled();
       await expect(button(page,"REROLL")).toBeDisabled();
       await expect(anchor(page,"battle.die:eustice").locator(".expedition-die")).toBeDisabled();
-      await button(page,"展开菜单").click();
       await expect(page.getByRole("button",{name:/^结束回合/})).toBeDisabled();
-      await expect(page.locator(".abyssa-tutorial[data-visible]")).toHaveCount(0);
-      await page.keyboard.press("Escape");
+      await expect(page.locator(".abyssa-tutorial[data-visible]")).toHaveCount(1);
       await button(page,"远征账本").click();
       await expect(page.locator(".abyssa-tutorial[data-visible]")).toHaveCount(0);
       await page.keyboard.press("Escape");
@@ -461,7 +459,8 @@ test("G4: authored reading, truthful cues, five-room controls, recovery and exac
   expect(s.result!.totalGold).toBe(36);
   expect(before.snapshot.campaign.funds.party).toBe(0);
   expect(before.snapshot.campaign.clock.phase).toBe("dawn");
-  await expect(page.getByLabel("本次结算")).toContainText("远征实得 36 G · 追回报酬 8 G · 本次总入账 44 G");
+  await expect(page.getByLabel("本次结算")).toHaveText("+44 G");
+  await expect(page.getByLabel("本次结算")).toHaveAttribute("title", "远征 36 G · 追回报酬 8 G");
   await page.screenshot({path:info.outputPath("claim.png")});
   await keyPress(button(page,"领取并返回洋馆"));
   await expect(page).toHaveURL(/#\/mansion/,{timeout:60000}); await settled(page);

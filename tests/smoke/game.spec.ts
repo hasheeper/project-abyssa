@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { entries } from '../../config/entries.mjs';
 import { expectMounted, observeArtifacts } from './helpers';
+import { confirmNewGame } from './new-game-helpers';
 import { buildProbe, depart, finishFirstLayer, importSample, inspectPage, ready, startLegacy } from './playable-helpers';
 test.beforeAll(buildProbe);
 for (const prefix of ['/', '/abyssa/']) {
@@ -119,7 +120,7 @@ test('blocked storage does not fake a successful new game', async ({ page }) => 
   await page.addInitScript(() => { Object.defineProperty(window, 'indexedDB', { get() { throw new DOMException('Unavailable', 'SecurityError'); } }); });
   await page.goto('/title.html');
   await page.getByRole('button', { name: '新的开始', exact: true }).click();
-  await page.getByRole('button', { name: '完整开始', exact: true }).click();
+  await confirmNewGame(page, '序章');
   await expect(page).toHaveURL(/#\/title$/);
   await expect(page.getByRole('status')).toContainText('存档');
 });
@@ -154,13 +155,16 @@ test('archive lists corrupt slots separately and export/import creates a new ide
   await expect(page.locator('html')).not.toHaveAttribute('data-scene-transition', /.+/);
   await page.screenshot({ path: info.outputPath('title.png') });
   await page.getByRole('button', { name: '记录', exact: true }).click();
-  const dialog = page.getByRole('dialog', { name: '游戏档案' });
+  const dialog = page.getByRole('dialog', { name: '读取档案' });
   await expect(dialog).toContainText('暂不可读取');
-  await expect(dialog.getByRole('button', { name: /载入档案/ })).toHaveCount(1);
+  await expect(dialog.getByRole('button', { name: /^选择档案 / })).toHaveCount(2);
+  await expect(dialog.getByRole('button', { name: '读取所选档案' })).toBeEnabled();
   await page.screenshot({ path: info.outputPath('archive.png') });
+  await dialog.getByRole('button', { name: '档案管理', exact: true }).click();
   const download = page.waitForEvent('download');
   await dialog.getByRole('button', { name: '导出存档', exact: true }).click();
   const downloaded = await download; const path = (await downloaded.path())!;
+  await dialog.getByRole('button', { name: '导入档案', exact: true }).click();
   await page.getByLabel('导入存档', { exact: true }).setInputFiles(path);
   await expect(page).toHaveURL(/#\/menu\?/); await ready(page);
   const imported = (await inspectPage(page)).record;
@@ -169,7 +173,8 @@ test('archive lists corrupt slots separately and export/import creates a new ide
   expect(imported.snapshot.campaign).toEqual(original.snapshot.campaign);
   await page.goto('/title.html');
   await page.getByRole('button', { name: '记录', exact: true }).click();
-  await expect(page.getByRole('button', { name: /载入档案/ })).toHaveCount(2);
+  await expect(page.getByRole('button', { name: /^选择档案 / })).toHaveCount(3);
+  await expect(page.getByRole('button', { name: /^选择档案 暂不可读取/ })).toHaveCount(1);
 });
 test('dice remains an isolated local demo without a runtime service', async ({ page }) => {
   const failures = await observeArtifacts(page);

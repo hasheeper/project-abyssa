@@ -16,12 +16,17 @@ export function createTargetConfig(targetId, options = {}) {
   const enableAi = options.enableAi ?? false;
   return {
     configFile: false, root: projectRoot, base: options.base ?? './',
+    // Concurrent game/lab servers must not replace each other's optimized deps.
+    cacheDir: resolve(projectRoot, 'node_modules/.vite', `${target.id.replace(':', '-')}${enableAi ? '-ai' : ''}`),
     plugins: [react(), ...(!ui ? [targetAssets(target), gameStartup(target)] : []), ...(readable ? [minifyVendorOnly()] : [])],
     css: { postcss: { plugins: target.entries.some(e => e.kind === 'game') ? [gamePageStyles()] : [] } },
     define: { 'import.meta.env.VITE_DICE_RUNTIME_ENABLED': JSON.stringify(String(enableAi)) },
     server: {
       host: options.host ?? '127.0.0.1', port: options.port ?? target.port, strictPort: true,
       open: options.open ?? target.open,
+      // Preserve Vite's existing credential denylist and protect the BYOK local file
+      // in every dev target sharing this root (not only the AIRP entry).
+      fs: { deny: ['.env', '.env.*', '*.{crt,pem,key,p12,pfx,cer,der}', '.npmrc', '.yarnrc.yml', '**/.git/**', '**/*.local.json', '**/dist/reports/**'] },
       ...(enableAi ? { proxy: { '/api': 'http://127.0.0.1:8787' } } : {}),
     },
     preview: { host: options.host ?? '127.0.0.1', port: options.port ?? target.port, strictPort: true, open: options.open ?? false },
@@ -41,7 +46,10 @@ export function createTargetConfig(targetId, options = {}) {
         // so Vite's CSS URL resolver does not assume the app's assets/ directory.
         output: { assetFileNames: '[name].[ext]' },
       } : {
-        input: target.entries.some(e => e.kind === 'game') ? { game: resolve(projectRoot, 'index.html') } : Object.fromEntries(target.entries.map(entry => [entry.id, resolve(projectRoot, entry.sourceHtml ?? entry.html)])),
+        input: {
+          ...(target.entries.some(e => e.kind === 'game') ? { game: resolve(projectRoot, 'index.html') } : {}),
+          ...Object.fromEntries(target.entries.filter(entry => entry.kind !== 'game').map(entry => [entry.id, resolve(projectRoot, entry.sourceHtml ?? entry.html)])),
+        },
         output: {
           ...(readable ? { entryFileNames: 'assets/[name].js', chunkFileNames: 'assets/[name].js', assetFileNames: 'assets/[name][extname]' } : {}),
           ...((hasMap || readable) ? { manualChunks(id) {

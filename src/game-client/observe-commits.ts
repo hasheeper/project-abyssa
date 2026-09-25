@@ -1,4 +1,5 @@
 import type { SaveLocator } from "./navigation";
+import { clearDeletedSaveHints } from "./deleted-save-hints";
 
 /** Shared invalidation only. Each session decides whether it may execute commands. */
 export function observeCommits(
@@ -33,6 +34,7 @@ export function observeCommits(
   const restored = (event: PageTransitionEvent) => { if (event.persisted) visible(); };
   if (channel)
     channel.onmessage = (event) => {
+      if (event.data?.deleted === true && typeof event.data.saveId === "string") clearDeletedSaveHints(event.data.saveId);
       if (
         event.data?.saveId === locator.saveId &&
         event.data?.epoch === locator.epoch

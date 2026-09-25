@@ -3,6 +3,7 @@ import { build } from "esbuild";
 import { resolve } from "node:path";
 import { projectRoot } from "../../config/paths.mjs";
 import { ready } from "./playable-helpers";
+import { confirmNewGame } from "./new-game-helpers";
 import type { inspectManor } from "../../src/game-runtime/testing/manor-browser";
 const probe = resolve(
   projectRoot,
@@ -29,7 +30,7 @@ for (const prefix of ["/", "/abyssa/"])
     await page
       .getByRole("button", { name: "新的开始", exact: true })
       .click();
-    await page.getByRole("button", {name: "跳过教程", exact: true}).click();
+    await confirmNewGame(page, "自由行动");
     await expect(page).toHaveURL(/#\/menu/);
     await ready(page);
     const sortie = page.getByRole("button", { name: "出征 · 编队并进入副本", exact: true });

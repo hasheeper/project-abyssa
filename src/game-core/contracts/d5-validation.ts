@@ -1,16 +1,50 @@
+import { validateFacilityContent } from "./facilities";
 import * as v from "./validation";
+import { validateLootContent } from "./loot";
+import { validateStartReward } from "./start-reward";
 import { sha256 } from "./sha256";
-import { validateManorCatalog } from "./demo-validation";
+import { validateManorCatalog, validateOrdinarySharedCatalog } from "./demo-validation";
+import { validateOrdinaryExpeditions } from "./ordinary-expeditions";
 import type { D5Catalog, D5CatalogRef, ValidatedD5Catalog } from "./d5";
 import { validateTutorialDefinitions } from "./tutorial-validation";
 import { validateAirpContent, validateAirpScript } from "./airp-live-validation";
 import { validateAirpPoolContent } from "./airp-pool-validation";
+import { validateDirectorContent } from "./airp-director-content";
+import { validateShopContent } from "./shop-validation";
 
 export function validateD5Catalog(raw: unknown, expected?: D5CatalogRef): ValidatedD5Catalog {
   v.assertJson(raw);
-  const c = v.record(raw, "catalog"), { progression, combat, economy, prologue, opening, tutorial, airp, airpOnline, ...common } = c;
+  const c = v.record(raw, "catalog"), { progression, combat, economy, prologue, opening, tutorial, airp, airpOnline, airpDirect, airpDirector, loot, tutorialSkipReward, shopIntroduction, shop, expeditions, facilities, ...common } = c;
   v.choice(c.rulesVersion, [4], "rulesVersion");
-  const version = v.choice(c.contentVersion, [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], "contentVersion"), clockwork = version >= 3;
+  const version = v.choice(c.contentVersion, [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28], "contentVersion"), clockwork = version >= 3;
+  if (version < 20 && expeditions !== undefined) v.invalid("expeditions", "Ordinary routes require content 20", "content-unavailable");
+  if (version === 19 || version === 22 || version === 24 || version === 26 || version === 28) validateDirectorContent(c as unknown as D5Catalog);
+  else if (airpDirector !== undefined) v.invalid("airpDirector", "Director requires content 19", "content-unavailable");
+  if (version === 18) {
+    const direct = v.record(airpDirect, "airpDirect", ["version", "definitionId", "demoStart", "followup"]);
+    v.choice(direct.version, [1], "airpDirect.version");
+    v.choice(direct.definitionId, ["ripple.elora.old-medicine-case"], "airpDirect.definitionId");
+    const start = v.record(direct.demoStart, "airpDirect.demoStart", ["id", "routeId"]);
+    v.choice(start.id, ["start.airp.patrol"], "airpDirect.demoStart.id");
+    v.choice(start.routeId, [(c as unknown as D5Catalog).manor!.maintenanceRouteId], "airpDirect.demoStart.routeId");
+    const followup = validateAirpScript(direct.followup, ["elora"]);
+    if (followup.nodes.some(n => n.kind !== "beat")) v.invalid("airpDirect.followup", "Followup has no gameplay decisions");
+  } else if (airpDirect !== undefined) v.invalid("airpDirect", "Direct generation requires content 18", "content-unavailable");
+  if (version >= 16) {
+    const intro = v.record(shopIntroduction, "shopIntroduction", ["id", "shopId", "lastStep"]);
+    v.choice(intro.id, ["story.shop.first-visit"], "shopIntroduction.id");
+    v.choice(intro.shopId, ["shop.mansion"], "shopIntroduction.shopId");
+    v.choice(intro.lastStep, [3], "shopIntroduction.lastStep");
+  } else if (shopIntroduction !== undefined) v.invalid("shopIntroduction", "Earlier content has no shop introduction");
+  if (version >= 13) {
+    const content = validateLootContent(loot, common.routes as D5Catalog["routes"], version >= 17, version >= 21);
+    const spec = (c as unknown as D5Catalog).tutorial;
+    if (!spec || (version < 17 && (content.grants.length !== 1 || Object.keys(content.definitions).length !== 1)) || !content.grants.some(g => g.routeId === spec.routeId && g.roomId === "room.tide-cave.4")) v.invalid("loot.grants", "The first appraisal requires a guaranteed final tutorial reward");
+    if (content.grants.some(g => (c as unknown as D5Catalog).journey!.rooms[g.roomId].kind === "exit")) v.invalid("loot.grants", "Loot requires a completed battle or event room, before layer banking");
+    if (content.dropTables?.rooms.some(r => r.routeId === spec.routeId || r.routeId === "memory.marietta" || (c as unknown as D5Catalog).journey!.rooms[r.roomId].kind !== "battle")) v.invalid("loot.dropTables", "Random loot requires ordinary battle rooms");
+  } else if (loot !== undefined) v.invalid("loot", "Earlier content has no loot contract");
+  if (version >= 15) validateStartReward(tutorialSkipReward, c as unknown as D5Catalog);
+  else if (tutorialSkipReward !== undefined) v.invalid("tutorialSkipReward", "Earlier content has no starting reward");
   if (version >= 7) validateTutorialDefinitions(c as unknown as D5Catalog);
   else if (tutorial !== undefined) v.invalid("tutorial", "Earlier content has no tutorial");
   if (version >= 9) validateAirpPoolContent(c as unknown as D5Catalog);
@@ -46,7 +80,7 @@ export function validateD5Catalog(raw: unknown, expected?: D5CatalogRef): Valida
     for (let i = 1; i <= 4; i++) delete rooms[`room.tide-cave.${i}`];
     if (version >= 11) delete rooms["room.tide-cave.event.intro"];
   }
-  const shared = validateManorCatalog({ ...common, rulesVersion: 3, routes, journey: { ...journey, rooms } });
+  const shared = (version >= 20 ? validateOrdinarySharedCatalog : validateManorCatalog)({ ...common, rulesVersion: 3, routes, journey: { ...journey, rooms } });
   const rules = v.record(combat, "combat", ["mariettaCovenant", "memory"]);
   if (v.canonicalJson(rules.mariettaCovenant) !== v.canonicalJson({ id: "covenant.marietta", pattern: "broad-full-house", budgets: [1, 2] })) v.invalid("combat.covenant", "Wrong covenant definition");
   const encounterId = clockwork ? "encounter.memory.clockwork" : "encounter.memory.marietta";
@@ -95,17 +129,25 @@ export function validateD5Catalog(raw: unknown, expected?: D5CatalogRef): Valida
   const profile = v.reference(shared.data.profiles, shared.data.journey!.defaultProfileId, "profile");
   if (Object.keys(shared.data.profiles).length !== 1 || profile.progress.appliedGrowthIds.length || profile.progress.equipment.length || v.canonicalJson(profile.availableCharacterIds) !== v.canonicalJson(party)) v.invalid("profile", "D5 starts with the unchanged five heroes and no grants");
   if (clockwork) {
-    const e = v.record(economy, "economy", ["shopId", "quoteVersion", "freeItemIds", "prices"]);
-    v.choice(e.shopId, ["shop.mansion"], "shopId"); v.choice(e.quoteVersion, [1], "quoteVersion");
-    if (v.canonicalJson(e.freeItemIds) !== v.canonicalJson(["item.food", "item.potion"])) v.invalid("freeItemIds", "Basic food and healing remain free");
+    const e = v.record(economy, "economy", ["shopId", "quoteVersion", "freeItemIds", "prices", ...(version >= 17 ? ["unit"] : [])]);
+    v.choice(e.shopId, ["shop.mansion"], "shopId"); v.choice(e.quoteVersion, [version >= 17 ? 2 : 1], "quoteVersion");
+    if (version >= 17) v.choice(e.unit, ["copper-lira"], "economy.unit");
+    if (v.canonicalJson(e.freeItemIds) !== v.canonicalJson(version >= 25 ? [] : ["item.food", "item.potion"])) v.invalid("freeItemIds", "Basic food and healing remain free");
     const prices = v.record(e.prices, "prices");
-    const paid = Object.keys(shared.data.journey!.items).filter(id => !(e.freeItemIds as string[]).includes(id)).sort();
+    const paid = Object.keys(shared.data.journey!.items).filter(id => !(e.freeItemIds as string[]).includes(id) && !(version >= 25 && id === "item.food")).sort();
     if (v.canonicalJson(Object.keys(prices).sort()) !== v.canonicalJson(paid)) v.invalid("prices", "Exactly the five tactical supplies are sold");
-    Object.values(prices).forEach(p => v.number(p, "price", 1, 100));
+    Object.values(prices).forEach(p => v.number(p, "price", 1, version >= 17 ? 50_000 : 100));
     const route = shared.data.routes[shared.data.manor!.maintenanceRouteId], room = shared.data.journey!.rooms[route.layers[4][0]];
     if (room.kind !== "battle" || v.canonicalJson(shared.data.encounters[room.encounterId].enemyIds) !== v.canonicalJson(["enemy.old-manor.clockwork-beast"])) v.invalid("maintenance", "Clockwork beast must close maintenance");
   } else if (economy !== undefined) v.invalid("economy", "Published content v2 has no shop");
   const ref: D5CatalogRef = { catalogId: shared.ref.catalogId, contentVersion: version, rulesVersion: 4, digest: sha256(v.canonicalJson(raw)) };
+  if (version >= 20) validateOrdinaryExpeditions(c as unknown as D5Catalog);
+  if (version >= 23) validateShopContent(shop, c as unknown as D5Catalog);
+  else if (shop !== undefined) v.invalid("shop", "Scheduled products require new content", "content-unavailable");
+  if (version >= 25) {
+    validateFacilityContent(facilities, c as unknown as D5Catalog);
+    if (!!(facilities as import("./facilities").FacilityContent).construction !== (version >= 27)) v.invalid("construction", "Construction must match the published content version");
+  } else if (facilities !== undefined) v.invalid("facilities", "Facilities require a new content version");
   if (expected && v.canonicalJson(expected) !== v.canonicalJson(ref)) v.invalid("contentRef", "D5 content identity differs", "content-mismatch");
   return v.freezeData({ data: structuredClone(raw) as D5Catalog, ref, shared });
 }

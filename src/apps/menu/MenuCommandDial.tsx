@@ -1,9 +1,9 @@
 import { useId, useState } from "react";
 import type { CSSProperties } from "react";
-import cargoCrateIcon from "../../assets/icons/items/cargo-crate.svg";
-import fireplaceIcon from "../../assets/icons/items/fireplace.svg";
+import characterIcon from "../../assets/icons/menu/roster-scylla.svg";
+import medievalVillageIcon from "../../assets/icons/menu/medieval-village-01.svg";
 import twoCoinsIcon from "../../assets/icons/items/two-coins.svg";
-import crossedSwordsIcon from "../../assets/icons/crossed-swords.svg";
+import mapSwordIcon from "../../assets/icons/menu/map-sword.svg";
 import { MenuDialFiligree } from "./MenuDialFiligree";
 
 /* ============ 四角命令盘 ============
@@ -29,7 +29,7 @@ import { MenuDialFiligree } from "./MenuDialFiligree";
  * 这些数是二分解出来的,不是眼调的;改任何一条边都要重解,别手写。
  */
 
-export type MenuCommandId = "estate" | "storage" | "shop" | "sortie";
+export type MenuCommandId = "estate" | "roster" | "shop" | "sortie";
 
 interface MenuCommand {
   id: MenuCommandId;
@@ -44,7 +44,7 @@ interface MenuCommand {
 /** N / W / E / S —— 视觉阅读顺序,不是类型联合的声明顺序。 */
 const MENU_COMMANDS: readonly MenuCommand[] = [
   { id: "estate", label: "府邸", displayLabel: "MANOR", caption: "回到守望者之崖洋馆" },
-  { id: "storage", label: "仓库", displayLabel: "STORAGE", caption: "查看领地库存" },
+  { id: "roster", label: "角色", displayLabel: "ROSTER", caption: "查看角色档案" },
   { id: "shop", label: "商店", displayLabel: "SHOP", caption: "前往守望者杂货铺" },
   { id: "sortie", label: "出征", displayLabel: "SORTIE", caption: "编队并进入副本" }
 ];
@@ -58,7 +58,7 @@ const commandGeometry: Record<
     insetPath:
       "M299.5 96.7 L500.5 96.7 L553 157.3 L513.7 220.9 L457.3 220.9 L400 280.9 L342.7 220.9 L286.3 220.9 L247 157.3 Z"
   },
-  storage: {
+  roster: {
     path: "M57 236.4 L306 236.4 L370 310 L306 383.6 L57 383.6 L12 310 Z",
     insetPath: "M74.9 246.7 L289 246.7 L344.1 310 L289 373.3 L74.9 373.3 L36.2 310 Z"
   },
@@ -74,10 +74,10 @@ const commandGeometry: Record<
 };
 
 const commandIcons: Record<MenuCommandId, string> = {
-  estate: fireplaceIcon,
-  storage: cargoCrateIcon,
+  estate: medievalVillageIcon,
+  roster: characterIcon,
   shop: twoCoinsIcon,
-  sortie: crossedSwordsIcon
+  sortie: mapSwordIcon
 };
 
 export interface MenuCommandDialProps {
@@ -132,7 +132,7 @@ export function MenuCommandDial({ selectedId, onSelect, onActivate }: MenuComman
                   <use className="menu-dial__filigree" href={`#${diamondId}`} transform="translate(400 246)" />
                 </>
               )}
-              {command.id === "storage" && (
+              {command.id === "roster" && (
                 <>
                   <use className="menu-dial__filigree menu-dial__filigree--wing" href={`#${sideId}`} transform="translate(35 310)" />
                   <use className="menu-dial__filigree" href={`#${diamondId}`} transform="translate(334 310) rotate(-90) scale(.9)" />

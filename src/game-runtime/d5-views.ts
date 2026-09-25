@@ -1,3 +1,5 @@
+import { equipmentPreview } from "./equipment-view";
+import { equipmentTargets } from "../game-core/contracts/equipment";
 import { d5ReplayBasis } from "../game-application/versions/d5-validate";
 import type { D5GameRecord, AnyReceipt } from "../game-application";
 import type { DemoEvent } from "../game-core/battle";
@@ -45,13 +47,13 @@ export function d5ProgressionView(catalog: ValidatedD5Catalog, record: D5GameRec
   });
   const mansion = !campaign.activeRunRef;
   const occupied = new Set(campaign.inventory.flatMap(i => i.location.kind === "inventory" ? [] : [i.location.ownerId]));
-  const applicableOwners = campaign.availableCharacterIds.filter(id => catalog.data.characters[id].faces.some(f => catalog.data.actions[f.actionId].kind === "blank"));
+  const applicableOwners = campaign.availableCharacterIds.filter(id => Object.values(catalog.data.equipment).some(def => equipmentTargets(catalog.data, id, def).length > 0));
   return {
     events,
     activeStoryId: campaign.activeStoryId,
     canBegin: mansion && !campaign.activeStoryId,
     teamMilestone: campaign.teamMilestone,
-    inventory: campaign.inventory.map(i => ({ ...i, definition: catalog.data.equipment[i.definitionId] })),
+    inventory: campaign.inventory.map(i => ({ ...i, definition: catalog.data.equipment[i.definitionId], preview: equipmentPreview(catalog, campaign, i.definitionId) })),
     canMove: mansion,
     applicableOwners,
     equipTargets: applicableOwners.filter(id => !occupied.has(id)),

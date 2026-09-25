@@ -6,7 +6,6 @@ import "../../shared/ui/styles/components-core.css";
    所以新增共享样式必须在这里显式引入，改公共 index.css 到不了这儿。 */
 import "../../shared/ui/styles/items.css";
 import "../../shared/ui/styles/manor-utility.css";
-import "../../shared/ui/styles/dialogue.css";
 import "../../shared/ui/styles/paper-doll.css";
 import "../../shared/stage/stage.css";
 import "./mansion.css";

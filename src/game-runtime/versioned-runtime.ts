@@ -1,5 +1,7 @@
 import { createD5LineageApplication } from "../game-application/versions/d5-lineage";
 import { restoreD5Archive } from "../game-application/versions/d5-restore";
+import { parseD5Archive, serializeD5Archive } from "../game-application/versions/d5-archive";
+import { poolSaveJson } from "../game-core/contracts/pooled-json";
 import { airpCopyBlocked } from "../game-application/versions/airp-replay";
 import * as v from "../game-core/contracts";
 import {
@@ -22,6 +24,7 @@ import type {
 } from "../game-application";
 import { createCatalogRegistry, type CatalogRegistration } from "./catalogs";
 import { createVersionedQueries } from "./versioned-views";
+import { savePresentation } from "./save-presentation";
 
 /** Checked storage bridge. Each service retains its strict version-specific reader. */
 function narrowStore<R extends AnyGameRecord, C extends AnyReceipt>(
@@ -149,6 +152,7 @@ export function createVersionedGameRuntime(
                   contentRef: record.contentRef,
                   supersedes: record.schemaVersion === 4 && record.originRef?.kind === "upgrade" ? record.originRef.source.head : undefined,
                   clock: record.snapshot.campaign.clock,
+                  presentation: savePresentation(record),
                   continuation: record.schemaVersion === 3 || record.schemaVersion === 4 ? (()=>{
                     const c=record.snapshot.campaign, eligible=!c.activeRunRef && c.manor?.story?.status!=="pending" && (record.schemaVersion!==4 || record.snapshot.campaign.prologue?.status!=="playing" && record.snapshot.campaign.opening?.status!=="playing" && !record.snapshot.campaign.activeStoryId && (!record.snapshot.campaign.memory || record.snapshot.campaign.memory.node==="completed"));
                     const newer = registrations.some(e => e.version === 4 && !e.catalog.data.tutorial?.guide && e.catalog.ref.contentVersion >= 3 && (record.schemaVersion === 3 || e.catalog.ref.contentVersion > record.contentRef.contentVersion));
@@ -198,9 +202,7 @@ export function createVersionedGameRuntime(
     async restoreSave(raw: unknown) {
       try {
         const r = v.record(raw, "restore", ["archive", "clientRequestId"]);
-        const archive = v.record(v.parseJson(v.text(r.archive, "archive", 8 * 1024 * 1024)), "archive", ["archiveVersion", "record"]);
-        v.choice(archive.archiveVersion, [4], "archiveVersion");
-        const record = registry.read(archive.record), entry = registry.resolve(record.schemaVersion, record.contentRef);
+        const record = registry.read(parseD5Archive(v.text(r.archive, "archive", v.DATA_LIMITS.characters))), entry = registry.resolve(record.schemaVersion, record.contentRef);
         if (record.schemaVersion !== 4 || entry.version !== 4) v.invalid("archive", "Expected AIRP record");
         return await restoreD5Archive(record, v.id(r.clientRequestId, "clientRequestId"), entry.catalog, narrowStore<D5GameRecord, D5Receipt>(store, 4), registry.readers);
       } catch (e) { return failure(e); }
@@ -213,9 +215,8 @@ export function createVersionedGameRuntime(
         const entry = registry.resolve(request.protocolVersion, r.contentRef);
         if (entry.version === 4) {
           v.record(request,"request",["protocolVersion","saveId","epoch","clientRequestId","archive"]);
-          const archive = v.record(v.parseJson(v.text(request.archive,"archive",8*1024*1024)),"archive",["archiveVersion","record"]);
-          v.choice(archive.archiveVersion,[4],"archiveVersion");
-          return createD5LineageApplication(entry.catalog,narrowStore<D5GameRecord,D5Receipt>(store,4),registry.readers,registry.read)({saveId:request.saveId,epoch:request.epoch,clientRequestId:request.clientRequestId,kind:"copy",source:archive.record});
+          const source = parseD5Archive(v.text(request.archive,"archive",v.DATA_LIMITS.characters));
+          return createD5LineageApplication(entry.catalog,narrowStore<D5GameRecord,D5Receipt>(store,4),registry.readers,registry.read)({saveId:request.saveId,epoch:request.epoch,clientRequestId:request.clientRequestId,kind:"copy",source});
         }
         const selected = service(entry);
         if (!("importSave" in selected)) v.invalid("import", "Import unavailable", "content-unavailable");
@@ -247,7 +248,7 @@ export function createVersionedGameRuntime(
         const record = await read(saveId);
         return {
           ok: true as const,
-          archive: JSON.stringify({
+          archive: record.schemaVersion === 4 ? serializeD5Archive(record) : JSON.stringify({
             archiveVersion: record.schemaVersion,
             record,
           }),
@@ -260,10 +261,11 @@ export function createVersionedGameRuntime(
       try {
         const rawRecord = await store.read(v.id(saveId, "saveId"));
         if (!rawRecord) v.invalid("saveId", "Save not found", "not-found");
-        v.assertJson(rawRecord);
+        const diagnosticRecord = rawRecord.schemaVersion === 4 ? poolSaveJson(rawRecord) : rawRecord;
+        v.assertJson(diagnosticRecord);
         return {
           ok: true as const,
-          archive: JSON.stringify({ diagnosticVersion: 1, rawRecord }),
+          archive: JSON.stringify({ diagnosticVersion: 1, rawRecord: diagnosticRecord }),
         };
       } catch (e) {
         return failure(e);

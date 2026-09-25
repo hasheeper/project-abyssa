@@ -277,7 +277,7 @@ export function performDemoAction(
       actorId,
     );
     if (kind === "expensive-heal") {
-      const cost = Math.min(state.run.looseGold, 10);
+      const cost = Math.min(state.run.looseGold, catalog.rulesVersion === 4 && catalog.contentVersion >= 17 ? 1_000 : 10);
       state.run.looseGold -= cost;
       emit(ctx, "healing-cost", actorId, { cost });
     }

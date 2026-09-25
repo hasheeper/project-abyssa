@@ -6,6 +6,9 @@ export type JourneyLogRecord = { snapshot: { campaign: Pick<DemoCampaign, "settl
 export function manorReturnFeedback(c: RuleCatalog, record: JourneyLogRecord): string[] {
   const last=record.snapshot.campaign.settlements.at(-1);
   if(!last)return [];
+  const ordinary = c.rulesVersion === 4 ? c.expeditions?.[last.routeId] : undefined;
+  if (ordinary) return [last.outcome === "cleared" ? `${ordinary.name}探索完成，带回的战利品可以交给缇比出售或鉴定。`
+    : last.outcome === "extracted" ? `已从第 ${last.deepestLayer} 层撤离，入袋收益全部带回。` : "本层收获遗失，已入袋收益保留一半。休整后还可以再出发。"];
   if (last.routeId === "intro.tide-cave.first") return [c.contentVersion >= 12
     ? last.outcome === "cleared" ? "草药、古籍与旧毛毯都已物归原主。可以在洋馆休整，为下一趟旅程做准备。" : "这次未能完成货物回收，休整后可以再次出发。"
     : "草药、书和工坊包袱已送回。可自由整备，随后前往克雷格旧庄园。"];
@@ -22,8 +25,10 @@ export function manorReturnFeedback(c: RuleCatalog, record: JourneyLogRecord): s
 
 /** Player-facing text derived from committed facts, including undo retractions. */
 export function manorLog(c: RuleCatalog, record: JourneyLogRecord) {
+  const money = (value: unknown) => `${(Number(value) * (c.contentVersion >= 17 ? 1 : 100)).toLocaleString("en-US")} G`;
   const run = record.snapshot.expedition?.run;
   if (!run) return [];
+  const ordinary = c.rulesVersion === 4 ? c.expeditions?.[run.routeId] : undefined;
   const name = (id: unknown): string => {
     if (typeof id !== "string") return "伙伴";
     if (id === "kael") return "{{user}}";
@@ -64,10 +69,10 @@ export function manorLog(c: RuleCatalog, record: JourneyLogRecord) {
           text = "使用回忆中的局部补给。";
           break;
         case "expedition-started":
-          text = run.routeId === "intro.tide-cave.first" ? "沿车辙进入退潮岩窟。" : "踏入克雷格旧庄园。";
+          text = ordinary ? `进入${ordinary.name}。` : run.routeId === "intro.tide-cave.first" ? "沿车辙进入退潮岩窟。" : "踏入克雷格旧庄园。";
           break;
         case "encounter-started":
-          text = run.routeId === "intro.tide-cave.first" ? "前方出现敌人，意图已公开。" : `进入第 ${p.layer} 层，红线牵动了新的宾客。`;
+          text = ordinary ? `第 ${p.layer} 层遭遇敌人，意图已公开。` : run.routeId === "intro.tide-cave.first" ? "前方出现敌人，意图已公开。" : `进入第 ${p.layer} 层，红线牵动了新的宾客。`;
           round = 1;
           break;
         case "tutorial-retried":
@@ -101,7 +106,7 @@ export function manorLog(c: RuleCatalog, record: JourneyLogRecord) {
           tone = "good";
           break;
         case "enemy-defeated":
-          text = record.snapshot.expedition?.encounter?.memory ? "侍偶倒下，防线收拢。" : `敌人倒下，拾取 ${p.bounty}G。`;
+          text = record.snapshot.expedition?.encounter?.memory ? "侍偶倒下，防线收拢。" : `敌人倒下，拾取 ${money(p.bounty)}。`;
           tone = record.snapshot.expedition?.encounter?.memory ? "good" : "gold";
           break;
         case "healing-applied":
@@ -123,8 +128,12 @@ export function manorLog(c: RuleCatalog, record: JourneyLogRecord) {
           text = `${name(f.actorId)}力竭，命数留下暂时锈蚀。`;
           tone = "bad";
           break;
+        case "commission-item-found":
+          text = `取得委托物品：${p.label}。安全返回后交付。`;
+          tone = "gold";
+          break;
         case "layer-banked":
-          text = `第 ${p.layer} 层结算 ${p.gold}G，已放入包裹。`;
+          text = `第 ${p.layer} 层结算 ${money(p.gold)}，已放入包裹。`;
           tone = "gold";
           break;
         case "item-used":
@@ -142,7 +151,7 @@ export function manorLog(c: RuleCatalog, record: JourneyLogRecord) {
           text =
             p.outcome === "wipe"
               ? "队伍力竭，强行撤回。"
-              : p.outcome === "cleared" ? "全程完成，返回洋馆。" : "从第三层出口带宝离场。";
+              : p.outcome === "cleared" ? "全程完成，返回洋馆。" : `从第 ${p.deepestLayer} 层出口带宝离场。`;
           break;
       }
       return text ? [{ layer, round, text, tone }] : [];

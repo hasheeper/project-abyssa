@@ -1,0 +1,3 @@
+/* Scene-only shell: the old counter skin is no longer loaded by the game route. */
+.abyssa-shop-stage { --abyssa-shop-backdrop: #0b0805; background: #0b0805; isolation: isolate; }
+.shop-closed { position: absolute; left: 360px; top: 260px; width: 880px; }

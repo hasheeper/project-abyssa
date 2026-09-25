@@ -1,0 +1,7 @@
+/* Keep the location fixed while the shared AVG exits and the counter enters. */
+.shop-visit > .scene-sequence {z-index:1;}
+/* ADV fades through its own black backing, so differently cropped room images
+   never blend together. The counter reveals the stationary Stage backdrop. */
+.shop-visit > .scene-sequence[data-scene-id="shop.counter"] {background:transparent;}
+/* The shop's existing board score owns its entrance, without a second full-frame drop. */
+.shop-visit > .scene-sequence[data-scene-id="shop.counter"] > .scene-sequence__frame {animation:none;}

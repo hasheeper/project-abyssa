@@ -1,0 +1,74 @@
+/* Theme-independent result composition: no frame assets, seals or location artwork.
+   Every surface/ink color comes from the current battle skin. Item quality stays semantic. */
+.loot-settlement-modal.abyssa-modal { z-index: 55; background: color-mix(in srgb, var(--battle-frame-deep, #090e10) 88%, transparent); backdrop-filter: none; }
+.loot-settlement-modal > .loot-settlement-panel { width: 900px; max-width: 900px; color: var(--battle-detail-copy); }
+.loot-settlement { position: relative; isolation: isolate; display: flex; flex-direction: column; align-items: center; padding: 18px 32px 24px; outline: none; }
+.loot-settlement::before { position: absolute; z-index: -1; inset: 8% -3% 0; content: ""; background: var(--battle-frame-deep, #090e10); opacity: .76; filter: blur(70px); pointer-events: none; }
+.loot-settlement__heading { position: relative; align-self: stretch; text-align: center; }
+.loot-settlement__heading > p { margin: 0 0 21px; color: var(--battle-detail-copy-muted); font: 15px/1.5 var(--font-body); letter-spacing: .1em; }
+.loot-settlement__heading > p > span { margin: 0 14px; color: var(--battle-skin-muted); }
+.loot-settlement__heading h2 { margin: 0; padding-left: .22em; color: var(--battle-detail-copy-strong); font: 58px/1.25 var(--font-body); letter-spacing: .22em; text-shadow: 0 2px 0 var(--battle-frame-deep), 0 6px 18px #0009; }
+.loot-settlement__heading > small { display: block; margin-top: 12px; padding-left: .34em; color: var(--battle-skin-accent-soft); font: 11px/1.5 var(--font-display); letter-spacing: .34em; }
+.loot-settlement__rule { width: 460px; margin: 22px auto 0; display: flex; align-items: center; justify-content: center; gap: 15px; }
+.loot-settlement__rule i { flex: 1; height: 2px; background: var(--battle-skin-accent); opacity: .6; clip-path: polygon(0 45%, 100% 0, 100% 100%, 0 55%); }
+.loot-settlement__rule i:last-child { transform: rotate(180deg); }
+.loot-settlement__rule b { display: block; width: 6px; height: 6px; transform: rotate(45deg); border: 1px solid var(--battle-skin-accent-soft); box-shadow: 0 0 0 3px var(--battle-frame-deep); }
+.loot-settlement__money { display: grid; justify-items: center; gap: 7px; margin: 26px 0 30px; }
+.loot-settlement__money > span { color: var(--battle-detail-copy-muted); font: 13px/1.5 var(--font-body); letter-spacing: .14em; }
+.loot-settlement__money .abyssa-currency-amount { justify-content: center; gap: 10px; font: 49px/1.1 var(--font-display); font-variant-numeric: tabular-nums; color: var(--battle-detail-copy-strong); text-shadow: 0 3px 4px #0008; }
+.loot-settlement__money .abyssa-currency-amount > i { width: 27px; height: 27px; margin-right: 3px; }
+.loot-settlement__money .abyssa-currency-amount__unit { align-self: end; padding-bottom: 5px; font-size: 20px; color: var(--battle-skin-accent-soft); }
+.loot-settlement__contents { width: 100%; min-height: 0; max-height: 294px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: var(--battle-structure-line) transparent; padding: 0 13px 5px; box-sizing: border-box; }
+.loot-settlement[data-size="few"] .loot-settlement__contents { max-width: 660px; }
+.loot-settlement__manifest > header { display: flex; justify-content: center; align-items: center; gap: 12px; margin: 0 0 18px; }
+.loot-settlement__manifest > header > i { flex: 0 1 72px; height: 1px; background: var(--battle-structure-line); opacity: .55; }
+.loot-settlement__manifest h3 { margin: 0; color: var(--battle-skin-accent-soft); font: 15px/1.5 var(--font-body); letter-spacing: .12em; }
+.loot-settlement__manifest > header > span { color: var(--battle-skin-muted); font: 16px var(--font-display); }
+.loot-settlement__manifest > header small { font: 12px var(--font-body); }
+.loot-settlement .loot-rewards__scroll { max-height: none; overflow: visible; }
+.loot-settlement .loot-rewards__list { justify-content: center; align-items: center; gap: 8px 31px; }
+.loot-settlement .loot-reward { min-height: 64px; padding: 5px 3px; gap: 9px; }
+.loot-settlement .loot-reward__art { flex-basis: 46px; width: 46px; height: 46px; }
+.loot-settlement .loot-reward__icon { width: 40px; height: 40px; }
+.loot-settlement .loot-reward__name { max-width: 210px; font-size: 18px; }
+.loot-settlement .loot-reward > b { font-size: 21px; }
+.loot-settlement .loot-rewards__empty { text-align: center; margin: 16px 0 19px; font-size: 15px; color: var(--battle-skin-muted); }
+.loot-settlement__loss { margin: 20px 10px 0; border-top: 1px solid var(--battle-structure-line); padding-top: 2px; }
+.loot-settlement__loss-group { padding: 12px 5px 0; }
+.loot-settlement__loss-group > header { display: flex; align-items: center; gap: 14px; color: var(--battle-detail-copy-muted); }
+.loot-settlement__loss-group strong { font: 14px var(--font-body); letter-spacing: .06em; }
+.loot-settlement__loss-group .abyssa-currency-amount { font: 18px var(--font-display); opacity: .8; }
+.loot-settlement__loss-group .abyssa-currency-amount > i { width: 16px; height: 16px; }
+.loot-settlement__loss-group > p { margin: 6px 0 0; color: var(--battle-skin-muted); font: 13px/1.85 var(--font-body); }
+.loot-settlement__footer { align-self: stretch; display: flex; flex-direction: column; align-items: center; gap: 21px; padding-top: 23px; }
+.loot-settlement__footer > p { margin: 0; color: var(--battle-detail-copy-muted); font: 13px/1.7 var(--font-body); letter-spacing: .06em; }
+.loot-settlement__return { display: flex; justify-content: center; width: 100%; }
+.loot-settlement__return .dice-action-button { width: 222px; height: 55px; flex: 0 0 222px; }
+.loot-settlement__return .dice-action-button strong { font-size: 21px; }
+.loot-settlement[data-result="failed"] .loot-settlement__heading h2 { color: var(--battle-detail-copy); text-shadow: 0 3px 0 var(--battle-frame-deep); }
+.loot-settlement[data-result="failed"] .loot-settlement__rule b { border-bottom-color: transparent; transform: rotate(25deg); }
+.loot-settlement[data-result="retreated"] .loot-settlement__rule b { width: 12px; height: 4px; transform: none; border-block: 0; box-shadow: none; background: var(--battle-skin-accent); }
+
+/* Short, skippable reveal; one owner for each transform. No perpetual shimmer. */
+.loot-settlement[data-reveal="playing"] .loot-settlement__heading { animation: loot-result-title 600ms cubic-bezier(.16,.75,.25,1) both; }
+.loot-settlement[data-reveal="playing"] .loot-settlement__rule { animation: loot-result-rule 580ms 120ms ease-out both; }
+.loot-settlement[data-reveal="playing"] .loot-settlement__money { animation: loot-result-ink 300ms 180ms ease-out both; }
+.loot-settlement[data-reveal="playing"] .loot-settlement__contents { animation: loot-result-ink 320ms 480ms ease-out both; }
+.loot-settlement[data-reveal="playing"] .loot-reward { animation: loot-result-find 380ms cubic-bezier(.18,.7,.25,1) backwards; animation-delay: calc(520ms + var(--loot-order, 0) * 45ms); }
+.loot-settlement[data-reveal="playing"] .loot-settlement__footer { animation: loot-result-ink 260ms 900ms ease-out both; }
+.loot-settlement[data-reveal="complete"] :is(.loot-settlement__heading, .loot-settlement__rule, .loot-settlement__money, .loot-settlement__contents, .loot-reward, .loot-settlement__footer) { animation: none; }
+@keyframes loot-result-title { from { opacity: 0; transform: translateY(-9px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes loot-result-rule { from { opacity: 0; transform: scaleX(.5); } to { opacity: 1; transform: scaleX(1); } }
+@keyframes loot-result-ink { from { opacity: 0; } to { opacity: 1; } }
+@keyframes loot-result-find { from { opacity: 0; translate: 0 9px; } to { opacity: 1; translate: 0 0; } }
+
+.loot-settlement__bonus { display: flex; justify-content: center; align-items: center; gap: 10px; margin: 0 0 23px; color: var(--battle-skin-accent-soft); font: 14px var(--font-body); }
+.loot-settlement__bonus .abyssa-currency-amount { font: 19px var(--font-display); }
+.loot-settlement__bonus .abyssa-currency-amount > i { width: 16px; height: 16px; }
+.loot-settlement__bonus small { color: var(--battle-skin-muted); font-size: 12px; }
+.loot-settlement__supplies { margin-top: 23px; }
+.loot-settlement__supplies .loot-reward { min-height: 48px; }
+.loot-settlement__supplies .loot-reward__name { font-size: 15px; }
+.loot-settlement__supplies .loot-reward__icon { width: 30px; height: 30px; }
+.loot-settlement__return { gap: 20px; }
+.loot-settlement__footer > [role="alert"] { color: var(--battle-detail-copy-strong); }

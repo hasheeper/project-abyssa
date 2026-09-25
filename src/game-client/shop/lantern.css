@@ -1,0 +1,28 @@
+/* A local source at the painted flame, with softer light over the wood.
+   These percentages are in the artwork's space, independent of Stage scaling. */
+.new-shop__lantern-light, .new-shop__lantern-light > span { position: absolute; inset: 0; pointer-events: none; }
+.new-shop__lantern-light { opacity: .82; mix-blend-mode: screen; }
+.new-shop__lantern-halo {
+  background: radial-gradient(ellipse 14% 17% at 73.7% 31.7%, #ffc26930 0%, #f0a43d16 35%, #d7791b07 62%, transparent 100%);
+}
+.new-shop__lantern-core {
+  background: radial-gradient(ellipse 3.6% 7% at 73.7% 31.7%, #fff3c44a 0%, #ffd17d30 26%, #ffb44a12 58%, transparent 100%);
+}
+.new-shop__lantern-cast {
+  background: radial-gradient(ellipse 26% 13% at 68% 43%, #ffc27029 0%, #e5a04414 48%, transparent 100%);
+  mask: var(--counter-silhouette) center / 100% 100% no-repeat;
+}
+.new-shop__lantern-light[data-flicker] { animation: shop-lantern-flicker 5.8s ease-in-out infinite; }
+/* Uneven candle variation, not a repeating swell or a flashing UI highlight. */
+@keyframes shop-lantern-flicker {
+  0%, 100% { opacity: .82; }
+  17% { opacity: .94; }
+  29% { opacity: .79; }
+  34% { opacity: .88; }
+  52% { opacity: .83; }
+  71% { opacity: .96; }
+  81% { opacity: .85; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .new-shop__lantern-light[data-flicker] { animation: none; }
+}

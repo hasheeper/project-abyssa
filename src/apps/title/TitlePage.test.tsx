@@ -171,13 +171,14 @@ describe("TitlePage", () => {
     }
   });
 
-  it("explains unwired entries instead of silently doing nothing", async () => {
+  it("does not retain the old settings placeholder message", async () => {
     const user = userEvent.setup();
     await mountTitle();
 
     await user.click(screen.getByRole("button", { name: "设定" }));
 
-    expect(screen.getByRole("status")).toHaveTextContent("设定界面尚未接入");
+    expect(screen.queryByText(/设定界面尚未接入/)).toBeNull();
+    expect(screen.getByText("系统设置")).toBeInTheDocument();
   });
 
   it("hands off to the hub through the shared blackout rather than a raw href", async () => {
@@ -196,13 +197,31 @@ describe("TitlePage", () => {
   it("opens the archive with a valid saved campaign", async () => {
     const user = userEvent.setup(); await mountTitle();
     await user.click(screen.getByRole("button", { name: "记录" }));
-    expect(screen.getByRole("dialog", { name: "游戏档案" })).toHaveTextContent("档案 save");
+    expect(screen.getByRole("dialog", { name: "读取档案" })).toHaveTextContent("档案 save");
+    expect(document.querySelector(".abyssa-stage")).toHaveStyle({ overflow: "clip" });
+    await userEvent.setup().click(screen.getByRole("button", { name: "档案管理" }));
     expect(screen.getByRole("button", { name: "导出存档" })).toBeEnabled();
   });
 
 });
 
 describe("title command wiring", () => {
+  it("opens settings in the original title Stage without navigation or a loading curtain", async () => {
+    const { container } = await mountTitle();
+    const stage = container.querySelector(".abyssa-stage");
+    const cg = container.querySelector(".title-cg");
+    await userEvent.setup().click(screen.getByRole("button", { name: "设定" }));
+    expect(container.querySelector(".scene-transition")).not.toHaveAttribute("data-phase", "closing");
+    expect(screen.getByText("系统设置")).toBeInTheDocument();
+    expect(screen.getByRole("dialog", { name: "系统设置" })).toHaveClass("system-scene__panel");
+    expect(screen.getByRole("heading", { name: "系统设置SETTINGS" })).toBeInTheDocument();
+    expect(container.querySelectorAll(".abyssa-stage")).toHaveLength(1);
+    expect(container.querySelector(".abyssa-stage")).toBe(stage);
+    expect(container.querySelector(".title-cg")).toBe(cg);
+    expect(container.querySelector(".title-stack")).toHaveAttribute("inert");
+    expect(container.querySelector(".settings-app__frame")).toBeNull();
+    expect(screen.queryByText(/设定界面尚未接入/)).toBeNull();
+  });
   it("recommends Continue when a readable save exists without making commands toggles", async () => {
     const { container } = await mountTitle();
     expect(container.querySelectorAll(".title-commands__item[data-highlighted]")).toHaveLength(1);

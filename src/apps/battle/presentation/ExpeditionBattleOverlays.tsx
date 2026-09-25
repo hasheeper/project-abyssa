@@ -1,3 +1,4 @@
+import { MoneyText } from "../../../shared/ui/primitives/Money";
 import { DiceActionButton } from "../../../shared/ui/patterns/action-dock/DiceActionButton";
 import {
   getExpeditionStatus,
@@ -5,6 +6,7 @@ import {
   type ExpeditionState
 } from "../view";
 import { LayerSettlementBreakdown } from "./ExpeditionBattleChrome";
+import { ExpeditionSettlementLedger } from "./ExpeditionSettlementLedger";
 
 export type ExpeditionBattleOverlaysProps = {
   engine: ExpeditionState;
@@ -41,7 +43,7 @@ export function ExpeditionBattleOverlays({
                 <LayerSettlementBreakdown settlement={engine.lastLayerSettlement} />
               )}
               <p className="abyssa-expedition-modal__highlight">
-                现在离场可带回 <strong data-currency="gold">{greed.bagTotal}G</strong>
+                现在离场可带回 <strong data-currency="gold"><MoneyText value={greed.bagTotal}/></strong>
               </p>
               <p>
                 下一层（第 {greed.nextLayer} 层）收益倍率{" "}
@@ -75,37 +77,7 @@ export function ExpeditionBattleOverlays({
       )}
 
       {status === "finished" && engine.result && (
-        <div
-          className="abyssa-expedition-overlay"
-          role="dialog"
-          aria-modal="true"
-          aria-label="远征结算"
-        >
-          <div className="abyssa-expedition-modal" data-wide>
-            <h3>{engine.result.wiped ? "强行撤离" : "远征结束"}</h3>
-            <div className="abyssa-expedition-modal__body">
-              <p>
-                {engine.result.wiped
-                  ? `包裹 ${engine.result.baseGold}G 损失一半，当前层收益全部丢失`
-                  : "包裹合计（各层独立结算之和）"}
-              </p>
-              {!engine.result.wiped && engine.lastLayerSettlement && (
-                <LayerSettlementBreakdown settlement={engine.lastLayerSettlement} />
-              )}
-              <p className="abyssa-expedition-modal__total" data-currency="gold">
-                ＋{engine.result.totalGold} G
-              </p>
-              <p>
-                最深抵达第 {engine.result.deepestLayer} 层
-                {engine.result.crystal ? " · 远古晶石 ×1" : ""}
-              </p>
-
-            </div>
-            <div className="abyssa-expedition-modal__actions">
-              <DiceActionButton label="结算并返回洋馆" primary disabled={busy} onClick={onSettle} />
-            </div>
-          </div>
-        </div>
+        <ExpeditionSettlementLedger engine={engine} onSettle={onSettle} busy={busy} />
       )}
     </>
   );

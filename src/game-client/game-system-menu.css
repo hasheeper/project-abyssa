@@ -1,0 +1,5 @@
+/* Stage sibling: no inherited shop/sidebar transforms, width or clipping. */
+.game-system-layer { position: absolute; inset: 0; z-index: 1000; isolation: isolate; }
+.save-slots-scene .save-slots > .abyssa-system-panel__body { display: flex; flex-direction: column; overflow: visible; }
+.save-slots-scene .save-slots__rail::after { left: -88px; right: -88px; }
+.save-slots-scene .abyssa-system-panel__tabs { left: 460px; }

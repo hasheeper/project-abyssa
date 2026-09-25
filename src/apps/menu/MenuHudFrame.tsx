@@ -6,6 +6,8 @@ export interface MenuHudFrameProps {
   className?: string;
   label: string;
   side: "left" | "right";
+  compact?: boolean;
+  compactWidth?: number;
   children: ReactNode;
 }
 
@@ -43,19 +45,24 @@ const fundsCornerInset =
   "M181 -18 C291 40 363 130 397 206 H420";
 
 /** 左右顶角共用的翼形 HUD 外壳；镜像轮廓，内容保持正常方向。 */
-export function MenuHudFrame({ className, label, side, children }: MenuHudFrameProps) {
+export function MenuHudFrame({ className, label, side, children, compact = false, compactWidth = 448 }: MenuHudFrameProps) {
   const uid = useId().replace(/:/g, "");
   const patternId = `menu-hud-pattern-${uid}`;
   const fundsSurfaceId = `menu-funds-surface-${uid}`;
   const fundsClipId = `menu-funds-clip-${uid}`;
   const isFunds = side === "right";
-  const width = isFunds ? FUNDS_W : W;
+  const width = isFunds ? FUNDS_W : compact ? compactWidth : W;
   const height = isFunds ? FUNDS_H : H;
+  const step = Math.min(232, width - 92);
+  const outline = compact ? `M0 10 H${width - 40} L${width - 12} 38 V82 L${width - 34} 104 H${step} L${step - 18} 122 H0 Z` : outerPath;
+  const inset = compact ? `M0 21 H${width - 45} L${width - 24} 42 V77 L${width - 39} 92 H${step - 5} L${step - 23} 110 H0 Z` : innerPath;
 
   return (
     <section
       className={["menu-hud-frame", className].filter(Boolean).join(" ")}
       data-side={side}
+      data-compact={compact || undefined}
+      style={compact ? { width } : undefined}
       aria-label={label}
     >
       <svg className="menu-hud-frame__art" viewBox={`0 0 ${width} ${height}`} aria-hidden="true">
@@ -106,20 +113,22 @@ export function MenuHudFrame({ className, label, side, children }: MenuHudFrameP
           </>
         ) : (
           <>
-            <path className="menu-hud-frame__shadow" d={outerPath} transform="translate(0 5)" />
-            <path className="menu-hud-frame__surface" d={outerPath} />
-            <path className="menu-hud-frame__pattern" d={outerPath} fill={`url(#${patternId})`} />
-            <path className="menu-hud-frame__outer" d={outerPath} />
-            <path className="menu-hud-frame__middle" d={outerPath} />
-            <path className="menu-hud-frame__inner" d={outerPath} />
-            <path className="menu-hud-frame__inset" d={innerPath} />
+            <path className="menu-hud-frame__shadow" d={outline} transform="translate(0 5)" />
+            <path className="menu-hud-frame__surface" d={outline} />
+            <path className="menu-hud-frame__pattern" d={outline} fill={`url(#${patternId})`} />
+            <path className="menu-hud-frame__outer" d={outline} />
+            <path className="menu-hud-frame__middle" d={outline} />
+            <path className="menu-hud-frame__inner" d={outline} />
+            <path className="menu-hud-frame__inset" d={inset} />
             {/* 四相位作为完整的第二级台阶，左侧直缝正好对齐 DAY 分隔线。 */}
-            <path
+            {!compact && <path
               className="menu-hud-frame__time-step"
               d="M238 18 H550 L578 46 V86 L550 114 H238 Z"
-            />
-            <path className="menu-hud-frame__ridge" d="M64 12 H214 L234 28 H542 L560 48" />
-            <path className="menu-hud-frame__ridge" d="M64 120 H214 L234 104 H542 L560 84" />
+            />}
+            {compact ? <path className="menu-hud-frame__ridge" d={`M0 19 H${width - 44} L${width - 22} 41 V78 L${width - 38} 94 H${step - 3} L${step - 21} 112 H0`} /> : <>
+              <path className="menu-hud-frame__ridge" d="M64 12 H214 L234 28 H542 L560 48" />
+              <path className="menu-hud-frame__ridge" d="M64 120 H214 L234 104 H542 L560 84" />
+            </>}
           </>
         )}
       </svg>

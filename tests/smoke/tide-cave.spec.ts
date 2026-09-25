@@ -6,6 +6,7 @@ import { projectRoot } from "../../config/paths.mjs";
 import type { D5GameRecord } from "../../src/game-application";
 import type { tideOperation as Operation } from "../../src/game-client/testing/tide-cave";
 import { observeArtifacts } from "./helpers";
+import { confirmNewGame } from "./new-game-helpers";
 
 let afterMorning: string, beforeDeparture: string, currentContentVersion: number, choose: typeof Operation;
 test.beforeAll(async () => {
@@ -23,6 +24,8 @@ async function load(page: Page, archive: string, prefix = "/") {
   await page.getByRole("button", {name: "记录", exact: true}).click({timeout: 60_000});
   // Current packages preserve active narrative identity; use the supported recovery flow.
   const source = JSON.parse(archive) as {record: D5GameRecord};
+  await page.getByRole("button", { name: "档案管理", exact: true }).click();
+  await page.getByRole("button", { name: "导入档案", exact: true }).click();
   await page.getByLabel("导入格式").selectOption(source.record.narrative ? "restore" : "application");
   await page.getByLabel("导入存档", {exact: true}).setInputFiles({name: "tide.json", mimeType: "application/json", buffer: Buffer.from(archive)});
 }
@@ -218,7 +221,7 @@ test("new game keeps the prologue and authored morning ahead of tutorial", async
   test.setTimeout(90_000);
   await page.goto("/");
   await page.getByRole("button", {name: "新的开始", exact: true}).click({timeout: 60_000});
-  await page.getByRole("button", {name: "完整开始", exact: true}).click();
+  await confirmNewGame(page, "序章");
   await expect(page).toHaveURL(/#\/prologue/, {timeout: 60_000}); await settled(page);
   const record = await saved(page);
   expect(record.contentRef.contentVersion).toBe(currentContentVersion);

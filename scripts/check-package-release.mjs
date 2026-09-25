@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { validateBuildOutput } from "./check-build-output.mjs";
+import { privateMarkers, scanPrivateMarkers } from "./lib/airp-pages.mjs";
 
 const projectRoot = resolve(import.meta.dirname, "..");
 const packageJson = JSON.parse(
@@ -10,10 +11,10 @@ const packageJson = JSON.parse(
 );
 
 const entrypoints = {
-  // Includes the five shared emotion-cue exports added to index and patterns.
-  index: 109,
+  // Includes StoryChoices, SceneFeedback views, and ConfirmationDialog.
+  index: 116,
   branding: 14,
-  patterns: 37,
+  patterns: 44,
   primitives: 58
 };
 const requiredAssets = [
@@ -92,6 +93,11 @@ try {
 }
 
 if (pack) {
+  let localConfig = null;
+  try { localConfig = JSON.parse(readFileSync(resolve(projectRoot, "config/airp-test.local.json"), "utf8")); }
+  catch (error) { if (/** @type {NodeJS.ErrnoException} */(error).code !== "ENOENT") failures.push("Cannot inspect private config; details withheld."); }
+  try { await scanPrivateMarkers(projectRoot, pack.files, privateMarkers(localConfig)); }
+  catch { failures.push("Private credential or endpoint detected in UI package; details withheld."); }
   const packageFiles = new Map(pack.files.map((file) => [file.path, file]));
   check([...packageFiles.keys()].every(file => file.startsWith("dist/ui/") || /^(package\.json|README(?:\.[^/]+)?|LICEN[CS]E(?:\.[^/]+)?)$/i.test(file)), "UI package contains files outside dist/ui");
   const requiredFiles = [
@@ -207,6 +213,9 @@ for (const [entry, expectedExportCount] of Object.entries(entrypoints)) {
 }
 
 const rootExports = new Set(loadedEntrypoints.index ?? []);
+for (const entry of ["index", "patterns"]) {
+  check((loadedEntrypoints[entry] ?? []).includes("ConfirmationDialog"), `${entry} must export ConfirmationDialog`);
+}
 for (const entry of ["branding", "patterns", "primitives"]) {
   const missingFromRoot = (loadedEntrypoints[entry] ?? []).filter(
     (name) => !rootExports.has(name)

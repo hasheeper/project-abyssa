@@ -1,5 +1,5 @@
 import { readRoute } from "../../shared/routing/location";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import { AbyssaLogo } from "../../shared/ui/branding/AbyssaLogo";
 import { AbyssaProvider } from "../../shared/ui/primitives/AbyssaProvider";
@@ -17,7 +17,8 @@ import {
 import { TITLE_COMMANDS } from "./titleCommands";
 import type { TitleCommandId } from "./titleCommands";
 import { TITLE_FIELD_CENTRE_X, TITLE_FIELD_CENTRE_Y } from "./titleGeometry";
-import { RpgModal } from "../../shared/ui/primitives/RpgModal";
+import { TitleArchive } from "./TitleArchive";
+import { SettingsScene } from "../../game-client/settings/SettingsScene";
 import { useTitleArchive } from "./useTitleArchive";
 import { NewGameDialog } from "./NewGameDialog";
 import { TitleCommandMenu } from "./TitleCommandMenu";
@@ -59,10 +60,11 @@ function TitlePageContent() {
   const [startOpen, setStartOpen] = useState(false);
   const [startPresented, setStartPresented] = useState(false);
   const [archivePresented, setArchivePresented] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false), [settingsPresented, setSettingsPresented] = useState(false);
   const [startAttempted, setStartAttempted] = useState(false);
-  const archive = useTitleArchive(href => { const opening = readRoute(new URL(href, window.location.href))?.page === "prologue"; navigate(href, { destination: opening ? "序幕" : "守望者之崖", channel: "正在载入", cinematic: opening }); });
-  const [importFormat, setImportFormat] = useState<"application" | "legacy" | "restore">("application");
-  const modalOpen = startOpen || archive.open || startPresented || archivePresented;
+  const creating = useRef(false);
+  const archive = useTitleArchive(href => { const opening = readRoute(new URL(href, window.location.href))?.page === "prologue"; navigate(href, { destination: opening ? "序幕" : "守望者之崖", channel: "正在载入", cinematic: opening || creating.current }); });
+  const modalOpen = startOpen || archive.open || startPresented || archivePresented || settingsOpen || settingsPresented;
   const sceneRef = useTitleParallax(modalOpen || isTransitioning || archive.busy);
   const hasSave = archive.saves.some(save => save.status === "ready" && !archive.archivedIds.has(save.saveId));
 
@@ -71,6 +73,7 @@ function TitlePageContent() {
     if (id === "begin") { setStartAttempted(false); setStartOpen(true); return; }
     if (id === "continue") { void archive.continueGame(); return; }
     if (id === "archive") { archive.setOpen(true); return; }
+    if (id === "settings") { setSettingsOpen(true); return; }
     const command = TITLE_COMMANDS.find((item) => item.id === id);
     if (!command) return;
 
@@ -78,7 +81,9 @@ function TitlePageContent() {
   }
 
   return (
-    <Stage background={TITLE_CANVAS} canvasClassName="abyssa-title-screen">
+    // While a modal is present, focus must not scroll the scaled stage itself.
+    <Stage background={startOpen || startPresented ? "#000" : TITLE_CANVAS}
+      style={modalOpen ? { background: startOpen || startPresented ? "#000" : TITLE_CANVAS, overflow: "clip" } : undefined} canvasClassName="abyssa-title-screen">
       <div ref={sceneRef} className="title-scene">
       {/*
         AbyssaProvider 提供统一 tokens、color-scheme、正文字族与降低动效设置。
@@ -131,36 +136,24 @@ function TitlePageContent() {
             onActivate={activate} />
         </main>
 
-        <NewGameDialog open={startOpen} busy={archive.busy || isTransitioning}
+        <NewGameDialog open={startOpen} busy={archive.busy || isTransitioning} pending={archive.pendingNewGame}
           onPresentChange={setStartPresented}
           message={startAttempted ? archive.message : ""}
-          onClose={() => { if (!archive.busy && !isTransitioning) setStartOpen(false); }}
-          onStart={startAt => { setStartAttempted(true); void archive.newGame(startAt); }}/>
+          onClose={() => { if (!archive.busy && !isTransitioning) { creating.current = false; setStartOpen(false); } }}
+          onStart={({startAt, playerName}) => { creating.current = true; setStartAttempted(true); void archive.newGame(startAt, playerName); }}/>
 
-        <RpgModal open={archive.open} onClose={() => archive.setOpen(false)} onPresentChange={setArchivePresented} title="游戏档案" panelClassName="title-archive game-client-panel">
-          <p>AIRP 应用接口测试需连接本机 rp；“新的开始”使用离线内容，无需连接后端。</p>
-          <button disabled={archive.busy} onClick={() => void archive.newGame(10)}>新建 AIRP 联机档（内容10）</button>
-          <div><button disabled={archive.busy} onClick={() => void archive.cleanup()}>整理已续接旧档</button>{archive.archivedIds.size > 0 && <button disabled={archive.busy} onClick={() => archive.setShowArchived(!archive.showArchived)}>{archive.showArchived ? "收起已归档" : `已归档（${archive.archivedIds.size}）`}</button>}</div>
-          <div className="title-archive__list">{archive.saves.map(save => <article key={save.saveId}>
-            <p>{archive.archivedIds.has(save.saveId) ? "已归档 · " : ""}档案 {save.saveId.slice(0, 8)} · {save.status === "ready" ? `第 ${save.clock.day} 天 · ${save.summary.activeExpeditionId ? "远征中" : "在洋馆"}` : "暂不可读取"}</p>
-            {archive.archivedIds.has(save.saveId) && <button disabled={archive.busy} onClick={() => void archive.restore(save.saveId)}>恢复档案 {save.saveId.slice(0, 8)}</button>}
-            {save.status === "ready" && <><button disabled={archive.busy} onClick={() => void archive.choose({ saveId: save.saveId, epoch: save.summary.head.epoch })}>载入档案 {save.saveId.slice(0, 8)}</button><button disabled={archive.busy} onClick={() => void archive.exportGame(save.saveId)}>导出存档</button>{save.summary.continuation?.upgrade && <button disabled={archive.busy || !!save.summary.activeExpeditionId} onClick={()=>void archive.continueSave(save,"upgrade")}>复制并续接新内容</button>}{save.summary.continuation?.cycle && <button disabled={archive.busy || !!save.summary.activeExpeditionId} onClick={()=>void archive.continueSave(save,"cycle")}>新周目（仅继承回忆）</button>}</>}
-            <button disabled={archive.busy} onClick={() => void archive.exportGame(save.saveId, true)}>导出诊断</button>
-          </article>)}</div>
-          {!archive.saves.length && <p>没有档案，可以创建或导入。</p>}
-          <label>导入格式 <select value={importFormat} onChange={e => setImportFormat(e.target.value as "application" | "legacy" | "restore")}><option value="application">Abyssa 档案（复制为新档）</option><option value="restore">AIRP 备份恢复（原身份）</option><option value="legacy">旧版战斗存档</option></select></label>
-          <label>导入存档<input type="file" accept=".json,application/json" disabled={archive.busy} onChange={e => { const file = e.target.files?.[0]; if (file) void archive.importGame(file, importFormat); e.target.value = ""; }} /></label>
-          <button disabled={archive.busy} onClick={() => void archive.refresh()}>重新读取档案</button><button onClick={() => archive.setOpen(false)}>关闭档案</button>
-        </RpgModal>
 
         {/* 底部信息带与中轴是相邻关系:中轴的 inset-block-end 正好让开这条带子,
             两者不再叠加(上一版提示行压在第四个键上,重叠 36.93px)。 */}
         <footer className="title-footer">
-          <p className="title-hint" role={startOpen ? undefined : "status"}>{startOpen ? "" : hint || archive.message}</p>
+          <p className="title-hint" role={modalOpen ? undefined : "status"}>{modalOpen ? "" : hint || archive.message}</p>
           <p className="title-imprint">裂隙远征 · 本机存档</p>
         </footer>
 
       </AbyssaProvider>
+      <TitleArchive archive={archive} onPresentChange={setArchivePresented}
+        onNewGame={() => { archive.setOpen(false); setStartAttempted(false); setStartOpen(true); }} />
+      <SettingsScene open={settingsOpen} onClose={() => setSettingsOpen(false)} onPresentChange={setSettingsPresented} />
       </div>
     </Stage>
   );

@@ -11,6 +11,7 @@ import type { MansionCharacter } from "./data";
 import { roomPreviewImageStyle } from "./mansion-geometry";
 import type { SceneRegion } from "./mansion-geometry";
 import { MANSION_COMPOSITE_FILE } from "./mansion-assets";
+import { mansionPreviewForLocation } from "../../game-client/mansion-backgrounds";
 
 const MANSION_AVATARS: Record<string, string> = {
   abyssa: abyssaAvatar,
@@ -57,13 +58,16 @@ export function MansionRoomPreview({
   region: SceneRegion;
   label: string;
 }) {
+  const artwork = mansionPreviewForLocation(region.id);
   return (
     <div className="mansion-room-card__preview" role="img" aria-label={`${label}房间预览`}>
       <img
-        src={`${import.meta.env.BASE_URL}mansion-map/${MANSION_COMPOSITE_FILE}`}
+        src={artwork ?? `${import.meta.env.BASE_URL}mansion-map/${MANSION_COMPOSITE_FILE}`}
         alt=""
         draggable={false}
-        style={roomPreviewImageStyle(region)}
+        decoding="async"
+        className={artwork ? "mansion-room-card__preview-art" : undefined}
+        style={artwork ? undefined : roomPreviewImageStyle(region)}
       />
       <span aria-hidden="true">ROOM VIEW</span>
     </div>

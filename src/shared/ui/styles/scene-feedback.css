@@ -1,0 +1,228 @@
+/* Scene-local feedback. Geometry is in authored pixels; the host owns placement
+   and Stage scaling. No viewport units, modal layer, solid status-color fill. */
+.scene-feedback,
+.scene-feedback__surface,
+.scene-feedback__inline {
+  --feedback-gold: var(--manor-gold, #b9a271);
+  --feedback-title: var(--manor-title, #eee3c7);
+  --feedback-accent: var(--abyssa-teal-soft);
+  box-sizing: border-box;
+  color: var(--abyssa-text-soft);
+  font: 400 17px/1.6 var(--abyssa-font-body);
+}
+.scene-feedback { width: 580px; max-width: 100%; pointer-events: none; }
+.scene-feedback[data-stacked] { display: flex; flex-direction: column; align-items: stretch; gap: 10px; }
+.scene-feedback__presentation { width: 100%; }
+.scene-feedback__surface {
+  --feedback-edge-inline: 26px;
+  --feedback-edge-block: 12px;
+  position: relative;
+  isolation: isolate;
+  max-width: 100%;
+  text-shadow: 0 2px 3px rgb(0 0 0 / 45%);
+}
+/* Keep the center depth; only the backing/texture fade at the perimeter.
+   This changes alpha, never blurs the scene or masks text and controls. */
+.scene-feedback__surface::before,
+.scene-feedback__surface::after {
+  content: "";
+  position: absolute;
+  z-index: -2;
+  pointer-events: none;
+}
+.scene-feedback__surface::before {
+  inset: 0;
+  background: rgb(10 18 19 / 62%);
+}
+.scene-feedback__surface::before,
+.scene-feedback__texture {
+  mask-image:
+    linear-gradient(90deg, transparent, #000 var(--feedback-edge-inline), #000 calc(100% - var(--feedback-edge-inline)), transparent),
+    linear-gradient(180deg, transparent, #000 var(--feedback-edge-block), #000 calc(100% - var(--feedback-edge-block)), transparent);
+  mask-composite: intersect;
+}
+.scene-feedback__surface::after {
+  inset: 0;
+  background:
+    linear-gradient(90deg, transparent 6%, color-mix(in srgb, var(--abyssa-teal-soft) 22%, transparent) 32%, transparent 90%) top / 100% 1px no-repeat,
+    linear-gradient(90deg, transparent 12%, color-mix(in srgb, var(--abyssa-ornament-light) 14%, transparent) 42%, transparent 94%) bottom / 100% 1px no-repeat;
+}
+.scene-feedback__texture {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  /* Texture, not ornament: the already faint SVG ink is attenuated again.
+     Neutral grey avoids a teal lattice standing out on the dark backing. */
+  color: #81918a;
+  opacity: .22;
+  pointer-events: none;
+}
+.scene-feedback__mark { width: 36px; height: 36px; flex: 0 0 auto; fill: none; stroke: var(--feedback-accent); stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.scene-feedback__mark-frame { stroke-width: 1; opacity: .52; }
+.scene-feedback__mark-inset { stroke-width: .7; opacity: .2; }
+.scene-feedback__notice { display: flex; align-items: center; gap: 18px; width: 480px; min-height: 70px; padding: 16px 30px; margin-inline: auto; }
+.scene-feedback__notice > p { position: relative; margin: 0; overflow-wrap: anywhere; color: var(--feedback-title); }
+.scene-feedback__notice[data-tone="success"] { --feedback-accent: var(--feedback-gold); }
+.scene-feedback__reward { display: flex; align-items: center; gap: 18px; width: 480px; min-height: 82px; padding: 14px 30px; margin-inline: auto; --feedback-accent: var(--feedback-gold); }
+.scene-feedback__reward > .abyssa-item-slot { flex-shrink: 0; }
+.scene-feedback__reward-copy { min-width: 0; flex: 1; }
+.scene-feedback__reward .scene-feedback__category { margin: 0; font-size: 13px; letter-spacing: .1em; }
+.scene-feedback__reward .scene-feedback__item-name { margin: 0; color: var(--feedback-title); font-size: 18px; }
+.scene-feedback__reward > .scene-feedback__quantity { margin-left: auto; font-size: 21px; }
+.scene-feedback__notice[data-tone="warning"],
+.scene-feedback__inline[data-tone="warning"] { --feedback-accent: var(--feedback-gold); }
+.scene-feedback__result { width: 580px; padding: 26px 32px 25px; container-type: inline-size; }
+.scene-feedback__result-heading { position: relative; display: flex; align-items: center; gap: 20px; }
+.scene-feedback__result-heading > div { min-width: 0; }
+.scene-feedback__result-heading .scene-feedback__mark { width: 44px; height: 44px; --feedback-accent: var(--feedback-gold); }
+.scene-feedback__category { margin: 0 0 4px; color: var(--feedback-gold); font-size: 14px; letter-spacing: .16em; }
+.scene-feedback__result h3 { margin: 0; color: var(--feedback-title); font-size: 25px; line-height: 1.5; font-weight: 500; letter-spacing: .06em; overflow-wrap: anywhere; }
+.scene-feedback__heading-rule { height: 1px; min-width: 20px; flex: 1; background: linear-gradient(90deg, color-mix(in srgb, var(--feedback-gold) 40%, transparent), transparent); }
+.scene-feedback__description { position: relative; margin: 12px 0 0; font-size: 16px; overflow-wrap: anywhere; }
+.scene-feedback__rewards { position: relative; display: flex; flex-wrap: wrap; align-items: center; gap: 14px 28px; margin: 22px 0 0; padding: 17px 0 0; list-style: none; background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--abyssa-ornament) 22%, transparent) 24%, transparent 94%) top / 100% 1px no-repeat; }
+.scene-feedback__rewards > li { display: flex; align-items: center; gap: 12px; min-width: 0; max-width: 100%; }
+.scene-feedback__rewards .abyssa-item-slot { flex: 0 0 auto; }
+.scene-feedback__item-name { min-width: 0; overflow-wrap: anywhere; }
+.scene-feedback__quantity { flex-shrink: 0; color: var(--feedback-title); font: 18px/1.4 var(--abyssa-font-display); font-variant-numeric: tabular-nums; }
+.scene-feedback__rewards .abyssa-currency-amount { font-size: 21px; gap: 10px; }
+.scene-feedback__rewards .abyssa-currency-amount > i { width: 29px; height: 29px; }
+.scene-feedback__inline { position: relative; isolation: isolate; container-type: inline-size; display: flex; align-items: center; flex-wrap: wrap; gap: 12px; width: 100%; padding: 13px 16px; }
+.scene-feedback__inline::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background: rgb(8 14 15 / 44%);
+  mask-image:
+    linear-gradient(90deg, transparent, #000 20px, #000 calc(100% - 20px), transparent),
+    linear-gradient(180deg, transparent, #000 10px, #000 calc(100% - 10px), transparent);
+  mask-composite: intersect;
+  pointer-events: none;
+}
+.scene-feedback__inline::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 1px;
+  background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--feedback-accent) 45%, transparent) 35%, color-mix(in srgb, var(--feedback-accent) 45%, transparent) 65%, transparent);
+  pointer-events: none;
+}
+.scene-feedback__inline[data-tone="error"] { --feedback-accent: var(--abyssa-danger); }
+.scene-feedback__inline .scene-feedback__mark { width: 25px; height: 25px; }
+.scene-feedback__inline > p { flex: 1; min-width: min(170px, 100%); margin: 0; font-size: 16px; overflow-wrap: anywhere; }
+/* Technical detail stays in the same local surface, below the short alert.
+   Its independent scroll area cannot turn a service error into a large modal. */
+.scene-feedback__details { flex: 0 0 100%; min-width: 0; max-width: 100%; padding-inline-start: 37px; box-sizing: border-box; margin-top: -8px; }
+.scene-feedback__details > summary {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: fit-content;
+  min-height: 36px;
+  padding: 0 6px 0 0;
+  list-style: none;
+  color: var(--abyssa-text-soft);
+  font-size: 15px;
+  cursor: pointer;
+  user-select: none;
+  transition: color var(--abyssa-motion-hover) var(--abyssa-motion-ease);
+}
+.scene-feedback__details > summary::-webkit-details-marker { display: none; }
+.scene-feedback__details > summary > svg { width: 14px; height: 14px; fill: none; stroke: var(--abyssa-teal-soft); stroke-width: 1.4; transition: rotate var(--abyssa-motion-hover) var(--abyssa-motion-ease); }
+.scene-feedback__details[open] > summary > svg { rotate: 90deg; }
+.scene-feedback__details > summary:hover { color: var(--feedback-title); }
+.scene-feedback__details > summary:focus-visible,
+.scene-feedback__raw-error:focus-visible { outline: 1px solid var(--abyssa-focus); outline-offset: 3px; }
+.scene-feedback__details-open { display: none; }
+.scene-feedback__details[open] > summary .scene-feedback__details-closed { display: none; }
+.scene-feedback__details[open] > summary .scene-feedback__details-open { display: inline; }
+.scene-feedback__diagnostics { padding: 5px 0 8px; min-width: 0; }
+.scene-feedback__error-meta { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; padding: 0 14px 10px; color: var(--abyssa-text-muted); font-size: 13px; overflow-wrap: anywhere; }
+.scene-feedback__error-meta > * { min-width: 0; max-width: 100%; }
+.scene-feedback__http-status { color: var(--feedback-accent); font: 500 15px/1.4 var(--abyssa-font-display); }
+.scene-feedback__diagnostics code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+.scene-feedback__raw-error {
+  box-sizing: border-box;
+  max-height: var(--feedback-details-max-height, 180px);
+  margin: 0;
+  padding: 12px 14px;
+  overflow: auto;
+  overscroll-behavior: contain;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  color: var(--abyssa-text-soft);
+  font-size: 14px;
+  line-height: 1.7;
+  tab-size: 2;
+  text-align: start;
+  background: linear-gradient(90deg, rgb(5 12 13 / 36%), rgb(5 12 13 / 24%) 80%, transparent);
+  scrollbar-width: thin;
+  scrollbar-color: var(--abyssa-ornament-dark) transparent;
+  scrollbar-gutter: stable;
+  user-select: text;
+}
+.scene-feedback__raw-error::-webkit-scrollbar { width: 5px; height: 5px; }
+.scene-feedback__raw-error::-webkit-scrollbar-thumb { background: var(--abyssa-ornament-dark); border-radius: 3px; }
+.scene-feedback__raw-error::-webkit-scrollbar-track { background: transparent; }
+.scene-feedback__error-footnote { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 18px; margin: 9px 14px 0; color: var(--abyssa-text-muted); font-size: 12px; overflow-wrap: anywhere; }
+.scene-feedback__error-footnote > span { min-width: 0; max-width: 100%; }
+/* Use the shared chamfer artwork, but keep the label in HTML: its readable
+   size must not shrink with an SVG viewBox. Keep a quiet, transparent outline
+   and a 44px hit area instead of scaling the old multi-rim panel down. */
+.scene-feedback__action.abyssa-shape-button {
+  --abyssa-shape-fill: rgb(18 27 28 / 14%);
+  --abyssa-shape-middle: color-mix(in srgb, var(--abyssa-teal-soft) 48%, transparent);
+  --abyssa-shape-ornament: transparent;
+  --abyssa-shape-pattern-dark: rgb(145 195 198 / 5%);
+  --abyssa-shape-pattern-light: rgb(145 195 198 / 2%);
+  display: grid;
+  align-items: center;
+  width: 156px;
+  max-width: 100%;
+  min-height: 44px;
+  flex-shrink: 0;
+  margin-inline-start: auto;
+  transition: filter var(--abyssa-motion-hover) var(--abyssa-motion-ease);
+}
+.scene-feedback__action > svg { grid-area: 1 / 1; pointer-events: none; }
+.scene-feedback__action [data-part="frame-outer"],
+.scene-feedback__action [data-part="frame-deep"],
+.scene-feedback__action [data-part="ornament"],
+.scene-feedback__action > svg > g { display: none; }
+.scene-feedback__action [data-part="frame-middle"] { stroke-width: 1.6; }
+.scene-feedback__action > .abyssa-shape-button__content {
+  position: relative;
+  inset: auto;
+  grid-area: 1 / 1;
+  min-height: 44px;
+  padding: 9px 20px;
+  box-sizing: border-box;
+  color: var(--feedback-title);
+  font: 500 17px/1.4 var(--abyssa-font-body);
+  letter-spacing: .12em;
+  overflow-wrap: anywhere;
+  pointer-events: none;
+}
+.scene-feedback__action > svg,
+.scene-feedback__action > .abyssa-shape-button__content {
+  translate: 0 0;
+  transition: translate var(--abyssa-motion-press) var(--abyssa-motion-ease);
+}
+.scene-feedback__action.abyssa-shape-button:is(:hover, :focus-visible):not(:disabled) {
+  --abyssa-shape-fill: rgb(40 64 65 / 20%);
+  --abyssa-shape-middle: color-mix(in srgb, var(--abyssa-teal-soft) 78%, transparent);
+  filter: brightness(1.07);
+}
+.scene-feedback__action.abyssa-shape-button:active:not(:disabled) { transform: none; }
+.scene-feedback__action:active:not(:disabled) > svg,
+.scene-feedback__action:active:not(:disabled) > .abyssa-shape-button__content { translate: 0 var(--abyssa-motion-press-distance); }
+.scene-feedback__announcement { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+@container (max-width: 340px) {
+  .scene-feedback__heading-rule { display: none; }
+  .scene-feedback__result-heading { gap: 14px; }
+  .scene-feedback__result h3 { font-size: 22px; }
+  .scene-feedback__details { padding-inline-start: 0; }
+  .scene-feedback__raw-error { max-height: var(--feedback-details-max-height, 144px); }
+}

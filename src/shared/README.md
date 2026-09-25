@@ -30,4 +30,4 @@
 
 `transition` 可以接收目标 URL 和短文案，但这些值必须由调用方提供；它不能反向登记或导入 `menu`、`battle`、`shop`、`mansion`。同理，库存 UI 只展示调用方传入的数据，不拥有领地库存的 canonical state。
 
-原型时期的结构规划保留在[历史档案](../../docs/archive/architecture/CONCEPT_PROTOTYPE_STRUCTURE_AND_SHARED_PLAN.md)；当前游戏／共享边界以各模块现行README为准。
+当前游戏／共享边界以各模块现行README为准；玩法入口见[机制总览](../../docs/GAME_SYSTEMS_AND_CONTENT_SPEC.md)。原型时期的结构规划已清理，不作为当前拆分指令。

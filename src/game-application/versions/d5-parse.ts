@@ -1,3 +1,5 @@
+import { parseShopVisitCommand } from "../../game-core/contracts";
+import { parseFacilityCommand, parseSupplyQuantities } from "../../game-core/contracts";
 import * as v from "../../game-core/contracts";
 import { parseD5RunRef, parseTutorialOperation } from "../../game-core/session";
 import { parseDemoBattleCommand } from "../../game-core/battle";
@@ -7,9 +9,12 @@ import { parseDemoRequest } from "./demo-parse";
 import type { D5Command, D5Request } from "./d5-contracts";
 import type { D5StoryAdvanceChoice, D5UserChoiceTone } from "../../game-core/session";
 import { parseAirpOnlineCommand } from "../airp/gameplay";
+import { parseAirpDirectCommand } from "../airp-direct-gameplay/parse";
+import { parseDirectorCommand } from "../airp-director/parse";
 import { GAME_START_POINTS } from "../../game-core/session";
+import { parsePlayerName } from "../../game-core/contracts";
 
-export function parseD5Request(raw: unknown, internal = false, airpEnabled: boolean | 1 | 2 = false, onlineEnabled = false): D5Request {
+export function parseD5Request(raw: unknown, internal = false, airpEnabled: boolean | 1 | 2 = false, onlineEnabled = false, directEnabled = false, directorEnabled = false): D5Request {
   v.assertJson(raw);
   const r = v.record(raw, "request", ["protocolVersion", "saveId", "expectedHead", "clientRequestId", "command"]);
   v.choice(r.protocolVersion, [4], "protocolVersion");
@@ -18,7 +23,15 @@ export function parseD5Request(raw: unknown, internal = false, airpEnabled: bool
   const c = v.record(r.command, "command"), type = v.id(c.type, "command.type");
   if (internal && type !== "resume-run" || !internal && type === "resume-run") v.invalid("command.type", "Internal continuation boundary");
   let command: D5Command;
-  if (type.startsWith("airp-online-")) {
+  if (type.startsWith("facility-")) {
+    command = parseFacilityCommand(c);
+  } else if (type.startsWith("airp-director-")) {
+    if (!directorEnabled) v.invalid("command.type", "This content has no director protocol", "content-unavailable");
+    command = parseDirectorCommand(c);
+  } else if (type.startsWith("airp-direct-")) {
+    if (!directEnabled) v.invalid("command.type", "This content has no browser-direct protocol", "content-unavailable");
+    command = parseAirpDirectCommand(c);
+  } else if (type.startsWith("airp-online-")) {
     if (!onlineEnabled) v.invalid("command.type", "This content has no online protocol", "content-unavailable");
     command = parseAirpOnlineCommand(c);
   } else if (type.startsWith("airp-")) {
@@ -52,8 +65,14 @@ export function parseD5Request(raw: unknown, internal = false, airpEnabled: bool
     v.record(c, "command", ["type"]);
     command = { type };
   } else if (type === "select-game-start") {
-    v.record(c, "command", ["type", "startAt"]);
-    command = {type, startAt: v.choice(c.startAt, GAME_START_POINTS, "startAt")};
+    v.record(c, "command", ["type", "startAt"], ["playerName"]);
+    command = {type, startAt: v.choice(c.startAt, GAME_START_POINTS, "startAt"),
+      ...("playerName" in c ? {playerName: parsePlayerName(c.playerName)} : {})};
+  } else if (["begin-shop-visit", "advance-shop-visit", "appraise-shop-visit", "sell-shop-visit"].includes(type)) {
+    command = parseShopVisitCommand(c);
+  } else if (type === "advance-shop-introduction") {
+    v.record(c, "command", ["type", "shopId", "step", "choice"]);
+    command = {type, shopId: v.id(c.shopId, "shopId"), step: v.number(c.step, "step", 0, 100), choice: v.choice(c.choice, ["continue", "skip"], "choice")};
   } else if (type === "advance-opening") {
     v.record(c, "command", ["type", "step", "choice"]);
     command = {type, step:v.number(c.step,"step",0,512), choice:v.choice(c.choice,["continue","A","B","C"],"choice")};
@@ -62,10 +81,17 @@ export function parseD5Request(raw: unknown, internal = false, airpEnabled: bool
     const shotId = v.id(c.shotId, "shotId");
     command = type === "advance-prologue" ? {type, shotId} : {type, shotId, choice: v.choice(c.choice, ["continue", "skip"], "choice")};
   } else if (type === "start-expedition") {
-    v.record(c, "command", ["type", "runId", "routeId", "partyIds", "seed"], ["itemIds"]);
+    v.record(c, "command", ["type", "runId", "routeId", "partyIds", "seed"], ["itemIds", "supplyQuantities"]);
     command = {type, runId: v.id(c.runId, "runId"), routeId: v.id(c.routeId, "routeId"),
       partyIds: v.ids(c.partyIds, "partyIds", 5), seed: v.number(c.seed, "seed", 0, 0xffffffff),
+      ...(c.supplyQuantities !== undefined ? {supplyQuantities: parseSupplyQuantities(c.supplyQuantities)} : {}),
       ...(c.itemIds !== undefined ? {itemIds: v.ids(c.itemIds, "itemIds", v.MAX_DEPARTURE_SUPPLIES)} : {})};
+  } else if (type === "appraise-loot" || type === "sell-loot") {
+    v.record(c, "command", ["type", "shopId", "instanceId", "quoteVersion"], type === "sell-loot" ? ["quantity"] : []);
+    command = {type, shopId: v.id(c.shopId, "shopId"), instanceId: v.id(c.instanceId, "instanceId"), quoteVersion: v.number(c.quoteVersion, "quoteVersion", 1), ...(type === "sell-loot" && c.quantity !== undefined ? {quantity: v.number(c.quantity, "quantity", 1, 999)} : {})};
+  } else if (type === "purchase-product") {
+    v.record(c, "command", ["type", "shopId", "productId", "quantity", "day", "quoteVersion", "scheduleVersion"]);
+    command = {type, scheduleVersion: v.number(c.scheduleVersion, "scheduleVersion", 1), shopId: v.id(c.shopId, "shopId"), productId: v.id(c.productId, "productId"), quantity: v.number(c.quantity, "quantity", 1, 999), day: v.number(c.day, "day", 1), quoteVersion: v.number(c.quoteVersion, "quoteVersion", 1)};
   } else if (type === "purchase-supply") {
     v.record(c, "command", ["type", "shopId", "definitionId", "quantity", "quoteVersion"]);
     command = {type, shopId: v.id(c.shopId, "shopId"), definitionId: v.id(c.definitionId, "definitionId"), quantity: v.number(c.quantity, "quantity", 1, 4), quoteVersion: v.number(c.quoteVersion, "quoteVersion", 1)};
@@ -80,11 +106,11 @@ export function parseD5Request(raw: unknown, internal = false, airpEnabled: bool
     const sessionId = v.id(c.sessionId, "sessionId");
     command = type === "complete-story" ? { type, sessionId } : { type, sessionId, step: v.number(c.step, "step", 0, 100), choice: v.choice(c.choice, ["continue", "skip", "later", "iron", "seasoned", "pragmatic"], "choice") as D5StoryAdvanceChoice };
   } else if (type === "equip-equipment" || type === "unequip-equipment") {
-    v.record(c, "command", ["type", "instanceId", "ownerId"]);
-    command = { type, instanceId: v.id(c.instanceId, "instanceId"), ownerId: v.id(c.ownerId, "ownerId") };
+    v.record(c, "command", ["type", "instanceId", "ownerId"], type === "equip-equipment" ? ["targetFaceId"] : []);
+    command = { type, instanceId: v.id(c.instanceId, "instanceId"), ownerId: v.id(c.ownerId, "ownerId"), ...(c.targetFaceId !== undefined ? {targetFaceId: v.id(c.targetFaceId, "targetFaceId")} : {}) };
   } else if (type === "transfer-equipment") {
-    v.record(c, "command", ["type", "instanceId", "fromOwnerId", "toOwnerId"]);
-    command = { type, instanceId: v.id(c.instanceId, "instanceId"), fromOwnerId: v.id(c.fromOwnerId, "fromOwnerId"), toOwnerId: v.id(c.toOwnerId, "toOwnerId") };
+    v.record(c, "command", ["type", "instanceId", "fromOwnerId", "toOwnerId"], ["targetFaceId"]);
+    command = { type, instanceId: v.id(c.instanceId, "instanceId"), fromOwnerId: v.id(c.fromOwnerId, "fromOwnerId"), toOwnerId: v.id(c.toOwnerId, "toOwnerId"), ...(c.targetFaceId !== undefined ? {targetFaceId: v.id(c.targetFaceId, "targetFaceId")} : {}) };
   } else {
     // Only reuses the unchanged command grammar, not a v3 service or v3 save.
     command = parseDemoRequest({ ...r, protocolVersion: 3 }, false, 3).command;

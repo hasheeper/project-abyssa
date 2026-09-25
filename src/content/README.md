@@ -8,6 +8,6 @@
 - 编辑器生产和消费这些数据，不把编辑器逻辑塞进内容层。
 - 已发行内容包及摘要用于旧档恢复；新增版本独立装配，不能直接覆盖旧包。
 
-当前默认是 [demo-v3](gameplay/demo-v3/README.md) 的内容3／规则4；目录名中的v3是内容版，不是应用协议版。`demo-v1` 提供早期正式角色／庄园基础定义，`demo-v2` 是保留的旧D5内容2装配，`legacy-v1` 服务旧裂隙兼容。
+当前普通默认为[demo-v27](gameplay/demo-v27/README.md)，正式AIRP起点为[demo-v28](gameplay/demo-v28/README.md)，均为规则4。目录版本是内容版本，不是应用协议。较早Catalog继续按原摘要注册；`demo-v1`提供基础角色／庄园定义，`legacy-v1`服务旧裂隙兼容。完整注册以`game-runtime/player-runtime.ts`为准。
 
-当前机制见[总览](../../docs/GAME_SYSTEMS_AND_CONTENT_SPEC.md)，原型阶段的结构提案已进入[历史档案](../../docs/archive/architecture/CONCEPT_PROTOTYPE_STRUCTURE_AND_SHARED_PLAN.md)。
+当前机制见[总览](../../docs/GAME_SYSTEMS_AND_CONTENT_SPEC.md)。作者原文和演出定义、当前规则包、旧档兼容包分别维护，不因清理文档改写冻结数据。

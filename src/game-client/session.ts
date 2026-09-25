@@ -18,15 +18,18 @@ const clientError = (code: string, message: string): ReceiptError => ({ code, pa
 export class GameSession {
   private state: SessionState = { status: "loading", record: null, error: null, generation: 0 };
   private listeners = new Set<() => void>();
+  private commitListeners = new Set<(batch: CommittedBatch) => void>();
   private flight: Promise<CommittedBatch | null> | null = null;
   private disposed = false;
   private readVersion = 0;
+  private latestRefresh: Promise<void> | null = null;
   private externalChange = false;
   constructor(readonly runtime: ClientRuntime, readonly locator: SaveLocator, private readonly storage: RequestStorage,
     private readonly notifyCommit: (record: GameRecord) => void = () => {},
     private readonly commandPolicy?: SessionCommandPolicy) {}
   getSnapshot = () => this.state;
   subscribe = (listener: () => void) => { this.listeners.add(listener); return () => { this.listeners.delete(listener); }; };
+  onCommitted = (listener: (batch: CommittedBatch) => void) => { this.commitListeners.add(listener); return () => { this.commitListeners.delete(listener); }; };
   private publish(patch: Partial<SessionState>) {
     if (this.disposed) return;
     this.state = { ...this.state, ...patch }; this.listeners.forEach(fn => fn());
@@ -40,9 +43,24 @@ export class GameSession {
   private error(error: unknown): ReceiptError {
     return error && typeof error === "object" && "code" in error ? error as ReceiptError : clientError("storage-unavailable", "无法保存或读取进度，请重试。");
   }
-  async refresh({background = false}: {background?: boolean} = {}): Promise<void> {
+  async refresh(options: {background?: boolean; notify?: boolean} = {}): Promise<void> {
     if (this.disposed) return;
-    if (this.flight) { this.externalChange = true; return; }
+    if (this.flight) {
+      this.externalChange = true;
+      await this.flight;
+      return this.refresh(options);
+    }
+    let reading = this.refreshSnapshot(options);
+    this.latestRefresh = reading;
+    for (;;) {
+      await reading;
+      // An invalidated read is not a ready barrier. Its caller must await the
+      // replacement read before dispatching a command against this session.
+      if (this.disposed || !this.latestRefresh || this.latestRefresh === reading) return;
+      reading = this.latestRefresh;
+    }
+  }
+  private async refreshSnapshot({background = false, notify = false}: {background?: boolean; notify?: boolean}): Promise<void> {
     const version = ++this.readVersion;
     this.publish({ status: "loading", error: null, generation: this.state.generation + (background ? 0 : 1) });
     try {
@@ -52,6 +70,8 @@ export class GameSession {
       const unchanged = previous && sameHead(previous.head, loaded.head) && previous.contentRef.digest === loaded.contentRef.digest;
       const record = unchanged ? previous : loaded;
       this.publish({ record, status: "ready", generation: this.state.generation + (background && previous && !unchanged ? 1 : 0) });
+      // Sidecar services commit to this same save; broadcast only their new head.
+      if (notify && !unchanged) this.notifyCommit(record);
       const pending = readPending(this.storage, record);
       // A stale battle URL must not consume an intent belonging to another run.
       const matchesRun = locatorMatchesRun(record, this.locator);
@@ -121,7 +141,10 @@ export class GameSession {
         }
         if (this.disposed) return null;
         this.publish({ record: current, status: "ready" });
-        return { before, after: current, receipts, presentable: presentable && !this.externalChange };
+        const batch = { before, after: current, receipts, presentable: presentable && !this.externalChange };
+        // Presentation subscribers cannot invalidate an already persisted transaction.
+        if (batch.presentable) for (const listener of this.commitListeners) { try { listener(batch); } catch { /* UI feedback is best effort. */ } }
+        return batch;
       } catch (error) {
         this.publish({ status: "error", error: this.error(error), generation: this.state.generation + 1 });
         return null;
@@ -137,6 +160,6 @@ export class GameSession {
   dispose() {
     this.disposed = true; this.readVersion++;
     this.state = { ...this.state, status: "disposed", generation: this.state.generation + 1 };
-    this.listeners.clear(); this.runtime.close();
+    this.listeners.clear(); this.commitListeners.clear(); this.runtime.close();
   }
 }

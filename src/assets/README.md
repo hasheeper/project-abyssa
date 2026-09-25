@@ -13,6 +13,8 @@
 
 序幕15图及原PNG／运行WebP映射见 [`cg/prologue/README.md`](cg/prologue/README.md)，对应四幕世界介绍，全部随仓库提供。
 
+洋馆31处地点背景见[洋馆AVG素材](backgrounds/mansion/README.md)：30张2048×1143 WebP＋已有商店图，另有31张640×357预览；已接入GM场景的等待、阅读及历史回看和房间详情。此批为基础光照图，夜景差分及整批逐张美术定稿另验。
+
 首场洋馆背景为 [`backgrounds/mansion-first-morning.webp`](backgrounds/mansion-first-morning.webp)：2026-09-09 用户提供的 `01a081bd-c92e-735e-a782-efc503332f4d.png`，原尺寸2752×1536（接近16:9）。按用户约2MB的要求，Pillow Lanczos等比缩至2048×1143，再以 `cwebp -near_lossless 85 -m 6 -mt -metadata icc` 编码为2,051,550字节（2.05MB）。未裁切、拉伸或加模糊；ICC保留，编码后相对缩图的每色彩通道最大偏差为1/255，窗框／木纹实图对照通过。替代此前4.35MB原尺寸无损版，解码像素数同时减少44.62%。AVG／RP及过场预加载共用此资源；旧1239×848的JPG已由本图替换。
 
 地图角色立绘的原图映射和处理说明见 [`map/party-figures/README.md`](map/party-figures/README.md)。
@@ -31,3 +33,7 @@
 ### 缇比商店立绘
 
 `characters/portraits/tibby-shop.png`由仓库内缇比纸娃娃的`base`、`eyes_1`、`mouth_1`按原画布叠合，704×1472。供原商店肖像框裁切展示，替代原外部图床URL；没有引入新的生成美术。
+
+## 洋馆制药素材待补（2026-09-25）
+
+设施功能已接入，复用现有工坊房间背景、`icons/items/health-potion.svg`与`icons/items/herbs-bundle.svg`。尚需制药台的药锅／蒸馏器／瓶架工作区素材，以及药草与净光草的最终区分图标；当前共用草束图标不代表专属美术已定稿。无新增临时装饰SVG。

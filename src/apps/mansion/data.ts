@@ -6,7 +6,7 @@ export const MANSION_WORLD_HEIGHT = 1910;
 
 export type MansionPhaseId = "dawn" | "day" | "dusk" | "night";
 export type MansionFund = "public" | "party";
-export type MansionProductionIcon = "meal" | "maintenance" | "supplies" | "records" | "herbs";
+export type MansionProductionIcon = "meal" | "maintenance" | "supplies" | "records" | "herbs" | "potion";
 
 /** 物品分类。三档足以覆盖当前 5 种产出,不为对称而虚设空档。 */
 export type MansionItemCategory = "provisions" | "materials" | "records";
@@ -125,9 +125,9 @@ export const MANSION_ROOM_DETAILS: Record<string, MansionRoomDetail> = {
     { fund: "public", upgradeCost: 800 }
   ),
   lounge: room(
-    "SECOND-FLOOR LOUNGE",
+    "GAME ROOM",
     "驻在：待确认",
-    "PSD 美术新增的二层起居空间，尚未在 v8 房间设定中定义正式职能。",
+    "PSD 美术新增的二层娱乐室，圆桌上摆有纸牌与游戏件；正式职能仍待确认。",
     "生活痕迹待补。",
     { state: "provisional" }
   ),
@@ -149,7 +149,7 @@ export const MANSION_ROOM_DETAILS: Record<string, MansionRoomDetail> = {
       upgradeCost: 900,
       production: {
         id: "hot-meal",
-        label: "热食",
+        label: "食物",
         amount: 2,
         unit: "份",
         icon: "meal",
@@ -208,7 +208,7 @@ export const MANSION_ROOM_DETAILS: Record<string, MansionRoomDetail> = {
   workshop: room(
     "WORKSHOP",
     "驻在：—",
-    "用于修缮受瘴气与战斗侵蚀的普通装备。设施自行运转，角色在场不改变效率。",
+    "加工温室采下的原料。药草在制药台配制成药水，成品收进储藏室后可携带出征。",
     "该空间为 PSD 美术补充；生活痕迹待补。",
     {
       fund: "party",
@@ -221,7 +221,7 @@ export const MANSION_ROOM_DETAILS: Record<string, MansionRoomDetail> = {
         icon: "maintenance",
         category: "materials",
         rarity: "gold",
-        description: "用于修缮受瘴气与战斗侵蚀的普通装备。设施自行运转，不需要人守着。"
+        description: "用于清除战斗中骰面的临时锈蚀，不涉及装备耐久。"
       }
     }
   ),
@@ -315,7 +315,7 @@ export const MANSION_ROOM_DETAILS: Record<string, MansionRoomDetail> = {
         icon: "herbs",
         category: "materials",
         rarity: "silver",
-        description: "温室里长得最好的一味。晒干后气味很淡，煮开却压得住瘴气。"
+        description: "晒干后用于擦拭法杖的原材料，不能直接当药水使用。"
       }
     }
   ),

@@ -1,262 +1,197 @@
-import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
-import tibbyPortrait from "../../assets/characters/portraits/tibby-shop.png";
-import { CurrencyAmount } from "../../shared/ui/primitives/CurrencyAmount";
-import { IconButton } from "../../shared/ui/primitives/IconButton";
-import { ItemSlotStatic } from "../../shared/ui/primitives/ItemSlot";
-import { DEFAULT_ITEM_RARITY } from "../../shared/ui/items/rarity";
-import { Nameplate } from "../../shared/ui/primitives/Nameplate";
-import { RpgDialogue } from "../../shared/ui/primitives/RpgDialogue";
-import { RpgFrame } from "../../shared/ui/primitives/RpgFrame";
-import { RpgNotchedPillButton } from "../../shared/ui/primitives/RpgNotchedPillButton";
-import { UiContentTransition } from "../../shared/ui/motion/UiContentTransition";
-import { ShopFrame } from "./ShopFrame";
-import { supplyPurchase, type ShopSupply } from "./shop-counter-model";
-import { useShopIntro } from "./useShopIntro";
-import "./shop-motion.css";
+import { RpgModal } from "../../shared/ui/primitives/RpgModal";
+import { EquipmentFacePreview } from "../../game-client/EquipmentFacePreview";
+import { useMoney } from "../../shared/ui/primitives/Money";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { shopDialogue, type ShopDialogueLine } from "../../content/presentation/shop-dialogue";
+import type { SceneFeedbackEntry } from "../../shared/ui/patterns/SceneFeedback";
+import { ShopSurface } from "../../game-client/shop/ShopSurface";
+import { TradeDetail } from "../../game-client/shop/TradeDetail";
+import type { StockItem } from "../../game-client/shop/StockList";
+import { stockCategories, type StockCategory, type StockFilter } from "../../game-client/shop/stock-categories";
+import type { ShopSupply } from "./shop-counter-model";
+import type { ShopLootInventory, ShopLootItem, ShopMode } from "./shop-loot-model";
+import { groupShopLoot } from "./shop-loot-model";
+import { ShopAppraisalHistory } from "./ShopAppraisalHistory";
+import { useShopVisitEntrance } from "./ShopVisit";
 import "../../shared/ui/motion/page-board.css";
+import "../../game-client/shop/styles.css";
+import "./shop-live.css";
 
 export type ShopCounterProps = {
-  products: ShopSupply[];
-  funds: number;
-  crystals: number;
-  busy: boolean;
-  available: boolean;
+  products: (ShopSupply & {category?: StockCategory})[];
+  loot?: ShopLootInventory;
+  initialMode?: ShopMode;
+  funds: number; crystals: number; busy: boolean; available: boolean;
   onPurchase: (id: string, quantity: number) => Promise<string | null>;
+  onAppraise?: (id: string) => Promise<string | null>;
+  onSell?: (id: string, quantity?: number) => Promise<string | null>;
+  navigation?: ReactNode; embedded?: boolean;
+  scrapPrice?: number;
+  guidedPurchase?: {speech: ShopDialogueLine; onFinish: () => void; error?: string | null};
 };
-type Receipt = { kind: "success" | "error"; text: string };
-const STOCK_PAGE_SIZE = 7;
+const presentLoot = (item: ShopLootItem, owned = true): StockItem => ({
+  id: item.instanceId, name: item.resultId ? item.name : item.unknownName,
+  description: item.resultId ? item.description : item.appearance,
+  rarity: item.resultId ? item.rarity : undefined,
+  icon: !item.resultId && item.unknownIconUrl ? item.unknownIconUrl : item.iconUrl, owned: owned ? item.quantity ?? 1 : 0, lotSize: item.quantity ?? 1, identified: !!item.resultId, price: item.appraisalFee, category: item.category ?? "curio",
+  priceLabel: item.refused ? "拒收" : undefined,
+});
+type Receipt = {kind: "sell" | "appraise"; item: ShopLootItem; total: number; quantity: number; rowId: string; soldIds: string[]};
 
-function PurchaseHelp({ id, text, tone, receipt }: { id: string; text: string; tone: string; receipt?: Receipt }) {
-  const [open, setOpen] = useState(false);
-  const host = useRef<HTMLDivElement>(null);
-  // Transaction results open immediately; ordinary guidance stays out of the layout.
-  useEffect(() => setOpen(Boolean(receipt)), [receipt, text]);
-  useEffect(() => {
-    if (!open) return;
-    const dismiss = (event: PointerEvent) => {
-      if (!host.current?.contains(event.target as Node)) setOpen(false);
-    };
-    const escape = (event: globalThis.KeyboardEvent) => {
-      if (event.key === "Escape") setOpen(false);
-    };
-    document.addEventListener("pointerdown", dismiss);
-    document.addEventListener("keydown", escape);
-    return () => {
-      document.removeEventListener("pointerdown", dismiss);
-      document.removeEventListener("keydown", escape);
-    };
-  }, [open]);
-  return <div className="shop-counter__help" ref={host}
-    onMouseEnter={() => setOpen(true)}
-    onMouseLeave={() => { if (!host.current?.contains(document.activeElement)) setOpen(false); }}
-    onFocus={() => setOpen(true)}
-    onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false); }}>
-    <button className="shop-counter__help-trigger" type="button" aria-label="查看购买说明"
-      aria-expanded={open} aria-controls={id} onClick={() => setOpen(true)}>?</button>
-    <p className="shop-counter__notice" id={id} role="status" aria-live="polite" aria-atomic="true" data-tone={tone} hidden={!open}>{text}</p>
-  </div>;
-}
-
-/** Player-facing stock. Unreleased modes stay disabled; demo transactions remain in ShopView. */
-export function ShopCounter({ products, funds, crystals, busy, available, onPurchase }: ShopCounterProps) {
-  const intro = useShopIntro();
-  const [selectedId, setSelectedId] = useState(products[0]?.id);
+/** Inventory and money are always committed runtime props, never optimistic copies. */
+export function ShopCounter({products, loot, funds, crystals, busy, available, onPurchase, onAppraise, onSell,
+  initialMode = "buy", navigation, embedded, scrapPrice, guidedPurchase}: ShopCounterProps) {
+  const money = useMoney();
+  const hasLoot = !!loot && !!onAppraise && !!onSell;
+  const entranceProfile = useShopVisitEntrance();
+  const [previewItem, setPreviewItem] = useState<StockItem | null>(null);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [mode, setMode] = useState<ShopMode>(hasLoot ? initialMode : "buy");
+  const [category, setCategory] = useState<StockFilter>("all");
+  const [selectedId, setSelectedId] = useState("");
+  const [recallId, setRecallId] = useState<string | null>(null);
   const [requested, setRequested] = useState(1);
   const [pending, setPending] = useState(false);
-  const [receipt, setReceipt] = useState<Receipt>();
-  const inFlight = useRef(false);
-  const rows = useRef(new Map<string, HTMLButtonElement>());
-  const pendingFocus = useRef<string | null>(null);
-  const uid = useId();
-  const selectedIndex = Math.max(0, products.findIndex(product => product.id === selectedId));
-  const item = products[selectedIndex];
-  // Derive the page from the selection so refreshed/shortened stock cannot
-  // leave a hidden selection or a now-empty out-of-range page.
-  const page = Math.floor(selectedIndex / STOCK_PAGE_SIZE);
-  const pageCount = Math.max(1, Math.ceil(products.length / STOCK_PAGE_SIZE));
-  const pageStart = page * STOCK_PAGE_SIZE;
-  const visibleProducts = products.slice(pageStart, pageStart + STOCK_PAGE_SIZE);
-  const quote = item ? supplyPurchase(item, funds, requested) : null;
-  const working = pending || busy;
-  const disabled = working || !available || !quote || quote.remaining === 0 || quote.shortfall > 0;
-  const action = !available ? "暂不可购买" : working ? "正在装袋" : !quote ? "暂无商品" : quote.remaining === 0 ? "已备足" : quote.shortfall > 0 ? "金币不足" : "购 买";
-  const guidance = !available ? "请先结束当前旅程或剧情，再来补充物资。"
-    : !quote ? "货架暂时空着，稍后再来看看。"
-    : working ? "正在确认交易，请稍候。"
-    : quote.remaining === 0 ? "这份补给已经备足，无需重复购买。"
-    : quote.shortfall > 0 ? `小队金币还差 ${quote.shortfall}，可减少数量或稍后再来。`
-    : "每份补充 1 次充能 · 出征前请将物资加入行囊。";
+  const [error, setError] = useState<string | null>(null);
+  const [uncertain, setUncertain] = useState<Receipt | null>(null);
+  const [awaitingAppraisal, setAwaitingAppraisal] = useState<string | null>(null);
+  const [reading, setReading] = useState<{item: ShopLootItem; step: number} | null>(null);
+  const [speech, setSpeech] = useState<{line: ShopDialogueLine; turn: number}>({line: shopDialogue[hasLoot ? initialMode : "buy"], turn: 0});
+  const [feedback, setFeedback] = useState<SceneFeedbackEntry[]>([]);
+  const inFlight = useRef(false), mounted = useRef(true), serial = useRef(0);
+  const focusAfterSale = useRef<string | null>(null), scope = useRef<HTMLDivElement>(null);
+  useEffect(() => {mounted.current = true; return () => {mounted.current = false;};}, []);
+  const working = busy || pending || !!awaitingAppraisal;
+  const appraisals = loot?.history.filter(entry => entry.kind === "appraise") ?? [];
+  const groups = groupShopLoot((loot?.items ?? []).filter(item => mode === "appraise" ? item.appraisable !== false : (item.sellable ?? !!item.resultId) || item.refused), mode);
+  const modeItems: StockItem[] = mode === "buy" ? products.map(item => ({...item, icon: item.iconUrl, category: item.category ?? "battle"}))
+    : groups.map(group => ({...presentLoot(group.item), id: group.id, owned: group.owned, price: mode === "sell" ? group.item.salePrice : group.item.appraisalFee}));
+  const offered = new Set<StockCategory>(mode === "buy" ? products.map(item => item.category ?? "battle") : modeItems.map(item => item.category));
+  const categories = [{id: "all" as const, label: "全部", count: modeItems.length},
+    ...stockCategories.filter(item => offered.has(item.id)).map(item => ({...item, count: modeItems.filter(row => row.category === item.id).length}))];
+  const rows = modeItems.filter(item => category === "all" || item.category === category);
+  const historical = mode === "appraise" && recallId ? appraisals.find(entry => entry.item.instanceId === recallId)?.item : undefined;
+  const selected = historical ? presentLoot(historical, !!loot?.items.some(item => item.instanceId === recallId))
+    : rows.find(item => item.id === selectedId) ?? rows[0];
+  const selectedGroup = groups.find(group => group.id === selected?.id);
+  const curio = mode === "buy" ? undefined : selectedGroup?.item ?? historical;
+  const maximum = selected ? mode === "buy" ? (selected.purchaseMaximum ?? Math.max(0, (selected.capacity ?? 0) - selected.owned)) : mode === "sell" ? Math.min(999, selectedGroup?.instanceIds.length ?? 0) : Math.min(1, selected.owned) : 0;
+  const quantity = Math.min(maximum, Math.max(1, Math.floor(requested)));
+  const total = (selected?.price ?? 0) * (mode === "appraise" ? 1 : quantity) + (mode === "sell" ? curio?.bundleTotal ?? 0 : 0);
+  const identified = mode === "appraise" && !!selected?.identified;
+  const sold = identified && selected?.owned === 0;
+  const short = mode !== "sell" && !identified && total > funds;
+  const disabled = working || !available || !selected || !!reading || !!sold || !!curio?.refused || (!identified && (maximum === 0 || short));
+  const action = working ? "处理中" : !available ? "暂不可交易" : reading ? "鉴定中" : sold ? "已出售" : identified ? "去出售"
+    : curio?.refused ? "拒收" : !selected ? "暂无物品" : maximum === 0 ? selected.delivery === "equipment" ? "售罄" : "已备足" : short ? "银钱不足" : {buy: "购买", sell: "出售", appraise: "鉴定"}[mode];
 
-  useEffect(() => {
-    if (!pendingFocus.current) return;
-    rows.current.get(pendingFocus.current)?.focus({ preventScroll: true });
-    pendingFocus.current = null;
-  }, [item?.id, page]);
-
-  function select(id: string) {
-    if (working || id === item?.id) return;
-    setSelectedId(id); setRequested(1); setReceipt(undefined);
+  function say(line: ShopDialogueLine) {setSpeech(current => ({line, turn: current.turn + 1}));}
+  function read(item: ShopLootItem) {
+    setSelectedId(item.instanceId);
+    if (item.appraisal.length) {setReading({item, step: 0}); say(item.appraisal[0]);}
+    else {setReading(null); say(item.kept);}
   }
-  function focusProduct(index: number) {
-    if (working || !products[index]) return;
-    const id = products[index].id;
-    const mounted = rows.current.get(id);
-    if (mounted) mounted.focus({ preventScroll: true });
-    else pendingFocus.current = id;
-    select(id);
-  }
-  function changePage(direction: -1 | 1) {
-    const next = Math.max(0, Math.min(pageCount - 1, page + direction));
-    if (next !== page) focusProduct(next * STOCK_PAGE_SIZE);
-  }
-  function navigate(event: KeyboardEvent<HTMLButtonElement>, index: number) {
-    const next = event.key === "Home" ? 0 : event.key === "End" ? products.length - 1
-      : event.key === "ArrowDown" ? Math.min(products.length - 1, index + 1)
-      : event.key === "ArrowUp" ? Math.max(0, index - 1)
-      : event.key === "PageDown" ? Math.min(products.length - 1, index + STOCK_PAGE_SIZE)
-      : event.key === "PageUp" ? Math.max(0, index - STOCK_PAGE_SIZE) : null;
-    if (next === null || working) return;
-    event.preventDefault(); focusProduct(next);
-  }
-  async function purchase() {
-    if (disabled || !item || !quote || inFlight.current) return;
-    inFlight.current = true; setPending(true); setReceipt(undefined);
-    try {
-      const error = await onPurchase(item.id, quote.quantity);
-      setReceipt(error ? { kind: "error", text: error } : { kind: "success", text: `${item.name}已补充 ${quote.quantity} 次，花费 ${quote.total} 金币。` });
-      if (!error) setRequested(1);
-    } catch {
-      setReceipt({ kind: "error", text: "交易未能确认，请检查库存和余额后重试。" });
-    } finally {
-      inFlight.current = false; setPending(false);
+  function finishReceipt(receipt: Receipt) {
+    setError(null);
+    if (receipt.kind === "appraise") {
+      if (receipt.item.generated) setAwaitingAppraisal(receipt.item.instanceId);
+      else read(receipt.item);
+    }
+    else {
+      if (mode === "sell") {
+        const index = rows.findIndex(item => item.id === receipt.rowId);
+        const remaining = receipt.item.stackable && loot?.items.some(item => item.definitionId === receipt.item.definitionId && item.resultId === receipt.item.resultId && !receipt.soldIds.includes(item.instanceId));
+        setSelectedId(remaining ? receipt.rowId : (rows[index + 1] ?? rows[index - 1])?.id ?? "");
+      }
+      say(receipt.item.sold); focusAfterSale.current = receipt.item.instanceId;
+      setFeedback(current => [...current, {id: `shop-sale-${++serial.current}`, kind: "notice", tone: "success",
+        message: `已出售${receipt.item.resultId ? receipt.item.name : receipt.item.unknownName}${receipt.quantity > 1 ? ` ×${receipt.quantity}` : ""}，收入 ${money.format(receipt.total)}。`}]);
     }
   }
+  // A durable write may be confirmed by the next session refresh after its promise failed.
+  useEffect(() => {
+    if (busy || pending || !awaitingAppraisal) return;
+    const item = loot?.history.find(entry => entry.kind === "appraise" && entry.item.instanceId === awaitingAppraisal)?.item;
+    if (!item?.resultId) return;
+    // The successful committed receipt is the first projection allowed to reveal the script.
+    setAwaitingAppraisal(null); read(item);
+  }, [busy, pending, awaitingAppraisal, loot?.history]);
+  useEffect(() => {
+    if (working || !uncertain || !uncertain.soldIds.every(id => loot?.history.some(entry => entry.kind === uncertain.kind && entry.item.instanceId === id))) return;
+    setUncertain(null); finishReceipt(uncertain);
+  }, [working, uncertain, loot?.history]);
+  useEffect(() => {
+    const id = focusAfterSale.current;
+    if (working || !id || loot?.items.some(item => item.instanceId === id)) return;
+    focusAfterSale.current = null;
+    scope.current?.querySelector<HTMLElement>('[role="option"][aria-selected="true"], .new-shop-stock__empty h2')?.focus({preventScroll: true});
+  }, [working, loot?.items]);
 
-  return <ShopFrame className="shop-counter-page" intro={intro}>
-    <div className="shop-counter" ref={intro.ref}>
-      <section className="shop-counter__main" aria-label="交易区">
-        <header className="shop-counter__heading">
-          <div className="shop-counter__balances" role="group" aria-label="小队资产">
-            <div className="shop-counter__purse"><span>小队金币</span><CurrencyAmount value={funds} currency="gold" label={`小队金币余额 ${funds}`} /></div>
-            <div className="shop-counter__purse"><span>远古晶石</span><CurrencyAmount value={crystals} currency="crystal" label={`远古晶石余额 ${crystals}`} /></div>
-          </div>
-        </header>
-        <div className="shop-counter__body">
-          <div className="shop-counter__modes" role="tablist" aria-label="商店模式">
-            <span className="shop-counter__mode">
-              <button className="shop-counter__tab" id={`${uid}-buy-tab`} type="button" role="tab" aria-selected="true"
-                aria-controls={`${uid}-buy-panel`}><span>购买</span></button>
-            </span>
-            {([["sell", "出售"], ["appraise", "鉴定"]] as const).map(([mode, label]) =>
-              <span className="shop-counter__mode" data-unavailable key={mode} title={`${label}暂未开放`}>
-                <button className="shop-counter__tab" type="button" role="tab" aria-selected="false"
-                  disabled tabIndex={-1} aria-describedby={`${uid}-${mode}-unavailable`} title={`${label}暂未开放`}><span>{label}</span></button>
-                <span id={`${uid}-${mode}-unavailable`} hidden>暂未开放</span>
-              </span>
-            )}
-          </div>
-        <div className="shop-counter__ledger" id={`${uid}-buy-panel`} role="tabpanel" aria-labelledby={`${uid}-buy-tab`}>
-          <RpgFrame className="shop-counter__stock-frame" padding="none" watermark={false}>
-          <section className="shop-counter__stock" aria-label="补给货架">
-            <div className="shop-counter__columns">
-              <div className="shop-counter__stock-heading">
-                <span>在售物资 · {products.length}</span>
-                <nav className="shop-counter__pagination" aria-label="商品翻页">
-                  <button type="button" className="shop-counter__page-button" disabled={working || page === 0}
-                    aria-label="上一页" title="上一页" aria-controls={`${uid}-stock-list`} onClick={() => changePage(-1)}>
-                    <svg viewBox="0 0 12 16" aria-hidden="true"><path d="M9 2 3 8l6 6" /></svg>
-                  </button>
-                  <span className="shop-counter__page-number" role="status" aria-live="polite" aria-label="货架页码"><b>{page + 1}</b><span> / </span>{pageCount}</span>
-                  <button type="button" className="shop-counter__page-button" disabled={working || page === pageCount - 1}
-                    aria-label="下一页" title="下一页" aria-controls={`${uid}-stock-list`} onClick={() => changePage(1)}>
-                    <svg viewBox="0 0 12 16" aria-hidden="true"><path d="m3 2 6 6-6 6" /></svg>
-                  </button>
-                </nav>
-              </div>
-              <span>持有 / 上限</span><span>单价</span>
-            </div>
-            <div className="shop-counter__stock-well">
-            <span className="shop-counter__column-wells" aria-hidden="true"><i data-column="owned" /><i data-column="price" /></span>
-            <div className="shop-counter__list" id={`${uid}-stock-list`} role="listbox" aria-label="商品列表" aria-busy={working}>
-              {visibleProducts.map((entry, index) => {
-                const full = entry.owned >= entry.capacity;
-                return <button key={entry.id} type="button" role="option" className="shop-counter__item"
-                  ref={node => { if (node) rows.current.set(entry.id, node); else rows.current.delete(entry.id); }}
-                  tabIndex={entry.id === item?.id ? 0 : -1} aria-selected={entry.id === item?.id}
-                  aria-posinset={pageStart + index + 1} aria-setsize={products.length}
-                  aria-controls={`${uid}-detail`} data-full={full || undefined} disabled={working}
-                  aria-description={entry.description}
-                  onClick={() => select(entry.id)} onKeyDown={event => navigate(event, pageStart + index)}>
-                  <ItemSlotStatic icon={entry.iconUrl} name={entry.name} rarity={DEFAULT_ITEM_RARITY} showRarity={false}
-                    size={42} className="shop-counter__stock-slot" data-selected={entry.id === item?.id || undefined} aria-hidden="true" />
-                  <span className="shop-counter__item-name"><strong>{entry.name}</strong></span>
-                  <span className="shop-counter__owned" aria-label={`持有 ${entry.owned}，上限 ${entry.capacity}${full ? "，已备足" : ""}`}><b>{entry.owned}</b><span> / {entry.capacity}</span></span>
-                  <span className="shop-counter__price" data-short={funds < entry.price && !full || undefined}><CurrencyAmount value={entry.price} currency="gold" /></span>
-                </button>;
-              })}
-              {!products.length && <p className="shop-counter__empty">货架暂时空着，稍后再来看看。</p>}
-            </div>
-            </div>
-          </section>
-          </RpgFrame>
-          <RpgFrame className="shop-counter__detail-frame" padding="none" watermark={false}>
-            <section className="shop-counter__detail" id={`${uid}-detail`} aria-label="商品详情与购买">
-              {item && quote ? <>
-                <UiContentTransition className="shop-counter__description" contentKey={item.id}>
-                  <div className="shop-counter__detail-emblem">
-                    <ItemSlotStatic icon={item.iconUrl} name={item.name} rarity={DEFAULT_ITEM_RARITY} showRarity={false}
-                      size={84} className="shop-counter__detail-slot" />
-                  </div>
-                  <div className="shop-counter__detail-copy">
-                    <div className="shop-counter__detail-heading">
-                      <h2>{item.name}</h2>
-                      <div className="shop-counter__capacity" role="group" aria-label="库存预览">
-                        <span>持有</span><b>{item.owned} / {item.capacity}</b>
-                        {quote.remaining ? <>
-                          <span className="shop-counter__capacity-arrow" aria-hidden="true">→</span>
-                          <output aria-label="补充后库存" title="补充后库存">{quote.after} / {item.capacity}</output>
-                        </> : <span className="shop-counter__capacity-full">已备足</span>}
-                      </div>
-                    </div>
-                    <p>{item.description}</p>
-                  </div>
-                </UiContentTransition>
-                <div className="shop-counter__checkout">
-                  <div className="shop-counter__quantity">
-                    <span>数量</span>
-                    <div>
-                      <IconButton label="减少数量" icon="minus" size="sm" variant="dark" disabled={working || !available || quote.quantity <= 1} onClick={() => { setRequested(quote.quantity - 1); setReceipt(undefined); }} />
-                      <output aria-label="补充数量">{quote.quantity}</output>
-                      <IconButton label="增加数量" icon="plus" size="sm" variant="teal" disabled={working || !available || quote.quantity >= quote.remaining} onClick={() => { setRequested(quote.quantity + 1); setReceipt(undefined); }} />
-                    </div>
-                  </div>
-                  <div className="shop-counter__total" data-short={quote.shortfall > 0 || undefined}>
-                    <span>合计</span>
-                    <CurrencyAmount value={quote.total} currency="gold" />
-                  </div>
-                  <div className="shop-counter__purchase-area">
-                    <RpgNotchedPillButton className="shop-counter__purchase" label={action} variant="teal" disabled={disabled} aria-describedby={`${uid}-purchase-note`} onClick={purchase} />
-                    <PurchaseHelp id={`${uid}-purchase-note`} text={receipt?.text ?? guidance}
-                      tone={receipt?.kind ?? (quote.shortfall ? "error" : "hint")} receipt={receipt} />
-                  </div>
-                </div>
-              </> : <h2>暂无在售补给</h2>}
-            </section>
-          </RpgFrame>
-        </div>
-        </div>
-      </section>
-      <aside className="shop-counter__merchant" aria-label="店主缇比">
-        <RpgFrame className="shop-counter__portrait-frame" padding="none">
-          <div className="shop-counter__scenery" aria-hidden="true" />
-          <div className="shop-counter__portrait"><img src={tibbyPortrait} alt="缇比·奥雷利亚" /></div>
-          <div className="shop-counter__portrait-shade" aria-hidden="true" />
-        </RpgFrame>
-        <Nameplate name="缇比·奥雷利亚" secondaryName="TIBBY AURELIA" />
-        <RpgDialogue name="缇比" showNameplate={false} autoHeight
-          text={receipt?.kind === "success" ? "收好啦～出发前记得装进行囊，没用完的，下次还能带走哦。" : "想补些什么？食物和治疗药水，洋馆已经替你备好啦。"} />
-        <p className="shop-counter__allowance">食物 · 治疗药水　出征时免费配给</p>
-      </aside>
-    </div>
-  </ShopFrame>;
+  function switchMode(next: ShopMode) {
+    if (working || next !== "buy" && !hasLoot) return;
+    setMode(next); setCategory("all"); setSelectedId(""); setRecallId(null); setRequested(1); setReading(null); setError(null); say(shopDialogue[next]);
+  }
+  function select(item: StockItem) {
+    if (working) return;
+    setSelectedId(item.id); setRecallId(null); setRequested(1); setReading(null); setError(null);
+    const found = groups.find(group => group.id === item.id)?.item;
+    if (found?.generated) {say(found.resultId ? found.knownSelection ?? found.kept : mode === "appraise" ? found.teaser : found.offer ?? found.kept); return;}
+    if (found) say(found.refused ? found.refusal ?? found.kept : mode === "appraise" ? found.resultId ? found.kept : found.teaser : found.resultId && found.appraisable !== false ? found.appraisal.at(-1) ?? found.kept : found.offer ?? found.kept);
+  }
+  function keep() {if (working || !curio) return; setReading(null); say(curio.kept);}
+  function continueReading() {
+    if (working || !reading) return;
+    const step = reading.step + 1;
+    if (step < reading.item.appraisal.length) {setReading({...reading, step}); say(reading.item.appraisal[step]);}
+    else {setReading(null); say(reading.item.kept);}
+  }
+  async function transact() {
+    if (disabled || inFlight.current || !selected) return;
+    if (identified) {switchMode("sell"); setSelectedId(groupShopLoot(loot?.items ?? [], "sell").find(group => group.instanceIds.includes(curio!.instanceId))?.id ?? selected.id); return;}
+    inFlight.current = true; setPending(true); setError(null);
+    const repeated = mode === "appraise" && !curio?.generated && curio?.definitionId && appraisals.some(entry => !entry.item.generated && entry.item.definitionId === curio.definitionId && entry.item.instanceId !== curio.instanceId);
+    const receipt: Receipt | null = curio ? {kind: mode === "sell" ? "sell" : "appraise", item: repeated && curio.repeatAppraisal ? {...curio, appraisal: curio.repeatAppraisal} : curio, total, quantity,
+      rowId: selected.id, soldIds: mode === "sell" ? selectedGroup!.instanceIds.slice(0, quantity) : [curio.instanceId]} : null;
+    try {
+      const failure = await (mode === "buy" ? onPurchase(selected.id, quantity) : mode === "sell" ? quantity > 1 ? onSell!(curio!.instanceId, quantity) : onSell!(curio!.instanceId) : onAppraise!(curio!.instanceId));
+      if (!mounted.current) return;
+      if (failure) {setError(failure); setUncertain(receipt); return;}
+      setUncertain(null); setRequested(1);
+      if (receipt) finishReceipt(receipt);
+      else {
+        say(selected.delivery === "equipment" ? shopDialogue.equipmentPurchased : shopDialogue.purchased);
+        setFeedback(current => [...current, {id: `shop-purchase-${++serial.current}`, kind: "reward",
+          reward: {id: selected.id, kind: "item", name: selected.name, icon: selected.icon, quantity}}]);
+      }
+    } catch {
+      if (mounted.current) {setError("交易未能确认，请稍后重试。"); setUncertain(receipt);}
+    } finally {inFlight.current = false; if (mounted.current) setPending(false);}
+  }
+
+  return <div ref={scope} className="shop-live">
+    <ShopSurface overlay={<RpgModal open={previewOpen} onClose={() => setPreviewOpen(false)} title={`${previewItem?.name ?? "装备"} · 配装预览`}>
+      <div className="equipment-editor">{previewItem?.preview && <EquipmentFacePreview key={previewItem.id} preview={previewItem.preview}/>}<p>购买后可在角色页面装备。此处试配不改变当前装备。</p></div>
+    </RpgModal>} embedded={embedded} entranceProfile={entranceProfile} mode={mode} category={category} categories={categories}
+      rows={rows} selected={selected} funds={funds} crystals={crystals} pendingCount={loot?.items.filter(item => item.appraisable !== false && !item.resultId).length ?? 0}
+      busy={working} interactionDisabled={working} disabledModes={guidedPurchase || !hasLoot ? ["sell", "appraise"] : []}
+      switchMode={switchMode} changeCategory={next => {if (working) return; setCategory(next); setSelectedId(""); setRecallId(null); setRequested(1); setReading(null); setError(null);}}
+      select={select} speech={guidedPurchase ? {line: guidedPurchase.speech, turn: 0} : speech} onContinue={reading ? continueReading : undefined}
+      continueLabel={reading && reading.step === reading.item.appraisal.length - 1 ? "收好" : undefined}
+      feedback={feedback} onDismiss={id => setFeedback(current => current.filter(entry => entry.id !== id))}
+      footer={scrapPrice !== undefined && <p className="shop-live__scrap">未鉴定物按 {scrapPrice} G 收购。</p>}
+      navigation={guidedPurchase ? <div className="shop-visit-actions">{guidedPurchase.error && <span role="alert">{guidedPurchase.error}</span>}<button type="button" disabled={working} onClick={guidedPurchase.onFinish}>结束购买</button><span>可以一件不买</span></div> : navigation}
+      history={mode === "appraise" && <ShopAppraisalHistory entries={appraisals} busy={working} onSelect={item => {
+        setRecallId(item.instanceId); setError(null); read(item);
+      }}/>}
+      detail={readingAction => <TradeDetail key={`${mode}:${selected?.id}`} item={selected} mode={mode} quantity={quantity} maximum={maximum} total={total}
+        onPreview={() => {if (selected) {setPreviewItem(selected); setPreviewOpen(true);}}}
+        action={readingAction?.label ?? action} actionLabel={readingAction?.ariaLabel} disabled={readingAction?.disabled ?? disabled}
+        busy={working || !available} appraising={!!reading} identified={identified} saleValue={curio?.salePrice} bundleTotal={mode === "sell" ? curio?.bundleTotal : 0}
+        normalAppraisalFee={curio?.normalAppraisalFee} appraisalReason={curio?.appraisalReason}
+        error={error ?? (!available ? "远征期间无法交易，请返回洋馆后再来。" : null)} onQuantity={setRequested} onAction={readingAction?.onAction ?? (() => void transact())}
+        secondaryActions={identified && <div className="shop-live__result-actions">
+          {reading ? reading.step < reading.item.appraisal.length - 1 && <button type="button" disabled={working} onClick={keep}>收好</button>
+            : <button type="button" disabled={working} onClick={() => curio && read(curio)}>再听一遍</button>}
+        </div>}/>} />
+  </div>;
 }

@@ -4,6 +4,8 @@ export type Entry = {
   id: string;
   html: string;
   sourceHtml?: string;
+  /** Optional nested entry within an existing app; lab/tool entries only. */
+  sourceModule?: string;
   kind: EntryKind;
   port: number;
   open?: boolean;

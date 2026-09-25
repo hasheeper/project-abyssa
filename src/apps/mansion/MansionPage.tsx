@@ -48,6 +48,9 @@ import { useMansionViewport } from "./useMansionViewport";
 import { useMansionEstate } from "./useMansionEstate";
 import { GameProvider, GameGate, useGameSession, useGameState } from "../../game-client/react";
 import { AirpStory } from "../../game-client/AirpStory";
+import { DirectorScene } from "../../game-client/airp-director/DirectorScene";
+import { dispatchDirector } from "../../game-client/airp-director/dispatch";
+import { directorView } from "../../game-runtime/airp-director-view";
 import { gameHref, recordLocator } from "../../game-client/navigation";
 import { CampaignPanel } from "../../game-client/CampaignPanel";
 import { GrowthStory } from "../../game-client/GrowthStory";
@@ -60,6 +63,8 @@ import {
   STOCK_ROWS
 } from "./mansion-state";
 import { MansionWorld, type CharacterPlacement } from "./MansionWorld";
+import { SceneFeedback } from "../../shared/ui/patterns/SceneFeedback";
+import { MansionFacilityPanel } from "./MansionFacilityPanel";
 import { MansionRoomDrawer } from "./MansionRoomDrawer";
 import { useMansionPresentation } from "./useMansionPresentation";
 import { MansionTimeLoading } from "./MansionTimeLoading";
@@ -86,10 +91,12 @@ function MansionEntry() {
   // Keep the outgoing opening mounted while its cinematic handoff completes.
   const opening=useRef(record?.schemaVersion===4 && record.snapshot.campaign.opening?.status==="playing");
   if (opening.current) return <FirstMorningStory/>;
-  const locked = !!narrative?.locked;
+  const directorReading = record?.schemaVersion === 4 ? record.airpDirector?.reading : null;
+  const directorLocked = !!directorReading && !directorReading.paused;
+  const locked = !!narrative?.locked || directorLocked;
   return <>
-    <div className="mansion-scene-resident" hidden={locked}><MansionScene suspended={locked}/></div>
-    {locked && <AirpStory/>}
+    <div className="mansion-scene-resident" data-suspended={locked}><MansionScene suspended={locked}/></div>
+    {directorReading ? <DirectorScene/> : locked && <AirpStory/>}
   </>;
 }
 function MansionScene({suspended = false}: {suspended?: boolean}) {
@@ -163,6 +170,7 @@ function MansionScene({suspended = false}: {suspended?: boolean}) {
     }
   });
   const {day, phase} = presentation.clock;
+  const director = useMemo(() => directorView(game.record), [game.record]);
   const intro = useMansionIntro(presentation.step === "ready", suspended, viewportRef);
   const stockButtonRef = useRef<HTMLButtonElement>(null);
   const journalButtonRef = useRef<HTMLButtonElement>(null);
@@ -177,7 +185,8 @@ function MansionScene({suspended = false}: {suspended?: boolean}) {
 
   const characterPlacements = useMemo<CharacterPlacement[]>(() => {
     const active = MANSION_CHARACTERS
-      .map((character) => ({ character, roomId: character.schedule[phase] }))
+      .map((character) => ({ character, roomId: director?.context.capabilities.locations[character.id]?.[phase] ?? character.schedule[phase] }))
+      .filter(item => !director || director.context.world.availableActorIds.includes(item.character.id))
       .filter((item): item is { character: MansionCharacter; roomId: string } => Boolean(item.roomId));
     const roomTotals = new Map<string, number>();
     const roomIndexes = new Map<string, number>();
@@ -199,14 +208,16 @@ function MansionScene({suspended = false}: {suspended?: boolean}) {
       const bounds = regionBounds(region);
       const usable = bounds.right - bounds.left - CHARACTER_AVATAR;
       const step = total > 1 ? Math.min(126, usable / (total - 1)) : 0;
+      const twoRows = !!director && total > 2 && usable < (total - 1) * (CHARACTER_AVATAR + 20);
       return [{
         character,
         roomId,
-        x: anchor.x + (index - (total - 1) / 2) * step,
-        y: anchor.y
+        eventSignal: director?.entrances.find(e => e.actorId === character.id)?.event,
+        x: anchor.x + (twoRows ? (index % 2 - .5) * Math.min(126, usable) : (index - (total - 1) / 2) * step),
+        y: anchor.y - (twoRows ? Math.floor(index / 2) * 158 : 0)
       }];
     });
-  }, [phase, regionById]);
+  }, [phase, regionById, director]);
 
   // Static lighting is baked into the scenery. Only three small, unfiltered
   // opacity glows remain live, and none is mounted outside the night phase.
@@ -353,6 +364,8 @@ function MansionScene({suspended = false}: {suspended?: boolean}) {
 
   const activateCharacter = useCallback((character: MansionCharacter) => {
     if (isClickSuppressed()) return;
+    const entry = director?.entrances.find(e => e.actorId === character.id && !(e.event.actionPhase !== null && e.event.role === "action"));
+    if (entry) {void dispatchDirector(session, {type: "airp-director-open", eventId: entry.event.id}); return;}
     lastFocusRef.current = document.activeElement instanceof HTMLElement
       ? document.activeElement
       : null;
@@ -360,7 +373,7 @@ function MansionScene({suspended = false}: {suspended?: boolean}) {
     setDialogueTyping(true);
     setDialogueSettled(false);
     setActiveCharacterId(character.id);
-  }, [isClickSuppressed]);
+  }, [isClickSuppressed, director, session]);
 
   const selectedOccupants = selectedRegion
     ? characterPlacements
@@ -420,6 +433,7 @@ function MansionScene({suspended = false}: {suspended?: boolean}) {
           selectedRegionId={selectedRegionId}
           hoveredRegionId={hoveredRegionId}
           readyProduction={readyProduction}
+          production={estate.production}
           levels={levels}
           repairProgress={repairProgress}
           damaged={damaged}
@@ -527,9 +541,13 @@ function MansionScene({suspended = false}: {suspended?: boolean}) {
           </svg>
         </button>
 
+        <SceneFeedback dock entries={estate.feedback} onDismiss={estate.dismissFeedback} edge="right" className="mansion-facility-feedback" paused={suspended}/>
+
         {selectedRegion && selectedDetail && (
           <MansionRoomDrawer
             readOnly
+            facilitiesEnabled={!!estate.facilities}
+            facilityPanel={estate.facilities && <MansionFacilityPanel key={selectedRegion.id} view={estate.facilities} roomId={selectedRegion.id} busy={estate.busy} onCommand={estate.operateFacility} onStock={estate.toggleStock}/>}
             region={selectedRegion}
             detail={selectedDetail}
             side={selectedDrawerSide}

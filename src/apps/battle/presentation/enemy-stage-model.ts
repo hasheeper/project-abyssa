@@ -8,6 +8,8 @@ export const ENEMY_ART_BOUNDS: Record<string, EnemyArtBounds> = {
   "enemy.intro.crossbowman": {original:[1376,768],bounds:[100,61,1201,755]},
   "enemy.intro.hauler": {original:[2752,1536],bounds:[536,47,2044,1499]},
   "enemy.intro.reef-hook-chief": {original:[1376,768],bounds:[404,14,1014,749]},
+  "enemy.beast.reef-crab": {original:[1376,768],bounds:[59,36,1281,743]},
+  "enemy.beast.shell-leech": {original:[1376,768],bounds:[198,161,1240,687]},
   "old-manor.clockwork-beast": {original:[1408,768],bounds:[53,0,1309,754]},
   "old-manor.waiting-guest": {original:[1376,768],bounds:[419,0,978,728]},
   "old-manor.platter-bearer": {original:[1376,768],bounds:[244,0,1087,752]},
@@ -19,6 +21,12 @@ export const ENEMY_ART_BOUNDS: Record<string, EnemyArtBounds> = {
   amalgam: {original:[768,768],bounds:[23,96,737,727]},
   choir: {original:[1376,768],bounds:[24,17,1355,709]},
 };
+// Stable tutorial gameplay IDs and reusable asset IDs share the same measured canvas.
+for (const [artId, definitionId] of Object.entries({
+  "enemy.slime.mire": "enemy.intro.tide-slime", "enemy.outlaw.blade": "enemy.intro.lookout",
+  "enemy.outlaw.crossbow": "enemy.intro.crossbowman", "enemy.outlaw.hauler": "enemy.intro.hauler",
+  "enemy.outlaw.chief": "enemy.intro.reef-hook-chief",
+})) ENEMY_ART_BOUNDS[artId] = ENEMY_ART_BOUNDS[definitionId];
 
 export const ENEMY_HEALTH_POINTS_PER_LAYER = 8;
 

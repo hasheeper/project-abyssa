@@ -4,10 +4,29 @@ import { StrictMode } from "react";
 import { AdvStage } from "./AdvStage";
 import { SceneSequence, SCENE_SEQUENCE_MS as ms, useSceneSequenceBusy } from "./SceneSequence";
 import { UiMotionProvider } from "../../ui/motion/UiMotionProvider";
+import * as images from "../../loading/images";
 const advance = async (time:number) => act(async () => {await vi.advanceTimersByTimeAsync(time);});
 const settleBoard = (container: HTMLElement, animationName = "test-board-settle") =>
   fireEvent(container.querySelector("[data-scene-settle]")!, Object.assign(new Event("animationend", {bubbles: true}), {animationName}));
 afterEach(() => {cleanup(); vi.useRealTimers(); vi.restoreAllMocks();});
+it("reuses the bounded preparation when the expanding room releases a dissolve entrance", async () => {
+  vi.useFakeTimers();
+  vi.spyOn(images, "prepareImages").mockImplementation(() => new Promise<void>(() => {}));
+  const onPrepared = vi.fn();
+  const frame = {id:"room",kind:"adv" as const,assets:["slow-room.webp"],content:<p>已准备的对白</p>};
+  const {container,rerender} = render(<StrictMode><SceneSequence frame={frame} advEntrance="dissolve" openingBlocked onPrepared={onPrepared}/></StrictMode>);
+  await advance(0); await advance(3000);
+  expect(onPrepared).toHaveBeenCalledOnce();
+  expect(container.firstChild).toHaveAttribute("data-phase", "prepare");
+  const preparationCalls = vi.mocked(images.prepareImages).mock.calls.length;
+  rerender(<StrictMode><SceneSequence frame={frame} advEntrance="dissolve" onPrepared={onPrepared}/></StrictMode>);
+  await advance(0);
+  expect(container.firstChild).toHaveAttribute("data-phase", "in");
+  expect(images.prepareImages).toHaveBeenCalledTimes(preparationCalls);
+  await advance(ms.advDissolve);
+  expect(container.firstChild).toHaveAttribute("data-phase", "idle");
+});
+
 it("covers in-place ADV scenery before swapping its line, holds black, then unlocks without remounting", async () => {
   vi.useFakeTimers();
   const next = vi.fn();

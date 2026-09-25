@@ -4,6 +4,7 @@ import type { D5BaseExpeditionState, D5ExpeditionState } from "./d5-types";
 import type { TutorialLessonEvidence, TutorialOperation, TutorialRunState } from "./tutorial-types";
 import { TUTORIAL_LESSONS } from "./tutorial-types";
 import { readTutorialGuide, validateGuidedJourney } from "./tutorial-guide-validation";
+import { roomInstance } from "./demo-expedition";
 
 export function parseTutorialOperation(raw: unknown): TutorialOperation {
   const op = v.record(raw, "tutorial.operation"), type = v.choice(op.type, ["tutorial-read", "tutorial-retry", "tutorial-hints", "tutorial-guide", "tutorial-observe"], "tutorial.type");
@@ -30,6 +31,8 @@ export function parseTutorialOperation(raw: unknown): TutorialOperation {
 export function validateTutorialRun(catalog: ValidatedD5Catalog, raw: unknown, base: D5BaseExpeditionState,
   readBase: (raw: unknown) => D5BaseExpeditionState): TutorialRunState<D5BaseExpeditionState> {
   const spec = catalog.data.tutorial!;
+  const roomIds = base.run.roomIds.flat();
+  const roomIndex = roomIds.indexOf(roomInstance(base.run));
   const t = v.record(raw, "tutorial", ["stage", "attempt", "continuationSeed", "hintsEnabled", "story", "choices", "readStoryIds", "lessons", "undoLessons", "entry", "checkpoint", ...(spec.guide ? ["guide", "undoGuides"] : [])]);
   const stage = v.choice(t.stage, ["story", "active", "failed", "claimable"], "tutorial.stage");
   const attempt = v.number(t.attempt, "tutorial.attempt", 1, 10000);
@@ -66,8 +69,8 @@ export function validateTutorialRun(catalog: ValidatedD5Catalog, raw: unknown, b
     const s = v.record(t.story, "tutorial.story", ["id", "step"]);
     const definition = v.reference(spec.stories, s.id, "storyId");
     v.number(s.step, "step", 0, definition.lastStep);
-    const after = spec.guide ? spec.guide.nodes[base.run.room]?.storyAfter : spec.interludeStoryIds[base.run.room];
-    const expected = base.node === "finished" ? spec.returnStoryIds : base.node === "battle" && base.run.room === 0 ? [spec.arrivalStoryId] : base.node === "room-complete" ? [after] : [];
+    const after = spec.guide ? spec.guide.nodes[roomIndex]?.storyAfter : spec.interludeStoryIds[roomIndex];
+    const expected = base.node === "finished" ? spec.returnStoryIds : base.node === "battle" && roomIndex === 0 ? [spec.arrivalStoryId] : base.node === "room-complete" ? [after] : [];
     if (!expected.includes(s.id as string)) v.invalid("tutorial.story", "Story does not belong to this room");
   } else if (t.story !== null) v.invalid("tutorial.story", "Inactive story cursor");
   if (stage === "failed" && (base.node !== "battle" || base.encounter.phase !== "complete" || base.encounter.outcome !== "wipe")) v.invalid("tutorial.failed", "A real wipe is required");
@@ -77,8 +80,8 @@ export function validateTutorialRun(catalog: ValidatedD5Catalog, raw: unknown, b
   lessons(checkpoint.lessons);
   for (const [kind, value] of [["entry", t.entry], ["checkpoint", checkpoint.state]] as const) {
     const saved = readBase(value);
-    const checkpointRoom = spec.guide ? spec.guide.nodes.slice(0, base.run.room + 1).reduce((last, n, i) => n.battle !== null ? i : last, 0) : base.run.room;
-    if (saved.node !== "battle" || saved.encounter.phase !== "roll" || saved.encounter.round !== 1 || saved.undo.length || saved.run.id !== base.run.id || saved.run.routeId !== spec.routeId || saved.run.room !== (kind === "entry" ? 0 : checkpointRoom)) v.invalid(`tutorial.${kind}`, "Encounter opening checkpoint required");
+    const checkpointRoom = spec.guide ? spec.guide.nodes.slice(0, roomIndex + 1).reduce((last, n, i) => n.battle !== null ? i : last, 0) : roomIndex;
+    if (saved.node !== "battle" || saved.encounter.phase !== "roll" || saved.encounter.round !== 1 || saved.undo.length || saved.run.id !== base.run.id || saved.run.routeId !== spec.routeId || roomInstance(saved.run) !== roomIds[kind === "entry" ? 0 : checkpointRoom]) v.invalid(`tutorial.${kind}`, "Encounter opening checkpoint required");
   }
   if (spec.guide) {
     validateGuidedJourney(catalog, base, t.continuationSeed);

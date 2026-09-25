@@ -1,8 +1,5 @@
 import { useCallback, useRef, useState } from "react";
-import type {
-  PointerEvent as ReactPointerEvent,
-  WheelEvent as ReactWheelEvent
-} from "react";
+import type { PointerEvent as ReactPointerEvent } from "react";
 import { STAGE_CANVAS_WIDTH } from "../../shared/stage";
 import { INITIAL_PAN, clampPan } from "./mansion-geometry";
 
@@ -106,8 +103,8 @@ export function useMansionViewport({ roomFocused, onDragStart }: UseMansionViewp
     }, 0);
   }, [resumeHover]);
 
-  const handleWheel = useCallback((event: ReactWheelEvent<HTMLDivElement>) => {
-    event.preventDefault();
+  const handleWheel = useCallback((event: WheelEvent) => {
+    if(event.cancelable)event.preventDefault();
     if (roomFocused) return;
     const input =
       Math.abs(event.deltaX) > Math.abs(event.deltaY)

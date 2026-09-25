@@ -1,3 +1,5 @@
+import { QuantityStepper } from "../shared/ui/primitives/QuantityStepper";
+import { useMoney } from "../shared/ui/primitives/Money";
 import { useState } from "react";
 import { supplyArt } from "../content/presentation/supply-icons";
 import { ItemSlot, ItemSlotStatic } from "../shared/ui/primitives/ItemSlot";
@@ -11,18 +13,19 @@ import { DEPARTURE_ITEM_LIMIT, type DepartureSupply } from "./useDepartureLoadou
 import "./departure-preparation.css";
 
 function PreparationBalance({label, value, currency, iconUrl}: {label: string; value: number; currency: "gold" | "crystal"; iconUrl?: string}) {
+  const money = useMoney();
   return <span className="departure-preparation__balance" data-currency={currency} role="img"
-    aria-label={`${label} ${value.toLocaleString("zh-CN")}`} tabIndex={0}>
+    aria-label={`${label} ${currency === "crystal" ? value.toLocaleString("en-US") : money.format(value)}`} tabIndex={0}>
     <span aria-hidden="true"><CurrencyAmount value={value} currency={currency} iconUrl={iconUrl}/></span>
     <span className="departure-preparation__balance-hint" aria-hidden="true">{label}</span>
   </span>;
 }
 
 export function DeparturePreparation({items, selectedIds, onChange, lockedReason, storageUnavailable,
-  funds, mapHref, equipmentHref, shopHref, itemLimit = DEPARTURE_ITEM_LIMIT}: {
+  funds, mapHref, equipmentHref, shopHref, itemLimit = DEPARTURE_ITEM_LIMIT, quantities, onQuantity}: {
   items: DepartureSupply[]; selectedIds: string[]; onChange: (ids: string[]) => void;
   lockedReason?: string; storageUnavailable?: boolean;
-  itemLimit?: number;
+  itemLimit?: number; quantities?: Record<string, number>; onQuantity?: (id: string, quantity: number) => void;
   funds: {public:number; party:number; crystals:number}; mapHref:string; equipmentHref:string; shopHref:string;
 }) {
   const [inspectedId, setInspectedId] = useState(selectedIds[0] ?? items[0]?.id);
@@ -45,10 +48,10 @@ export function DeparturePreparation({items, selectedIds, onChange, lockedReason
             return <li key={index} data-empty={!item || undefined}>
               <div className="departure-preparation__item-art">
                 {item ? <ItemSlot icon={supplyArt[item.kind].icon} name={item.name} size={108} tone="interface" showRarity={false}
-                  selected={inspected?.id === item.id} aria-label={`行囊第 ${index+1} 格：${item.name}`} aria-description={`出征携带 ${item.availableCharges} 份`}
+                  selected={inspected?.id === item.id} aria-label={`行囊第 ${index+1} 格：${item.name}`} aria-description={`出征携带 ${quantities?.[item.id] ?? item.availableCharges} 份`}
                   onClick={() => setInspectedId(item.id)}/>
                   : <ItemSlotStatic size={108} tone="interface" showRarity={false}/>}
-                {item && <span className="abyssa-item-count departure-preparation__quantity" aria-hidden="true">{item.availableCharges.toLocaleString("zh-CN")}</span>}
+                {item && <span className="abyssa-item-count departure-preparation__quantity" aria-hidden="true">{(quantities?.[item.id] ?? item.availableCharges).toLocaleString("zh-CN")}</span>}
               </div>
               <span className="departure-preparation__item-name" aria-hidden={!item || undefined}>{item?.name}</span>
             </li>;
@@ -73,7 +76,8 @@ export function DeparturePreparation({items, selectedIds, onChange, lockedReason
       {inspected && <aside className="departure-preparation__detail" aria-label="补给详情">
         <header className="departure-preparation__detail-identity"><ItemSlotStatic icon={supplyArt[inspected.kind].icon} name={inspected.name} size={96} tone="interface" showRarity={false}/><div><span className="departure-preparation__kind">{inspected.free ? "免费配给" : "战术补给"}</span><h3>{inspected.name}</h3></div></header>
         <p className="departure-preparation__effect">{supplyArt[inspected.kind].description}</p>
-        <dl><div><dt>当前库存</dt><dd>{inspected.storedCharges} <small>份</small></dd></div><div><dt>出征携带</dt><dd>{inspected.availableCharges} <small>份</small></dd></div></dl>
+        <dl><div><dt>当前库存</dt><dd>{inspected.storedCharges} <small>份</small></dd></div><div><dt>出征携带</dt><dd>{quantities?.[inspected.id] ?? inspected.availableCharges} <small>份</small></dd></div></dl>
+        {onQuantity && <QuantityStepper label={`${inspected.name}携带数量`} maximum={inspected.availableCharges} value={quantities?.[inspected.id] ?? inspected.availableCharges} disabled={!!lockedReason || !inspected.availableCharges} onChange={value => onQuantity(inspected.id, value)}/>}
         <div className="departure-preparation__detail-action">
           <p role={rejection ? "status" : undefined} aria-hidden={!rejection || undefined}>{rejection}</p>
           <JournalButton disabled={!!rejection} onClick={toggle}>{included ? "移出行囊" : "加入行囊"}</JournalButton>
@@ -83,7 +87,7 @@ export function DeparturePreparation({items, selectedIds, onChange, lockedReason
     <footer className="departure-preparation__footer">
       <div><div className="departure-preparation__funds" data-testid="campaign-funds">
         <PreparationBalance label="公款" value={funds.public} currency="gold" iconUrl={publicCoin}/>
-        <PreparationBalance label="小队金币" value={funds.party} currency="gold"/>
+        <PreparationBalance label="小队资金" value={funds.party} currency="gold"/>
         <PreparationBalance label="晶石" value={funds.crystals} currency="crystal"/>
       </div>{storageUnavailable && <span role="alert">此窗口无法保留方案，请在出征编队重新确认。</span>}</div>
       <nav aria-label="整备操作">

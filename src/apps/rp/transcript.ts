@@ -8,6 +8,7 @@ import normaAvatar from "../../assets/characters/avatars/norma.png";
 import vivienneAvatar from "../../assets/characters/avatars/vivienne.png";
 import type { RpActor, RpMessage } from "../../shared/ui/patterns/RpScene";
 import { CHARACTER_EMOTION_PROFILES } from "../../content/presentation/character-emotions";
+import { CHARACTER_DIALOGUE_ACCENTS } from "../../content/presentation/character-dialogue-colors";
 
 /** 一幕:自带名册的一段演出。
     名册跟着幕走 —— 第二幕在魔王城,登场的是另一批人。 */
@@ -28,7 +29,7 @@ const ACT_ONE_ACTORS: RpActor[] = [
     fullName: "艾比希斯·贝尔泽兰",
     secondaryName: "ABYSSA BEELZERAN",
     avatar: abyssaAvatar,
-    accent: "#8fd0d4"
+    accent: CHARACTER_DIALOGUE_ACCENTS.abyssa
   },
   {
     id: "elora",
@@ -36,7 +37,7 @@ const ACT_ONE_ACTORS: RpActor[] = [
     fullName: "艾洛拉·亚金特",
     secondaryName: "ELORA ARGENT",
     avatar: eloraAvatar,
-    accent: "#c9a3d8"
+    accent: CHARACTER_DIALOGUE_ACCENTS.elora
   },
   {
     id: "eustice",
@@ -44,7 +45,7 @@ const ACT_ONE_ACTORS: RpActor[] = [
     fullName: "尤斯缇丝·格里芬",
     secondaryName: "EUSTICE GRIFFIN",
     avatar: eusticeAvatar,
-    accent: "#d4b96a"
+    accent: CHARACTER_DIALOGUE_ACCENTS.eustice
   },
   {
     id: "lenore",
@@ -52,7 +53,7 @@ const ACT_ONE_ACTORS: RpActor[] = [
     fullName: "蕾诺尔·伏尼契",
     secondaryName: "LENORE VOYNICH",
     avatar: lenoreAvatar,
-    accent: "#ce7772"
+    accent: CHARACTER_DIALOGUE_ACCENTS.lenore
   }
 ];
 
@@ -68,7 +69,7 @@ const ACT_TWO_ACTORS: RpActor[] = [
     fullName: "柯萝萝·拉普拉斯",
     secondaryName: "KORORO LAPLACE",
     avatar: kororoAvatar,
-    accent: "#a89ae0"
+    accent: CHARACTER_DIALOGUE_ACCENTS.kororo
   },
   {
     id: "norma",
@@ -76,7 +77,7 @@ const ACT_TWO_ACTORS: RpActor[] = [
     fullName: "诺玛·洛克",
     secondaryName: "NORMA LOCKE",
     avatar: normaAvatar,
-    accent: "#9db8a4"
+    accent: CHARACTER_DIALOGUE_ACCENTS.norma
   },
   {
     id: "marietta",
@@ -84,7 +85,7 @@ const ACT_TWO_ACTORS: RpActor[] = [
     fullName: "玛丽埃塔·克雷格",
     secondaryName: "MARIETTA CRAIG",
     avatar: mariettaAvatar,
-    accent: "#d98d8d"
+    accent: CHARACTER_DIALOGUE_ACCENTS.marietta
   },
   {
     id: "vivienne",
@@ -92,7 +93,7 @@ const ACT_TWO_ACTORS: RpActor[] = [
     fullName: "薇薇安·桑格温",
     secondaryName: "VIVIENNE SANGUINE",
     avatar: vivienneAvatar,
-    accent: "#c2607a"
+    accent: CHARACTER_DIALOGUE_ACCENTS.vivienne
   }
 ];
 
@@ -298,7 +299,7 @@ const ACT_TWO_MESSAGES: RpMessage[] = [
     kind: "say",
     actorId: "norma",
     expression: "k",
-    text: "(咔嚓)……喂,蕾丝扇的,你那瓶酒上个月记在外务账上,三百四十枚金币。就是你害得全馆这个月预算见底、圣女大人满集市讨价还价,老娘可都记着呢。"
+    text: "(咔嚓)……喂,蕾丝扇的,你那瓶酒上个月记在外务账上,三百四十枚银币。就是你害得全馆这个月预算见底、圣女大人满集市讨价还价,老娘可都记着呢。"
   },
   {
     id: "s2m15",

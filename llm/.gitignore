@@ -1,8 +1,0 @@
-# Filled configuration and all drafts/history remain local.
-/config/*.local.json
-/secrets/*
-!/secrets/keys.example.json
-/.local/
-/.env*
-!/secrets/.gitkeep
-/node_modules/

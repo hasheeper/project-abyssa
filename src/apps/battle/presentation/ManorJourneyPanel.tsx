@@ -1,3 +1,4 @@
+import { MoneyText } from "../../../shared/ui/primitives/Money";
 import type { DemoJourneyView } from "../../../game-runtime/demo-journey-view";
 import { DiceActionButton } from "../../../shared/ui/patterns/action-dock/DiceActionButton";
 import book from "../../../assets/icons/items/open-book.svg";
@@ -5,6 +6,7 @@ import chest from "../../../assets/icons/items/locked-chest.svg";
 import camp from "../../../assets/icons/items/camping-tent.svg";
 import type { ManorEventRoll } from "./manor-event-presentation";
 import { useTutorialAnchors } from "../../../shared/tutorial";
+import { expeditionScenes } from "../../../content/presentation/expedition-art";
 
 export type JourneyEventCopy = {
   location: string;
@@ -29,20 +31,15 @@ type ActionsProps = Props & {
   canAdvance?: boolean;
   onObserve?: () => void;
 };
-const scenes: Record<string, string> = {
-  "old-manor.welcoming-hall": "迎客门厅",
-  "old-manor.service-corridor": "服务走廊",
-  "old-manor.banquet-hall": "宴会厅",
-};
 export function manorJourneyTitle(view: DemoJourneyView) {
   if (view.expedition?.node === "event") return view.event!.name;
-  if (view.expedition?.node === "exit") return view.maintenance ? "通路已清理" : "通过落幕管家";
+  if (view.expedition?.node === "exit") return view.routes[view.expedition.run.routeId]?.ending === "plain" ? "整备返程" : view.maintenance ? "通路已清理" : "通过落幕管家";
   if (view.lastEvent) return view.lastEvent.method === "skip" ? "绕过此处" : view.lastEvent.method === "read" ? "记录已阅" : "整理结束";
   return "片刻安静";
 }
 function resultText(view: DemoJourneyView) {
   const result = view.lastEvent;
-  if (!result) return "红线松弛下来，前路暂时安静。";
+  if (!result) return view.routes[view.expedition!.run.routeId]?.ending === "plain" ? "这处战斗已经结束。整备行囊，准备继续前行。" : "红线松弛下来，前路暂时安静。";
   if (result.method === "skip") return "没有惊动这里的遗物。队伍可以继续前行。";
   if (result.method === "read") return result.eventId === "event.old-manor.seats"
     ? "宾客越少，举杯越轻。主位仍空着，她也是被吊线控制的一员。"
@@ -54,6 +51,8 @@ export function ManorJourneyPanel({view: v, actorId, eventRoll, eventCopy}: Prop
   const anchor = useTutorialAnchors();
   const event = v.expedition?.node === "event" ? v.event : null;
   const exit = v.expedition?.node === "exit";
+  const route = v.routes[v.expedition!.run.routeId];
+  const ordinary = route?.ending === "plain";
   const actor = v.party.find(m => m.id === actorId);
   const result = v.lastEvent;
   const resultActor = result?.actorId ? v.party.find(m => m.id === result.actorId) : null;
@@ -61,18 +60,18 @@ export function ManorJourneyPanel({view: v, actorId, eventRoll, eventCopy}: Prop
   const rollingActor = eventRoll ? v.party.find(m => m.id === eventRoll.actorId) : null;
   const checkingFace = eventRoll && rollingActor ? rollingActor.faces[eventRoll.faceIndex] : null;
   const text = event ? eventCopy?.description ?? event.text : exit
-    ? v.fullManor ? "第三层通路已打开。可以带宝离场，或继续深入宴会厅；后半段在第五层完成前没有主动出口。" : "屏风门已经打开，三层考核完成。现在可以带宝离场。"
+    ? ordinary ? `第 ${v.expedition!.run.layer} 层的资金与战利品已入袋。可以全部带回，也可以继续深入；若之后战败，已入袋收益只能保留一半。` : v.fullManor ? "第三层通路已打开。可以带宝离场，或继续深入宴会厅；后半段在第五层完成前没有主动出口。" : "屏风门已经打开，三层考核完成。现在可以带宝离场。"
     : eventCopy && result ? eventCopy.results[result.method] : resultText(v);
   const title = event ? event.name : eventCopy?.resultTitle ?? manorJourneyTitle(v);
   return <section className="manor-journey" aria-label={title} data-kind={event ? "event" : exit ? "exit" : "rest"} data-event-phase={eventRoll?.phase}>
     <div ref={anchor("battle.event-scene")} className="manor-journey__reading">
       <header className="manor-journey__heading">
         <i style={{maskImage: `url("${event?.kind === "relic" || face ? chest : event || result ? book : camp}")`}} aria-hidden="true"/>
-        <div><small>{eventCopy?.location ?? `第 ${v.expedition!.run.layer} 层 · ${scenes[v.room?.sceneId ?? ""] ?? "克雷格旧庄园"}`}</small><h2>{title}</h2></div>
+        <div><small>{eventCopy?.location ?? `第 ${v.expedition!.run.layer} 层 · ${expeditionScenes[v.room?.sceneId ?? ""]?.location ?? route?.name ?? "远征"}`}</small><h2>{title}</h2></div>
       </header>
       <div className="manor-journey__text" tabIndex={0}>
         <p>{text}</p>
-        {event?.kind === "relic" && <p ref={anchor("battle.event-conditions")} className="manor-journey__cost">{eventCopy?.conditions ?? <>整理需 <b>{event.cost} G</b> 散金；保全成功可获得 <b>{event.reward} G</b>。</>}</p>}
+        {event?.kind === "relic" && <p ref={anchor("battle.event-conditions")} className="manor-journey__cost">{eventCopy?.conditions ?? <>整理需 <b><MoneyText value={event.cost}/></b> 散金；保全成功可获得 <b><MoneyText value={event.reward}/></b>。</>}</p>}
         {v.eventRevealed && event && <p ref={anchor("battle.event-rules")} className="manor-journey__revelation">{event.kind === "relic" ? "治疗、昂贵治疗、庇护、守护全体、万能行动可强保全；其余清醒且至少四点或万能命数可弱保全。" : "阅读或略过均免费，不进行随机判定。"}</p>}
         {v.nextLayer && <p className="manor-journey__revelation">前路侦察：{v.nextLayer.map(r => r.enemies.length ? r.enemies.join("、") : r.kind === "event" ? "事件" : "出口").join(" → ")}</p>}
       </div>
@@ -86,7 +85,7 @@ export function ManorJourneyPanel({view: v, actorId, eventRoll, eventCopy}: Prop
       <small>整理伙伴</small><strong>{actor?.name ?? "选择一名队员"}</strong>
       {actor && <>
       <span className="manor-journey__faces" aria-label={`可保全面 ${actor.eventSuccessFaces}/6`}>{Array.from({length:6},(_,i)=><i data-ready={i<actor.eventSuccessFaces || undefined} key={i}/>)}</span>
-      <p>{eventCopy ? "成功面" : "可保全面"} {actor.eventSuccessFaces}/6</p></>}<p>点选伙伴 · 确认后独立掷骰</p>{!eventCopy && <p>持有散金 <b>{v.expedition!.run.looseGold} G</b></p>}
+      <p>{eventCopy ? "成功面" : "可保全面"} {actor.eventSuccessFaces}/6</p></>}<p>点选伙伴 · 确认后独立掷骰</p>{!eventCopy && <p>持有散金 <b><MoneyText value={v.expedition!.run.looseGold}/></b></p>}
     </aside> : face && result ? <aside ref={anchor("battle.event-result")} className="manor-journey__detail manor-journey__detail--check" aria-label="整理结果" aria-live="polite">
       <small>{resultActor!.name} · 此次判定</small><strong>{face.name}</strong>
       <output className="manor-journey__verdict" data-outcome={result.method}>{result.method === "strong" ? eventCopy ? "强成功" : "强保全" : result.method === "weak" ? eventCopy ? "成功" : "弱保全" : "未能保全"}</output>
@@ -95,7 +94,7 @@ export function ManorJourneyPanel({view: v, actorId, eventRoll, eventCopy}: Prop
         <span>命数判定<b>{result.method === "strong" ? "无需判定" : result.method === "weak" ? "通过" : "未通过"}</b></span>
       </div>
       {result.method !== "strong" && <p>{face.fate === "awake" ? "清醒" : "沉睡"} · {face.pip.kind === "wild" ? "万能命数" : `${face.pip.value} 点`}</p>}
-      <p>花费 {result.cost} G · 获得 {result.reward} G</p>
+      <p>花费 <MoneyText value={result.cost}/> · 获得 <MoneyText value={result.reward}/></p>
     </aside> : null}
   </section>;
 }
@@ -113,8 +112,8 @@ export function ManorJourneyActions({view:v, actorId, busy, eventRoll, onChoice,
   </div>;
   if (node === "exit") return <div className="manor-journey-actions">
     <DiceActionButton primary label="带宝离场" disabled={busy} onClick={() => onExit("leave")}/>
-    <span>第三层撤离口</span>
-    {v.room?.kind === "exit" && v.room.canContinue ? <DiceActionButton label="深入宴会厅" disabled={busy} onClick={() => onExit("continue")}/> : <span/>}
+    <span>第 {v.expedition!.run.layer} 层撤离口</span>
+    {v.room?.kind === "exit" && v.room.canContinue ? <DiceActionButton label={v.routes[v.expedition!.run.routeId]?.ending === "plain" ? "继续深入" : "深入宴会厅"} disabled={busy} onClick={() => onExit("continue")}/> : <span/>}
   </div>;
   return <div className="manor-journey-actions">
     <span/>

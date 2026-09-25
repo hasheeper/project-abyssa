@@ -3,9 +3,13 @@ import { gameHref, recordLocator } from "./navigation";
 import "./airp.css";
 import { AirpPoolPanel } from "./AirpPoolPanel";
 import { JournalButton, JournalSurface } from "./JournalPrimitives";
+import { directorCommissions } from "../game-runtime/airp-commission-view";
+import { CommissionList } from "./airp-director/CommissionList";
 
 export function AirpPanel({ compact = false }: { compact?: boolean }) {
   const session = useGameSession(), { record, status } = useGameState();
+  const commissions = directorCommissions(record);
+  if (commissions) return <CommissionList tasks={commissions} title={record?.schemaVersion === 4 && record.snapshot.run ? "本趟委托" : "任务委托"}/>;
   const view = record && session.runtime.queries.narrative(record);
   if (view?.version === 2) return <AirpPoolPanel view={view} compact={compact}/>;
   if (!view?.instance || compact && !["accepted", "ready"].includes(view.instance.status)) return null;
@@ -22,7 +26,7 @@ export function AirpPanel({ compact = false }: { compact?: boolean }) {
       {view.history.map(scene => <details key={scene.id}><summary>{({ offer: "接取", departure: "出发", found: "找到药箱", "return-extracted": "侧门归来", "return-cleared": "巡守归来", retry: "重整", declined: "婉拒", expired: "便条收起" })[scene.role]}</summary>
         {scene.transcript.map(f => <p key={f.id}>{f.kind === "dialogue" ? "艾洛拉：" : ""}{f.text}</p>)}
       </details>)}
-      <p>仅留下共同记忆；不额外发放金币、道具或数值好感。</p>
+      <p>仅留下共同记忆；不额外发放资金、道具或数值好感。</p>
     </details>}
   </Surface>;
 }

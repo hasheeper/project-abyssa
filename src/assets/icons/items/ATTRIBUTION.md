@@ -361,3 +361,7 @@ official repository commit `82d948812bfe3f269ef8f731dcdb07b08160edc4`. Each icon
 - [gold-bar](https://game-icons.net/1x1/willdabeast/gold-bar.html) — CC BY 3.0
 - [orb-wand](https://game-icons.net/1x1/willdabeast/orb-wand.html) — CC BY 3.0
 - [round-shield](https://game-icons.net/1x1/willdabeast/round-shield.html) — CC BY 3.0
+
+## SHOP first-wave addition
+
+- [ringing-bell](https://game-icons.net/1x1/lorc/ringing-bell.html) — Lorc, CC BY 3.0. Same pinned source commit; background removed for the existing mask system.

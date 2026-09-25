@@ -31,3 +31,35 @@
 .journal-action__label { position: relative; min-width: 0; text-align: center; overflow-wrap: anywhere; }
 .journal-action[data-emphasis="primary"] { --abyssa-notched-middle: var(--abyssa-teal-soft); }
 .journal-action:focus-visible { outline: 2px solid var(--abyssa-focus); outline-offset: 3px; }
+
+/* Open ledger rows share the reader's surface; only the small icon has a well. */
+.journal-ledger { margin-top: 32px; min-width: 0; }
+.journal-ledger__head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding-bottom: 8px; border-bottom: 1px solid var(--journal-line); }
+.journal-ledger .journal-ledger__head > h4 { margin: 0; color: var(--abyssa-text-muted); font-size: 13px; font-weight: 500; letter-spacing: .1em; line-height: 20px; }
+.journal-ledger__head > span { flex: none; color: var(--abyssa-text-muted); font-size: 12px; line-height: 20px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.journal-ledger__rows { list-style: none; margin: 0; padding: 0; }
+.journal-ledger__row { display: grid; grid-template-columns: 36px minmax(0, 1fr) minmax(3.5em, auto); align-items: start; gap: 14px; min-height: 56px; padding: 10px 0; box-sizing: border-box; border-bottom: 1px solid var(--journal-line-faint); }
+.journal-ledger__icon { display: grid; place-items: center; width: 36px; height: 36px; background: var(--manor-well); box-shadow: inset 0 0 0 1px var(--manor-hair); }
+.journal-ledger__icon img { width: 28px; height: 28px; object-fit: contain; }
+.journal-ledger__text { display: grid; gap: 2px; min-width: 0; padding-top: 7px; }
+.journal-ledger__text > strong { color: var(--abyssa-text-soft); font-size: 15px; font-weight: 500; line-height: 22px; overflow-wrap: anywhere; }
+.journal-ledger__text > small { color: var(--abyssa-text-muted); font-size: 13px; line-height: 20px; overflow-wrap: anywhere; }
+.journal-ledger__qty { padding-top: 7px; color: var(--manor-gold); font-size: 15px; line-height: 22px; text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.journal-ledger__qty > span { margin-right: .2em; opacity: .7; font-size: 13px; }
+.journal-ledger__qty[data-single] { color: var(--abyssa-text-muted); }
+
+/* A quiet state marker, without a second panel or continuously running effect. */
+.journal-status { margin: 4px 0 0; }
+.journal-status > .journal-status__label { display: flex; align-items: center; gap: 10px; margin: 0; color: var(--abyssa-text); font-size: 18px; font-weight: 500; line-height: 1.5; letter-spacing: .03em; }
+.journal-status__label::before { content: ""; flex: none; width: 6px; height: 6px; transform: rotate(45deg); background: var(--manor-gold); }
+.journal-status > .journal-status__note { margin: 4px 0 0; padding-left: 16px; color: var(--abyssa-text-muted); font-size: 14px; line-height: 1.8; }
+.journal-status[data-tone="pending"] .journal-status__label, .journal-status[data-tone="failed"] .journal-status__label { color: var(--abyssa-text-soft); }
+.journal-status[data-tone="pending"] .journal-status__label::before, .journal-status[data-tone="failed"] .journal-status__label::before { background: transparent; box-shadow: inset 0 0 0 1px var(--manor-muted); }
+.journal-status[data-tone="settled"] .journal-status__label::before { background: var(--manor-gold-shadow); }
+
+@container journal-reader (max-width: 440px) {
+  .journal-ledger__row { grid-template-columns: 32px minmax(0, 1fr) minmax(3em, auto); column-gap: 12px; }
+  .journal-ledger__icon { width: 32px; height: 32px; }
+  .journal-ledger__icon img { width: 24px; height: 24px; }
+  .journal-ledger__text, .journal-ledger__qty { padding-top: 5px; }
+}

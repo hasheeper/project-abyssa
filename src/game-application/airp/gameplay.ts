@@ -7,6 +7,10 @@ import { AIRP_API, airpHash, parseAirpBinding, parseAirpReceipt, type AirpRpHead
 import { prepareAirpConfirmationTicket, prepareAirpDiscardTicket } from "./control";
 import { parseAirpReleaseTarget, prepareAirpSession } from "./rp-session";
 import type { AirpOnlineCommand, AirpOnlineEntry, AirpOnlineIntent, AirpOnlineState } from "./gameplay-contracts";
+import type { AirpDirectState } from "../airp-direct-gameplay/contracts";
+import { reduceDirectCommit } from "../airp-direct-gameplay/reducer";
+import type { DirectorState } from "../airp-director/contracts";
+import { reduceDirectorCommit } from "../airp-director/reducer";
 export type { AirpOnlineCommand, AirpOnlineEntry, AirpOnlineIntent, AirpOnlineState } from "./gameplay-contracts";
 export const emptyAirpOnline = (): AirpOnlineState => ({ version: 1, connection: null, entries: [] });
 export const airpOnlineHead = (r: AirpRpHead): AirpRpHead => ({ floorId: r.floorId, checkpointSnapshotId: r.checkpointSnapshotId, checkpointContentHash: r.checkpointContentHash });
@@ -45,7 +49,9 @@ export function parseAirpOnlineIntent(raw: unknown): AirpOnlineIntent {
 }
 
 /** Same reducer for execution and full save replay. Network and backend State writes are outside this transaction. */
-export function reduceAirpApplicationCommit(catalog: v.ValidatedD5Catalog, previous: v.AirpNarrativeState, prior: AirpOnlineState | undefined, input: AirpReplayInput): { narrative: v.AirpNarrativeState; online?: AirpOnlineState } {
+export function reduceAirpApplicationCommit(catalog: v.ValidatedD5Catalog, previous: v.AirpNarrativeState, prior: AirpOnlineState | undefined, input: AirpReplayInput, priorDirect?: AirpDirectState, priorDirector?: DirectorState): { narrative: v.AirpNarrativeState; online?: AirpOnlineState; direct?: AirpDirectState; director?: DirectorState } {
+  if (catalog.data.airpDirector) return reduceDirectorCommit(catalog, previous, priorDirector, input);
+  if (catalog.data.airpDirect) return reduceDirectCommit(catalog, previous, priorDirect, input);
   if (!catalog.data.airpOnline) return { narrative: reduceAirpCommit(catalog, previous, input) };
   if (previous.version !== 2 || !prior) v.invalid("online", "Online content requires pool state and its replayed outbox");
   const online = structuredClone(prior), current = input.group[0];

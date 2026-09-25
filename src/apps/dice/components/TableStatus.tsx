@@ -119,7 +119,7 @@ export function TableStatus({ phaseLabel, pot, actionText, transfer }: TableStat
           <span className="table-status__pot-frame" aria-hidden="true" />
           <small>底池</small>
           <span className="table-status__pot-divider" aria-hidden="true" />
-          <CurrencyAmount value={pot} label={`底池 ${pot}`} />
+          <CurrencyAmount value={pot} label="底池" />
         </div>
 
         <span className="table-status__action">{actionText}</span>

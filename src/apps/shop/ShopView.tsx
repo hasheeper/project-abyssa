@@ -263,9 +263,9 @@ export function ShopView({live}: {live?: LiveShop}) {
           <div className="abyssa-shop-screen__purse">
             <span className="abyssa-shop-screen__purse-label">小队资金</span>
             <span className="abyssa-shop-screen__purse-balances">
-              <span className="abyssa-shop-screen__purse-value"><CurrencyAmount value={lira} label={`${live ? "小队金币" : "小队里拉"}余额 ${lira}`} /></span>
+              <span className="abyssa-shop-screen__purse-value"><CurrencyAmount value={lira} label="小队资金余额" /></span>
               <span className="abyssa-shop-screen__purse-divider" aria-hidden="true" />
-              <span className="abyssa-shop-screen__purse-value"><CurrencyAmount value={crystals} currency="crystal" label={`远古晶石余额 ${crystals}`} /></span>
+              <span className="abyssa-shop-screen__purse-value"><CurrencyAmount value={crystals} currency="crystal" label="远古晶石余额" /></span>
             </span>
           </div>
           <div className="abyssa-shop-screen__actions">

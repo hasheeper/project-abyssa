@@ -1,4 +1,5 @@
 import * as v from "../../game-core/contracts";
+import { canonicalSaveJson } from "../../game-core/contracts";
 import type { D5RunReaders } from "../../game-core/session";
 import type { D5GameRecord, D5Receipt, D5Store } from "./d5-contracts";
 import { validateD5Receipt } from "./d5-validate";
@@ -7,12 +8,12 @@ import { validateD5Receipt } from "./d5-validate";
 export async function restoreD5Archive(record: D5GameRecord, requestId: string, catalog: v.ValidatedD5Catalog, store: D5Store, readers: D5RunReaders) {
   if (!catalog.data.airp) v.invalid("restore", "Only AIRP archives support identity-preserving recovery", "content-unavailable");
   const { saveId, epoch } = record.head;
-  const fingerprint = v.sha256(v.canonicalJson({ operation: "restore", record }));
+  const fingerprint = v.sha256(canonicalSaveJson({ operation: "restore", record }));
   const prior = await store.receipt(saveId, epoch, requestId);
   if (prior && prior.fingerprint !== fingerprint) v.invalid("clientRequestId", "Request ID reused", "request-id-reused");
   const current = await store.read(saveId);
   if (current) {
-    if (v.canonicalJson(current) !== v.canonicalJson(record)) v.invalid("archive", "A different or newer save already exists; nothing was overwritten", "conflict");
+    if (canonicalSaveJson(current) !== canonicalSaveJson(record)) v.invalid("archive", "A different or newer save already exists; nothing was overwritten", "conflict");
     return { ok: true as const, head: record.head, replayed: true };
   }
   if (prior) v.invalid("restore", "Receipt without its save; use a new recovery request", "conflict");

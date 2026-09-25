@@ -1,4 +1,8 @@
+import { gameCommissionRewards } from "../airp-game/rewards";
+import { currentGamePlan } from "../airp-game/projection";
 import * as v from "../../game-core/contracts";
+import { canonicalSaveJson } from "../../game-core/contracts";
+import { serializeD5Archive } from "./d5-archive";
 import type { ValidatedD5Catalog } from "../../game-core/contracts";
 import { createD5MemoryEngine } from "../../game-core/battle";
 import { createD5ExpeditionEngine, D5_RUN_READERS, d5EventOrigin, projectD5Progress } from "../../game-core/session";
@@ -14,6 +18,11 @@ import { compactD5Journey, type D5JourneyEvidence } from "./d5-journey-evidence"
 import type { D5GameRecord, D5Receipt, D5Request, D5Store } from "./d5-contracts";
 import { airpCommandPayload } from "./airp-replay";
 import { parseAirpOnlineIntent, reduceAirpApplicationCommit } from "../airp/gameplay";
+import { parseAirpDirectIntent } from "../airp-direct-gameplay/parse";
+import { parseDirectorIntent } from "../airp-director/parse";
+import { guardAirpGameCommand } from "../airp-game/validation";
+import { rebaseAirpGame } from "../airp-game/projection";
+import { projectGMShare, readGMShare, sameGMShareContent } from "../airp-game/gm-share";
 
 export type D5Result = { ok: true; receipt: D5Receipt; replayed: boolean } | { ok: false; error: ReceiptError; receipt?: D5Receipt };
 const result = (receipt: D5Receipt, replayed: boolean): D5Result => receipt.status === "committed" ? { ok: true, receipt, replayed } : { ok: false, error: receipt.error!, receipt };
@@ -33,7 +42,7 @@ export function createD5Application(catalog: ValidatedD5Catalog, store: D5Store,
   async function read(saveId: string) {
     const stored = await store.read(v.id(saveId, "saveId"));
     if (!stored) v.invalid("saveId", "Save not found", "not-found");
-    const record = cached && same(stored, cached) ? cached : validateD5Record(stored, catalog, readers, cached);
+    const record = cached && canonicalSaveJson(stored) === canonicalSaveJson(cached) ? cached : validateD5Record(stored, catalog, readers, cached);
     if (record.head.saveId !== saveId) v.invalid("saveId", "Stored key differs");
     cached = record;
     return record;
@@ -42,7 +51,7 @@ export function createD5Application(catalog: ValidatedD5Catalog, store: D5Store,
   async function dispatch(raw: unknown, internal = false): Promise<D5Result> {
     let request: D5Request | undefined, current: D5GameRecord | undefined, fingerprint = "";
     try {
-      request = parseD5Request(raw, internal, catalog.data.airp?.version ?? false, !!catalog.data.airpOnline); fingerprint = v.sha256(v.canonicalJson(raw));
+      request = parseD5Request(raw, internal, catalog.data.airp?.version ?? false, !!catalog.data.airpOnline, !!catalog.data.airpDirect, !!catalog.data.airpDirector); fingerprint = v.sha256(v.canonicalJson(raw));
       const prior = await store.receipt(request.saveId, request.expectedHead.epoch, request.clientRequestId);
       if (prior) {
         const receipt = checkedReceipt(prior);
@@ -54,49 +63,67 @@ export function createD5Application(catalog: ValidatedD5Catalog, store: D5Store,
       // Full archives retain AIRP intent facts, enough to recover their exact transaction
       // receipts on a fresh database where the local receipt table did not travel with them.
       const archivedCommit = current.commits.find(c => c.requestId === request!.clientRequestId);
-      if (catalog.data.airp && archivedCommit && ["airp", "airp-online"].includes(archivedCommit.kind)) {
+      if (catalog.data.airp && archivedCommit && ["airp", "airp-online", "airp-direct", "airp-director"].includes(archivedCommit.kind)) {
         const intent = current.facts.find(f => f.id === archivedCommit.factIds[0]);
-        if (!intent || (intent.kind !== "airp" && intent.kind !== "airp-online") || !archivedCommit.previous) v.invalid("archive", "Missing AIRP receipt evidence");
+        if (!intent || (intent.kind !== "airp" && intent.kind !== "airp-online" && intent.kind !== "airp-direct" && intent.kind !== "airp-director") || !archivedCommit.previous) v.invalid("archive", "Missing AIRP receipt evidence");
         const archivedFingerprint = v.sha256(v.canonicalJson({ protocolVersion: 4, saveId: current.head.saveId, expectedHead: archivedCommit.previous, clientRequestId: archivedCommit.requestId, command: intent.payload.command }));
         if (fingerprint !== archivedFingerprint) v.invalid("clientRequestId", "Request ID reused", "request-id-reused");
         return result(checkedReceipt({ version: 4, contentRef: catalog.ref, saveId: current.head.saveId, epoch: current.head.epoch,
           requestId: archivedCommit.requestId, fingerprint, status: "committed", before: archivedCommit.previous, after: archivedCommit.ref,
-          error: null, events: [], factIds: archivedCommit.factIds, ...(intent.kind === "airp" ? { airp: intent.payload } : { airpOnline: intent.payload }) }), true);
+          error: null, events: [], factIds: archivedCommit.factIds, ...(intent.kind === "airp-director" ? {airpDirector: intent.payload} : intent.kind === "airp" ? { airp: intent.payload } : intent.kind === "airp-direct" ? {airpDirect: intent.payload} : { airpOnline: intent.payload }) }), true);
       }
       if (!sameHead(current.head, request.expectedHead)) v.invalid("expectedHead", "Stored head differs", "conflict");
+      guardAirpGameCommand(current, catalog, request.command);
       const record = structuredClone(current), command = request.command, campaign = record.snapshot.campaign;
       const ref = campaign.activeRunRef, chapter = catalog.data.progression.chapter;
       const token = v.sha256(v.canonicalJson([current.head, request.clientRequestId]));
       let event: D5ProgressEvent | null = null, combat: D5CombatEvidence | undefined, journey: D5JourneyEvidence | undefined;
       const online = command.type.startsWith("airp-online-") ? parseAirpOnlineIntent({ version: 1, command }) : undefined;
-      const airp = !online && command.type.startsWith("airp-") ? airpCommandPayload({ version: catalog.data.airp!.version, command }, catalog.data.airp!.version) : undefined;
+      const director = command.type.startsWith("airp-director-") ? parseDirectorIntent({version: 1, command}) : undefined;
+      if (director && command.type === "airp-director-configure" && (command.lowContextVersion ?? 0) >= 17) {
+        const share = projectGMShare(current), previous = readGMShare(current.facts, current.retractedFactIds);
+        if (!previous || !sameGMShareContent(previous, share)) director.gmShare = share;
+      }
+      const direct = command.type.startsWith("airp-direct-") ? parseAirpDirectIntent({version: 1, command}) : undefined;
+      const airp = !online && !direct && !director && command.type.startsWith("airp-") ? airpCommandPayload({ version: catalog.data.airp!.version, command }, catalog.data.airp!.version) : undefined;
       if ("runRef" in command && !same(command.runRef, ref)) {
         // A left attempt has no active run; retry must still match its exact saved attempt.
         if (!(command.type === "retry-memory" && campaign.memory?.node === "left" && same(command.runRef, { kind: "memory", id: campaign.memory.id, attempt: campaign.memory.attempt }))) v.invalid("runRef", "Stale or foreign run/attempt", "no-expedition");
       }
-      if (airp || online) {
+      if (airp || online || direct || director) {
         // The shared replay reducer below is the sole narrative state writer.
+      } else if (command.type === "facility-enable" || command.type === "facility-build" || command.type === "facility-plant" || command.type === "facility-collect" || command.type === "facility-craft" || command.type === "facility-claim" || command.type === "facility-store-return") {
+        event = {type: "facility-operated", command};
       } else if (command.type === "advance-phase") {
         event = { type: "phase-advanced" };
       } else if (command.type === "select-game-start") {
-        event = {type: "game-start-selected", startAt: command.startAt};
+        event = {...command, type: "game-start-selected"};
+      } else if (command.type === "begin-shop-visit" || command.type === "advance-shop-visit" || command.type === "appraise-shop-visit" || command.type === "sell-shop-visit") {
+        event = {type: "shop-visit-operated", command};
+      } else if (command.type === "advance-shop-introduction") {
+        event = {...command, type: "shop-introduction-advanced"};
       } else if (command.type === "advance-opening") {
         event = {...command,type:"opening-advanced"};
       } else if (command.type === "advance-prologue") {
         event = {type: "prologue-advanced", shotId: command.shotId};
       } else if (command.type === "complete-prologue") {
         event = {type: "prologue-completed", shotId: command.shotId, choice: command.choice};
+      } else if (command.type === "appraise-loot" || command.type === "sell-loot") {
+        event = {...command, type: command.type === "appraise-loot" ? "loot-appraised" : "loot-sold"};
+      } else if (command.type === "purchase-product") {
+        event = {...command, type: "product-purchased"};
       } else if (command.type === "purchase-supply") {
         event = {...command, type: "supply-purchased"};
       } else if (command.type === "inherit-memory") {
         event = {type: "memory-inherited", runId: `memory:${token.slice(0,32)}`, chapterId: command.chapterId};
         record.snapshot.run = {kind:"memory", id:event.runId, attempt:1, battle:null};
       } else if (command.type === "start-expedition") {
-        const input = { ...command, itemIds: command.itemIds ?? [] };
+        const commissionRewards = gameCommissionRewards(currentGamePlan(record));
+        const input = { ...command, itemIds: command.itemIds ?? [], ...(commissionRewards === undefined ? {} : {commissionRewards}) };
         const after = expedition.create(campaign, input);
-        journey = { runRef: { kind: "expedition", id: after.run.id }, operation: { type: "start", input: { runId: command.runId, routeId: command.routeId, partyIds: command.partyIds, itemIds: input.itemIds, seed: command.seed } }, before: null, after, events: [], retracts: [], departureCampaign: structuredClone(campaign) };
+        journey = { runRef: { kind: "expedition", id: after.run.id }, operation: { type: "start", input: { runId: command.runId, routeId: command.routeId, partyIds: command.partyIds, itemIds: input.itemIds, ...(input.supplyQuantities ? {supplyQuantities: input.supplyQuantities} : {}), seed: command.seed, ...(commissionRewards === undefined ? {} : {commissionRewards}) } }, before: null, after, events: [], retracts: [], departureCampaign: structuredClone(campaign) };
         record.snapshot.run = { kind: "expedition", id: after.run.id, state: after };
-        event = { type: "expedition-started", runId: after.run.id, routeId: after.run.routeId, partyIds: command.partyIds, itemIds: input.itemIds, progress: after.run.progress };
+        event = { type: "expedition-started", runId: after.run.id, routeId: after.run.routeId, partyIds: command.partyIds, itemIds: input.itemIds, ...(input.supplyQuantities ? {supplyQuantities: input.supplyQuantities} : {}), progress: after.run.progress };
       } else if (command.type === "settle-expedition") {
         const run = record.snapshot.run;
         if (run?.kind !== "expedition" || run.state.node !== "finished" || run.state.result.id !== command.terminalRef) v.invalid("terminalRef", "No matching committed terminal");
@@ -134,7 +161,8 @@ export function createD5Application(catalog: ValidatedD5Catalog, store: D5Store,
       } else if (command.type === "equip-equipment" || command.type === "unequip-equipment" || command.type === "transfer-equipment") {
         event = { type: "equipment-moved", instanceId: command.instanceId,
           fromOwnerId: command.type === "equip-equipment" ? null : command.type === "unequip-equipment" ? command.ownerId : command.fromOwnerId,
-          toOwnerId: command.type === "equip-equipment" ? command.ownerId : command.type === "unequip-equipment" ? null : command.toOwnerId };
+          toOwnerId: command.type === "equip-equipment" ? command.ownerId : command.type === "unequip-equipment" ? null : command.toOwnerId,
+          ...("targetFaceId" in command ? {targetFaceId: command.targetFaceId} : {}) };
       } else if (record.snapshot.run?.kind === "expedition") {
         const before = record.snapshot.run.state;
         const operation: D5JourneyOperation = command.type === "tutorial-read" ? { type: command.type, storyId: command.storyId, step: command.step, choice: command.choice }
@@ -170,6 +198,8 @@ export function createD5Application(catalog: ValidatedD5Catalog, store: D5Store,
       const fact = (slot: number) => ({ version: 4 as const, id: d5FactId(source.saveId, source.epoch, source.revision, slot), source, originRef: null, worldTime: current!.snapshot.campaign.clock, visibility: "party" as const });
       if (airp) { const f = fact(0); record.facts.push({ ...f, kind: "airp", payload: airp, origin: "present", runRef: null }); factIds.push(f.id); }
       if (online) { const f = fact(0); record.facts.push({ ...f, kind: "airp-online", payload: online, origin: "present", runRef: null }); factIds.push(f.id); }
+      if (director) { const f = fact(0); record.facts.push({...f, kind: "airp-director", payload: director, origin: "present", runRef: null}); factIds.push(f.id); }
+      if (direct) { const f = fact(0); record.facts.push({...f, kind: "airp-direct", payload: direct, origin: "present", runRef: null}); factIds.push(f.id); }
       if (combat) { const f = fact(0); record.facts.push({ ...f, kind: "combat", payload: compactD5CombatEvidence(combat), origin: "memory", runRef: combat.runRef }); factIds.push(f.id); record.retractedFactIds.push(...combat.retracts); }
       if (journey) { const f = fact(0); record.facts.push({ ...f, kind: "journey", payload: compactD5Journey(journey), origin: "adventure", runRef: journey.runRef }); factIds.push(f.id); record.retractedFactIds.push(...journey.retracts); }
       if (event) {
@@ -177,14 +207,15 @@ export function createD5Application(catalog: ValidatedD5Catalog, store: D5Store,
         record.facts.push({ ...f, kind: "progression", payload: event, origin: entry.origin, runRef: d5EvidenceRunRef(event) }); factIds.push(f.id); entries.push(entry); events.push(entry);
         record.snapshot.campaign = structuredClone(projectD5Progress(catalog, entries, {...readers, baseline: d5ReplayBasis(current).baseline}));
       }
-      record.commits.push({ ref: source, previous: current.head, requestId: request.clientRequestId, kind: online ? "airp-online" : airp ? "airp" : journey ? "journey" : combat ? "combat" : event!.type, factIds });
+      record.commits.push({ ref: source, previous: current.head, requestId: request.clientRequestId, kind: director ? "airp-director" : direct ? "airp-direct" : online ? "airp-online" : airp ? "airp" : journey ? "journey" : combat ? "combat" : event!.type, factIds });
       if (catalog.data.airp) {
         const reduced = reduceAirpApplicationCommit(catalog, current.narrative!, current.airpOnline, { head: source, before: current.snapshot.campaign, after: record.snapshot.campaign,
-          run: record.snapshot.run?.kind === "expedition" ? record.snapshot.run.state : null, facts: record.facts, group: record.facts.slice(current.facts.length), retracted: record.retractedFactIds });
-        record.narrative = reduced.narrative; if (reduced.online) record.airpOnline = reduced.online;
+          run: record.snapshot.run?.kind === "expedition" ? record.snapshot.run.state : null, facts: record.facts, group: record.facts.slice(current.facts.length), retracted: record.retractedFactIds }, current.airpDirect, current.airpDirector);
+        record.narrative = reduced.narrative; if (reduced.online) record.airpOnline = reduced.online; if (reduced.direct) record.airpDirect = reduced.direct; if (reduced.director) record.airpDirector = reduced.director;
       }
+      rebaseAirpGame(record);
       const candidate = validateD5Record(record, catalog, readers, current);
-      const receipt = checkedReceipt({ version: 4, contentRef: catalog.ref, saveId: source.saveId, epoch: source.epoch, requestId: request.clientRequestId, fingerprint, status: "committed", before: current.head, after: source, error: null, events, factIds, ...(combat ? { combat } : {}), ...(journey ? { journey } : {}), ...(airp ? { airp } : {}), ...(online ? { airpOnline: online } : {}) });
+      const receipt = checkedReceipt({ version: 4, contentRef: catalog.ref, saveId: source.saveId, epoch: source.epoch, requestId: request.clientRequestId, fingerprint, status: "committed", before: current.head, after: source, error: null, events, factIds, ...(combat ? { combat } : {}), ...(journey ? { journey } : {}), ...(airp ? { airp } : {}), ...(online ? { airpOnline: online } : {}), ...(direct ? {airpDirect: direct} : {}), ...(director ? {airpDirector: director} : {}) });
       const committed = await store.commit({ saveId: source.saveId, epoch: source.epoch, requestId: request.clientRequestId, fingerprint, expectedHead: current.head, candidate, receipt });
       if (committed.receipt.status === "committed" && !committed.replayed) cached = candidate;
       return result(checkedReceipt(committed.receipt), committed.replayed);
@@ -200,6 +231,6 @@ export function createD5Application(catalog: ValidatedD5Catalog, store: D5Store,
   }
   return { ...foundation,
     async open(saveId: string) { try { return {ok: true as const, record: await read(saveId)}; } catch (e) {return {ok: false as const, error: applicationError(e)};} },
-    async exportSave(saveId: string) { try { return {ok: true as const, archive: JSON.stringify({archiveVersion: 4, record: await read(saveId)})}; } catch(e) {return {ok: false as const, error: applicationError(e)};} },
+    async exportSave(saveId: string) { try { return {ok: true as const, archive: serializeD5Archive(await read(saveId))}; } catch(e) {return {ok: false as const, error: applicationError(e)};} },
     dispatch: (raw: unknown) => dispatch(raw), resumeRun: (raw: unknown) => dispatch(raw, true) };
 }

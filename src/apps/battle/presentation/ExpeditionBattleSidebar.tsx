@@ -2,10 +2,12 @@ import { useEffect, useRef, useState } from "react";
 import { RpgDialogue } from "../../../shared/ui/primitives/RpgDialogue";
 import mariettaPortrait from "../../../assets/characters/portraits/marietta.png";
 import { PARTY_VISUALS } from "./expedition-visuals";
+import { usePlayerName } from "../../../shared/domain/PlayerIdentity";
+import { isPlayerActor, resolvePlayerText } from "../../../shared/domain/player-identity";
 import { type ExpeditionLedgerProps } from "./ExpeditionLedger";
 import { makeBattleReaction, type BattleReaction } from "./battle-reactions";
 import { CompanionStatus } from "./CompanionStatus";
-import { ExpeditionBattleLedger } from "./ExpeditionBattleLedger";
+import { ExpeditionBattleLedger, type BattleLedgerContent } from "./ExpeditionBattleLedger";
 import { REACTION_LABELS } from "../../../content/presentation/battle-reactions";
 
 const portraits: Record<string, {name: string; portrait: string; nameplate: string}> = {
@@ -13,6 +15,7 @@ const portraits: Record<string, {name: string; portrait: string; nameplate: stri
   marietta: {name: "玛丽埃塔", portrait: mariettaPortrait, nameplate: "MARIETTA"},
 };
 export type ExpeditionBattleSidebarProps = ExpeditionLedgerProps & {
+  renderLedger?: BattleLedgerContent;
   partyIds: readonly string[];
   reaction: BattleReaction | null;
   quiet?: boolean;
@@ -35,10 +38,12 @@ function ReactionPortrait({ actorId }: { actorId: string }) {
 
 /** A single instrument body groups the readings above the companion stage. */
 export function ExpeditionBattleSidebar({partyIds, reaction, quiet, battleObjective, entrance, ...ledger}: ExpeditionBattleSidebarProps) {
+  const playerName = usePlayerName();
   const fallback = partyIds.find(id => id !== "kael" && portraits[id]) ?? partyIds.find(id => portraits[id]) ?? "kael";
   const current = reaction && partyIds.includes(reaction.actorId) ? reaction : makeBattleReaction(`ready:${fallback}`, fallback, "ready")!;
   const initialReaction = useRef(current.key);
-  const actor = portraits[current.actorId]!;
+  const base = portraits[current.actorId]!;
+  const actor = isPlayerActor(current.actorId) ? {...base, name: playerName} : base;
   const {engine, memory} = ledger;
   return <aside className="abyssa-expedition-region abyssa-expedition-sidebar battle-companion" aria-label="同行伙伴">
     <span className="abyssa-expedition-sidebar__corners" aria-hidden="true"><i data-corner="tl"/><i data-corner="tr"/><i data-corner="br"/><i data-corner="bl"/></span>
@@ -54,7 +59,7 @@ export function ExpeditionBattleSidebar({partyIds, reaction, quiet, battleObject
         <div className="battle-reaction__name"><small>{actor.nameplate}</small><strong>{actor.name}</strong><span>{REACTION_LABELS[current.kind]}</span></div>
       </div>
       {(!quiet || reaction) && <div className="battle-reaction__speech" data-scene-settle={entrance ? "manor-speech-in" : undefined} role="status" aria-live="polite" aria-atomic="true">
-        <RpgDialogue key={current.key} className="battle-reaction__dialogue" data-entry-line={entrance && current.key === initialReaction.current || undefined} name={actor.name} showNameplate={false} autoHeight text={current.text}/>
+        <RpgDialogue key={current.key} className="battle-reaction__dialogue" data-entry-line={entrance && current.key === initialReaction.current || undefined} name={actor.name} showNameplate={false} autoHeight text={resolvePlayerText(current.text, playerName)}/>
       </div>}
     </section>
     {memory?.preview && <p className="battle-companion__preview">{memory.preview}</p>}

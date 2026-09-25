@@ -1,6 +1,7 @@
 import { it, expect } from "vitest";
 import { MemoryGameStore } from "../game-infrastructure/storage/memory";
 import type { AnyGameRecord, AnyReceipt } from "../game-application";
+import { directorRuntime } from "../game-application/testing/airp-director-playthrough";
 import {
   versionedApp,
   demoCreation,
@@ -12,6 +13,19 @@ import {
   readVersionedPending,
   writeVersionedPending,
 } from "./versioned-pending-request";
+it("round-trips the full Director material above the legacy 64KB pending limit without widening old records", async () => {
+  const f = await directorRuntime(), record = await f.read(), data = new Map<string, string>();
+  const storage = {getItem: (key: string) => data.get(key) ?? null, setItem: (key: string, value: string) => {data.set(key, value);}, removeItem: (key: string) => {data.delete(key);}};
+  const material = record.airpDirector!.materials[record.airpDirector!.materialHash!];
+  const request = {protocolVersion: 4 as const, saveId: record.head.saveId, expectedHead: record.head, clientRequestId: "full-director-material",
+    command: {type: "airp-director-configure" as const, material}};
+  expect(JSON.stringify(request).length).toBeGreaterThan(64000);
+  writeVersionedPending(storage, request);
+  expect(readVersionedPending(storage, record)).toEqual(request);
+  const old = structuredClone(record); delete old.airpDirector;
+  expect(readVersionedPending(storage, old)).toBeNull();
+  expect(data.size).toBe(0);
+});
 it("persists protocol2 retries, rejects a foreign run and keeps legacy pending keys separate", async () => {
   const app = versionedApp(new MemoryGameStore<AnyGameRecord, AnyReceipt>());
   await app.create(demoCreation());

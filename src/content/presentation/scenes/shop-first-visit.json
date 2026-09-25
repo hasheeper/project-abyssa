@@ -1,0 +1,1365 @@
+{
+  "schemaVersion": 1,
+  "id": "story.shop.first-visit.v1",
+  "title": "守望者杂货铺",
+  "locale": "zh-CN",
+  "presentation": {
+    "stagePreset": "shop-counter",
+    "backgroundId": "shop.counter",
+    "defaultMode": "adv",
+    "allowRp": true,
+    "initialSlots": {
+      "left": "tibby"
+    }
+  },
+  "player": {
+    "actorId": "kael",
+    "nameToken": "{{user}}",
+    "authoredSpeech": true
+  },
+  "cast": [
+    "tibby",
+    "kael"
+  ],
+  "sections": [
+    {
+      "id": "arrival",
+      "title": "进店与开箱"
+    },
+    {
+      "id": "valuation",
+      "title": "鉴定与估价"
+    },
+    {
+      "id": "reply",
+      "title": "结界钉的去留"
+    },
+    {
+      "id": "purchase",
+      "title": "购买"
+    },
+    {
+      "id": "departure",
+      "title": "离店"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "shop.visit.arrival.0",
+      "cursor": 0,
+      "sectionId": "arrival",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "shop.visit.arrival.0",
+          "kind": "narration",
+          "text": "门扉推开，海风跟着卷进店里。过道上横着几口哨所刚卸下的货箱，箱角还挂着干结的盐霜。\n柜台后，缇比趴在账册上，龙尾在地板上扫了一下，没有抬头。",
+          "stage": [
+            {
+              "actorId": "tibby",
+              "emotion": "closed",
+              "still": true,
+              "direction": "门扉推开，海风跟着卷进店里。过道上横着几口哨所刚卸下的货箱，箱角还挂着干结的盐霜。\n柜台后，缇比趴在账册上，龙尾在地板上扫了一下，没有抬头。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shop.visit.arrival.1",
+      "cursor": 1,
+      "sectionId": "arrival",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "shop.visit.arrival.1",
+          "kind": "dialogue",
+          "actorId": "tibby",
+          "text": "……唔。活着回来了呢。",
+          "emotion": "closed",
+          "stage": [
+            {
+              "actorId": "tibby",
+              "emotion": "closed",
+              "still": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shop.visit.arrival.2",
+      "cursor": 2,
+      "sectionId": "arrival",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "shop.visit.arrival.2",
+          "kind": "dialogue",
+          "actorId": "kael",
+          "text": "车轴断了。大件差不多都拖回来了。"
+        }
+      ]
+    },
+    {
+      "id": "shop.visit.arrival.3",
+      "cursor": 3,
+      "sectionId": "arrival",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "shop.visit.arrival.3",
+          "kind": "dialogue",
+          "actorId": "tibby",
+          "text": "哨所那边说了。……嘛，比起勇者大人坏掉，轮子便宜多了。",
+          "emotion": "wry",
+          "stage": [
+            {
+              "actorId": "tibby",
+              "emotion": "wry",
+              "still": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shop.visit.arrival.4",
+      "cursor": 4,
+      "sectionId": "arrival",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "shop.visit.arrival.4",
+          "kind": "narration",
+          "text": "算针往上拨了一颗珠子。",
+          "stage": [
+            {
+              "actorId": "tibby",
+              "emotion": "neutral",
+              "still": true,
+              "direction": "算针往上拨了一颗珠子。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shop.visit.arrival.5",
+      "cursor": 5,
+      "sectionId": "arrival",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "shop.visit.arrival.5",
+          "kind": "dialogue",
+          "actorId": "tibby",
+          "text": "……所以，今天打算来干嘛呀~？",
+          "emotion": "neutral",
+          "stage": [
+            {
+              "actorId": "tibby",
+              "emotion": "neutral",
+              "still": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shop.visit.arrival.6",
+      "cursor": 6,
+      "sectionId": "arrival",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "shop.visit.arrival.6",
+          "kind": "dialogue",
+          "actorId": "kael",
+          "text": "不是来买东西的。……你先看这个。"
+        }
+      ]
+    },
+    {
+      "id": "shop.visit.arrival.7",
+      "cursor": 7,
+      "sectionId": "arrival",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "shop.visit.arrival.7",
+          "kind": "narration",
+          "text": "硬皮行囊搁上柜台。铜扣四周的盐壳一碰就往下掉渣。",
+          "stage": [
+            {
+              "actorId": "tibby",
+              "emotion": "neutral",
+              "still": true,
+              "direction": "硬皮行囊搁上柜台。铜扣四周的盐壳一碰就往下掉渣。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shop.visit.arrival.8",
+      "cursor": 8,
+      "sectionId": "arrival",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "shop.visit.arrival.8",
+          "kind": "narration",
+          "text": "算针停了。缇比的视线先在{{user}}身上停了一下。",
+          "stage": [
+            {
+              "actorId": "tibby",
+              "emotion": "neutral",
+              "still": true,
+              "direction": "算针停了。缇比的视线先在{{user}}身上停了一下。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shop.visit.arrival.9",
+      "cursor": 9,
+      "sectionId": "arrival",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "shop.visit.arrival.9",
+          "kind": "dialogue",
+          "actorId": "tibby",
+          "text": "……那孩子顺毛了？",
+          "emotion": "neutral",
+          "stage": [
+            {
+              "actorId": "tibby",
+              "emotion": "neutral",
+              "still": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shop.visit.arrival.10",
+      "cursor": 10,
+      "sectionId": "arrival",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "shop.visit.arrival.10",
+          "kind": "dialogue",
+          "actorId": "kael",
+          "text": "毯子拿回去了。"
+        }
+      ]
+    },
+    {
+      "id": "shop.visit.arrival.11",
+      "cursor": 11,
+      "sectionId": "arrival",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "shop.visit.arrival.11",
+          "kind": "dialogue",
+          "actorId": "tibby",
+          "text": "……是嘛。宅子要是没了，账就不好讨了。",
+          "emotion": "wry",
+          "stage": [
+            {
+              "actorId": "tibby",
+              "emotion": "wry",
+              "still": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shop.visit.arrival.12",
+      "cursor": 12,
+      "sectionId": "arrival",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "shop.visit.arrival.12",
+          "kind": "dialogue",
+          "actorId": "kael",
+          "text": "你就操心这一个。"
+        }
+      ]
+    },
+    {
+      "id": "shop.visit.arrival.13",
+      "cursor": 13,
+      "sectionId": "arrival",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "shop.visit.arrival.13",
+          "kind": "dialogue",
+          "actorId": "tibby",
+          "text": "这可是正经事哦~",
+          "emotion": "wry",
+          "stage": [
+            {
+              "actorId": "tibby",
+              "emotion": "wry",
+              "still": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shop.visit.arrival.14",
+      "cursor": 14,
+      "sectionId": "arrival",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "shop.visit.arrival.14",
+          "kind": "narration",
+          "text": "她用算针把行囊拨到自己面前。",
+          "stage": [
+            {
+              "actorId": "tibby",
+              "emotion": "neutral",
+              "still": true,
+              "direction": "她用算针把行囊拨到自己面前。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shop.visit.arrival.15",
+      "cursor": 15,
+      "sectionId": "arrival",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "shop.visit.arrival.15",
+          "kind": "dialogue",
+          "actorId": "tibby",
+          "text": "……所以，这个。是从我车上掉的？",
+          "emotion": "neutral",
+          "stage": [
+            {
+              "actorId": "tibby",
+              "emotion": "neutral",
+              "still": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shop.visit.arrival.16",
+      "cursor": 16,
+      "sectionId": "arrival",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "shop.visit.arrival.16",
+          "kind": "dialogue",
+          "actorId": "kael",
+          "text": "卡在退潮道的礁缝里。看那盐结的样子，少说也有好几年了。"
+        }
+      ]
+    },
+    {
+      "id": "shop.visit.arrival.17",
+      "cursor": 17,
+      "sectionId": "arrival",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "shop.visit.arrival.17",
+          "kind": "dialogue",
+          "actorId": "tibby",
+          "text": "哼嗯。……姑且看看。",
+          "emotion": "neutral",
+          "stage": [
+            {
+              "actorId": "tibby",
+              "emotion": "neutral",
+              "still": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shop.visit.arrival.18",
+      "cursor": 18,
+      "sectionId": "arrival",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "shop.visit.arrival.18",
+          "kind": "narration",
+          "text": "（……从她那条道上捞回来的东西，都得先过她的眼。她自己要看的，从来不收钱。）",
+          "stage": [
+            {
+              "actorId": "tibby",
+              "emotion": "neutral",
+              "still": true,
+              "direction": "（……从她那条道上捞回来的东西，都得先过她的眼。她自己要看的，从来不收钱。）"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shop.visit.arrival.19",
+      "cursor": 19,
+      "sectionId": "arrival",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "shop.visit.arrival.19",
+          "kind": "narration",
+          "text": "算针一挑，被撬松的铜扣弹开了。油布散开，里面的东西滚到柜面上。\n一块黑面包先滚了出来，磕在台面上，声音像石头。",
+          "stage": [
+            {
+              "actorId": "tibby",
+              "emotion": "neutral",
+              "still": true,
+              "direction": "算针一挑，被撬松的铜扣弹开了。油布散开，里面的东西滚到柜面上。\n一块黑面包先滚了出来，磕在台面上，声音像石头。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shop.visit.arrival.20",
+      "cursor": 20,
+      "sectionId": "arrival",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "shop.visit.arrival.20",
+          "kind": "dialogue",
+          "actorId": "tibby",
+          "text": "……那个不收哦。能把人砸晕的硬度，归武器店管。",
+          "emotion": "wry",
+          "stage": [
+            {
+              "actorId": "tibby",
+              "emotion": "wry",
+              "still": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shop.visit.arrival.21",
+      "cursor": 21,
+      "sectionId": "arrival",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "shop.visit.arrival.21",
+          "kind": "dialogue",
+          "actorId": "kael",
+          "text": "……。"
+        }
+      ]
+    },
+    {
+      "id": "shop.visit.arrival.22",
+      "cursor": 22,
+      "sectionId": "arrival",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "shop.visit.arrival.22",
+          "kind": "narration",
+          "text": "{{user}}把面包收回自己怀里。",
+          "stage": [
+            {
+              "actorId": "tibby",
+              "emotion": "neutral",
+              "still": true,
+              "direction": "{{user}}把面包收回自己怀里。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shop.visit.arrival.23",
+      "cursor": 23,
+      "sectionId": "arrival",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "shop.visit.arrival.23",
+          "kind": "narration",
+          "text": "剩下的东西缠在一截朽烂的皮绳上：一头拴着一串暗沉的银币，另一头是一枚拇指长的黑钉，裹着一层惨白的盐壳。",
+          "stage": [
+            {
+              "actorId": "tibby",
+              "emotion": "neutral",
+              "still": true,
+              "direction": "剩下的东西缠在一截朽烂的皮绳上：一头拴着一串暗沉的银币，另一头是一枚拇指长的黑钉，裹着一层惨白的盐壳。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shop.visit.arrival.24",
+      "cursor": 24,
+      "sectionId": "arrival",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "shop.visit.arrival.24",
+          "kind": "narration",
+          "text": "缇比拈起黑钉，用指甲弹了一下。",
+          "stage": [
+            {
+              "actorId": "tibby",
+              "emotion": "neutral",
+              "still": true,
+              "direction": "缇比拈起黑钉，用指甲弹了一下。"
+            }
+          ],
+          "sound": "metal",
+          "itemId": "story.shop.barrier-nail"
+        }
+      ]
+    },
+    {
+      "id": "shop.visit.arrival.25",
+      "cursor": 25,
+      "sectionId": "arrival",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "shop.visit.arrival.25",
+          "kind": "dialogue",
+          "actorId": "tibby",
+          "text": "……嘿。拴了个挺危险的玩意儿。",
+          "emotion": "confident",
+          "stage": [
+            {
+              "actorId": "tibby",
+              "emotion": "confident",
+              "still": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shop.visit.arrival.26",
+      "cursor": 26,
+      "sectionId": "arrival",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "shop.visit.arrival.26",
+          "kind": "narration",
+          "text": "她用指甲刮掉一片盐皮，对着光眯起一只眼。",
+          "stage": [
+            {
+              "actorId": "tibby",
+              "emotion": "confident",
+              "still": true,
+              "direction": "她用指甲刮掉一片盐皮，对着光眯起一只眼。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shop.visit.arrival.27",
+      "cursor": 27,
+      "sectionId": "arrival",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "shop.visit.arrival.27",
+          "kind": "dialogue",
+          "actorId": "tibby",
+          "text": "……不是我的货。",
+          "emotion": "neutral",
+          "stage": [
+            {
+              "actorId": "tibby",
+              "emotion": "neutral",
+              "still": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shop.visit.arrival.28",
+      "cursor": 28,
+      "sectionId": "arrival",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "shop.visit.arrival.28",
+          "kind": "dialogue",
+          "actorId": "kael",
+          "text": "跟旧币捆在一块的。……能熔吗？"
+        }
+      ]
+    },
+    {
+      "id": "shop.visit.arrival.29",
+      "cursor": 29,
+      "sectionId": "arrival",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "shop.visit.arrival.29",
+          "kind": "dialogue",
+          "actorId": "tibby",
+          "text": "呼唔……要估个价吗？",
+          "emotion": "neutral",
+          "stage": [
+            {
+              "actorId": "tibby",
+              "emotion": "neutral",
+              "still": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shop.visit.arrival.30",
+      "cursor": 30,
+      "sectionId": "arrival",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "shop.visit.arrival.30",
+          "kind": "dialogue",
+          "actorId": "kael",
+          "text": "劳驾。"
+        }
+      ]
+    },
+    {
+      "id": "shop.visit.valuation.0",
+      "cursor": 31,
+      "sectionId": "valuation",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "shop.visit.valuation.0",
+          "kind": "dialogue",
+          "actorId": "tibby",
+          "text": "是对岸的结界钉。一听声就知道。",
+          "emotion": "confident",
+          "stage": [
+            {
+              "actorId": "tibby",
+              "emotion": "confident",
+              "still": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shop.visit.valuation.1",
+      "cursor": 32,
+      "sectionId": "valuation",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "shop.visit.valuation.1",
+          "kind": "dialogue",
+          "actorId": "tibby",
+          "text": "不过盐一直吃到了芯里的淬火。线是钉不住了。",
+          "emotion": "serious",
+          "stage": [
+            {
+              "actorId": "tibby",
+              "emotion": "serious",
+              "still": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shop.visit.valuation.2",
+      "cursor": 33,
+      "sectionId": "valuation",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "shop.visit.valuation.2",
+          "kind": "dialogue",
+          "actorId": "kael",
+          "text": "只剩料了。"
+        }
+      ]
+    },
+    {
+      "id": "shop.visit.valuation.3",
+      "cursor": 34,
+      "sectionId": "valuation",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "shop.visit.valuation.3",
+          "kind": "dialogue",
+          "actorId": "tibby",
+          "text": "对。熔成银料的话……四枚银币吧。",
+          "emotion": "confident",
+          "stage": [
+            {
+              "actorId": "tibby",
+              "emotion": "confident",
+              "still": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shop.visit.valuation.4",
+      "cursor": 35,
+      "sectionId": "valuation",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "shop.visit.valuation.4",
+          "kind": "narration",
+          "text": "她用算针挑起另一头的银币串。",
+          "stage": [
+            {
+              "actorId": "tibby",
+              "emotion": "neutral",
+              "still": true,
+              "direction": "她用算针挑起另一头的银币串。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shop.visit.valuation.5",
+      "cursor": 36,
+      "sectionId": "valuation",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "shop.visit.valuation.5",
+          "kind": "dialogue",
+          "actorId": "kael",
+          "text": "那串是十字币。十二枚。"
+        }
+      ]
+    },
+    {
+      "id": "shop.visit.valuation.6",
+      "cursor": 37,
+      "sectionId": "valuation",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "shop.visit.valuation.6",
+          "kind": "dialogue",
+          "actorId": "tibby",
+          "text": "看一眼就知道了啦。",
+          "emotion": "wry",
+          "stage": [
+            {
+              "actorId": "tibby",
+              "emotion": "wry",
+              "still": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shop.visit.valuation.7",
+      "cursor": 38,
+      "sectionId": "valuation",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "shop.visit.valuation.7",
+          "kind": "narration",
+          "text": "她扯断皮绳，拈起一枚丢进嘴里。嘎嘣一声，嚼了两下，咽了下去。",
+          "stage": [
+            {
+              "actorId": "tibby",
+              "emotion": "wry",
+              "still": true,
+              "direction": "她扯断皮绳，拈起一枚丢进嘴里。嘎嘣一声，嚼了两下，咽了下去。"
+            }
+          ],
+          "itemId": "story.shop.cross-coins"
+        }
+      ]
+    },
+    {
+      "id": "shop.visit.valuation.8",
+      "cursor": 39,
+      "sectionId": "valuation",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "shop.visit.valuation.8",
+          "kind": "dialogue",
+          "actorId": "tibby",
+          "text": "……唔。战末减了成色的薄版。出银不到七成。",
+          "emotion": "confident",
+          "stage": [
+            {
+              "actorId": "tibby",
+              "emotion": "confident",
+              "still": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shop.visit.valuation.9",
+      "cursor": 40,
+      "sectionId": "valuation",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "shop.visit.valuation.9",
+          "kind": "dialogue",
+          "actorId": "tibby",
+          "text": "十一枚，打包十八枚银币。",
+          "emotion": "confident",
+          "stage": [
+            {
+              "actorId": "tibby",
+              "emotion": "confident",
+              "still": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shop.visit.valuation.10",
+      "cursor": 41,
+      "sectionId": "valuation",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "shop.visit.valuation.10",
+          "kind": "dialogue",
+          "actorId": "kael",
+          "text": "……我说的是十二枚。"
+        }
+      ]
+    },
+    {
+      "id": "shop.visit.valuation.11",
+      "cursor": 42,
+      "sectionId": "valuation",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "shop.visit.valuation.11",
+          "kind": "dialogue",
+          "actorId": "tibby",
+          "text": "一枚是尝味道的。",
+          "emotion": "wry",
+          "stage": [
+            {
+              "actorId": "tibby",
+              "emotion": "wry",
+              "still": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shop.visit.valuation.12",
+      "cursor": 43,
+      "sectionId": "valuation",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "shop.visit.valuation.12",
+          "kind": "narration",
+          "text": "算针把压在币下的木牌拨了出来。",
+          "stage": [
+            {
+              "actorId": "tibby",
+              "emotion": "neutral",
+              "still": true,
+              "direction": "算针把压在币下的木牌拨了出来。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shop.visit.valuation.13",
+      "cursor": 44,
+      "sectionId": "valuation",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "shop.visit.valuation.13",
+          "kind": "dialogue",
+          "actorId": "tibby",
+          "text": "教区的牌子，两个铜板。",
+          "emotion": "neutral",
+          "stage": [
+            {
+              "actorId": "tibby",
+              "emotion": "neutral",
+              "still": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shop.visit.valuation.14",
+      "cursor": 45,
+      "sectionId": "valuation",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "shop.visit.valuation.14",
+          "kind": "narration",
+          "text": "缇比把银币拢到一边，随口说了一句。",
+          "stage": [
+            {
+              "actorId": "tibby",
+              "emotion": "neutral",
+              "still": true,
+              "direction": "缇比把银币拢到一边，随口说了一句。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shop.visit.valuation.15",
+      "cursor": 46,
+      "sectionId": "valuation",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "shop.visit.valuation.15",
+          "kind": "dialogue",
+          "actorId": "tibby",
+          "text": "那条暗道，从旧圣战那会儿起就是运这种东西的路。",
+          "emotion": "neutral",
+          "stage": [
+            {
+              "actorId": "tibby",
+              "emotion": "neutral",
+              "still": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shop.visit.valuation.16",
+      "cursor": 47,
+      "sectionId": "valuation",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "shop.visit.valuation.16",
+          "kind": "narration",
+          "text": "（……两头的货都走过的老路。那帮劫匪，连哨所换防的空档都摸透了。）",
+          "stage": [
+            {
+              "actorId": "tibby",
+              "emotion": "neutral",
+              "still": true,
+              "direction": "（……两头的货都走过的老路。那帮劫匪，连哨所换防的空档都摸透了。）"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shop.visit.valuation.17",
+      "cursor": 48,
+      "sectionId": "valuation",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "shop.visit.valuation.17",
+          "kind": "dialogue",
+          "actorId": "tibby",
+          "text": "所以，这根钉子呢？四枚银币留在这儿？",
+          "emotion": "neutral",
+          "stage": [
+            {
+              "actorId": "tibby",
+              "emotion": "neutral",
+              "still": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shop.visit.choice",
+      "cursor": 49,
+      "sectionId": "reply",
+      "kind": "choice",
+      "prompt": "结界钉的去留",
+      "options": [
+        {
+          "id": "A",
+          "label": "留在店里"
+        },
+        {
+          "id": "B",
+          "label": "带回去"
+        }
+      ]
+    },
+    {
+      "id": "shop.visit.reply",
+      "cursor": 50,
+      "sectionId": "reply",
+      "kind": "branch",
+      "choiceId": "shop.visit.choice",
+      "variants": {
+        "A": [
+          {
+            "id": "shop.visit.reply.A",
+            "kind": "dialogue",
+            "actorId": "kael",
+            "text": "留这儿。"
+          },
+          {
+            "id": "shop.visit.reply.A.page.1",
+            "kind": "dialogue",
+            "actorId": "tibby",
+            "text": "多谢惠顾。",
+            "emotion": "smile",
+            "stage": [
+              {
+                "actorId": "tibby",
+                "emotion": "smile",
+                "still": true
+              }
+            ]
+          }
+        ],
+        "B": [
+          {
+            "id": "shop.visit.reply.B",
+            "kind": "dialogue",
+            "actorId": "kael",
+            "text": "带回去。"
+          },
+          {
+            "id": "shop.visit.reply.B.page.1",
+            "kind": "dialogue",
+            "actorId": "tibby",
+            "text": "真是怪癖。芯都死了的钉子，也就能当个镇纸。",
+            "emotion": "wry",
+            "stage": [
+              {
+                "actorId": "tibby",
+                "emotion": "wry",
+                "still": true
+              }
+            ]
+          },
+          {
+            "id": "shop.visit.reply.B.page.2",
+            "kind": "dialogue",
+            "actorId": "kael",
+            "text": "镇纸就行。"
+          }
+        ]
+      }
+    },
+    {
+      "id": "shop.visit.purchase.0",
+      "cursor": 51,
+      "sectionId": "purchase",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "shop.visit.purchase.0",
+          "kind": "narration",
+          "text": "缇比从抽屉里摸出银币，一枚一枚排到柜台上。",
+          "stage": [
+            {
+              "actorId": "tibby",
+              "emotion": "neutral",
+              "still": true,
+              "direction": "缇比从抽屉里摸出银币，一枚一枚排到柜台上。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shop.visit.purchase.1",
+      "cursor": 52,
+      "sectionId": "purchase",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "shop.visit.purchase.1",
+          "kind": "dialogue",
+          "actorId": "tibby",
+          "text": "听说下回要去克雷格的旧庄园？",
+          "emotion": "neutral",
+          "stage": [
+            {
+              "actorId": "tibby",
+              "emotion": "neutral",
+              "still": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shop.visit.purchase.2",
+      "cursor": 53,
+      "sectionId": "purchase",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "shop.visit.purchase.2",
+          "kind": "dialogue",
+          "actorId": "kael",
+          "text": "嗯。先去探探路。"
+        }
+      ]
+    },
+    {
+      "id": "shop.visit.purchase.3",
+      "cursor": 54,
+      "sectionId": "purchase",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "shop.visit.purchase.3",
+          "kind": "dialogue",
+          "actorId": "tibby",
+          "text": "那里的人偶手脚不干净。不想被捆住的话，圣水带上吧。",
+          "emotion": "neutral",
+          "stage": [
+            {
+              "actorId": "tibby",
+              "emotion": "neutral",
+              "still": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shop.visit.purchase.4",
+      "cursor": 55,
+      "sectionId": "purchase",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "shop.visit.purchase.4",
+          "kind": "narration",
+          "text": "（……庄园里有什么在等着，还说不准。只能挑要紧的带。）",
+          "stage": [
+            {
+              "actorId": "tibby",
+              "emotion": "neutral",
+              "still": true,
+              "direction": "（……庄园里有什么在等着，还说不准。只能挑要紧的带。）"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shop.visit.departure.0",
+      "cursor": 56,
+      "sectionId": "departure",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "shop.visit.departure.0",
+          "kind": "narration",
+          "text": "{{user}}把钱袋系回腰间。缇比已经重新趴回了账本上。",
+          "stage": [
+            {
+              "actorId": "tibby",
+              "emotion": "closed",
+              "still": true,
+              "direction": "{{user}}把钱袋系回腰间。缇比已经重新趴回了账本上。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shop.visit.departure.1",
+      "cursor": 57,
+      "sectionId": "departure",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "shop.visit.departure.1",
+          "kind": "dialogue",
+          "actorId": "tibby",
+          "text": "啊，替我跟玛丽埃塔说一声。秘银线这回改走北边山口，要晚五天。",
+          "emotion": "closed",
+          "stage": [
+            {
+              "actorId": "tibby",
+              "emotion": "closed",
+              "still": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shop.visit.departure.2",
+      "cursor": 58,
+      "sectionId": "departure",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "shop.visit.departure.2",
+          "kind": "dialogue",
+          "actorId": "tibby",
+          "text": "绕路的运费另加，记在账上。",
+          "emotion": "closed",
+          "stage": [
+            {
+              "actorId": "tibby",
+              "emotion": "closed",
+              "still": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shop.visit.departure.3",
+      "cursor": 59,
+      "sectionId": "departure",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "shop.visit.departure.3",
+          "kind": "dialogue",
+          "actorId": "kael",
+          "text": "……会带到的。"
+        }
+      ]
+    },
+    {
+      "id": "shop.visit.departure.4",
+      "cursor": 60,
+      "sectionId": "departure",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "shop.visit.departure.4",
+          "kind": "narration",
+          "text": "（五天。结界得先撑一阵了。）",
+          "stage": [
+            {
+              "actorId": "tibby",
+              "emotion": "closed",
+              "still": true,
+              "direction": "（五天。结界得先撑一阵了。）"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shop.visit.departure.5",
+      "cursor": 61,
+      "sectionId": "departure",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "shop.visit.departure.5",
+          "kind": "narration",
+          "text": "手搭上门把时，{{user}}瞥见柜角那只黑曜石杯。上个月，它被缇比用二十枚银币从他手里收走，现在里面插着两支羽笔。",
+          "stage": [
+            {
+              "actorId": "tibby",
+              "emotion": "closed",
+              "still": true,
+              "direction": "手搭上门把时，{{user}}瞥见柜角那只黑曜石杯。上个月，它被缇比用二十枚银币从他手里收走，现在里面插着两支羽笔。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shop.visit.departure.6",
+      "cursor": 62,
+      "sectionId": "departure",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "shop.visit.departure.6",
+          "kind": "dialogue",
+          "actorId": "tibby",
+          "text": "这个月剩下的账，照旧压在门垫底下~",
+          "emotion": "closed",
+          "stage": [
+            {
+              "actorId": "tibby",
+              "emotion": "closed",
+              "still": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shop.visit.departure.7",
+      "cursor": 63,
+      "sectionId": "departure",
+      "kind": "beat",
+      "frames": [
+        {
+          "id": "shop.visit.departure.7",
+          "kind": "narration",
+          "text": "门合上，风铃响了一声。",
+          "stage": [
+            {
+              "actorId": "tibby",
+              "emotion": "closed",
+              "still": true,
+              "direction": "门合上，风铃响了一声。"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

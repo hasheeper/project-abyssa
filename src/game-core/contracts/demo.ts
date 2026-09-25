@@ -54,9 +54,17 @@ export type DemoGrowth = {
 export type DemoEquipmentDef = {
   id: string;
   slot: "general";
-  replacement: "attack" | "heal";
+  replacement: "attack" | "heal" | "guard";
   power: 1;
   scope: "all-native-blanks";
+} | {
+  id: string;
+  slot: "general";
+  scope: "native-face";
+  nativeAction: "attack" | "guard" | "heal" | "blank";
+  operation: "replace" | "boost";
+  replacement: "attack" | "guard" | "heal";
+  power: 1 | 2;
 };
 export type DemoContent = {
   characters: Record<string, DemoCharacter>;
@@ -125,6 +133,7 @@ export type DemoEquipment = {
   instanceId: string;
   definitionId: string;
   ownerId: string;
+  targetFaceId?: string;
 };
 export type DemoProgress = {
   appliedGrowthIds: string[];

@@ -1,0 +1,71 @@
+/* Opus v4: overlap scene and veil falloff so no opaque black band separates them.
+   UiModal retains its timing layer; the visual curtain lives with the scene. */
+.flow-dialog > .abyssa-modal__scrim { background: none; }
+.flow-scene {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  --flow-ink: 5 9 10;
+  --flow-ramp: #000 42%, rgb(0 0 0 / 94%) 52%, rgb(0 0 0 / 80%) 62%,
+    rgb(0 0 0 / 60%) 72%, rgb(0 0 0 / 38%) 82%, rgb(0 0 0 / 18%) 91%,
+    rgb(0 0 0 / 6%) 96%, transparent 100%;
+}
+.flow-scene__curtain {
+  position: absolute;
+  inset: 0;
+  background: rgb(var(--flow-ink));
+  transform-origin: 50% 50%;
+  mask-image:
+    radial-gradient(62% 74% at 50% 50%, rgb(0 0 0 / 80%) 0 50%,
+      rgb(0 0 0 / 70%) 60%, rgb(0 0 0 / 52%) 70%, rgb(0 0 0 / 32%) 80%,
+      rgb(0 0 0 / 15%) 88%, rgb(0 0 0 / 5%) 95%, transparent 100%),
+    url("./flow-fog-alpha.png"),
+    radial-gradient(62% 74% at 50% 50%, transparent 58%, rgb(0 0 0 / 32%) 76%, transparent 96%);
+  mask-size: 100% 100%;
+  mask-repeat: no-repeat;
+  /* Translucent veil plus faint static fog confined to the outer falloff. */
+  mask-composite: add, intersect, add;
+}
+.flow-scene__view {
+  position: absolute;
+  left: 80px;
+  top: 45px;
+  width: 1440px;
+  height: 810px;
+  --flow-aperture: 1;
+  --flow-unfold: 1;
+  --flow-shade-opacity: 1;
+  transform-origin: 50% 50%;
+  /* Every ellipse reaches zero at or before the image box edge. */
+  mask-image:
+    radial-gradient(calc(50% * var(--flow-aperture) * var(--flow-unfold)) calc(46% * var(--flow-aperture) * var(--flow-unfold)) at 50% 50%, var(--flow-ramp)),
+    radial-gradient(calc(40% * var(--flow-aperture) * var(--flow-unfold)) calc(50% * var(--flow-aperture) * var(--flow-unfold)) at 50% 50%, var(--flow-ramp)),
+    radial-gradient(calc(48% * var(--flow-aperture) * var(--flow-unfold)) calc(28% * var(--flow-aperture) * var(--flow-unfold)) at 50% 66%, var(--flow-ramp));
+  mask-repeat: no-repeat;
+  mask-composite: add;
+}
+.flow-scene__view > img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+.flow-scene__view::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity:var(--flow-shade-opacity);
+  /* Shade inside the scene before its alpha fades into the mansion. */
+  background:
+    radial-gradient(30% 28% at 50% 50%, rgb(var(--flow-ink) / 16%), transparent 100%),
+    radial-gradient(50% 50% at 50% 50%, transparent 38%, rgb(var(--flow-ink) / 18%) 58%,
+      rgb(var(--flow-ink) / 42%) 78%, rgb(var(--flow-ink) / 60%) 100%);
+}
+.flow-scene__reader-floor {position:absolute;inset:0;background:#101616;}
+/* Match the existing AVG background, including its filtered vignette. Crossfade
+   grades of the same image instead of animating a full-stage filter. */
+.flow-scene__reader-background {position:absolute;inset:0;background-size:cover;background-position:center;filter:brightness(.5) saturate(.85);}
+.flow-scene__reader-background::after {content:"";position:absolute;inset:0;background:radial-gradient(88% 88% at 50% 42%,transparent 48%,rgb(4 7 7 / 72%) 100%);}

@@ -18,7 +18,8 @@ import {
 } from "../view";
 import { buildDieFaces } from "./battle-view-model";
 import { ExpeditionHandReadout } from "./ExpeditionBattleChrome";
-import { PARTY_VISUALS } from "./expedition-visuals";
+import { partyVisual } from "./expedition-visuals";
+import { usePlayerName } from "../../../shared/domain/PlayerIdentity";
 import type {
   ExpeditionDieVisual,
   PlayerAttackFx,
@@ -113,11 +114,11 @@ function dieHandHint(die: ExpeditionDiceSlot) {
   return `${action}${pip}${excluded ? `${excluded}不参与成牌` : "参与成牌"}`;
 }
 
-function handExplanation(slots: ExpeditionDiceSlot[], hand: HandEvaluation | null) {
-  const excluded = slots.filter(d => handExclusion(d)).map(d => `${PARTY_VISUALS[d.ownerId].name}（${handExclusion(d)}）`);
+function handExplanation(slots: ExpeditionDiceSlot[], hand: HandEvaluation | null, playerName: string) {
+  const excluded = slots.filter(d => handExclusion(d)).map(d => `${partyVisual(d.ownerId, playerName).name}（${handExclusion(d)}）`);
   return [
     hand ? `参与判定点数：${hand.pips.join(" / ") || "无"}` : "掷骰后判定牌型",
-    hand?.contributors.length ? `成牌：${hand.contributors.map(id => PARTY_VISUALS[id].name).join("、")}` : null,
+    hand?.contributors.length ? `成牌：${hand.contributors.map(id => partyVisual(id, playerName).name).join("、")}` : null,
     excluded.length ? `不计入：${excluded.join("、")}` : null,
     "已使用、已固定仍参与成牌；力竭、封锁、沉眠、未掷不参与。",
     "回合结束时结算，牌型加成累加至倍率。",
@@ -127,6 +128,7 @@ function handExplanation(slots: ExpeditionDiceSlot[], hand: HandEvaluation | nul
 export function ExpeditionDiceTray({slots, awaitingInitialRoll, rerollsRemaining, visuals, enemyTurnFx,
   scoringOwners, interactive, initialRollReady, busy, attackFx, supportFx, hand, undoLabel, undoReady,
   unloadedRemain, onDieToggle, onUndo, onRoll, onReroll, onEndTurn, itemPanel, controls, entrance, rerollReady = true, endTurnReady = true}: ExpeditionDiceTrayProps) {
+  const playerName = usePlayerName();
   const anchor=useTutorialAnchors();
   return (
     <section className="abyssa-expedition-region abyssa-expedition-dice-panel" aria-label="骰子区域"
@@ -136,7 +138,7 @@ export function ExpeditionDiceTray({slots, awaitingInitialRoll, rerollsRemaining
         <div className="abyssa-expedition-dice-panel__row">
           {slots.map((die, slotIndex) => {
             const {ownerId, dieIndex, rustFaceCount, gildFaceCount} = die;
-            const visual = PARTY_VISUALS[ownerId];
+            const visual = partyVisual(ownerId, playerName);
             const dieVisual = visuals[ownerId];
             const value = die.faceIndex !== null ? die.faceIndex + 1 : 1;
             const deferDownedVisual = Boolean(
@@ -231,7 +233,7 @@ export function ExpeditionDiceTray({slots, awaitingInitialRoll, rerollsRemaining
             label={`重掷剩余 ${rerollsRemaining} 次`}
             value={`×${rerollsRemaining}`}
           />
-          <ExpeditionHandReadout hand={hand} explanation={handExplanation(slots, hand)} />
+          <ExpeditionHandReadout hand={hand} explanation={handExplanation(slots, hand, playerName)} />
           <DiceActionButton
             ref={anchor("battle.end-turn")}
             label="END TURN"

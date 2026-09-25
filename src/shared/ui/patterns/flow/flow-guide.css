@@ -1,0 +1,31 @@
+/* The stage result is a short itinerary inside the existing feathered surface. */
+.flow-surface[data-variant="guide"] .flow-state-copy {min-height:0;margin-top:18px;padding:12px 0 18px;}
+.flow-surface[data-variant="guide"] .flow-status p {font-size:16px;color:var(--abyssa-text-soft);}
+.flow-surface[data-variant="guide"] .flow-context {max-height:340px;margin-top:22px;scrollbar-gutter:stable both-edges;text-align:center;}
+.flow-surface[data-variant="guide"] .confirmation-dialog__actions {margin-top:28px;}
+.flow-guide {color:var(--abyssa-text-soft);}
+.flow-guide p {margin:0;}
+.flow-guide__objective {display:grid;justify-items:center;gap:4px;}
+.flow-guide__objective > span {color:var(--abyssa-text-muted);font-size:12px;line-height:1.5;letter-spacing:.2em;padding-left:.2em;}
+.flow-guide__objective > strong {color:var(--feedback-title);font:500 21px/1.5 var(--abyssa-font-body);letter-spacing:.06em;}
+.flow-guide .flow-guide__route {position:relative;display:grid;gap:14px;width:min(432px,100%);margin:0 auto;padding:0;list-style:none;text-align:left;}
+.flow-guide .flow-guide__route[data-objective] {margin-top:22px;padding-top:22px;}
+.flow-guide__route[data-objective]::before {content:"";position:absolute;top:0;left:50%;width:120px;height:1px;translate:-50% 0;background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--abyssa-ornament-light) 26%,transparent),transparent);}
+.flow-guide__route > li {display:grid;grid-template-columns:56px minmax(0,1fr);column-gap:18px;align-items:baseline;}
+.flow-guide__route > li + li {margin-top:0;}
+.flow-guide__label {display:flex;align-items:center;gap:9px;color:var(--abyssa-text-muted);font-size:13px;line-height:1.75;letter-spacing:.16em;white-space:nowrap;}
+.flow-guide__label::before {content:"";flex:none;width:5px;height:5px;rotate:45deg;translate:0 -1px;border:1px solid color-mix(in srgb,var(--flow-accent) 60%,transparent);}
+.flow-guide__route > [data-current] .flow-guide__label {color:var(--feedback-title);}
+.flow-guide__route > [data-current] .flow-guide__label::before {background:var(--flow-accent);border-color:var(--flow-accent);}
+.flow-guide__text {font-size:15px;line-height:1.75;overflow-wrap:anywhere;}
+.flow-guide__text > em {color:var(--feedback-title);font-style:normal;}
+.flow-guide__text > small {display:block;margin-top:3px;color:var(--abyssa-text-muted);font-size:13px;line-height:1.7;}
+.flow-guide .flow-guide__description {max-width:432px;margin:auto;font-size:15px;line-height:1.8;}
+.flow-guide .flow-guide__notice {max-width:432px;margin:18px auto 0;color:var(--abyssa-text-muted);font-size:13px;line-height:1.8;text-align:left;}
+.flow-guide__receipts {display:grid;gap:8px;max-width:432px;margin:20px auto 0;color:var(--abyssa-text-muted);text-align:center;}
+.flow-guide__receipts > p {margin:0;font-size:14px;line-height:1.8;}
+.director-stage-feedback > .scene-feedback__inline {max-width:432px;margin:0 auto 18px;text-align:left;}
+@container (max-width:430px) {
+  .flow-guide__route > li {grid-template-columns:48px minmax(0,1fr);column-gap:12px;}
+  .flow-guide__label {gap:6px;font-size:12px;}
+}

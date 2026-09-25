@@ -34,6 +34,12 @@ export type {
 
 export { AbyssaProvider } from "./shared/ui/primitives/AbyssaProvider";
 export { UiContentTransition } from "./shared/ui/motion/UiContentTransition";
+export { StoryChoices } from "./shared/ui/patterns/StoryChoices";
+export { SceneFeedback, FeedbackNotice, RewardNotice, EventResult, InlineFeedback } from "./shared/ui/patterns/SceneFeedback";
+export { ConfirmationDialog } from "./shared/ui/patterns/ConfirmationDialog";
+export type { ConfirmationDialogProps } from "./shared/ui/patterns/ConfirmationDialog";
+export type { SceneFeedbackProps, SceneFeedbackEntry, FeedbackNoticeProps, RewardNoticeProps, FeedbackTone, EventResultProps, FeedbackReward, FeedbackErrorDetails, InlineFeedbackProps } from "./shared/ui/patterns/SceneFeedback";
+export type { StoryChoicesProps, StoryDecision } from "./shared/ui/patterns/StoryChoices";
 export type { UiContentTransitionProps } from "./shared/ui/motion/UiContentTransition";
 export type { UiMotionPreference } from "./shared/ui/motion/UiMotionProvider";
 export type { AbyssaProviderProps } from "./shared/ui/primitives/AbyssaProvider";

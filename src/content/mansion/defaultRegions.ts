@@ -57,7 +57,7 @@ export const DEFAULT_MANSION_RECTANGLES: MansionRectangle[] = [
 
   // 主宅二层：统一 y=710 → 1020。
   rectangle("bath", "大浴室", "room", 0.269127 * CANVAS_WIDTH, 710, 0.044334 * CANVAS_WIDTH, 310),
-  rectangle("lounge", "二层起居室【美术补充】", "room", 0.315528 * CANVAS_WIDTH, 710, 0.050716 * CANVAS_WIDTH, 310),
+  rectangle("lounge", "娱乐室（棋牌室）【美术补充】", "room", 0.315528 * CANVAS_WIDTH, 710, 0.050716 * CANVAS_WIDTH, 310),
   rectangle("abyssa", "魔王寝室", "room", 0.369583 * CANVAS_WIDTH, 710, 0.063428 * CANVAS_WIDTH, 310),
   // 露台是室外平台，保留用户校准的独立上下界。
   rectangle("terrace", "日光露台", "room", 0.435811 * CANVAS_WIDTH, 0.372999 * CANVAS_HEIGHT, 0.152889 * CANVAS_WIDTH, 0.156422 * CANVAS_HEIGHT),

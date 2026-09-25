@@ -78,7 +78,7 @@
   --menu-command-delay: 540ms; --menu-command-x: 0; --menu-command-y: 28;
   --menu-command-origin: 50% 30.5%;
 }
-.menu-dial [data-command="storage"] {
+.menu-dial [data-command="roster"] {
   --menu-command-delay: 620ms; --menu-command-x: 32; --menu-command-y: 0;
   --menu-command-origin: 23.875% 50%;
 }

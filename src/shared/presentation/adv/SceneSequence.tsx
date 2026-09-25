@@ -15,19 +15,27 @@ export type SceneFrame = {id: string; kind: "battle" | "adv"; content: ReactNode
 type Phase = "idle" | "out" | "in" | "prepare" | "arrival" | "cover" | "covered" | "uncover";
 const Context = createContext(false);
 const EntranceContext = createContext(false);
+const DeferredDialogueContext=createContext(false);
 export const useSceneSequenceBusy = () => useContext(Context);
 /** Initial actors are revealed by the scene, and must not start another seat entrance afterwards. */
 export const useSceneSequenceEntrance = () => useContext(EntranceContext);
-export const SCENE_SEQUENCE_MS = {battleOut: 520, battleIn: 760, boardIn: 960, advOut: 460, advIn: 800, arrival: 2200, cover: 360, covered: 140, uncover: 420} as const;
+export const useSceneSequenceDefersDialogue=()=>useContext(DeferredDialogueContext);
+export const SCENE_SEQUENCE_MS = {battleOut: 520, battleIn: 760, boardIn: 960, advOut: 460, advIn: 800, advDissolve:680, arrival: 2200, cover: 360, covered: 140, uncover: 420} as const;
 
 /** Only one scene is mounted. Outgoing props stay frozen until its exit finishes. */
-export function SceneSequence({frame, blocked = false, openingBlocked = false}: {frame: SceneFrame; blocked?: boolean; openingBlocked?: boolean}) {
+export function SceneSequence({frame, blocked = false, openingBlocked = false, advEntrance, onPrepared}: {
+  frame: SceneFrame; blocked?: boolean; openingBlocked?: boolean;
+  /** An existing full-room background hands over without another wash or side entrance. */
+  advEntrance?: "dissolve"; onPrepared?:()=>void;
+}) {
   const {reduced} = useUiMotion();
   const [shown, setShown] = useState(frame);
   const [phase, setPhase] = useState<Phase>(frame.kind === "adv" || frame.battleMotion === "board" ? "prepare" : "idle");
   const last = useRef(frame), incoming = useRef(frame);
   const root = useRef<HTMLDivElement>(null);
   const settled = useRef(new Set<EventTarget>());
+  const prepared=useRef(onPrepared);prepared.current=onPrepared;
+  const openingPreparation = useRef<{key: string; promise: Promise<unknown>} | null>(null);
   incoming.current = frame;
   const matchesShown = frame.id === shown.id && frame.backdrop === shown.backdrop;
   const current = phase !== "out" && phase !== "cover" && matchesShown ? frame : last.current;
@@ -42,13 +50,22 @@ export function SceneSequence({frame, blocked = false, openingBlocked = false}: 
     }
   }, [frame, shown.id, shown.kind, shown.backdrop, matchesShown, phase, blocked]);
   useLayoutEffect(() => {
-    if (phase === "idle" || phase === "prepare" && openingBlocked) return;
+    if (phase !== "prepare") openingPreparation.current = null;
+    if (phase === "idle" || phase === "prepare" && openingBlocked && advEntrance!=="dissolve") return;
     let active = true;
     let paintFrame = 0;
     const finish = async () => {
-      if (phase === "prepare" || phase === "out" || phase === "cover") await preloadSceneAssets([
-        ...(incoming.current.assets ?? []), ...(incoming.current.arrival ? [incoming.current.arrival.background] : [])
-      ]);
+      if (phase === "prepare" || phase === "out" || phase === "cover") {
+        const next = incoming.current;
+        const assets = [...(next.assets ?? []), ...(next.arrival ? [next.arrival.background] : [])];
+        if (phase === "prepare") {
+          // Releasing the outgoing room must reuse the preparation already joined
+          // above it, including its fallback, instead of waiting for a second decode.
+          const key = JSON.stringify([next.id, next.backdrop, assets]);
+          if (openingPreparation.current?.key !== key) openingPreparation.current = {key, promise: preloadSceneAssets(assets)};
+          await openingPreparation.current.promise;
+        } else await preloadSceneAssets(assets);
+      }
       if (!active) return;
       if (phase === "cover") {
         // Keep the old background, cast and line until the curtain is opaque.
@@ -60,6 +77,8 @@ export function SceneSequence({frame, blocked = false, openingBlocked = false}: 
       }
       if (phase === "covered") {setPhase(reduced || document.hidden ? "idle" : "uncover"); return;}
       if (phase === "prepare") {
+        prepared.current?.();
+        if(openingBlocked)return;
         const enter = () => {
           if (!active) return;
           const next = incoming.current;
@@ -92,20 +111,21 @@ export function SceneSequence({frame, blocked = false, openingBlocked = false}: 
       return () => {active = false; window.clearTimeout(timer); document.removeEventListener("visibilitychange", visibility);};
     }
     const ms = phase === "cover" || phase === "covered" || phase === "uncover" ? SCENE_SEQUENCE_MS[phase]
-      : shown.kind === "battle" ? phase === "out" ? SCENE_SEQUENCE_MS.battleOut : shown.battleMotion === "board" ? SCENE_SEQUENCE_MS.boardIn : SCENE_SEQUENCE_MS.battleIn : phase === "out" ? SCENE_SEQUENCE_MS.advOut : SCENE_SEQUENCE_MS.advIn;
+      : shown.kind === "battle" ? phase === "out" ? SCENE_SEQUENCE_MS.battleOut : shown.battleMotion === "board" ? SCENE_SEQUENCE_MS.boardIn : SCENE_SEQUENCE_MS.battleIn : phase === "out" ? SCENE_SEQUENCE_MS.advOut : advEntrance==="dissolve"?SCENE_SEQUENCE_MS.advDissolve:SCENE_SEQUENCE_MS.advIn;
     // Participating animationend events are authoritative. A delayed first paint must
     // not be cut short by a mount-time timer; retain only a missing-CSS failsafe.
     const duration = phase === "in" && shown.battleMotion === "board" ? ms * 3 : ms;
-    const timer = window.setTimeout(() => void finish(), phase === "prepare" || reduced || document.hidden ? 0 : duration);
+    const timer = window.setTimeout(() => void finish(), phase === "prepare" || document.hidden ? 0 : reduced ? advEntrance==="dissolve"&&phase==="in"?80:0 : duration);
     const hide = () => { if (document.hidden) { window.clearTimeout(timer); cancelAnimationFrame(paintFrame); void finish(); } };
     document.addEventListener("visibilitychange", hide);
     return () => {active = false; window.clearTimeout(timer); cancelAnimationFrame(paintFrame); document.removeEventListener("visibilitychange", hide);};
-  }, [phase, shown.id, shown.kind, shown.battleMotion, openingBlocked, reduced]);
+  }, [phase, shown.id, shown.kind, shown.battleMotion, openingBlocked, reduced, advEntrance]);
   useLayoutEffect(() => {void preloadSceneAssets(frame.assets);}, [frame.id, frame.backdrop]);
   const arrival = current.arrival;
   const introducing = !!arrival && (phase === "prepare" || phase === "arrival");
   return <Context.Provider value={locked}><EntranceContext.Provider value={current.kind === "adv"}>
-    <div ref={root} className="scene-sequence" data-scene={current.kind} data-scene-id={current.id} data-phase={phase} data-battle-motion={current.battleMotion} data-reduced={reduced || undefined} aria-busy={locked}
+    <DeferredDialogueContext.Provider value={advEntrance==="dissolve"&&phase==="prepare"}>
+    <div ref={root} className="scene-sequence" data-scene={current.kind} data-scene-id={current.id} data-phase={phase} data-battle-motion={current.battleMotion} data-adv-entrance={advEntrance} data-reduced={reduced || undefined} aria-busy={locked}
       style={{"--scene-cover-ms":`${SCENE_SEQUENCE_MS.cover}ms`,"--scene-uncover-ms":`${SCENE_SEQUENCE_MS.uncover}ms`} as CSSProperties}
       onAnimationEnd={event => {
         // Join the real entrance tracks: a settled board must not cut off the
@@ -124,7 +144,7 @@ export function SceneSequence({frame, blocked = false, openingBlocked = false}: 
       <div className="scene-sequence__frame" key={shown.id} inert={locked || undefined}>{!introducing && current.content}</div>
       {curtained && <div className="scene-sequence__curtain" aria-hidden="true"/>}
     </div>
-  </EntranceContext.Provider></Context.Provider>;
+  </DeferredDialogueContext.Provider></EntranceContext.Provider></Context.Provider>;
 }
 
 function preloadSceneAssets(urls: readonly string[] = []) {

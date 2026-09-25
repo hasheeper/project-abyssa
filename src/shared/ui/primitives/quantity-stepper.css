@@ -1,0 +1,2 @@
+.abyssa-quantity-stepper { display: inline-flex; align-items: center; gap: 10px; vertical-align: middle; }
+.abyssa-quantity-stepper output { min-width: 2ch; color: inherit; text-align: center; font-variant-numeric: tabular-nums; }

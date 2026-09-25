@@ -1,0 +1,85 @@
+/* Shop uses the old board's weight and the menu's depth/overlap. The complete
+   cornice + shelf + window rides ONE plane, so its joined copper edges never split. */
+.new-shop__room { --entrance-animation: new-shop-room-arrive; --entrance-delay: var(--entrance-scene-delay); --entrance-duration: var(--entrance-scene-duration); transform-origin: 72% 48%; }
+.new-shop__foreground { --entrance-animation: new-shop-desk-arrive; --entrance-delay: var(--entrance-foreground-delay); --entrance-duration: var(--entrance-foreground-duration); }
+.new-shop__navigation { --entrance-animation: new-shop-rail-arrive; --entrance-delay: var(--entrance-navigation-delay); --entrance-duration: var(--entrance-navigation-duration); }
+.new-shop__banner { --entrance-animation: new-shop-banner-arrive; --entrance-delay: var(--entrance-banner-delay); --entrance-duration: var(--entrance-banner-duration); transform-origin: 50% 0; }
+.new-shop__sign { --entrance-animation: new-shop-sign-arrive; --entrance-delay: var(--entrance-sign-delay); --entrance-duration: var(--entrance-sign-duration); }
+.new-shop__modes button {
+  --entrance-animation: new-shop-command-arrive;
+  --entrance-delay: calc(var(--entrance-commands-delay) + var(--entrance-index) * var(--entrance-command-step));
+  --entrance-duration: var(--entrance-commands-duration);
+}
+.new-shop__actor { --entrance-animation: new-shop-actor-arrive; --entrance-delay: var(--entrance-actor-delay); --entrance-duration: var(--entrance-actor-duration); }
+.new-shop__balances > div { --entrance-delay: var(--entrance-balances-delay); --entrance-duration: var(--entrance-balances-duration); }
+.new-shop-categories__copy { --entrance-delay: var(--entrance-categories-delay); --entrance-duration: var(--entrance-categories-duration); }
+:is(.new-shop-stock__pagination, .new-shop-stock__columns > span) { --entrance-delay: var(--entrance-meta-delay); --entrance-duration: var(--entrance-meta-duration); }
+.new-shop__nameplate .abyssa-nameplate__content > :is(strong, span) { --entrance-delay: var(--entrance-nameplate-delay); --entrance-duration: var(--entrance-nameplate-duration); }
+.new-shop-stock__item {
+  --entrance-animation: new-shop-item-arrive;
+  --entrance-delay: calc(var(--entrance-rows-delay) + var(--entrance-index) * var(--entrance-row-step));
+  --entrance-duration: var(--entrance-rows-duration);
+}
+.new-shop-detail__emblem { --entrance-animation: new-shop-emblem-arrive; --entrance-delay: var(--entrance-emblem-delay); --entrance-duration: var(--entrance-emblem-duration); }
+:is(.new-shop-detail__copy, .new-shop-detail__empty, .new-shop-stock__empty) { --entrance-animation: new-shop-copy-arrive; --entrance-delay: var(--entrance-copy-delay); --entrance-duration: var(--entrance-copy-duration); }
+.new-shop-detail__checkout { --entrance-animation: new-shop-controls-arrive; --entrance-delay: var(--entrance-checkout-delay); --entrance-duration: var(--entrance-checkout-duration); }
+
+.new-shop[data-shop-intro="waiting"] { --entrance-play: paused; }
+.new-shop[data-shop-intro="playing"] { --entrance-play: running; }
+.new-shop:is([data-shop-intro="waiting"], [data-shop-intro="playing"]) :is(
+  .new-shop__room, .new-shop__foreground, .new-shop__navigation, .new-shop__banner, .new-shop__sign,
+  .new-shop__modes button, .new-shop__actor, .new-shop__balances > div, .new-shop-categories__copy,
+  .new-shop__nameplate .abyssa-nameplate__content > strong, .new-shop__nameplate .abyssa-nameplate__content > span,
+  .new-shop-stock__pagination, .new-shop-stock__columns > span, .new-shop-stock__item,
+  .new-shop-detail__emblem, .new-shop-detail__copy, .new-shop-detail__checkout, .new-shop-detail__empty, .new-shop-stock__empty
+) {
+  animation: var(--entrance-animation, new-shop-text-arrive) var(--entrance-duration) var(--entrance-delay) cubic-bezier(.18,.72,.24,1) both;
+  animation-play-state: var(--entrance-play);
+}
+.new-shop:is([data-shop-intro="waiting"], [data-shop-intro="playing"]) .new-shop__counter-plane {
+  animation: new-shop-counter-arrive var(--entrance-counter-duration) var(--entrance-counter-delay) cubic-bezier(.32,0,.18,1) both,
+    new-shop-fade var(--entrance-material-duration) var(--entrance-material-delay) ease-out both;
+  animation-play-state: var(--entrance-play);
+}
+/* Surface alpha has finished before its contents enter. The background/desk
+   only travel; no parent fade mutes the merchant or the tabletop a second time. */
+@keyframes new-shop-room-arrive { from { scale: var(--entrance-scene-scale); } to { scale: 1; } }
+@keyframes new-shop-counter-arrive { from { translate: 0 calc(-30px * var(--entrance-travel)); } to { translate: 0 0; } }
+@keyframes new-shop-desk-arrive { from { translate: calc(24px * var(--entrance-travel)) calc(16px * var(--entrance-travel)); } to { translate: 0 0; } }
+@keyframes new-shop-rail-arrive {
+  from { opacity: 0; translate: calc(-28px * var(--entrance-travel)) 0; }
+  30% { opacity: 1; }
+  to { opacity: 1; translate: 0 0; }
+}
+@keyframes new-shop-banner-arrive {
+  from { translate: 0 calc(-38px * var(--entrance-travel)); rotate: calc(-1.2deg * var(--entrance-travel)); }
+  78% { rotate: calc(.25deg * var(--entrance-travel)); }
+  to { translate: 0 0; rotate: 0deg; }
+}
+@keyframes new-shop-sign-arrive { from { opacity: 0; translate: 0 calc(-20px * var(--entrance-travel)); } to { opacity: 1; translate: 0 0; } }
+@keyframes new-shop-command-arrive { from { opacity: 0; translate: calc(-18px * var(--entrance-travel)) 0; } to { opacity: 1; translate: 0 0; } }
+@keyframes new-shop-actor-arrive {
+  from { opacity: 0; translate: calc(24px * var(--entrance-travel)) calc(12px * var(--entrance-travel)); }
+  45% { opacity: 1; }
+  to { opacity: 1; translate: 0 0; }
+}
+@keyframes new-shop-item-arrive { from { opacity: 0; translate: calc(-14px * var(--entrance-travel)) 0; } to { opacity: 1; translate: 0 0; } }
+@keyframes new-shop-emblem-arrive { from { opacity: 0; translate: calc(-12px * var(--entrance-travel)) 0; } to { opacity: 1; translate: 0 0; } }
+@keyframes new-shop-copy-arrive { from { opacity: 0; translate: calc(12px * var(--entrance-travel)) 0; } to { opacity: 1; translate: 0 0; } }
+@keyframes new-shop-controls-arrive { from { opacity: 0; translate: 0 calc(10px * var(--entrance-travel)); } to { opacity: 1; translate: 0 0; } }
+@keyframes new-shop-text-arrive { from { opacity: 0; translate: 0 calc(5px * var(--entrance-travel)); } to { opacity: 1; translate: 0 0; } }
+@keyframes new-shop-fade { from { opacity: 0; } to { opacity: 1; } }
+
+/* Initial PaperDoll layers stay solid; later expression changes retain AVG fades. */
+.new-shop__actor:not([data-expression-motion]) .abyssa-paper-doll__layer { animation: none; }
+.new-shop[data-ui-motion="reduced"] { --entrance-travel: 0 !important; --entrance-scene-scale: 1 !important; }
+
+.new-shop__preparing { position: absolute; z-index: 20; inset: 0; display: grid; place-items: center; background: #100d09; }
+.new-shop__preparing[data-status="loaded"] { pointer-events: none; animation: new-shop-reveal var(--shop-reveal-duration) ease-out both; }
+.new-shop__preparing[data-status="loaded"] > * { visibility: hidden; }
+.new-shop__preparing .new-shop__loading-plaque { width: 320px; text-align: center; }
+.new-shop__loading-plaque > .abyssa-frame__content { padding: 24px; }
+.new-shop__preparing[data-status="loading"] .new-shop__loading-plaque { animation: new-shop-fade 160ms 250ms both; }
+.new-shop__loading-plaque p { margin: 0; color: #c5b28f; font-size: 18px; }
+.new-shop__loading-plaque button { margin-top: 18px; padding: 6px 20px; border: 1px solid #806744; background: #31261a; }
+@keyframes new-shop-reveal { from { opacity: 1; } to { opacity: 0; } }

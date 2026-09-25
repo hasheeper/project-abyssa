@@ -1,4 +1,5 @@
-import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
+import { useMoney } from "../../../shared/ui/primitives/Money";
+import { useEffect, useId, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { ExpeditionLedger, type ExpeditionLedgerProps } from "./ExpeditionLedger";
 import { ExpeditionBagOdometer, ExpeditionOdometer } from "../ExpeditionReels";
@@ -6,7 +7,9 @@ import { CurrencyAmount } from "../../../shared/ui/primitives/CurrencyAmount";
 import { useTutorialSuspension, useTutorialAnchors } from "../../../shared/tutorial";
 
 /** Original mechanical reels share one instrument body; records slide over its right edge. */
-export function ExpeditionBattleLedger(props: ExpeditionLedgerProps) {
+export type BattleLedgerContent = (onClose: () => void) => ReactNode;
+export function ExpeditionBattleLedger(props: ExpeditionLedgerProps & { renderLedger?: BattleLedgerContent }) {
+  const money = useMoney();
   const anchor = useTutorialAnchors();
   const [open, setOpen] = useState(false);
   useTutorialSuspension(open);
@@ -15,6 +18,7 @@ export function ExpeditionBattleLedger(props: ExpeditionLedgerProps) {
   const [drawerHost, setDrawerHost] = useState<HTMLElement | null>(null);
   const panelId = useId();
   const {engine, memory, handFactor, layerFactor, earthFactor = 1, layerClearPending} = props;
+  const goldGain = props.currentLayerGold ?? props.battleGold ?? 0;
   const close = (focus = false) => {setOpen(false); if (focus) button.current?.focus({preventScroll: true});};
   useLayoutEffect(() => {
     setDrawerHost(root.current?.closest<HTMLElement>(".abyssa-expedition-frame__interior") ?? null);
@@ -42,7 +46,7 @@ export function ExpeditionBattleLedger(props: ExpeditionLedgerProps) {
   }, [open]);
   const drawer = <div ref={drawerRef} id={panelId} className="battle-ledger-drawer" data-open={open || undefined} inert={!open} aria-hidden={!open} role="region" aria-label={memory ? "回忆战记录" : "账本详情"}>
     <div className="battle-ledger-drawer__travel">
-      <ExpeditionLedger {...props} onClose={() => close(true)}/>
+      {props.renderLedger ? props.renderLedger(() => close(true)) : <ExpeditionLedger {...props} onClose={() => close(true)}/>}
     </div>
   </div>;
   return <section ref={root} className="battle-sidebar-readouts" aria-label={memory ? "回忆战读数" : "远征读数"}>
@@ -57,21 +61,25 @@ export function ExpeditionBattleLedger(props: ExpeditionLedgerProps) {
     </section>
     <section className="abyssa-expedition-purse" aria-label={memory ? "往昔记录" : "远征包裹"}>
         <div className="abyssa-expedition-purse__heading"><strong>{memory ? "往昔记录" : "已入袋 · G"}</strong>
+        {!memory && props.battleGold !== undefined && goldGain > 0 && <span className="battle-sidebar-readouts__gold" aria-label="资金收获" role="status"
+          aria-description={`${props.currentLayerGold === undefined ? "本场拾得" : "本层入袋"} ${money.format(goldGain)}`}>
+          {props.currentLayerGold === undefined && <span>拾得</span>}
+          <b>+{money.copper(goldGain).toLocaleString("en-US")}</b>
+        </span>}
         <button ref={node => {button.current = node; anchor("battle.ledger")(node);}} type="button" className="battle-ledger-toggle" aria-label={memory ? "回忆战记录" : "远征账本"}
-        aria-expanded={open} aria-controls={panelId} onClick={() => setOpen(value => !value)}>
+        title={memory ? "回忆战记录" : "远征账本"} aria-expanded={open} aria-controls={panelId} onClick={() => setOpen(value => !value)}>
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4.5c3.5-1 5.5 0 8 1.5 2.5-1.5 4.5-2.5 8-1.5v15c-3.5-1-5.5 0-8 1.5-2.5-1.5-4.5-2.5-8-1.5Z M12 6v15 M7 8l2 1 M7 12l2 1 M15 9l2-1 M15 13l2-1"/></svg>
-        <span>{memory ? "查阅" : "账簿"}</span>
       </button>
         </div>
           {memory ? <p className="battle-sidebar-readouts__note">固定勇者小队<br/><small>不计当下收益</small></p> :
             <div className="abyssa-expedition-purse__amount">
               <div className="abyssa-expedition-purse__currency" data-kind="gold">
-              <ExpeditionBagOdometer value={engine.bagGold} label={`包裹 ${engine.bagGold} 枚金币`}/>
+              <ExpeditionBagOdometer value={engine.bagGold} label="包裹"/>
               </div>
-              <span className="abyssa-expedition-purse__currency-divider" aria-hidden="true"/>
+              {engine.result?.crystal && <><span className="abyssa-expedition-purse__currency-divider" aria-hidden="true"/>
               <div className="abyssa-expedition-purse__currency" data-kind="crystal">
-                <CurrencyAmount value={engine.result?.crystal ? 1 : 0} currency="crystal" label={`${engine.result?.crystal ? 1 : 0} 枚远古晶石`}/>
-              </div>
+                <CurrencyAmount value={1} currency="crystal" label="远古晶石"/>
+              </div></>}
             </div>}
     </section>
     {drawerHost ? createPortal(drawer, drawerHost) : drawer}

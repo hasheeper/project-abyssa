@@ -6,7 +6,7 @@ import type { RpActor, RpMessage, RpSeat } from "../../ui/patterns/RpScene";
 import { deriveActorEmotions } from "../../ui/patterns/emotion-cues";
 import { EmotionActor } from "../../ui/patterns/EmotionActor";
 import { ActorPerformance, type ActorPerformances } from "../../ui/patterns/ActorPerformance";
-import { useSceneSequenceEntrance } from "./SceneSequence";
+import { useSceneSequenceEntrance, useSceneSequenceDefersDialogue } from "./SceneSequence";
 import "./adv-stage.css";
 
 /**
@@ -87,6 +87,7 @@ function resolveFrame(message: RpMessage | undefined, actorById: Map<string, RpA
 
 export function AdvStage({ actors, messages, background, initialSlots, typing, hydrate = false, replay = false, performances, silent = false, onTypingEnd }: AdvStageProps) {
   const sceneEntrance = useSceneSequenceEntrance();
+  const deferDialogue=useSceneSequenceDefersDialogue();
   const actorById = useMemo(() => {
     const map = new Map<string, RpActor>();
     for (const actor of actors) map.set(actor.id, actor);
@@ -104,7 +105,7 @@ export function AdvStage({ actors, messages, background, initialSlots, typing, h
      若把框清掉,画面会先塌一块再弹浮窗,那是两次跳变。 */
   const frameSource = useMemo(() => {
     for (let i = messages.length - 1; i >= 0; i -= 1) {
-      if (messages[i].kind !== "stage" && !isOverlayKind(messages[i])) return messages[i];
+      if (messages[i].kind !== "stage" && messages[i].kind !== "choice" && !isOverlayKind(messages[i])) return messages[i];
     }
     return undefined;
   }, [messages]);
@@ -183,7 +184,8 @@ export function AdvStage({ actors, messages, background, initialSlots, typing, h
     const actor = actorById.get(actorId);
     if (!actor) return null;
     const performance=phase === "enter" ? performances?.[actorId] : undefined;
-    const active = phase === "enter" && (actorId === speakerId || !!performance);
+    // Holding a pose suppresses automatic acting; it does not request a spotlight.
+    const active = phase === "enter" && (actorId === speakerId || !!performance?.motion || !!performance?.aside);
     const cue = emotions.get(actorId);
     return (
       <div
@@ -275,7 +277,7 @@ export function AdvStage({ actors, messages, background, initialSlots, typing, h
         <i data-corner="br" />
       </span>
 
-      {frame && !silent && (
+      {frame && !silent && !deferDialogue && (
         <div className="rp-adv__dialogue" data-kind={frameSource?.kind}>
           <RpgDialogue
             key={dialogueKey}

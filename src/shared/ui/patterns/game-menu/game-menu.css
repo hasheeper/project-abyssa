@@ -1,81 +1,113 @@
-/* One frame, one alignment grid. The rail itself widens to reveal its labels. */
+/* Fixed icon anchors and row heights; only the rail and caption opacity animate. */
 .game-menu {
-  --menu-width: 58px;
-  --menu-edge: #4d5d53;
-  --menu-ink: #b7c0b4;
+  --menu-edge: rgb(138 170 162 / 30%);
+  --menu-icon: hsl(168 12% 65%);
+  --menu-ink: hsl(168 12% 51%);
   position: fixed;
   z-index: 100;
   top: var(--game-menu-top, 20px);
   left: 0;
-  width: var(--menu-width);
-  padding: 6px;
+  width: 64px;
+  max-height: calc(100% - var(--game-menu-top, 20px) - 16px);
+  display: flex;
+  flex-direction: column;
+  padding: 5px 4px;
   box-sizing: border-box;
   color: var(--menu-ink);
   font-family: var(--abyssa-font-body, serif);
   isolation: isolate;
-  filter: drop-shadow(3px 6px 6px #0007);
-  transition: width 280ms cubic-bezier(.2,.7,.3,1);
+  transition: width 200ms cubic-bezier(.2,.7,.3,1);
 }
-.game-menu[data-expanded] { --menu-width: 194px; }
+.game-menu[data-expanded] { width: 132px; }
 .game-menu__frame {
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: var(--menu-edge);
+  background: rgb(8 17 17 / 64%);
+  -webkit-backdrop-filter: blur(14px) saturate(.75);
+  backdrop-filter: blur(14px) saturate(.75);
   clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%);
   pointer-events: none;
 }
 .game-menu__frame::after {
   content: "";
   position: absolute;
-  inset: 1px 1px 1px 0;
-  clip-path: polygon(0 0, calc(100% - 9.4px) 0, 100% 9.4px, 100% calc(100% - 9.4px), calc(100% - 9.4px) 100%, 0 100%);
-  background: linear-gradient(110deg, #ffffff04, transparent 62%), #101715;
-  box-shadow: inset 0 1px #a4b5a60b;
+  inset: 0;
+  background: var(--menu-edge);
+  clip-path: polygon(evenodd,
+    0 0, calc(100% - 10px) 0, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 0,
+    0 1px, 0 calc(100% - 1px), calc(100% - 10.4px) calc(100% - 1px), calc(100% - 1px) calc(100% - 10.4px), calc(100% - 1px) 10.4px, calc(100% - 10.4px) 1px, 0 1px);
 }
 .game-menu button, .game-menu a { font-family: inherit; -webkit-tap-highlight-color: transparent; }
-.game-menu__header { margin: 0; padding: 0 0 6px; }
-.game-menu__toggle, .game-menu__entry {
+.game-menu__entries { min-height: 0; overflow: hidden auto; scrollbar-width: thin; scrollbar-color: #4d6760 transparent; }
+.game-menu__group { display: flex; flex-direction: column; padding: 0; }
+.game-menu__group + .game-menu__group { margin-top: 7px; padding-top: 7px; border-top: 1px solid rgb(138 170 162 / 18%); }
+.game-menu__entry, .game-menu__toggle {
   position: relative;
-  display: flex;
-  align-items: center;
-  gap: 12px;
+  display: block;
+  flex: 0 0 64px;
   width: 100%;
-  height: 34px;
+  height: 64px;
   min-width: 0;
   margin: 0;
-  padding: 0 12px;
+  padding: 0 11px;
   box-sizing: border-box;
   border: 0;
   background: none;
-  color: inherit;
+  color: var(--menu-ink);
   text-align: left;
   text-decoration: none;
   cursor: pointer;
-  overflow: hidden;
   white-space: nowrap;
+  overflow: hidden;
+  transition: background-color 140ms ease;
 }
-.game-menu__toggle { color: #90a091; }
-.game-menu__toggle > svg {
+.game-menu__toggle { height: 38px; flex-basis: 38px; margin-bottom: 4px; border-bottom: 1px solid rgb(138 170 162 / 18%); color: var(--menu-icon); }
+.game-menu__toggle > svg { position: absolute; left: 18px; top: 4px; width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.3; transition: transform 200ms ease; }
+.game-menu[data-expanded] .game-menu__toggle > svg { transform: rotate(180deg); }
+.game-menu__icon {
+  position: absolute;
+  left: 11px;
+  top: 9px;
   display: block;
-  flex: 0 0 20px;
-  width: 20px;
-  height: 20px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.2;
+  width: 34px;
+  height: 34px;
+  color: var(--menu-icon);
+  background: currentColor;
+  mask: no-repeat center / contain;
+  transition: color 140ms ease;
 }
-.game-menu__toggle-point { display: none; }
-.game-menu[data-expanded] .game-menu__toggle > svg > path:first-child { display: none; }
-.game-menu[data-expanded] .game-menu__toggle-point { display: block; transform: rotate(180deg); transform-origin: center; }
-.game-menu__toggle .game-menu__label { font-size: 12px; letter-spacing: .16em; }
-.game-menu__entries { overflow: hidden; }
-.game-menu__group { display: flex; flex-direction: column; padding: 5px 0; border-top: 1px solid #7b93782b; }
-.game-menu__icon { display: block; flex: 0 0 20px; width: 20px; height: 20px; background: currentColor; mask: no-repeat center / contain; opacity: .8; }
-.game-menu__label { flex: 0 0 auto; opacity: 0; transform: translateX(-3px); transition: opacity 120ms ease, transform 180ms ease; font-size: 14px; font-weight: 400; letter-spacing: .08em; }
-.game-menu[data-expanded] .game-menu__label { opacity: 1; transform: none; transition-delay: 100ms; }
-.game-menu__locked { margin-left: auto; flex-shrink: 0; font-size: 9px; opacity: .6; }
+/* Match the painted silhouettes, not the different amounts of SVG whitespace. */
+.game-menu__icon[data-icon="menu"] { mask-size: 25px 25px; }
+.game-menu__icon[data-icon="retreat"] { mask-size: 27px 27px; }
+.game-menu__icon[data-icon="mansion"] { mask-size: 31px 31px; }
+.game-menu__icon[data-icon="journey"] { mask-size: 35px 35px; mask-position: center calc(50% + 1px); }
+.game-menu__icon[data-icon="archive"] { mask-size: 29px 29px; }
+.game-menu__icon[data-icon="save"], .game-menu__icon[data-icon="load"] { mask-size: 30px 30px; }
+.game-menu__icon[data-icon="settings"] { mask-size: 27px 27px; }
+.game-menu__label, .game-menu__caption {
+  position: absolute;
+  font-family: var(--abyssa-font-display, "Cinzel", serif);
+  font-size: 9px;
+  line-height: 12px;
+  font-weight: 600;
+  color: var(--menu-ink);
+  letter-spacing: .06em;
+  text-shadow: 0 1px 2px #0008;
+  pointer-events: none;
+  transition: color 140ms ease, opacity 140ms ease;
+}
+.game-menu__label--compact { left: 28px; top: 44px; transform: translateX(-50%); opacity: 1; }
+.game-menu__label--expanded { left: 55px; top: 18px; font-size: 11px; line-height: 16px; opacity: 0; }
+.game-menu[data-expanded] .game-menu__label--compact { opacity: 0; }
+.game-menu[data-expanded] .game-menu__label--expanded { opacity: 1; }
+.game-menu__caption { font-weight: 500; letter-spacing: .12em; }
+.game-menu__caption.game-menu__label--compact { top: 25px; font-size: 8px; }
+.game-menu__caption.game-menu__label--expanded { top: 8px; font-size: 9px; line-height: 12px; }
 .game-menu__entry:disabled { opacity: .32; cursor: default; }
-.game-menu__entry:not(:disabled):hover, .game-menu__toggle:hover { background: linear-gradient(90deg, #536b502e, #536b5010); color: #d1d3be; }
-.game-menu button:focus-visible, .game-menu a:focus-visible { outline: 1px solid #839780; outline-offset: -2px; background: #536b5020; }
-@media(prefers-reduced-motion:reduce) { .game-menu, .game-menu__label { transition: none !important; } }
+.game-menu__entry:not(:disabled):hover, .game-menu__toggle:hover { background: rgb(114 179 183 / 7%); }
+.game-menu__entry:not(:disabled):hover .game-menu__icon { color: hsl(168 12% 78%); }
+.game-menu__entry:not(:disabled):hover .game-menu__label { color: hsl(168 12% 67%); }
+.game-menu button:focus:not(:focus-visible), .game-menu a:focus:not(:focus-visible) { outline: none; box-shadow: none; }
+.game-menu button:focus-visible, .game-menu a:focus-visible { outline: 1px solid #82aaa4; outline-offset: -2px; background: rgb(114 179 183 / 10%); }
+@media(prefers-reduced-motion:reduce) { .game-menu, .game-menu__entry, .game-menu__icon, .game-menu__label, .game-menu__caption, .game-menu__toggle, .game-menu__toggle > svg { transition: none !important; } }

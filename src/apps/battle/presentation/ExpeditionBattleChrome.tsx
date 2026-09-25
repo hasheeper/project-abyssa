@@ -1,3 +1,4 @@
+import { MoneyText, useMoney } from "../../../shared/ui/primitives/Money";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { HandEvaluation, LayerSettlement } from "../view";
 import type { BattleUiSkin } from "../battleUiSkins";
@@ -180,6 +181,7 @@ export function ExpeditionHandReadout({ hand, explanation }: { hand: HandEvaluat
 
 export type LayerSettlementSummary = Omit<LayerSettlement, "round" | "closingHandName" | "closingHandBonus"> & Partial<Pick<LayerSettlement, "closingHandName" | "closingHandBonus">>;
 export function LayerSettlementBreakdown({ settlement, earthFactor = 1 }: { settlement: LayerSettlementSummary; earthFactor?: number }) {
+  const money = useMoney();
   const closingBonus = settlement.closingHandBonus ?? 0;
 
   return (
@@ -187,15 +189,15 @@ export function LayerSettlementBreakdown({ settlement, earthFactor = 1 }: { sett
       className="abyssa-expedition-modal__settlement"
       role="region"
       aria-label={
-        `第 ${settlement.layer} 层结算：本层散金 ${settlement.baseGold} 金币，` +
+        `第 ${settlement.layer} 层结算：本层散金 ${money.format(settlement.baseGold)}，` +
         `乘牌型倍率 ${settlement.handFactor.toFixed(2)}，乘层倍率 ${settlement.layerFactor}，${earthFactor !== 1 ? `乘大地倍率 ${earthFactor}，` : ""}` +
-        `本层入袋 ${settlement.payout} 金币`
+        `本层入袋 ${money.format(settlement.payout)}`
       }
     >
       <div className="abyssa-expedition-modal__settlement-formula">
         <span data-currency="gold">
           <small>本层散金</small>
-          <strong>{settlement.baseGold.toLocaleString()}G</strong>
+          <strong><MoneyText value={settlement.baseGold}/></strong>
         </span>
         <i aria-hidden="true">×</i>
         <span>
@@ -211,7 +213,7 @@ export function LayerSettlementBreakdown({ settlement, earthFactor = 1 }: { sett
         <i aria-hidden="true">＝</i>
         <span data-currency="gold" data-result>
           <small>本层入袋</small>
-          <strong>＋{settlement.payout.toLocaleString()}G</strong>
+          <strong>＋<MoneyText value={settlement.payout}/></strong>
         </span>
       </div>
       {settlement.closingHandBonus !== undefined && <p data-counted={closingBonus > 0 || undefined}>
@@ -220,9 +222,9 @@ export function LayerSettlementBreakdown({ settlement, earthFactor = 1 }: { sett
           : "最后回合没有新增牌型倍率"}
       </p>}
       <footer>
-        <span>包裹 {settlement.bagBefore.toLocaleString()}G</span>
+        <span>包裹 <MoneyText value={settlement.bagBefore}/></span>
         <i aria-hidden="true">→</i>
-        <strong>{settlement.bagAfter.toLocaleString()}G</strong>
+        <strong><MoneyText value={settlement.bagAfter}/></strong>
       </footer>
     </section>
   );

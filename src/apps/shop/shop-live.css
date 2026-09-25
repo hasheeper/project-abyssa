@@ -1,0 +1,12 @@
+.shop-live { position: absolute; inset: 0; }
+.shop-live .campaign-panel { z-index: 15; }
+.shop-live__history { position: relative; z-index: 8; flex-shrink: 0; }
+.shop-live__history > button, .shop-live__result-actions button { padding: 4px 0; border: 0; background: transparent; color: #c1a77c; font-size: 15px; white-space: nowrap; }
+.shop-live__history > button:hover, .shop-live__result-actions button:hover { color: #efdab3; }
+.shop-live__records { position: absolute; top: calc(100% + 9px); left: -8px; width: 282px; max-height: 264px; padding: 10px; overflow-y: auto; border: 1px solid #806744; background: #21190f; box-shadow: 0 8px 18px #0009, inset 0 0 0 3px #100c08; }
+.shop-live__records button { display: block; width: 100%; padding: 12px 8px; border: 0; border-bottom: 1px solid #73573855; background: transparent; color: #dac7a3; text-align: left; font-size: 17px; }
+.shop-live__records button:hover { background: #b992562b; }
+.shop-live__records p { margin: 12px; font-size: 16px; }
+.new-shop-detail { position: relative; }
+.new-shop-detail__error { position: absolute; z-index: 6; right: 16px; bottom: 70px; max-width: 560px; margin: 0; padding: 10px 14px; border: 1px solid #956642; background: #24170f; color: #ebbc9a; font-size: 16px; box-shadow: 0 5px 12px #0007; }
+.shop-live__result-actions { display: flex; align-items: center; }

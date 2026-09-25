@@ -4,6 +4,7 @@ export { eventFaceMethod } from "../battle/rules/v2/event-face";
 import type { ValidatedDemoCatalog } from "../contracts/demo";
 import * as v from "../contracts/validation";
 import { demoRoom } from "../contracts/demo-journey-validation";
+import { collectRoomLoot } from "./demo-expedition";
 import { drawRngValue } from "../battle/persistence/rng";
 import { randomInt } from "../battle/rules/v2/combat";
 import { asDemoBattle, journeyEvent, roomInstance, validateDemoExpedition, type DemoExpeditionState, type DemoExpeditionResolution } from "./demo-expedition";
@@ -34,7 +35,7 @@ export function chooseRuleEvent<R extends RuleExpeditionRun>(catalog: RuleContex
   const result = {roomId: id, eventId: def.id, choiceId: choice, actorId, faceId, method, cost, reward};
   run.eventResults.push(result); run.completedRoomIds.push(id);
   const next: DemoExpeditionState<R> = {run, node: "room-complete", encounter: null, undo: [], result: null};
-  return {state: next, events: [journeyEvent(next, "event-resolved", {...result}, actorId), journeyEvent(next, "room-completed", {roomId: id, layer: run.layer})]};
+  return {state: next, events: [journeyEvent(next, "event-resolved", {...result}, actorId), journeyEvent(next, "room-completed", {roomId: id, layer: run.layer}), ...collectRoomLoot(catalog, next)]};
 }
 /** Read-only legal targets for a validated expedition. Shared by commands and UI queries. */
 export function demoItemTargets(catalog: RuleContext, state: DemoExpeditionState<RuleRun>, instanceId: string): DemoItemTarget[] {

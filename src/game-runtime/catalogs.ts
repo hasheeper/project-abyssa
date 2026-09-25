@@ -2,6 +2,7 @@ import { deriveD5Baseline } from "../game-application/versions/d5-lineage";
 import type { D5RunReaders } from "../game-core/session";
 import { D5_RUN_READERS } from "../game-core/session";
 import * as v from "../game-core/contracts";
+import { canonicalSaveJson, poolSaveJson } from "../game-core/contracts/pooled-json";
 import type {
   ValidatedCatalog,
   ValidatedD5Catalog,
@@ -90,12 +91,12 @@ export function createCatalogRegistry(input: CatalogRegistration[]) {
   function read(raw: unknown): AnyGameRecord {
     if (raw !== null && typeof raw === "object" && snapshots.has(raw as AnyGameRecord))
       return raw as AnyGameRecord;
-    v.assertJson(raw);
     const envelope = v.record(raw, "record");
+    if (envelope.schemaVersion === 4) poolSaveJson(raw); else v.assertJson(raw);
     const entry = resolve(envelope.schemaVersion, envelope.contentRef);
     const snapshot = entry.version === 1
       ? validateRecord(raw, entry.catalog)
-      : entry.version === 4 ? (() => { const id = v.id(v.record(envelope.head, "head").saveId, "saveId"); const prior = latestD5.get(id); const checked = prior && v.canonicalJson(prior) === v.canonicalJson(raw) ? prior : validateD5Record(raw, entry.catalog, readers, prior); latestD5.set(id, checked); return checked; })() : validateDemoRecord(raw, entry.catalog);
+      : entry.version === 4 ? (() => { const id = v.id(v.record(envelope.head, "head").saveId, "saveId"); const prior = latestD5.get(id); const checked = prior && canonicalSaveJson(prior) === canonicalSaveJson(raw) ? prior : validateD5Record(raw, entry.catalog, readers, prior); latestD5.set(id, checked); return checked; })() : validateDemoRecord(raw, entry.catalog);
     v.freezeData(snapshot);
     snapshots.add(snapshot);
     return snapshot;

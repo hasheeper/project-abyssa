@@ -1,3 +1,4 @@
+import { MoneyText } from "../../shared/ui/primitives/Money";
 import { TideTutorialGuide } from "./presentation/TideTutorialGuide";
 import { AirpPanel } from "../../game-client/AirpPanel";
 import { TideJourneyPanel, TideJourneyActions, tideJourneyTitle, tideEventCopy, tideEventVisible } from "./presentation/TideJourneyPanel";
@@ -7,6 +8,7 @@ import { HandbookModal } from "./presentation/GameHandbook";
 import handbookIcon from "../../assets/icons/items/bookmark.svg";
 import { tideScene } from "./presentation/tide-scene";
 import { resolvePlayerText } from "../../shared/domain/player-identity";
+import { usePlayerName } from "../../shared/domain/PlayerIdentity";
 import { useCampaignMenuCommands } from "../../game-client/CampaignMenuScope";
 import { ItemDock } from "../../shared/ui/patterns/action-dock/ItemDock";
 import { supplyArt } from "../../content/presentation/supply-icons";
@@ -35,9 +37,13 @@ import {
 
 import type { ManorScene } from "./presentation/manor-scene";
 import { useSceneSequenceBusy } from "../../shared/presentation/adv/SceneSequence";
+import type { BattleLedgerContent } from "./presentation/ExpeditionBattleLedger";
+
+export type BattlePresentationSlots = { renderLedger?: BattleLedgerContent; outcome?: ReactNode; terminal?: ReactNode; feedback?: ReactNode };
 
 /** Content/controller binding for the approved shared battle UI. */
-export function ManorBattleView({presentation: p, scene, sceneReady = true, roomLoading, ...props}: ExpeditionBattleScreenProps & {presentation: ReturnType<typeof useManorBattlePresentation>; scene?: ManorScene; sceneReady?: boolean; roomLoading?: ReactNode}) {
+export function ManorBattleView({presentation: p, scene, sceneReady = true, roomLoading, slots, ...props}: ExpeditionBattleScreenProps & {presentation: ReturnType<typeof useManorBattlePresentation>; scene?: ManorScene; sceneReady?: boolean; roomLoading?: ReactNode; slots?: BattlePresentationSlots}) {
+  const playerName = usePlayerName();
   const sequenceBusy = useSceneSequenceBusy();
   const entering = !!scene && (sequenceBusy || !sceneReady);
   const session = useGameSession(), { navigate } = useSceneTransition();
@@ -49,6 +55,8 @@ export function ManorBattleView({presentation: p, scene, sceneReady = true, room
   const tutorialBlocked = !!tutorial && tutorial.stage !== "active";
   const run = expedition?.run,
     battle = v.battle;
+  const route = v.routes[run?.routeId ?? v.defaultRouteId];
+  const routeName = route?.name ?? "远征";
   const [suppliesOpen, setSuppliesOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
   const [guide, setGuide] = useState(0);
@@ -88,13 +96,14 @@ export function ManorBattleView({presentation: p, scene, sceneReady = true, room
     ...(tutorial?.guide?.canExit ? [{id: "exit-guided", label: "退出带做", detail: "取消步骤限制，继续自由操作", disabled: p.busy, onSelect: () => {
       if (!p.isBusy()) void p.perform({type:"tutorial-guide",runRef:tutorial.runRef!,planId:tutorial.guide!.planId,attempt:tutorial.attempt!,mode:"free"});
     }}] : []),
-    {id: "end-turn", label: "结束回合", detail: "交由敌方行动", disabled: p.busy || !canBattle({type:"end-turn"}) || battle?.phase !== "act", onSelect: () => {
+    // Tutorial actions stay on the board; omit duplicate and unavailable rail commands.
+    ...(!tutorial ? [{id: "end-turn", label: "结束回合", detail: "交由敌方行动", disabled: p.busy || !canBattle({type:"end-turn"}) || battle?.phase !== "act", onSelect: () => {
       if (p.isBusy() || !canBattle({type:"end-turn"}) || battle?.phase !== "act" || !run) return;
       const ref = battle.encounter.memory && p.memory?.memory ? {kind:"memory" as const,id:run.id,attempt:p.memory.memory.attempt} : {kind:"expedition" as const,id:run.id};
       void p.perform({type:"battle-command",runRef:ref,command:{type:"end-turn"}});
     }},
     {id: "retreat", label: "撤退", detail: "尚未开放", disabled: true},
-    {id: "camp", label: "扎营", detail: "尚未开放", disabled: true},
+    {id: "camp", label: "扎营", detail: "尚未开放", disabled: true}] : []),
   ], entering || p.busy || handbookOpen);
   if (!expedition || !run) return null;
   const memory = !!battle?.encounter.memory;
@@ -169,10 +178,10 @@ export function ManorBattleView({presentation: p, scene, sceneReady = true, room
       const enemy = battle?.enemies.find(e => e.id === target.id || e.intent?.id === target.id);
       const seat = (battle?.encounter.formation.indexOf(enemy?.id ?? "") ?? -1) + 1;
       const victim = v.party.find(m => m.id === enemy?.intent?.targetId);
-      return `第 ${seat} 席 · ${victim ? `攻击${battleMemberName(victim)}` : enemy?.definition.name ?? "敌方攻击"}`;
+      return `第 ${seat} 席 · ${victim ? `攻击${battleMemberName(victim, playerName)}` : enemy?.definition.name ?? "敌方攻击"}`;
     }
     const member = v.party.find(m => m.id === target.id);
-    return `${battleMemberName(member)}${target.faceId ? ` · ${member?.faces.find(f => f.id === target.faceId)?.name}` : ""}`;
+    return `${battleMemberName(member, playerName)}${target.faceId ? ` · ${member?.faces.find(f => f.id === target.faceId)?.name}` : ""}`;
   };
   const canChooseEvent = (choice: "read" | "skip" | "attempt") => tideGuideAllows(v, {type:"event",roomId:v.roomId!,choice,actorId:choice === "attempt" ? eventActorId : null});
   const eventChoice = (choiceId: "read" | "skip" | "attempt") => {
@@ -191,18 +200,18 @@ export function ManorBattleView({presentation: p, scene, sceneReady = true, room
   const exit = (choice: "leave" | "continue") => {
     if (!p.isBusy()) void p.perform({type: "choose-exit", runRef: ordinaryRef, roomId: v.roomId!, choice});
   };
-  const inlineJourney = !!tutorial && (tutorial.canRetry || tutorial.canClaim) || !memory && ["event", "room-complete", "exit"].includes(expedition.node);
+  const inlineJourney = !!tutorial?.canRetry || !memory && ["event", "room-complete", "exit"].includes(expedition.node);
   const eventDie = p.eventRoll ?? manorEventDie(v);
   const tideEvent = tideEventVisible(v);
-  const overlay = !tutorial && expedition.node === "finished" && (
+  const overlay = slots?.terminal ?? (!slots?.outcome && !tutorial && expedition.node === "finished" && (
     <div className="abyssa-expedition-overlay" role="dialog" aria-modal="true"
       aria-label={expedition.result.outcome === "wipe" ? "强行撤离" : "远征结束"}>
       <div className="abyssa-expedition-modal" data-wide>
         <h3>{expedition.result.outcome === "wipe" ? "强行撤离" : "远征结束"}</h3>
         <div className="abyssa-expedition-modal__body">
           <p>最深抵达第 {expedition.result.deepestLayer} 层。</p>
-          <p className="abyssa-expedition-modal__highlight">本次带回 <strong data-currency="gold">{expedition.result.totalGold}G</strong></p>
-          {expedition.result.outcome === "wipe" && <p data-tone="bad">遗失本层散金 {expedition.result.lostLooseGold}G 与本次包裹金币 {expedition.result.lostBankedGold}G。</p>}
+          <p className="abyssa-expedition-modal__highlight">本次带回 <strong data-currency="gold"><MoneyText value={expedition.result.totalGold}/></strong></p>
+          {expedition.result.outcome === "wipe" && <p data-tone="bad">遗失本层散金 <MoneyText value={expedition.result.lostLooseGold}/> 与本次包裹资金 <MoneyText value={expedition.result.lostBankedGold}/>。</p>}
           <p>回馆后，剩余配给归还库存。</p>
         </div>
         <div className="abyssa-expedition-modal__actions">
@@ -210,13 +219,13 @@ export function ManorBattleView({presentation: p, scene, sceneReady = true, room
         </div>
       </div>
     </div>
-  );
+  ));
   const sidebarProps = {
     partyIds: v.party.map(member => member.id),
     reaction: p.reaction,
     quiet: !!tutorial?.guide,
     battleObjective: tutorial?.guide && tutorial.encounter === 4 ? "击败全部敌人，夺回货物。" : undefined,
-    title: memory ? "MEMORY · 回忆" : tutorial ? "TIDE CAVE" : "MANOR YIELD",
+    title: memory ? "MEMORY · 回忆" : tutorial ? "TIDE CAVE" : route?.ending === "plain" ? "EXPEDITION" : "MANOR YIELD",
     memory: memory ? {
             readoutLabel: clockwork ? "钟鸣威力" : "侍偶护域",
             protection: clockwork ? (battle?.enemies[0]?.intent?.kind === "attack" ? battle.enemies[0].damage : battle?.enemies[0]?.definition.attack ?? 0) : battle?.enemies.find(e => e.id === battle.encounter.memory?.bossId)?.protection ?? 0,
@@ -224,20 +233,22 @@ export function ManorBattleView({presentation: p, scene, sceneReady = true, room
             busy: p.busy,
             onLeave: () => { if (!p.busy && runRef.kind === "memory") void session.dispatch({type: "leave-memory", runRef}).then(batch => {if (batch) navigate(gameHref("mansion", recordLocator(batch.after)));}); },
           } : undefined,
-    layers: v.depthFactors,
+    layers: v.depthFactors.slice(0, v.layerCount),
     engine: {
-            location: memory ? clockwork ? "旧日钟廊" : "魔王城礼仪回廊" : tutorial ? "退潮岩窟" : scene ? `克雷格旧庄园 · ${scene.location}` : "克雷格旧庄园",
+            location: memory ? clockwork ? "旧日钟廊" : "魔王城礼仪回廊" : tutorial ? "退潮岩窟" : scene ? `${routeName} · ${scene.location}` : routeName,
             layer: run.layer,
             round: battle?.encounter.round ?? 0,
             gold: run.looseGold,
             bagGold: run.bankedGold,
             deepestLayer: run.layer,
-            log: v.log.map(line => ({...line, text: resolvePlayerText(line.text)})),
+            log: v.log.map(line => ({...line, text: resolvePlayerText(line.text, playerName)})),
           },
     handFactor: v.economy!.handFactor,
     layerFactor: v.economy!.layerFactor,
     earthFactor: v.economy!.earthFactor,
     projected: v.economy!.projected,
+    battleGold: v.economy!.battleGold,
+    currentLayerGold: run.layerResults.find(result => result.layer === run.layer)?.gold,
     layerClearPending: false,
 
   } satisfies ExpeditionBattleSidebarProps;
@@ -247,12 +258,13 @@ export function ManorBattleView({presentation: p, scene, sceneReady = true, room
     <ExpeditionBattleSurface
       {...props}
       roomLoading={roomLoading}
+      outcome={slots?.outcome}
       inert={handbookOpen || entering}
       entrance={!!scene}
       formationKey={battle?.encounter.id ?? "journey"}
       location={scene?.location ?? tutorialStage?.location}
-      title={memory ? clockwork ? "停下来的钟声" : "王座前的提线魔女" : tutorial?.canClaim ? "守望者之崖·归来" : tutorial ? "雾滩·退潮岩窟" : "克雷格旧庄园"}
-      label={memory ? "玛丽埃塔回忆战斗界面" : tutorial ? "退潮岩窟战斗界面" : "克雷格旧庄园战斗界面"}
+      title={memory ? clockwork ? "停下来的钟声" : "王座前的提线魔女" : tutorial?.canClaim ? "守望者之崖·归来" : tutorial ? "雾滩·退潮岩窟" : routeName}
+      label={memory ? "玛丽埃塔回忆战斗界面" : tutorial ? "退潮岩窟战斗界面" : `${routeName}战斗界面`}
       party={p.party.map(m => ({...m,ready:m.ready && canPickMember(m.id),healable:m.healable && !!memberAction(m.id)}))}
       presentedEnemies={tutorial?.canRetry ? [] : p.presentedEnemies.map(e => ({...e,
         targetable:e.targetable && options.some(o => o.targetId === e.id && o.choice !== "guard"),
@@ -292,7 +304,7 @@ export function ManorBattleView({presentation: p, scene, sceneReady = true, room
       dicePanel={
         <ExpeditionDiceTray
           entrance={!!scene}
-          controls={inlineJourney ? tutorial && !tideEvent ? <TideJourneyActions view={v} busy={p.busy || !!props.saving} canAdvance={canAdvance} onRetry={scope => void p.perform({type:"tutorial-retry",runRef:ordinaryRef,attempt:tutorial.attempt!,scope})} onAdvance={advance} onClaim={props.onSettle!}/> : <ManorJourneyActions view={v} actorId={eventActorId} busy={p.busy} eventRoll={p.eventRoll}
+          controls={inlineJourney ? tutorial && !tideEvent ? <TideJourneyActions view={v} busy={p.busy || !!props.saving} canAdvance={canAdvance} onRetry={scope => void p.perform({type:"tutorial-retry",runRef:ordinaryRef,attempt:tutorial.attempt!,scope})} onAdvance={advance}/> : <ManorJourneyActions view={v} actorId={eventActorId} busy={p.busy} eventRoll={p.eventRoll}
             canChoose={canChooseEvent} canAdvance={canAdvance} onObserve={observe} onChoice={eventChoice} onAdvance={advance} onExit={exit}/> : undefined}
           itemPanel={v.supplies.length && !tutorialBlocked ? {
             open: suppliesOpen, onToggle: () => setSuppliesOpen(open => !open),
@@ -357,9 +369,9 @@ export function ManorBattleView({presentation: p, scene, sceneReady = true, room
         />
       }
       sidebar={
-        <ExpeditionBattleSidebar {...sidebarProps} entrance={!!scene} objective={!memory && !tutorial ? <AirpPanel compact/> : undefined}/>
+        <ExpeditionBattleSidebar {...sidebarProps} renderLedger={slots?.renderLedger} entrance={!!scene} objective={!memory && !tutorial ? <AirpPanel compact/> : undefined}/>
       }
-      overlays={memory && p.memory?.memory?.node !== "battle" ? null : overlay}
+      overlays={<>{memory && p.memory?.memory?.node !== "battle" ? null : overlay}{slots?.feedback}</>}
     />
     <HandbookModal open={handbookOpen} onClose={() => setHandbookOpen(false)}/></>
   );

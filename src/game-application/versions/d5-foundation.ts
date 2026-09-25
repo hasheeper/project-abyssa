@@ -1,4 +1,5 @@
 import * as v from "../../game-core/contracts";
+import { serializeD5Archive } from "./d5-archive";
 import type { ValidatedD5Catalog } from "../../game-core/contracts";
 import { initialD5Projection } from "../../game-core/session";
 import type { D5RunReaders } from "../../game-core/session";
@@ -46,11 +47,12 @@ export function createD5FoundationApplication(catalog: ValidatedD5Catalog, store
           commits: [{ ref: head, previous: null, requestId, kind: "create", factIds: [factId] }],
           facts: [{ version: 4, id: factId, source: head, origin: "present", runRef: null, originRef: null, worldTime: campaign.clock, visibility: "party", kind: "save-created", payload: { profileId } }],
           retractedFactIds: [], undoAnchors: [], originRef: null,
+          ...([22, 24, 26, 28].includes(catalog.ref.contentVersion) ? { airpGame: null } : {}),
         };
         const receipt: D5Receipt = { version: 4, contentRef: catalog.ref, saveId, epoch, requestId, fingerprint, status: "committed", before: null, after: head, error: null, events: [], factIds: [factId] };
         if (catalog.data.airp) {
           const reduced = reduceAirpApplicationCommit(catalog, emptyAirp(catalog), catalog.data.airpOnline ? emptyAirpOnline() : undefined, { head, before: campaign, after: campaign, run: null, facts: record.facts, group: record.facts, retracted: [] });
-          record.narrative = reduced.narrative; if (reduced.online) record.airpOnline = reduced.online;
+          record.narrative = reduced.narrative; if (reduced.online) record.airpOnline = reduced.online; if (reduced.direct) record.airpDirect = reduced.direct; if (reduced.director) record.airpDirector = reduced.director;
         }
         const committed = await store.commit({ saveId, epoch, requestId, fingerprint, expectedHead: null, candidate: validateD5Record(record, catalog), receipt: validateD5Receipt(receipt, catalog) });
         return result(validateD5Receipt(committed.receipt, catalog), committed.replayed);
@@ -61,7 +63,7 @@ export function createD5FoundationApplication(catalog: ValidatedD5Catalog, store
       catch (error) { return { ok: false as const, error: applicationError(error) }; }
     },
     async exportSave(saveId: string) {
-      try { return { ok: true as const, archive: JSON.stringify({ archiveVersion: 4, record: await read(saveId) }) }; }
+      try { return { ok: true as const, archive: serializeD5Archive(await read(saveId)) }; }
       catch (error) { return { ok: false as const, error: applicationError(error) }; }
     },
     async dispatch(raw: unknown): Promise<Result> {

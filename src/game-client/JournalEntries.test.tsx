@@ -79,3 +79,15 @@ it("retains opening, aftermath and online followup actions with their own instan
     expect(dispatch.mock.calls.map(([command])=>command)).toEqual([{type:"airp-open",instanceId:"instance"},{type:"airp-online-followup",instanceId:"instance"}]);
   } finally {f.session.dispose();}
 });
+
+it("exposes browser-direct followup in the actual manor journal without dispatching the old rp command", async () => {
+  const f = await tutorialEntryFixture(), user = userEvent.setup();
+  try {
+    const dispatch = vi.spyOn(f.session, "dispatch").mockResolvedValue(null), base = poolEntry();
+    const [entry] = airpJournalEntries(pool([poolEntry({instance: {...base.instance, status: "resolved"}, canDirectFollowup: true})]), f.session, false);
+    expect(entry).toMatchObject({group: "current", actionable: true});
+    render(<>{entry.content}</>);
+    await user.click(screen.getByRole("button", {name: "再和艾洛拉聊聊药箱"}));
+    expect(dispatch).toHaveBeenCalledExactlyOnceWith({type: "airp-direct-followup", instanceId: "instance"});
+  } finally {f.session.dispose();}
+});

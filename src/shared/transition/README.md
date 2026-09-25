@@ -2,7 +2,7 @@
 
 > 2026-09-16：已撤销 U3 F 的统一 curtain 接入，恢复本文描述的原页面交接与资源等待实现；不再依赖 UiCurtain／SceneInputBoundary。此次是回退，不是新的性能验收。
 
-> 2026-09-17 M3：角色、商店、出征、洋馆的 UI 入场生命周期共用 `usePageUiIntro`，页面保留薄适配及不同策略。没有改黑幕、资源等待或专用演出。见 [M3 验收](../../../docs/audits/2026-09-17-ui-motion-m3.md)。
+> 2026-09-17 M3：角色、商店、出征、洋馆的 UI 入场生命周期共用 `usePageUiIntro`，页面保留薄适配及不同策略。没有改黑幕、资源等待或专用演出。见 [UI Motion：共享动作与参数](../ui/motion/README.md)。
 
 正式游戏由 `src/game-shell` 持有唯一黑幕，首次资源准备与内部路由共用本组件。页面提供短文案、`holdReady` 和原有入场样式，嵌套 Provider 自动复用外层，不再重复绘制。独立实验页面仍可使用原 Provider 完成跨文档 handoff；本组件不持有游戏规则或存档。
 

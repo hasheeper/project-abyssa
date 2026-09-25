@@ -1,0 +1,87 @@
+.battle-ledger-drawer:has(.loot-ledger) { width: 720px; }
+.battle-ledger-drawer__travel:has(.loot-ledger) { height: auto; max-height: 100%; }
+.battle-loot-feedback { position: absolute; z-index: 45; right: 87px; top: 120px; width: 318px; pointer-events: none; }
+.loot-reward:focus-visible, .loot-pocket__toggle:focus-visible, .loot-rewards__scroll:focus-visible { outline: 2px solid var(--battle-skin-accent-bright); outline-offset: 3px; }
+
+.abyssa-expedition .battle-ledger.loot-ledger { height: auto; max-height: 100%; grid-template-rows: 48px auto minmax(140px, 1fr) auto; gap: 20px; background: var(--battle-sidebar-surface); color: var(--battle-detail-copy); border-color: var(--battle-structure-line); box-shadow: inset 0 0 0 2px var(--battle-frame-deep), inset 0 0 0 3px var(--battle-structure-inner); }
+/* The inherited material ::before is above static text; all contents share one foreground. */
+.loot-ledger > :not(.abyssa-expedition-sidebar__corners) { position: relative; z-index: 2; }
+.loot-ledger .battle-ledger__heading span { color: var(--battle-detail-copy-strong); }
+.loot-ledger__bags { display: grid; gap: 8px; max-height: 530px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--battle-structure-line) var(--battle-frame-deep); }
+.loot-pocket { min-width: 0; border-bottom: 1px solid var(--battle-structure-line); }
+.loot-pocket__toggle { display: grid; grid-template-columns: minmax(0, 1fr) auto 30px; width: 100%; align-items: center; gap: 22px; padding: 10px 9px 11px 7px; border: 0; text-align: left; background: transparent; color: var(--battle-detail-copy); cursor: pointer; font-family: var(--font-body); transition: background-color 160ms ease; }
+.loot-pocket__toggle:hover { background: rgb(215 221 211 / 3%); }
+.loot-pocket__title { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 3px; padding-left: 18px; }
+.loot-pocket__heading { display: flex; align-items: baseline; gap: 13px; }
+.loot-pocket__title strong { color: var(--battle-detail-copy-strong); font: 20px/1.3 var(--font-body); letter-spacing: .05em; white-space: nowrap; }
+.loot-pocket__title > small { color: var(--battle-skin-muted); font: 11px/1.4 var(--font-body); letter-spacing: .04em; }
+.loot-pocket__title::before { position: absolute; top: 4px; left: 0; content: ""; width: 4px; height: 18px; background: var(--manor-thread, var(--battle-skin-accent)); }
+.loot-pocket[data-status="banked"] .loot-pocket__title::before { background: var(--battle-skin-accent-soft); }
+.loot-pocket__count { font: 15px var(--font-display); color: var(--battle-skin-muted); white-space: nowrap; }
+.loot-pocket__count small { font: 11px var(--font-body); }
+.loot-pocket__toggle .abyssa-currency-amount { min-width: 150px; justify-content: flex-end; align-items: center; font: 22px var(--font-display); color: var(--battle-detail-copy-strong); }
+.loot-pocket__toggle .abyssa-currency-amount > i { width: 18px; height: 18px; }
+.loot-pocket__chevron { display: block; width: 24px; height: 24px; justify-self: end; color: var(--battle-skin-accent-soft); filter: drop-shadow(0 2px 0 rgb(0 0 0 / 65%)); transform: rotate(0deg); transition: transform 220ms cubic-bezier(.22,.72,.2,1), color 160ms ease; }
+.loot-pocket__chevron-body { fill: currentColor; }
+.loot-pocket__chevron-edge { fill: none; stroke: var(--battle-skin-accent-bright); stroke-width: .65; opacity: .65; }
+.loot-pocket__toggle:hover .loot-pocket__chevron { color: var(--battle-skin-accent-bright); }
+.loot-pocket__toggle[aria-expanded="true"] .loot-pocket__chevron { transform: rotate(-180deg); }
+.loot-pocket__reveal { display: grid; grid-template-rows: 0fr; visibility: hidden; transition: grid-template-rows 240ms ease, visibility 240ms; }
+.loot-pocket__reveal[data-open="true"] { grid-template-rows: 1fr; visibility: visible; }
+.loot-pocket__reveal > div { min-height: 0; overflow: hidden; }
+.loot-pocket__reveal .loot-rewards { padding: 4px 7px 15px; }
+
+/* Naturally wrapping acquisition lines, with no fixed slots or empty cells. */
+.loot-rewards { min-width: 0; }
+.loot-rewards__scroll { max-height: 230px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: var(--battle-structure-line) transparent; }
+.loot-rewards__list { display: flex; flex-wrap: wrap; align-items: center; gap: 5px 27px; list-style: none; padding: 0; margin: 0; }
+.loot-rewards__list > li { max-width: 100%; }
+.loot-reward { display: flex; align-items: center; gap: 9px; min-height: 54px; max-width: 100%; padding: 5px 3px; border: 0; border-bottom: 1px solid transparent; background: transparent; color: var(--battle-detail-copy); text-align: left; cursor: default; }
+.loot-reward:hover { border-bottom-color: var(--battle-skin-accent-soft); color: var(--battle-detail-copy-strong); }
+.loot-reward__art { position: relative; display: grid; place-items: center; flex: 0 0 42px; width: 42px; height: 42px; }
+.loot-reward__art[data-rarity="unknown"] { --item-rarity-soft: var(--battle-skin-accent-soft); }
+.loot-reward__icon { display: block; width: 36px; height: 36px; background: color-mix(in srgb, var(--item-rarity-soft) 74%, var(--battle-skin-accent-soft)); mask: var(--loot-icon) center / contain no-repeat; -webkit-mask: var(--loot-icon) center / contain no-repeat; filter: drop-shadow(1px 2px 0 rgb(0 0 0 / 55%)); }
+.loot-reward__name { min-width: 0; max-width: 210px; font: 15px/1.5 var(--font-body); overflow-wrap: anywhere; }
+.loot-reward > b { display: flex; align-items: baseline; gap: 4px; padding-left: 3px; font: 19px var(--font-display); color: var(--battle-detail-copy-strong); white-space: nowrap; }
+.loot-reward > b small { font: 12px var(--font-body); color: var(--battle-skin-muted); }
+.loot-rewards__empty { margin: 10px 0 15px 19px; font: 14px var(--font-body); color: var(--battle-skin-muted); }
+
+/* Color belongs to quality; the small seal silhouette identifies the item kind. */
+.loot-kind-mark { display: block; width: 15px; height: 15px; flex: 0 0 auto; overflow: visible; color: var(--battle-skin-accent-soft); }
+.loot-kind-mark__body { fill: currentColor; stroke: var(--battle-frame-deep, #101412); stroke-width: 2.5; stroke-linejoin: round; paint-order: stroke fill; }
+.loot-kind-mark__cut { fill: none; stroke: var(--battle-frame-deep, #101412); stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
+.loot-reward__art > .loot-kind-mark { position: absolute; right: -2px; bottom: -1px; }
+.loot-reward__art[data-rarity="unknown"] .loot-reward__icon { opacity: .78; }
+
+/* Type and quality names are only written out in the hover detail. */
+.loot-item-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 3px 7px; color: var(--battle-skin-muted); font: 12px/1.5 var(--font-body); }
+.loot-item-meta > span { white-space: nowrap; }
+.loot-item-meta__kind { display: inline-flex; align-items: center; gap: 5px; }
+.loot-item-meta__separator { opacity: .5; }
+.loot-item-quality { display: inline-flex; align-items: center; gap: 6px; color: var(--battle-skin-accent-soft); }
+.loot-item-quality > i { display: inline-block; width: 6px; height: 6px; box-sizing: border-box; flex: 0 0 auto; transform: rotate(45deg); background: var(--item-rarity-soft); border: 1px solid var(--item-rarity); }
+.loot-item-quality[data-rarity="unknown"] { color: var(--battle-skin-muted); }
+.loot-item-quality[data-rarity="unknown"] > i { background: transparent; border-color: currentColor; }
+
+.loot-ledger .loot-ledger__log { min-height: 0; height: 100%; display: flex; flex-direction: column; margin: 0; }
+.loot-ledger .loot-ledger__log header { display: flex; justify-content: space-between; flex-shrink: 0; padding: 13px 10px; border-bottom: 1px solid var(--battle-structure-line); font-size: 16px; color: var(--battle-skin-accent-bright); }
+.loot-ledger .loot-ledger__log header small { font: 9px var(--font-display); letter-spacing: .12em; color: var(--battle-skin-muted); }
+.loot-ledger .loot-ledger__log ol { flex: 1; overflow: auto; margin: 0; max-height: none; padding: 10px; }
+.loot-ledger .loot-ledger__log li { grid-template-columns: 50px minmax(0, 1fr); align-items: start; padding: 9px 0; }
+.loot-ledger .loot-ledger__log li time { padding-top: 3px; font-size: 11px; }
+.loot-ledger .loot-ledger__log li span { white-space: normal; font-size: 15px; line-height: 1.6; }
+.loot-ledger__rule { color: var(--battle-skin-muted); font: 12px/1.8 var(--font-body); padding: 12px 2px 0; border-top: 1px solid var(--battle-structure-line); }
+
+@media (prefers-reduced-motion: reduce) { .loot-pocket__reveal, .loot-pocket__chevron { transition: none; } }
+.abyssa-expedition-theme[data-ui-motion="reduced"] .loot-pocket__reveal, .abyssa-expedition-theme[data-ui-motion="reduced"] .loot-pocket__chevron { transition: none; }
+
+/* Compact game tooltip: matte ink, a single worn edge, no dashboard sections. */
+.loot-reward { cursor: help; }
+.loot-hover-card { position: absolute; z-index: 90; padding: 16px 18px 17px; box-sizing: border-box; color: var(--battle-detail-copy); background: var(--battle-frame-deep, #101412); border: 1px solid var(--battle-structure-line, #485049); box-shadow: 0 7px 18px #000b; font-family: var(--font-body); animation: loot-hover-enter 110ms ease-out; }
+.loot-hover-card > header { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; }
+.loot-hover-card strong { color: var(--battle-detail-copy-strong); font: 600 18px/1.4 var(--font-body); letter-spacing: .025em; }
+.loot-hover-card__quantity { color: var(--battle-skin-accent-soft); font: 16px var(--font-display); white-space: nowrap; }
+.loot-hover-card > .loot-item-meta { margin-top: 6px; }
+.loot-hover-card > p { margin: 13px 0 0; color: var(--battle-detail-copy); font: 15px/1.75 var(--font-body); }
+@keyframes loot-hover-enter { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .loot-hover-card { animation: none; } }

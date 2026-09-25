@@ -4,7 +4,7 @@
 
 下列原子效果扩展示例主要对应规则1兼容实现。domain/rules/selectors/persistence 位于 `src/game-core/battle`，兼容夹具位于 `src/game-runtime/testing/battle`，旧数据位于 `src/content/gameplay/legacy-v1`。该解析器支持测试reaction registry，但规则1发行Catalog拒绝非空reactions。
 
-当前默认为规则4／内容3，普通／历史战、成长／装备与商店走D5服务；开发前先看[当前入口与版本边界](../README.md)。通用的稳定身份、确定性与提交原则仍适用，但不能把本页旧BattleCommand／AtomicEffect接口当作v4唯一扩展方式。
+当前普通／AIRP新档为规则4／内容25／26，普通／历史战、成长／装备与商店走D5服务；开发前先看[当前入口与版本边界](../README.md)。通用的稳定身份、确定性与提交原则仍适用，但不能把本页旧BattleCommand／AtomicEffect接口当作v4唯一扩展方式。
 
 完整接口与目录索引见 [`../DEVELOPMENT_GUIDE.md`](../DEVELOPMENT_GUIDE.md)。
 

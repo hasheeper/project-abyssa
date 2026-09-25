@@ -1,360 +1,93 @@
-# @abyssa/ui
+# ABYSSA
 
-Abyssa 的复古 RPG React 组件库与交互场景仓库。项目从静态视觉原型中提取可复用组件，并用角色状态、战斗、骰局、地图、视觉小说、跑团、商店、洋馆、设置页和制作工具等独立入口验证组合效果。
+幻想 JRPG 的前端与规则仓库：洋馆生活、角色 AVG、骰子远征、商店与补给生产共用一个本地存档；同时提供 `@abyssa/ui` 组件库、独立演出预览和制作工具。
 
-组件使用原生语义元素、TypeScript 类型和命名空间化 CSS 变量；组件包本身不依赖业务后端。仓库内共有 **19 个 Vite 入口**：1 个组件目录、13 个场景／实验入口和 5 个制作工具。
+当前普通新档为 **内容27／规则4**，正式 AIRP 新档为 **内容28／规则4**。普通路线可离线游玩；AIRP 使用玩家在设置中保存的连接，由浏览器直连模型 API。工程闭环已接入，内容质量、平衡与公网发布仍有待办。
 
-当前游戏已经接通同档案的角色、地图出征、庄园初战／维护／回忆、成长装备、基础商店与结算恢复；默认使用规则4／内容12，联机样本为显式内容10。“新的开始”先弹起点选择：完整开始、跳过序章到首晨、跳过第一章到教程、跳过教程到自由枢纽；关闭不建档，跳过不发通关奖励。完整流程先播放四幕15图CG，再进入「洋馆的第一个清晨」，早餐至出门合为一幕，默认AVG、可切RP；首晨由JSON主控，120个节点与五组选项可保存和恢复。章节交接后进入四战＋E1五房带做教学与返馆领奖；章一定稿六场（18屏78帧）和渐进教学已接入，正式敌图、音频和真人试教仍待补。庄园难度与既有剧作仍需返工。
+当前发布阶段为 **Alpha**。源码基线维护在 [GitHub](https://github.com/hasheeper/project-abyssa)，游戏 ABOUT 提供同一链接。Cloudflare 新站点目标为 `abyssa-airp-alpha`；站点地址和实际上线结果以[发布记录](docs/deployment/AIRP_STATIC_HTTPS.md)为准。
 
-当前内容12采用用户定稿的 S3-1～S3-5／S4-1，仅显示中文，不展示日文或双语括注；E1 由诺玛处理，返回正文结束后手动领取，不再接旧 S4-2。持久规则以新内容版本发布，旧11保留原对白、摘要与事件序列，不隐式迁移。G3/G4 的历史基线见[G4记录](docs/audits/2026-09-13-tide-guided-g4.md)；本轮完成项、分批验收与明确边界见[章一定稿验收](docs/audits/2026-09-15-chapter-one-finalization.md)。
+## 从这里开始
 
-内容11／12教程顺序为 **S3-1 雾滩进场剧情 → 规则总览 → 第一场战斗**。总览按战斗与地牢、骰子、倍率机制、其他机制、角色词条划分为五章13节；首页「界面与操作」以真实战斗图标注六个功能区域，配放大局部，逐步讲解观察意图、掷骰、固定、选人、选目标和结束回合。「远征流程」串起出发、房间战斗、战间整备、清层和返馆，再以表格速查进度变化。后续章节复用真实骰面、局部图解与规则表。读完或跳过开场后显示，点击“开始战斗”进入战1。实战菜单复用同一手册，阅读配色与战斗皮肤隔离。操作指引的 × 仅收起当前说明，保留目标和恢复入口，下一步自动展开；不改选中目标或教程进度。
+| 需要了解 | 文档 |
+| --- | --- |
+| 项目现在做到哪里、下一步是什么 | [当前状态与优先级](docs/DESIGN_DECISIONS_AND_CURRENT_STATUS.md) |
+| 实际玩法、经济、掉落与存档 | [游戏机制总览](docs/GAME_SYSTEMS_AND_CONTENT_SPEC.md) |
+| 全部有效文档与作者原稿 | [文档索引](docs/README.md) |
+| AIRP 当前调用链、权限与恢复 | [LLM 与 AIRP](docs/architecture/LLM_AND_AIRP.md) |
+| 启动、构建、入口和目录约束 | [工程配置](config/README.md) |
 
-手册的实际运行时文案源为 [`src/content/presentation/tutorial/handbook.json`](src/content/presentation/tutorial/handbook.json)，修改后随开发热更新／重新构建生效；不是独立导出稿，也不写入玩家存档或 RP 数据库。
+## 当前可玩内容
 
-- [文档统一入口](docs/README.md)
-- [当前机制与完整游戏闭环](docs/GAME_SYSTEMS_AND_CONTENT_SPEC.md)
-- [定稿、完成度与下一步](docs/DESIGN_DECISIONS_AND_CURRENT_STATUS.md)
-- [Abyssa DEMO推进计划与rp能力判断](docs/plans/ABYSSA_DEMO_NEXT_STEPS.md)
-- [初章与引导计划](docs/plans/DEMO_PROLOGUE_AND_ONBOARDING_PLAN.md)
-- [AIRP叙事闭环DEMO计划](docs/plans/AIRP_NARRATIVE_DEMO_PLAN.md) · [AIRP-2首条手写闭环](docs/plans/AIRP_2_IMPLEMENTATION.md) · [AIRP-3四型与时局](docs/plans/AIRP_3_IMPLEMENTATION.md) · [AIRP-4应用接口接入](docs/plans/AIRP_4_APPLICATION_INTEGRATION_PLAN.md)
-- [序幕CG实施与素材缺口](docs/design/PROLOGUE_CG_IMPLEMENTATION.md)
-- [首晨AVG／RP实施与交接](docs/design/FIRST_MORNING_IMPLEMENTATION.md)
-- [本轮序幕与首晨基线收口](docs/archive/audits/2026-09-09-opening-avg-closeout.md)
-- [运行／构建与工程配置](config/README.md)
-- [历史计划与验收档案](docs/archive/README.md)
+- 序幕15张 CG → 洋馆首晨 → 四层五房教学 → 一次领奖 → 洋馆自由行动；快捷起点有对应的初始奖励。
+- 潮声溶洞三层五战、第二层撤离；克雷格旧庄园五层，区分初战、维护和玛丽埃塔回忆。生活洋馆与旧庄园副本是两个地点。
+- 五人队伍、角色专属骰面、公开敌方意图、牌型与铭约、Lv.1～3成长、九种商店装备。
+- 道具在取得时通知，LOG 区分未入袋／已入袋；撤离、失败、通关都经过结算。普通战利品与委托交付物分别遵循自己的带回规则。
+- SHOP 购买／出售／鉴定、按日期固定上新与随机货单、固定首访 AVG；AIRP 奇物由副本 GM 在既定价位内预写身份与缇比台词，回店在现有小对话框鉴定；系统资金以铜里拉 G 记账。
+- 厨房产食物，温室产原料，工坊消耗原料制药，商店常驻卖药水；按实际库存与数量出征，不再每趟免费补满。
+- 正式 AIRP 的日度／副本 GM、场景多轮对白、委托实物领取与交付、结算记忆和次日安排；四位队员、玛丽埃塔与艾比希斯参与剧情调度，固定生活锚点和随机情境指导自由事件，无必演顺序。剧情名单与战斗解锁独立。
 
-AIRP由Abyssa直接调用rp-style-lab通用应用后端，撤销纯静态／内容发布器路线。rp提供模型、Workflow、状态、分支与审计，应用定义人物、任务及记忆政策；制作与运行同定义、独立Session。显式内容10接通药箱归来、原AVG与读后记忆，默认内容12经11继承9的离线卡池，标题「记录」可建联机档。当前本机已安装0.3.2：按用户修正小模型为`deepseek-flash`，新增Writing事实承接约束，保留4来源／11摘录，版本、容量与玩家链隔离回归通过。两情境四场真实闭环、正文保真、摘要召回、幂等重放和AVG通过；文稿仍有玩家行为推断、无来源价格及节拍重复，第二批内容质量未收口，见[0.3.2记录](docs/audits/2026-09-12-airp-032-acceptance.md)。上批错误模型名／正文越界及0.2.1完整真实基线分开保留。27份用户资料、旧Release与旧档不迁移，普通构建不调用模型；完整试读过关后才扩四型／多人。详情见[实施记录](docs/plans/AIRP_4_IMPLEMENTATION.md)。
-
-[变量与记忆方案](docs/plans/AIRP_4_APPLICATION_INTEGRATION_PLAN.md#5-变量与记忆)：通用机制复用或补入rp，AIRP定义记忆语义、筛选与失效政策；首条在线链路已实施，候选不等于玩家已读，实际阅读通过应用动作确认，开发试跑与玩家实例隔离。原身份备份可重放；在线档复制／自动Fork与跨设备强幂等尚不支持。
-
-## 当前组件
-
-### 基础结构
-
-- `AbyssaProvider`：主题、强调色与密度容器
-- `RpgFrame`：三层边框与角部装饰容器
-- `RpgHeader`、`SectionHeader`：章节标题与区段标题
-- `RpgDialogue`：支持主副姓名、逐字播放、可变高度、隐藏姓名牌和完成回调的对话面板
-- `Nameplate`：角色姓名牌
-- `DiamondWatermark`：可直接覆盖容器或嵌入 SVG pattern 的双层菱形底纹
-- `AbyssaLogo`：由八个可独立变换部件组成的项目标题 Logo，支持布局参数 JSON / TypeScript 序列化；默认自带近黑底板，叠加到场景上时须设 `background="none"`，`crop="tight"` 可收紧留白；`intro` 开启按阅读顺序逐部件弹入的入场动画（约 4s，尊重降低动效）
-
-### 操作控件
-
-- `RibbonButton`、`RpgHexButton`：燕尾按钮与对称六边形主按钮
-- `RpgShapeButton`、`RpgCircleButton`：圆形、切角方形、切角横条与胶囊按钮
-- `RpgBackButton`、`IconButton`、`ArrowButton`：返回、图标与方向按钮
-- `RpgTab`：四套主题、可受控选中、底边开放的内容标签
-- `RpgRadio`、`RpgCheckbox`：保留参考稿外观的原生表单控件
-- `RpgNotchButton`、`RpgNotchedPillButton`：带内部 V 形翻折的方形与胶囊按钮
-- `RpgDiamondNode`、`RpgDiamondNodeTrack`：可独立或数据驱动组合的菱形节点
-- `RpgFacetDiamond`、`RpgModal`：分面菱形状态节点与通用 RPG 弹窗容器
-- `RpgDirectionPad`：四向指令方向盘
-- `Toggle`：支持受控和非受控状态的开关
-
-### 数据与角色展示
-
-- `Progress`、`VerticalIndicator`、`RpgStatusNode`：进度、纵向装饰指示和紧凑状态节点
-- `RpgPanel`、`RpgSquarePanel`：角色选择面板与简约小方块
-- `CurrencyAmount`：里拉和远古晶石的货币显示
-- `CharacterSelector`、`CharacterPortraitSelector`：列表式与头像轮播式角色选择器
-- `ItemSlot`、`InventoryGrid`、`InventoryDialog`：统一稀有度语言的物品槽、库存网格与领地库存弹窗
-- `StatusPanel`：数据驱动的身份、属性、特性和记录面板
-- `CharacterStatusScreen`：角色、服装、档案标签和阵营主题组成的完整状态页面
-
-### 场景组合与立绘系统
-
-- `BattleScreen`：回合顺序、四姿态角色图集、目标选择、队伍状态、单体攻击与群体技能演出
-- `VisualNovelScene`：保留最近两名角色站位、表情延续和逐字对话的 AVG 场景
-- `RpScene`：追加式跑团消息流，含两席位立绘、进退场、历史气泡、旁白、系统消息和判定条
-- `PaperDoll`：按角色画布校准表拼合底图、眼睛、嘴部与附加表情的分层立绘
-- `Emote`：15 个统一规格的 APNG 头顶漫符，支持全局基准与逐角色微调
-- `expressions`、`spriteCalibration`：表情部件映射与角色画布校准数据
-- `motions`：立绘动作关键帧生成器（`playMotion` + `nod`/`waver`/`jump`/`shakeLight`/`shakeHeavy`）
-- `shared/transition`：产品内部的资源黑幕、抵达交接，以及角色／商店／出征／洋馆共享入场生命周期；不进入公开 UI 包
-
-普通 UI 动效使用 `motion/react`＋共享 CSS：控件、窗口、内容替换和三页主板预设有实际消费者，页面保留独立层次与就绪条件；Logo、视差、地图弹簧、战斗／AVG／天气不强制迁入。见[调用与消费者清单](src/shared/ui/motion/README.md)、[合并收口计划](docs/plans/2026-09-17-ui-motion-consolidation.md)。`npm run motion:check` 检查参数同步；`npm run motion:audit` 只报告候选，不能自动删动画。
-
-公共组件和类型统一从 `src/index.ts` 导出。为兼容早期接入，部分组件同时保留 `RetroRpg*` 别名。
-
-## 源码结构
-
-```text
-src/
-  game-core/  # 纯规则、Catalog 契约、三层状态；独立 Node 验证
-  game-application/  # 命令、回执、Fact、存储/AI Port
-  game-infrastructure/  # Memory / IndexedDB / 本地短反应
-  game-runtime/  # 具体内容和适配器装配，旧页面兼容入口
-  apps/       # 独立运行的概念原型；app 之间禁止直接引用
-  tools/      # 洋馆标注器、立绘工作台等内容制作工具
-  content/    # 角色、房间等项目实例数据
-  shared/     # 公共领域契约、UI、演出、固定舞台与纯工具
-  assets/     # 当前共享美术资源
-  index.ts    # @abyssa/ui 公共导出
-```
-
-游戏链路为 `apps → runtime → application → core/Port`，runtime 装配 `content/gameplay` 和 infrastructure；工具继续使用展示 content/shared/assets。应用服务说明见 [game-application](/Users/liuhang/Documents/project-abyssa/src/game-application/README.md)。`shared` 不反向依赖游戏内核、应用、工具或内容。`game-core` 仅依赖内部纯 TypeScript；它不进入 UI 包导出。运行 `npm run check:core` 检查独立类型、依赖、Node 测试与导入，`npm run check:baseline` 覆盖整个工程。共享边界见 [`src/shared/README.md`](src/shared/README.md)。
+每周一公款与五项设施修缮／升级已开放；公款仅用于工程，DEMO不设考核或断供。事件损坏维修、更多地牢、高等级和通用多人骰子事件尚未开放。实现与测试通过不等于文学、美术或完整玩家体验已经验收。
 
 ## 本地运行
 
-```bash
-# 使用 .nvmrc 指定的 Node 22.23.2 与 npm 10.9.8
+使用 [.nvmrc](.nvmrc) 指定的 Node 22.23.2，npm 10.9.8。
+
+```sh
 npm ci
-npm run dev
+npm run dev:game   # 正式主应用，http://127.0.0.1:5190/
+npm run dev:lab    # 组件与演出实验，5191
+npm run dev:tools  # 制作工具，5192
 ```
 
-组件目录默认运行在 `http://127.0.0.1:5173/`。它以实际接入为主：左侧按功能分类，支持名称/能力搜索；基础组件和组合范例提供交互预览、常用属性说明和可复制的最小调用代码。战斗、视觉小说和跑团等大型场景由对应应用与 Storybook 展示。
+`npm run dev` 单独打开组件目录；`dev:new-shop`、`dev:battle-loot`、`dev:airp` 提供隔离调试入口。预览假数据不代表正式档案状态。完整入口和端口以 [config/entries.mjs](config/entries.mjs) 为准，目前登记22项：10个 game、7个 lab、5个 tool。
 
-聚合开发入口：`npm run dev:game`（5190，加载完成后进入标题）、`npm run dev:lab`（5191，组件目录与演出实验）、`npm run dev:tools`（5192，制作工具索引）。端口占用时明确报错；旧 `dev:<name>` 命令继续使用已登记的端口和页面。
+## 构建与检查
 
-```bash
-npm run storybook
-```
-
-Storybook 默认运行在 `http://127.0.0.1:6006/`。
-
-### 应用预览
-
-仓库共有19个Vite入口。Title、Prologue、Menu、Map、Battle、Mansion、Shop通过save/epoch定位同一IndexedDB档案；新建先看序幕，未完成时继续恢复当前镜头。裸场景链接会引导选择档案。骰局、演出实验和制作工具保持独立用途。
-
-| 命令 | 入口 | 当前功能 |
-| --- | --- | --- |
-| `npm run dev` | 组件目录 | 按结构、操作、展示和组合范例分类；支持搜索、交互预览与复制最小调用代码，默认端口 5173 |
-| `npm run dev:battle` | 裂隙远征 | 2–5 人真实编队、持久战斗、敌方意图与顺序演出、一次结算；木制／勇者／四席／魔王四套 UI 主题 |
-| `npm run dev:dice` | 明暗骰 | 五骰牌型、固定注额下注、公开/私有锁骰、重掷、庄家轮换、筹码结算、3D 骰子和本地对手逻辑 |
-| `npm run dev:map` | 副本地图 | Three.js + GSAP 地图、选点镜头聚焦、凯尔加 1–4 名伙伴、真实库存领用；裂隙远征提交成功后进入 Battle，托管暂未开放 |
-| `npm run dev:title` | 标题画面 | 新建/继续、多档列表、导入/导出与坏档诊断；金属缎带菜单、错拍浮动菱形游标、鼠标分层视差，支持方向键与提前结束入场；固定猩红配色、字标、CG 轮播及黑幕转场，固定端口 5182 |
-| `node scripts/run-target.mjs dev entry:prologue` | CG序幕 | 四幕15图，逐镜存档；从标题新建进入，独立端口5189 |
-| `npm run dev:menu` | 枢纽主界面 | 四角命令盘（府邸/出征/仓库/商店）、破窗立绘与吐槽、档案侧栏、资源与相位顶栏 |
-| `npm run dev:loading` | 场景交接实验室 | 骰子六面体黑幕、区域抵达标题、真实资源等待，以及淡入与实体面板落入的切换演示 |
-| `npm run dev:mansion` | 洋馆基地 | 剖面图房间交互、角色 ADV、真实资金/库存/远征经历与本地反应；建设、生产和相位推进暂未开放 |
-| `npm run dev:novel` | 视觉小说 | 双人/三人/四人剧本切换、两席位立绘轮换、表情延续、逐字对话，以及点击/空格/回车推进 |
-| `npm run dev:rp` | 跑团演出 | NVL 消息流与 ADV 对话框两种版式、幕解锁与历史回看、LOG、AUTO、SKIP、REPLAY、判定条和逐字演出 |
-| `npm run dev:settings` | 设置页 | 对齐现有 RP 默认参数的演出节奏、视觉显示与预览控件；状态当前只在本页生效，AI 服务栏仍是禁用占位，固定端口 5188 |
-| `npm run dev:shop` | 商店界面 | 真实余额与游戏导航，交易和鉴定暂未开放；旧商品操作保留在显式 ShopPreview 原型中 |
-| `npm run dev:studio` | 立绘工作台 | 调整逐角色画布、舞台站位、表情、漫符和动作；自动保存到本地并导出 TS、CSS、漫符参数或 JSON 快照，固定端口 5176 |
-| `npm run dev:party-figure-studio` | 地图立绘工作台 | 校准十名地图 Q 版立绘的缩放、偏移与朝向，并以单图和五人编队两种视图导出共享参数，固定端口 5187 |
-| `npm run dev:logo-studio` | Logo 工作台 | 逐部件调整位置、缩放、旋转与透明度；自动保存并导入／导出 JSON 或 TypeScript 布局参数，固定端口 5181 |
-| `npm run dev:dice-studio` | 骰面工作台 | 独立检查共享远征骰面、六面配置与旋转交互，固定端口 5184 |
-| `npm run dev:character-status` | 角色状态页 | 读取当前档案的概要／骰装／记事；无档案时选档，地图和战斗均可检视并返回 |
-| `npm run dev:mansion-editor` | 洋馆热区标注器 | 在固定原图坐标系中标注矩形与多边形房间，并导出正式页面使用的参数 |
-
-除组件目录外，各入口均提供 `build:<name>`；多数入口另有 `preview:<name>`，准确命令以 `package.json` 为准。独立产物位于 `dist/entries/<name>/`，并包含已登记的下游导航页面。组件库使用 `npm run build`，静态组件目录使用 `npm run build:preview` / `npm run preview:components`。
-
-### 骰局 Runtime
-
-骰局的牌型、下注、锁骰、重掷和结算都能在浏览器本地运行。外部 LLM Runtime 是可选增强，用于实时对手决策和局后战报润色；服务不可用时界面显示 `LOCAL FALLBACK`，核心骰局仍可游玩。
-
-所有目标默认关闭远程调用，不要求 AI 服务在线。旧实验接口可由 `npm run dev:dice -- --ai` 或显式环境变量 `VITE_DICE_RUNTIME_ENABLED=true` 启用，开发代理此时才转发 `/api` 到 `127.0.0.1:8787`。
-
-旧骰局适配器和 `setup:dice-runtime` 尚未迁移到 rp-style-lab 当前的 Model Slot／Pipeline 协议，不作为现行服务的安装指引，也不进入构建、启动或 CI 依赖链。接入工作留到 S4；S0 的页面与本地规则不依赖该接口。
-
-### 共享固定画布
-
-固定舞台型应用通过 `src/shared/stage/` 共享 1600 × 900 外画布、视口安全区和等比缩放逻辑。应用内部按设计尺寸布局，外层根据设备尺寸统一缩放，避免边框、内容和点击区域分别漂移。文档流型的组件目录与立绘工作台不使用这套适配。
-
-共享画框令牌定义了内容可用区、木质压条、黄铜层与描边几何。修改固定舞台应用时，应同时检查桌面、平板和手机横屏，不要在画布内部使用视口单位进行二次缩放。完整约束见 `src/shared/stage/README.md`。
-
-### 跨场景交接
-
-`src/game-shell/` 提供单入口 Hash 路由：首次准备全局资源与字体，只挂载当前页面；切页卸载旧页，再懒加载目标模块，保留存档、回忆战、角色标签等 URL 参数。`src/shared/transition/` 的六面骰黑幕统一承担首次进度、失败重试与切页等待；洋馆使用全屏淡入，战斗和商店保留实体面板落入。页面 CSS 自动按路由隔离，游戏页不再各自创建 React 根。完整契约见 `src/shared/loading/README.md`。
-
-### 全局启动与资源
-
-十个游戏入口统一先完成资源准备，再挂载页面。构建生成完整资源清单与跨页面缓存，加载页显示实际进度，失败可重试；字体本地化，AVG／CG共用有内存上限的图片解码服务。详见[资源加载契约](src/shared/loading/README.md)。
-
-### 外部资源
-
-- 构建出的 `@abyssa/ui` 组件包不主动请求远程字体、图片或业务接口。
-- 地图底图、三个节点、委托背景与 Q 版队伍立绘均已归入 `src/assets/map/`，通过静态 import 随构建打包；目录和文件名见[地图素材说明](/Users/liuhang/Documents/project-abyssa/src/assets/map/README.md)。地图图片不再依赖外部图床。
-- 骰局与商店使用本地缇比立绘；骰局的可选 LLM Runtime 只有显式启用后才连接本机 8787 端口。
-- 游戏入口的 Cinzel 与 Noto Serif SC 已随发行物提供，103个字体子集在启动时准备。`loading`等实验室页面仍保留原在线字体引用。
-
-游戏静态页面在成功准备资源后可复用浏览器缓存；可选 LLM Runtime 仍需要服务连接。实验／工具页不承诺离线运行。
-
-### 素材管线
-
-```bash
-npm run icons:sync      # 同步 game-icons 图标
-npm run icons:check     # 校验 317 个本地图标、清单与哈希
-npm run emotes:build    # 把混合来源的 GIF/APNG 收敛成 30 帧 / 67ms / 192px
-npm run emotes:check
-npm run pack:setting    # 打包 st/setting/ 世界观设定
-```
-
-`emotes:build` 需要 `ffmpeg`，源目录默认 `~/Downloads/emo`，可用 `--source=` 覆盖。
-
-## 构建与验证
-
-组件库的检查与构建：
-
-```bash
-npm run typecheck
+```sh
+npm run typecheck:core
+npm run typecheck:application
+npm run typecheck:app
 npm run boundaries:check
-npm test
-npm run build
-npm run build-storybook
+npm run test:core
+npm run test:application
+npm run test:app
+npm run build:game
+npm run check:output -- game
+node scripts/check-doc-links.mjs
 ```
 
-`npm run build` **只构建组件库**。产物位于 `dist/ui/`，包含 ESM、类型声明和独立样式文件；包导出键保持不变。`npm run build-storybook` 的产物位于 `dist/storybook/`。
+`npm run build` 仅构建 UI 组件库到 `dist/ui/`；`build:game` 输出 `dist/game/`，`build:lab`／`build:tools` 分别输出实验和工具。全量检查使用 `npm run check:baseline`，其中包含工具层检查；已知限制见状态页，不把专项通过写成全仓通过。
 
-```bash
-npm run check:baseline   # 应用与工具类型、入口、模块边界、应用及构建测试
-npm run build:all        # ui / game / lab / tools，输出互相隔离
-npm run preview:game
-npm run release:check:ui
-npm run release:check:game
-npm run build:entries    # 19 个兼容入口的临时构建与产物验证
-npm run check:auxiliary  # 脚本语法及静态分享预览的隔离验证
-```
+浏览器验收、真实模型生成和静态发布是独立工作，不由以上命令自动代表完成。当前发布流程见 [Cloudflare Pages](docs/deployment/AIRP_STATIC_HTTPS.md)。
 
-浏览器检查先运行 `npx playwright install --only-shell chromium`，再运行 `npm run test:smoke`。它只服务真实 `dist`，检查根路径、子路径和无 AI 服务时的页面操作；保留既有外链素材，不宣称完全离线部署。`.github/workflows/ci.yml` 复用这些命令。
-
-场景应用需要分别构建：
-
-```bash
-npm run build:battle
-npm run build:dice
-npm run build:map
-npm run build:mansion
-npm run build:menu
-npm run build:loading
-npm run build:mansion-editor
-npm run build:novel
-npm run build:rp
-npm run build:settings
-npm run build:shop
-npm run build:studio
-npm run build:character-status
-npm run build:title
-npm run build:party-figure-studio
-npm run build:logo-studio
-npm run build:dice-studio
-```
-
-聚合游戏、实验和工具分别输出到 `dist/game`、`dist/lab`、`dist/tools`；独立构建输出到 `dist/entries/<name>`。组件目录的无 Vite 依赖静态版本仍通过 `npm run build:preview` 生成到刻意提交的 `static-preview/`；自动检查使用临时目录，不刷新该分享快照。
-
-## 前端接入
-
-```tsx
-import {
-  AbyssaProvider,
-  RpgHeader,
-  RibbonButton,
-  RpgPanel
-} from "@abyssa/ui";
-import "@abyssa/ui/styles.css";
-
-export function Menu() {
-  return (
-    <AbyssaProvider>
-      <RpgHeader label="STATUS" variant="dark" />
-
-      <RibbonButton variant="teal" onClick={() => startGame()}>
-        Start Game
-      </RibbonButton>
-
-      <RpgPanel
-        variant="dark"
-        number="01"
-        aria-label="选择角色 01"
-      />
-    </AbyssaProvider>
-  );
-}
-```
-
-按钮组件基于原生 `button`，`RpgRadio` 与 `RpgCheckbox` 使用真实的原生 `input`。它们可以直接接入键盘操作、表单、`disabled`、`aria-*`、`className` 和 `style`；选择控件同时支持受控与非受控状态。
-
-## 角色页面
-
-```tsx
-import { CharacterStatusScreen } from "@abyssa/ui";
-import type { CharacterProfile } from "@abyssa/ui";
-
-const characters: CharacterProfile[] = [
-  {
-    id: "abyssa",
-    number: "06",
-    name: "艾比希斯·贝尔泽兰",
-    secondaryName: "ABYSSA BEELZERAN",
-    status: {
-      title: "当代魔王",
-      subtitle: "THE VESSEL OF CHAOS",
-      state: "状态：安定",
-      fields: [
-        { label: "种族", value: "根源存在" },
-        { label: "职能", value: "混沌容器" }
-      ],
-      stats: [
-        { label: "生命", secondaryLabel: "LIFE", value: "EX", accent: true },
-        { label: "敏捷", secondaryLabel: "AGILITY", value: "D" }
-      ]
-    }
-  }
-];
-
-export function StatusPage() {
-  return <CharacterStatusScreen characters={characters} />;
-}
-```
-
-`selectedId`、`activeMenuId` 等属性支持受控模式；也可以使用 `defaultSelectedId` 和 `defaultActiveMenuId` 让组件自己维护状态。
-
-## 主题定制
-
-组件颜色都来自 `--abyssa-*` CSS 变量。建议在业务主题容器上覆盖：
-
-```css
-.my-game-theme {
-  --abyssa-teal: #6cc4c9;
-  --abyssa-teal-soft: #a5e0e3;
-  --abyssa-panel-black: #171c1c;
-  --abyssa-font-display: "Cinzel", serif;
-  --abyssa-font-body: "Noto Serif SC", serif;
-}
-```
-
-```tsx
-<AbyssaProvider className="my-game-theme" density="compact">
-  <App />
-</AbyssaProvider>
-```
-
-库本身不请求远程字体或图片。业务可以自行加载字体，并通过 `portraitUrl` 提供合法授权的角色图片。
-
-## 目录结构
+## 源码职责
 
 ```text
-src/
-  apps/           catalog + 13 个场景／实验入口
-    battle/       裂隙远征规则、表现层与四套 UI 皮肤
-    loading/      场景交接视觉实验页
-    menu/         守望者之崖枢纽主界面
-    title/        标题画面：字标徽记 + 档案层命令 + 双侧 CG 轮播 + 固定猩红配色
-    prologue/     四幕CG序幕：运镜、字幕、阅读、特效与逐镜恢复
-    mansion/      洋馆房间、角色 ADV、修缮与设施收益
-  tools/          5 个内容制作、标注与参数校准工具
-  content/        角色资料、洋馆默认区域等项目实例数据
-  shared/         domain / lib / presentation / stage / transition / ui
-  assets/         characters / backgrounds / battle / map / ui / icons / emote / cg
-  index.ts        @abyssa/ui 唯一公共导出入口
-config/           入口登记、目标、公共 Vite 工厂与浏览器检查配置
-scripts/          目标运行、产物检查与素材工具(.mjs)
-tests/            构建基础设施及静态发行物冒烟检查
-references/
-  html/           英文命名的视觉原型 HTML
-  images/         英文命名的视觉参考图片
-st/setting/       世界观与角色设定文本
-dist/             ui / game / lab / tools / entries / storybook / reports
-static-preview/   无构建工具依赖的组件目录预览
+src/game-core/            纯规则、内容合同、战斗与远征状态
+src/game-application/     命令、事务、回执、事实与存储接口
+src/game-infrastructure/  IndexedDB、模型 HTTP 与其他外部适配
+src/game-runtime/         内容装配、查询、模型驱动
+src/game-client/          会话、导航、共享业务界面
+src/game-shell/           单入口路由、页面加载与样式隔离
+src/apps/                正式页面及独立预览
+src/content/             版本化玩法与剧情表现数据
+src/shared/              UI、AVG／NVL、固定舞台、动效与工具
+src/assets/              正式美术和授权说明
+src/tools/               美术与内容制作工具
 ```
 
-视觉原型统一归档在 `references/`，不参与组件库生产构建。根目录仅保留游戏 `index.html`。十个游戏页面在单入口下懒加载；其余实验／工具 HTML 收在 `entries/`，由 `config/entries.mjs` 和公共工厂构建。旧 `vite --config vite.<name>.config.ts` 调用改用对应npm命令；默认 `vite.config.ts` 仍兼容直接运行Vite。
+游戏规则经应用命令提交；UI 根据已提交状态演出。模型在受限协议内规划剧情和奇物文案，不能自行改写钱包、战斗或发放物品。应用间不直接互相导入，`shared` 不反向依赖游戏业务。详见 [application](src/game-application/README.md)、[client](src/game-client/README.md) 和 [shared](src/shared/README.md)。
 
-## 素材说明
+固定场景在1600×900 Stage 内制作并统一等比适配，避免画布内部用视口单位重复缩放。组件和类型从 [src/index.ts](src/index.ts) 导出；图标授权、角色标定、素材来源在各资产目录保留。
 
-`references/images/` 中的图片带有示例水印，只作为视觉方向参考，不会被打进组件包。正式项目应使用原创 SVG/CSS 或已获得授权的素材。
+## 素材与文案维护
 
-共享素材按用途归类，目录和新增素材放置规则见 [`src/assets/README.md`](src/assets/README.md)。
+```sh
+npm run icons:sync
+npm run icons:check
+npm run emotes:build
+npm run emotes:check
+npm run pack:setting
+```
+
+手册编辑源为 [handbook.json](src/content/presentation/tutorial/handbook.json)，剧情在 [scenes](src/content/presentation/scenes)。作者原稿、冻结 r8 文风样本与素材授权不能当作过时工程日志删除；具体入口见文档索引。

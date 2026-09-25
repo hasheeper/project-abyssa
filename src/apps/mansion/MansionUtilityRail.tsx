@@ -30,7 +30,7 @@ function UtilitySeal() {
 export function MansionUtilityRail({active, stockTotal, actionable, inert, onOpen, buttonRefs}: MansionUtilityRailProps) {
   const entries = [
     {id: "stock", label: "仓库", icon: chestGlyph, count: stockTotal, description: `领地库存，共 ${stockTotal} 件`},
-    {id: "journal", label: "日志", icon: journalGlyph, count: actionable, description: actionable ? `${actionable} 项可交谈` : "归来记录与同伴近况"},
+    {id: "journal", label: "日志", icon: journalGlyph, count: actionable, description: actionable ? `${actionable} 项待办与进行中的委托` : "归来记录与同伴近况"},
     {id: "preparation", label: "整备", icon: preparationGlyph, count: 0, description: "出征行囊与补给"}
   ] as const;
   return <nav className="mansion-utility-rail" aria-label="洋馆功能" data-no-pan inert={inert} aria-hidden={inert}>

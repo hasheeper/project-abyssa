@@ -5,6 +5,7 @@ import { getBattlePhase, getExpeditionStatus, getRoundOutcome, isEnemyDefeated, 
 import { getPlayerAttackCue, getPlayerSupportCue, type PlayerAttackCue, type PlayerSupportCue } from "../controller/presentation-events";
 import { useExpeditionBattleController } from "../controller/useExpeditionBattleController";
 import { usePresentationQueue } from "../controller/usePresentationQueue";
+import { selectionAfterDieToggle } from "../controller/die-selection";
 import { applyVisibleEvents, enemyPresentationGroups } from "./committed-events";
 import { battleState } from "../../../game-runtime/views";
 import { legacyBattleReaction, useBattleReaction } from "./battle-reactions";
@@ -70,9 +71,14 @@ export function useExpeditionBattlePresentation(controller: ReturnType<typeof us
   const play = async (command: BattleCommand) => {
     const runId = presentation.begin();
     if (runId === null) return;
+    let nextHeldActor: CharacterId | null = null;
     try {
       const batch = await controller.submit(command);
       if (!batch || !presentation.isCurrent(runId) || !controller.current(batch)) return;
+      if (command.type === "toggle-load") {
+        const die = battleState(batch.after).dice[command.dieIndex];
+        if (die) nextHeldActor = selectionAfterDieToggle(controller.heldActor, die.ownerId, die.loaded);
+      }
       if (command.type === "undo") reactions.clear();
       for (const receipt of batch.receipts) reactions.observe(legacyBattleReaction(receipt.events, receipt.requestId));
       const wait = async (ms: number) => (await presentation.wait(duration(ms), runId)) && controller.current(batch);
@@ -165,7 +171,7 @@ export function useExpeditionBattlePresentation(controller: ReturnType<typeof us
       if (presentation.isCurrent(runId)) {
         setAttackFx(null); setSupportFx(null); setEnemyTurnFx(null);
         setVisuals(current => Object.fromEntries(Object.entries(current).map(([id, value]) => [id, { ...value, rolling: false }])));
-        presentation.complete(runId); controller.finish();
+        presentation.complete(runId); controller.finish(nextHeldActor);
       }
     }
   };

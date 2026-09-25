@@ -8,6 +8,12 @@
   --counter-ink: #e7d8ba;
   --counter-soft: #b29a73;
   --counter-rule: #6c512e;
+  --counter-recess-tint: #aaa092;
+  --counter-row-rest: rgb(139 107 64 / 8%);
+  --counter-row-hover: rgb(185 146 86 / 17%);
+  --counter-row-active: rgb(185 146 86 / 23%);
+  --counter-edge-light: rgb(190 149 87 / 25%);
+  --counter-edge-dark: rgb(5 3 2 / 62%);
   position: relative;
   /* Reuse the old content's 30px lift into the board's top inset; shell stays fixed. */
   top: -30px;
@@ -114,19 +120,19 @@
 .shop-counter__columns > :last-child { text-align: center; }
 /* The shelf is a timber surround; merchandise sits inside its carved well.
    Keep the stationary bed outside the scroller so depth persists with long stock. */
-.shop-counter__stock-well {
+.shop-counter__stock-well, .shop-counter__well {
   position: relative;
   isolation: isolate;
   display: grid;
   min-height: 0;
   grid-template-rows: minmax(0, 1fr);
-  background-color: #b8b0a5;
+  background-color: var(--counter-recess-tint);
   background-image: var(--counter-wood-grain);
   background-size: auto;
   background-blend-mode: multiply;
   box-shadow: 0 1px 0 rgb(166 128 77 / 48%), 0 -1px 0 #0b0805;
 }
-.shop-counter__stock-well::after {
+.shop-counter__stock-well::after, .shop-counter__well::after {
   position: absolute;
   z-index: 2;
   inset: 0;
@@ -180,8 +186,8 @@
   text-align: left;
 }
 .shop-counter__item::after { position: absolute; right: 14px; bottom: 0; left: 78px; height: 1px; background: rgb(154 119 64 / 16%); pointer-events: none; content: ""; }
-.shop-counter__item:hover:not(:disabled) { background: rgb(201 163 92 / 6%); }
-.shop-counter__item[aria-selected="true"] { color: #efddb9; background: rgb(181 139 62 / 13%); box-shadow: inset 0 1px rgb(203 160 94 / 13%), inset 0 -1px rgb(5 3 2 / 30%); }
+.shop-counter__item:hover:not(:disabled) { background: var(--counter-row-hover); }
+.shop-counter__item[aria-selected="true"] { color: #efddb9; background: var(--counter-row-active); box-shadow: inset 0 1px var(--counter-edge-light), inset 0 -1px var(--counter-edge-dark); }
 .shop-counter__item[aria-selected="true"]::after { left: 14px; background: rgb(162 126 65 / 28%); }
 /* No horizontal fade on row surfaces; the material gradients stay inside ItemSlot. */
 /* Keyboard focus remains visible on the item name and the selected item slot. */
@@ -208,17 +214,23 @@
 .shop-counter__owned { justify-self: center; font-size: 17px; color: var(--counter-soft); white-space: nowrap; font-variant-numeric: tabular-nums; }
 .shop-counter__owned b { font-weight: 600; color: var(--counter-ink); }
 .shop-counter__price { justify-self: center; color: #ceb079; font-size: 20px; font-weight: 400; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.shop-counter__price .abyssa-currency-amount i { width: 18px; height: 18px; box-shadow: inset 0 0 0 1px #e2bd65, 0 1px 1px rgb(53 31 5 / 25%); }
+.shop-counter__price .abyssa-currency-amount i { width: 18px; height: 18px; }
 .shop-counter__price[data-short] { color: #dcaa88; }
-.shop-counter__empty { margin: 30px 14px; font-size: 20px; color: var(--counter-soft); }
 .shop-counter__detail { position: relative; padding: 16px 20px 14px; }
+.shop-counter__ledger[data-empty] { grid-template-rows: minmax(0, 1fr); gap: 0; }
+.shop-counter__stock-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; min-height: 0; padding: 40px; text-align: center; }
+.shop-counter__stock-empty h2 { margin: 0; color: #c3ae88; font: 500 25px/1.5 var(--abyssa-font-display); letter-spacing: .08em; }
+.shop-counter__stock-empty h2:focus { outline: none; }
+.shop-counter__stock-empty p { max-width: 440px; margin: 0; color: #958369; font-size: 18px; line-height: 1.7; text-wrap: pretty; }
+.shop-counter__stock-empty .shop-counter__purchase { margin-top: 8px; }
+.shop-counter__stock-empty [role="alert"] { color: #e0ac8c; }
 /* One timber footer: the emblem spans both information rows, while the title
    rail and stock readout share a baseline. No full-width inset text panel. */
 .shop-counter__description { display: grid; grid-template-columns: 108px minmax(0, 1fr); gap: 18px; align-items: stretch; min-height: 92px; padding: 0 14px; }
 .shop-counter__detail-emblem { display: grid; place-items: center; padding-right: 20px; border-right: 1px solid rgb(10 7 4 / 65%); box-shadow: 1px 0 rgb(154 117 63 / 20%); }
 .shop-counter__detail-copy { min-width: 0; }
 .shop-counter__detail-heading { display: flex; align-items: center; justify-content: space-between; gap: 20px; min-height: 42px; }
-.shop-counter__description h2, .shop-counter__detail > h2 { margin: 0; font-size: 24px; font-weight: 600; line-height: 1.2; letter-spacing: .06em; }
+.shop-counter__description h2 { margin: 0; font-size: 24px; font-weight: 600; line-height: 1.2; letter-spacing: .06em; }
 .shop-counter__detail-heading h2 { flex: 0 1 260px; min-width: 0; padding: 7px 14px 8px; overflow-wrap: anywhere; background: rgb(10 7 4 / 28%); box-shadow: inset 0 1px 2px rgb(0 0 0 / 45%), 0 1px rgb(164 122 64 / 23%); }
 .shop-counter__description p { margin: 10px 0 0; padding-inline: 14px; color: #d1bfa0; font-size: 18px; line-height: 1.5; overflow-wrap: anywhere; }
 .shop-counter__capacity { display: inline-flex; flex-shrink: 0; gap: 10px; align-items: baseline; padding: 5px 0 5px 8px; border-bottom: 1px solid rgb(164 122 64 / 25%); color: var(--counter-soft); font-size: 16px; line-height: 1.25; white-space: nowrap; }
@@ -249,19 +261,24 @@
 /* Bridge the pointer gap so the explanation remains hoverable. */
 .shop-counter__notice::before { position: absolute; top: 100%; right: -1px; width: 100%; height: 12px; content: ""; }
 .shop-counter__notice[data-tone="error"] { color: #e0ac8c; }
-.shop-counter__notice[data-tone="success"] { color: #c5cf9a; }
+.shop-counter-feedback { position: absolute; z-index: 950; top: 44px; right: 56px; width: 480px; pointer-events: none; }
 
 /* Reuse the original portrait frame, overlapping nameplate and dialogue panel. */
-.shop-counter__merchant { position: relative; display: grid; grid-template-rows: minmax(0, 1fr) auto auto auto; min-width: 0; min-height: 0; padding-top: 24px; gap: 12px; }
+.shop-counter__merchant { position: relative; display: grid; grid-template-rows: minmax(0, 1fr) auto 160px; min-width: 0; min-height: 0; padding-top: 24px; gap: 12px; }
 .shop-counter__portrait-frame { min-height: 0; }
 .shop-counter__portrait-frame > .abyssa-frame__content { height: 100%; overflow: hidden; }
 .shop-counter__scenery { position: absolute; inset: 8px; background: linear-gradient(180deg, rgb(20 12 5 / 16%), rgb(10 6 3 / 35%)), url("../../assets/backgrounds/shop-bg2.png") center 32% / cover; }
 .shop-counter__portrait { position: absolute; inset: 12px 10px 8px; overflow: hidden; }
-.shop-counter__portrait img { display: block; width: 116%; max-width: none; height: auto; margin: 0 0 0 -8%; }
 .shop-counter__portrait-shade { position: absolute; inset: 8px; pointer-events: none; background: linear-gradient(180deg, transparent 55%, rgb(7 4 2 / 68%)); box-shadow: inset 0 0 25px rgb(0 0 0 / 46%); }
 .shop-counter__merchant .abyssa-nameplate { z-index: 2; width: 90%; justify-self: center; margin-top: -33px; }
 .shop-counter__merchant .abyssa-nameplate__content strong { color: var(--counter-ink); font-size: 21px; }
 .shop-counter__merchant .abyssa-nameplate__content > span { color: var(--counter-soft); font-size: 12px; }
-.shop-counter__merchant .abyssa-dialogue { min-height: 142px; }
+.shop-counter__dialogue-host { min-width: 0; min-height: 0; }
 .shop-counter__merchant .abyssa-dialogue__content { color: #d1bfa0; font-size: 20px; line-height: 1.65; }
-.shop-counter__allowance { margin: 0; color: #af956e; font-size: 16px; line-height: 1.5; text-align: center; }
+
+/* All three modes dock into the same timber counter. */
+.shop-counter__tab[aria-selected="true"] { color: #f4dfb2; }
+.shop-counter__tab[aria-selected="true"]::after { position: absolute; top: 7px; right: 7px; left: 7px; height: 1px; background: #af8950; box-shadow: 0 1px #24180e; content: ""; pointer-events: none; }
+.shop-counter__tab[aria-selected="false"]:not(:disabled) { color: #b29a73; cursor: pointer; }
+.shop-counter__tab small { font-size: 14px; letter-spacing: 0; }
+.shop-counter__tab > span { display: flex; align-items: center; justify-content: center; white-space: nowrap; }

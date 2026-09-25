@@ -1,6 +1,6 @@
 # 0.3.2：小模型名称修正与真实闭环补验
 
-日期：2026-09-12。承接[0.3.1试读](2026-09-12-airp-live-source-acceptance.md)，推进[Abyssa计划](../plans/ABYSSA_DEMO_NEXT_STEPS.md)第二批剩余验收，不是四型／多人扩版。
+日期：2026-09-12。承接[0.3.1试读](2026-09-12-airp-live-source-acceptance.md)，推进[Abyssa计划](../DESIGN_DECISIONS_AND_CURRENT_STATUS.md#4-下一步顺序)第二批剩余验收，不是四型／多人扩版。
 
 ## 1. 当前状态
 

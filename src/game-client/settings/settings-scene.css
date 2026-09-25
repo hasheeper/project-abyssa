@@ -1,0 +1,16 @@
+/* Reuse Menu's authored-pixel controls inside the LOAD / SETTINGS scene shell. */
+.settings-app--scene > .abyssa-system-panel__body { display: flex; flex-direction: column; padding: 12px 18px 16px; gap: 24px; }
+.settings-app--scene .settings-section-heading { display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; gap: 24px; padding: 0 8px; }
+.settings-section-heading h3 { margin: 0 0 8px; color: #d6d9cb; font: 500 24px/1.3 var(--abyssa-font-display); letter-spacing: .08em; }
+.settings-section-heading p { margin: 0; color: #9aada6; font: 14px/1.6 var(--abyssa-font-body); }
+.settings-app--scene .settings-app__panel { flex: 1; min-height: 0; }
+.settings-app--scene .settings-grid { grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); column-gap: 72px; }
+.settings-app--scene .settings-list { overscroll-behavior: contain; }
+.settings-app--scene .settings-row { min-height: 86px; padding-inline: 8px 24px; }
+.settings-app--scene .settings-side { overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; padding-inline: 0 8px; }
+.settings-app--scene .settings-preview { padding: 20px 24px 18px; }
+.settings-app--scene .abyssa-system-panel__footer { position: relative; }
+.settings-app--scene .abyssa-system-panel__footer::before {
+  position: absolute; top: 0; left: -88px; right: -88px; height: 2px; content: ""; pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgb(105 174 164 / 24%) 20%, rgb(137 193 177 / 42%) 62%, transparent);
+}

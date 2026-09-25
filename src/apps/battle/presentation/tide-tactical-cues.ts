@@ -26,7 +26,7 @@ export function tideOpeningCue(v: DemoJourneyView) {
 export function tideImpactCue(v: DemoJourneyView, event: DemoEvent, events: readonly DemoEvent[]) {
   const t = v.tutorial, p = event.payload as Record<string, unknown>;
   if (!t?.guide) return null;
-  const locksmith = t.guide.planId === "tide.guide.v2";
+  const locksmith = v.contentRef.contentVersion >= 12;
   if (event.type === "event-resolved" && v.room?.id === "room.tide-cave.event.intro" && event.actorId === (locksmith ? "norma" : "elora") && p.cost === 0 && p.reward === 0) {
     const id = p.method === "strong" ? locksmith ? "locksmithStrong" : "eventStrong"
       : p.method === "weak" ? locksmith ? "locksmithWeak" : "eventWeak"

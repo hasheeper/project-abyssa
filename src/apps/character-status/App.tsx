@@ -1,11 +1,13 @@
 import { routeSearch } from "../../shared/routing/location";
+import { usePlayerName } from "../../shared/domain/PlayerIdentity";
 import { useEffect, useMemo, useState } from "react";
 import { AbyssaProvider } from "../../shared/ui/primitives/AbyssaProvider";
 import { CharacterBoardScreen } from "./CharacterBoardScreen";
 import { StatusPanel } from "../../shared/ui/patterns/StatusPanel";
 import { DiceLoadoutPanel } from "../../shared/ui/patterns/DiceLoadoutPanel";
 import { CharacterChroniclePanel } from "../../shared/ui/patterns/CharacterChroniclePanel";
-import { GameMenu } from "../../shared/ui/patterns/game-menu/GameMenu";
+import { GameSystemMenu } from "../../game-client/GameSystemMenu";
+import type { AnyGameRecord } from "../../game-application";
 import { Stage } from "../../shared/stage";
 import {
   ReadGameProvider,
@@ -44,6 +46,7 @@ export function App() {
   );
 }
 export function CharacterPage() {
+  const playerName = usePlayerName();
   const session = useReadSession(),
     state = useReadState(),
     record = state.record!;
@@ -51,7 +54,7 @@ export function CharacterPage() {
     () => session.runtime.queries.archive(record),
     [session, record],
   );
-  const characters = useMemo(() => presentCharacterArchive(view), [view]);
+  const characters = useMemo(() => presentCharacterArchive(view, playerName), [view, playerName]);
   const equipment = useEquipmentSession(characterPolicy);
   const progression = useMemo(() => record.schemaVersion === 4 ? session.runtime.queries.progression(record) : null,[record,session]);
   return (
@@ -60,6 +63,7 @@ export function CharacterPage() {
       view={view}
       characters={characters}
       ready={state.status === "ready"}
+      record={record}
       equipment={equipment}
       progression={progression}
     />
@@ -69,12 +73,14 @@ function ArchiveScreen({
   view,
   characters,
   ready,
+  record,
   equipment,
   progression,
 }: {
   view: CharacterArchiveView;
   characters: ReturnType<typeof presentCharacterArchive>;
   ready: boolean;
+  record: AnyGameRecord;
   equipment: ReturnType<typeof useEquipmentSession>;
   progression: ReturnType<typeof d5ProgressionView> | null;
 }) {
@@ -130,15 +136,16 @@ function ArchiveScreen({
     <Stage canvasClassName="character-status-canvas">
       <AbyssaProvider className="character-status-app">
         <aside className="character-status-app__menu" aria-label="角色页导航">
-          <GameMenu
+          <GameSystemMenu
+            record={record}
             title="角色菜单"
             busy={!ready || equipment.state.status === "submitting"}
-            commands={returnPage === "menu" ? [] : [{id:"retreat", label:returnLabel, href:gameHref(returnPage, locator)}]}
+            commands={returnPage === "menu" ? [] : [{id:"retreat", label:returnLabel, shortLabel:returnPage === "battle" ? "BATTLE" : "MAP", href:gameHref(returnPage, locator)}]}
             navigation={[
-              {id:"menu", label:"返回菜单", href:gameHref("menu", locator)},
+              {id:"menu", label:"返回菜单", shortLabel:"MENU", href:gameHref("menu", locator)},
               {id:"mansion", label:"洋馆", href:gameHref("mansion", locator)},
-              {id:"journey", label:view.runRef?.kind === "memory" ? "继续回忆" : view.runRef ? "继续远征" : "出征编队", href:gameHref(view.runRef ? "battle" : "map", locator)},
-              {id:"archive", label:"档案", href:gameHref("title")},
+              {id:"journey", label:view.runRef?.kind === "memory" ? "继续回忆" : view.runRef ? "继续远征" : "出征编队", shortLabel:view.runRef?.kind === "memory" ? "MEMORY" : view.runRef ? "RESUME" : "SORTIE", href:gameHref(view.runRef ? "battle" : "map", locator)},
+              {id:"archive", label:"返回标题", shortLabel:"TITLE", href:gameHref("title")},
             ]}
           />
         </aside>

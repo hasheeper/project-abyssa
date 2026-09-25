@@ -23,7 +23,8 @@ export function toolsIndex(target) {
 export function targetAssets(target) {
   let outDir = target.outDir;
   const game = target.entries.some(entry => entry.kind === 'game');
-  const homeRoute = game && target.id.startsWith('entry:') ? target.id.slice(6) : 'title';
+  const homeEntry = target.entries.find(entry => entry.html === target.home);
+  const homeRoute = homeEntry?.kind === 'game' ? homeEntry.id : 'title';
   return {
     name: 'abyssa-target-assets',
     config(_config, environment) {
@@ -39,14 +40,14 @@ export function targetAssets(target) {
       server.middlewares.use((request, response, next) => {
         const url = new URL(request.url ?? '/', 'http://localhost');
         const entry = target.entries.find(entry => url.pathname === '/' + entry.html);
-        if (game && entry) {
+        if (entry?.kind === 'game') {
           response.statusCode = 302;
           response.setHeader('location', `/index.html#/${entry.id}${url.search}`);
           response.end(); return;
         }
         if (entry?.sourceHtml) { request.url = '/' + entry.sourceHtml + url.search; return next(); }
         if (url.pathname !== '/' && url.pathname !== '/index.html') return next();
-        if (game) return next();
+        if (game && (target.home === 'index.html' || homeEntry?.kind === 'game')) return next();
         if (target.home === 'tools-index') {
           response.setHeader('content-type', 'text/html; charset=utf-8');
           response.end(toolsIndex(target));
@@ -64,8 +65,7 @@ export function targetAssets(target) {
       )));
       if (game) {
         // Compatibility bookmarks only; the game itself has exactly one HTML entry.
-        for (const entry of target.entries) await writeFile(resolve(outDir, entry.html), `<!doctype html><meta charset="utf-8"><title>ABYSSA</title><script>location.replace('./index.html#/${entry.id}'+location.search)</script>`);
-        return;
+        for (const entry of target.entries.filter(entry => entry.kind === 'game')) await writeFile(resolve(outDir, entry.html), `<!doctype html><meta charset="utf-8"><title>ABYSSA</title><script>location.replace('./index.html#/${entry.id}'+location.search)</script>`);
       }
       // Source HTML lives under entries/; deployment URLs stay flat for existing lab/tools.
       const manifestPath = resolve(outDir, '.vite/manifest.json');
@@ -78,6 +78,7 @@ export function targetAssets(target) {
         if (manifest[entry.sourceHtml]) manifest[entry.sourceHtml].file = entry.html;
       }
       await writeFile(manifestPath, JSON.stringify(manifest, null, 2));
+      if (game) return;
       if (target.home === 'tools-index') await writeFile(resolve(outDir, 'index.html'), toolsIndex(target));
       else if (target.home !== 'index.html') await copyFile(resolve(outDir, target.home), resolve(outDir, 'index.html'));
     },

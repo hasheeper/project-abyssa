@@ -15,6 +15,7 @@ export function useExpeditionBattleController() {
   const session = useGameSession(), game = useGameState();
   const [state, setState] = useState(() => battleState(legacyRecord(game.record!)));
   const stateRef = useRef(state), locked = useRef(false), alive = useRef(true);
+  const synchronizedHead = useRef(game.record!.head);
   const [heldActor, holdActor] = useState<CharacterId | null>(null);
   const [presenting, setPresenting] = useState(false);
   const show = useCallback((next: ExpeditionState) => {
@@ -22,16 +23,23 @@ export function useExpeditionBattleController() {
     stateRef.current = next; setState(next);
   }, []);
   useEffect(() => { alive.current = true; return () => { alive.current = false; }; }, []);
-  const finish = useCallback(() => {
+  const finish = useCallback((nextHeldActor: CharacterId | null = null) => {
     locked.current = false;
     if (!alive.current) return;
     const record = session.getSnapshot().record;
-    if (record?.schemaVersion === 1 && record.snapshot.expedition?.id === session.locator.expeditionId) show(battleState(record!));
-    holdActor(null); setPresenting(false);
+    if (record?.schemaVersion === 1 && record.snapshot.expedition?.id === session.locator.expeditionId) {
+      synchronizedHead.current = record.head;
+      show(battleState(record));
+    }
+    holdActor(nextHeldActor); setPresenting(false);
   }, [session, show]);
   useEffect(() => {
-    if (!locked.current && game.record?.schemaVersion === 1 && game.record.snapshot.expedition) { show(battleState(game.record)); holdActor(null); }
+    if (!locked.current && game.record?.schemaVersion === 1 && game.record.snapshot.expedition && !sameHead(synchronizedHead.current, game.record.head)) {
+      synchronizedHead.current = game.record.head;
+      show(battleState(game.record)); holdActor(null);
+    }
   }, [game.record?.head.revision, game.generation, show]);
+  useEffect(() => { holdActor(null); }, [game.generation]);
   const submit = async (command: BattleCommand): Promise<LegacyCommittedBatch | null> => {
     if (locked.current || session.getSnapshot().status !== "ready") return null;
     const record = legacyRecord(session.getSnapshot().record!);

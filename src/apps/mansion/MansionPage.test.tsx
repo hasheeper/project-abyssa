@@ -99,6 +99,25 @@ describe("MansionPage", () => {
     expect(worldPan?.style.transform).toBe(initialTransform);
   });
 
+  it("owns wheel scrolling without passive-listener warnings and stops panning under overlays", async () => {
+    const user=userEvent.setup(), {container,unmount}=render(<MansionPage/>);
+    const viewport=screen.getByRole("main",{name:"守望者之崖洋馆总览"});
+    vi.spyOn(viewport,"getBoundingClientRect").mockReturnValue({width:1600} as DOMRect);
+    const pan=container.querySelector<HTMLElement>(".mansion-world-pan")!;
+    const before=pan.style.transform;
+    const wheel=new WheelEvent("wheel",{deltaY:40,bubbles:true,cancelable:true});
+    fireEvent(viewport,wheel);
+    expect(wheel.defaultPrevented).toBe(true);
+    expect(pan.style.transform).not.toBe(before);
+    await user.click(screen.getByRole("button",{name:"仓库"}));
+    const locked=pan.style.transform;
+    fireEvent.wheel(viewport,{deltaY:40});
+    expect(pan.style.transform).toBe(locked);
+    unmount();
+    const detached=new WheelEvent("wheel",{deltaY:40,cancelable:true}); viewport.dispatchEvent(detached);
+    expect(detached.defaultPrevented).toBe(false);
+  });
+
   it("places dorm and gate details on the left and toggles the same room closed", async () => {
     const user = userEvent.setup();
     const { container } = render(<MansionPage />);

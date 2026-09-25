@@ -1,0 +1,70 @@
+/* The active tab opens directly into the cornice; other tabs sit behind it. */
+.new-shop-categories {
+  position: absolute;
+  z-index: 2;
+  bottom: 18px;
+  left: 12px;
+  display: flex;
+  align-items: end;
+  gap: 8px;
+  height: var(--shop-category-height);
+}
+.new-shop-categories__tab { position: relative; display: block; width: 128px; height: var(--shop-category-height); }
+.new-shop-categories__button {
+  --category-face: #100b0752;
+  --category-edge: #715330;
+  --category-highlight: #9b7d482b;
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+}
+.new-shop-categories__button::before {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  background: var(--shop-cornice-face) var(--shop-timber) 0 0 / var(--shop-timber-size);
+  clip-path: polygon(0 6px, 6px 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 0 100%);
+  pointer-events: none;
+}
+.new-shop-categories__button svg { position: relative; display: block; width: 100%; height: 100%; overflow: visible; }
+.new-shop-categories__face { fill: var(--category-face); }
+.new-shop-categories__edge { fill: none; stroke: var(--category-edge); stroke-width: 1.5; }
+.new-shop-categories__highlight { fill: none; stroke: var(--category-highlight); stroke-width: 1; }
+.new-shop-categories__button[data-selected] {
+  --category-face: transparent;
+  --category-edge: #b18b4b;
+  --category-highlight: #c4a46c52;
+}
+.new-shop-categories__button:hover:not(:disabled) { --category-edge: #b2935e; }
+.new-shop-categories__button:focus-visible { outline-color: #d3b375; outline-offset: 3px; }
+.new-shop-categories__copy {
+  position: absolute;
+  inset: 7px 10px 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #b49b71;
+  font-size: 20px;
+  line-height: 1;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.new-shop-categories__copy small { color: #9c8157; font-size: 13px; font-variant-numeric: tabular-nums; }
+.new-shop-categories [data-selected] + .new-shop-categories__copy { color: #eed6a8; }
+.new-shop-categories [data-selected] + .new-shop-categories__copy small { color: #cfad72; }
+.new-shop-categories :disabled + .new-shop-categories__copy { opacity: .55; }
+/* Cover the rail's upper seam only beneath the active tab. No closed bottom rim. */
+.new-shop-categories__tab:has([data-selected])::after {
+  content: "";
+  position: absolute;
+  bottom: -3px;
+  inset-inline: 1.75px;
+  height: 5px;
+  background: var(--shop-cornice-face) var(--shop-timber) 0 -42px / var(--shop-timber-size);
+  pointer-events: none;
+}

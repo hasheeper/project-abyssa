@@ -28,6 +28,6 @@ export const TITLE_COMMANDS: readonly TitleCommand[] = [
   {
     id: "settings",
     label: "设定",
-    pending: "设定界面尚未接入"
+    pending: "系统设置"
   }
 ];

@@ -48,6 +48,12 @@ export type {
 export { PaperDoll } from "./shared/ui/patterns/PaperDoll";
 export type { PaperDollProps } from "./shared/ui/patterns/PaperDoll";
 export { RpScene } from "./shared/ui/patterns/RpScene";
+export { StoryChoices } from "./shared/ui/patterns/StoryChoices";
+export { SceneFeedback, FeedbackNotice, RewardNotice, EventResult, InlineFeedback } from "./shared/ui/patterns/SceneFeedback";
+export { ConfirmationDialog } from "./shared/ui/patterns/ConfirmationDialog";
+export type { ConfirmationDialogProps } from "./shared/ui/patterns/ConfirmationDialog";
+export type { SceneFeedbackProps, SceneFeedbackEntry, FeedbackNoticeProps, RewardNoticeProps, FeedbackTone, EventResultProps, FeedbackReward, FeedbackErrorDetails, InlineFeedbackProps } from "./shared/ui/patterns/SceneFeedback";
+export type { StoryChoicesProps, StoryDecision } from "./shared/ui/patterns/StoryChoices";
 export type {
   RpActor,
   RpMessage,

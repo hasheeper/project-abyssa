@@ -54,6 +54,46 @@ afterEach(() => {
 });
 
 describe("RpScene", () => {
+  it("does not highlight a silent actor merely because a still pose is present", () => {
+    const messages = [say("speaking", "abyssa")];
+    const draw = (withCue: boolean) => <RpScene actors={actors} messages={messages} initialSlots={{left:"abyssa",right:"elora"}}
+      performances={withCue ? {elora:{key:"hold",still:true}} : undefined} hydrate/>;
+    const view = render(draw(true));
+    const silent = view.container.querySelector('.abyssa-rp__actor[data-character="elora"]');
+    expect(silent).toHaveAttribute("data-active", "false");
+    view.rerender(draw(false));
+    expect(silent).toHaveAttribute("data-active", "false");
+    expect(view.container.querySelector('.abyssa-rp__actor[data-character="abyssa"]')).toHaveAttribute("data-active", "true");
+  });
+
+  it("keeps committed choices as non-interactive ledger entries across RP and LOG", () => {
+    const messages: RpMessage[] = [say("a-1", "abyssa"), {id:"decision",kind:"choice",text:"故意找茬",sequence:2}];
+    const view = render(<RpScene actors={actors} messages={messages} hydrate/>);
+    const record = screen.getByRole("note", {name:"选择记录：故意找茬"});
+    expect(record).toHaveTextContent("已选择02故意找茬");
+    expect(record.querySelector("button")).toBeNull();
+    expect(record.querySelector(".abyssa-rp__type-char")).toBeNull();
+    expect(view.container.querySelector('[data-kind="choice"]')).toHaveAttribute("data-settled", "true");
+    expect(view.container.querySelector('[data-kind="say"]')).toHaveStyle({"--abyssa-rp-accent":"#f0c"});
+    view.rerender(<RpScene actors={actors} messages={messages} hydrate mode="log"/>);
+    expect(screen.getByRole("note", {name:"选择记录：故意找茬"})).toBe(record);
+  });
+
+  it("places actions after a stable reading viewport and anchors jump-to-latest inside that viewport", () => {
+    const messages = [say("a-1", "abyssa")];
+    const view = render(<RpScene actors={actors} messages={messages} hydrate actions={<button>选择行动</button>}/>);
+    const viewport = view.container.querySelector<HTMLElement>(".abyssa-rp__reading")!;
+    const log = view.container.querySelector<HTMLElement>(".abyssa-rp__log")!;
+    const row = view.container.querySelector(".abyssa-rp__row");
+    expect(viewport).toContainElement(log);
+    expect(viewport).toContainElement(screen.getByRole("button", {name: /回到最新/}));
+    expect(viewport.nextElementSibling).toContainElement(screen.getByRole("button", {name: "选择行动"}));
+    view.rerender(<RpScene actors={actors} messages={messages} hydrate mode="log"/>);
+    expect(view.container.querySelector(".abyssa-rp__log")).toBe(log);
+    expect(view.container.querySelector(".abyssa-rp__row")).toBe(row);
+    expect(view.container.querySelector(".abyssa-rp__actions")).toBeEmptyDOMElement();
+  });
+
   it("keeps play/log focus semantics and marks hydrated messages as settled", () => {
     const messages: RpMessage[] = [
       say("a-1", "abyssa", "First"),

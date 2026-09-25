@@ -23,6 +23,11 @@
   inset: 0;
 }
 
+/* LOAD and SETTINGS retire only the title content; CGs stay mounted. */
+.title-scene:has(.system-scene) .title-stack, .title-scene:has(.system-scene) .title-footer { opacity: 0; }
+.title-stack, .title-footer { transition: opacity 480ms ease; }
+@media (prefers-reduced-motion: reduce) { .title-stack, .title-footer { transition: none; } }
+
 /* ---- 猩红 ----
    取值自 cg-b-1 / cg-b-2 的实测像素:
    最高饱和 #e31620 / #d51112,最亮 #fbf0ed,暗部 #010102。
@@ -396,39 +401,3 @@
   text-indent: 0.34em;
   text-transform: uppercase;
 }
-
-/* RpgModal owns centering within Stage. Scroll the body so the close button
-   remains visible and does not inherit the old standalone dialog's inset. */
-.title-archive.abyssa-modal__panel {
-  width: 760px;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  box-shadow: 0 12px 80px #000c;
-}
-.title-archive .abyssa-modal__body { max-height: 600px; overflow-y: auto; }
-.title-archive__list { max-height: 340px; overflow-y: auto; }
-.title-archive article { border-bottom: 1px solid #81704c; padding: 8px; }
-.title-archive label { display: block; margin: 15px 0; }
-
-/* New-game choices stay inside the shared Stage/modal and inherit the crimson palette. */
-.title-start.abyssa-modal__panel { width: 670px; }
-.title-start__intro { margin: 0 0 20px; color: var(--abyssa-text-soft); font-size: 15px; line-height: 1.7; }
-.title-start__options { display: grid; gap: 10px; }
-.title-start__option {
-  display: flex; align-items: center; gap: 18px; width: 100%; padding: 17px 20px;
-  border: 1px solid var(--abyssa-ornament-dark); background: var(--abyssa-panel-black);
-  color: var(--abyssa-text); font: inherit; text-align: left; cursor: pointer;
-  transition: background 150ms, border-color 150ms;
-}
-.title-start__option[data-primary] { border-color: var(--abyssa-ornament); background: var(--abyssa-panel-dark); }
-.title-start__option:hover:not(:disabled) { background: var(--abyssa-panel-soft); border-color: var(--abyssa-teal); }
-.title-start__option:focus-visible { outline: 2px solid var(--abyssa-focus); outline-offset: 3px; }
-.title-start__option:disabled { opacity: .5; cursor: wait; }
-.title-start__index { color: var(--abyssa-text-muted); font-size: 14px; letter-spacing: .1em; }
-.title-start__copy { display: grid; gap: 7px; flex: 1; }
-.title-start__copy strong { font-size: 18px; font-weight: 500; letter-spacing: .06em; }
-.title-start__copy > span { color: var(--abyssa-text-soft); font-size: 14px; line-height: 1.65; }
-.title-start__arrow { color: var(--abyssa-teal-soft); font-size: 25px; }
-.title-start__note { margin: 20px 0 0; color: var(--abyssa-text-muted); font-size: 13px; line-height: 1.6; }
-.title-start__status { min-height: 22px; margin: 8px 0 0; color: var(--abyssa-teal-soft); font-size: 14px; line-height: 1.6; }

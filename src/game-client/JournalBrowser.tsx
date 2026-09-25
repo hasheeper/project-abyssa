@@ -12,6 +12,7 @@ export interface JournalEntry {
   kind: "return" | "story" | "quest" | "memory";
   group: "current" | "archive" | "locked";
   actionable?: boolean;
+  ongoing?: boolean;
   sourceId?: string;
   content: ReactNode;
 }

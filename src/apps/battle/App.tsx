@@ -1,7 +1,8 @@
+import { useMoney } from "../../shared/ui/primitives/Money";
 import { GameLoading } from "../../game-client/GameLoading";
 import { TutorialDeparture } from "./TutorialDeparture";
 import { CampaignMenuScope } from "../../game-client/CampaignMenuScope";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { AbyssaProvider } from "../../shared/ui/primitives/AbyssaProvider";
 import { Stage } from "../../shared/stage";
 import { SceneArrivalTitle } from "../../shared/transition";
@@ -18,11 +19,11 @@ export function App() {
   return <GameProvider><GameGate allowTutorial><BattleRoute /></GameGate></GameProvider>;
 }
 function BattleRoute() {
+  const money = useMoney();
   const session = useGameSession(), game = useGameState(), record = game.record!;
   const { navigate } = useSceneTransition();
   const tutorial = session.runtime.queries.tutorial(record);
   const isTutorial = tutorial?.progress.status === "active" || tutorial?.progress.status === "pending";
-  const [uiSkin, setUiSkin] = useState<BattleUiSkin>(isTutorial ? "hero-party" : record.schemaVersion !== 1 ? "old-manor" : "timber");
   const expeditionId = session.locator.expeditionId;
   const run = record.schemaVersion === 4 ? record.snapshot.run : record.snapshot.expedition;
   const memorySession = record.schemaVersion === 4 ? record.snapshot.campaign.memory : null;
@@ -30,21 +31,36 @@ function BattleRoute() {
   const memoryBattle = record.schemaVersion === 4 && record.snapshot.run?.kind === "memory" && !!record.snapshot.run.battle;
   const memoryReading = memoryMatches && (!memoryBattle || memorySession?.node !== "battle");
   const settled = record.schemaVersion === 1 ? record.snapshot.campaign.appliedSettlements.find(entry => entry.expeditionId === expeditionId)?.result : record.snapshot.campaign.settlements.find(entry => entry.runId === expeditionId);
-  const reviewingOtherRun = (record.schemaVersion === 3 || record.schemaVersion === 4) && run && activeRunId(record) !== expeditionId && settled && "outcome" in settled && settled.outcome === "cleared";
+  const journey = record.schemaVersion !== 1 ? session.runtime.queries.journey(record) : null;
+  const settledRouteId = record.schemaVersion !== 1 ? record.snapshot.campaign.settlements.find(entry => entry.runId === expeditionId)?.routeId : undefined;
+  const displayRoute = journey?.routes[settledRouteId ?? journey.expedition?.run.routeId ?? journey.defaultRouteId];
+  const skinIdentity = memoryMatches ? memorySession.id : expeditionId;
+  const [skinChoice, chooseSkin] = useState<{id?: string; skin: BattleUiSkin} | null>(null);
+  const uiSkin = skinChoice && skinChoice.id === skinIdentity ? skinChoice.skin : isTutorial ? "hero-party" : displayRoute?.skin ?? (record.schemaVersion !== 1 ? "old-manor" : "timber");
+  const setUiSkin = (skin: BattleUiSkin) => chooseSkin({id: skinIdentity, skin});
+  const reviewingOtherRun = record.schemaVersion !== 1 && run && activeRunId(record) !== expeditionId && !!settled;
+  const settling = useRef(false);
   const settle = async () => {
-    const before = session.getSnapshot().record;
-    if (!before) return;
-    if (before.schemaVersion !== 1) {
-      const e = before.schemaVersion === 4 ? before.snapshot.run?.kind === "expedition" ? before.snapshot.run.state : null : before.snapshot.expedition;
-      if (e?.node !== "finished" || e.run.id !== expeditionId) return;
-      await session.dispatch({type: "settle-expedition", runRef: {kind: "expedition", id: e.run.id}, terminalRef: e.result.id});
-    } else {
-      const pending = before.pendingSettlement;
-      if (!pending || pending.expeditionId !== expeditionId) return;
-      await session.dispatch({type: "settle-expedition", expeditionId: pending.expeditionId, terminalRef: pending.terminalRef});
-    }
-    const current = session.getSnapshot().record;
-    if (current && !activeRunId(current) && !isTutorial) navigate(gameHref("mansion", recordLocator(current)), {destination: "守望者之崖洋馆", channel: "正在返回"});
+    if (settling.current) return;
+    settling.current = true;
+    try {
+      if (session.getSnapshot().error) await session.refresh();
+      if (session.getSnapshot().status !== "ready") return;
+      const before = session.getSnapshot().record;
+      if (!before) return;
+      if (before.schemaVersion !== 1) {
+        const e = before.schemaVersion === 4 ? before.snapshot.run?.kind === "expedition" ? before.snapshot.run.state : null : before.snapshot.expedition;
+        if (e?.node === "finished" && e.run.id === expeditionId) {
+          await session.dispatch({type: "settle-expedition", runRef: {kind: "expedition", id: e.run.id}, terminalRef: e.result.id});
+        } else if (!before.snapshot.campaign.settlements.some(t => t.runId === expeditionId)) return;
+      } else {
+        const pending = before.pendingSettlement;
+        if (!pending || pending.expeditionId !== expeditionId) return;
+        await session.dispatch({type: "settle-expedition", expeditionId: pending.expeditionId, terminalRef: pending.terminalRef});
+      }
+      const current = session.getSnapshot().record;
+      if (current && session.getSnapshot().status === "ready" && (!activeRunId(current) || reviewingOtherRun) && !isTutorial) navigate(gameHref("mansion", recordLocator(current)), {destination: "守望者之崖洋馆", channel: "正在返回"});
+    } finally { settling.current = false; }
   };
 
   const tutorialReturned = tutorial?.progress.status === "completed" && tutorial.progress.runId === expeditionId && !run;
@@ -64,12 +80,12 @@ function BattleRoute() {
         tone="gold"
       />}
       <CampaignMenuScope>
-        {record.schemaVersion !== 1 && (memoryMatches || reviewingOtherRun || run && locatorMatchesRun(record, session.locator) || !run && settled && "outcome" in settled && settled.outcome === "cleared")
+        {record.schemaVersion !== 1 && (memoryMatches || reviewingOtherRun || run && locatorMatchesRun(record, session.locator) || !run && settled)
           ? <ManorBattleBinding reviewing={!!reviewingOtherRun} inspectHref={id => gameHref("character-status", recordLocator(record), {characterId:id,tab:"summary",from:"battle"})} uiSkin={uiSkin} onUiSkinChange={setUiSkin} onSettle={() => void settle()} saving={game.status !== "ready"}/>
           : <AbyssaProvider className="abyssa-expedition-theme" data-battle-ui-skin={uiSkin}>
             {record.schemaVersion === 1 && run && locatorMatchesRun(record, session.locator)
               ? <ExpeditionBattleScreen inspectHref={id => gameHref("character-status",recordLocator(record),{characterId:id,tab:"summary",from:"battle"})} uiSkin={uiSkin} onUiSkinChange={setUiSkin} onSettle={() => void settle()} saving={game.status !== "ready"}/>
-              : <section className="game-client-gate game-client-gate--scene"><h2>{settled ? "远征已入账" : "请从地图编队进入远征"}</h2><p>{settled ? `已带回 ${settled.totalGold} 金币，最深抵达第 ${settled.deepestLayer} 层。` : session.locator.memory ? "这条回忆链接已失效，请从洋馆恢复当前章节。" : run ? "已有另一趟远征，请从继续远征入口返回。" : "当前没有活动远征。"}</p></section>}
+              : <section className="game-client-gate game-client-gate--scene"><h2>{settled ? "远征已入账" : "请从地图编队进入远征"}</h2><p>{settled ? `已带回 ${money.format(settled.totalGold)}，最深抵达第 ${settled.deepestLayer} 层。` : session.locator.memory ? "这条回忆链接已失效，请从洋馆恢复当前章节。" : run ? "已有另一趟远征，请从继续远征入口返回。" : "当前没有活动远征。"}</p></section>}
             <CampaignPanel/>
           </AbyssaProvider>}
       </CampaignMenuScope>
