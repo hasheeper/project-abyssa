@@ -1,21 +1,33 @@
 # AIRP：Cloudflare Pages 静态发布
 
-当前发布阶段：**Alpha**。新站为[abyssa-airp-alpha.pages.dev](https://abyssa-airp-alpha.pages.dev/)，源码仓库为[hasheeper/project-abyssa](https://github.com/hasheeper/project-abyssa)。ABOUT 已增加同一仓库链接，并标识 `ABYSSA · ALPHA`。本次新建 Pages 项目，未修改已有站点。
+当前发布阶段：**Alpha**。正式试玩站为[abyssa-airp-alpha.pages.dev](https://abyssa-airp-alpha.pages.dev/)，源码仓库为[hasheeper/project-abyssa](https://github.com/hasheeper/project-abyssa)。ABOUT 已增加同一仓库链接，并标识 `ABYSSA · ALPHA`。09-29 在现有 Pages 项目更新 production 部署。
 
-更新：2026-09-25。源码基线 `14bf2504f18052840971d81f0915958080d8e458` 已推送到 GitHub main；从该干净提交使用 Node 22.23.2／npm 10.9.8 重建，普通与严格 `check:pages -- --release` 均通过。随后仅上传 `dist/game`，Cloudflare 已确认 production 部署成功。文档后续提交用于记录发布结果，线上运行包仍对应此基线。
+更新：2026-09-29。源码基线 `c7735a949f26fd640928fe87328ca2b82974ecf8` 已推送到 GitHub main；从该干净提交使用 Node 22.23.2／npm 10.9.8 重建，严格 `check:pages -- --release` 与 `check:output -- game` 均通过。随后仅上传 `dist/game`，Cloudflare 已确认 production 部署成功，source 为 `c7735a9`。文档后续提交用于记录发布结果，线上运行包仍对应此基线。
+
+本次上线新战斗结算面板及一次性开盒：新出征解扣、开盖、起骰；刷新、读档、页面返回与 AVG 返回只淡入，不重播骰子入场。结算仍沿用真实终局回执与原确认事务。
 
 | 发布证据 | 本次结果 |
 | --- | --- |
 | Pages 项目／分支 | `abyssa-airp-alpha`／`main`，Direct Upload |
-| Production 部署 ID | `9f866128-a59c-4c1f-a844-aecd56df7a63` |
-| 本次部署地址 | [9f866128.abyssa-airp-alpha.pages.dev](https://9f866128.abyssa-airp-alpha.pages.dev/) |
-| 发布目录 | `dist/game`，881 文件／159.71 MiB，最大 7.81 MiB |
-| 上传结果 | 880 静态文件＋由 Pages 解析的 `_headers` |
-| 清单 SHA-256 | `ad83a798e571bef394bcc65ee5c0be663cf1d191a94356fbc81ec0a05a66dba1` |
+| Production 部署 ID | `3a47b4f5-8a63-4d70-b179-a30256c3d8a5` |
+| 本次部署地址 | [3a47b4f5.abyssa-airp-alpha.pages.dev](https://3a47b4f5.abyssa-airp-alpha.pages.dev/) |
+| 发布目录 | `dist/game`，881 文件／159.77 MiB，最大 7.81 MiB |
+| 上传结果 | 880 静态文件（31 个新上传、849 个复用）＋由 Pages 解析的 `_headers` |
+| 清单 SHA-256 | `20ef99f7e4941a272922728f3541680e8a5a64437837d1d6712d023985afaf9f` |
+
+上一版 production 保留为回退候选：`9f866128-a59c-4c1f-a844-aecd56df7a63`，源码 `14bf2504f18052840971d81f0915958080d8e458`，部署地址 [9f866128.abyssa-airp-alpha.pages.dev](https://9f866128.abyssa-airp-alpha.pages.dev/)，清单 SHA-256 为 `ad83a798e571bef394bcc65ee5c0be663cf1d191a94356fbc81ec0a05a66dba1`。
 
 最新[发布与密钥审计](../audits/2026-09-25-release-security.md)记录源码／产物扫描与初轮 Git 历史证据，受检范围内没有发现已知 Key 外泄；重连误填、开发服务私档、CI 报告上传和发布门禁已修复。上传范围不含配置、源码地图、私人报告、实验页或工具页。部署成功与完整玩家流程、模型生成、更新回退验收分别记录。
 
 ## 本次线上检查
+
+2026-09-29（Asia/Shanghai）发布后完成 HTTP 核对：稳定域名已返回新首页；全部变化文件及根目录运行文件共 42 个 GET 内容 SHA-256 与本地产物一致。响应头与 `_headers` 一致，7 个私有／缺失路径均为真正 404，SHOP／洋馆旧书签规范化和跳转通过。
+
+线上 Chromium 使用四组隔离上下文导入内容27真实规则检查点，通关、撤离、团灭、教程领取全部通过：普通终局由实际最后一击／撤离命令触发，演出模式正确；恢复和刷新不播放开盒，存档进度保持；终局刷新直接显示账页，确认后返回洋馆。四组均无页面异常，并保存结算截图。测试未调用模型，未操作用户浏览器档案；完整玩家路径、AIRP 实际生成、旧标签页缓存更新和回退演练仍未验收。
+
+本次本机证据位于 `dist/reports/pages-2026-09-29/`：`deployments.local.json` 记录 production 源码与部署 ID，`online-http.local.json` 记录字节／响应检查，`online-browser.local.json` 与 `online-*.png` 记录四组线上流程。打包门禁报告仍位于 `dist/reports/airp-p3/pages-release.local.json`。这些报告均不随站点或 Git 上传；本地门禁报告的 `published: false` 不表示实际部署失败。
+
+### 09-25 首次发布检查（历史）
 
 2026-09-25 23:47（Asia/Shanghai）完成非视觉 HTTP 检查：
 
@@ -85,7 +97,7 @@ npm run check:pages:browser
    wrangler pages deploy dist/game --project-name abyssa-airp-alpha --branch main
    ```
 
-   Wrangler 从干净工作树读取当前提交。本次首发还显式附上 `--commit-hash 14bf2504f18052840971d81f0915958080d8e458`；后续不得照抄旧提交值。
+   Wrangler 从干净工作树读取当前提交。09-29 发布显式附上 `--commit-hash c7735a949f26fd640928fe87328ca2b82974ecf8`；后续应使用各自冻结的源码提交，不得照抄旧值。
 4. 只上传 `dist/game` 内容，核对返回的部署 ID 与 source revision；记录新的产物摘要和在线检查。不得上传整个工作区、整个 `dist`、`dist/reports`，也不上传源码地图。
 
 网页拖拽可作备用方式；超过 1,000 文件时继续使用 Wrangler，不删除角色卡或资源凑数。
@@ -107,7 +119,7 @@ Pages会将`.html`地址规范化成无后缀路径；正式站必须额外检�
 
 只上传完整、经过检查的产物。Cloudflare官方回退仅能选择成功的**production部署**，preview不能作为回退目标。发布前保留上一份完整产物和部署ID；在控制台Deployments中选择目标production部署的“Rollback to this deployment”。
 
-首次上线尚无历史production版本，因此P3-F仍需两份受控、存档合同相同的发布演练。验证旧标签页、新标签页、清单／worker／固定URL资源及存档，不重复生成已付费对白，不清空站点数据。回退演练尚未完成。
+09-29 更新后已有两份成功的 production 部署，上一版 ID 与清单摘要见上表。P3-F 仍需受控的更新与回退演练：验证旧标签页、新标签页、清单／worker／固定URL资源及存档，不重复生成已付费对白，不清空站点数据。本次成功上传和新浏览器检查不代表回退演练完成。
 
 ## 官方依据
 
