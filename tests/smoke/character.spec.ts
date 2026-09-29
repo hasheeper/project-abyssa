@@ -1,5 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
-import { build } from "esbuild";
+import { build } from "./fixture-build";
 import { readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { projectRoot } from "../../config/paths.mjs";

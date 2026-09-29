@@ -1,6 +1,6 @@
 import { openManorJournal } from "./playable-helpers";
 import { test, expect, type Page } from "@playwright/test";
-import { build } from "esbuild";
+import { build } from "./fixture-build";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { projectRoot } from "../../config/paths.mjs";

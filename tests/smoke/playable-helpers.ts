@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { build } from 'esbuild';
+import { build } from './fixture-build';
 import { resolve } from 'node:path';
 import { PerspectiveCamera, Vector3 } from 'three';
 import { projectRoot } from '../../config/paths.mjs';

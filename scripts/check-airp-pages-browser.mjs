@@ -51,7 +51,7 @@ try {
   await page.getByRole('button', {name: '新的开始', exact: true}).click();
   await page.getByRole('textbox', {name: '请输入角色姓名'}).fill('林恩');
   await page.getByRole('button', {name: /下一步/}).click();
-  await page.getByRole('radio', {name: /AIRP 快速体验/}).click();
+  await page.getByRole('radio', {name: 'AIRP 游玩', exact: true}).click();
   await page.getByRole('button', {name: /下一步/}).click();
   await page.getByRole('button', {name: /开始游戏/}).click();
   await expect(page).toHaveURL(/#\/mansion\?/, {timeout: 60000});
@@ -60,9 +60,10 @@ try {
   await page.goto(origin + '/index.html#/settings?' + saveQuery);
   await page.getByRole('tab', {name: 'Model', exact: true}).click();
   await expect(page.getByRole('heading', {name: '服务连接', exact: true})).toBeVisible({timeout: 60000});
-  await expect(page.getByText('Key 仅存于本页，刷新后清空。', {exact: true})).toBeVisible();
+  await page.getByText('保存说明', {exact: true}).click();
+  await expect(page.getByText('保存地址、Key 和模型，下次自动恢复。未保存的修改仅本次有效，不会自动调用模型。', {exact: true})).toBeVisible();
   await expect(page.getByText(/份作者资料全文保留/)).not.toBeVisible();
-  for (const name of ['大纲模型 ID', '正文模型 ID', '格式化模型 ID']) await expect(page.getByLabel(name, {exact: true})).toBeVisible();
+  for (const name of ['GM模型 ID', '正文模型 ID', '辅助模型 ID']) await expect(page.getByLabel(name, {exact: true})).toBeVisible();
   const bounds = await page.locator('.settings-app__panel').evaluate(element => ({height: element.clientHeight, content: element.scrollHeight}));
   expect(bounds.content).toBeLessThanOrEqual(bounds.height + 1);
   // The shared RpgCheckbox's native input is visually hidden; use its visible label.
@@ -78,10 +79,7 @@ try {
   await page.getByRole('tab', {name: 'Scene', exact: true}).click();
   await page.getByRole('tab', {name: 'Model', exact: true}).click();
   await expect(page.getByLabel('公共 API Key', {exact: true})).toHaveValue('synthetic-ui-test-key');
-  await page.getByRole('button', {name: '清除内存中的Key', exact: true}).click();
-  await expect(page.getByLabel('公共 API Key', {exact: true})).toHaveValue('');
-  await page.getByText('使用说明', {exact: true}).click();
-  await expect(page.getByText('使用兼容 Chat Completions 的 HTTPS 接口，并允许本站跨域访问（CORS）。', {exact: true})).toBeVisible({timeout: 60000});
+  // An imported but unsaved key remains in memory only. Reload must discard it.
   await page.reload();
   await page.getByRole('tab', {name: 'Model', exact: true}).click();
   await expect(page.getByLabel('导入测试配置', {exact: true})).toBeVisible({timeout: 60000});

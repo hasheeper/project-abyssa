@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { build } from "esbuild";
+import { build } from "./fixture-build";
 import { resolve } from "node:path";
 import { projectRoot } from "../../config/paths.mjs";
 import { ready } from "./playable-helpers";

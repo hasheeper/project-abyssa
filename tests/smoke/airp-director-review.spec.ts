@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { build } from "esbuild";
+import { build } from "./fixture-build";
 import { readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 
