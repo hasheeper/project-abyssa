@@ -9,6 +9,7 @@ import { SceneTransitionContext } from "../../shared/transition/TransitionProvid
 import { ManorBattleBinding } from "./ManorBattleBinding";
 import { manorJourneyStory } from "./presentation/manor-journey-story";
 import { JOURNEY_MOTION_MS } from "./presentation/journey-motion";
+import { SCENE_SEQUENCE_MS } from "../../shared/presentation/adv/SceneSequence";
 
 const fixtures:Awaited<ReturnType<typeof manorClientFixture>>[]=[];
 afterEach(()=>{cleanup();fixtures.splice(0).forEach(f=>f.session.dispose());sessionStorage.clear();vi.useRealTimers();vi.restoreAllMocks();vi.unstubAllGlobals();vi.mocked(prepareImages).mockResolvedValue();});
@@ -31,6 +32,7 @@ async function setup() {
   </GameSessionScope>);
   await advance(0);
   await advance(40);
+  await advance(SCENE_SEQUENCE_MS.battleFade);
   for(const node of mounted.container.querySelectorAll<HTMLElement>("[data-scene-settle]"))
     fireEvent(node,Object.assign(new Event("animationend",{bubbles:true}),{animationName:node.dataset.sceneSettle}));
   expect(mounted.container.querySelector(".scene-sequence")).toHaveAttribute("data-phase","idle");

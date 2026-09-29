@@ -20,6 +20,10 @@ export interface SceneTransitionCopy {
 }
 
 export interface SceneNavigationOptions extends SceneTransitionCopy {
+  /** Loading saved progress restores the scene without replaying its physical entrance. */
+  entry?: "navigation" | "restore";
+  /** Only a newly committed expedition departure opens its dice box. */
+  battleEntrance?: "open-box";
   /** 默认 push；只在明确替换当前历史记录时使用。 */
   replace?: boolean;
 }

@@ -15,15 +15,24 @@ function view(receipt = receiptFor(), onConfirm = vi.fn(), reduced = true) {
 }
 
 describe("shared settlement presentation", () => {
-  it("takes location/progress from its caller, exposes all 22 items and keeps unknown quality hidden", () => {
+  it("takes its progress label from the caller, exposes all 22 items and keeps unknown quality hidden", () => {
     const receipt = receiptFor("cleared", true);
     const original = structuredClone(receipt);
     render(view(receipt));
     const dialog = screen.getByRole("dialog", {name: "远征完成"});
-    expect(dialog).toHaveTextContent("旧日钟廊");
     expect(dialog).toHaveTextContent("深处");
     expect(dialog).not.toHaveTextContent("庄园");
-    expect(within(screen.getByRole("list", {name: "带回道具"})).getAllByRole("button")).toHaveLength(22);
+    const list = screen.getByRole("list", {name: "带回道具"});
+    const seen = new Set<string>();
+    while (true) {
+      const visible = within(list).getAllByRole("button");
+      expect(visible).toHaveLength(5);
+      visible.forEach(button => seen.add(button.getAttribute("aria-label")!));
+      const next = screen.getByRole("button", {name: "下一页收获"});
+      if (next.hasAttribute("disabled")) break;
+      fireEvent.click(next);
+    }
+    expect(seen.size).toBe(22);
     expect(screen.getByRole("button", {name: /封蜡小匣.*鉴定品，品质未知/})).toBeInTheDocument();
     expect(screen.getByRole("group", {name: `带回资金 ${receipt.returned.copper.toLocaleString("en-US")} G`})).toHaveTextContent(receipt.returned.copper.toLocaleString("en-US"));
     expect(receipt).toEqual(original);
@@ -55,7 +64,7 @@ describe("shared settlement presentation", () => {
   it("keyboard skipping and Escape do not leave the result or reach the battle", () => {
     const confirm = vi.fn();
     render(view(receiptFor(), confirm, false));
-    fireEvent.keyDown(screen.getByRole("region", {name: "远征收获明细"}), {key: "Enter"});
+    fireEvent.keyDown(screen.getByRole("dialog"), {key: "Enter"});
     expect(screen.getByRole("group", {name: "带回资金 4,850 G"})).toHaveTextContent("4,850");
     fireEvent.keyDown(screen.getByRole("dialog"), {key: "Escape"});
     expect(confirm).not.toHaveBeenCalled();
@@ -73,7 +82,7 @@ describe("shared settlement presentation", () => {
     vi.useFakeTimers();
     const confirm = vi.fn();
     const {rerender} = render(view(receiptFor(), confirm, false));
-    act(() => vi.advanceTimersByTime(1300));
+    act(() => vi.advanceTimersByTime(2800));
     expect(screen.getByRole("group", {name: "带回资金 4,850 G"})).toHaveTextContent("4,850");
     rerender(view(receiptFor("failed"), confirm, false));
     fireEvent.click(screen.getByRole("button", {name: "返回"}));
@@ -84,6 +93,7 @@ describe("shared settlement presentation", () => {
   it("allows an empty result and a context without any layer label", () => {
     render(<UiMotionProvider preference="reduced"><LootSettlementView receipt={finishRun(sampleRun("fresh"), "cleared").settlement!} catalog={LOOT_ITEMS} context={{locationName: "归途"}} onConfirm={() => {}}/></UiMotionProvider>);
     expect(screen.getByRole("dialog")).toHaveTextContent("暂无道具收获");
+    expect(screen.getByRole("dialog")).toHaveTextContent("归途");
     expect(screen.getByRole("dialog")).not.toHaveTextContent("第");
     expect(screen.getByRole("group", {name: "带回资金 0 G"})).toBeInTheDocument();
   });
@@ -97,6 +107,18 @@ describe("shared settlement presentation", () => {
     rerender(renderResult(false, "保存失败，请重试。"));
     expect(screen.getByRole("alert")).toHaveTextContent("保存失败");
     fireEvent.click(screen.getByRole("button", {name: "重试结算"}));
+    expect(confirm).toHaveBeenCalledOnce();
+  });
+
+  it("keeps a committed receipt revealed after a refreshed projection", () => {
+    vi.useFakeTimers();
+    const receipt = {...receiptFor(), id: "terminal:1"};
+    const confirm = vi.fn();
+    const {rerender} = render(view(receipt, confirm, false));
+    act(() => vi.advanceTimersByTime(2800));
+    rerender(view(structuredClone(receipt), confirm, false));
+    expect(screen.getByRole("dialog")).toHaveAttribute("data-reveal", "complete");
+    fireEvent.click(screen.getByRole("button", {name: "返回"}));
     expect(confirm).toHaveBeenCalledOnce();
   });
 });

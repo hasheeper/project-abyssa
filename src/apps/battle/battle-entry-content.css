@@ -1,10 +1,9 @@
-/* Ordinary manor only. One entrance clock, layered content; idle combat styles
-   keep their own transforms and transitions. Never animate layout or die scale. */
+/* Scene-owned entrance: unlock → open the existing tray → lift dice from sockets.
+   Refresh uses the scene fade and never participates in these tracks. */
 [data-manor-entry] .abyssa-expedition-dice-panel {
-  --manor-die-drop: -160px;
-  --manor-die-land-ms: 840ms;
-  --manor-die-start: 600ms;
-  --manor-die-step: 65ms;
+  --manor-die-unbox-ms: 620ms;
+  --manor-die-start: 1040ms;
+  --manor-die-step: 55ms;
 }
 .scene-sequence[data-battle-motion="board"]:is([data-phase="prepare"], [data-phase="in"]) [data-manor-entry]
   :is(.abyssa-expedition-enemy, .abyssa-expedition-party-column, .expedition-die-entry,
@@ -18,8 +17,8 @@
   opacity: .001;
 }
 .scene-sequence[data-battle-motion="board"][data-phase="prepare"] [data-manor-entry] .expedition-die-entry {
-  translate: var(--manor-die-drift) var(--manor-die-drop);
-  rotate: var(--manor-die-lean);
+  opacity: 1;
+  transform: translateY(1px) scale(.8);
 }
 .scene-sequence[data-battle-motion="board"][data-phase="in"] [data-manor-entry] .abyssa-expedition-enemy {
   /* The existing per-seat delay is retained; enemy combat timing is untouched. */
@@ -32,8 +31,8 @@
   animation: manor-companion-in 620ms cubic-bezier(.3, .12, .28, 1) 400ms both;
 }
 .scene-sequence[data-battle-motion="board"][data-phase="in"] [data-manor-entry] .expedition-die-entry {
-  animation: manor-die-land var(--manor-die-land-ms) linear calc(var(--manor-die-start) + var(--manor-order) * var(--manor-die-step)) both,
-    manor-entry-appear 180ms ease-out calc(var(--manor-die-start) + var(--manor-order) * var(--manor-die-step)) both;
+  transform-origin: 50% 53%;
+  animation: manor-die-unbox var(--manor-die-unbox-ms) cubic-bezier(.3, 0, .25, 1) calc(var(--manor-die-start) + var(--manor-order) * var(--manor-die-step)) both;
 }
 .scene-sequence[data-battle-motion="board"][data-phase="in"] [data-manor-entry] .battle-reaction__speech {
   animation: manor-speech-in 420ms cubic-bezier(.3, .12, .28, 1) 900ms both;
@@ -42,7 +41,7 @@
   animation: manor-entry-appear 320ms ease-out 980ms both;
 }
 .scene-sequence[data-battle-motion="board"][data-phase="in"] [data-manor-entry] .action-dock {
-  animation: manor-controls-in 320ms cubic-bezier(.3, .12, .28, 1) calc(var(--manor-die-start) + var(--manor-die-land-ms) + var(--manor-last-die) * var(--manor-die-step) - 320ms) both;
+  animation: manor-controls-in 320ms cubic-bezier(.3, .12, .28, 1) calc(var(--manor-die-start) + var(--manor-die-unbox-ms) + var(--manor-last-die) * var(--manor-die-step) - 320ms) both;
 }
 /* The initial line stays settled after the entrance; re-enabling its mount
    fade at idle would blink it a second time. Later reaction keys keep the fade. */
@@ -53,28 +52,36 @@
   animation-play-state: paused;
 }
 
-/* The landing shadow stays on the tray instead of flying with the die. */
-.scene-sequence[data-battle-motion="board"]:is([data-phase="prepare"], [data-phase="in"]) [data-manor-entry] .expedition-die__shadow {
-  opacity: 0;
-  transition: none;
+/* Reuse the settlement box geometry/material without enabling settlement stages. */
+.scene-sequence[data-phase="prepare"] [data-box-opening] .expedition-die__cube {transform: none !important;}
+[data-box-opening] :is(.ledger-box__socket, .ledger-box__rim, .ledger-box__well) {opacity: 1; transition: none;}
+[data-box-opening] .ledger-box__leaf[data-side] {transform: none; transition: none;}
+[data-box-opening] .ledger-box__leaf[data-side="l"] {--box-open-x: -101%;}
+[data-box-opening] .ledger-box__leaf[data-side="r"] {--box-open-x: 101%;}
+[data-box-opening] .ledger-box__hasp,
+[data-box-opening] .ledger-box__clasp .abyssa-facet-diamond[data-state] {opacity: 1; transform: none; transition: none;}
+[data-box-opening] .expedition-die__shadow {opacity: 0; transition: none;}
+.scene-sequence[data-phase="in"] [data-box-opening] .ledger-box__hasp {animation: manor-unlock 280ms 260ms ease-in both;}
+.scene-sequence[data-phase="in"] [data-box-opening] .ledger-box__clasp .abyssa-facet-diamond[data-state] {animation: manor-clasp-lift 300ms 220ms ease-in both;}
+.scene-sequence[data-phase="in"] [data-box-opening] .ledger-box__leaf {animation: manor-lid-open 620ms 500ms cubic-bezier(.55, 0, .22, 1) both;}
+.scene-sequence[data-phase="in"] [data-box-opening] .ledger-box__rim {animation: manor-box-clear 240ms calc(var(--manor-die-start) + var(--manor-order) * var(--manor-die-step)) ease-out both;}
+.scene-sequence[data-phase="in"] [data-box-opening] .ledger-box__socket {animation: manor-box-clear 500ms calc(var(--manor-die-start) + var(--manor-order) * var(--manor-die-step)) ease-out both;}
+.scene-sequence[data-phase="in"] [data-box-opening] .ledger-box__well {animation: manor-box-clear 380ms 1200ms ease-out both;}
+.scene-sequence[data-phase="in"] [data-box-opening] .expedition-die__cube {
+  animation: manor-die-upright 500ms calc(var(--manor-die-start) + var(--manor-order) * var(--manor-die-step)) cubic-bezier(.3, 0, .25, 1) both;
 }
-.scene-sequence[data-battle-motion="board"]:is([data-phase="prepare"], [data-phase="in"]) [data-manor-entry] .abyssa-expedition-die-slot::after {
-  content: "";
-  position: absolute;
-  right: 4%; left: 4%; bottom: -29px;
-  z-index: 0;
-  height: 12px;
-  border-radius: 50%;
-  background: radial-gradient(ellipse, rgb(0 0 0 / 68%), transparent 70%);
-  pointer-events: none;
-  opacity: .08;
-  scale: .58;
+.scene-sequence[data-phase="in"] [data-box-opening] .expedition-die__shadow {
+  animation: manor-entry-appear 260ms calc(var(--manor-die-start) + 300ms + var(--manor-order) * var(--manor-die-step)) ease-out both;
 }
-.scene-sequence[data-battle-motion="board"]:is([data-phase="prepare"], [data-phase="in"]) [data-manor-entry] .abyssa-expedition-die-slot[data-loaded]::after {
-  bottom: -22px;
-}
-.scene-sequence[data-battle-motion="board"][data-phase="in"] [data-manor-entry] .abyssa-expedition-die-slot::after {
-  animation: manor-landing-shadow var(--manor-die-land-ms) linear calc(var(--manor-die-start) + var(--manor-order) * var(--manor-die-step)) both;
+@keyframes manor-unlock {from {opacity: 1; transform: none;} to {opacity: 0; transform: scaleX(.2);}}
+@keyframes manor-clasp-lift {from {opacity: 1; transform: none;} to {opacity: 0; transform: translateY(-8px) scale(1.25);}}
+@keyframes manor-lid-open {from {transform: none;} to {transform: translateX(var(--box-open-x));}}
+@keyframes manor-box-clear {from {opacity: 1;} to {opacity: 0;}}
+@keyframes manor-die-upright {from {transform: none;} to {transform: var(--expedition-die-rest-transform);}}
+@keyframes manor-die-unbox {
+  0% {transform: translateY(1px) scale(.8); filter: brightness(.76) saturate(.88);}
+  65% {transform: translateY(-12px) scale(1.04); filter: brightness(1.08);}
+  100% {transform: none; filter: none;}
 }
 
 @keyframes manor-entry-appear { from {opacity: .001;} to {opacity: 1;} }
@@ -83,32 +90,17 @@
 @keyframes manor-companion-in { from {opacity: .001; translate: 18px 0;} to {opacity: 1; translate: 0 0;} }
 @keyframes manor-speech-in { from {opacity: .001; translate: 0 10px;} to {opacity: 1; translate: 0 0;} }
 @keyframes manor-controls-in { from {opacity: .001; translate: 0 8px;} to {opacity: 1; translate: 0 0;} }
-@keyframes manor-die-land {
-  0% {translate: var(--manor-die-drift) var(--manor-die-drop); rotate: var(--manor-die-lean); animation-timing-function: cubic-bezier(.33, 0, .72, .42);}
-  44% {translate: 0 4px; rotate: calc(var(--manor-die-lean) * -.3); animation-timing-function: ease-out;}
-  64% {translate: calc(var(--manor-die-drift) * -.24) -36px; rotate: calc(var(--manor-die-lean) * .18); animation-timing-function: ease-in;}
-  81% {translate: 0 2px; rotate: calc(var(--manor-die-lean) * -.07); animation-timing-function: ease-out;}
-  90% {translate: 0 -7px; rotate: calc(var(--manor-die-lean) * .03); animation-timing-function: ease-in;}
-  100% {translate: 0 0; rotate: 0deg;}
-}
-@keyframes manor-landing-shadow {
-  0% {opacity: .08; scale: .58; animation-timing-function: cubic-bezier(.33, 0, .72, .42);}
-  44% {opacity: 1; scale: 1; animation-timing-function: ease-out;}
-  64% {opacity: .4; scale: .76; animation-timing-function: ease-in;}
-  81% {opacity: 1; scale: 1; animation-timing-function: ease-out;}
-  90% {opacity: .8; scale: .94; animation-timing-function: ease-in;}
-  100% {opacity: 1; scale: 1;}
-}
-
 .scene-sequence[data-battle-motion="board"][data-reduced] [data-manor-entry]
   :is(.abyssa-expedition-enemy, .abyssa-expedition-party-column, .expedition-die-entry,
       .abyssa-expedition-enemies__intent-lines, .battle-reaction__stage, .battle-reaction__speech, .action-dock) {
-  animation: none; translate: none; rotate: none; will-change: auto;
+  animation: none; translate: none; rotate: none; opacity: 1; will-change: auto;
 }
+.scene-sequence[data-reduced] [data-manor-entry] .expedition-die-entry {transform: none;}
 @media (prefers-reduced-motion: reduce) {
   .scene-sequence[data-battle-motion="board"] [data-manor-entry]
     :is(.abyssa-expedition-enemy, .abyssa-expedition-party-column, .expedition-die-entry,
         .abyssa-expedition-enemies__intent-lines, .battle-reaction__stage, .battle-reaction__speech, .action-dock) {
-    animation: none; translate: none; rotate: none; will-change: auto;
+    animation: none; translate: none; rotate: none; opacity: 1; will-change: auto;
   }
+  .scene-sequence [data-manor-entry] .expedition-die-entry {transform: none;}
 }

@@ -10,27 +10,33 @@ export type SceneFrame = {id: string; kind: "battle" | "adv"; content: ReactNode
   /** ADV location changes fade through black without replaying the cast entrance. */
   backdrop?: string;
   /** The page styles its physical board; the scene background stays stationary. */
-  battleMotion?: "board";
+  battleMotion?: "board" | "fade";
   arrival?: {background: string; eyebrow: string; title: string}};
 type Phase = "idle" | "out" | "in" | "prepare" | "arrival" | "cover" | "covered" | "uncover";
 const Context = createContext(false);
 const EntranceContext = createContext(false);
 const DeferredDialogueContext=createContext(false);
+const BattleOpeningContext = createContext(false);
 export const useSceneSequenceBusy = () => useContext(Context);
 /** Initial actors are revealed by the scene, and must not start another seat entrance afterwards. */
 export const useSceneSequenceEntrance = () => useContext(EntranceContext);
 export const useSceneSequenceDefersDialogue=()=>useContext(DeferredDialogueContext);
-export const SCENE_SEQUENCE_MS = {battleOut: 520, battleIn: 760, boardIn: 960, advOut: 460, advIn: 800, advDissolve:680, arrival: 2200, cover: 360, covered: 140, uncover: 420} as const;
+export const useSceneSequenceBattleOpening = () => useContext(BattleOpeningContext);
+export const SCENE_SEQUENCE_MS = {battleOut: 520, battleIn: 760, battleFade: 420, boardIn: 960, advOut: 460, advIn: 800, advDissolve:680, arrival: 2200, cover: 360, covered: 140, uncover: 420} as const;
 
 /** Only one scene is mounted. Outgoing props stay frozen until its exit finishes. */
-export function SceneSequence({frame, blocked = false, openingBlocked = false, advEntrance, onPrepared}: {
+export function SceneSequence({frame, blocked = false, openingBlocked = false, initialBattleMotion, advEntrance, onPrepared}: {
   frame: SceneFrame; blocked?: boolean; openingBlocked?: boolean;
+  /** Treatment for the first battle, even if a departure story comes before it. */
+  initialBattleMotion?: "fade";
   /** An existing full-room background hands over without another wash or side entrance. */
   advEntrance?: "dissolve"; onPrepared?:()=>void;
 }) {
   const {reduced} = useUiMotion();
-  const [shown, setShown] = useState(frame);
-  const [phase, setPhase] = useState<Phase>(frame.kind === "adv" || frame.battleMotion === "board" ? "prepare" : "idle");
+  const [shown, setShown] = useState(() => frame.kind === "battle" && initialBattleMotion ? {...frame, battleMotion: initialBattleMotion} : frame);
+  const battleShown = useRef(frame.kind === "battle");
+  const firstBattleMotion = useRef(initialBattleMotion);
+  const [phase, setPhase] = useState<Phase>(frame.kind === "adv" || shown.battleMotion ? "prepare" : "idle");
   const last = useRef(frame), incoming = useRef(frame);
   const root = useRef<HTMLDivElement>(null);
   const settled = useRef(new Set<EventTarget>());
@@ -82,21 +88,26 @@ export function SceneSequence({frame, blocked = false, openingBlocked = false, a
         const enter = () => {
           if (!active) return;
           const next = incoming.current;
-          setPhase(next.arrival ? "arrival" : next.battleMotion === "board" && (reduced || document.hidden) ? "idle" : "in");
+          setPhase(next.arrival ? "arrival" : shown.battleMotion && (reduced || document.hidden) ? "idle" : "in");
         };
         // Give the mounted board a paint opportunity before starting its clock.
         // Decoded images alone do not mean its SVGs, filters and layers are painted.
-        if (incoming.current.battleMotion === "board" && !reduced && !document.hidden) {
+        if (shown.battleMotion && !reduced && !document.hidden) {
           paintFrame = requestAnimationFrame(() => {paintFrame = requestAnimationFrame(enter);});
         } else enter();
         return;
       }
       if (phase === "arrival") {setPhase("in"); return;}
       if (phase === "out") {
-        const next = incoming.current;
+        const incomingFrame = incoming.current;
+        // Returning from a story reuses the already-open tray. This also remembers
+        // restore intent when the initial saved scene was a story rather than battle.
+        const next = incomingFrame.kind === "battle" && incomingFrame.battleMotion === "board" && (battleShown.current || firstBattleMotion.current === "fade")
+          ? {...incomingFrame, battleMotion: "fade" as const} : incomingFrame;
+        if (next.kind === "battle") battleShown.current = true;
         last.current = next;
         setShown(next);
-        setPhase(next.battleMotion === "board" ? "prepare" : next.arrival ? "arrival" : "in");
+        setPhase(next.battleMotion ? "prepare" : next.arrival ? "arrival" : "in");
       } else setPhase("idle");
     };
     if (phase === "arrival") {
@@ -111,7 +122,7 @@ export function SceneSequence({frame, blocked = false, openingBlocked = false, a
       return () => {active = false; window.clearTimeout(timer); document.removeEventListener("visibilitychange", visibility);};
     }
     const ms = phase === "cover" || phase === "covered" || phase === "uncover" ? SCENE_SEQUENCE_MS[phase]
-      : shown.kind === "battle" ? phase === "out" ? SCENE_SEQUENCE_MS.battleOut : shown.battleMotion === "board" ? SCENE_SEQUENCE_MS.boardIn : SCENE_SEQUENCE_MS.battleIn : phase === "out" ? SCENE_SEQUENCE_MS.advOut : advEntrance==="dissolve"?SCENE_SEQUENCE_MS.advDissolve:SCENE_SEQUENCE_MS.advIn;
+      : shown.kind === "battle" ? phase === "out" ? SCENE_SEQUENCE_MS.battleOut : shown.battleMotion === "board" ? SCENE_SEQUENCE_MS.boardIn : shown.battleMotion === "fade" ? SCENE_SEQUENCE_MS.battleFade : SCENE_SEQUENCE_MS.battleIn : phase === "out" ? SCENE_SEQUENCE_MS.advOut : advEntrance==="dissolve"?SCENE_SEQUENCE_MS.advDissolve:SCENE_SEQUENCE_MS.advIn;
     // Participating animationend events are authoritative. A delayed first paint must
     // not be cut short by a mount-time timer; retain only a missing-CSS failsafe.
     const duration = phase === "in" && shown.battleMotion === "board" ? ms * 3 : ms;
@@ -124,13 +135,14 @@ export function SceneSequence({frame, blocked = false, openingBlocked = false, a
   const arrival = current.arrival;
   const introducing = !!arrival && (phase === "prepare" || phase === "arrival");
   return <Context.Provider value={locked}><EntranceContext.Provider value={current.kind === "adv"}>
+    <BattleOpeningContext.Provider value={shown.battleMotion === "board" && (phase === "prepare" || phase === "in") && !reduced}>
     <DeferredDialogueContext.Provider value={advEntrance==="dissolve"&&phase==="prepare"}>
-    <div ref={root} className="scene-sequence" data-scene={current.kind} data-scene-id={current.id} data-phase={phase} data-battle-motion={current.battleMotion} data-adv-entrance={advEntrance} data-reduced={reduced || undefined} aria-busy={locked}
+    <div ref={root} className="scene-sequence" data-scene={current.kind} data-scene-id={current.id} data-phase={phase} data-battle-motion={shown.battleMotion} data-adv-entrance={advEntrance} data-reduced={reduced || undefined} aria-busy={locked}
       style={{"--scene-cover-ms":`${SCENE_SEQUENCE_MS.cover}ms`,"--scene-uncover-ms":`${SCENE_SEQUENCE_MS.uncover}ms`} as CSSProperties}
       onAnimationEnd={event => {
         // Join the real entrance tracks: a settled board must not cut off the
         // last die or dialogue. Ignore shorter opacity and combat animations.
-        if (phase === "in" && current.battleMotion === "board" && event.target instanceof HTMLElement &&
+        if (phase === "in" && shown.battleMotion === "board" && event.target instanceof HTMLElement &&
           event.target.dataset.sceneSettle === event.animationName) {
           settled.current.add(event.target);
           const participants = root.current?.querySelectorAll("[data-scene-settle]");
@@ -144,7 +156,7 @@ export function SceneSequence({frame, blocked = false, openingBlocked = false, a
       <div className="scene-sequence__frame" key={shown.id} inert={locked || undefined}>{!introducing && current.content}</div>
       {curtained && <div className="scene-sequence__curtain" aria-hidden="true"/>}
     </div>
-  </DeferredDialogueContext.Provider></EntranceContext.Provider></Context.Provider>;
+  </DeferredDialogueContext.Provider></BattleOpeningContext.Provider></EntranceContext.Provider></Context.Provider>;
 }
 
 function preloadSceneAssets(urls: readonly string[] = []) {

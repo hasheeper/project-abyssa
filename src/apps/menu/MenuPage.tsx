@@ -303,7 +303,7 @@ function MenuPageContent() {
               {...view.displayed === "save" ? { mode: "save" as const, attempt: saveAttempt.current!, ready: game.status === "ready" } : { mode: "load" as const }}
               onClose={back} onBusyChange={onBusyChange}
               sceneMotion={view.archiveMotion}
-              navigate={href => navigate(href, { destination: "存档进度", channel: "正在读取" })} />
+              navigate={href => navigate(href, { destination: "存档进度", channel: "正在读取", entry: "restore" })} />
             : view.displayed === "settings" ? <SettingsPanel embedded onBack={back} sceneMotion={view.settingsMotion} /> : null}
           </motion.div>
         </div>

@@ -49,7 +49,7 @@ export function GameSystemMenu({ record, runtime, saveUnavailableReason, ...menu
         ? <SettingsScene open={open} onClose={() => setOpen(false)} onExited={exited} />
         : <SaveSlotsScene {...(scene.mode === "save" ? {mode: "save", attempt: scene.attempt, ready: !menu.busy && !!record} : {mode: "load"})}
           open={open} onClose={() => setOpen(false)} onExited={exited}
-          navigate={href => navigateTo(href, {destination: "存档进度", channel: "正在读取"})} />}
+          navigate={href => navigateTo(href, {destination: "存档进度", channel: "正在读取", entry: "restore"})} />}
     </div>, host ?? document.body)}
   </>;
 }

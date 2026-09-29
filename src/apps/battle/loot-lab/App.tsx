@@ -47,6 +47,7 @@ function BattlePreview({ onRestart }: { onRestart: () => void }) {
   const [feedback, setFeedback] = useState<SceneFeedbackEntry[]>([]);
   const announced = useRef(new Set<string>());
   const sequence = useRef(0);
+  const resultSequence = useRef(0);
   const notify = useCallback((id: string, copper: number, itemId: string, quantity: number) => {
     if (announced.current.has(id)) return;
     announced.current.add(id);
@@ -76,14 +77,15 @@ function BattlePreview({ onRestart }: { onRestart: () => void }) {
     window.addEventListener("keydown", key);
     return () => window.removeEventListener("keydown", key);
   }, []);
-  const showResult = (outcome: LootOutcome) => { setFeedback([]); setPreviewReceipt(finishRun(loot, outcome).settlement); setDebug(false); };
+  const showResult = (outcome: LootOutcome) => { resultSequence.current++; setFeedback([]); setPreviewReceipt(finishRun(loot, outcome).settlement); setDebug(false); };
   return <Stage canvasClassName={`abyssa-battle-stage abyssa-battle-stage--${skin}`}>
     <AbyssaProvider className="abyssa-expedition-theme loot-lab" data-battle-ui-skin={skin} motionPreference={reducedMotion ? "reduced" : "system"}>
       <ManorBattleView presentation={p} uiSkin={skin} onUiSkinChange={setSkin} onSettle={onRestart} slots={{
         renderLedger: onClose => <LootLedger run={loot} catalog={LOOT_ITEMS} log={p.view.log} onClose={onClose}/>,
         terminal: <></>,
-        feedback: <><SceneFeedback entries={feedback.slice(0, 4)} edge="right" paused={!!receipt} className="loot-lab-feedback" onDismiss={id => setFeedback(current => current.filter(entry => entry.id !== id))}/>
-          {receipt && <LootSettlementView receipt={receipt} catalog={LOOT_ITEMS} context={{ locationName: previewReceipt ? resultLocation.trim() || "克雷格旧庄园" : "克雷格旧庄园", progressLabel: `第 ${receipt.layer} 层` }} onConfirm={onRestart}/>}</>,
+        settlement: receipt ? { id: previewReceipt ? `preview:${resultSequence.current}` : "live", outcome: receipt.outcome, mode: receipt.outcome === "retreated" ? "retreat" : "stow",
+          content: <LootSettlementView receipt={receipt} catalog={LOOT_ITEMS} context={{ locationName: previewReceipt ? resultLocation.trim() || "克雷格旧庄园" : "克雷格旧庄园", progressLabel: `第 ${receipt.layer} 层` }} onConfirm={onRestart}/> } : undefined,
+        feedback: <SceneFeedback entries={feedback.slice(0, 4)} edge="right" paused={!!receipt} className="loot-lab-feedback" onDismiss={id => setFeedback(current => current.filter(entry => entry.id !== id))}/>,
       }}/>
       <aside className="loot-lab-tools" aria-label="战利品调试工具">
         <button className="loot-lab-tools__toggle" aria-expanded={debug} onClick={() => setDebug(value => !value)}>LOOT LAB <span>F2</span></button>

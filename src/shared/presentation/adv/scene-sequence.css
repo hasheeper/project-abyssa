@@ -23,6 +23,8 @@
 .scene-sequence[data-phase="in"][data-scene="battle"] .scene-sequence__frame {
   animation: scene-battle-in 760ms cubic-bezier(.18,.78,.25,1) both;
 }
+.scene-sequence[data-battle-motion="fade"][data-phase="in"] .scene-sequence__frame {animation:scene-wash-in 420ms ease-out both;}
+.scene-sequence[data-battle-motion="fade"][data-phase="out"] .scene-sequence__frame {animation:scene-wash-out 520ms ease-in both;}
 @keyframes scene-battle-out {
   from { opacity: 1; transform: translateY(0); }
   to { opacity: 0; transform: translateY(-100px); }

@@ -27,11 +27,16 @@ const FADE_OPEN_MS = 620;
 const PANEL_OPEN_MS = 1_850;
 
 interface HandoffRecord extends SceneTransitionCopy {
+  entry?: "navigation" | "restore";
+  battleEntrance?: "open-box";
   target: string;
   issuedAt: number;
 }
 
 export interface SceneTransitionContextValue {
+  /** Stable for the mounted page; boot/history restore an already-open scene. */
+  entry?: "navigation" | "restore";
+  battleEntrance?: "open-box";
   phase: SceneTransitionPhase;
   isTransitioning: boolean;
   navigate: (target: string, options?: SceneNavigationOptions) => boolean;
@@ -238,6 +243,8 @@ function StandaloneTransitionProvider({
 
     const targetUrl = new URL(target, window.location.href);
     const nextCopy = {
+      entry: options.entry,
+      battleEntrance: options.battleEntrance,
       destination: options.destination,
       channel: options.channel,
       cinematic: options.cinematic,
@@ -278,8 +285,8 @@ function StandaloneTransitionProvider({
   }, []);
 
   const value = useMemo<SceneTransitionContextValue>(
-    () => ({ phase, isTransitioning: phase !== "idle", navigate, holdReady: readiness.hold, requestReveal }),
-    [navigate, phase, readiness, requestReveal]
+    () => ({ entry: incoming ? incoming.entry ?? "navigation" : "restore", battleEntrance: incoming?.entry !== "restore" ? incoming?.battleEntrance : undefined, phase, isTransitioning: phase !== "idle", navigate, holdReady: readiness.hold, requestReveal }),
+    [incoming, navigate, phase, readiness, requestReveal]
   );
 
   return (

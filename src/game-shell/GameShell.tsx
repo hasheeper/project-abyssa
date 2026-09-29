@@ -18,7 +18,7 @@ function pause(ms: number, signal: AbortSignal) {
     if (signal.aborted) finish(); else signal.addEventListener("abort", finish, {once:true});
   });
 }
-type MountedRoute = RouteLocation & { module: RouteModule; key: number };
+type MountedRoute = RouteLocation & { module: RouteModule; key: number; entry: "navigation" | "restore"; battleEntrance?: "open-box" };
 type NavigationMode = "push" | "replace" | "history" | "boot";
 
 /** One document, one active page, one curtain. Cached modules never keep a page mounted. */
@@ -92,7 +92,8 @@ export function GameShell() {
         }
         document.documentElement.dataset.gamePage = route.page;
         document.title = routeTitles[route.page];
-        const mounted = {...route,module,key:id}; currentRef.current = mounted; setCurrent(mounted);
+        const entry = mode === "boot" || mode === "history" ? "restore" : options.entry ?? "navigation";
+        const mounted: MountedRoute = {...route,module,key:id,entry,battleEntrance:entry === "navigation" ? options.battleEntrance : undefined}; currentRef.current = mounted; setCurrent(mounted);
       });
       // Data readiness is not timed out. Image decoding is bounded and shares the LRU cache.
       await paint(); await readiness.wait(signal);
@@ -182,7 +183,7 @@ export function GameShell() {
     return () => { delete root.dataset.sceneTransition; delete root.dataset.sceneIncoming; delete root.dataset.sceneReveal; document.body.removeAttribute("aria-busy"); };
   }, [phase, current, reveal]);
 
-  const context = useMemo(() => ({phase,isTransitioning:phase !== "idle",navigate,holdReady:readiness.hold,requestReveal}), [phase,navigate,readiness,requestReveal]);
+  const context = useMemo(() => ({entry:current?.entry,battleEntrance:current?.battleEntrance,phase,isTransitioning:phase !== "idle",navigate,holdReady:readiness.hold,requestReveal}), [current?.entry,current?.battleEntrance,phase,navigate,readiness,requestReveal]);
   const Page = current?.module.default;
   return <SceneTransitionContext.Provider value={context}><TutorialProvider suspended={phase !== "idle"}>
     {Page && <Page key={current!.key}/>}

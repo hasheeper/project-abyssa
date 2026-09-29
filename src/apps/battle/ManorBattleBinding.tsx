@@ -4,7 +4,9 @@ import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react"
 import { SceneFeedback } from "../../shared/ui/patterns/SceneFeedback";
 import { LootLedger } from "./loot/LootLedger";
 import { LootSettlementView } from "./loot/LootSettlementView";
-import { expeditionLootCatalog, expeditionLootView, expeditionLocation } from "./loot/expedition-loot-view";
+import { expeditionLedgerDetail, expeditionLootCatalog, expeditionLootView, expeditionLocation, ledgerClock } from "./loot/expedition-loot-view";
+import type { BattleSettlement } from "./presentation/ledger-stage";
+import { usePlayerName } from "../../shared/domain/PlayerIdentity";
 import { useExpeditionLootFeedback } from "./loot/useExpeditionLootFeedback";
 import { useGameSession, useGameState } from "../../game-client/react";
 import { storyAssets } from "../../game-client/story-actors";
@@ -51,6 +53,10 @@ export function ManorBattleBinding({reviewing = false, ...props}: ExpeditionBatt
   const memory = record.schemaVersion === 4 ? record.snapshot.campaign.memory : null;
   const matchesMemory = !!memory && session.locator.memory?.id === memory.id && session.locator.memory.attempt === memory.attempt;
   const terminal = record.schemaVersion !== 1 ? record.snapshot.campaign.settlements.find(t => t.runId === session.locator.expeditionId) : null;
+  const receiptId = terminal?.id ?? (v.expedition?.node === "finished" ? v.expedition.result.id : undefined);
+  const settlementId = receiptId ? `${record.head.saveId}:${record.head.epoch}:${receiptId}` : undefined;
+  // Restoring a committed terminal has no outgoing battle to close again.
+  const [restoredSettlementId] = useState(settlementId);
   const scene = !matchesMemory ? (!reviewing && v.expedition ? manorScene(v, props.uiSkin)
     : terminal ? settlementScene(v, terminal, props.uiSkin) : undefined) : undefined;
   const incomingScene=p.pendingRoom ? manorScene(p.pendingRoom.view,props.uiSkin) : undefined;
@@ -66,6 +72,8 @@ export function ManorBattleBinding({reviewing = false, ...props}: ExpeditionBatt
   useSceneReveal(scene ? "fade" : undefined);
   const lootCatalog = useMemo(() => expeditionLootCatalog(v, terminal), [v.lootContent, v.items, v.expedition?.run.commissionRewards, terminal]);
   const projectedLoot = useMemo(() => expeditionLootView(v, terminal), [v, terminal]);
+  const playerName = usePlayerName();
+  const ledgerDetail = useMemo(() => expeditionLedgerDetail(v, terminal, playerName), [v, terminal, playerName]);
   const presentedLoot = useRef(projectedLoot);
   // Committed rewards cannot precede their final hit, room completion or banking beat.
   if (!p.presenting) presentedLoot.current = projectedLoot;
@@ -86,7 +94,9 @@ export function ManorBattleBinding({reviewing = false, ...props}: ExpeditionBatt
   const reading = event && progress.read(event.id) < event.lines.length;
   const ordinary = !tutorial && !matchesMemory;
   const lootResult = !matchesMemory && (ordinary || tutorial?.canClaim) && !p.presenting && loot.receipt ? <LootSettlementView
-    receipt={loot.receipt} catalog={lootCatalog} supplies={loot.supplies}
+    receipt={loot.receipt} catalog={lootCatalog} supplies={loot.supplies} supplyGroups={ledgerDetail?.supplyGroups}
+    speaker={ledgerDetail?.speaker} depth={ledgerDetail?.depth} rows={ledgerDetail?.rows} party={ledgerDetail?.party}
+    clock={record.schemaVersion === 4 && v.expedition && !reviewing ? ledgerClock(record.snapshot.campaign.clock.phase) : undefined}
     context={{locationName: v.routes[terminal?.routeId ?? v.expedition?.run.routeId ?? ""]?.name ?? expeditionLocation(terminal?.routeId ?? v.expedition?.run.routeId), progressLabel: `第 ${loot.receipt.layer} 层`}}
     bonusFunds={terminal && v.takeover?.terminalId === terminal.id ? v.takeover.gold : 0}
     pendingReward={tutorial?.canClaim ? {label: "追回货物报酬", copper: tutorial.reward.gold} : undefined}
@@ -94,10 +104,13 @@ export function ManorBattleBinding({reviewing = false, ...props}: ExpeditionBatt
     busy={game.status !== "error" && !!props.saving || transition.isTransitioning || !["ready", "error"].includes(game.status)} error={game.error ? gameErrorText(game.error.code) : undefined}
     confirmRef={tutorial ? anchor("battle.claim") : undefined}
     confirmLabel={tutorial ? "领取并返回洋馆" : "返回洋馆"} onConfirm={props.onSettle}/> : null;
+  // The tutorial claim follows its return story and a reviewed receipt is already known: no dice to stow.
+  const settlement: BattleSettlement | undefined = lootResult && loot.receipt && settlementId ? {id: settlementId, content: lootResult, outcome: loot.receipt.outcome,
+    mode: tutorial || reviewing || !v.expedition || restoredSettlementId === settlementId ? "direct" : loot.receipt.outcome === "retreated" ? "retreat" : "stow"} : undefined;
   const lootSlots = !matchesMemory ? {
     renderLedger: (onClose: () => void) => <LootLedger run={loot.ledger} catalog={lootCatalog} log={v.log} onClose={onClose} tutorial={!!tutorial}/>,
-    terminal: lootResult ?? <></>,
-    feedback: !tutorial && <SceneFeedback dock entries={lootFeedback.entries.slice(0, 4)} edge="right" className="battle-loot-feedback" paused={!!lootResult}
+    terminal: <></>, settlement,
+    feedback: !tutorial && <SceneFeedback dock entries={lootResult ? [] : lootFeedback.entries.slice(0, 4)} edge="right" className="battle-loot-feedback" paused={!!lootResult}
       onDismiss={lootFeedback.dismiss}/>,
   } : undefined;
   let frame: SceneFrame;
@@ -170,7 +183,7 @@ export function ManorBattleBinding({reviewing = false, ...props}: ExpeditionBatt
       lines={event.lines} cursor={cursor} finalLabel="返回行动" onNext={() => progress.write(event.id,cursor+1)}/>};
   } else {
     frame = {id:"battle",kind:"battle",battleMotion:scene ? "board" : undefined,assets:scene?.assets ?? (tutorialStage ? [tutorialStage.background] : undefined),content:<>{!v.expedition || reviewing
-      ? <ManorConclusion {...props} record={record} overlay={lootResult} renderLedger={lootSlots?.renderLedger}/>
+      ? <ManorConclusion {...props} record={record} overlay={null} settlement={settlement} renderLedger={lootSlots?.renderLedger}/>
       : <ManorBattleView {...props} slots={lootSlots} presentation={p} scene={scene} sceneReady={sceneReady} roomLoading={roomLoading}/>}<CampaignPanel/>{!v.expedition && !reviewing && <aside className="campaign-panel campaign-panel--report"><AirpPanel compact/></aside>}</>};
   }
   const battle = frame.kind === "battle";
@@ -180,9 +193,10 @@ export function ManorBattleBinding({reviewing = false, ...props}: ExpeditionBatt
     <AbyssaProvider className={battle ? "abyssa-expedition-theme" : undefined} data-battle-ui-skin={battle ? props.uiSkin : undefined} style={{height:"100%"}}>{frame.content}</AbyssaProvider>
   </div>;
   return <><SceneSequence frame={frame} blocked={p.busy || !!scene && !sceneReady}
+    initialBattleMotion={scene && (transition.entry !== "navigation" || transition.battleEntrance !== "open-box" || settlement) ? "fade" : undefined}
     openingBlocked={transition.isTransitioning || !!scene && !sceneReady}/>
     {/* Tutorial pickups survive the immediate battle → return-story boundary. */}
-    {tutorial && <AbyssaProvider className="tutorial-reward-feedback" hidden={!!lootResult}><SceneFeedback dock entries={lootFeedback.entries.slice(0, 4)} edge="right"
+    {tutorial && <AbyssaProvider className="tutorial-reward-feedback" hidden={!!lootResult}><SceneFeedback dock entries={lootResult ? [] : lootFeedback.entries.slice(0, 4)} edge="right"
       className="battle-loot-feedback" paused={!!lootResult || transition.isTransitioning} onDismiss={lootFeedback.dismiss}/></AbyssaProvider>}
     {battle && scene && !p.pendingRoom && preparation.status !== "ready" && <div className="battle-scene-preparation" role={preparation.status === "error" ? "alert" : "status"}>
       <div><h2>{preparation.status === "error" ? "战场画面准备失败" : "正在准备战场"}</h2>

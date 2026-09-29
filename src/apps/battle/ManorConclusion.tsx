@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import type { BattleLedgerContent } from "./presentation/ExpeditionBattleLedger";
+import type { BattleSettlement } from "./presentation/ledger-stage";
 import { useGameSession, useGameState } from "../../game-client/react";
 import { expeditionScenes } from "../../content/presentation/expedition-art";
 import { ExpeditionBattleSurface } from "./presentation/ExpeditionBattleSurface";
@@ -7,7 +8,7 @@ import { ExpeditionBattleSidebar, type ExpeditionBattleSidebarProps } from "./pr
 import type { ExpeditionBattleScreenProps } from "./ExpeditionBattleScreen";
 
 /** Numerical settlement only. The scene director presents the ending in full ADV. */
-export function ManorConclusion({record, overlay, renderLedger, ...props}: Omit<ExpeditionBattleScreenProps, "onSettle"> & {record: import("../../game-application").AnyGameRecord; overlay: ReactNode; renderLedger?: BattleLedgerContent}) {
+export function ManorConclusion({record, overlay, settlement, renderLedger, ...props}: Omit<ExpeditionBattleScreenProps, "onSettle"> & {record: import("../../game-application").AnyGameRecord; overlay: ReactNode; settlement?: BattleSettlement; renderLedger?: BattleLedgerContent}) {
   const session=useGameSession(), game=useGameState();
   const v=session.runtime.queries.journey(record)!;
   const terminal=record.schemaVersion!==1 ? record.snapshot.campaign.settlements.find(t=>t.runId===session.locator.expeditionId) : null;
@@ -36,5 +37,6 @@ export function ManorConclusion({record, overlay, renderLedger, ...props}: Omit<
     sceneStyle={{backgroundImage:`var(--battle-scene-tint), var(--battle-scene-curtain), url("${scene.background}")`}}
     sidebar={<ExpeditionBattleSidebar {...sidebarProps} />}
     overlays={overlay}
+    settlement={settlement}
   />;
 }

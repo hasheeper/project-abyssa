@@ -6,13 +6,28 @@ vi.mock("./routes", () => ({loadRoute:vi.fn(),routeTitles:{title:"标题",map:"�
 import { prepareGame, warmGameResources } from "../shared/loading/startup";
 import { loadRoute } from "./routes";
 import { navigateTo } from "../shared/routing/location";
-import { SceneTransitionProvider, useSceneReady } from "../shared/transition/TransitionProvider";
+import { SceneTransitionProvider, useSceneReady, useSceneTransition } from "../shared/transition/TransitionProvider";
 import { GameShell } from "./GameShell";
 import { useSceneReveal } from "../shared/transition/useSceneReveal";
 
 const advance = (ms = 1500) => act(() => vi.advanceTimersByTimeAsync(ms));
 beforeEach(() => { vi.useFakeTimers(); vi.clearAllMocks(); history.replaceState(null,"","/abyssa/#/title"); });
 afterEach(() => { cleanup(); vi.useRealTimers(); });
+
+it("distinguishes boot/history restore from normal navigation for the mounted page", async () => {
+  function Page() { const {entry,battleEntrance}=useSceneTransition(); useSceneReveal("fade"); return <p data-battle-entrance={battleEntrance}>{entry}</p>; }
+  vi.mocked(loadRoute).mockResolvedValue({default:Page});
+  render(<GameShell/>); await advance();
+  expect(screen.getByText("restore")).toBeInTheDocument();
+  act(() => {navigateTo("#/battle", {battleEntrance:"open-box"});}); await advance();
+  expect(screen.getByText("navigation")).toHaveAttribute("data-battle-entrance", "open-box");
+  act(() => {navigateTo("#/battle?return=1");}); await advance();
+  expect(screen.getByText("navigation")).not.toHaveAttribute("data-battle-entrance");
+  act(() => {navigateTo("#/battle?save=loaded", {entry:"restore"});}); await advance();
+  expect(screen.getByText("restore")).toBeInTheDocument();
+  act(() => {history.replaceState(null,"","#/title"); window.dispatchEvent(new PopStateEvent("popstate"));}); await advance();
+  expect(screen.getByText("restore")).toBeInTheDocument();
+});
 
 it("loads the first route alongside fonts and reveals without waiting for background downloads", async () => {
   let ready!: () => void;

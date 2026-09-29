@@ -13,7 +13,7 @@ import { UiMotionProvider } from "../../../shared/ui/motion/UiMotionProvider";
 import { ManorBattleBinding } from "../ManorBattleBinding";
 import type { BattlePresentationSlots } from "../ManorBattleView";
 import type { useManorBattlePresentation } from "../controller/useManorBattlePresentation";
-import { expeditionLootView } from "./expedition-loot-view";
+import { expeditionLedgerDetail, expeditionLootView } from "./expedition-loot-view";
 
 // Keep real commands, presentation queue, notifications, item details and modal.
 // Only omit scene art / board drawing; this is DOM acceptance, not visual QA.
@@ -30,7 +30,7 @@ vi.mock("../ManorBattleView", () => ({ManorBattleView: ({slots, presentation}: {
     if (command.type === "resume-run" || command.type === "start-expedition") throw Error("Expected an active player command");
     await presentation.perform(command);
   };
-  return <main className="abyssa-expedition" aria-label="教学战斗">{slots.renderLedger?.(() => {})}{slots.terminal}{slots.feedback}</main>;
+  return <main className="abyssa-expedition" aria-label="教学战斗">{slots.renderLedger?.(() => {})}{slots.terminal}{slots.settlement?.content}{slots.feedback}</main>;
 }}));
 
 let checkpoints: Record<string, D5GameRecord>;
@@ -52,7 +52,7 @@ function mount(session: GameSession, onSettle: () => void = vi.fn()) {
     if (!record.snapshot.run && record.snapshot.campaign.tutorial?.status === "completed") return <main>已返回洋馆</main>;
     return <ManorBattleBinding uiSkin="hero-party" onSettle={onSettle} saving={game.status !== "ready"}/>;
   }
-  render(<GameSessionScope session={session}><SceneTransitionProvider><UiMotionProvider preference="reduced"><Binding/></UiMotionProvider></SceneTransitionProvider></GameSessionScope>);
+  render(<UiMotionProvider preference="reduced"><GameSessionScope session={session}><SceneTransitionProvider><Binding/></SceneTransitionProvider></GameSessionScope></UiMotionProvider>);
 }
 
 it("shows committed Boss pickups across the return-story boundary without the old discovery gate", async () => {
@@ -69,13 +69,23 @@ it("shows committed Boss pickups across the return-story boundary without the ol
   expect(screen.queryByRole("button", {name: "收好，继续"})).not.toBeInTheDocument();
   expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   expect(document.querySelector(".tutorial-reward-feedback")).toBe(feedbackHost);
-  await waitFor(() => expect(feedbackHost).toHaveTextContent("旧十字币"));
-  expect(feedbackHost).toHaveTextContent("发黑的金属钉");
-  expect(feedbackHost).not.toHaveTextContent("黯秘银结界钉");
-  expect(feedbackHost).toHaveTextContent("12");
-  // Five notices (bounty + four kinds) drain through four visible slots.
-  await waitFor(() => expect(feedbackHost).toHaveTextContent("干黑面包"), {timeout: 7000});
-}, 30_000);
+  // The persistent source reports to the shared game dock, which owns three visible slots.
+  const dock = () => document.querySelector(".generation-dock-layer");
+  await waitFor(() => expect(dock()).toHaveTextContent("旧十字币"));
+  expect(dock()).toHaveTextContent("发黑的金属钉");
+  expect(dock()).not.toHaveTextContent("黯秘银结界钉");
+  expect(dock()).toHaveTextContent("12");
+  // Bounty + four kinds drain through the dock without replaying the final hit.
+  await waitFor(() => expect(dock()).toHaveTextContent("干黑面包"), {timeout: 7000});
+  // A hidden source cannot hide a portal. Remove its notices from the dock when the receipt opens.
+  let steps = 0;
+  while (screen.queryByRole("button", {name: "阅读下一句"})) {
+    if (++steps > 256) throw Error("Return story did not end");
+    await act(async () => { fireEvent.click(screen.getByRole("button", {name: "阅读下一句"})); });
+  }
+  expect(screen.getByRole("dialog", {name: "远征完成"})).toBeInTheDocument();
+  await waitFor(() => expect(document.querySelector(".generation-dock-layer .scene-feedback__presentation")).toBeNull());
+}, 45_000);
 
 it("reloads into the existing return story without replaying pickups or granting items early", async () => {
   const {f, session} = await restore("bossLoot");
@@ -115,17 +125,19 @@ it("uses real quantities, unknown identity and remaining supplies with working i
   expect(within(loot).getByRole("button", {name: /旧十字币，数量 12/})).toBeInTheDocument();
   const nail = within(loot).getByRole("button", {name: /发黑的金属钉，数量 1，鉴定品，品质未知/});
   expect(dialog).not.toHaveTextContent("黯秘银结界钉");
+  fireEvent.click(nail);
+  const tooltip = screen.getByRole("tooltip", {hidden: true});
+  expect(tooltip).toHaveTextContent("品质未知");
+  // Portaled to the scaled surface so the page's clipped rows cannot cut it.
+  expect(tooltip.parentElement).toBe(screen.getByRole("main", {name: "教学战斗"}));
+  expect(loot.contains(tooltip)).toBe(false);
+  fireEvent.keyDown(nail, {key: "Escape"});
+  expect(screen.queryByRole("tooltip", {hidden: true})).not.toBeInTheDocument();
+  fireEvent.click(screen.getByRole("button", {name: "账目明细"}));
   const supplies = screen.getByRole("list", {name: "带回战备"});
   expect(within(supplies).getAllByRole("button")).toHaveLength(2);
   expect(within(supplies).getByRole("button", {name: /数量 3，战备道具/})).toBeInTheDocument();
   expect(within(supplies).getByRole("button", {name: /数量 2，战备道具/})).toBeInTheDocument();
-  fireEvent.click(nail);
-  const tooltip = screen.getByRole("tooltip", {hidden: true});
-  expect(tooltip).toHaveTextContent("品质未知");
-  expect(tooltip.parentElement).toBe(dialog);
-  expect(loot.contains(tooltip)).toBe(false);
-  fireEvent.keyDown(nail, {key: "Escape"});
-  expect(screen.queryByRole("tooltip", {hidden: true})).not.toBeInTheDocument();
   expect(confirm).not.toHaveBeenCalled();
   expect(f.read()).toEqual(original);
   fireEvent.keyDown(dialog, {key: "Escape"});
@@ -142,6 +154,9 @@ it("matches the tutorial's fixed ledger and never adds carried supplies to acqui
   expect(loot.receipt!.lostBanked.items).toEqual([]);
   expect(loot.receipt!.lostUnbanked.items).toEqual([]);
   expect(loot.supplies.items).toEqual([{itemId: "item.food", quantity: 3}, {itemId: "item.potion", quantity: 2}]);
+  expect(expeditionLedgerDetail(view)!.rows.map(row => row.room)).toEqual([
+    "雾滩·岩窟洞口", "退潮岩窟·洞内石阶", "退潮岩窟·洞内石阶", "退潮岩窟·上层货台",
+  ]);
 });
 
 it.each(["before", "after"] as const)("recovers a %s-commit claim failure without duplicate rewards", async when => {

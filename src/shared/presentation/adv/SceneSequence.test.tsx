@@ -196,7 +196,7 @@ it("keeps the scene's initial actor settled after its entrance, but permits late
   expect(container.querySelector('[data-character="abyssa"][data-phase="enter"]')).not.toHaveAttribute("data-settled");
 });
 
-it("uses the same board entrance on first mount, refresh and ADV return, never on combat updates", async () => {
+it("opens the board once on departure, then only fades when returning from ADV", async () => {
   vi.useFakeTimers();
   const frame = {id:"battle", kind:"battle" as const, battleMotion:"board" as const, content:<p data-scene-settle="test-board-settle">正确敌阵</p>};
   const mounted = render(<StrictMode><SceneSequence frame={frame} openingBlocked/></StrictMode>);
@@ -226,8 +226,8 @@ it("uses the same board entrance on first mount, refresh and ADV return, never o
   expect(mounted.container.firstChild).toHaveAttribute("data-phase", "prepare");
   await advance(40);
   expect(mounted.container.firstChild).toHaveAttribute("data-phase", "in");
-  await advance(ms.boardIn);
-  settleBoard(mounted.container);
+  expect(mounted.container.firstChild).toHaveAttribute("data-battle-motion", "fade");
+  await advance(ms.battleFade);
   expect(mounted.container.firstChild).toHaveAttribute("data-phase", "idle");
   mounted.unmount();
   const refreshed = render(<SceneSequence frame={frame}/>);
@@ -236,6 +236,34 @@ it("uses the same board entrance on first mount, refresh and ADV return, never o
   await advance(ms.boardIn);
   settleBoard(refreshed.container);
   expect(refreshed.container.firstChild).toHaveAttribute("data-phase", "idle");
+});
+
+it("keeps a restored board open across later story returns", async () => {
+  vi.useFakeTimers();
+  const frame = {id:"battle",kind:"battle" as const,battleMotion:"board" as const,content:<p data-scene-settle="test-board-settle">骰盘</p>};
+  const mounted = render(<SceneSequence frame={frame} initialBattleMotion="fade"/>);
+  await advance(40);
+  expect(mounted.container.firstChild).toHaveAttribute("data-battle-motion", "fade");
+  expect(mounted.container.querySelector(".scene-sequence__frame")).toHaveAttribute("inert");
+  await advance(ms.battleFade);
+  expect(mounted.container.firstChild).toHaveAttribute("data-phase", "idle");
+  mounted.rerender(<SceneSequence frame={{id:"story",kind:"adv",content:<p>剧情</p>}} initialBattleMotion="fade"/>);
+  await advance(ms.battleOut); await advance(ms.advIn);
+  mounted.rerender(<SceneSequence frame={frame} initialBattleMotion="fade"/>);
+  await advance(ms.advOut); await advance(40);
+  expect(mounted.container.firstChild).toHaveAttribute("data-battle-motion", "fade");
+  expect(mounted.container.firstChild).toHaveAttribute("data-phase", "in");
+  await advance(ms.battleFade);
+  expect(mounted.container.firstChild).toHaveAttribute("data-phase", "idle");
+});
+
+it.each([undefined, "fade"] as const)("carries the first battle treatment through an initial story (%s)", async initialBattleMotion => {
+  vi.useFakeTimers();
+  const mounted = render(<SceneSequence initialBattleMotion={initialBattleMotion} frame={{id:"story",kind:"adv",content:<p>出发前</p>}}/>);
+  await advance(0); await advance(ms.advIn);
+  mounted.rerender(<SceneSequence initialBattleMotion={initialBattleMotion} frame={{id:"battle",kind:"battle",battleMotion:"board",content:<p>骰盘</p>}}/>);
+  await advance(ms.advOut); await advance(40);
+  expect(mounted.container.firstChild).toHaveAttribute("data-battle-motion", initialBattleMotion ?? "board");
 });
 
 it("settles a board on reduced motion or tab hiding without replaying when restored", async () => {

@@ -6,8 +6,14 @@ import { shopLootPresentation } from "../../../content/presentation/shop-loot";
 import { supplyArt } from "../../../content/presentation/supply-icons";
 import { resolveItemIcon } from "../../../assets/icons/items/catalog";
 import unknownItem from "../../../assets/icons/items/locked-chest.svg";
+import { expeditionScenes } from "../../../content/presentation/expedition-art";
+import { TIDE_ROUTE, tideBattleStage, tideStoryEdition } from "../../../content/presentation/tide-cave";
+import { archiveIdentities } from "../../../content/characters/identities";
+import { battleMemberName } from "../presentation/manor-battle-model";
+import { ledgerPartyTag, ledgerSpeaker } from "./ledger-voices";
 import type { LootItemView } from "./loot-item";
 import type { LootLedgerView, LootPocket, LootSettlement } from "./loot-types";
+import type { LedgerClockPhase, LedgerDepthNode, LedgerPartyMember, LedgerRow, LedgerSupplyGroup } from "./LootSettlementView";
 
 /** No sample drops, RNG or wallet writes. Every quantity comes from a run/receipt. */
 export function expeditionLootCatalog(view: Pick<DemoJourneyView, "lootContent" | "items"> & Partial<Pick<DemoJourneyView, "expedition" | "appraisalLoot">>, settled?: DemoTerminal | null): Record<string, LootItemView> {
@@ -56,6 +62,7 @@ export function expeditionLootView(view: DemoJourneyView, settled?: DemoTerminal
   };
   const returnedIds = new Set(terminal?.returnedLoot?.map(item => item.instanceId));
   const receipt: LootSettlement | null = terminal ? {
+    id: terminal.id,
     ...(terminal.commissionRewards ? {questReturned: questPocket(terminal.commissionRewards.returned), questLost: questPocket(terminal.commissionRewards.items.filter(i => !terminal.commissionRewards!.returned.some(r => r.instanceId === i.instanceId)))} : {}),
     outcome: terminal.outcome === "wipe" ? "failed" : terminal.outcome === "extracted" ? "retreated" : "cleared",
     ...ledger, returned: pocket(terminal.totalGold, terminal.returnedLoot ?? []),
@@ -68,4 +75,43 @@ export function expeditionLootView(view: DemoJourneyView, settled?: DemoTerminal
 
 export function expeditionLocation(routeId: string | undefined) {
   return routeId?.startsWith("old-manor.") ? "克雷格旧庄园" : routeId === "intro.tide-cave.first" ? "退潮岩窟" : "远征";
+}
+
+const PHASES: readonly LedgerClockPhase[] = ["dawn", "day", "dusk", "night"];
+/** Settling spends one mansion phase; the dial shows it before the claim commits. */
+export function ledgerClock(phase: LedgerClockPhase) {
+  return {from: phase, to: PHASES[(PHASES.indexOf(phase) + 1) % PHASES.length]};
+}
+
+/** The receipt's surroundings: depth, per-layer rows, returning party and supply sources. */
+export function expeditionLedgerDetail(view: DemoJourneyView, settled?: DemoTerminal | null, playerName?: string) {
+  const terminal = settled ?? (view.expedition?.node === "finished" ? view.expedition.result : null);
+  if (!terminal) return null;
+  const route = view.routes[terminal.routeId];
+  const room = (layer: number) => expeditionScenes[route?.layerSceneIds[layer - 1] ?? ""]?.location
+    // Tutorial routes are omitted from the ordinary route picker. Content 14
+    // introduced one battle per layer; earlier editions bank all four together.
+    ?? (terminal.routeId === TIDE_ROUTE
+      ? tideBattleStage(view.contentRef.contentVersion >= 14 ? layer : 4, tideStoryEdition(view.contentRef.contentVersion)).location : route?.name);
+  const failed = terminal.outcome === "wipe", deepest = terminal.deepestLayer;
+  const depth: LedgerDepthNode[] = Array.from({length: Math.max(route?.layerCount ?? 0, deepest)}, (_, i) => ({
+    kind: i + 1 < deepest ? "passed" : i + 1 > deepest ? "ahead" : failed ? "fell" : "exit", room: room(i + 1),
+  }));
+  const rows: LedgerRow[] = terminal.layerResults.map(r => ({layer: r.layer, room: room(r.layer), looseGold: r.looseGold,
+    bonusPercent: r.handBonusPercent, multiplier: r.depthPercent * r.earthPercent / 10000, gold: r.gold}));
+  if (!terminal.layerResults.some(r => r.layer === deepest) && (failed || terminal.lostLooseGold > 0))
+    rows.push({layer: deepest, room: room(deepest), looseGold: terminal.lostLooseGold});
+  // Hit points exist only until the claim folds the run into the campaign.
+  const party: LedgerPartyMember[] = view.expedition?.run.id === terminal.runId ? view.party.map(m => ({
+    id: m.id, name: battleMemberName(m, playerName), avatar: archiveIdentities.find(identity => identity.id === m.id)?.thumbnailUrl,
+    hp: m.hp, maxHp: m.config.maxHp,
+    tag: ledgerPartyTag({hp: m.hp, maxHp: m.config.maxHp, pulled: failed, scarred: m.temporaryRust.length > 0}),
+  })) : [];
+  const supplyGroups: LedgerSupplyGroup[] = [
+    {label: "免费配给", supplies: terminal.returnedSupplies.filter(s => s.source === "supply.demo.allowance")},
+    {label: "战术补给", supplies: terminal.returnedSupplies.filter(s => s.source !== "supply.demo.allowance")},
+  ].filter(group => group.supplies.length).map(group => ({label: group.label,
+    pocket: {copper: 0, items: group.supplies.map(s => ({itemId: s.definitionId, quantity: s.charges}))}}));
+  const receiptOutcome = failed ? "failed" : terminal.outcome === "extracted" ? "retreated" : "cleared";
+  return {depth, rows, party, supplyGroups, speaker: ledgerSpeaker(receiptOutcome, terminal.partyIds, playerName)};
 }

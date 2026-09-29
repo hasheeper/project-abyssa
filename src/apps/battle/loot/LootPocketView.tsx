@@ -7,10 +7,8 @@ import { LootKindMark } from "./LootKindMark";
 import { LootHoverDetail } from "./LootHoverDetail";
 import { itemCount, type LootPocket } from "./loot-types";
 
-/** Acquisition lines have no slots or nested disclosure. Only the two pockets fold. */
-export function LootRewards({ pocket, catalog, label, scrollable = true }: {
-  pocket: LootPocket; catalog: Record<string, LootItemView>; label: string; scrollable?: boolean;
-}) {
+/** Hover/focus disclosure shared by every loot list: a short delay on hover, instant on focus or click. */
+export function useLootHover() {
   const tooltipId = useId();
   const [active, setActive] = useState<{ itemId: string; anchor: HTMLElement } | null>(null);
   const leaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -23,6 +21,14 @@ export function LootRewards({ pocket, catalog, label, scrollable = true }: {
     else setActive({itemId, anchor});
   };
   useEffect(() => keep, [keep]);
+  return { tooltipId, active, keep, close, leave, show };
+}
+
+/** Acquisition lines have no slots or nested disclosure. Only the two pockets fold. */
+export function LootRewards({ pocket, catalog, label, scrollable = true }: {
+  pocket: LootPocket; catalog: Record<string, LootItemView>; label: string; scrollable?: boolean;
+}) {
+  const { tooltipId, active, keep, close, leave, show } = useLootHover();
   const activeItem = active && catalog[active.itemId];
   const activeStack = active && pocket.items.find(stack => stack.itemId === active.itemId);
   return <div className="loot-rewards">

@@ -8,6 +8,7 @@ import { SceneTransitionProvider } from "../../../shared/transition";
 import { UiMotionProvider } from "../../../shared/ui/motion/UiMotionProvider";
 import { ManorBattleBinding } from "../ManorBattleBinding";
 import type { BattlePresentationSlots } from "../ManorBattleView";
+import type { BattleSettlement } from "../presentation/ledger-stage";
 import type { DemoJourneyView } from "../../../game-runtime/demo-journey-view";
 import { manorScene, settlementScene } from "../presentation/manor-scene";
 import { expeditionEnemyArt, expeditionScenes } from "../../../content/presentation/expedition-art";
@@ -25,8 +26,8 @@ vi.mock("../presentation/useBattleSceneAssets", () => ({useBattleSceneAssets: ()
 vi.mock("../../../game-client/CampaignPanel", () => ({CampaignPanel: () => null}));
 vi.mock("../../../game-client/AirpPanel", () => ({AirpPanel: () => null}));
 vi.mock("../../../game-client/StoryReading", () => ({StoryReading: ({title}: {title: string}) => <main aria-label={title}/> }));
-vi.mock("../ManorBattleView", () => ({ManorBattleView: ({slots}: {slots: BattlePresentationSlots}) => <main>{slots.renderLedger?.(() => {})}{slots.terminal}{slots.feedback}</main>}));
-vi.mock("../presentation/ExpeditionBattleSurface", () => ({ExpeditionBattleSurface: ({overlays}: {overlays: ReactNode}) => <main>{overlays}</main>}));
+vi.mock("../ManorBattleView", () => ({ManorBattleView: ({slots}: {slots: BattlePresentationSlots}) => <main>{slots.renderLedger?.(() => {})}{slots.terminal}{slots.settlement?.content}{slots.feedback}</main>}));
+vi.mock("../presentation/ExpeditionBattleSurface", () => ({ExpeditionBattleSurface: ({overlays, settlement}: {overlays: ReactNode; settlement?: BattleSettlement}) => <main>{overlays}{settlement?.content}</main>}));
 
 const sessions: GameSession[] = [];
 afterEach(() => { cleanup(); sessions.splice(0).forEach(s => s.dispose()); sessionStorage.clear(); });
@@ -83,7 +84,7 @@ it("connects every actual reef room, two-pocket LOG, pickup notices and restored
   const session = new GameSession(f.runtime, {saveId: f.saveId, epoch: record.head.epoch, expeditionId: f.runId}, sessionStorage);
   sessions.push(session); await session.refresh();
   const confirm = mount(session);
-  expect(screen.getByRole("dialog", {name: "远征完成"})).toHaveTextContent("潮声溶洞");
+  expect(screen.getByRole("dialog", {name: "远征完成"})).toHaveTextContent(`${expeditionScenes["scene.tide-reef.boardwalk"].location}·讨伐`);
   expect(screen.queryByText("首次接管奖励")).not.toBeInTheDocument();
   expect(screen.queryByRole("main", {name: "家宴落幕"})).not.toBeInTheDocument();
   fireEvent.click(screen.getByRole("button", {name: "返回洋馆"}));
@@ -96,5 +97,5 @@ it("connects every actual reef room, two-pocket LOG, pickup notices and restored
   expect(settlementScene(settled, terminal)!.id).toBe("scene.tide-reef.boardwalk");
   expect(document.querySelector("[data-manor-scene]")).toHaveAttribute("data-manor-scene", "scene.tide-reef.boardwalk");
   expect(document.querySelector("[data-manor-scene]")?.getAttribute("style")).toContain(expeditionScenes["scene.tide-reef.boardwalk"].background);
-  expect(screen.getByRole("dialog", {name: "远征完成"})).toHaveTextContent("潮声溶洞");
+  expect(screen.getByRole("dialog", {name: "远征完成"})).toHaveTextContent(`${expeditionScenes["scene.tide-reef.boardwalk"].location}·讨伐`);
 }, 120_000);

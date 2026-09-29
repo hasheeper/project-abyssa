@@ -2,9 +2,10 @@
 import { afterAll, beforeAll, expect, it } from "vitest";
 import { createBattlePreviewSession } from "../../../game-client/battle-preview";
 import type { DemoJourneyView } from "../../../game-runtime/demo-journey-view";
-import { expeditionLootCatalog, expeditionLootView } from "./expedition-loot-view";
+import { expeditionLedgerDetail, expeditionLootCatalog, expeditionLootView, ledgerClock } from "./expedition-loot-view";
 import { expeditionRewardFeedback } from "./useExpeditionLootFeedback";
 import type { LootDrop } from "../../../game-core/contracts/loot";
+import type { DemoTerminal } from "../../../game-core/session/demo-expedition";
 import { itemIconCatalog } from "../../../assets/icons/items/catalog";
 
 let session: Awaited<ReturnType<typeof createBattlePreviewSession>>;
@@ -79,4 +80,26 @@ it("shows actual quest acquisition, independent loss and the persisted return re
   const returned = {...terminal, outcome: "extracted" as const, commissionRewards: {...terminal.commissionRewards, returned: [item]}};
   expect(expeditionLootCatalog(view, returned)[item.definitionId].name).toBe("空药箱");
   expect(expeditionLootView(view, returned).receipt).toMatchObject({questReturned: {items: [{itemId: item.definitionId, quantity: 1}]}, questLost: {items: []}});
+});
+
+it("projects terminal rows, losses and depleted supplies without borrowing another run's party", () => {
+  const terminal: DemoTerminal = {id: "end", runId: view.expedition!.run.id, routeId: "old-manor.first-clear", outcome: "wipe",
+    deepestLayer: 2, partyIds: view.party.map(m => m.id), bankedGold: 220, lostLooseGold: 80, lostBankedGold: 110, totalGold: 110,
+    layerResults: [{layer: 1, roomId: "r1", looseGold: 100, handBonusPercent: 100, depthPercent: 110, earthPercent: 100, gold: 220}],
+    returnedSupplies: [{instanceId: "food", definitionId: "item.food", source: "supply.demo.allowance", charges: 0},
+      {instanceId: "potion", definitionId: "item.potion", source: "supply.mansion.stock", charges: 2}]};
+  const before = structuredClone(terminal);
+  const detail = expeditionLedgerDetail(view, terminal)!;
+  expect(detail.rows).toEqual([
+    expect.objectContaining({layer: 1, looseGold: 100, bonusPercent: 100, multiplier: 1.1, gold: 220}),
+    expect.objectContaining({layer: 2, looseGold: 80}),
+  ]);
+  expect(detail.rows[1].gold).toBeUndefined();
+  expect(detail.depth.slice(0, 3).map(n => n.kind)).toEqual(["passed", "fell", "ahead"]);
+  expect(detail.party.map(m => [m.id, m.hp, m.maxHp])).toEqual(view.party.map(m => [m.id, m.hp, m.config.maxHp]));
+  expect(detail.supplyGroups.map(g => [g.label, g.pocket.items[0].quantity])).toEqual([["免费配给", 0], ["战术补给", 2]]);
+  expect(expeditionLedgerDetail(view, {...terminal, runId: "older-run"})!.party).toEqual([]);
+  expect(expeditionLootView(view, terminal).receipt?.id).toBe("end");
+  expect(ledgerClock("night")).toEqual({from: "night", to: "dawn"});
+  expect(terminal).toEqual(before);
 });

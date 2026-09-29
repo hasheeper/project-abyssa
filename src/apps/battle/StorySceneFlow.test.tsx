@@ -38,6 +38,8 @@ it("event story surrounds the real reading decision; dialogue never commits rewa
   await act(async()=>{fireEvent.click(screen.getByRole("button",{name:"跳过本段对白"}));});await flush();
   expect(screen.queryByRole("button",{name:"阅读迎宾簿"})).toBeNull();
   await act(async()=>{fireEvent.click(screen.getByRole("button",{name:"返回行动"}));});await flush();
+  expect(document.querySelector(".scene-sequence")).toHaveAttribute("data-battle-motion", "fade");
+  expect(document.querySelector("[data-box-opening]")).toBeNull();
   await act(async()=>{fireEvent.click(screen.getByRole("button",{name:"阅读迎宾簿"}));});await flush();
   expect(journeyOf(f).lastEvent?.method).toBe("read");
   expect(screen.getByRole("main",{name:"庄园记录"})).toBeVisible();
@@ -46,5 +48,6 @@ it("event story surrounds the real reading decision; dialogue never commits rewa
   await act(async()=>{fireEvent.click(screen.getByRole("button",{name:"跳过本段对白"}));});await flush();
   await act(async()=>{fireEvent.click(screen.getByRole("button",{name:"返回行动"}));});await flush();
   expect(screen.getByRole("button",{name:"继续前进"})).toBeEnabled();
+  expect(document.querySelector(".scene-sequence")).toHaveAttribute("data-battle-motion", "fade");
   expect(f.session.getSnapshot().record!.head).toEqual(result);
 },60000);

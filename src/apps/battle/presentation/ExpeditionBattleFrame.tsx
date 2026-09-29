@@ -16,6 +16,9 @@ export type ExpeditionBattleFrameProps = {
   onCycleSkin: () => void;
   children: ReactNode;
   accessories?: ReactNode;
+  /** Layers laid over the interior inside the board; the frame chrome stays lit above the board. */
+  board?: ReactNode;
+  interiorInert?: boolean;
 };
 
 export function ExpeditionBattleFrame({
@@ -25,6 +28,8 @@ export function ExpeditionBattleFrame({
   onCycleSkin,
   children,
   accessories,
+  board,
+  interiorInert,
 }: ExpeditionBattleFrameProps) {
   const definition = resolveBattleUiSkin(skin);
   const skinIndex = BATTLE_UI_SKINS.findIndex((candidate) => candidate.id === skin);
@@ -98,7 +103,8 @@ export function ExpeditionBattleFrame({
         )}
         <div className="abyssa-expedition-frame__brass">
           <div className="abyssa-expedition-frame__board">
-            <div className="abyssa-expedition-frame__interior">{children}</div>
+            <div className="abyssa-expedition-frame__interior" inert={interiorInert || undefined}>{children}</div>
+            {board}
           </div>
         </div>
       </div>

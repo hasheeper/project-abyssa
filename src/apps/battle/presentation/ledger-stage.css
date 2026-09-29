@@ -1,0 +1,291 @@
+/* ============================================================
+   远征账簿 · 收场
+   只给战斗面板加动作，不换内容：
+     行动栏退下 → 骰子逐颗拿起、摆正、卧进盒格 → 盒盖两扇合拢 → 菱形搭扣 → 暗下。
+   撤离是主动收兵：只退行动栏，暗幕直接落下，不收骰、不合盖。
+   暗幕与结算页挂在画框 board 内、与 interior 同位：画框、牌头、角饰保持亮着。
+   配色全部取当前战斗皮肤的变量。
+   ============================================================ */
+
+.abyssa-expedition[data-ledger] .abyssa-expedition-skin-switch { display: none; }
+
+/* 跳过：收场直接落到终态。过渡只冻结到落定（settled）那一帧 */
+.abyssa-expedition[data-ledger-instant] .abyssa-expedition-frame__interior *,
+.abyssa-expedition[data-ledger-instant] .abyssa-expedition-frame__interior *::before,
+.abyssa-expedition[data-ledger-instant] .abyssa-expedition-frame__interior *::after {
+  animation-delay: 0s !important;
+  animation-duration: 0s !important;
+}
+.abyssa-expedition[data-ledger-instant]:not([data-ledger-settled]) :is(.ledger-veil, .abyssa-expedition-frame__interior, .abyssa-expedition-frame__overlay),
+.abyssa-expedition[data-ledger-instant]:not([data-ledger-settled]) .abyssa-expedition-frame__interior *,
+.abyssa-expedition[data-ledger-instant]:not([data-ledger-settled]) .abyssa-expedition-frame__interior *::before,
+.abyssa-expedition[data-ledger-instant]:not([data-ledger-settled]) .abyssa-expedition-frame__interior *::after {
+  transition-delay: 0s !important;
+  transition-duration: 0s !important;
+}
+
+/* 行动栏退下：它本身用 transform 居中，所以动 translate */
+.abyssa-expedition[data-ledger] .abyssa-expedition-dice-panel > .action-dock {
+  transition: translate 420ms cubic-bezier(.5, 0, .75, 0), opacity 320ms ease;
+}
+.abyssa-expedition[data-ledger-closing] .abyssa-expedition-dice-panel > .action-dock {
+  translate: 0 36px;
+  opacity: 0;
+  pointer-events: none;
+}
+.abyssa-expedition[data-ledger] :is(.expedition-die__quality-counts, .abyssa-expedition-party-link,
+  .abyssa-expedition-enemies__intent-lines, .abyssa-enemy-intent-zone, .abyssa-expedition-enemy__health) {
+  transition: opacity 260ms ease;
+}
+.abyssa-expedition[data-ledger-closing] :is(.expedition-die__quality-counts, .abyssa-expedition-party-link,
+  .abyssa-expedition-enemies__intent-lines, .abyssa-enemy-intent-zone, .abyssa-expedition-enemy__health) {
+  opacity: 0;
+}
+
+/* 撤离：敌阵后退、失焦 */
+.abyssa-expedition[data-ledger-outcome="retreated"] .abyssa-expedition-enemies__formation {
+  transition: opacity 700ms cubic-bezier(.3, 0, .2, 1), filter 700ms cubic-bezier(.3, 0, .2, 1), scale 700ms cubic-bezier(.3, 0, .2, 1), translate 700ms cubic-bezier(.3, 0, .2, 1);
+}
+.abyssa-expedition[data-ledger-outcome="retreated"][data-ledger-closing] .abyssa-expedition-enemies__formation {
+  opacity: .4;
+  filter: brightness(.6) blur(2px);
+  scale: .95;
+  translate: 0 -8px;
+}
+/* 通关：残留的敌人逐个消散（错峰取卡片自带的 animation-delay） */
+.abyssa-expedition[data-ledger-outcome="cleared"][data-ledger-closing] .abyssa-expedition-enemy:not([data-defeated]) {
+  animation-name: ledger-dissolve;
+  animation-duration: 900ms;
+  animation-timing-function: ease-in;
+  animation-fill-mode: both;
+}
+@keyframes ledger-dissolve {
+  0% { opacity: 1; filter: none; translate: 0 0; }
+  35% { opacity: 1; filter: brightness(1.7); }
+  100% { opacity: 0; filter: brightness(2) blur(8px); translate: 0 -22px; }
+}
+/* 团灭：队伍逐张褪色 */
+.abyssa-expedition[data-ledger-outcome="failed"] .abyssa-expedition-party-card {
+  transition: filter 520ms calc(var(--manor-order, 0) * 110ms) ease;
+}
+.abyssa-expedition[data-ledger-outcome="failed"][data-ledger-closing] .abyssa-expedition-party-card {
+  filter: grayscale(1) brightness(.5);
+}
+
+/* 骰子收盒：拿起（轻提、摆正成平放）→ 卧进各自的盒格。
+   立方体姿态的骰子下缘本就探出盘外，只往下沉会从盒盖底下露出来；
+   摆正后 100 见方，缩到 .8 整颗落在盘内，盒盖能完全盖住。 */
+.abyssa-expedition[data-ledger-mode="stow"][data-ledger-closing] .expedition-die-entry {
+  transform-origin: 50% 53%;
+  animation: ledger-die-stow 680ms calc(160ms + var(--manor-order, 0) * 70ms) cubic-bezier(.45, 0, .3, 1) both;
+}
+/* 摆正：立方体的静止姿态是行内 transform，只能 !important 覆盖；在上提的那一段里转完 */
+.abyssa-expedition[data-ledger-mode="stow"][data-ledger-closing] .expedition-die__cube {
+  transform: none !important;
+  transition: transform 420ms calc(160ms + var(--manor-order, 0) * 70ms) cubic-bezier(.3, 0, .2, 1) !important;
+}
+@keyframes ledger-die-stow {
+  0% { transform: none; filter: none; }
+  34% { transform: translateY(-12px) scale(1.04); filter: brightness(1.08); }
+  100% { transform: translateY(1px) scale(.8); filter: brightness(.76) saturate(.88) drop-shadow(0 4px 3px rgb(0 0 0 / 60%)); }
+}
+.abyssa-expedition[data-ledger] .expedition-die__shadow { transition: opacity 240ms 160ms ease; }
+.abyssa-expedition[data-ledger-closing] .expedition-die__shadow { opacity: 0; }
+
+/* 盒格：骰子提起时在它身下显出一方凹格；格沿（盖在骰子上的那层内阴影）
+   在骰子落定的最后一段才出现 —— 格壁的阴影压到骰子边上，骰子就「在格子里」了 */
+.ledger-box__socket,
+.ledger-box__rim {
+  position: absolute;
+  top: calc(50% + 3px);
+  left: 50%;
+  width: 116px;
+  height: 116px;
+  box-sizing: border-box;
+  opacity: 0;
+  pointer-events: none;
+  translate: -50% -50%;
+}
+.ledger-box__socket {
+  border: 1px solid rgb(0 0 0 / 70%);
+  background:
+    linear-gradient(180deg, rgb(0 0 0 / 45%), transparent 45%, color-mix(in srgb, var(--battle-skin-accent-bright) 4%, transparent)),
+    color-mix(in srgb, var(--battle-frame-deep) 78%, #000);
+  box-shadow:
+    inset 0 12px 16px rgb(0 0 0 / 70%),
+    inset 0 -1px 0 color-mix(in srgb, var(--battle-skin-accent-bright) 16%, transparent),
+    0 1px 0 color-mix(in srgb, var(--battle-skin-accent-bright) 8%, transparent);
+  transition: opacity 320ms calc(120ms + var(--manor-order, 0) * 70ms) ease;
+}
+.ledger-box__rim {
+  border: 1px solid color-mix(in srgb, var(--battle-skin-accent) 30%, rgb(0 0 0 / 60%));
+  box-shadow:
+    inset 0 24px 14px -8px rgb(0 0 0 / 78%),
+    inset 16px 0 10px -8px rgb(0 0 0 / 50%),
+    inset -16px 0 10px -8px rgb(0 0 0 / 50%),
+    inset 0 -1px 0 color-mix(in srgb, var(--battle-skin-accent-bright) 18%, transparent);
+  transition: opacity 220ms calc(640ms + var(--manor-order, 0) * 70ms) ease;
+}
+.abyssa-expedition[data-ledger-mode="stow"][data-ledger-closing] :is(.ledger-box__socket, .ledger-box__rim) { opacity: 1; }
+
+/* 盒子：骰盘内壁微微暗下，好让骰子读成「收进去」而不是「熄灭」 */
+.ledger-box__well {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  opacity: 0;
+  background: radial-gradient(ellipse at 50% 50%, rgb(0 0 0 / 8%), rgb(0 0 0 / 36%));
+  box-shadow: inset 0 16px 22px rgb(0 0 0 / 50%), inset 0 -8px 16px rgb(0 0 0 / 40%);
+  pointer-events: none;
+  transition: opacity 600ms 480ms ease;
+}
+.abyssa-expedition[data-ledger-mode="stow"][data-ledger-closing] .ledger-box__well { opacity: 1; }
+
+/* 盒盖：两扇从盘壁里滑出，材质就是骰盘本身 */
+.ledger-box__lid {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  overflow: hidden;
+  pointer-events: none;
+}
+.ledger-box__leaf {
+  --leaf-cast: 14px 0 22px rgb(0 0 0 / 55%);
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50%;
+  background:
+    linear-gradient(180deg, rgb(255 244 220 / 6%), transparent 32%, rgb(0 0 0 / 24%)),
+    var(--battle-dice-tray, radial-gradient(ellipse at 50% 40%, #17100a, #100a06 68%, #0c0704));
+  box-shadow:
+    var(--leaf-cast),
+    inset 0 2px 0 color-mix(in srgb, var(--battle-skin-accent-bright) 9%, transparent),
+    inset 0 -12px 20px rgb(0 0 0 / 38%);
+  transition: transform 600ms cubic-bezier(.66, 0, .2, 1), box-shadow 300ms ease;
+}
+.ledger-box__leaf[data-side="l"] { left: 0; transform: translateX(-101%); border-right: 1px solid rgb(0 0 0 / 70%); }
+.ledger-box__leaf[data-side="r"] {
+  --leaf-cast: -14px 0 22px rgb(0 0 0 / 55%);
+  right: 0;
+  transform: translateX(101%);
+  border-left: 1px solid color-mix(in srgb, var(--battle-skin-accent-bright) 16%, transparent);
+}
+.abyssa-expedition[data-ledger-lid] .ledger-box__leaf { transform: none; }
+.abyssa-expedition[data-ledger-clasp] .ledger-box__leaf { --leaf-cast: 0 0 0 transparent; }
+/* 盖面菱格：与骰盘底纹同一套 */
+.ledger-box__leaf::before {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(45deg, transparent 47%, color-mix(in srgb, var(--battle-skin-accent-bright) 7%, transparent) 48% 52%, transparent 53%),
+    linear-gradient(-45deg, transparent 47%, color-mix(in srgb, var(--battle-skin-accent-bright) 7%, transparent) 48% 52%, transparent 53%);
+  background-size: 38px 38px;
+  content: "";
+  opacity: .7;
+}
+/* 盖面嵌线 + 合缝一侧的倒角 */
+.ledger-box__leaf::after {
+  position: absolute;
+  inset: 14px 12px 14px 18px;
+  border: 1px solid color-mix(in srgb, var(--battle-skin-accent-soft) 28%, transparent);
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--battle-frame-deep) 55%, transparent),
+    0 0 0 4px color-mix(in srgb, var(--battle-skin-accent) 20%, transparent),
+    inset 0 0 18px rgb(0 0 0 / 30%);
+  content: "";
+}
+.ledger-box__leaf[data-side="r"]::after { inset: 14px 18px 14px 12px; }
+
+/* 搭扣：横向金属扣板 + 菱形（RpgFacetDiamond current） */
+.ledger-box__clasp {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 7;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+.ledger-box__hasp {
+  position: absolute;
+  top: -10px;
+  left: -78px;
+  width: 156px;
+  height: 20px;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 16%), transparent 45%, rgb(0 0 0 / 35%)),
+    var(--battle-metal-gradient);
+  clip-path: polygon(10px 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 10px 100%, 0 50%);
+  opacity: 0;
+  transform: scaleX(.2);
+  transition: opacity 160ms ease, transform 300ms cubic-bezier(.3, 1.3, .5, 1);
+}
+.ledger-box__hasp::after {
+  position: absolute;
+  inset: 4px 12px;
+  border-block: 1px solid rgb(0 0 0 / 45%);
+  content: "";
+}
+.ledger-box__clasp .abyssa-facet-diamond[data-state] {
+  --abyssa-facet-size: 64px;
+  --abyssa-facet-fill: color-mix(in srgb, var(--battle-skin-accent-bright) 55%, #d8cba8);
+  --abyssa-facet-lit: color-mix(in srgb, var(--battle-skin-accent-bright) 30%, #fbf5e2);
+  --abyssa-facet-shade: color-mix(in srgb, var(--battle-skin-accent) 60%, #6f6448);
+  --abyssa-facet-edge: color-mix(in srgb, var(--battle-skin-accent-bright) 50%, #f4ecd6);
+  --abyssa-facet-rim: #fffdf4;
+  --abyssa-facet-inner: color-mix(in srgb, var(--battle-skin-accent) 70%, #3a3220);
+  --abyssa-facet-ink: #1b2122;
+  position: absolute;
+  top: -32px;
+  left: -32px;
+  opacity: 0;
+  transform: scale(1.5);
+  transition: opacity 160ms ease, transform 380ms cubic-bezier(.3, 1.6, .5, 1), filter 900ms ease;
+}
+.ledger-box__glint {
+  position: absolute;
+  top: -84px;
+  left: -1px;
+  width: 2px;
+  height: 168px;
+  background: linear-gradient(180deg, transparent, var(--battle-skin-accent-bright) 50%, transparent);
+  opacity: 0;
+}
+.abyssa-expedition[data-ledger-clasp] .ledger-box__hasp { opacity: 1; transform: none; }
+.abyssa-expedition[data-ledger-clasp] .ledger-box__clasp .abyssa-facet-diamond[data-state] { opacity: 1; transform: scale(1); }
+.abyssa-expedition[data-ledger-clasp] .ledger-box__glint { animation: ledger-glint 700ms ease-out both; }
+.abyssa-expedition[data-ledger-clasp] .abyssa-expedition-dice-panel__tray { animation: ledger-thunk 260ms ease-out; }
+@keyframes ledger-glint {
+  0% { opacity: 0; transform: scaleY(.2); }
+  25% { opacity: .9; transform: scaleY(1); }
+  100% { opacity: 0; transform: scaleY(1); }
+}
+@keyframes ledger-thunk {
+  0% { translate: 0 0; }
+  30% { translate: 0 3px; }
+  100% { translate: 0 0; }
+}
+
+/* 暗幕：只盖 interior，画框留亮 */
+.ledger-veil {
+  position: absolute;
+  top: var(--expedition-board-pad-top);
+  left: var(--abyssa-frame-pad-inline);
+  z-index: 20;
+  width: var(--expedition-interior-w);
+  height: var(--expedition-interior-h);
+  opacity: 0;
+  background: radial-gradient(ellipse at 62% 46%,
+    color-mix(in srgb, var(--battle-frame-deep) 90%, transparent),
+    color-mix(in srgb, var(--battle-frame-deep) 97%, transparent) 78%);
+  pointer-events: none;
+  transition: opacity 700ms ease;
+}
+.abyssa-expedition[data-ledger-veil] .ledger-veil { opacity: 1; }
+/* 失焦直接加在 interior 上：backdrop-filter 在缩放的画框里会采到错位镜像 */
+.abyssa-expedition[data-ledger] .abyssa-expedition-frame__interior { transition: filter 700ms ease; }
+.abyssa-expedition[data-ledger-veil] .abyssa-expedition-frame__interior { filter: blur(3px); }
+.abyssa-expedition[data-ledger] .abyssa-expedition-frame__overlay { transition: opacity 700ms ease; }
+.abyssa-expedition[data-ledger-veil] .abyssa-expedition-frame__overlay { opacity: .5; }
+.abyssa-expedition[data-ledger-mode="retreat"] :is(.ledger-veil, .abyssa-expedition-frame__interior, .abyssa-expedition-frame__overlay) { transition-duration: 480ms; }

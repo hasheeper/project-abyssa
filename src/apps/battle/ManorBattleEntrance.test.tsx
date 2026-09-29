@@ -20,8 +20,8 @@ const settleBoard = () => {
   for (const node of document.querySelectorAll<HTMLElement>("[data-scene-settle]"))
     fireEvent(node, Object.assign(new Event("animationend", {bubbles:true}), {animationName:node.dataset.sceneSettle}));
 };
-function Mount({f,phase}: {f:Fixture;phase:SceneTransitionPhase}) {
-  return <GameSessionScope session={f.session}><SceneTransitionContext.Provider value={{phase,isTransitioning:phase!=="idle",navigate:()=>true,holdReady}}>
+function Mount({f,phase,entry = "navigation"}: {f:Fixture;phase:SceneTransitionPhase;entry?:"navigation"|"restore"}) {
+  return <GameSessionScope session={f.session}><SceneTransitionContext.Provider value={{entry,battleEntrance:entry === "navigation" ? "open-box" : undefined,phase,isTransitioning:phase!=="idle",navigate:()=>true,holdReady}}>
     <ManorBattleBinding uiSkin="old-manor" onSettle={()=>{}}/>
   </SceneTransitionContext.Provider></GameSessionScope>;
 }
@@ -39,7 +39,10 @@ it("prepares the real initial encounter behind the curtain, then reveals once wi
   expect(diceRegion.getByRole("button",{name:"ROLL"})).toBeDisabled();
   const dice = [...mounted.container.querySelectorAll<HTMLElement>(".expedition-die-entry")];
   expect(dice).toHaveLength(f.runtime.queries.journey(f.session.getSnapshot().record!)!.party.length);
-  expect(dice.every(die => die.dataset.sceneSettle === "manor-die-land")).toBe(true);
+  expect(dice.every(die => die.dataset.sceneSettle === "manor-die-unbox")).toBe(true);
+  expect(mounted.container.querySelector("[data-box-opening]")).not.toBeNull();
+  expect(mounted.container.querySelectorAll(".ledger-box__leaf")).toHaveLength(2);
+  expect(mounted.container.querySelector("[data-ledger]")).toBeNull();
   const rotations = [...mounted.container.querySelectorAll<HTMLElement>(".expedition-die__cube")].map(cube => cube.style.transform);
   expect(mounted.container.querySelector("[data-manor-scene]")).toHaveAttribute("data-manor-scene", "old-manor.welcoming-hall");
   expect(mounted.container.querySelector(".abyssa-expedition-frame__header > span")).toHaveTextContent("迎客门厅");
@@ -56,6 +59,7 @@ it("prepares the real initial encounter behind the curtain, then reveals once wi
   expect(diceRegion.getByRole("button",{name:"ROLL"})).toBeDisabled();
   expect(seq).toHaveAttribute("data-phase", "in");
   settleBoard();
+  expect(mounted.container.querySelector(".ledger-box__lid")).toBeNull();
   expect(diceRegion.getByRole("button",{name:"ROLL"})).toBeEnabled();
   expect(f.session.getSnapshot().record!.head).toEqual(head);
   expect(f.runtime.queries.journey(f.session.getSnapshot().record!)!.party.every(m=>m.die?.faceIndex===null)).toBe(true);
@@ -71,11 +75,26 @@ it("restores saved die faces without dispatch or an automatic roll", async () =>
   const before = f.session.getSnapshot().record!;
   const faces = f.runtime.queries.journey(before)!.party.map(m=>m.die?.faceIndex);
   const dispatch = vi.spyOn(f.session,"dispatch"); vi.useFakeTimers();
-  const mounted = render(<Mount f={f} phase="idle"/>);
-  await advance(40); await advance(SCENE_SEQUENCE_MS.boardIn); settleBoard();
+  const mounted = render(<Mount f={f} phase="closed" entry="restore"/>);
+  await advance(40);
+  expect(mounted.container.querySelector(".scene-sequence")).toHaveAttribute("data-battle-motion", "fade");
+  expect(mounted.container.querySelector(".ledger-box__lid")).toBeNull();
+  mounted.rerender(<Mount f={f} phase="idle" entry="restore"/>);
+  await advance(40); await advance(SCENE_SEQUENCE_MS.battleFade);
+  expect(mounted.container.querySelector(".scene-sequence")).toHaveAttribute("data-phase", "idle");
   expect(mounted.container.querySelectorAll(".expedition-die[data-rolling]")).toHaveLength(0);
   expect(f.runtime.queries.journey(f.session.getSnapshot().record!)!.party.map(m=>m.die?.faceIndex)).toEqual(faces);
   expect(dispatch).not.toHaveBeenCalled(); expect(f.session.getSnapshot().record!.head).toEqual(before.head);
+});
+it("fades an unrolled saved encounter too; die state does not decide whether to open the box", async () => {
+  const f = await manorClientFixture(19,4); fixtures.push(f); vi.useFakeTimers();
+  const mounted = render(<Mount f={f} phase="idle" entry="restore"/>);
+  await advance();
+  await advance(40);
+  expect(mounted.container.querySelector(".scene-sequence")).toHaveAttribute("data-battle-motion", "fade");
+  expect(mounted.container.querySelector("[data-box-opening]")).toBeNull();
+  await advance(SCENE_SEQUENCE_MS.battleFade);
+  expect(within(screen.getByRole("region",{name:"骰子区域"})).getByRole("button",{name:"ROLL"})).toBeEnabled();
 });
 it("does not expose an interactive empty battlefield on art failure; Retry only prepares assets", async () => {
   const f = await manorClientFixture(); fixtures.push(f); vi.useFakeTimers();

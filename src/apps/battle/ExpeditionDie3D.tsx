@@ -128,6 +128,7 @@ export function ExpeditionDie3D({
     "--expedition-die-roll-duration": `${rollDuration}s`
   } as CSSProperties;
   const cubeStyle = {
+    "--expedition-die-rest-transform": `rotateX(${resolvedRotation.x}deg) rotateY(${resolvedRotation.y}deg)`,
     transform: `rotateX(${resolvedRotation.x}deg) rotateY(${resolvedRotation.y}deg)`
   } as CSSProperties;
 

@@ -1,6 +1,7 @@
-import { useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { Fragment, useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { useTutorialAnchors } from "../../../shared/tutorial";
 import { useSceneSequenceBusy } from "../../../shared/presentation/adv/SceneSequence";
+import { useUiMotion } from "../../../shared/ui/motion/UiMotionProvider";
 import { getNextBattleUiSkin } from "../battleUiSkins";
 import type { ExpeditionBattleScreenProps } from "../ExpeditionBattleScreen";
 import { partyVisual } from "./expedition-visuals";
@@ -11,6 +12,7 @@ import { ExpeditionEnemyStage } from "./ExpeditionEnemyStage";
 import { AnimatedPartyLink } from "./ExpeditionBattleChrome";
 import { ExpeditionBattleFrame } from "./ExpeditionBattleFrame";
 import { JOURNEY_MOTION_MS, type JourneyMotion } from "./journey-motion";
+import { LedgerStageProvider, useLedgerStageRun, type BattleSettlement } from "./ledger-stage";
 import type { BattleSurfaceMember, BattleSurfaceEnemy, BattleEnemyFx } from "./battle-surface-model";
 import type { PlayerAttackFx, PlayerSupportFx } from "./useExpeditionBattlePresentation";
 import "./expedition-outcome.css";
@@ -28,6 +30,8 @@ export type BattleSurfaceProps = ExpeditionBattleScreenProps & {
   journey?: { content: ReactNode; key: string; label: string };
   /** Receipts share the scene and frame, without inactive combat instruments. */
   outcome?: ReactNode;
+  /** The board closes, then the receipt page takes the interior while the frame stays lit. */
+  settlement?: BattleSettlement;
   journeyMotion?: JourneyMotion | null;
   roomLoading?: ReactNode;
   partyChoice?: { selectedId: string; disabled: boolean; canSelect?: (id: string) => boolean; onSelect: (id: string) => void };
@@ -39,7 +43,7 @@ export function ExpeditionBattleSurface({
   label, party, presentedEnemies, phase, layerClearPending, isRolling, interactive,
   heldActor, attackFx, supportFx, enemyTurnFx, isPresentationBusy,
   handleMemberCardClick, handleEnemyClick, handleIntentClick, dicePanel, sidebar, overlays, sceneStyle, title, location,
-  journey, journeyMotion, roomLoading, partyChoice, canSelectMember, outcome,
+  journey, journeyMotion, roomLoading, partyChoice, canSelectMember, outcome, settlement,
   inert, entrance, formationKey = "battle",
 }: BattleSurfaceProps) {
   const playerName = usePlayerName();
@@ -48,10 +52,23 @@ export function ExpeditionBattleSurface({
   const enemyLayout = useEnemyStageLayout(presentedEnemies,formationKey,party.map(member=>member.id),!sequenceBusy);
   const {reflowing}=enemyLayout;
   const motionPolicy=useBattleMotionPolicy({
-    blocked:Boolean(inert)||sequenceBusy||journeyMotion==="loading",
+    blocked:Boolean(inert)||!!settlement||sequenceBusy||journeyMotion==="loading",
     foregroundBusy:isRolling||Boolean(attackFx)||Boolean(supportFx)||Boolean(enemyTurnFx)||reflowing||Boolean(journeyMotion)||isPresentationBusy(),
   });
   const pointerInput = useRef(false);
+  const { reduced } = useUiMotion();
+  const ledger = useLedgerStageRun(settlement, reduced);
+  const { skippable, skip } = ledger;
+  // One input finishes the closing; the same keypress must not also act on the page.
+  useEffect(() => {
+    if (!skippable) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key !== "Enter" && event.key !== " " && event.key !== "Escape") return;
+      event.preventDefault(); event.stopPropagation(); skip();
+    };
+    window.addEventListener("keydown", onKey, true);
+    return () => window.removeEventListener("keydown", onKey, true);
+  }, [skippable, skip]);
   const [internalUiSkin, setInternalUiSkin] = useState(defaultUiSkin);
   const activeUiSkin = uiSkin ?? internalUiSkin;
   const nextUiSkin = getNextBattleUiSkin(activeUiSkin);
@@ -98,8 +115,13 @@ export function ExpeditionBattleSurface({
         layerClearPending || Boolean(journeyMotion)
       }
       aria-label={label}
+      {...ledger.attributes}
+      onClickCapture={skippable ? event => { event.preventDefault(); event.stopPropagation(); skip(); } : undefined}
     >
-      <ExpeditionBattleFrame title={title} location={location} skin={activeUiSkin} onCycleSkin={cycleUiSkin}>
+      <LedgerStageProvider value={{ active: ledger.active, mode: ledger.mode, instant: ledger.instant }}>
+      <ExpeditionBattleFrame title={title} location={location} skin={activeUiSkin} onCycleSkin={cycleUiSkin}
+        interiorInert={!!settlement}
+        board={settlement && <><span className="ledger-veil" aria-hidden="true"/>{ledger.pageReached && <Fragment key={settlement.id}>{settlement.content}</Fragment>}</>}>
         {outcome ? <section className="abyssa-expedition-region expedition-outcome" style={sceneStyle}>
           <div className="expedition-outcome__content">{outcome}</div>
         </section> : <>
@@ -346,6 +368,7 @@ export function ExpeditionBattleSurface({
         {sidebar}
         </>}
       </ExpeditionBattleFrame>
+      </LedgerStageProvider>
 
       {overlays}
     </main>

@@ -9,6 +9,7 @@ import { SceneTransitionProvider } from "../../../shared/transition";
 import { UiMotionProvider } from "../../../shared/ui/motion/UiMotionProvider";
 import { ManorBattleBinding } from "../ManorBattleBinding";
 import type { BattlePresentationSlots } from "../ManorBattleView";
+import type { BattleSettlement } from "../presentation/ledger-stage";
 
 // Logic acceptance only: omit stage art, timers and battle rendering.
 vi.mock("../../../shared/presentation/adv/SceneSequence", async original => ({...await original<object>(), SceneSequence: ({frame}: {frame: {content: ReactNode}}) => frame.content}));
@@ -16,8 +17,8 @@ vi.mock("../presentation/useBattleSceneAssets", () => ({useBattleSceneAssets: ()
 vi.mock("../../../game-client/CampaignPanel", () => ({CampaignPanel: () => null}));
 vi.mock("../../../game-client/AirpPanel", () => ({AirpPanel: () => null}));
 vi.mock("../../../game-client/StoryReading", () => ({StoryReading: ({title, onNext}: {title: string; onNext: () => void}) => <main aria-label={title}><button onClick={onNext}>阅读下一句</button></main>}));
-vi.mock("../ManorBattleView", () => ({ManorBattleView: ({slots}: {slots: BattlePresentationSlots}) => <main aria-label="普通远征">{slots.renderLedger?.(() => {})}{slots.terminal}{slots.feedback}</main>}));
-vi.mock("../presentation/ExpeditionBattleSurface", () => ({ExpeditionBattleSurface: ({overlays}: {overlays: ReactNode}) => <main aria-label="已结算远征">{overlays}</main>}));
+vi.mock("../ManorBattleView", () => ({ManorBattleView: ({slots}: {slots: BattlePresentationSlots}) => <main aria-label="普通远征">{slots.renderLedger?.(() => {})}{slots.terminal}{slots.settlement?.content}{slots.feedback}</main>}));
+vi.mock("../presentation/ExpeditionBattleSurface", () => ({ExpeditionBattleSurface: ({overlays, settlement}: {overlays: ReactNode; settlement?: BattleSettlement}) => <main aria-label="已结算远征">{overlays}{settlement?.content}</main>}));
 
 const sessions: Awaited<ReturnType<typeof createBattlePreviewSession>>[] = [];
 afterEach(() => { cleanup(); sessions.splice(0).forEach(s => s.dispose()); sessionStorage.clear(); });
@@ -57,6 +58,7 @@ it.each(["failed", "retreated"] as const)("uses the transparent %s result before
   const confirm = mount(session);
   const title = outcome === "failed" ? "远征失利" : "撤离归来";
   expect(screen.getByRole("dialog", {name: title})).toBeInTheDocument();
+  fireEvent.click(screen.getByRole("button", {name: "账目明细"}));
   expect(screen.getByRole("region", {name: "剩余战备"})).toBeInTheDocument();
   fireEvent.click(screen.getByRole("button", {name: "返回洋馆"}));
   expect(confirm).toHaveBeenCalledOnce();

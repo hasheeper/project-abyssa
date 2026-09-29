@@ -63,7 +63,7 @@ function TitlePageContent() {
   const [settingsOpen, setSettingsOpen] = useState(false), [settingsPresented, setSettingsPresented] = useState(false);
   const [startAttempted, setStartAttempted] = useState(false);
   const creating = useRef(false);
-  const archive = useTitleArchive(href => { const opening = readRoute(new URL(href, window.location.href))?.page === "prologue"; navigate(href, { destination: opening ? "序幕" : "守望者之崖", channel: "正在载入", cinematic: opening || creating.current }); });
+  const archive = useTitleArchive(href => { const opening = readRoute(new URL(href, window.location.href))?.page === "prologue"; navigate(href, { destination: opening ? "序幕" : "守望者之崖", channel: "正在载入", cinematic: opening || creating.current, entry: creating.current ? "navigation" : "restore" }); });
   const modalOpen = startOpen || archive.open || startPresented || archivePresented || settingsOpen || settingsPresented;
   const sceneRef = useTitleParallax(modalOpen || isTransitioning || archive.busy);
   const hasSave = archive.saves.some(save => save.status === "ready" && !archive.archivedIds.has(save.saveId));

@@ -38,8 +38,10 @@ import {
 import type { ManorScene } from "./presentation/manor-scene";
 import { useSceneSequenceBusy } from "../../shared/presentation/adv/SceneSequence";
 import type { BattleLedgerContent } from "./presentation/ExpeditionBattleLedger";
+import type { BattleSettlement } from "./presentation/ledger-stage";
 
-export type BattlePresentationSlots = { renderLedger?: BattleLedgerContent; outcome?: ReactNode; terminal?: ReactNode; feedback?: ReactNode };
+/** `settlement` replaces the board with the receipt page; `terminal` stays a plain overlay. */
+export type BattlePresentationSlots = { renderLedger?: BattleLedgerContent; outcome?: ReactNode; terminal?: ReactNode; settlement?: BattleSettlement; feedback?: ReactNode };
 
 /** Content/controller binding for the approved shared battle UI. */
 export function ManorBattleView({presentation: p, scene, sceneReady = true, roomLoading, slots, ...props}: ExpeditionBattleScreenProps & {presentation: ReturnType<typeof useManorBattlePresentation>; scene?: ManorScene; sceneReady?: boolean; roomLoading?: ReactNode; slots?: BattlePresentationSlots}) {
@@ -259,6 +261,7 @@ export function ManorBattleView({presentation: p, scene, sceneReady = true, room
       {...props}
       roomLoading={roomLoading}
       outcome={slots?.outcome}
+      settlement={memory && p.memory?.memory?.node !== "battle" ? undefined : slots?.settlement}
       inert={handbookOpen || entering}
       entrance={!!scene}
       formationKey={battle?.encounter.id ?? "journey"}

@@ -88,7 +88,7 @@ function MapPageBody() {
           partyIds: [manor.leaderId, ...party.memberIds], itemIds, ...loadout.selection, seed: session.runtime.newSeed(),
         }).then(result => {
           if (result && result.after.schemaVersion !== 1 && activeRunId(result.after) === expeditionId)
-            navigate(gameHref("battle", recordLocator(result.after)), {channel: "正在出发", destination: destination.name});
+            navigate(gameHref("battle", recordLocator(result.after)), {channel: "正在出发", destination: destination.name, battleEntrance: "open-box"});
         });
         return;
       }

@@ -7,6 +7,7 @@ import {
   ActionDockSlot
 } from "../../../shared/ui/patterns/action-dock/ActionDock";
 import { DiceActionButton } from "../../../shared/ui/patterns/action-dock/DiceActionButton";
+import { RpgFacetDiamond } from "../../../shared/ui/primitives/RpgFacetDiamond";
 import { ExpeditionDie3D, getExpeditionDieRotation } from "../ExpeditionDie3D";
 import {
   canToggleLoad,
@@ -20,6 +21,8 @@ import { buildDieFaces } from "./battle-view-model";
 import { ExpeditionHandReadout } from "./ExpeditionBattleChrome";
 import { partyVisual } from "./expedition-visuals";
 import { usePlayerName } from "../../../shared/domain/PlayerIdentity";
+import { useLedgerStage } from "./ledger-stage";
+import { useSceneSequenceBattleOpening } from "../../../shared/presentation/adv/SceneSequence";
 import type {
   ExpeditionDieVisual,
   PlayerAttackFx,
@@ -130,8 +133,13 @@ export function ExpeditionDiceTray({slots, awaitingInitialRoll, rerollsRemaining
   unloadedRemain, onDieToggle, onUndo, onRoll, onReroll, onEndTurn, itemPanel, controls, entrance, rerollReady = true, endTurnReady = true}: ExpeditionDiceTrayProps) {
   const playerName = usePlayerName();
   const anchor=useTutorialAnchors();
+  const ledger = useLedgerStage();
+  const opening = useSceneSequenceBattleOpening() && !!entrance && !ledger.active;
+  // The tray itself is the box: sockets under the dice, rims over them, then two lid leaves.
+  const boxed = opening || ledger.active && ledger.mode === "stow";
   return (
     <section className="abyssa-expedition-region abyssa-expedition-dice-panel" aria-label="骰子区域"
+      data-box-opening={opening || undefined}
       style={{"--manor-last-die": Math.max(0, slots.length - 1)} as CSSProperties}>
       <div ref={anchor("battle.dice-tray")} className="abyssa-expedition-dice-panel__tray">
         <span className="abyssa-expedition-dice-panel__pattern" aria-hidden="true" />
@@ -165,12 +173,11 @@ export function ExpeditionDiceTray({slots, awaitingInitialRoll, rerollsRemaining
                 data-spent={die.spent || undefined}
                 data-unrolled={die.faceIndex === null || undefined}
                 title={handHint}
-                style={{ gridColumn: slotIndex + 1, "--manor-order": slotIndex,
-                  "--manor-die-drift": `${(slotIndex % 2 ? -1 : 1) * (12 + slotIndex % 3 * 3)}px`,
-                  "--manor-die-lean": `${(slotIndex % 2 ? -1 : 1) * (22 + slotIndex % 3 * 4)}deg` } as CSSProperties}
+                style={{ gridColumn: slotIndex + 1, "--manor-order": slotIndex } as CSSProperties}
                 key={ownerId}
               >
-                <div className="expedition-die-entry" data-scene-settle={entrance ? "manor-die-land" : undefined}>
+                {boxed && <i className="ledger-box__socket" aria-hidden="true"/>}
+                <div className="expedition-die-entry" data-scene-settle={entrance ? "manor-die-unbox" : undefined}>
                 <ExpeditionDie3D
                   index={slotIndex}
                   value={value}
@@ -197,10 +204,16 @@ export function ExpeditionDiceTray({slots, awaitingInitialRoll, rerollsRemaining
                   onToggle={() => onDieToggle(dieIndex)}
                 />
                 </div>
+                {boxed && <i className="ledger-box__rim" aria-hidden="true"/>}
               </div>
             );
           })}
         </div>
+        {boxed && <>
+          <span className="ledger-box__well" aria-hidden="true"/>
+          <span className="ledger-box__lid" aria-hidden="true"><i className="ledger-box__leaf" data-side="l"/><i className="ledger-box__leaf" data-side="r"/></span>
+          <span className="ledger-box__clasp" aria-hidden="true"><i className="ledger-box__hasp"/><RpgFacetDiamond label="" state="current"/><i className="ledger-box__glint"/></span>
+        </>}
       </div>
       <ActionDock active busy={busy || Boolean(attackFx) || Boolean(supportFx)} alternate={itemPanel && {open: itemPanel.open, label: itemPanel.open ? "返回行动" : "打开道具坞", icon: bagIcon, onToggle: itemPanel.onToggle, panel: itemPanel.content, toggleRef: anchor("battle.items")}}
         leading={<IconButton

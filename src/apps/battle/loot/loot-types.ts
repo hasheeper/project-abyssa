@@ -3,6 +3,8 @@ export type LootStack = { itemId: string; quantity: number };
 export type LootPocket = { copper: number; items: LootStack[] };
 export type LootOutcome = "failed" | "retreated" | "cleared";
 export type LootSettlement = {
+  /** Stable committed receipt identity; optional for standalone visual samples. */
+  id?: string;
   questReturned?: LootPocket; questLost?: LootPocket;
   outcome: LootOutcome;
   layer: number;
