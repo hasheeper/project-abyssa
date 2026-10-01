@@ -1,7 +1,7 @@
 import type { CommissionView } from "../../game-runtime/airp-commission-view";
 import "./commissions.css";
 
-export function CommissionCard({task, included}: {task: CommissionView; included?: boolean}) {
+function CommissionCard({task, included}: {task: CommissionView; included?: boolean}) {
   return <article className="commission-card" data-commission-state={task.state}>
     <header><h4>{task.title}</h4><span>{included === true ? "本趟随队" : included === false && task.registered && task.matchesRoute ? "未纳入本趟" : task.status}</span></header>
     {task.accepted && task.goal && <p>目标：{task.goal}</p>}

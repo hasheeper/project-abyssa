@@ -17,7 +17,7 @@ export function JournalSurface({ variant = "inset", className, children, ...prop
 }
 
 /* Reuse the library artwork; keep HTML labels independent from SVG scaling. */
-export function JournalActionArt() {
+function JournalActionArt() {
   return <span className="journal-action__art" aria-hidden="true">
     <RpgNotchedPillArt label="" preserveAspectRatio="none"/>
   </span>;

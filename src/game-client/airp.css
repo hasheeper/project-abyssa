@@ -2,15 +2,8 @@
 .airp-panel h3 { margin: 0 0 .45rem; font-size: 1rem; }
 .airp-panel p { margin: .45rem 0; line-height: 1.6; }
 .airp-panel__meta { opacity: .7; font-size: .8rem; }
-.airp-panel button:not([class]), .airp-control { color: inherit; font: inherit; cursor: pointer; border: 1px solid #ad9672; background: #322f25; padding: .5rem .7rem; }
-.airp-control { margin: .3rem; font-size: .85rem; }
 .airp-saved { padding: 1rem; opacity: .65; font-size: .75rem; }
 .airp-panel details { margin: .55rem 0; }
-.airp-pool article { padding: .7rem 0; border-bottom: 1px solid #ad967230; }
-.airp-pool h4 { margin: 0 0 .3rem; font-size: .95rem; }
-.airp-pool h4 small { margin-left: .5rem; font-weight: normal; opacity: .6; }
-.airp-pool__aftermath { padding-top: .8rem; }
-.airp-pool__aftermath button { display: block; margin: .4rem 0; }
 .airp-panel--compact { font-size: .8rem; margin: .5rem 0; }
 .airp-map-note:has(.airp-panel) { position: absolute; top: 90px; left: 48px; max-width: 285px; padding: 12px 18px; color: #eee2ca; background: #1a1d22ee; border: 1px solid #9a8050; z-index: 5; }
 .airp-online-gate{max-width:760px;margin:8vh auto;padding:28px;background:#17201e;color:#efe7d4;border:1px solid #736b51;border-radius:8px}

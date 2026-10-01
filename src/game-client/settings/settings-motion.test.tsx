@@ -24,7 +24,7 @@ const presence = (element: Element) => Number((element as HTMLElement).style.get
 function mount() {
   const scene: SystemSceneMotion = { clock: motionValue(0), exiting: false, skip: false };
   const onBack = vi.fn();
-  const view = render(<SettingsPanel embedded sceneMotion={scene} onBack={onBack} />);
+  const view = render(<SettingsPanel sceneMotion={scene} onBack={onBack} />);
   return { ...view, scene, onBack, user: userEvent.setup() };
 }
 
@@ -62,7 +62,7 @@ describe("individual settings choreography", () => {
     expect(container.querySelector(".settings-preview")).toHaveAttribute("data-preview-waiting");
     act(() => scene.clock.set(.8));
     expect(container.querySelector(".settings-preview")).not.toHaveAttribute("data-preview-waiting");
-    rerender(<SettingsPanel embedded sceneMotion={{ ...scene, exiting: true }} onBack={onBack} />);
+    rerender(<SettingsPanel sceneMotion={{ ...scene, exiting: true }} onBack={onBack} />);
     act(() => scene.clock.set(.6));
     expect(container.querySelector(".settings-preview")).not.toHaveAttribute("data-preview-waiting");
   });
@@ -95,7 +95,9 @@ describe("individual settings choreography", () => {
     expect(screen.getByRole("tabpanel")).not.toHaveAttribute("inert");
     expect(Array.from(container.querySelectorAll(".airp-model"), presence)).toEqual([1, 1, 1]);
     expect(screen.getAllByRole("tab")).toEqual(tabs);
-    expect(Array.from(container.querySelectorAll(".abyssa-system-panel__footer button"))).toEqual(footer);
+    expect(container.querySelector(".settings-reset")).toBe(footer[0]);
+    expect(screen.getByRole("button", { name: "返回" })).toBe(footer[1]);
+    expect(container.querySelector(".airp-settings-save")).not.toBeNull();
     expect(footer.map(presence)).toEqual([1, 1]);
   });
 
@@ -107,7 +109,7 @@ describe("individual settings choreography", () => {
     expect(Array.from(container.querySelectorAll(".settings-row"), presence)).toEqual([1, 1, 1, 1, 1]);
     await user.click(screen.getByRole("tab", { name: "About" }));
     const old = flights[0];
-    rerender(<SettingsPanel embedded sceneMotion={{ ...scene, skip: true }} onBack={onBack} />);
+    rerender(<SettingsPanel sceneMotion={{ ...scene, skip: true }} onBack={onBack} />);
     expect(old.stop).toHaveBeenCalled();
     expect(screen.getByRole("tabpanel")).toHaveAccessibleName("About");
     expect(container.querySelector("main")).toHaveAttribute("data-settings-tab-phase", "ready");

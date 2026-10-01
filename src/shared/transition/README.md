@@ -96,7 +96,7 @@ navigate("./mansion.html", {
 ## 当前接入关系
 
 - 正式游戏由 GameShell 解析 hash 路由；旧 `map.html`／`shop.html` 等游戏入口重定向至同一壳，独立实验入口另行保留。
-- `mansion` 等非战斗页面使用 `fade`；角色、商店、出征的实体主板由页面适配＋共享 page-board CSS 入场，子层次仍归页面。
+- `mansion` 等非战斗页面使用 `fade`；角色、出征的实体主板由页面适配＋共享 page-board CSS 入场，子层次仍归页面。商店使用 [ShopSurface](../../game-client/shop/README.md) 的资源就绪与分组进场时序。
 - 战斗保留自己的 SceneSequence、场景匹配及 readiness，不调用普通页面 UI 入场 hook。
 - `loading` 直接组合 `SceneTransition` 与 `SceneArrivalTitle`，只用于 `npm run dev:loading` 重放视觉流程，不是业务导航目的地。
 
@@ -104,12 +104,11 @@ navigate("./mansion.html", {
 
 ## 共享页面 UI 生命周期（M3）
 
-`usePageUiIntro` 只返回 `{state, reduced}`，状态为 `waiting | playing | ready`；不渲染 DOM、不执行插值、不加载图片。页面在原容器上消费状态和 CSS。当前只有四个消费者：
+`usePageUiIntro` 只返回 `{state, reduced}`，状态为 `waiting | playing | ready`；不渲染 DOM、不执行插值、不加载图片。页面在原容器上消费状态和 CSS。当前有三个消费者：
 
 | 页面适配 | 开始条件（均需路由 idle） | 完整收尾 | 提前输入差异 |
 | --- | --- | --- | --- |
 | `useCharacterIntro` | 页面已挂载 | 920ms | focusin；Tab／Enter／空格／方向／Home／End；不含 Escape |
-| `useShopIntro` | 页面已挂载 | 920ms | 角色按键＋Escape／PageUp／PageDown；focusin |
 | `useMapIntro` | 真正的 `sceneReady` | 1520ms（地图演出常量） | Tab／Enter／空格／Escape／方向；focusin |
 | `useMansionIntro` | 图景 presentation ready，且未被剧情 suspended | 1000ms | 地图按键；**不因 focusin 收束**，输入根为 viewport 的 `.mansion-app` 祖先 |
 

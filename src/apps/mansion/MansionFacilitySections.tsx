@@ -1,7 +1,8 @@
 import { Fragment, useState } from "react";
-import type { CSSProperties, ReactNode } from "react";
+import type { ReactNode } from "react";
 import type { FacilityCommand } from "../../game-core/contracts/facilities";
 import type { FacilitiesView } from "../../game-runtime/facilities-view";
+import { ManorGlyph } from "../../shared/ui/patterns/ManorSection";
 import { CurrencyAmount } from "../../shared/ui/primitives/CurrencyAmount";
 import { ItemSlot, ItemSlotStatic } from "../../shared/ui/primitives/ItemSlot";
 import { QuantityStepper } from "../../shared/ui/primitives/QuantityStepper";
@@ -54,11 +55,6 @@ const IMPROVEMENT_GLYPHS: Readonly<Record<string, string>> = {
   补给库存: crateGlyph
 };
 
-export function Glyph({ src }: { src: string }) {
-  const style: CSSProperties = { WebkitMaskImage: `url("${src}")`, maskImage: `url("${src}")` };
-  return <i className="mansion-room-glyph" style={style} aria-hidden="true" />;
-}
-
 /** 区块徽记:世界图钉同款八角牌面。 */
 function RoomEmblem({ tone, children }: { tone: MarkerTone; children: ReactNode }) {
   return <span className="mansion-room-emblem" data-tone={tone} aria-hidden="true">{children}</span>;
@@ -94,7 +90,7 @@ export function RoomNotice({ children, glyph = padlockGlyph, tone, status }: {
 }) {
   return (
     <p className="mansion-room-notice" data-tone={tone} role={status ? "status" : undefined}>
-      <Glyph src={glyph} />
+      <ManorGlyph className="mansion-room-glyph" src={glyph} />
       <span>{children}</span>
     </p>
   );
@@ -135,7 +131,7 @@ function TimeLeft({ label, total, remaining, done }: {
     <div className="mansion-room-time">
       <PhaseTrack label={label} total={total} remaining={remaining} />
       <span className="mansion-room-time__text">
-        <Glyph src={watchGlyph} />
+        <ManorGlyph className="mansion-room-glyph" src={watchGlyph} />
         {remaining ? `还需 ${remaining} 个时段` : done}
       </span>
     </div>
@@ -365,7 +361,7 @@ export function MansionFacilityOperation({ view, room, icons, busy, onCommand, o
           {/* 与工程页同一条操作栏:左侧代价(工期、辅料费),右侧数量与确认。 */}
           <div className="mansion-room-actions">
             <span className="mansion-room-cost">
-              <span><Glyph src={watchGlyph} />{recipe.phases} 个时段</span>
+              <span><ManorGlyph className="mansion-room-glyph" src={watchGlyph} />{recipe.phases} 个时段</span>
               <span>
                 <small>辅料</small>
                 <CurrencyAmount value={recipe.fee * quantity} label="辅料费" />
@@ -474,7 +470,7 @@ export function MansionFacilityWorks({ view, room, busy, onCommand }: FacilitySe
           <div className="mansion-room-gains">
             {build.improvements.map((change) => (
               <div className="mansion-room-gain" key={change.label}>
-                <Glyph src={IMPROVEMENT_GLYPHS[change.label] ?? roomGlyph} />
+                <ManorGlyph className="mansion-room-glyph" src={IMPROVEMENT_GLYPHS[change.label] ?? roomGlyph} />
                 <span>{change.label}</span>
                 <b>{`${change.before} → ${change.after}`}</b>
               </div>
@@ -484,7 +480,7 @@ export function MansionFacilityWorks({ view, room, busy, onCommand }: FacilitySe
           {/* 操作栏:左侧是代价(工期、公款),右侧是确认 —— 代价紧挨着确认键。 */}
           <div className="mansion-room-actions">
             <span className="mansion-room-cost">
-              <span><Glyph src={watchGlyph} />{quote.readyAt - view.now} 个时段</span>
+              <span><ManorGlyph className="mansion-room-glyph" src={watchGlyph} />{quote.readyAt - view.now} 个时段</span>
               <span>
                 <small>公款{build.discount ? ` · 已减 ${build.discount}%` : ""}</small>
                 <CurrencyAmount value={quote.cost} label="公款支出" />

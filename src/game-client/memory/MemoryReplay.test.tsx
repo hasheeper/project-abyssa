@@ -23,6 +23,34 @@ it("projects frozen speakers, expressions, choices and scene boundaries without 
   expect(memoryReplayPages({ ...entry, blocks: [{ text: "没有来源的文本" }] })).toEqual([]);
 });
 
+it("keeps changing initial cast and portraits local, carries direction cues and freezes each message prefix", () => {
+  const source = entry.blocks[0].source!;
+  const background = { kind: "asset" as const, url: "frozen-room" };
+  const memory: MemoryEntry = { ...entry, blocks: [
+    { text: "第一句", speaker: "当时的诺玛", source, stage: { background, actorId: "norma", initialSlots: { left: "marietta" }, portraits: { marietta: "first-portrait" } } },
+    { text: "", source: { ...source, lineId: "direction" }, frame: { id: "direction", kind: "direction", waitMs: 80 },
+      stage: { background, actors: [{ characterId: "eustice", emotion: "serious" }], initialSlots: { left: "kororo" } } },
+    { text: "第二句", speaker: "后来的名字", source: { ...source, lineId: "next" },
+      stage: { background, actorId: "norma", expression: "b", offstageActorId: "norma", initialSlots: { left: "kororo" }, portraits: { norma: "next-portrait" } } },
+    { text: "另一段", source: { ...source, sceneId: "second" }, stage: { background } },
+  ] };
+  const before = JSON.stringify(memory), pages = memoryReplayPages(memory);
+  expect(pages).toHaveLength(3);
+  expect(pages[0].actors.map(a => a.id)).toEqual(expect.arrayContaining(["norma", "eustice", "marietta"]));
+  expect(pages[0].actors.some(a => a.id === "kororo")).toBe(false);
+  expect(pages[0].actors.find(a => a.id === "marietta")?.portrait).toBe("first-portrait");
+  expect(pages[1].actors.some(a => a.id === "marietta")).toBe(false);
+  expect(pages[1].actors.find(a => a.id === "norma")).toMatchObject({ name: "当时的诺玛", portrait: "next-portrait" });
+  expect(pages[1].actors.some(a => a.id === "kororo")).toBe(true);
+  expect(pages[1].messages[1]).toMatchObject({ kind: "stage", actorId: "eustice", emotion: "serious" });
+  expect(pages[1].messages.at(-1)).toMatchObject({ kind: "say", expression: "b", offstage: true });
+  expect(pages[0].messages).toHaveLength(1);
+  expect(pages[2].messages).toHaveLength(1);
+  expect(pages[0].initialSlots).toEqual({ left: "marietta" });
+  expect(pages[1].initialSlots).toEqual({ left: "kororo" });
+  expect(JSON.stringify(memory)).toBe(before);
+});
+
 it("plays the saved branch to the end, with reduced motion, without offering a new choice", async () => {
   const close = vi.fn(), exited = vi.fn(), before = JSON.stringify(entry);
   render(<UiMotionProvider preference="reduced"><MemoryReplay entry={entry} leaving={false} onClose={close} onExited={exited}/></UiMotionProvider>);

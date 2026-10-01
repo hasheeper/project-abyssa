@@ -73,46 +73,9 @@
 
 ## LLM 接口
 
-[avg-generation.ts](../../src/game-client/avg-generation.ts) 提供请求构造、同源HTTP适配和转为现有舞台消息的入口；[generation.ts](../../src/shared/presentation/avg/generation.ts) 提供Provider接口、动态响应Schema、严格校验与请求生命周期。
+2026-10-02 清理时移除了无正式调用方的 AVG 短回复生成模块及其专属测试。/api/avg/generate 从未实现路由，原请求样例与 Provider 说明现已撤下。正式入口使用 [AIRP 生成与阅读链](../architecture/LLM_AND_AIRP.md)，旧内容10仍使用其已有 rp 服务。
 
-- 请求包含场景／节点／请求ID、`contextKey`、本次允许发言的`actorIds`、角色人格提示、14种情绪、最多24条已读上下文及32条已提交可见事实。未选择分支和未来对白不要放进上下文。
-- `contextKey`由调用方用存档ID、epoch、revision、节点及局部分页组合；换档、翻页或返回时取消请求，并在接收时重新核对。迟到的结果不能进入新场景。
-- 当前回复最多4句，每句最多500字；只允许`actorId/text/emotion`。返回角色必须在本次允许列表内，主角不能加入该列表。额外动作、气泡、差分文件、坐标、命令、奖励等字段直接拒绝。
-- 默认15秒超时，支持主动取消和新请求替换旧请求。服务商忽略取消信号时，本地也能结束等待。模型出错、输出非法、超时或场景过期均不修改游戏状态。
-- 表情、气泡和动作依旧由`character-emotions.ts`及原校准表解析；结构校验不等于文案质量或事实语义审稿。
-
-回复示例（身份字段必须原样回传）：
-
-```json
-{
-  "version": 1,
-  "requestId": "reply-01",
-  "sceneId": "opening.first-morning",
-  "nodeId": "morning.1.2",
-  "contextKey": "save-id:epoch:revision:2:0",
-  "lines": [{ "actorId": "abyssa", "text": "……早。", "emotion": "closed" }]
-}
-```
-
-静态协议说明：[avg-generation-reply.schema.json](../../schemas/avg-generation-reply.schema.json)。实际每次请求的Schema还会锁定身份和角色白名单。
-
-```ts
-const request = createAvgGenerationRequest(story, {
-  requestId: crypto.randomUUID(), nodeId, contextKey,
-  actorIds: ["abyssa"], instruction: "回应玩家刚才的招呼。",
-  context: readContext, facts: visibleFacts,
-});
-const generator = createAvgGenerator(createAvgHttpProvider("/api/avg/generate"));
-const result = await generator.generate(request, key => key === currentContextKey());
-if (result.status === "accepted") {
-  const messages = generatedAvgMessages(result.frames);
-  // 交给原AdvStage／RpScene；离场时调用generator.cancel()。
-}
-```
-
-HTTP请求体为`{request,responseSchema}`；服务端返回上面的JSON对象。这里的`/api/avg/generate`只是旧通用短回复契约，尚无路由实现或正式调用方，作者定稿场景不会自动调用它。正式内容26使用浏览器直连的[AIRP生成与阅读链](../architecture/LLM_AND_AIRP.md)，旧内容10另走rp服务；两者均不依赖此短回复接口。若启用本接口，仍须单独设计文本验收、来源身份与阅读位置的持久化，不能刷新后重新生成或写进现有固定剧情游标。
-
-完整新剧本也可由制作流程产出`AvgStory` JSON，再按完整Schema及本地校验审阅入库；运行中的短回复接口不拥有新建分支、覆盖原稿或保存进度的权限。
+静态 [avg-generation-reply.schema.json](../../schemas/avg-generation-reply.schema.json) 作为历史协议资料保留，不代表当前运行接口。完整新剧本仍可由制作流程产出 AvgStory JSON，再按完整 Schema 及本地校验审阅入库；剧本 JSON 本身不拥有保存进度或执行游戏命令的权限。
 
 ## 存档整理
 
@@ -130,7 +93,7 @@ HTTP请求体为`{request,responseSchema}`；服务端返回上面的JSON对象�
 4. 运行下面的针对性测试，并用隔离预览检查AVG／RP。不要拿真实进度试分支。
 
 ```sh
-npm test -- src/content/presentation/first-morning-json.test.ts src/game-client/FirstMorningStory.test.tsx src/game-client/avg-generation.test.ts src/game-client/save-archive.test.ts src/game-application/testing/first-morning.test.ts --maxWorkers=1
+npm test -- src/content/presentation/first-morning-json.test.ts src/game-client/FirstMorningStory.test.tsx src/game-client/save-archive.test.ts src/game-application/testing/first-morning.test.ts --maxWorkers=1
 npm run typecheck:app
 npm run boundaries:check
 ```

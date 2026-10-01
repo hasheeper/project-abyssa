@@ -2,10 +2,16 @@ import { createBattleEngine, type BattleState } from "../game-core/battle";
 import { activeExecution } from "../game-core/session";
 import { canonicalJson, sha256 } from "../game-core/contracts";
 import { projectPlayerHistory, type GameRecord, type CommandRequest, type GameCommand } from "../game-application";
+import { decodeStoredRecord } from "../game-application/save-codec";
 import { LEGACY_VALIDATED_CATALOG as catalog } from "./legacy-context";
 
 export const gameContent = catalog.data;
 export const gameContentRef = catalog.ref;
+/** Application exports may pool their record; compare the decoded head before copying. */
+export function exportedSaveHead(serialized: string) {
+  const archive = JSON.parse(serialized) as { record: unknown };
+  return decodeStoredRecord<import("../game-application").AnyGameRecord>(archive.record)!.head;
+}
 export function battleState(record: import("../game-application").AnyGameRecord): BattleState {
   if (record.schemaVersion !== 1) throw new Error("Legacy battle projection requires schema 1");
   return createBattleEngine(catalog, record.snapshot.expedition!.routeId).restore(activeExecution(record.snapshot));

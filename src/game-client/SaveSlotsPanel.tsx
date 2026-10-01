@@ -129,7 +129,7 @@ export function SaveSlotsPanel(props: Props) {
     if (locked.current || exitBlocked) return;
     if (importOpen) setImportOpen(false); else onClose();
   }
-  return <><SystemPanel ref={panelRef} embedded className={`save-slots${props.fullScene ? " system-scene__layout" : ""}`} label={mode.toUpperCase()} description={mode === "save" ? "保存档案" : "读取档案"}
+  return <><SystemPanel ref={panelRef} className={`save-slots${props.fullScene ? " system-scene__layout" : ""}`} description={mode === "save" ? "保存档案" : "读取档案"}
     heading={props.fullScene ? <SystemSceneHeading label={mode.toUpperCase()} description={mode === "save" ? "保存档案" : "读取档案"} /> : undefined}
     data-slot-motion={!!props.sceneMotion || undefined} data-slot-reduced={slotMotion.skip || undefined} data-slot-page-phase={slotMotion.phase}
     data-slot-waiting={!motionReady || undefined} data-slot-exiting={props.sceneMotion?.exiting || undefined}

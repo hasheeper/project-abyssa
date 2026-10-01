@@ -8,6 +8,10 @@ import type { D5EquipmentInstance } from "../../game-core/session";
 import type { DemoJourneyView } from "../../game-runtime/demo-journey-view";
 import type { ResourceInventoryEntry } from "../../shared/ui/patterns/ResourceInventoryDialog";
 
+/** Schema 1 keeps the original inventory grid. */
+export const STOCK_COLUMNS = 6;
+export const STOCK_ROWS = 4;
+
 const FIXED_SUPPLY_IDS = ["item.food", "item.potion", "item.ward", "item.holy-water", "item.maintenance-kit", "item.lucky-charm", "item.divination-slip"];
 
 export type StockEquipment = Pick<D5EquipmentInstance, "instanceId" | "definitionId" | "location"> & {

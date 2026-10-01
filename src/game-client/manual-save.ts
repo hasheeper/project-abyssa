@@ -1,5 +1,5 @@
 import type { AnyGameRecord } from "../game-application";
-import { sameHead } from "../game-runtime/views";
+import { exportedSaveHead, sameHead } from "../game-runtime/views";
 import { gameErrorText } from "./game-errors";
 import type { ClientRuntime } from "./session";
 import type { SaveLocator } from "./navigation";
@@ -17,8 +17,7 @@ export function createManualSaveAttempt(runtime: ClientRuntime, source: AnyGameR
     if (request) return request;
     const exported = await runtime.application.exportSave(source.head.saveId);
     if (!exported.ok) throw new Error(gameErrorText(exported.error.code));
-    const archive = JSON.parse(exported.archive) as { record: AnyGameRecord };
-    if (!sameHead(archive.record.head, source.head)) throw new Error(gameErrorText("conflict"));
+    if (!sameHead(exportedSaveHead(exported.archive), source.head)) throw new Error(gameErrorText("conflict"));
     request = { protocolVersion: source.schemaVersion, saveId: runtime.newId(), epoch: runtime.newId(),
       clientRequestId: runtime.newId(), format: "application", archive: exported.archive };
     return request;

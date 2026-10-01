@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "kind": "definition",
+  "events": [
+    {
+      "id": "shop.first-visit",
+      "title": "初访杂货铺",
+      "acts": [
+        {
+          "id": "nail.disposition",
+          "title": "结界钉的去留",
+          "phaseLabel": "处置",
+          "slices": [
+            {
+              "id": "nail.decision",
+              "contentRef": {
+                "storyId": "story.shop.first-visit.v1",
+                "nodeIds": [
+                  "shop.visit.choice",
+                  "shop.visit.reply"
+                ]
+              },
+              "handoffRef": "shop.first-visit.sell"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

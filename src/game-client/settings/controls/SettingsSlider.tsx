@@ -15,7 +15,6 @@ export interface SettingsSliderProps {
   /** 轨道两端的锚点文字,如「慢 / 快」。给出方向感,比裸数字易读。 */
   minLabel?: string;
   maxLabel?: string;
-  disabled?: boolean;
   className?: string;
 }
 
@@ -45,7 +44,6 @@ export function SettingsSlider({
   format,
   minLabel,
   maxLabel,
-  disabled,
   className
 }: SettingsSliderProps) {
   const uid = useId().replace(/:/g, "");
@@ -57,7 +55,6 @@ export function SettingsSlider({
   return (
     <div
       className={cx("settings-slider", className)}
-      data-disabled={disabled || undefined}
       style={{ "--fill": `${ratio * 100}%` } as CSSProperties}
     >
       <div className="settings-slider__readout">
@@ -83,7 +80,6 @@ export function SettingsSlider({
             min={min}
             max={max}
             step={step}
-            disabled={disabled}
             aria-label={label}
             // 数值本身已由 aria-valuenow(原生自动给)播报,这里补一个
             // 人话形式的文本值 —— 「77 字/秒」比「13」有意义得多。

@@ -32,8 +32,7 @@ import {
   MANSION_ROOM_DETAILS
 } from "./data";
 import type {
-  MansionCharacter,
-  MansionPhaseId
+  MansionCharacter
 } from "./data";
 import {
   CHARACTER_AVATAR,
@@ -60,7 +59,7 @@ import { growthStories, teamMilestoneStory } from "../../content/presentation/gr
 import {
   STOCK_COLUMNS,
   STOCK_ROWS
-} from "./mansion-state";
+} from "./mansion-stock";
 import { MansionWorld, type CharacterPlacement } from "./MansionWorld";
 import { SceneFeedback } from "../../shared/ui/patterns/SceneFeedback";
 import { MansionRoomDrawer } from "./MansionRoomDrawer";
@@ -146,13 +145,8 @@ function MansionScene({suspended = false}: {suspended?: boolean}) {
   const estate = useMansionEstate();
   const {
     funds,
-    levels,
-    upgrading,
-    repairProgress,
-    damaged,
     readyProduction,
     stockOpen,
-    toast,
     inventoryEntries,
     stockTotal
   } = estate;
@@ -346,12 +340,6 @@ function MansionScene({suspended = false}: {suspended?: boolean}) {
     if (!isHoverSuppressed()) setHoveredRegionId(regionId);
   }, [isHoverSuppressed]);
 
-  const previewPhase = (nextPhase: MansionPhaseId) => {
-    if (nextPhase === phase) return;
-    estate.previewPhase(nextPhase);
-    setActiveCharacterId(null);
-  };
-
   const advancePhase = () => {
     if (game.status !== "ready" || !estate.time || estate.time.blocked) return;
     setHoveredRegionId(null);
@@ -425,10 +413,7 @@ function MansionScene({suspended = false}: {suspended?: boolean}) {
           hoveredRegionId={hoveredRegionId}
           readyProduction={readyProduction}
           production={estate.production}
-          levels={levels}
-          repairProgress={repairProgress}
-          damaged={damaged}
-          upgrading={upgrading}
+          construction={estate.facilities?.construction ?? null}
           characterPlacements={characterPlacements}
           roomLights={roomLights}
           onPointerDown={handlePointerDown}
@@ -472,13 +457,11 @@ function MansionScene({suspended = false}: {suspended?: boolean}) {
           aria-hidden={chromeInert}
         >
           <MansionPhaseBar
-            readOnly
             advanceDisabled={!estate.time || !!estate.time.blocked || game.status !== "ready" || presentation.blocked}
             advanceHint={estate.time?.blocked ?? (estate.time ? `推进至第 ${estate.time.next.day} 天 · ${MANSION_PHASES.find(p => p.id === estate.time!.next.phase)?.label}` : "此旧版档案不支持手动推进")}
             phases={MANSION_PHASES}
             value={phase}
             day={day}
-            onSelect={previewPhase}
             onAdvance={advancePhase}
           />
         </div>
@@ -626,7 +609,7 @@ function MansionScene({suspended = false}: {suspended?: boolean}) {
           returnFocusRef={stockButtonRef}
         />}
 
-        {(growthNotice || toast) && <div className="mansion-toast" role="status" data-no-pan>{growthNotice || toast}</div>}
+        {growthNotice && <div className="mansion-toast" role="status" data-no-pan>{growthNotice}</div>}
         <div inert={!!activeCharacter || !!growthEventId || presentation.blocked || stockOpen || stockPresented || undefined}>
           <ResidentCampaignPanel onReviewGrowth={setGrowthReview} report={reportControls}/>
         </div>

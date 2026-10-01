@@ -51,13 +51,15 @@ export function useDirector() {
       if (!reading || reading.paused || reading.completed || !job || (job.lowContextVersion ?? 0) < 11) return after;
       if (directorStage(job)) {
         await driver.run(port, job.id, effectiveAiConfiguration(config));
-        if (driver.getSnapshot().error) throw Error(driver.getSnapshot().error!);
+        const error = driver.getSnapshot().error;
+        if (error) throw Error(error);
       }
       const current = await port.read();
       // Closing while a paid request is in flight keeps its output, but does not reopen the scene.
-      const latest = session.getSnapshot().record;
+      const snapshot = session.getSnapshot(), latest = snapshot.record;
+      const currentJob = current.jobs.find(j => j.id === job.id);
       const activeReading = latest?.schemaVersion === 4 ? latest.airpDirector?.reading : null;
-      if (session.getSnapshot().status !== "disposed" && current.jobs.find(j => j.id === job.id)?.text && !directorStage(current.jobs.find(j => j.id === job.id)!) && activeReading?.jobId === job.id && !activeReading.paused && latest?.schemaVersion === 4 && latest.airpDirector?.cursors[job.id] === undefined)
+      if (snapshot.status !== "disposed" && currentJob?.text && !directorStage(currentJob) && activeReading?.jobId === job.id && !activeReading.paused && latest?.schemaVersion === 4 && latest.airpDirector?.cursors[job.id] === undefined)
         return send({type: "airp-director-show", jobId: job.id});
       return after;
     },

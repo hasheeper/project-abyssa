@@ -2,7 +2,7 @@
 
 `characters.ts` 是六人36面的基础规则表；`content.ts` 提供勇者铭约、十项成长、两件空面装备与初始队伍。`manor.ts`／`manor-full.ts` 组装早期三层／五层庄园包。图片、页面字符串映射和组件不进入玩法数据。
 
-这些基础定义已被正式版本复用，但本目录整体不是当前默认Catalog；早期由[demo-v3](../demo-v3/README.md)装配为内容3／规则4，当前普通／AIRP新档使用内容25／26。基础定义中玛的 `covenant.marietta` 延后引用由D5完整装配补齐；独立校验未完成的基础片段时必须显式声明，不能安装空处理器掩盖缺失。
+这些基础定义已被正式版本复用，但本目录整体不是当前默认Catalog；早期由[demo-v3](../demo-v3/README.md)装配为内容3／规则4，当前正常新档使用内容28，调试入口使用27。基础定义中玛的 `covenant.marietta` 延后引用由D5完整装配补齐；独立校验未完成的基础片段时必须显式声明，不能安装空处理器掩盖缺失。
 
 [demo-fixtures.ts](../../../game-runtime/testing/demo-fixtures.ts) 中的 `abyssa.fixture.demo-d1` 是单独测试包：移除玛绑定，附加测试敌人、路线和成长profile，不注册为玩家默认包，其赏金不是庄园正式配平。
 

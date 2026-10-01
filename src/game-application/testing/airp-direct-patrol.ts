@@ -5,8 +5,11 @@ import { poolTestRuntime, readPoolConversation } from "./airp-pool-playthrough";
 /** Actual deterministic commands; this helper never imports model material or fabricated proof. */
 export async function directReturnGate(outcome: "cleared" | "extracted") {
   const f = poolTestRuntime();
-  const created = await f.runtime.application.createNewGame({saveId: "pool", epoch: "direct-pool-epoch", clientRequestId: "direct-create", startAt: "airp-demo", playerName: "林恩"});
+  // Historical direct recovery must use content18, independent of the current title entry.
+  const created = await f.runtime.application.create({protocolVersion: 4, contentVersion: 18, profileId: AIRP_DIRECT_CATALOG.data.journey!.defaultProfileId,
+    saveId: "pool", epoch: "direct-pool-epoch", clientRequestId: "direct-create"});
   if (!created.ok) throw Error(JSON.stringify(created));
+  await f.send({type: "select-game-start", startAt: "airp-demo", playerName: "林恩"});
   const instanceId = (await f.read()).narrative.instances.find(i => i.definition.id === "ripple.elora.old-medicine-case")!.id;
   await f.send({type: "airp-open", instanceId}); await readPoolConversation(f);
   let r = await f.send({type: "start-expedition", runId: "direct-patrol", routeId: AIRP_DIRECT_CATALOG.data.manor!.maintenanceRouteId,

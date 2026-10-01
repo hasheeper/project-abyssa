@@ -3,8 +3,26 @@ import type { ReadingPage } from "../../shared/presentation/adv/ReadingPlayer";
 import type { RpMessage } from "../../shared/ui/patterns/rp-stage";
 import { mansionSceneBackground } from "../mansion-backgrounds";
 import { storyActors } from "../story-actors";
-import type { MemoryEntry } from "./memory-types";
+import type { MemoryBlock, MemoryEntry } from "./memory-types";
 import { narrativeActBlocks } from "../../game-runtime/memory-narrative";
+
+/** Spoken/staged actors are stable within a scene; initial cast can change per block. */
+function sceneActors(blocks: readonly MemoryBlock[]) {
+  const ids = new Set<string>(), cast = new Set<string>(), names = new Map<string, string>();
+  const lines: AuthoredLine[] = blocks.map((block, index) => {
+    const stage = block.stage!;
+    if (stage.actorId) {
+      ids.add(stage.actorId);
+      if (block.speaker && !names.has(stage.actorId)) names.set(stage.actorId, block.speaker);
+    }
+    for (const actor of stage.actors ?? []) ids.add(actor.characterId);
+    for (const id of Object.values(stage.initialSlots ?? {})) cast.add(id);
+    return { id: `scene:${index}`, text: block.text, characterId: stage.actorId,
+      actors: stage.actors?.map(actor => ({ characterId: actor.characterId })), emotion: stage.emotion };
+  });
+  for (const characterId of cast) lines.push({ id: `cast:${characterId}`, characterId, text: "" });
+  return { ids, actors: storyActors(lines).map(actor => ({ ...actor, name: names.get(actor.id) ?? actor.name })) };
+}
 
 /** Uses only the query's proven read blocks, never looks up future script pages. */
 export function memoryReplayPages(entry: MemoryEntry, actId?: string): (ReadingPage & { sceneId: string })[] {
@@ -12,6 +30,14 @@ export function memoryReplayPages(entry: MemoryEntry, actId?: string): (ReadingP
   if (entry.narrative && (!act || act.replay !== "scene")) return [];
   const blocks = act ? narrativeActBlocks(act, entry) : entry.blocks;
   if (!entry.replay || !blocks.length || blocks.some(b => !b.source || !b.stage)) return [];
+  const scenes = new Map<string, MemoryBlock[]>();
+  for (const block of blocks) {
+    const boundary = act?.id ?? block.source!.sceneId;
+    const scene = scenes.get(boundary);
+    if (scene) scene.push(block);
+    else scenes.set(boundary, [block]);
+  }
+  const casts = new Map([...scenes].map(([id, scene]) => [id, sceneActors(scene)]));
   let sceneId = "", messages: RpMessage[] = [];
   return blocks.flatMap((block, index) => {
     const source = block.source!, stage = block.stage!;
@@ -24,13 +50,9 @@ export function memoryReplayPages(entry: MemoryEntry, actId?: string): (ReadingP
       }
     }
     const id = `${source.saveId}:${source.epoch}:${source.factId}:${source.lineId}:${index}`;
-    const sceneBlocks = act ? blocks : blocks.filter(b => b.source?.sceneId === sceneId);
-    const lines: AuthoredLine[] = sceneBlocks.map((b, i) => ({ id: `${sceneId}:${i}`, text: b.text,
-      characterId: b.stage?.actorId, actors: b.stage?.actors?.map(a => ({ characterId: a.characterId })), emotion: b.stage?.emotion }));
     // Initial cast can be visible before its first spoken line.
-    Object.values(stage.initialSlots ?? {}).forEach(characterId => lines.push({ id: `cast:${characterId}`, characterId, text: "" }));
-    const actors = storyActors(lines).map(actor => ({ ...actor,
-      name: sceneBlocks.find(b => b.stage?.actorId === actor.id && b.speaker)?.speaker ?? actor.name,
+    const cast = casts.get(boundary)!, initialCast = new Set(Object.values(stage.initialSlots ?? {}));
+    const actors = cast.actors.filter(actor => cast.ids.has(actor.id) || initialCast.has(actor.id)).map(actor => ({ ...actor,
       portrait: stage.portraits?.[actor.id] ?? actor.portrait,
     }));
     const cues: RpMessage[] = (stage.actors ?? []).filter(a => a.characterId !== stage.offstageActorId)

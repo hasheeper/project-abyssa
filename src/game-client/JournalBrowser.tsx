@@ -68,8 +68,8 @@ export interface JournalEntry {
 }
 
 /** 目录副标题:人物 · 状态。 */
-export const journalMeta = (entry: Pick<JournalEntry, "source" | "status">) => `${entry.source} · ${entry.status}`;
-export function journalTone(entry: Pick<JournalEntry, "group" | "actionable">): JournalTone {
+const journalMeta = (entry: Pick<JournalEntry, "source" | "status">) => `${entry.source} · ${entry.status}`;
+function journalTone(entry: Pick<JournalEntry, "group" | "actionable">): JournalTone {
   return entry.group === "locked" ? "locked" : entry.actionable ? "action" : entry.group === "archive" ? "done" : "ongoing";
 }
 const facetState = {action: "current", ongoing: "elapsed", done: "coming"} as const;

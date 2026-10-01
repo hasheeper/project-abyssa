@@ -102,6 +102,7 @@ describe("sprite studio parameters", () => {
 
   it("emits the source formats expected by calibration, RP and emote files", () => {
     const params = buildDefaults();
+    expect(formatStageCss(params)).toBe("/* 所有角色使用共享舞台基准，无逐角色偏移。 */");
     params.abyssa.cal = { scale: 1.01, x: 0.002, y: -0.003 };
     params.abyssa.stage = { h: 105, x: 1.5, y: -2 };
     const emotes = buildEmoteDefaults();
@@ -116,6 +117,7 @@ describe("sprite studio parameters", () => {
     expect(calibration).toContain("scale: 1.01,");
     expect(stage).toContain('[data-character="abyssa"]');
     expect(stage).toContain("--abyssa-rp-doll-h: 105%; --abyssa-rp-doll-x: 1.5%; --abyssa-rp-doll-y: -2%;");
+    expect(stage).not.toContain('[data-character="alvitr"]');
     expect(emote).toContain("export const EMOTE_PLACEMENT");
     expect(emote).toContain("export const EMOTE_ADJUST");
     expect(emote).toContain("abyssa:");

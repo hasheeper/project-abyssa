@@ -1,7 +1,6 @@
 import type { MemoryRange } from "./memory-range";
-import type { MemoryEntry, MemoryJournalData } from "../../game-runtime/memory-journal-types";
+import type { MemoryEntry } from "../../game-runtime/memory-journal-types";
 export type { MemoryBlock, MemoryEntry, MemoryJournalData } from "../../game-runtime/memory-journal-types";
-export const unopenedMemoryJournal: MemoryJournalData = { status: "unavailable" };
 export type MemoryMode = "catalogue" | "reading";
 export type MemoryOrder = "recent" | "oldest";
 export const dayLabel = (day: number | null) => day === null ? "时间未记录" : `第 ${day} 天`;

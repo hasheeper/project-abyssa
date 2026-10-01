@@ -17,7 +17,7 @@
 
 ## 当前正式入口（规则／协议4）
 
-普通新档由runtime选择内容27，正式AIRP起点选择内容28。`versions/d5-service.ts` 的 `createD5Application(catalog, store, readers)` 执行v4普通远征、回忆、成长／赠物、装备、补给／装备交易、战利品鉴定／出售、设施生产及真实委托物品；`versions/d5-lineage.ts` 处理显式复制升级及二周目。runtime按完整内容引用选择服务，不由UI猜测版本。
+正常新档由runtime统一选择内容28，教学完成／跳过后接正式AIRP；无LLM与商店初见调试选择内容27。`versions/d5-service.ts` 的 `createD5Application(catalog, store, readers)` 执行v4普通远征、回忆、成长／赠物、装备、补给／装备交易、战利品鉴定／出售、设施生产及真实委托物品；`versions/d5-lineage.ts` 处理显式复制升级及二周目。runtime按完整内容引用选择服务，不由UI猜测版本。
 
 | 能力 | 当前入口／约束 |
 | --- | --- |

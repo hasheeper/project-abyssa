@@ -46,7 +46,7 @@ P0—P4的基础供应链已接入正式主应用，普通新档使用内容25�
 | P1 | [设施运行](../../src/game-core/session/facilities.ts)、[出征数量](../../src/game-core/session/d5-economy.ts)、[战役投影](../../src/game-core/session/d5-progress.ts)；厨房生产、SHOP药水、分量扣除、返还合并 |
 | P2 | 原料库存、下一批种植选择、单加工单、原子扣材扣费、成品仓位预留、到期领取；不能取消刷材料或重复领取 |
 | P3 | 真实三档收益；[工程基础](../../src/game-core/session/facility-construction.ts)计算单工程、开工锁价、排除工作间自身、工坊未领订单冲突；没有注册建筑付款命令 |
-| P4 | [查询投影](../../src/game-runtime/facilities-view.ts)、[房间操作](../../src/apps/mansion/MansionFacilityPanel.tsx)、[洋馆状态](../../src/apps/mansion/useMansionEstate.ts)、地图／整备数量控件、仓库原料和堆叠获得提示 |
+| P4 | [查询投影](../../src/game-runtime/facilities-view.ts)、历史`MansionFacilityPanel`房间操作（现由[MansionRoomDrawer](../../src/apps/mansion/MansionRoomDrawer.tsx)／[MansionFacilitySections](../../src/apps/mansion/MansionFacilitySections.tsx)承载）、[洋馆状态](../../src/apps/mansion/useMansionEstate.ts)、地图／整备数量控件、仓库原料和堆叠获得提示 |
 
 产出只保留当前一批；未收完不开下一批。部分收取保留余量，改种只影响下一轮。当前批次不会因升级重算数量。
 
@@ -67,7 +67,7 @@ P0—P4的基础供应链已接入正式主应用，普通新档使用内容25�
 - [应用恢复测试](../../src/game-application/testing/facilities-recovery.test.ts)：10项通过。包含提前启用、满仓、部分领取、改种、占用订单、提交前／后故障、重复请求、存档复制恢复、出征证明、防止超量携带、AIRP安排及自产药水实战恢复。
 - 其中四层教程完整应用链单独执行通过；后续定向重跑跳过已通过的长链，没有将跳过计为新通过。
 - [普通远征返还测试](../../src/game-application/testing/facilities-expedition.test.ts)：3项通过，完整执行通关／撤离／失败，再结算、重复提交、备份恢复；失败后可等待领取食物。
-- [房间组件](../../src/apps/mansion/MansionFacilityPanel.test.tsx)、洋馆库存投影、出征数量控件、仓库展示共13项行为测试通过；验证真实收取、单次获得提示、重新进入不重播和数量修改不影响馆内库存。
+- 历史房间组件`MansionFacilityPanel.test.tsx`、洋馆库存投影、出征数量控件、仓库展示共13项行为测试通过；验证真实收取、单次获得提示、重新进入不重播和数量修改不影响馆内库存。
 
 ### 兼容回归和构建
 

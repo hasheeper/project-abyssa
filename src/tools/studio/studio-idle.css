@@ -1,0 +1,49 @@
+/* Studio-only idle demonstrations. Formal readers use ActorPerformance / EmotionActor. */
+/* ---- 持续状态:呼吸 / 摇摆 / 颤抖 ----
+   三者互斥(共用这一个 transform),由 data-idle 选择。 */
+.studio .abyssa-rp__actor-idle[data-idle="breathe"] {
+  /* 4.2s ≈ 安静呼吸 14 次/分。不要低于 3s —— 那是「喘」不是「呼吸」。 */
+  animation: abyssa-rp-breathe 4.2s ease-in-out infinite;
+}
+
+.studio .abyssa-rp__actor-idle[data-idle="sway"] {
+  animation: abyssa-rp-sway 2.6s ease-in-out infinite;
+}
+
+.studio .abyssa-rp__actor-idle[data-idle="tremble"] {
+  /* 极高频极小幅 —— 恐惧/寒冷/重伤。linear:颤抖没有加减速。 */
+  animation: abyssa-rp-tremble 90ms linear infinite;
+}
+
+/* 两个角色同频同相呼吸时观感诡异(像两台机器)。
+   用负延迟按席位错开:4.2s 周期下 -1.9s 接近反相。
+   负延迟等于「从周期中途开始」,不会有等待期。
+   换人时相位跳变不可见 —— 那一刻立绘正在滑入。 */
+.studio .abyssa-rp__seat[data-seat="right"] .abyssa-rp__actor-idle { animation-delay: -1.9s; }
+
+/* 幅度刻意极小:scaleY 1.005 在 825px 立绘上让头顶起伏约 4px。
+   多数实现在这里失手 —— 大一点就从「呼吸」变成「喘」。
+
+   必须**不对称**:吸气快、呼气慢(真实约 40/60)。
+   单条 ease-in-out 是对称的,读起来是机械往复。 */
+@keyframes abyssa-rp-breathe {
+  0%   { transform: scaleY(1); }
+  42%  { transform: scaleY(1.005); }
+  100% { transform: scaleY(1); }
+}
+
+/* 钟摆式:旋转配底部原点,顶部横移约 14px。
+   这是「眩晕/微醺/失衡」,不是呼吸的横向版 —— 所以用 rotate 不用 translateX。 */
+@keyframes abyssa-rp-sway {
+  0%, 100% { transform: rotate(-0.5deg); }
+  50%      { transform: rotate(0.5deg); }
+}
+
+@keyframes abyssa-rp-tremble {
+  0%, 100% { transform: translateX(-1.2px); }
+  50%      { transform: translateX(1.2px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .studio .abyssa-rp__actor-idle[data-idle] { animation: none; }
+}

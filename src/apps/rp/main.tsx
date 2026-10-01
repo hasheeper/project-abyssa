@@ -6,7 +6,6 @@ import "../../shared/ui/styles/components-core.css";
 import "../../shared/ui/styles/paper-doll.css";
 import "../../shared/ui/styles/rp.css";
 import "../../shared/stage/stage.css";
-import "./app.css";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

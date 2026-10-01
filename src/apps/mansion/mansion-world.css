@@ -166,15 +166,7 @@
   animation: mansion-ready 2s ease-in-out infinite;
 }
 
-/* 修缮:只在受损或施工中出现,不再 14 个常态挂着。 */
-.mansion-marker--repair[data-state="damaged"] {
-  --marker-fill: #4a2f2c;
-  --marker-lit: #855049;
-  --marker-shade: #241413;
-  --marker-edge: #c08e7f;
-  --marker-rim: #e0b6a6;
-  --marker-glow: rgb(236 134 113 / 66%);
-}
+/* 施工状态直接来自正式设施视图。 */
 .mansion-marker--repair[data-state="working"] {
   --marker-fill: #3c3a2a;
   --marker-lit: #6e6748;
@@ -184,19 +176,6 @@
   --marker-glow: rgb(226 204 139 / 64%);
 }
 
-/* 可升级:修缮进度攒满、等玩家付钱升档。金色系 —— 与卡片里的升级键同一色,
-   让「世界上的角标」和「面板里的按钮」认得出是同一件事。会呼吸,因为它和
-   产出一样是「需要玩家处理」的。 */
-.mansion-marker--promote {
-  --marker-fill: #4d3d18;
-  --marker-lit: #8a7134;
-  --marker-shade: #271e0b;
-  --marker-edge: #d5b874;
-  --marker-rim: #f2ddab;
-  --marker-promote-ink: #f7e7b4;
-  --marker-glow: rgb(238 205 122 / 72%);
-  animation: mansion-ready 2s ease-in-out infinite;
-}
 
 /* 角标:产出数量 / 施工剩余相位。统一一套,压在盾牌右下。 */
 .mansion-marker__badge {

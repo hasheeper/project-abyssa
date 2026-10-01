@@ -16,7 +16,7 @@ vi.mock("../../game-client/shop/entrance-assets", () => ({prepareNewShopAssets: 
 afterEach(() => {cleanup(); session?.dispose(); sessionStorage.clear();});
 
 it("buys equipment through SHOP, previews six real faces and equips a selected native face", async () => {
-  const f = await shopWaveFixture(); await f.day(2);
+  const f = await shopWaveFixture(undefined, "debug-offline"); await f.day(2);
   session = new GameSession(f.runtime, {saveId: f.saveId, epoch: f.read().head.epoch}, sessionStorage);
   await session.refresh(); location.hash = "#/shop";
   const screenRoot = render(<UiMotionProvider preference="reduced"><SceneTransitionProvider><ShopPage/></SceneTransitionProvider></UiMotionProvider>);
@@ -46,7 +46,7 @@ it("buys equipment through SHOP, previews six real faces and equips a selected n
 }, 30_000);
 
 it("shows a bought daily item as sold out and gives no gain popup for a refresh", async () => {
-  const f = await shopWaveFixture(); await f.day(3);
+  const f = await shopWaveFixture(undefined, "debug-offline"); await f.day(3);
   const offer = f.read().snapshot.campaign.shop!.offers[0].productId;
   const name = f.catalog.data.shop!.products[offer].name;
   session = new GameSession(f.runtime, {saveId: f.saveId, epoch: f.read().head.epoch}, sessionStorage);

@@ -1,0 +1,41 @@
+{
+  "date": "2026-09-30",
+  "references": [
+    {
+      "file": "reference-01-main-ui.png",
+      "role": "第一版：主界面结构、条目比例与统一图案语言",
+      "source": "user attachment",
+      "source_filename": "codex-clipboard-370ab69f-8cbc-4047-bc7e-16becfbfcc69.png",
+      "sha256": "e3a083973899749e7dafc0914f3b4763b22d2aebd6b170eb24e2aa479e8fb403",
+      "size": [
+        1672,
+        941
+      ],
+      "modified": false
+    },
+    {
+      "file": "reference-02-side-scene.png",
+      "role": "第二版：右侧窗景、书卷与氛围背景",
+      "source": "user attachment",
+      "source_filename": "codex-clipboard-d96cd04e-4056-405d-996a-e4c566f4bdf0.png",
+      "sha256": "47b94261d9beac93c6e68d89636d0e81e67a1141870e916966309eea29fa6157",
+      "size": [
+        1672,
+        941
+      ],
+      "modified": false
+    },
+    {
+      "file": "reference-03-reading-state.png",
+      "role": "第三版：选中记录后的目录与正文阅读关系",
+      "source": "user attachment",
+      "source_filename": "codex-clipboard-33725b08-e569-4331-8aec-4db8cf9ecd4c.png",
+      "sha256": "1a5d663d9e1226d6c61c6fc40e863bea7997180a386d3d1ce1ff8ca25ec97734",
+      "size": [
+        1672,
+        941
+      ],
+      "modified": false
+    }
+  ]
+}

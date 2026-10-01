@@ -34,7 +34,7 @@ it("uses the same accepted task in the journal, route panel, saved confirmation 
     panel.unmount();
     await f.readScene();
     const journal = directorJournalEntries(f.raw(), session, false, () => {}).find(e => e.id === f.eventId)!;
-    expect(journal).toMatchObject({ongoing: true, actionable: false, meta: "可随队"});
+    expect(journal).toMatchObject({ongoing: true, actionable: false, status: "可随队"});
     const {id} = await f.preparePlan(); await session.refresh();
     Object.defineProperty(HTMLElement.prototype, "scrollTo", {configurable: true, value: vi.fn()});
     const gate = render(<GameSessionScope session={session}><AirpGameGate><p>地图</p></AirpGameGate></GameSessionScope>);
@@ -44,7 +44,7 @@ it("uses the same accepted task in the journal, route panel, saved confirmation 
     expect(confirmation.getByText(/第3层/)).toBeInTheDocument();
     expect(screen.getByRole("button", {name: "确认出征"})).toBeEnabled(); gate.unmount();
     const permit = await f.flow.gm.departurePermit(id); await f.send({type: "start-expedition", ...permit.departure}); await session.refresh();
-    render(<GameSessionScope session={session}><AirpPanel compact/></GameSessionScope>);
+    render(<GameSessionScope session={session}><AirpPanel/></GameSessionScope>);
     expect(screen.getByText("已随队 · 探索中")).toBeInTheDocument();
     expect(screen.getByText(f.event().card.title)).toBeInTheDocument();
     expect(fetch).not.toHaveBeenCalled();

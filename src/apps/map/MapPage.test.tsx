@@ -296,12 +296,12 @@ describe("map sortie", () => {
   it("briefs the implemented rift and explicitly closes other destinations", async () => {
     render(<MapPage />); act(() => mocks.select?.({ id: "tower" }));
     let quest = await screen.findByRole("complementary", { name: "裂隙远征 委托" });
-    expect(quest).toHaveTextContent("敌人会公开下一步意图");
-    expect(quest).toHaveTextContent("各层独立入袋");
+    expect(quest).toHaveTextContent("带上伙伴进入裂隙");
+    expect(quest).toHaveTextContent("在出口层选择带宝离场或继续深入");
     act(() => mocks.select?.({ id: "cave" }));
     quest = await screen.findByRole("complementary", { name: "潮声溶洞 委托" });
     expect(within(quest).getByRole("button", { name: "出发" })).toBeDisabled();
-    expect(quest).toHaveTextContent("此处暂未开放远征");
+    expect(quest).toHaveTextContent("此处当前未开放远征");
   });
 
   it("does not promise prototype items or currency yields before departure", async () => {

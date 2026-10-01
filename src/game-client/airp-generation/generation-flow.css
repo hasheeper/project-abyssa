@@ -15,10 +15,7 @@
 .flow-context h3 { font-size: 15px; font-weight: 500; color: var(--abyssa-text-soft); }
 .flow-context ul { padding-left: 20px; }
 .flow-context li + li { margin-top: 6px; }
-.flow-context .airp-commission-list { margin: 0; }
 .flow-context .airp-direct-progress { padding: 0; }
 .flow-context .airp-direct-progress > .airp-direct-rail { display: none; }
-.flow-launcher { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
-.flow-launcher p { margin: 0; color: var(--abyssa-text-muted); font-size: 14px; }
 .mansion-scene-resident[data-suspended="true"], .airp-game-page[data-suspended="true"] { pointer-events: none; }
 .airp-game-page { display: contents; }

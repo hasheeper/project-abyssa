@@ -1,7 +1,28 @@
 import { expect, it } from "vitest";
 import { shopFixture } from "../game-application/testing/shop-foundation-fixture";
 import { firstVisitLines } from "../content/presentation/shop-first-visit";
-import { narrativeRecord, type NarrativeStep } from "./memory-narrative";
+import { narrativeActBlocks, narrativeRecord, type NarrativeAct, type NarrativeStep } from "./memory-narrative";
+import type { MemoryEntry, MemorySource } from "./memory-journal-types";
+
+it("recovers the first matching speaker by fact, line and text, even when that speaker is absent", () => {
+  const source: MemorySource = { kind: "authored", saveId: "save", epoch: "epoch", revision: 1, factId: "fact", sceneId: "scene", lineId: "line" };
+  const entry: MemoryEntry = { id: "entry", title: "记忆", day: 1, phase: "清晨", sequence: 1, actors: [], preview: "", blocks: [
+    { text: "相同原文", source },
+    { text: "相同原文", speaker: "重复记录", source: { ...source, sceneId: "another" } },
+    { text: "不同原文", speaker: "诺玛", source },
+    { text: "相同原文", speaker: "玛丽埃塔", source: { ...source, lineId: "other" } },
+  ] };
+  const act: NarrativeAct = { id: "act", title: "一幕", coverage: "complete", replay: "text", startedAt: null, slices: [
+    { id: "slice", recordedAt: null, presentation: { surface: "text" }, steps: [{ kind: "content", frames: [
+      { id: "first", kind: "dialogue", actorId: "norma", text: "相同原文", source },
+      { id: "second", kind: "dialogue", actorId: "norma", text: "不同原文", source },
+      { id: "third", kind: "dialogue", actorId: "marietta", text: "相同原文", source: { ...source, lineId: "other" } },
+    ] }] },
+  ] };
+  const before = JSON.stringify(entry);
+  expect(narrativeActBlocks(act, entry).map(block => block.speaker)).toEqual([undefined, "诺玛", "玛丽埃塔"]);
+  expect(JSON.stringify(entry)).toBe(before);
+});
 
 it.each(["A", "B"] as const)("records the actual shop branch %s in five acts, attaches real receipts and restores without writes", async choice => {
   const f = shopFixture();

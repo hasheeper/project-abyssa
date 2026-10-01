@@ -2,9 +2,9 @@ import { describe, expect, it, vi } from "vitest";
 import { createManualSaveAttempt } from "./manual-save";
 import { newGameFixture } from "./testing/new-game";
 
-async function fixture() {
+async function fixture(startAt: "hub" | "debug-offline" = "debug-offline") {
   const f = newGameFixture();
-  const created = await f.runtime.application.createNewGame({ saveId: "source", epoch: "epoch", clientRequestId: "create", startAt: "hub", playerName: "测试旅人" });
+  const created = await f.runtime.application.createNewGame({ saveId: "source", epoch: "epoch", clientRequestId: "create", startAt, playerName: "测试旅人" });
   if (!created.ok) throw new Error(created.error.message);
   const loaded = await f.runtime.application.open("source");
   if (!loaded.ok) throw new Error(loaded.error.message);
@@ -12,8 +12,27 @@ async function fixture() {
 }
 
 describe("manual local save", () => {
+  it("preserves the formal AIRP cross-identity restriction without installing a partial copy", async () => {
+    const { runtime, store, source } = await fixture("hub");
+    expect(source).toMatchObject({contentRef: {contentVersion: 28}, airpGame: expect.any(Object)});
+    const original = runtime.application.importSave.bind(runtime.application);
+    const importSave = vi.spyOn(runtime.application, "importSave");
+    const attempt = createManualSaveAttempt(runtime, source);
+    await expect(attempt.save()).rejects.toThrow("内容版本不可用");
+    const request = importSave.mock.calls[0][0];
+    expect(await original(request)).toMatchObject({ok: false, error: {
+      code: "content-unavailable", path: "source", message: expect.stringContaining("cross-identity copying is not installed"),
+    }});
+    expect(attempt.completed).toBe(false);
+    expect(await store.listSaveIds()).toEqual(["source"]);
+    expect(await runtime.application.open("source")).toEqual({ok: true, record: source});
+  });
+
   it("creates a validated copy of current chapter-one progress without changing or selecting the original", async () => {
     const { runtime, store, source } = await fixture();
+    const exported = await runtime.application.exportSave(source.head.saveId);
+    if (!exported.ok) throw new Error(exported.error.message);
+    expect(JSON.parse(exported.archive).record).toMatchObject({format: "abyssa-save-pool", version: 1});
     const attempt = createManualSaveAttempt(runtime, source);
     expect(await store.listSaveIds()).toEqual(["source"]);
     const a = attempt.save(), b = attempt.save();

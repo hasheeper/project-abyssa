@@ -1,0 +1,899 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ABYSSA 统一叙事记录语法 v1（设计草案）",
+  "description": "只读投影的提案，不是现行存档协议。剧本定义、未读正文、可执行选项和流程命令不能通过这个边界。",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "kind": {
+      "const": "record"
+    },
+    "events": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/event"
+      }
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "kind",
+    "events"
+  ],
+  "$defs": {
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "authored",
+            "director",
+            "airp",
+            "expedition"
+          ]
+        },
+        "saveId": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$"
+        },
+        "epoch": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$"
+        },
+        "revision": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "factId": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$"
+        },
+        "sceneId": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$"
+        },
+        "lineId": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$"
+        },
+        "acquisition": {
+          "const": "tutorial-skip"
+        }
+      },
+      "required": [
+        "kind",
+        "saveId",
+        "epoch",
+        "revision",
+        "factId",
+        "sceneId",
+        "lineId"
+      ]
+    },
+    "cue": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "actorId": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$"
+        },
+        "emotion": {
+          "type": "string",
+          "minLength": 1
+        },
+        "motion": {
+          "enum": [
+            "nod",
+            "waver",
+            "jump",
+            "shakeLight",
+            "shakeHeavy"
+          ]
+        },
+        "aside": {
+          "type": "string",
+          "minLength": 1
+        },
+        "still": {
+          "type": "boolean"
+        },
+        "direction": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "actorId"
+      ],
+      "not": {
+        "required": [
+          "still",
+          "motion"
+        ],
+        "properties": {
+          "still": {
+            "const": true
+          }
+        }
+      }
+    },
+    "snapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "background": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "kind": {
+                  "const": "asset"
+                },
+                "url": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "kind",
+                "url"
+              ]
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "kind": {
+                  "const": "mansion"
+                },
+                "locationId": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9_.:-]+$"
+                },
+                "phase": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              },
+              "required": [
+                "kind",
+                "phase"
+              ]
+            }
+          ]
+        },
+        "initialSlots": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "left": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_.:-]+$"
+            },
+            "right": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_.:-]+$"
+            }
+          }
+        },
+        "offstageActorId": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$"
+        },
+        "actors": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "actorId": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "^[A-Za-z0-9_.:-]+$"
+              },
+              "emotion": {
+                "type": "string",
+                "minLength": 1
+              },
+              "expression": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "actorId"
+            ]
+          }
+        },
+        "portraits": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "required": [
+        "background"
+      ]
+    },
+    "frame": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_.:-]+$"
+            },
+            "source": {
+              "$ref": "#/$defs/source"
+            },
+            "scene": {
+              "$ref": "#/$defs/snapshot"
+            },
+            "effect": {
+              "enum": [
+                "pressure",
+                "release",
+                "break",
+                "handoff",
+                "crack",
+                "equip"
+              ]
+            },
+            "sound": {
+              "enum": [
+                "wood",
+                "metal",
+                "glass",
+                "cloth",
+                "ceramic"
+              ]
+            },
+            "stage": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/cue"
+              }
+            },
+            "itemId": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_.:-]+$"
+            },
+            "kind": {
+              "const": "dialogue"
+            },
+            "actorId": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_.:-]+$"
+            },
+            "text": {
+              "type": "string",
+              "minLength": 1
+            },
+            "emotion": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "id",
+            "kind",
+            "actorId",
+            "text",
+            "source"
+          ],
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "effect": {
+                    "const": "handoff"
+                  }
+                },
+                "required": [
+                  "effect"
+                ]
+              },
+              "then": {
+                "properties": {
+                  "kind": {
+                    "const": "chapter"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_.:-]+$"
+            },
+            "source": {
+              "$ref": "#/$defs/source"
+            },
+            "scene": {
+              "$ref": "#/$defs/snapshot"
+            },
+            "effect": {
+              "enum": [
+                "pressure",
+                "release",
+                "break",
+                "handoff",
+                "crack",
+                "equip"
+              ]
+            },
+            "sound": {
+              "enum": [
+                "wood",
+                "metal",
+                "glass",
+                "cloth",
+                "ceramic"
+              ]
+            },
+            "stage": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/cue"
+              }
+            },
+            "itemId": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_.:-]+$"
+            },
+            "kind": {
+              "enum": [
+                "narration",
+                "chapter"
+              ]
+            },
+            "text": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "id",
+            "kind",
+            "text",
+            "source"
+          ],
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "effect": {
+                    "const": "handoff"
+                  }
+                },
+                "required": [
+                  "effect"
+                ]
+              },
+              "then": {
+                "properties": {
+                  "kind": {
+                    "const": "chapter"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_.:-]+$"
+            },
+            "source": {
+              "$ref": "#/$defs/source"
+            },
+            "scene": {
+              "$ref": "#/$defs/snapshot"
+            },
+            "effect": {
+              "enum": [
+                "pressure",
+                "release",
+                "break",
+                "handoff",
+                "crack",
+                "equip"
+              ]
+            },
+            "sound": {
+              "enum": [
+                "wood",
+                "metal",
+                "glass",
+                "cloth",
+                "ceramic"
+              ]
+            },
+            "stage": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/cue"
+              }
+            },
+            "itemId": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_.:-]+$"
+            },
+            "kind": {
+              "const": "direction"
+            },
+            "waitMs": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10000
+            }
+          },
+          "required": [
+            "id",
+            "kind",
+            "waitMs",
+            "source"
+          ],
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "effect": {
+                    "const": "handoff"
+                  }
+                },
+                "required": [
+                  "effect"
+                ]
+              },
+              "then": {
+                "properties": {
+                  "kind": {
+                    "const": "chapter"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "step": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "const": "content"
+            },
+            "frames": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/frame"
+              },
+              "minItems": 1
+            }
+          },
+          "required": [
+            "kind",
+            "frames"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "const": "choice-result"
+            },
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_.:-]+$"
+            },
+            "choiceId": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_.:-]+$"
+            },
+            "optionId": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_.:-]+$"
+            },
+            "label": {
+              "type": "string",
+              "minLength": 1
+            },
+            "source": {
+              "$ref": "#/$defs/source"
+            }
+          },
+          "required": [
+            "kind",
+            "id",
+            "choiceId",
+            "optionId",
+            "label",
+            "source"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "const": "receipt"
+            },
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_.:-]+$"
+            },
+            "operation": {
+              "enum": [
+                "appraise",
+                "sell",
+                "purchase",
+                "battle"
+              ]
+            },
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "instanceId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "^[A-Za-z0-9_.:-]+$"
+                  },
+                  "name": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "quantity": {
+                    "type": "integer",
+                    "minimum": 1
+                  }
+                },
+                "required": [
+                  "instanceId",
+                  "name",
+                  "quantity"
+                ]
+              }
+            },
+            "moneyDelta": {
+              "type": "integer"
+            },
+            "outcome": {
+              "type": "string",
+              "minLength": 1
+            },
+            "source": {
+              "$ref": "#/$defs/source"
+            }
+          },
+          "required": [
+            "kind",
+            "id",
+            "operation",
+            "source"
+          ]
+        }
+      ]
+    },
+    "slice": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$"
+        },
+        "definitionId": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$"
+        },
+        "presentation": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "surface": {
+              "enum": [
+                "adv",
+                "counter",
+                "text"
+              ]
+            },
+            "opening": {
+              "$ref": "#/$defs/snapshot"
+            }
+          },
+          "required": [
+            "surface"
+          ]
+        },
+        "steps": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/step"
+          },
+          "contains": {
+            "anyOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "const": "content"
+                  },
+                  "frames": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/frame"
+                    },
+                    "minItems": 1
+                  }
+                },
+                "required": [
+                  "kind",
+                  "frames"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "const": "choice-result"
+                  },
+                  "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "^[A-Za-z0-9_.:-]+$"
+                  },
+                  "choiceId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "^[A-Za-z0-9_.:-]+$"
+                  },
+                  "optionId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "^[A-Za-z0-9_.:-]+$"
+                  },
+                  "label": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "source": {
+                    "$ref": "#/$defs/source"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "id",
+                  "choiceId",
+                  "optionId",
+                  "label",
+                  "source"
+                ]
+              }
+            ]
+          }
+        },
+        "recordedAt": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/clock"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "presentation",
+        "steps"
+      ]
+    },
+    "act": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$"
+        },
+        "definitionId": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "phaseLabel": {
+          "type": "string",
+          "minLength": 1
+        },
+        "replay": {
+          "enum": [
+            "scene",
+            "text"
+          ]
+        },
+        "slices": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/slice"
+          },
+          "minItems": 1
+        },
+        "coverage": {
+          "enum": [
+            "partial",
+            "complete",
+            "unknown"
+          ]
+        },
+        "startedAt": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/clock"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "coverage",
+        "replay",
+        "slices"
+      ]
+    },
+    "event": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$"
+        },
+        "definitionId": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 1
+        },
+        "participants": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$"
+          }
+        },
+        "startedAt": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/clock"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "acts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/act"
+          },
+          "minItems": 1
+        },
+        "lastRecordedAt": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/clock"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "sequence",
+        "startedAt",
+        "acts"
+      ]
+    },
+    "clock": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "day": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "phase": {
+          "enum": [
+            "dawn",
+            "day",
+            "dusk",
+            "night"
+          ]
+        }
+      },
+      "required": [
+        "day",
+        "phase"
+      ]
+    }
+  }
+}

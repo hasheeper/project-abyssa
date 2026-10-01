@@ -1,3 +1,5 @@
+@import "./studio-idle.css";
+
 /* ===== 立绘参数工作台 =====
    舞台部分**完全复用** rp.css 的 .abyssa-rp / .abyssa-rp__seat / .abyssa-rp__actor,
    这个文件只写工具自身的外壳(工具栏、两侧面板、导出层)。

@@ -85,7 +85,6 @@
   cursor: pointer;
 }
 
-.rp-app[data-state="ended"] .rp-app__stage,
 .rp-app[data-state="reading"] .rp-app__stage { cursor: default; }
 
 .rp-app__stage .abyssa-rp {

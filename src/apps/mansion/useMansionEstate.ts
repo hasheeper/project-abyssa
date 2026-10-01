@@ -5,16 +5,11 @@ import type { FacilityCommand } from "../../game-core/contracts/facilities";
 import type { SceneFeedbackEntry } from "../../shared/ui/patterns/SceneFeedback";
 import { supplyArt } from "../../content/presentation/supply-icons";
 import herbIcon from "../../assets/icons/items/herbs-bundle.svg";
-import { MANSION_ROOM_DETAILS } from "./data";
-import type { MansionPhaseId, MansionProductionIcon } from "./data";
+import type { MansionProductionIcon } from "./data";
 import { mansionResourceEntries, mansionNarrativeItems, type StockEquipment } from "./mansion-stock";
 import type { InventoryEntry } from "../../shared/ui/patterns/InventoryGrid";
 
-// Historical content retains its scenery projection.
-const facilityLevels = Object.fromEntries(Object.entries(MANSION_ROOM_DETAILS).map(([id, detail]) => [id, detail.level]));
-const noProgress: Readonly<Record<string, number>> = {};
 const noRooms: ReadonlySet<string> = new Set();
-const previewPhase = (_phase: MansionPhaseId) => {};
 
 /** All quantities and production readiness come from the validated campaign. */
 export function useMansionEstate() {
@@ -23,8 +18,6 @@ export function useMansionEstate() {
   const time = useMemo(() => session.runtime.queries.mansionTime(record), [record, session]);
   const journey = useMemo(() => session.runtime.queries.journey(record), [record, session]);
   const facilities = journey?.facilities ?? null;
-  const levels = useMemo(() => facilities ? {...facilityLevels, ...facilities.state.levels} : facilityLevels, [facilities]);
-  const upgrading = useMemo(() => facilities?.construction ? {[facilities.construction.roomId]: facilities.construction.remainingPhases} : noProgress, [facilities]);
   const readyProduction = useMemo(() => facilities ? new Set(facilities.rooms.filter(room => room.batch?.collectMaximum || room.id === "workshop" && facilities.order?.remainingPhases === 0).map(room => room.id)) : noRooms, [facilities]);
   const [feedback, setFeedback] = useState<SceneFeedbackEntry[]>([]);
   const inFlight = useRef(false);
@@ -96,10 +89,9 @@ export function useMansionEstate() {
   return {
     capacity: record.schemaVersion === 1 ? record.snapshot.campaign.inventory.capacity : undefined, phase: campaign.clock.phase, day: campaign.clock.day, funds: campaign.funds,
     facilities, itemIcons, operateFacility, production, feedback, dismissFeedback, busy: game.status !== "ready",
-    levels, upgrading, repairProgress: noProgress,
-    damaged: noRooms, readyProduction,
-    stockOpen, toast: "", ...stock,
-    time, previewPhase, advancePhase,
+    readyProduction,
+    stockOpen, ...stock,
+    time, advancePhase,
     collectProduction,
     toggleStock, closeStock,
   };

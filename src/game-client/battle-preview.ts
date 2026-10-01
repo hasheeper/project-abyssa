@@ -4,7 +4,7 @@ import { GameSession } from "./session";
 export async function createBattlePreviewSession(seed = 19) {
   const runtime = createBattlePreviewRuntime(seed);
   const locator = { saveId: "battle-loot-preview", epoch: "preview", expeditionId: "preview-run" };
-  const created = await runtime.application.createNewGame({ saveId: locator.saveId, epoch: locator.epoch, clientRequestId: "preview-create", startAt: "hub" });
+  const created = await runtime.application.createNewGame({ saveId: locator.saveId, epoch: locator.epoch, clientRequestId: "preview-create", startAt: "debug-offline" });
   if (!created.ok) { runtime.close(); throw Error(created.error.message); }
   const values = new Map<string, string>();
   const session = new GameSession(runtime, locator, {

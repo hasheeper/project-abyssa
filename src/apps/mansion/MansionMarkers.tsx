@@ -144,7 +144,7 @@ export function MarkerGlyph({ glyph, tone = "neutral" }: { glyph: string; tone?:
 }
 
 /** 产出图标表。物品栏与世界图钉共用同一份,避免两处各配一套图标而漂移。 */
-export const PRODUCTION_GLYPHS: Record<MansionProductionIcon, string> = {
+const PRODUCTION_GLYPHS: Record<MansionProductionIcon, string> = {
   meal: hotMealGlyph,
   maintenance: toolboxGlyph,
   supplies: cargoCrateGlyph,

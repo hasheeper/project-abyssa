@@ -1,6 +1,6 @@
 # New Shop 测试入口
 
-正式游戏已经使用新版商店。共用界面、材质、素材与进场动画位于 [game-client/shop](../../game-client/shop/README.md)，正式数据绑定由 [ShopCounter](../shop/ShopCounter.tsx) 完成，旧版保存在 [OldShopCounter](../shop/OldShopCounter.tsx)。
+正式游戏已经使用新版商店。共用界面、材质、素材与进场动画位于 [game-client/shop](../../game-client/shop/README.md)，正式数据绑定由 [ShopCounter](../shop/ShopCounter.tsx) 完成。旧商店原型及专属样式、测试已移除。
 
 本目录只保留独立测试入口及本地假数据：4,400 G、0 晶石、五种现有补给和两个铜环实例。不会读写正式存档。购买、出售和固定鉴定用于快速检查样式；实际库存、鉴定记录、交易失败与恢复在正式入口验证。
 

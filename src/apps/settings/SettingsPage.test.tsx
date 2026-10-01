@@ -159,7 +159,8 @@ describe("settings page", () => {
     expect(container.querySelector('[aria-label="AIRP 浏览器直连设置"]')).toBeInTheDocument();
     expect(screen.getByLabelText("公共 API 地址")).toBeInTheDocument();
     expect(screen.getByLabelText("公共 API Key")).toHaveAttribute("type", "password");
-    expect(screen.getByText(/导入文件不会调用模型/)).toBeInTheDocument();
+    await user.click(screen.getByText("保存说明"));
+    expect(screen.getByText(/不会自动调用模型/)).toBeVisible();
     expect(screen.queryByText("连接成功")).not.toBeInTheDocument();
   });
 
@@ -171,7 +172,7 @@ describe("settings page", () => {
     expect(canvas).toHaveStyle({ background: "var(--abyssa-system-backdrop)" });
 
     await user.click(screen.getByRole("tab", { name: "Display" }));
-    await user.click(screen.getByRole("checkbox", { name: "背景底纹" }));
+    await user.click(screen.getByRole("checkbox", { name: "背景底纹" }).closest("label")!);
 
     expect(canvas).toHaveStyle({ background: "var(--abyssa-system-backdrop-plain)" });
   });

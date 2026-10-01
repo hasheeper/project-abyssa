@@ -1,6 +1,6 @@
 # Abyssa 游戏内核
 
-纯规则层，不依赖具体内容、浏览器、React、存储或 AI；不进入 `@abyssa/ui` 导出。当前普通新档为规则4／内容27，正式AIRP新档为内容28，实际机制以[当前总览](../../docs/GAME_SYSTEMS_AND_CONTENT_SPEC.md)为准。
+纯规则层，不依赖具体内容、浏览器、React、存储或 AI；不进入 `@abyssa/ui` 导出。当前正常新档为规则4／内容28，无LLM与商店初见调试为内容27，实际机制以[当前总览](../../docs/GAME_SYSTEMS_AND_CONTENT_SPEC.md)为准。
 
 ## 正式入口
 

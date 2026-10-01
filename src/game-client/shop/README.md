@@ -1,6 +1,6 @@
 # 商店共用展示层
 
-正式商店与独立 `new-shop` 测试页共用 `ShopSurface`。组件通过 props 接收商品、余额、分类、台词和操作，不持有游戏存档，不导入测试数据。正式入口在 `src/apps/shop/ShopPage.tsx`，真实交易控制在 `ShopCounter.tsx`；旧版 `OldShopCounter.tsx` 仅作参考。
+正式商店与独立 `new-shop` 测试页共用 `ShopSurface`。组件通过 props 接收商品、余额、分类、台词和操作，不持有游戏存档，不导入测试数据。正式入口在 `src/apps/shop/ShopPage.tsx`，真实交易控制在 `ShopCounter.tsx`。旧商店原型已移除，当前交易与资源就绪后的进场分别由 `ShopCounter.live.test.tsx`、`ShopFoundation.test.tsx`、`ShopWaveIntegration.test.tsx` 和 `new-shop/App.entrance.test.tsx` 验证。
 
 1600 × 900 Stage 等比适配。左导航从 x161 开始，货架 x350、宽744，人物栏宽400、高600，两栏间隔28。人物按430px宽裁切，固定对白高168。顶部560px招牌与310 × 52资产区分开；分类128 × 44，名称不超过两个字。横梁与两侧铜边连续，保留哑光木纹、凹槽、铜色物品槽和原有详情层次。买卖共用详情结构，鉴定使用固定台词、打字机与AVG差分。图标来源见 [归属说明](assets/icons/ATTRIBUTION.md)。
 

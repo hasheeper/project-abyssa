@@ -1,6 +1,7 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { formalAirpFixture, formalNodeText, formalRead } from "../../game-application/testing/airp-game-fixture";
+import { airpTestRuntime } from "../../game-application/testing/airp-playthrough";
 import { airpGameView } from "../../game-runtime/airp-game-runtime";
 import { GameSession } from "../session";
 import { GameSessionScope } from "../react";
@@ -17,6 +18,22 @@ beforeEach(() => {
   Object.defineProperty(HTMLElement.prototype, "animate", { configurable: true, value: vi.fn(() => ({ cancel() {}, finished: Promise.resolve() })) });
 });
 afterEach(() => { cleanup(); disposeBackgroundTasks(); vi.restoreAllMocks(); });
+
+it.each([8, 9, 27])("leaves content %s to its own reader without creating a formal AIRP host", async contentVersion => {
+  const f = airpTestRuntime();
+  expect(await f.runtime.application.create({protocolVersion: 4, contentVersion, profileId: "profile.demo.first-run", saveId: "historical", epoch: "historical:1", clientRequestId: "create"})).toMatchObject({ok: true});
+  const session = new GameSession(f.runtime, {saveId: "historical", epoch: "historical:1"}, {getItem: () => null, setItem() {}, removeItem() {}});
+  try {
+    await session.refresh();
+    expect(session.getSnapshot().status).toBe("ready");
+    const before = await f.store.read("historical"), host = vi.spyOn(f.runtime.airpGame, "forSave"), fetch = vi.spyOn(globalThis, "fetch");
+    render(<GameSessionScope session={session}><AirpGameGate><p>原版本页面</p></AirpGameGate></GameSessionScope>);
+    expect(screen.getByText("原版本页面")).toBeInTheDocument();
+    expect(host).not.toHaveBeenCalled();
+    expect(fetch).not.toHaveBeenCalled();
+    expect(await f.store.read("historical")).toEqual(before);
+  } finally {session.dispose();}
+});
 
 it("confirms a saved plan and leaves no outgoing MAP notification after entering battle",async()=>{
   const f=await formalAirpFixture(),id=await f.prepare();

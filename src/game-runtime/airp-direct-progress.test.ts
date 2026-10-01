@@ -10,7 +10,7 @@ describe("read-only direct recovery eligibility", () => {
   it("uses frozen endpoints and does not mistake changed model settings for a new task", () => {
     const task = record.airpDirect!.tasks[0], material = record.airpDirect!.materials[task.materialHash!];
     const config = createAiConfiguration();
-    expect(directConnectionIssue(record, task, config.getSnapshot())).toContain("Key");
+    expect(directConnectionIssue(record, task, config.getSnapshot())).toContain("请在设置中填写并保存本任务的连接");
     config.patch({baseUrl: material.models.planning.baseUrl, commonKey: "fake-only-key"});
     expect(directConnectionIssue(record, task, config.getSnapshot())).toBeNull();
     config.patch({baseUrl: "https://changed.invalid/v1"});

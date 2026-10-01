@@ -25,10 +25,10 @@ export function AirpGameGate({ children }: { children: ReactNode }) {
   const needsTaskHost=record?.schemaVersion===4&&[22,24,26,28].includes(record.contentRef.contentVersion);
   const taskSession=useMemo(()=>needsTaskHost?taskSessionFor(session):session,[session,needsTaskHost]);
   const flow = useMemo(() => {
-    if(!("airpGame" in taskSession.runtime))return null;
+    if(!needsTaskHost || !("airpGame" in taskSession.runtime))return null;
     const value=taskSession.runtime.airpGame.forSave(session.locator.saveId,record?.contentRef.contentVersion,session.locator.epoch);
     registerBackgroundDriver(taskSession,value.gmDriver,"plan");registerBackgroundDriver(taskSession,value.nodeDriver,"node");registerBackgroundDriver(taskSession,value.settlementDriver,"settlement");return value;
-  }, [session,taskSession,record?.contentRef.contentVersion]);
+  }, [session,taskSession,needsTaskHost,record?.contentRef.contentVersion]);
   const [working, setWorking] = useState(false), [error, setError] = useState(""), [present, setPresent] = useState(false);
   const flight = useRef(false);
   const gmProgress = useSyncExternalStore(flow?.gmDriver.subscribe ?? emptySubscribe, flow?.gmDriver.getSnapshot ?? emptySnapshot);

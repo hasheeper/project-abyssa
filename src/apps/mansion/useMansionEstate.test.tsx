@@ -33,7 +33,7 @@ it("wires modern equipment into stock without counting worn gear or zero-stock c
     expect(query).toHaveBeenCalledOnce();
     act(() => result.current.toggleStock());
     expect(result.current.stockOpen).toBe(true);
-    for (const key of ["levels", "upgrading", "repairProgress", "damaged", "readyProduction", "closeStock", "toggleStock", "advancePhase", "time"] as const) {
+    for (const key of ["facilities", "production", "readyProduction", "closeStock", "toggleStock", "advancePhase", "time"] as const) {
       expect(result.current[key]).toBe(stable[key]);
     }
     expect(query).toHaveBeenCalledOnce();

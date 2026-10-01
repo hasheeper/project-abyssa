@@ -80,7 +80,7 @@ npm run check:pages:browser
 - `prepare:pages`重新构建game，仅在`dist/game`添加发布专用`404.html`和`_headers`，保留全部原运行资源；不登录、不上传、不调用模型。
 - `check:pages`重新核对原game构建快照、全文件清单、平台限制、发布控制文件和隐私扫描；目录多了文件、缺文件或字节改变均拒绝通过。每次重新`build:game`后须重新prepare。
 - 最终打包前运行`npm run check:pages -- --release`。它额外比对构建报告、当前Git HEAD和当前工作树，要求同一个干净提交；工作树未冻结或构建后又改变时直接拒绝。正式游戏检查命令`npm run release:check:game`会串入这一步。
-- `check:pages:browser`以本机临时HTTP服务应用真实CSP，检查首页、旧HTML书签、内容18创建、模型设置和刷新；不导入真实配置或调用API。它不是Cloudflare模拟器，不证明公网HTTPS、Pages清理URL、缓存更新或API CORS通过。
+- `check:pages:browser`以本机临时HTTP服务应用真实CSP，检查首页、旧HTML书签、当前正常起点创建、模型设置和刷新；不导入真实配置或调用API。它不是Cloudflare模拟器，不证明公网HTTPS、Pages清理URL、缓存更新或API CORS通过。
 - 检查报告是本机`dist/reports/airp-p3/pages-release.local.json`，不放进发布目录，也不随站点上传。记录`published: false`和未完成项，不能把预检通过当作发布完成。
 
 本机已有`config/airp-test.local.json`时，用其中Key及端点的原值／序列化值／URL编码值扫描**全部文件字节**，不输出这些值。没有该文件时，报告会标记没有执行已知私密值扫描，不能声称实际Key已核验。白名单拒绝配置、私有报告、源码地图、归档压缩包、隐藏文件、符号链接、`functions`和`_worker.js`。
@@ -125,7 +125,7 @@ Pages会将`.html`地址规范化成无后缀路径；正式站必须额外检�
 
 只上传完整、经过检查的产物。Cloudflare官方回退仅能选择成功的**production部署**，preview不能作为回退目标。发布前保留上一份完整产物和部署ID；在控制台Deployments中选择目标production部署的“Rollback to this deployment”。
 
-09-29 更新后已有两份成功的 production 部署，上一版 ID 与清单摘要见上表。P3-F 仍需受控的更新与回退演练：验证旧标签页、新标签页、清单／worker／固定URL资源及存档，不重复生成已付费对白，不清空站点数据。本次成功上传和新浏览器检查不代表回退演练完成。
+当前成功的production部署与上一版候选ID、清单摘要见顶部台账。仍需受控的更新与回退演练：验证旧标签页、新标签页、清单／worker／固定URL资源及存档，不重复生成已付费对白，不清空站点数据。本次成功上传和新浏览器检查不代表回退演练完成。
 
 ## 官方依据
 
@@ -135,4 +135,11 @@ Pages会将`.html`地址规范化成无后缀路径；正式站必须额外检�
 - [自定义响应头](https://developers.cloudflare.com/pages/configuration/headers/)
 - [Production回退](https://developers.cloudflare.com/pages/configuration/rollbacks/)
 
-完整验收范围见[P3规划](../plans/2026-09-23-airp-static-phase-three.md)，项目发布状态见[当前状态](../DESIGN_DECISIONS_AND_CURRENT_STATUS.md)。
+## 待完成的远端验收
+
+- 从当前正常起点完整试玩，覆盖教程完成／跳过、商店例外、委托实物、三种终局、刷新继续和记忆回想。
+- 在正式HTTPS Origin验证真实模型POST与错误恢复，保留调用日志；所测端点OPTIONS通过不能替代模型调用或其他服务商的跨域测试。
+- 受控更新／回退检查旧标签页、新标签页、worker、清单与固定URL资源，确认原存档和已付费正文保持。
+- 实测目标网络访问体验和内容质量；本地构建、线上HTTP核对与完整玩家验收分别记录。
+
+09-23第三阶段施工计划已归档，未完成范围集中于本节；优先级见[当前状态](../DESIGN_DECISIONS_AND_CURRENT_STATUS.md)。

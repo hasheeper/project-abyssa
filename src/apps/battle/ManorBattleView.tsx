@@ -372,7 +372,7 @@ export function ManorBattleView({presentation: p, scene, sceneReady = true, room
         />
       }
       sidebar={
-        <ExpeditionBattleSidebar {...sidebarProps} renderLedger={slots?.renderLedger} entrance={!!scene} objective={!memory && !tutorial ? <AirpPanel compact/> : undefined}/>
+        <ExpeditionBattleSidebar {...sidebarProps} renderLedger={slots?.renderLedger} entrance={!!scene} objective={!memory && !tutorial ? <AirpPanel/> : undefined}/>
       }
       overlays={<>{memory && p.memory?.memory?.node !== "battle" ? null : overlay}{slots?.feedback}</>}
     />

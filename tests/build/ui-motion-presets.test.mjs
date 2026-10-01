@@ -38,10 +38,9 @@ test('motion:check verifies all generated preset styles against one JSON source'
   assert.deepEqual(values(frames['abyssa-ui-appear'], 'to', 'opacity'), ['1']);
 });
 
-test('the three real pages opt into shared board motion without retaining duplicate keyframes', () => {
+test('character and map pages opt into shared board motion without retaining duplicate keyframes', () => {
   const consumers = [
     ['character-status/character-motion.css', '.character-status-app__main[data-character-intro="playing"] .abyssa-character-screen', 'character-status/CharacterBoardScreen.tsx'],
-    ['shop/shop-motion.css', '.shop-counter-page[data-shop-intro="playing"]', 'shop/ShopCounter.tsx'],
     ['map/map-motion.css', '.map-board[data-map-intro="playing"]', 'map/route.tsx'],
   ];
   for (const [path, selector, entry] of consumers) {
@@ -52,7 +51,6 @@ test('the three real pages opt into shared board motion without retaining duplic
   }
   assert.match(read('src/shared/ui/styles/index.css'), /@import "\.\.\/motion\/page-board\.css"/);
   // These child fades reuse the action, not the main board's duration/delay.
-  assert.deepEqual(values(css('src/apps/shop/shop-motion.css'), '.shop-counter-page[data-shop-intro="playing"] .shop-counter__balances', 'animation'), ['abyssa-ui-appear 340ms 480ms ease-out both']);
   assert.deepEqual(values(css('src/apps/map/map-motion.css'), '.map-board[data-map-intro="playing"] .abyssa-map-scene', 'animation'), ['abyssa-ui-appear 540ms 180ms ease-out both']);
 });
 
@@ -60,7 +58,6 @@ test('existing page completion clocks still outlast the shared board and local C
   /** @type {[string,string,string,RegExp][]} */
   const pages = [
     ['character-status', 'character-motion.css', 'useCharacterIntro.ts', /CHARACTER_INTRO_END_MS = (\d+)/],
-    ['shop', 'shop-motion.css', 'useShopIntro.ts', /SHOP_INTRO_END_MS = (\d+)/],
     ['map', 'map-motion.css', 'map-landmark-intro.ts', /MAP_INTRO_DURATION_MS = (\d+)/],
   ];
   for (const [page, style, clock, pattern] of pages) {

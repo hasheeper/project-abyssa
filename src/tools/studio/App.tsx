@@ -173,8 +173,7 @@ export function App() {
           className="abyssa-rp__actor"
           data-character={state.characterId}
           data-active={state.active ? "true" : undefined}
-          // 内联变量会压过 rp.css 末尾那张逐角色表 —— 正是我们要的:
-          // 面板上的实时值优先,表里的旧值不干扰预览。
+          // 面板内联变量优先于共享基准和已发布的角色偏移。
           style={
             {
               "--abyssa-rp-doll-h": `${num(p.stage.h)}%`,
@@ -374,7 +373,7 @@ export function App() {
             </header>
             <p className="studio-export__hint">
               {exportTab === "ts" && "替换 src/shared/ui/patterns/spriteCalibration.ts 里 CHARACTER_CALIBRATION 整个对象。"}
-              {exportTab === "css" && "替换 src/shared/ui/styles/rp.css 末尾「逐角色立绘调整表」的那十行。"}
+              {exportTab === "css" && "将偏移规则写入 src/shared/ui/styles/rp-motion.css，替换已有的同角色规则；未调整的角色沿用共享基准。"}
               {exportTab === "emote" &&
                 "替换 src/shared/ui/patterns/emotes.ts 里 EMOTE_PLACEMENT 与 EMOTE_ADJUST 两个对象。两张必须一起替换 —— 偏移是相对基准的增量。"}
               {exportTab === "json" && "保存这段文本,之后用「导入」恢复整个会话。"}

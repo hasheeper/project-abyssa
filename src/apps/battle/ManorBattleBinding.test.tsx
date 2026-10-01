@@ -226,16 +226,19 @@ it("enemy-turn completion permits a food target before the next roll", async () 
   const f = await manorClientFixture(19, 4, ["item.food", "item.potion"]); fixtures.push(f);
   render(<GameSessionScope session={f.session}><SceneTransitionProvider><ManorBattleBinding onSettle={() => {}} uiSkin="old-manor" /></SceneTransitionProvider></GameSessionScope>);
   await enter();
-  await click(screen.getByRole("button", { name: "ROLL" })); await finish();
-  await click(screen.getByRole("button", { name: "END TURN" })); await finish();
+  // All commands live in the dock; avoid repeatedly traversing the dice SVGs.
+  const dock = within(screen.getByRole("region", { name: "行动面板" }));
+  await click(dock.getByRole("button", { name: "ROLL" })); await finish();
+  await click(dock.getByRole("button", { name: "END TURN" })); await finish();
   const view = () => f.runtime.queries.journey(f.session.getSnapshot().record!)!;
-  expect(view().battle!.phase).toBe("roll");
-  const food = view().supplies.find(s => s.definition.id === "item.food")!;
+  const beforeFood = view();
+  expect(beforeFood.battle!.phase).toBe("roll");
+  const food = beforeFood.supplies.find(s => s.definition.id === "item.food")!;
   const wounded = food.targets.find(t => t.kind === "member")!;
   if (wounded.kind !== "member") throw Error("Expected a wounded member");
-  await click(screen.getByRole("button", { name: "打开道具坞" }));
-  await click(screen.getByRole("button", { name: `食物，剩余 ${food.charges} 次` }));
-  const name = wounded.id === "kael" ? "你" : view().party.find(p => p.id === wounded.id)!.name;
-  await click(screen.getByRole("button", { name })); await finish();
+  await click(dock.getByRole("button", { name: "打开道具坞" }));
+  await click(dock.getByRole("button", { name: `食物，剩余 ${food.charges} 次` }));
+  const name = wounded.id === "kael" ? "你" : beforeFood.party.find(p => p.id === wounded.id)!.name;
+  await click(dock.getByRole("button", { name })); await finish();
   expect(view().supplies.find(s => s.definition.id === "item.food")!.charges).toBe(food.charges - 1);
 });

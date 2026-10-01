@@ -131,16 +131,7 @@
 }
 
 /* ---- 行内小图标(时钟、锁等):mask 着色,随文字色 ---- */
-.mansion-room-glyph {
-  display: inline-block;
-  width: 18px;
-  height: 18px;
-  flex: none;
-  background: currentColor;
-  mask-position: center;
-  mask-repeat: no-repeat;
-  mask-size: contain;
-}
+.manor-glyph.mansion-room-glyph { width: 18px; height: 18px; }
 
 /* ---- 物品行:格位 + 名称 + 说明,可挂右侧操作 ---- */
 .mansion-room-item {

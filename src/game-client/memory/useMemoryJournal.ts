@@ -45,7 +45,7 @@ export function useMemoryJournal(scope: string, data: MemoryJournalData, nowDay:
   const selected = visible.find(entry => entry.id === view.selectedId) ?? null;
   const acts = selected?.narrative?.acts ?? [];
   const selectedAct = acts.find(act => actSelection?.scope === scope && actSelection.entryId === selected?.id && act.id === actSelection.actId) ?? acts[0] ?? null;
-  const transcript = selectedAct && selected ? narrativeActBlocks(selectedAct, selected) : selected?.blocks ?? [];
+  const transcript = useMemo(() => selectedAct && selected ? narrativeActBlocks(selectedAct, selected) : selected?.blocks ?? [], [selected, selectedAct]);
   const range = requestedRange.scope === scope ? requestedRange.range : allMemories;
   // A replay remains a frozen prefix when new prose arrives. Retraction or edited
   // provenance invalidates it immediately, before another frame can be painted.

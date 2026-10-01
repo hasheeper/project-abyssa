@@ -84,7 +84,7 @@ export function SaveArchivePanel({ archive, onNewGame, sceneMotion, returnLabel 
   // A sliding three-page window keeps the header bounded, even for hundreds of saves.
   const firstPage = Math.max(0, Math.min(page - 1, pages - 3));
   const heading = view === "import" ? "导入档案" : "档案管理";
-  return <><SystemPanel ref={panel} embedded className="save-slots system-scene__layout title-archive__layout" label="LOAD" description="读取档案"
+  return <><SystemPanel ref={panel} className="save-slots system-scene__layout title-archive__layout" description="读取档案"
     data-slot-motion={!!sceneMotion || undefined} data-slot-reduced={motion.skip || undefined}
     data-slot-waiting={archive.listState === "loading" || undefined} data-slot-exiting={sceneMotion?.exiting || undefined}
     data-slot-page-phase={motion.phase}

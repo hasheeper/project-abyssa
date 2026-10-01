@@ -57,6 +57,13 @@ export function narrativeReceiptText(receipt: NarrativeReceipt) {
 
 /** Compatibility transcript is derived from the same immutable steps consumed by replay. */
 export function narrativeActBlocks(act: NarrativeAct, entry: MemoryEntry): MemoryBlock[] {
+  const sourceKey = (source: MemorySource | undefined, text: string) => JSON.stringify([source?.factId, source?.lineId, text]);
+  const originals = new Map<string, MemoryBlock>();
+  for (const block of entry.blocks) {
+    const key = sourceKey(block.source, block.text);
+    // A duplicate source retains the first recorded speaker, including an absent one.
+    if (!originals.has(key)) originals.set(key, block);
+  }
   return act.slices.flatMap(slice => {
     let scene = slice.presentation.opening;
     return slice.steps.flatMap((step): MemoryBlock[] => {
@@ -66,7 +73,7 @@ export function narrativeActBlocks(act: NarrativeAct, entry: MemoryEntry): Memor
         const actor = scene?.actors?.find(a => a.actorId === actorId);
         const stage = scene ? { ...scene, actors: frame.stage?.map(a => ({ characterId: a.actorId, emotion: a.emotion })), actorId,
           emotion: frame.kind === "dialogue" ? frame.emotion : undefined, expression: actor?.expression } : undefined;
-        const original = entry.blocks.find(b => b.source?.factId === frame.source.factId && b.source?.lineId === frame.source.lineId && b.text === ("text" in frame ? frame.text : ""));
+        const original = originals.get(sourceKey(frame.source, "text" in frame ? frame.text : ""));
         return { text: "text" in frame ? frame.text : "", speaker: original?.speaker, source: frame.source, stage, frame };
       });
       return [{ text: step.kind === "choice-result" ? step.label : narrativeReceiptText(step),

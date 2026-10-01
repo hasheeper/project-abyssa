@@ -36,7 +36,7 @@ export function DirectorScene() {
   const background = mansionSceneBackground(job.scene?.locationId ?? event.card.locationId,
     job.scene?.phase ?? worldPhase);
   const busy = d.game.status !== "ready" || working || !!d.progress?.busy;
-  const advance = d.advance ?? d.send;
+  const advance = d.advance;
   const pause = () => {if (!reading.paused) void d.send({type: "airp-director-pause"}).catch(() => {});};
   if (event.role === "result" && event.delivery?.status === "pending") return <DirectGenerationScene title={event.card.title} location="洋馆 · 待交付" background={background} onClose={pause} closeDisabled={busy}
     active={!reading.paused} taskId={taskKey} status="本趟目标已带回，等待交付确认" actions={[generationAction("deliver","确认交付",!busy,() => act(() => advance({type:"airp-director-deliver",eventId:event.id})),"storage")]}>

@@ -7,7 +7,7 @@ afterEach(() => { cleanup(); setUiMotionPreference("system"); });
 
 describe("in-scene settings layout", () => {
   it("uses the shared top tabs, a plain status and an unboxed reading preview", () => {
-    const { container } = render(<SettingsPanel embedded onBack={vi.fn()} />);
+    const { container } = render(<SettingsPanel onBack={vi.fn()} />);
     expect(screen.getByRole("main", { name: "系统设置" })).toHaveClass("settings-app--embedded");
     expect(screen.getByRole("tablist", { name: "设置分类" })).toHaveClass("abyssa-system-tabs");
     expect(screen.queryByRole("button", { name: "默认配置" })).toBeNull();
@@ -19,7 +19,7 @@ describe("in-scene settings layout", () => {
   });
   it("keeps preview controls and reset functional without applying them to gameplay", async () => {
     const onBack = vi.fn(), user = userEvent.setup();
-    render(<SettingsPanel embedded onBack={onBack} />);
+    render(<SettingsPanel onBack={onBack} />);
     fireEvent.change(screen.getByRole("slider", { name: "打字速度" }), { target: { value: "24" } });
     expect(screen.getByText("24ms · 42 字/秒")).toBeInTheDocument();
     expect(screen.getByText("已修改")).toHaveClass("settings-config-state");
@@ -32,7 +32,7 @@ describe("in-scene settings layout", () => {
     await user.click(screen.getByRole("button", { name: "返回" })); expect(onBack).toHaveBeenCalledOnce();
   });
   it("uses distinct radio states and clickable labels without nesting label elements", async () => {
-    const user = userEvent.setup(); const { container } = render(<SettingsPanel embedded onBack={vi.fn()} />);
+    const user = userEvent.setup(); const { container } = render(<SettingsPanel onBack={vi.fn()} />);
     const nvl = screen.getByRole("radio", { name: "NVL 分屏" });
     const adv = screen.getByRole("radio", { name: "ADV 对话" });
     expect(container.querySelector("label label")).toBeNull();
@@ -48,7 +48,7 @@ describe("in-scene settings layout", () => {
     expect(nvl).toBeChecked();
   });
   it("gives the remaining categories readable secondary headings without inventing connections", async () => {
-    const user = userEvent.setup(); render(<SettingsPanel embedded onBack={vi.fn()} />);
+    const user = userEvent.setup(); render(<SettingsPanel onBack={vi.fn()} />);
     await user.click(screen.getByRole("tab", { name: "Display" }));
     expect(screen.getByText("显示状态")).toHaveClass("settings-side__label");
     await user.click(screen.getByRole("tab", { name: "Model" }));

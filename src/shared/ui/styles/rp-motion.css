@@ -13,12 +13,6 @@
   }
   .abyssa-rp__actor[data-active="true"] { translate: 0 0; }
 
-  /* 持续态整个不播 —— 这是本文件里最该砍的一类:
-     它们**无限循环、永不自行停止**,对动效敏感者比任何一次性动作都难回避。
-     一次性动作(点头/抖动/跳跃)由 motions.ts 在 JS 侧判定后直接不触发,
-     那边走同一条判据,这里只需处理 CSS 驱动的这三个。 */
-  .abyssa-rp__actor-idle { animation: none; }
-
   .abyssa-rp__jump { transition-duration: 0.12s; }
   /* 当前条退为历史时的过渡缩到几乎无感,但保留淡变 */
   .abyssa-rp__bubble { transition-duration: 0.1s; }
@@ -99,34 +93,6 @@
     animation: abyssa-rp-text-in 0.2s ease both;
   }
 }
-
-/* ===================================================================
-   逐角色立绘调整表 —— 十人各自的身高/站位差异在这里补齐
-   ===================================================================
-   上面 .abyssa-rp 里的三个 doll-* 是**统一基准**,先用它把整体调对;
-   下面这张表是**单人偏差**,只写与基准不同的那几个人。
-
-   三个参数(都作用于立绘自身,与框无关):
-     --abyssa-rp-doll-h  高度占框内高度的比例。矮的角色调大,高的调小。
-     --abyssa-rp-doll-x  水平偏移,正 = 右移。单位是立绘自身宽度的百分比。
-     --abyssa-rp-doll-y  垂直偏移,正 = 下移。单位是立绘自身高度的百分比。
-
-   注意:这三个值只管**舞台上的观感**。PSD 画布本身的裁切差异已由
-   spriteCalibration.ts 的 scale/x/y 校平,两者叠加生效,不要在这里
-   重复补偿画布问题——那个该去改校准表。
-
-   下面十行的值当前全是基准值(即不做任何偏移),等你逐个看过再改。
-   改的时候建议开自动播放,让角色轮换上台对照着调。 */
-.abyssa-rp__actor[data-character="abyssa"]   { --abyssa-rp-doll-h: 100%; --abyssa-rp-doll-x: 0%; --abyssa-rp-doll-y: 0%; }
-.abyssa-rp__actor[data-character="alvitr"]   { --abyssa-rp-doll-h: 100%; --abyssa-rp-doll-x: 0%; --abyssa-rp-doll-y: 0%; }
-.abyssa-rp__actor[data-character="elora"]    { --abyssa-rp-doll-h: 100%; --abyssa-rp-doll-x: 0%; --abyssa-rp-doll-y: 0%; }
-.abyssa-rp__actor[data-character="eustice"]  { --abyssa-rp-doll-h: 100%; --abyssa-rp-doll-x: 0%; --abyssa-rp-doll-y: 0%; }
-.abyssa-rp__actor[data-character="kororo"]   { --abyssa-rp-doll-h: 100%; --abyssa-rp-doll-x: 0%; --abyssa-rp-doll-y: 0%; }
-.abyssa-rp__actor[data-character="lenore"]   { --abyssa-rp-doll-h: 100%; --abyssa-rp-doll-x: 0%; --abyssa-rp-doll-y: 0%; }
-.abyssa-rp__actor[data-character="marietta"] { --abyssa-rp-doll-h: 100%; --abyssa-rp-doll-x: 0%; --abyssa-rp-doll-y: 0%; }
-.abyssa-rp__actor[data-character="norma"]    { --abyssa-rp-doll-h: 100%; --abyssa-rp-doll-x: 0%; --abyssa-rp-doll-y: 0%; }
-.abyssa-rp__actor[data-character="tibby"]    { --abyssa-rp-doll-h: 100%; --abyssa-rp-doll-x: 0%; --abyssa-rp-doll-y: 0%; }
-.abyssa-rp__actor[data-character="vivienne"] { --abyssa-rp-doll-h: 100%; --abyssa-rp-doll-x: 0%; --abyssa-rp-doll-y: 0%; }
 
 /* ==================== 挂载即终态(data-settled) ====================
    版式切换回分屏时,已读过的消息重新挂载。若照常播入场演出,

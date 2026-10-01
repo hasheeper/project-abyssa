@@ -275,7 +275,7 @@ function MapPageBody() {
         </MapWoodFrame>
         </div>
         <CampaignPanel />
-        {!commissions && <aside className="airp-map-note"><AirpPanel compact/></aside>}
+        {!commissions && <aside className="airp-map-note"><AirpPanel/></aside>}
       </AbyssaProvider>
     </Stage>
   );

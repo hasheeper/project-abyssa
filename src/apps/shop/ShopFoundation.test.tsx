@@ -97,10 +97,10 @@ it("recovers a lost response in the real page and replaces stale transaction err
     fireEvent.click(screen.getByRole("button", {name: button}));
     await waitFor(() => expect(session.getSnapshot().status).toBe("error"), {timeout: 15_000});
     expect(f.read().snapshot.campaign.funds.party).toBe(funds);
-    fireEvent.click(screen.getByRole("button", {name: "重新读取 / 重试"}));
+    fireEvent.click(screen.getByRole("button", {name: "重新读取"}));
     await waitFor(() => expect(session.getSnapshot().status).toBe("ready"), {timeout: 15_000});
     await waitFor(() => expect(screen.queryByRole("alert")).toBeNull());
-    if (button === "出售") expect(document.querySelector(".new-shop__feedback .scene-feedback__notice")).toHaveTextContent("收入 800 G");
+    if (button === "出售") await waitFor(() => expect(document.querySelector(".scene-feedback__notice")).toHaveTextContent("收入 800 G"));
     else expect(screen.getByRole("button", {name: "收好"})).toBeEnabled();
     expect(session.getSnapshot().status).toBe("ready");
     expect(f.read().snapshot.campaign.funds.party).toBe(funds);

@@ -32,7 +32,7 @@ export function MemoryPanel({ journal, data, onBack, sceneMotion }: {
     return () => { active = false; };
   }, [journal.restore, journal.focusIntent, journal.replayEntry]);
   const reading = journal.mode === "reading";
-  return <MotionPanel ref={root} embedded label="MEMORY" description="记忆手记" className="memory-panel"
+  return <MotionPanel ref={root} description="记忆手记" className="memory-panel"
     data-memory-mode={journal.mode} data-memory-changing={journal.changing || undefined} data-memory-change={journal.changeKind ?? undefined} data-ui-motion={journal.reduced ? "reduced" : "full"}
     style={{ "--memory-content-opacity": journal.opacity } as MotionStyle}
     tabs={<MemoryTimeRange key={journal.scope} journal={journal} disabled={data.status === "unavailable"}/>}

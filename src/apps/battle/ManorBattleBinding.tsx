@@ -184,7 +184,7 @@ export function ManorBattleBinding({reviewing = false, ...props}: ExpeditionBatt
   } else {
     frame = {id:"battle",kind:"battle",battleMotion:scene ? "board" : undefined,assets:scene?.assets ?? (tutorialStage ? [tutorialStage.background] : undefined),content:<>{!v.expedition || reviewing
       ? <ManorConclusion {...props} record={record} overlay={null} settlement={settlement} renderLedger={lootSlots?.renderLedger}/>
-      : <ManorBattleView {...props} slots={lootSlots} presentation={p} scene={scene} sceneReady={sceneReady} roomLoading={roomLoading}/>}<CampaignPanel/>{!v.expedition && !reviewing && <aside className="campaign-panel campaign-panel--report"><AirpPanel compact/></aside>}</>};
+      : <ManorBattleView {...props} slots={lootSlots} presentation={p} scene={scene} sceneReady={sceneReady} roomLoading={roomLoading}/>}<CampaignPanel/>{!v.expedition && !reviewing && <aside className="campaign-panel campaign-panel--report"><AirpPanel/></aside>}</>};
   }
   const battle = frame.kind === "battle";
   frame.content = <div className={battle ? `battle-story-shell abyssa-battle-stage abyssa-battle-stage--${props.uiSkin ?? "old-manor"}` : "battle-story-shell"}

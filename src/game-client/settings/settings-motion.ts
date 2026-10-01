@@ -30,12 +30,10 @@ export function bindSettingsMotion(root: HTMLElement) {
   add(".settings-preview", "body", 4);
   add(".settings-side > .settings-side__label", "body", 0);
   add(".settings-load > li", "body");
-  add(".settings-side > .settings-status", "body", 1);
-  add(".settings-side > .settings-slot", "body", 2);
   add(".settings-side > .settings-note", "body", 3);
-  add(".airp-settings-main > .airp-settings-heading", "body", 0);
+  add(".airp-settings-main > .airp-settings-heading, .airp-settings-side > .airp-settings-heading", "body", 0);
   add(".airp-connection-shared", "body", 1);
-  add(".airp-settings-main .airp-model", "body");
+  add(".airp-model", "body");
   add(".airp-settings-preset", "body", 1);
   add(".airp-settings-session", "body", 3);
   for (const { element, order } of systemControlItems(root)) {

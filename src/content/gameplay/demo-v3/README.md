@@ -1,6 +1,6 @@
 # 庄园刻仪兽内容包（内容3／规则4）
 
-`content.ts` 从冻结的D5内容2独立复制并组装 `abyssa.demo / contentVersion:3 / rulesVersion:4`；由 `game-runtime/loop-context.ts` 完整校验，保留旧档注册并供后续内容包复用。当前普通／AIRP新档默认25／26。
+`content.ts` 从冻结的D5内容2独立复制并组装 `abyssa.demo / contentVersion:3 / rulesVersion:4`；由 `game-runtime/loop-context.ts` 完整校验，保留旧档注册并供后续内容包复用。当前正常新档默认28，调试入口使用27。
 
 相对旧包的正式差异：
 

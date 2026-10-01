@@ -1,0 +1,189 @@
+{
+  "schemaVersion": 1,
+  "kind": "record",
+  "events": [
+    {
+      "id": "demo:opening:departure",
+      "definitionId": "opening.departure",
+      "title": "还没吃完的早饭",
+      "sequence": 0,
+      "startedAt": {
+        "day": 1,
+        "phase": "dawn"
+      },
+      "participants": [
+        "kael",
+        "abyssa"
+      ],
+      "acts": [
+        {
+          "id": "demo:opening:breakfast",
+          "title": "洋馆的早饭",
+          "replay": "scene",
+          "slices": [
+            {
+              "id": "demo:opening:dragging",
+              "presentation": {
+                "surface": "adv",
+                "opening": {
+                  "background": {
+                    "kind": "asset",
+                    "url": "/src/assets/backgrounds/mansion-first-morning.webp"
+                  },
+                  "offstageActorId": "kael",
+                  "initialSlots": {
+                    "right": "abyssa"
+                  }
+                }
+              },
+              "steps": [
+                {
+                  "kind": "content",
+                  "frames": [
+                    {
+                      "id": "opening:morning.1.0",
+                      "kind": "direction",
+                      "waitMs": 550,
+                      "sound": "cloth",
+                      "source": {
+                        "kind": "authored",
+                        "saveId": "demo-save",
+                        "epoch": "demo-epoch",
+                        "revision": 1,
+                        "factId": "demo-opening-read",
+                        "sceneId": "first-morning",
+                        "lineId": "morning.1.0"
+                      }
+                    },
+                    {
+                      "id": "opening:morning.1.1",
+                      "kind": "narration",
+                      "text": "毛毯里没有任何抵抗的迹象。",
+                      "stage": [
+                        {
+                          "actorId": "abyssa",
+                          "emotion": "closed",
+                          "still": true
+                        }
+                      ],
+                      "source": {
+                        "kind": "authored",
+                        "saveId": "demo-save",
+                        "epoch": "demo-epoch",
+                        "revision": 1,
+                        "factId": "demo-opening-read",
+                        "sceneId": "first-morning",
+                        "lineId": "morning.1.1"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "coverage": "partial"
+        }
+      ]
+    },
+    {
+      "id": "demo:opening:return",
+      "definitionId": "opening.return",
+      "title": "赶在午餐前",
+      "sequence": 1,
+      "startedAt": {
+        "day": 1,
+        "phase": "dawn"
+      },
+      "participants": [
+        "kael",
+        "norma"
+      ],
+      "acts": [
+        {
+          "id": "demo:tutorial:shore",
+          "title": "雾滩进场",
+          "replay": "scene",
+          "slices": [
+            {
+              "id": "demo:tutorial:tracks",
+              "presentation": {
+                "surface": "adv",
+                "opening": {
+                  "background": {
+                    "kind": "asset",
+                    "url": "/src/assets/backgrounds/tide-reef/bg.tide-reef.shore.jpg"
+                  },
+                  "offstageActorId": "kael",
+                  "initialSlots": {
+                    "left": "norma"
+                  }
+                }
+              },
+              "steps": [
+                {
+                  "kind": "content",
+                  "frames": [
+                    {
+                      "id": "shore:S3-1.screen.1",
+                      "kind": "narration",
+                      "text": "退潮留下的泥滩泛着灰白冷光。翻覆的货车残骸旁，几道深凹的拖痕一路歪斜，笔直扎进山壁下的海蚀洞。",
+                      "source": {
+                        "kind": "authored",
+                        "saveId": "demo-save",
+                        "epoch": "demo-epoch",
+                        "revision": 1,
+                        "factId": "demo-tutorial-read",
+                        "sceneId": "demo-tutorial:1:S3-1",
+                        "lineId": "S3-1.screen.1"
+                      }
+                    },
+                    {
+                      "id": "shore:S3-1.screen.1.page.1",
+                      "kind": "dialogue",
+                      "actorId": "norma",
+                      "emotion": "serious",
+                      "text": "拖痕里的水还没退。……刚钻进去没多久，BOSS。慌得很。",
+                      "stage": [
+                        {
+                          "actorId": "norma",
+                          "emotion": "serious",
+                          "direction": "蹲在泥地边，刀尖挑起半凝固的泥浆"
+                        }
+                      ],
+                      "source": {
+                        "kind": "authored",
+                        "saveId": "demo-save",
+                        "epoch": "demo-epoch",
+                        "revision": 1,
+                        "factId": "demo-tutorial-read",
+                        "sceneId": "demo-tutorial:1:S3-1",
+                        "lineId": "S3-1.screen.1.page.1"
+                      }
+                    },
+                    {
+                      "id": "shore:S3-1.screen.1.page.2",
+                      "kind": "dialogue",
+                      "actorId": "kael",
+                      "emotion": "neutral",
+                      "text": "（……看来他们也没什么余裕。追上不难。）",
+                      "source": {
+                        "kind": "authored",
+                        "saveId": "demo-save",
+                        "epoch": "demo-epoch",
+                        "revision": 1,
+                        "factId": "demo-tutorial-read",
+                        "sceneId": "demo-tutorial:1:S3-1",
+                        "lineId": "S3-1.screen.1.page.2"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "coverage": "partial"
+        }
+      ]
+    }
+  ]
+}

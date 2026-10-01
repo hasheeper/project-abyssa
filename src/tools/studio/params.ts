@@ -40,7 +40,7 @@ export interface CharacterParams {
 
 export type ParamMap = Record<string, CharacterParams>;
 
-/** rp.css 末尾那张表当前的值 —— 十行全是基准值,一个都没调过。 */
+/** 与 rp-shell-seats.css 的共享舞台基准一致。 */
 const DEFAULT_STAGE: StageParams = { h: 100, x: 0, y: 0 };
 
 /** 各控件的范围与步长。范围按现有值的量级留出余量,不是随便定的。 */
@@ -191,15 +191,17 @@ export function formatCalibrationTs(params: ParamMap): string {
 }
 
 /**
- * 导出②:rp.css 末尾那张逐角色表。
- *
- * 保持与原文件一致的单行紧凑格式和 selector 对齐 —— 十行并排时,
- * 对齐能让人一眼扫出哪个值和别人不一样,这是那张表可读性的全部来源。
+ * 导出②：只有偏离共享基准的角色才需要 rp-motion.css 覆盖规则。
  */
 export function formatStageCss(params: ParamMap): string {
-  const selectors = ROSTER.map(({ id }) => `.abyssa-rp__actor[data-character="${id}"]`);
+  const adjusted = ROSTER.filter(({ id }) => {
+    const { h, x, y } = params[id].stage;
+    return h !== DEFAULT_STAGE.h || x !== DEFAULT_STAGE.x || y !== DEFAULT_STAGE.y;
+  });
+  if (!adjusted.length) return "/* 所有角色使用共享舞台基准，无逐角色偏移。 */";
+  const selectors = adjusted.map(({ id }) => `.abyssa-rp__actor[data-character="${id}"]`);
   const width = Math.max(...selectors.map((s) => s.length));
-  return ROSTER.map(({ id }, i) => {
+  return adjusted.map(({ id }, i) => {
     const { h, x, y } = params[id].stage;
     const decl = `--abyssa-rp-doll-h: ${num(h)}%; --abyssa-rp-doll-x: ${num(x)}%; --abyssa-rp-doll-y: ${num(y)}%;`;
     return `${selectors[i].padEnd(width)} { ${decl} }`;

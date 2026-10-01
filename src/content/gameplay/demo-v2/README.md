@@ -1,6 +1,6 @@
 # 旧D5内容包（内容2／规则4）
 
-`foundation.ts` 组装 `abyssa.demo@2 / rulesVersion:4`，已经在玩家runtime注册，供既有D5存档恢复。后续[demo-v3](../demo-v3/README.md)继承其基础定义；当前普通／AIRP新档默认25／26，本包仅作兼容与复用。
+`foundation.ts` 组装 `abyssa.demo@2 / rulesVersion:4`，已经在玩家runtime注册，供既有D5存档恢复。后续[demo-v3](../demo-v3/README.md)继承其基础定义；当前正常新档默认28，调试入口使用27，本包仅作兼容与复用。
 
 本包保存十项成长事件、固定勇者历史队伍、两件赠物、篇章与当下收束，及原玛本尊／侍偶回忆遭遇。旧包的历史不能因当前回忆改为刻仪兽而原地覆写；新包独立继承和替换相应定义。
 

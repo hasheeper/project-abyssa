@@ -6,7 +6,7 @@ import { readFileSync } from 'node:fs';
 const read = path => readFileSync(new URL(`../../src/${path}`, import.meta.url), 'utf8');
 test('current AIRP windows use the shared Settings instead of embedding API forms', () => {
   for (const path of ['game-client/airp-director/DirectorControls.tsx', 'game-client/airp-game/AirpGameGate.tsx',
-    'game-client/airp-generation/DirectControls.tsx', 'game-client/AirpPoolPanel.tsx', 'game-client/airp-generation/GenerationWorkbench.tsx']) {
+    'game-client/airp-generation/DirectControls.tsx', 'game-client/airp-generation/GenerationWorkbench.tsx']) {
     const source = read(path);
     assert.doesNotMatch(source, /DirectAiSettings|ModelConnectionFields|type="password"|type="url"/, path);
     assert.match(source, /AiSettingsButton|useAiSettingsScene/, path);

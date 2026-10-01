@@ -318,7 +318,7 @@ export function MenuPageContent({ memoryData: previewData, preview = false }: { 
               onClose={back} onBusyChange={onBusyChange}
               sceneMotion={view.archiveMotion}
               navigate={href => navigate(href, { destination: "存档进度", channel: "正在读取", entry: "restore" })} />
-            : view.displayed === "settings" ? <SettingsPanel embedded onBack={back} sceneMotion={view.settingsMotion} />
+            : view.displayed === "settings" ? <SettingsPanel onBack={back} sceneMotion={view.settingsMotion} />
             : view.displayed === "memory" ? <MemoryPanel journal={journal} data={memoryData} onBack={back} sceneMotion={view.memoryMotion}/> : null}
           </motion.div>
         </div>

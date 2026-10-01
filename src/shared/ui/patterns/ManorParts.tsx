@@ -7,7 +7,7 @@ import { ManorGlyph } from "./ManorSection";
 import { cx } from "../../lib/cx";
 
 /* 洋馆工具窗(库存、日志、整备)共用的小件。外观全部来自 manor-utility.css,
-   调用方只给数据,不再各自画分页、键位和数值行。 */
+   调用方只给数据,不再各自画分页和数值行。 */
 
 /** 分页:两枚菱形箭头夹着「当前 / 总数」;放在它所翻的那一组旁边。 */
 export function ManorPager({subject, page, count, controls, onPage}: {
@@ -94,17 +94,6 @@ export function ManorItemShowcase({icon, name, tag, tone = "interface", rarity}:
     </ManorStage>
     <h4 className="manor-showcase__name">{name}</h4>
   </div>;
-}
-
-export interface ManorKeyHint { keys: readonly string[]; label: string }
-
-/** 键位提示:键帽 + 动作名,一组一条。 */
-export function ManorKeys({hints, className}: {hints: readonly ManorKeyHint[]; className?: string}) {
-  return <span className={cx("manor-keys", className)}>
-    {hints.map(hint => <span key={hint.label} className="manor-keys__hint">
-      {hint.keys.map(key => <kbd key={key}>{key}</kbd>)}{hint.label}
-    </span>)}
-  </span>;
 }
 
 /** 数值行:标签在左,数字与单位在右。放在 ManorStats 里。

@@ -1,11 +1,38 @@
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { afterEach, expect, it, vi } from "vitest";
+import { afterEach, expect, it, vi, type Mock } from "vitest";
+import type { DirectorJob, DirectorEvent, DirectorSceneContext, DirectorState, DirectorCommand } from "../../game-application/airp-director/contracts";
+import type { DirectorCapabilities } from "../../game-core/contracts/airp-director";
+import type { useDirector } from "./useDirector";
 import { DirectorScene } from "./DirectorScene";
 import type { ComponentProps } from "react";
 import type { AirpReading } from "../airp-generation/AirpReading";
 import { mansionBackgroundForLocation, mansionSceneBackground } from "../mansion-backgrounds";
 
-const mock = vi.hoisted(() => ({ director: {} as any, reader: null as ComponentProps<typeof AirpReading> | null }));
+type Director = ReturnType<typeof useDirector>;
+type FixtureAction = Mock<(...args: Parameters<Director["advance"]>) => Promise<unknown>>;
+type FixtureJob = Pick<DirectorJob, "id"> & Partial<Pick<DirectorJob, "attempts" | "lowContextVersion" | "lowChoices">> & {
+  lowResponse?: Pick<NonNullable<DirectorJob["lowResponse"]>, "index" | "text">;
+  text: Pick<NonNullable<DirectorJob["text"]>, "lines">;
+  scene: Partial<Pick<DirectorSceneContext, "choices" | "locationId" | "phase">>;
+};
+type FixtureEvent = Pick<DirectorEvent, "id" | "role" | "status" | "readSceneIds"> & {
+  card: Pick<DirectorEvent["card"], "title" | "form"> & Partial<DirectorEvent["card"]>;
+};
+type FixtureLedger = {
+  memories: { id: string; scope: { kind: "event"; eventId: string } }[];
+  receipts: { memoryId: string; taskId: string; effects: { kind: "affinity"; actorId: string; delta: number }[] }[];
+  jobs: { id: string; mode: "model" | "program-only" }[];
+};
+// The UI fixture omits unused data, but both command paths are required and typed.
+type DirectorFixture = {
+  send: FixtureAction; advance: FixtureAction;
+  session: Pick<Director["session"], "locator">;
+  game: { status: Director["game"]["status"]; record?: { schemaVersion: 4; airpGame: { settlement: FixtureLedger } } };
+  view: { state: { reading: NonNullable<DirectorState["reading"]>; jobs: FixtureJob[]; events: FixtureEvent[]; cursors: DirectorState["cursors"] };
+    context: { world: { phase: number }; capabilities?: { objectives: Record<string, Pick<DirectorCapabilities["objectives"][string], "routeId" | "layer">> } } };
+};
+
+const mock = vi.hoisted(() => ({ director: {} as DirectorFixture, reader: null as ComponentProps<typeof AirpReading> | null }));
 vi.mock("./useDirector", () => ({useDirector: () => mock.director}));
 vi.mock("../GameOperationFeedback", () => ({GameOperationFeedback: () => null}));
 vi.mock("./DirectorControls", () => ({DirectorControls: (p: {reader?: (close:()=>void)=>React.ReactNode; initialReader?: boolean; onBackground?:()=>void; background?:string}) =>
@@ -16,21 +43,22 @@ vi.mock("../airp-generation/AirpReading", () => ({AirpReading: (p: ComponentProp
 </div>; }}));
 afterEach(cleanup);
 function fixture() {
-  const job = {id: "scene:offer", attempts: [], lowContextVersion: 9, lowChoices: ["认真倾听", "轻松回应", "有所保留"], lowResponse: undefined as unknown,
+  const job: FixtureJob = {id: "scene:offer", attempts: [], lowContextVersion: 9, lowChoices: ["认真倾听", "轻松回应", "有所保留"], lowResponse: undefined,
     text: {lines: [{speaker: "elora", emotion: "neutral", text: "能帮我带回空药箱吗？"}]},
     scene: {choices: [{id: "participate", label: "参与这件事", intent: "接受"}]}};
-  const reading = {jobId: job.id, eventId: "event:1", cursor: 0, paused: false};
-  const event = {id: "event:1", role: "offer", status: "offered", readSceneIds: [], card: {title: "空药箱", form: "sortie"}};
-  const send = vi.fn().mockResolvedValue({});
-  mock.director = {send, session:{locator:{saveId:"director-ui",epoch:"epoch:1"}}, game: {status: "ready"}, view: {state: {reading, jobs: [job], events: [event], cursors: {[job.id]: 0}}, context: {world: {phase: 2}}}};
-  return {job, reading, event, send};
+  const reading: NonNullable<DirectorState["reading"]> = {jobId: job.id, eventId: "event:1", cursor: 0, paused: false};
+  const event: FixtureEvent = {id: "event:1", role: "offer", status: "offered", readSceneIds: [], card: {title: "空药箱", form: "sortie"}};
+  const send = vi.fn<(command: DirectorCommand) => Promise<unknown>>().mockResolvedValue({});
+  const advance = vi.fn((command: DirectorCommand) => send(command));
+  mock.director = {send, advance, session:{locator:{saveId:"director-ui",epoch:"epoch:1"}}, game: {status: "ready"}, view: {state: {reading, jobs: [job], events: [event], cursors: {[job.id]: 0}}, context: {world: {phase: 2}}}};
+  return {job, reading, event, send, advance};
 }
 it("uses each frozen scene location for the current reading and its history", () => {
   const f = fixture();
   Object.assign(f.job.scene, {locationId: "elora", phase: 1});
   const past = {id: "scene:past", scene: {locationId: "library", phase: 0},
     text: {lines: [{speaker: "elora", emotion: "neutral", text: "上次在书库说过的话。"}]}};
-  const state: any = mock.director.view.state;
+  const state = mock.director.view.state;
   state.jobs.push(past);
   state.cursors[past.id] = 1;
   Object.assign(f.event, {readSceneIds: [past.id]});
@@ -42,10 +70,10 @@ it("retains a legacy backdrop for history with no frozen room instead of borrowi
   const f = fixture();
   Object.assign(f.job.scene, {locationId: "elora", phase: 1});
   Object.assign(f.event.card, {locationId: "elora"});
-  const past = {id: "scene:legacy", scene: {phase: 3}, text: {lines: [{speaker: "narrator", text: "之前的一次交谈。"}]}};
-  const state: any = mock.director.view.state;
+  const past = {id: "scene:legacy", scene: {phase: 3}, text: {lines: [{speaker: "narrator", emotion: "neutral", text: "之前的一次交谈。"}]}};
+  const state = mock.director.view.state;
   state.jobs.push(past); state.cursors[past.id] = 1;
-  f.event.readSceneIds = [past.id] as any;
+  f.event.readSceneIds = [past.id];
   render(<DirectorScene/>);
   expect(mock.reader!.previousScenes?.[0].background).toBe(mansionSceneBackground(undefined, 3));
   expect(mock.reader!.previousScenes?.[0].background).not.toBe(mock.reader!.background);
@@ -54,7 +82,7 @@ it("keeps the frozen room during generation and delivery even when the world pha
   const f = fixture();
   Object.assign(f.job.scene, {locationId: "library", phase: 0});
   Object.assign(f.event.card, {locationId: "plaza"});
-  const state: any = mock.director.view.state;
+  const state = mock.director.view.state;
   state.cursors = {};
   const view = render(<DirectorScene/>);
   const background = () => document.querySelector(".flow-scene img")?.getAttribute("src");
@@ -70,6 +98,7 @@ it("shows generated attitudes, records one without accepting, then offers an exp
   expect(screen.queryByRole("button", {name: "接下委托"})).toBeNull();
   fireEvent.click(screen.getByRole("button", {name: "有所保留"}));
   await waitFor(() => expect(f.send).toHaveBeenCalledTimes(2));
+  expect(f.advance).toHaveBeenCalledWith({type: "airp-director-read", jobId: f.job.id, cursor: 0});
   expect(f.send.mock.calls.map(c => c[0])).toEqual([
     {type: "airp-director-respond", jobId: f.job.id, index: 2},
     {type: "airp-director-read", jobId: f.job.id, cursor: 0},
@@ -120,9 +149,9 @@ it("does not carry an old action error into a newly generated scene", async () =
 });
 it("an interactive choice advances through continuation, not directly to acceptance or mansion", async () => {
   const f = fixture(); f.job.lowContextVersion = 11;
-  const advance = vi.fn().mockResolvedValue({}); mock.director.advance = advance;
+  f.advance.mockResolvedValue({});
   render(<DirectorScene/>); fireEvent.click(screen.getByRole("button", {name: "轻松回应"}));
-  await waitFor(() => expect(advance).toHaveBeenCalledWith({type: "airp-director-read", jobId: f.job.id, cursor: 0}));
+  await waitFor(() => expect(f.advance).toHaveBeenCalledWith({type: "airp-director-read", jobId: f.job.id, cursor: 0}));
   expect(f.send).toHaveBeenCalledTimes(1); expect(f.send).toHaveBeenCalledWith({type: "airp-director-respond", jobId: f.job.id, index: 1});
   expect(screen.queryByRole("button", {name: "接下委托"})).toBeNull();
 });
@@ -148,7 +177,7 @@ it("a concluded acceptance shows concise task guidance and collapses in the resi
 it("shows pending settlement, then actual saved memory/affinity, and distinguishes a facts-only exit", () => {
   const f = fixture(); Object.assign(f.reading, {completed: true});
   Object.assign(f.event, {role: "result", status: "resolved"});
-  const ledger: any = {memories: [], receipts: [], jobs: []};
+  const ledger: FixtureLedger = {memories: [], receipts: [], jobs: []};
   mock.director.game.record = {schemaVersion: 4, airpGame: {settlement: ledger}};
   const view = render(<DirectorScene/>);
   expect(screen.getByText("本次经历待结算，关系变化和记忆尚未写入。")).toBeInTheDocument();

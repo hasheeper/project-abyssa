@@ -15,7 +15,7 @@ import { useUiMotion } from "../../../shared/ui/motion/UiMotionProvider";
  * 界面动效偏好由产品入口持久化；共享 UI 同时响应系统偏好。
  * 其他演出开关仍为本页预览设置，不扩展到 Logo 或玩法存档。
  */
-export function DisplaySection({ state, onChange, embedded = false }: SectionProps) {
+export function DisplaySection({ state, onChange }: SectionProps) {
   const { preference } = useUiMotionPreference();
   const { reduced } = useUiMotion();
   return (
@@ -79,7 +79,7 @@ export function DisplaySection({ state, onChange, embedded = false }: SectionPro
       </div>
 
       <aside className="settings-side">
-        <span className="settings-side__label">{embedded ? "显示状态" : "RENDER LOAD"}</span>
+        <span className="settings-side__label">显示状态</span>
 
         {/* 关掉的项越多,渲染负载越低。这是把四个开关汇总成一个可读的量 ——
             比逐项说明「这个开销大」更直观。 */}

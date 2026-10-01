@@ -1,0 +1,18 @@
+{
+  "source": "../memory-journal-2026-09-30/reference-02-side-scene.png",
+  "sourceSha256": "47b94261d9beac93c6e68d89636d0e81e67a1141870e916966309eea29fa6157",
+  "cropLTRB": [
+    1344,
+    176,
+    1585,
+    740
+  ],
+  "output": "side-scene-crop-study.png",
+  "outputSize": [
+    241,
+    564
+  ],
+  "purpose": "Planning crop only: inspect scene isolation and masking; not a final production asset",
+  "resized": false,
+  "generated": false
+}

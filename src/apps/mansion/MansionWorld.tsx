@@ -19,7 +19,6 @@ import {
   DialogueBubble,
   MARKER_SIZE,
   ProductionIcon,
-  PromoteIcon,
   RepairIcon
 } from "./MansionMarkers";
 import { getMansionAvatar } from "./MansionRoomViews";
@@ -33,10 +32,7 @@ import {
   type Point,
   type SceneRegion
 } from "./mansion-geometry";
-import {
-  MAX_FACILITY_LEVEL,
-  REPAIR_STEPS
-} from "./mansion-state";
+import type { FacilitiesView } from "../../game-runtime/facilities-view";
 
 export interface CharacterPlacement extends Point {
   character: MansionCharacter;
@@ -63,10 +59,7 @@ export type MansionWorldProps = {
   hoveredRegionId: string | null;
   readyProduction: ReadonlySet<string>;
   production?: Readonly<Record<string, Pick<MansionProduction, "label" | "amount" | "icon">>>;
-  levels: Readonly<Record<string, number>>;
-  repairProgress: Readonly<Record<string, number>>;
-  damaged: ReadonlySet<string>;
-  upgrading: Readonly<Record<string, number>>;
+  construction: FacilitiesView["construction"];
   characterPlacements: CharacterPlacement[];
   roomLights: MansionRoomLight[];
   onPointerDown: PointerEventHandler<HTMLDivElement>;
@@ -93,10 +86,7 @@ export const MansionWorld = memo(function MansionWorld({
   hoveredRegionId,
   readyProduction,
   production,
-  levels,
-  repairProgress,
-  damaged,
-  upgrading,
+  construction,
   characterPlacements,
   roomLights,
   onPointerDown,
@@ -188,7 +178,7 @@ export const MansionWorld = memo(function MansionWorld({
             const detail = MANSION_ROOM_DETAILS[region.id];
             if (!detail) return null;
             const pins: Array<{
-              kind: "production" | "repair" | "promote";
+              kind: "production" | "repair";
               node: ReactNode;
             }> = [];
 
@@ -214,59 +204,23 @@ export const MansionWorld = memo(function MansionWorld({
               });
             }
 
-            const roomLevel = levels[region.id] ?? detail.level;
-            if (
-              detail.upgradeCost &&
-              detail.fund &&
-              (repairProgress[region.id] ?? 0) >= REPAIR_STEPS &&
-              roomLevel < MAX_FACILITY_LEVEL
-            ) {
-              pins.push({
-                kind: "promote",
-                node: (
-                  <button
-                    type="button"
-                    className="mansion-marker mansion-marker--promote"
-                    data-no-pan
-                    aria-label={`${cleanRegionLabel(region.label)}可升级至 Lv.${roomLevel + 1}`}
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      onOpenRegion(region.id);
-                    }}
-                  >
-                    <PromoteIcon />
-                  </button>
-                )
-              });
-            }
-
-            const isDamaged = damaged.has(region.id);
-            const isUpgrading = Boolean(upgrading[region.id]);
-            if (
-              (isDamaged || isUpgrading) &&
-              (repairProgress[region.id] ?? 0) < REPAIR_STEPS &&
-              roomLevel < MAX_FACILITY_LEVEL
-            ) {
+            if (construction?.roomId === region.id) {
               pins.push({
                 kind: "repair",
                 node: (
                   <button
                     type="button"
                     className="mansion-marker mansion-marker--repair"
-                    data-state={isUpgrading ? "working" : "damaged"}
+                    data-state="working"
                     data-no-pan
-                    aria-label={isUpgrading
-                      ? `${cleanRegionLabel(region.label)}施工中，还需 ${upgrading[region.id]} 相位`
-                      : `${cleanRegionLabel(region.label)}出现损坏，查看修缮`}
+                    aria-label={`${cleanRegionLabel(region.label)}施工中，还需 ${construction.remainingPhases} 相位`}
                     onClick={(event) => {
                       event.stopPropagation();
                       onOpenRegion(region.id);
                     }}
                   >
                     <RepairIcon />
-                    {isUpgrading && (
-                      <b className="mansion-marker__badge">{upgrading[region.id]}</b>
-                    )}
+                    <b className="mansion-marker__badge">{construction.remainingPhases}</b>
                   </button>
                 )
               });
@@ -337,8 +291,7 @@ export const MansionWorld = memo(function MansionWorld({
             );
           })}
         </div>
-  ), [artwork, sceneRegions, selectedRegionId, hoveredRegionId, readyProduction, production, levels,
-    repairProgress, damaged, upgrading, characterPlacements, roomLights,
+  ), [artwork, sceneRegions, selectedRegionId, hoveredRegionId, readyProduction, production, construction, characterPlacements, roomLights,
     onHoverRegion, onOpenRegion, onCollectProduction, onActivateCharacter]);
   return (
     <main

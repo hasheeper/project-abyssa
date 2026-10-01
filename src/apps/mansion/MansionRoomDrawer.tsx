@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { KeyboardEvent, RefObject } from "react";
 import type { FacilityCommand } from "../../game-core/contracts/facilities";
 import type { FacilitiesView } from "../../game-runtime/facilities-view";
+import { ManorGlyph } from "../../shared/ui/patterns/ManorSection";
 import { IconButton } from "../../shared/ui/primitives/IconButton";
 import { RpgFacetDiamond } from "../../shared/ui/primitives/RpgFacetDiamond";
 import { RpgFrame } from "../../shared/ui/primitives/RpgFrame";
@@ -10,7 +11,6 @@ import type { MansionCharacter, MansionRoomDetail } from "./data";
 import {
   FACILITY_ROOM_GLYPHS,
   FacilityGrade,
-  Glyph,
   MansionFacilityOperation,
   MansionFacilityWorks,
   OVERVIEW_GLYPH,
@@ -156,7 +156,7 @@ export function MansionRoomDrawer({
                   onClick={() => choose(id)}
                   onKeyDown={(event) => moveTab(event, index)}
                 >
-                  <Glyph src={tabGlyph(id)} />
+                  <ManorGlyph className="mansion-room-glyph" src={tabGlyph(id)} />
                   <span>{TAB_LABELS[id]}</span>
                   {ready && <RpgFacetDiamond className="mansion-room-tab__ready" label="" state="current" aria-hidden="true" />}
                 </button>

@@ -10,7 +10,7 @@ const ENTRIES: { term: string; value: string }[] = [
   { term: "RUNTIME", value: "本地存档 · AIRP 浏览器直连" }
 ];
 
-export function AboutSection({ embedded = false }: { embedded?: boolean }) {
+export function AboutSection() {
   return (
     <div className="settings-grid">
       <div className="settings-list">
@@ -38,7 +38,7 @@ export function AboutSection({ embedded = false }: { embedded?: boolean }) {
       </div>
 
       <aside className="settings-side">
-        <span className="settings-side__label">{embedded ? "使用说明" : "NOTES"}</span>
+        <span className="settings-side__label">使用说明</span>
         <p className="settings-note">
           在 Model 页保存模型连接，供 AIRP 使用。普通模式无需连接模型。
           界面动效偏好在本机保存并全局生效，其余演出与显示选项仅用于本页预览。

@@ -220,24 +220,6 @@
 }
 .manor-utility .manor-stat > dd > .manor-quantity + small { margin-left: 5px; }
 
-/* ---- 键位提示(ManorKeys) ---- */
-.manor-utility .manor-keys { display: inline-flex; align-items: center; gap: 22px; color: var(--manor-muted); font-size: var(--manor-type-label); line-height: 1; }
-.manor-utility .manor-keys__hint { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
-.manor-utility .manor-keys__hint > kbd:last-of-type { margin-right: 2px; }
-.manor-utility .manor-keys kbd {
-  display: inline-grid;
-  min-width: 24px;
-  height: 22px;
-  padding: 0 6px;
-  box-sizing: border-box;
-  place-items: center;
-  border: 1px solid var(--manor-edge);
-  background: linear-gradient(180deg, rgb(255 255 255 / 4%), transparent), var(--manor-void);
-  box-shadow: 0 1px 0 rgb(0 0 0 / 50%);
-  color: var(--manor-body);
-  font: var(--manor-type-min)/1 var(--abyssa-font-display);
-}
-
 /* ---- 材质:名牌面板(ManorPanel) ----
    与房间抽屉的「名牌 + 内凹面板」同一配方:双线内框、下沿两角金色刻痕;
    名牌骑在上沿左端,右端斜切,带三点装饰;附件(分页等)骑在上沿右端,

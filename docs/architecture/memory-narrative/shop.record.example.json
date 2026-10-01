@@ -1,0 +1,334 @@
+{
+  "schemaVersion": 1,
+  "kind": "record",
+  "events": [
+    {
+      "id": "demo:shop:visit:1",
+      "definitionId": "shop.first-visit",
+      "title": "初访杂货铺",
+      "sequence": 3,
+      "startedAt": {
+        "day": 1,
+        "phase": "dawn"
+      },
+      "participants": [
+        "kael",
+        "tibby"
+      ],
+      "acts": [
+        {
+          "id": "demo:shop:valuation",
+          "title": "鉴别与来历",
+          "replay": "scene",
+          "slices": [
+            {
+              "id": "demo:shop:nail",
+              "presentation": {
+                "surface": "adv",
+                "opening": {
+                  "background": {
+                    "kind": "asset",
+                    "url": "/src/assets/backgrounds/shop-bg3.jpg"
+                  },
+                  "offstageActorId": "kael",
+                  "initialSlots": {
+                    "right": "tibby"
+                  }
+                }
+              },
+              "steps": [
+                {
+                  "kind": "receipt",
+                  "id": "demo:appraisal",
+                  "operation": "appraise",
+                  "items": [
+                    {
+                      "instanceId": "demo-nail",
+                      "name": "结界钉",
+                      "quantity": 1
+                    }
+                  ],
+                  "moneyDelta": 0,
+                  "source": {
+                    "kind": "authored",
+                    "saveId": "demo-save",
+                    "epoch": "demo-epoch",
+                    "revision": 1,
+                    "factId": "demo-appraise",
+                    "sceneId": "shop-first-visit",
+                    "lineId": "appraise"
+                  }
+                },
+                {
+                  "kind": "content",
+                  "frames": [
+                    {
+                      "id": "shop:shop.visit.valuation.0",
+                      "kind": "dialogue",
+                      "actorId": "tibby",
+                      "text": "是对岸的结界钉。一听声就知道。",
+                      "emotion": "confident",
+                      "stage": [
+                        {
+                          "actorId": "tibby",
+                          "emotion": "confident",
+                          "still": true
+                        }
+                      ],
+                      "source": {
+                        "kind": "authored",
+                        "saveId": "demo-save",
+                        "epoch": "demo-epoch",
+                        "revision": 1,
+                        "factId": "demo-valuation-read",
+                        "sceneId": "shop-first-visit",
+                        "lineId": "shop.visit.valuation.0"
+                      }
+                    },
+                    {
+                      "id": "shop:shop.visit.valuation.1",
+                      "kind": "dialogue",
+                      "actorId": "tibby",
+                      "text": "不过盐一直吃到了芯里的淬火。线是钉不住了。",
+                      "emotion": "serious",
+                      "stage": [
+                        {
+                          "actorId": "tibby",
+                          "emotion": "serious",
+                          "still": true
+                        }
+                      ],
+                      "source": {
+                        "kind": "authored",
+                        "saveId": "demo-save",
+                        "epoch": "demo-epoch",
+                        "revision": 1,
+                        "factId": "demo-valuation-read",
+                        "sceneId": "shop-first-visit",
+                        "lineId": "shop.visit.valuation.1"
+                      }
+                    }
+                  ]
+                }
+              ],
+              "definitionId": "nail.appraisal"
+            }
+          ],
+          "phaseLabel": "查验",
+          "coverage": "partial",
+          "definitionId": "loot.valuation"
+        },
+        {
+          "id": "demo:shop:disposition",
+          "title": "结界钉的去留",
+          "replay": "scene",
+          "slices": [
+            {
+              "id": "demo:shop:keep-nail",
+              "presentation": {
+                "surface": "adv",
+                "opening": {
+                  "background": {
+                    "kind": "asset",
+                    "url": "/src/assets/backgrounds/shop-bg3.jpg"
+                  },
+                  "offstageActorId": "kael",
+                  "initialSlots": {
+                    "right": "tibby"
+                  }
+                }
+              },
+              "steps": [
+                {
+                  "kind": "choice-result",
+                  "id": "demo:shop:choice",
+                  "choiceId": "shop.visit.choice",
+                  "optionId": "B",
+                  "label": "带回去",
+                  "source": {
+                    "kind": "authored",
+                    "saveId": "demo-save",
+                    "epoch": "demo-epoch",
+                    "revision": 2,
+                    "factId": "demo-choice",
+                    "sceneId": "shop-first-visit",
+                    "lineId": "shop.visit.choice"
+                  }
+                },
+                {
+                  "kind": "content",
+                  "frames": [
+                    {
+                      "id": "shop:shop.visit.reply.B",
+                      "kind": "dialogue",
+                      "actorId": "kael",
+                      "text": "带回去。",
+                      "source": {
+                        "kind": "authored",
+                        "saveId": "demo-save",
+                        "epoch": "demo-epoch",
+                        "revision": 3,
+                        "factId": "demo-reply-read",
+                        "sceneId": "shop-first-visit",
+                        "lineId": "shop.visit.reply.B"
+                      }
+                    },
+                    {
+                      "id": "shop:shop.visit.reply.B.page.1",
+                      "kind": "dialogue",
+                      "actorId": "tibby",
+                      "text": "真是怪癖。芯都死了的钉子，也就能当个镇纸。",
+                      "emotion": "wry",
+                      "stage": [
+                        {
+                          "actorId": "tibby",
+                          "emotion": "wry",
+                          "still": true
+                        }
+                      ],
+                      "source": {
+                        "kind": "authored",
+                        "saveId": "demo-save",
+                        "epoch": "demo-epoch",
+                        "revision": 3,
+                        "factId": "demo-reply-read",
+                        "sceneId": "shop-first-visit",
+                        "lineId": "shop.visit.reply.B.page.1"
+                      }
+                    },
+                    {
+                      "id": "shop:shop.visit.reply.B.page.2",
+                      "kind": "dialogue",
+                      "actorId": "kael",
+                      "text": "镇纸就行。",
+                      "source": {
+                        "kind": "authored",
+                        "saveId": "demo-save",
+                        "epoch": "demo-epoch",
+                        "revision": 3,
+                        "factId": "demo-reply-read",
+                        "sceneId": "shop-first-visit",
+                        "lineId": "shop.visit.reply.B.page.2"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "kind": "receipt",
+                  "id": "demo:sale",
+                  "operation": "sell",
+                  "items": [
+                    {
+                      "instanceId": "demo-coins",
+                      "name": "旧十字币",
+                      "quantity": 11
+                    },
+                    {
+                      "instanceId": "demo-token",
+                      "name": "烛火钱木牌",
+                      "quantity": 1
+                    }
+                  ],
+                  "moneyDelta": 1802,
+                  "source": {
+                    "kind": "authored",
+                    "saveId": "demo-save",
+                    "epoch": "demo-epoch",
+                    "revision": 4,
+                    "factId": "demo-sell",
+                    "sceneId": "shop-first-visit",
+                    "lineId": "sell"
+                  }
+                }
+              ],
+              "definitionId": "nail.decision"
+            }
+          ],
+          "phaseLabel": "处置",
+          "coverage": "partial",
+          "definitionId": "nail.disposition"
+        },
+        {
+          "id": "demo:shop:supplies",
+          "title": "下一趟的补给",
+          "replay": "scene",
+          "slices": [
+            {
+              "id": "demo:shop:holy-water-advice",
+              "presentation": {
+                "surface": "adv",
+                "opening": {
+                  "background": {
+                    "kind": "asset",
+                    "url": "/src/assets/backgrounds/shop-bg3.jpg"
+                  },
+                  "offstageActorId": "kael",
+                  "initialSlots": {
+                    "right": "tibby"
+                  }
+                }
+              },
+              "steps": [
+                {
+                  "kind": "content",
+                  "frames": [
+                    {
+                      "id": "shop:shop.visit.purchase.1",
+                      "kind": "dialogue",
+                      "actorId": "tibby",
+                      "text": "听说下回要去克雷格的旧庄园？",
+                      "emotion": "neutral",
+                      "stage": [
+                        {
+                          "actorId": "tibby",
+                          "emotion": "neutral",
+                          "still": true
+                        }
+                      ],
+                      "source": {
+                        "kind": "authored",
+                        "saveId": "demo-save",
+                        "epoch": "demo-epoch",
+                        "revision": 5,
+                        "factId": "demo-purchase-read",
+                        "sceneId": "shop-first-visit",
+                        "lineId": "shop.visit.purchase.1"
+                      }
+                    },
+                    {
+                      "id": "shop:shop.visit.purchase.3",
+                      "kind": "dialogue",
+                      "actorId": "tibby",
+                      "text": "那里的人偶手脚不干净。不想被捆住的话，圣水带上吧。",
+                      "emotion": "neutral",
+                      "stage": [
+                        {
+                          "actorId": "tibby",
+                          "emotion": "neutral",
+                          "still": true
+                        }
+                      ],
+                      "source": {
+                        "kind": "authored",
+                        "saveId": "demo-save",
+                        "epoch": "demo-epoch",
+                        "revision": 5,
+                        "factId": "demo-purchase-read",
+                        "sceneId": "shop-first-visit",
+                        "lineId": "shop.visit.purchase.3"
+                      }
+                    }
+                  ]
+                }
+              ],
+              "definitionId": "next.advice"
+            }
+          ],
+          "phaseLabel": "补给",
+          "coverage": "partial",
+          "definitionId": "next.supplies"
+        }
+      ]
+    }
+  ]
+}

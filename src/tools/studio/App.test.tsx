@@ -55,7 +55,7 @@ describe("Sprite Studio", () => {
     expect((within(dialog).getByRole("textbox") as HTMLTextAreaElement).value).toContain("scale: 1.1,");
 
     fireEvent.click(within(dialog).getByRole("button", { name: "rp.css" }));
-    expect((within(dialog).getByRole("textbox") as HTMLTextAreaElement).value).toContain("--abyssa-rp-doll-h");
+    expect((within(dialog).getByRole("textbox") as HTMLTextAreaElement).value).toContain("无逐角色偏移");
     fireEvent.click(within(dialog).getByRole("button", { name: "emotes.ts" }));
     expect((within(dialog).getByRole("textbox") as HTMLTextAreaElement).value).toContain("EMOTE_PLACEMENT");
   });

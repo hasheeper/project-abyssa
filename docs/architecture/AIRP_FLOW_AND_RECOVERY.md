@@ -1,6 +1,6 @@
 # AIRP 生成反馈、阅读与恢复
 
-更新：2026-09-25。本文合并生成弹窗、后台提示、阅读过渡、日志排版和通知修复的阶段记录，只描述当前主应用行为。
+更新：2026-10-02。本文合并生成弹窗、后台提示、阅读过渡、日志排版和通知修复的阶段记录，只描述当前主应用行为。
 
 ## 1. 同一任务的三种呈现
 
@@ -42,8 +42,8 @@
 - [GenerationFlow](../../src/game-client/airp-generation/GenerationFlow.tsx)：生成／反馈／阅读状态与交接。
 - [GenerationFeedbackScope](../../src/game-client/airp-generation/GenerationFeedbackScope.tsx)、[background-tasks](../../src/game-client/airp-generation/background-tasks.ts)：统一侧栏、任务生命周期与点击约束。
 - [FlowReadingSurface](../../src/game-client/airp-generation/FlowReadingSurface.tsx)、[ReadingControls](../../src/shared/presentation/adv/ReadingControls.tsx)：锁定阅读和通用底栏。
-- [JournalAppraisal](../../src/game-client/JournalAppraisal.tsx)、[DirectorDayLauncher](../../src/game-client/airp-director/DirectorDayLauncher.tsx)：日志内容。
+- [AirpJournalEntries](../../src/game-client/AirpJournalEntries.tsx)、[JournalBrowser](../../src/game-client/JournalBrowser.tsx)、[DirectorDayLauncher](../../src/game-client/airp-director/DirectorDayLauncher.tsx)：日志数据、统一阅读版式与业务入口。
 
 09-25通知问题在修复前已通过测试复现；后台、侧栏、生成、出征门控在本轮再次通过，并验证保存原稿的后处理、保存失败仅重试提交、AVG入口与阅读位置恢复、正式及旧版建档和继续。完整检查范围见[项目状态](../DESIGN_DECISIONS_AND_CURRENT_STATUS.md)，不累加旧批次次数。没有读取用户浏览器存档、实际付费调用或重新进行视觉验收。
 
-相关设计使用Opus咨询，本文描述的是工程最终行为；[日志完整设计原稿](../audits/2026-09-25-journal-layout-opus-v3.md)保留供对照，原答不等于用户已认可最终视觉。
+09-25日志排版曾使用Opus咨询（`c-74193d1b-769e-4781-9e34-c8550a15fd9c`），原答和阶段验证已保存到文档索引列出的外部备份。当前版式由[client日志合同](../../src/game-client/README.md#终局与经历)及正式组件维护；顾问原答不等于用户视觉验收。

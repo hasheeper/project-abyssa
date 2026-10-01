@@ -4,5 +4,3 @@
   opacity: calc(var(--system-item-opacity, 0) * var(--system-item-enabled, 1));
 }
 .abyssa-system-panel[data-system-item-motion] button[data-system-motion-item]:disabled { --system-item-enabled: .4; }
-.abyssa-system-panel[data-system-item-motion] .settings-row[data-disabled] { --system-item-enabled: .5; }
-.settings-app--embedded[data-system-item-motion] .settings-row[data-disabled] { --system-item-enabled: .8; }

@@ -6,7 +6,6 @@ export interface SettingsRowProps {
   /** 西文小标。与 SystemConfigExample 的 strong + small 同构。 */
   caption?: string;
   children: ReactNode;
-  disabled?: boolean;
   className?: string;
 }
 
@@ -24,13 +23,11 @@ export function SettingsRow({
   label,
   caption,
   children,
-  disabled,
   className
 }: SettingsRowProps) {
   return (
     <div
       className={cx("settings-row", className)}
-      data-disabled={disabled || undefined}
     >
       <span className="settings-row__text">
         <strong>{label}</strong>

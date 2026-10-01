@@ -1,9 +1,9 @@
 import type { DirectDriverState } from "../../game-runtime/airp-direct-driver";
 import type { DirectProgressFacts, DirectStage } from "../../game-runtime/airp-direct-progress";
 
-export const directStageLabels: Record<DirectStage, string> = {planning: "大纲", writing: "正文", formatting: "格式化", updater: "读后记忆"};
+const directStageLabels: Record<DirectStage, string> = {planning: "大纲", writing: "正文", formatting: "格式化", updater: "读后记忆"};
 export const stageLabelsFor = (version: number) => (version === 5 || version === 6) ? {...directStageLabels, planning: "创作", writing: "润色"} : directStageLabels;
-export const generationStages = ["planning", "writing", "formatting"] as const;
+const generationStages = ["planning", "writing", "formatting"] as const;
 export type DirectProgress = {
   title: string; note: string | null; detailError: string | null; tone: "quiet" | "active" | "warning";
   primary: "generate" | "update" | "save" | "settings" | null; primaryLabel: string;

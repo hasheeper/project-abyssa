@@ -1,0 +1,122 @@
+{
+  "schemaVersion": 1,
+  "kind": "record",
+  "events": [
+    {
+      "id": "demo:director:event:1",
+      "definitionId": "director.example",
+      "title": "AIRP 事件语法示例",
+      "sequence": 2,
+      "startedAt": {
+        "day": 1,
+        "phase": "dawn"
+      },
+      "participants": [
+        "kael",
+        "elora"
+      ],
+      "acts": [
+        {
+          "id": "demo:director:conversation",
+          "title": "初次交谈",
+          "replay": "scene",
+          "slices": [
+            {
+              "id": "demo:director:conversation:beat",
+              "presentation": {
+                "surface": "adv",
+                "opening": {
+                  "background": {
+                    "kind": "mansion",
+                    "locationId": "elora",
+                    "phase": 0
+                  }
+                }
+              },
+              "steps": [
+                {
+                  "kind": "content",
+                  "frames": [
+                    {
+                      "id": "demo:director:f0",
+                      "kind": "narration",
+                      "text": "已读原文。",
+                      "source": {
+                        "kind": "director",
+                        "saveId": "demo-save",
+                        "epoch": "demo-epoch",
+                        "revision": 2,
+                        "factId": "demo-read:demo:director:f0",
+                        "sceneId": "demo-job:turn:0",
+                        "lineId": "line:0"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "kind": "content",
+                  "frames": [
+                    {
+                      "id": "demo:director:f1",
+                      "kind": "dialogue",
+                      "text": "示例续写正文。",
+                      "source": {
+                        "kind": "director",
+                        "saveId": "demo-save",
+                        "epoch": "demo-epoch",
+                        "revision": 2,
+                        "factId": "demo-read:demo:director:f1",
+                        "sceneId": "demo-job:turn:1",
+                        "lineId": "line:0"
+                      },
+                      "actorId": "elora",
+                      "emotion": "neutral"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "phaseLabel": "接洽",
+          "coverage": "partial"
+        },
+        {
+          "id": "demo:director:report",
+          "title": "行动后的回报",
+          "replay": "text",
+          "slices": [
+            {
+              "id": "demo:director:report:beat",
+              "presentation": {
+                "surface": "text"
+              },
+              "steps": [
+                {
+                  "kind": "content",
+                  "frames": [
+                    {
+                      "id": "demo:director:f2",
+                      "kind": "narration",
+                      "text": "示例反馈正文。",
+                      "source": {
+                        "kind": "director",
+                        "saveId": "demo-save",
+                        "epoch": "demo-epoch",
+                        "revision": 2,
+                        "factId": "demo-read:demo:director:f2",
+                        "sceneId": "demo-job:feedback",
+                        "lineId": "line:0"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "phaseLabel": "反馈",
+          "coverage": "partial"
+        }
+      ]
+    }
+  ]
+}

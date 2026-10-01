@@ -1,5 +1,4 @@
 import { useId } from "react";
-import { Progress } from "../../../shared/ui/primitives/Progress";
 import { useUiMotion } from "../../../shared/ui/motion/UiMotionProvider";
 import { RpgDiamondNodeTrack } from "../../../shared/ui/primitives/RpgDiamondNodeTrack";
 import { RpgRadio } from "../../../shared/ui/primitives/RpgChoice";
@@ -12,18 +11,15 @@ import type { SettingsState } from "../settings-state";
 export interface SectionProps {
   state: SettingsState;
   onChange: (patch: Partial<SettingsState>) => void;
-  embedded?: boolean;
   previewActive?: boolean;
 }
 
 /**
  * 演出 —— 本设置页的核心,对应 rp.html 的实际旋钮。
  *
- * 布局沿用 SystemConfigExample:左侧设置清单 + 右侧竖栏(节点轨 + 读数 +
- * 预览)。打字机预览放右栏而不是塞进左侧清单里 —— 它是这两条滑块的
- * 「结果显示」,与 Progress 在参考里的角色一致。
+ * 左侧设置清单，右侧取景和打字预览；预览呈现两条文字滑块的效果。
  */
-export function PerformanceSection({ state, onChange, embedded = false, previewActive = true }: SectionProps) {
+export function PerformanceSection({ state, onChange, previewActive = true }: SectionProps) {
   const { reduced } = useUiMotion();
   const layoutId = useId();
   return (
@@ -36,7 +32,7 @@ export function PerformanceSection({ state, onChange, embedded = false, previewA
                 <RpgRadio
                   id={`${layoutId}-${option.value}`}
                   name="settings-layout"
-                  variant={embedded && state.layout !== option.value ? "gray" : "teal"}
+                  variant={state.layout !== option.value ? "gray" : "teal"}
                   label={option.label}
                   checked={state.layout === option.value}
                   onCheckedChange={(checked) => {
@@ -112,7 +108,7 @@ export function PerformanceSection({ state, onChange, embedded = false, previewA
 
       <aside className="settings-side">
         <div className="settings-crop">
-        <span className="settings-side__label">{embedded ? "立绘取景" : "PORTRAIT CROP"}</span>
+        <span className="settings-side__label">立绘取景</span>
         {/* 取景是三档有序枚举 —— 正是 RpgDiamondNodeTrack 的用途
             (参考里的 RESPONSE LEVEL 同构),比三个单选钮更贴合。 */}
         <RpgDiamondNodeTrack
@@ -125,15 +121,8 @@ export function PerformanceSection({ state, onChange, embedded = false, previewA
           selectedVariant="teal"
           onValueChange={(value) => onChange({ crop: value as SettingsState["crop"] })}
         />
-        {embedded && <p className="settings-crop__hint">{CROP_OPTIONS.find(option => option.value === state.crop)?.hint}</p>}
+        <p className="settings-crop__hint">{CROP_OPTIONS.find(option => option.value === state.crop)?.hint}</p>
         </div>
-
-        {!embedded && <Progress
-          label="Type speed"
-          value={Math.round(1000 / state.typeStep)}
-          max={250}
-          showValue
-        />}
 
         <TypingPreview
           active={previewActive}

@@ -1,6 +1,6 @@
 # Battle 页面与演出
 
-本目录负责玩家输入、战斗／事件／AVG画面和提交后的演出。当前普通／AIRP新档为**内容25／26、应用与规则4**；旧独立Battle的schema4／rules1／content1只是另一套兼容格式。
+本目录负责玩家输入、战斗／事件／AVG画面和提交后的演出。当前正常新档为**内容28、应用与规则4**，无LLM与商店初见调试为内容27；旧独立Battle的schema4／rules1／content1只是另一套兼容格式。
 
 玩法数值、流程与完成度见[当前机制总览](../../../docs/GAME_SYSTEMS_AND_CONTENT_SPEC.md)，UI基线见[UI_PRESENTATION_BASELINE](UI_PRESENTATION_BASELINE.md)。旧设计日志与工程计划已进[历史档案](../../../docs/archive/README.md)。
 
@@ -35,7 +35,7 @@ UI → controller → game-client → application → core
 | `engine.ts` | 旧规则转发门面，仅兼容／测试；正式入口禁止依赖 |
 | `src/game-core/battle/` | 分版本纯战斗规则、校验、RNG与selectors |
 | `src/game-core/session/` | 远征、房间、资产、成长与结算 |
-| `src/content/gameplay/demo-v25/`、`demo-v26/` | 当前普通／AIRP内容装配；较早版本保留恢复与定义复用 |
+| `src/content/gameplay/demo-v27/`、`demo-v28/` | 调试／正常新档装配；较早版本保留恢复与定义复用 |
 
 ## Command、effect 与 event
 
