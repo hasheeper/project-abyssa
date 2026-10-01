@@ -87,6 +87,32 @@ export function reduceDirectorCommit(catalog: v.ValidatedD5Catalog, previous: v.
       // Preserve every saved scene/cursor. Old departures are never retroactively bound.
       for (const e of state.events) if (singlePathPatrol(e) && e.selected.length &&
         (e.status === "accepted" && e.role === "acceptance" || e.status === "waiting-action" && e.role === "action")) e.actionPhase ??= phase;
+    } else if (command.type === "airp-director-enable-residents") {
+      if (catalog.ref.contentVersion !== 28 || input.after.activeRunRef || state.reading && !state.reading.completed && !state.reading.paused)
+        deny("Resident cast updates require the formal mansion checkpoint");
+      if (state.jobs.some(j => j.attempts.some(a => a.status === "running") || directorStage(j) === "scene-plan"))
+        deny("Finish the frozen scene request before updating resident material");
+      if (state.materialHash && !command.material) deny("Keep the existing model connection with complete resident sources");
+      if (state.materialHash && command.material) {
+        const original = state.materials[state.materialHash];
+        const connection = ({version, preset, orderId, models}: typeof original) => ({version, preset, orderId, models});
+        if (directorHash(connection(original)) !== directorHash(connection(command.material))) deny("Resident registration cannot replace the saved model connection or preset");
+      }
+      const required = [...catalog.data.airpDirector.capabilities.actorIds, ...Object.keys(command.residentCast.locations), "household-guidance"];
+      for (const id of required) {
+        const low = command.lowMaterial.sources.find(s => s.id === id), source = command.material?.resources.sources.find(s => s.id === id);
+        const kind = id === "household-guidance" ? "world" : "character";
+        if (!low || low.kind !== kind || low.sha256 !== v.sha256(low.text) || (kind === "character" && !Object.hasOwn(command.lowMaterial.specials, id)) ||
+          (command.material && (!source || source.kind !== kind || source.sha256 !== low.sha256 || source.text !== low.text)))
+          deny("Resident cast requires matching full originals and guidance");
+      }
+      if (command.material) {
+        const key = directorHash(command.material);
+        state.materials[key] = command.material; state.materialHash = key;
+      }
+      state.residentCast = structuredClone(command.residentCast);
+      state.lowMaterial = structuredClone(command.lowMaterial);
+      state.lowReadVersion = 6; state.lowContextVersion = 21;
     } else if (command.type === "airp-director-configure") {
       if (state.jobs.some(j => j.attempts.some(a => a.status === "running"))) deny("Cannot replace configuration during a request");
       if (command.residentCast) {
@@ -118,7 +144,7 @@ export function reduceDirectorCommit(catalog: v.ValidatedD5Catalog, previous: v.
     } else if (command.type === "airp-director-prepare-day" || command.type === "airp-director-prepare-replan") {
       const today = state.days.find(d => d.day === day), replan = command.type === "airp-director-prepare-replan";
       const replaces = replan ? state.events.filter(e => today?.entryIds.includes(e.id) && e.publishedPhase === null && ["planned", "cancelled"].includes(e.status)).map(e => e.id) : [];
-      if (!airpEligible(input.after) || (replan ? !today || !replaces.length : !!today)) deny("Only an unplanned checkpoint or an unpublished plan remainder can be arranged");
+      if (!airpEligible(input.after, catalog) || (replan ? !today || !replaces.length : !!today)) deny("Only an unplanned checkpoint or an unpublished plan remainder can be arranged");
       const priorJobs = state.jobs.filter(j => j.kind === "day" && j.planning?.budget.day === day);
       if (priorJobs.some(j => j.attempts.some(a => a.status === "running")) || priorJobs.length >= 3) deny("Day revision limit or request in flight; original outputs retained");
       const job = newJob(`director-day:${day}:${priorJobs.length + 1}`, state);
@@ -370,7 +396,7 @@ export function reduceDirectorCommit(catalog: v.ValidatedD5Catalog, previous: v.
       if (state.reading?.eventId === e.id) state.reading = null;
     }
   }
-  if (airpEligible(input.after)) for (const e of state.events) {
+  if (airpEligible(input.after, catalog)) for (const e of state.events) {
     if (e.status !== "planned" || phase < e.fromPhase || phase > e.throughPhase) continue;
     const c = context();
     if (c.world.busyFocus || c.world.requiredStoryIds.length || ongoingDirectorEventForActor(state, e)) continue;

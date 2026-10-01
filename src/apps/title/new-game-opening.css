@@ -13,6 +13,7 @@
 .new-game-opening__heading.scene-loading-title { margin: 0 0 18px; font-size: 21px; line-height: 28px; text-align: left; }
 /* This is an animated mask, never a scroll area (including focus-driven scrolling). */
 .new-game-opening__body { overflow: clip; }
+.new-game-opening__measure { display: flow-root; }
 .new-game-opening__naming input {
   display: block; width: 100%; height: 50px; padding: 8px 12px;
   border: 0; border-bottom: 1px solid #3d5654; border-radius: 0;

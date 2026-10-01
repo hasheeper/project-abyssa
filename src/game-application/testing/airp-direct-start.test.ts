@@ -3,7 +3,7 @@ import { MemoryGameDatabase, MemoryGameStore } from "../../game-infrastructure/s
 import { createPlayerRuntime } from "../../game-runtime/player-runtime";
 import { AIRP_DIRECT_CATALOG } from "../../game-runtime/airp-direct-context";
 import { COPPER_ECONOMY_CATALOG } from "../../game-runtime/copper-economy-context";
-import { validateD5Catalog } from "../../game-core/contracts";
+import { canonicalJson, sha256, validateD5Catalog } from "../../game-core/contracts";
 import type { AnyGameRecord, AnyReceipt, D5Command } from "../index";
 
 export function directStartFixture() {
@@ -24,7 +24,11 @@ export function directStartFixture() {
 describe("content18 explicit AIRP start", () => {
   it("replays access without inventing a first clear, acceptance, return or memory", async () => {
     const f = directStartFixture();
-    expect(await f.runtime.application.createNewGame({...f.request, startAt: "airp-demo", playerName: "林恩"})).toMatchObject({ok: true});
+    // Frozen historical fixture: production shortcuts now create content28.
+    const create = {protocolVersion: 4 as const, profileId: AIRP_DIRECT_CATALOG.data.journey!.defaultProfileId, ...f.request};
+    expect(await f.runtime.application.create({...create, contentVersion: 18})).toMatchObject({ok: true});
+    expect(await f.runtime.application.dispatch({protocolVersion: 4, saveId: f.request.saveId, expectedHead: (await f.read()).head,
+      clientRequestId: `start:${sha256(canonicalJson(create)).slice(0, 32)}`, command: {type: "select-game-start", startAt: "airp-demo", playerName: "林恩"}})).toMatchObject({ok: true});
     const r = await f.read(), c = r.snapshot.campaign;
     expect(r.contentRef).toEqual(AIRP_DIRECT_CATALOG.ref);
     expect(c.airpDemoStart).toEqual({...AIRP_DIRECT_CATALOG.data.airpDirect!.demoStart, claimId: r.facts.at(-1)!.id});
@@ -53,12 +57,12 @@ describe("content18 explicit AIRP start", () => {
     expect((await f.read()).snapshot.run?.kind).toBe("expedition");
   });
 
-  it("keeps the ordinary default separate and rejects direct capability and start on old content", async () => {
+  it("uses the current default and rejects direct capability and start on incompatible historical content", async () => {
     const f = directStartFixture();
-    expect(f.runtime.defaultCreation.contentVersion).toBe(23);
+    expect(f.runtime.defaultCreation.contentVersion).toBe(28);
     expect(() => validateD5Catalog({...COPPER_ECONOMY_CATALOG.data, airpDirect: AIRP_DIRECT_CATALOG.data.airpDirect})).toThrow();
     expect(() => validateD5Catalog({...AIRP_DIRECT_CATALOG.data, airpOnline: {version: 1}})).toThrow();
-    expect(await f.runtime.application.create({...f.runtime.defaultCreation, ...f.request})).toMatchObject({ok: true});
+    expect(await f.runtime.application.create({...f.runtime.defaultCreation, contentVersion: COPPER_ECONOMY_CATALOG.ref.contentVersion, ...f.request})).toMatchObject({ok: true});
     expect(await f.send({type: "select-game-start", startAt: "airp-demo"})).toMatchObject({ok: false, error: {code: "content-unavailable"}});
     expect(await f.send({type: "select-game-start", startAt: "hub"})).toMatchObject({ok: true});
     const r = await f.read();

@@ -1,0 +1,144 @@
+.memory-act-picker { position: relative; }
+.memory-act-picker__trigger {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  min-height: 44px;
+  padding: 8px 0;
+  border: 0;
+  background: none;
+  color: #99a699;
+  font: 14px/1.5 var(--abyssa-font-body);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color var(--abyssa-motion-hover);
+}
+.memory-act-picker__trigger > strong {
+  color: #c9c5ad;
+  font: 400 21px/1 var(--abyssa-font-display);
+  font-variant-numeric: tabular-nums;
+  transition: color var(--abyssa-motion-hover);
+}
+.memory-act-picker__trigger::after {
+  content: "";
+  position: absolute;
+  left: -4px;
+  right: -4px;
+  bottom: 3px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #b7b697 28%, rgb(183 182 151 / 48%) 76%, transparent);
+  opacity: 0;
+  transition: opacity var(--abyssa-motion-hover);
+  pointer-events: none;
+}
+.memory-act-picker__caret {
+  align-self: center;
+  width: 6px;
+  height: 6px;
+  margin: -4px 2px 0 6px;
+  border-right: 1px solid currentColor;
+  border-bottom: 1px solid currentColor;
+  rotate: 45deg;
+  opacity: .7;
+  transition: rotate var(--abyssa-motion-hover), opacity var(--abyssa-motion-hover);
+}
+.memory-act-picker__trigger:disabled { cursor: default; }
+.memory-act-picker__trigger:disabled > .memory-act-picker__caret { visibility: hidden; }
+.memory-act-picker__trigger:is(:hover, :focus-visible, [aria-expanded="true"]):not(:disabled) { color: #d2ceb5; }
+.memory-act-picker__trigger:is(:hover, :focus-visible, [aria-expanded="true"]):not(:disabled) > strong { color: #e1d9be; }
+.memory-act-picker__trigger:is(:hover, [aria-expanded="true"]):not(:disabled)::after { opacity: .55; }
+.memory-act-picker__trigger:focus-visible { outline: none; }
+.memory-act-picker__trigger:focus-visible::after { opacity: 1; }
+.memory-act-picker__trigger[aria-expanded="true"] > .memory-act-picker__caret { rotate: 225deg; opacity: 1; }
+
+/* The date editor and scene feedback share this feathered, sharp-scene backing. */
+.memory-act-picker__list.scene-feedback__surface {
+  --feedback-edge-inline: 32px;
+  --feedback-edge-block: 18px;
+  position: absolute;
+  z-index: 20;
+  left: -28px;
+  bottom: calc(100% + 12px);
+  width: 320px;
+  max-width: none;
+  padding: 18px 24px;
+  border: 0;
+  background: none;
+  box-shadow: none;
+}
+.memory-act-picker__list.scene-feedback__surface::before {
+  /* Extend the feathered depth beyond the options so fragments of the open
+     transcript do not read as prefixes or suffixes of an act title. */
+  --feedback-edge-inline: 52px;
+  inset: -8px -72px -8px -88px;
+  background: rgb(10 18 19 / 92%);
+}
+.memory-act-picker__list.scene-feedback__surface::after {
+  background:
+    linear-gradient(90deg, transparent 5%, rgb(180 191 174 / 25%) 30%, rgb(180 191 174 / 10%) 78%, transparent 95%) top / 100% 1px no-repeat,
+    linear-gradient(90deg, transparent 5%, rgb(180 191 174 / 12%) 40%, transparent 95%) bottom / 100% 1px no-repeat;
+}
+.memory-act-picker__items {
+  max-height: 254px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgb(136 157 143 / 28%) transparent;
+}
+.memory-act-picker__items > button {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  width: 100%;
+  min-height: 48px;
+  padding: 11px 14px;
+  border: 0;
+  background: none;
+  color: #a6b0a8;
+  font: 16px/1.5 var(--abyssa-font-body);
+  text-align: left;
+  cursor: pointer;
+  transition: color var(--abyssa-motion-hover);
+}
+.memory-act-picker__items > button::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background: linear-gradient(90deg, rgb(182 193 163 / 12%), rgb(152 172 152 / 5%) 68%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 20px, #000 58%, transparent 96%),
+    linear-gradient(180deg, transparent, #000 8px, #000 calc(100% - 8px), transparent);
+  mask-composite: intersect;
+  opacity: 0;
+  transition: opacity var(--abyssa-motion-hover);
+  pointer-events: none;
+}
+.memory-act-picker__items > button::after {
+  content: "";
+  position: absolute;
+  left: 2px;
+  top: 14px;
+  bottom: 14px;
+  width: 1px;
+  background: linear-gradient(180deg, transparent, #c9bea0 30% 70%, transparent);
+  opacity: 0;
+  transition: opacity var(--abyssa-motion-hover);
+  pointer-events: none;
+}
+.memory-act-picker__number { flex: 0 0 27px; color: #7f9185; font: 400 20px/1.2 var(--abyssa-font-display); font-variant-numeric: tabular-nums; transition: color var(--abyssa-motion-hover); }
+.memory-act-picker__title { flex: 1; }
+.memory-act-picker__items > button > small { flex-shrink: 0; font-size: 11px; color: #7e8e82; }
+.memory-act-picker__items > button[aria-pressed="true"] { color: #d8d1b9; }
+.memory-act-picker__items > button[aria-pressed="true"] > .memory-act-picker__number { color: #c6bd9f; }
+.memory-act-picker__items > button[aria-pressed="true"]::before { opacity: .75; }
+.memory-act-picker__items > button[aria-pressed="true"]::after { opacity: .75; }
+.memory-act-picker__items > button:is(:hover, :focus-visible) { color: #e3dcc2; }
+.memory-act-picker__items > button:is(:hover, :focus-visible) > .memory-act-picker__number { color: #d0c7ac; }
+.memory-act-picker__items > button:is(:hover, :focus-visible)::before { opacity: 1; }
+.memory-act-picker__items > button:focus-visible { outline: none; }
+.memory-act-picker__items > button:focus-visible::after { opacity: 1; }
+.memory-act-picker[data-ui-motion="reduced"] * { transition: none; }
+@media (prefers-reduced-motion: reduce) { .memory-act-picker * { transition: none; } }

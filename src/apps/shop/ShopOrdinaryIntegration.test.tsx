@@ -6,6 +6,7 @@ import { SceneTransitionProvider } from "../../shared/transition";
 import { UiMotionProvider } from "../../shared/ui/motion/UiMotionProvider";
 import { shopLootPresentation } from "../../content/presentation/shop-loot";
 import { ShopPage } from "./ShopPage";
+import { newGameFixture } from "../../game-client/testing/new-game";
 
 let session: GameSession;
 vi.mock("../../game-client/react", async original => {
@@ -14,6 +15,33 @@ vi.mock("../../game-client/react", async original => {
 });
 vi.mock("../../game-client/shop/entrance-assets", () => ({prepareNewShopAssets: () => Promise.resolve()}));
 afterEach(() => {cleanup(); session?.dispose(); sessionStorage.clear();});
+
+it("opens the ordinary counter from free play and retains the tutorial item's appraisal dialogue", async () => {
+  const f = newGameFixture(), locator = {saveId: "free-shop", epoch: "free-shop-epoch"};
+  expect(await f.runtime.application.createNewGame({...locator, clientRequestId: "free-shop-create", startAt: "hub"})).toMatchObject({ok: true});
+  const record = f.db.records.get(locator.saveId)!;
+  const shop = f.runtime.queries.shop(record)!;
+  expect(shop.introduction).toBeNull();
+  expect(shop.firstVisit).toBeNull();
+  const nail = shop.loot!.items.find(item => item.definitionId === "loot.tutorial.barrier-nail")!;
+  expect(nail).toMatchObject({resultId: null, appraisalFee: 0});
+  session = new GameSession(f.runtime, locator, sessionStorage);
+  await session.refresh(); location.hash = "#/shop";
+  render(<UiMotionProvider preference="reduced"><SceneTransitionProvider><ShopPage/></SceneTransitionProvider></UiMotionProvider>);
+  fireEvent.click(await screen.findByRole("tab", {name: "鉴定"}));
+  const art = shopLootPresentation[nail.definitionId];
+  fireEvent.click(screen.getByRole("option", {name: art.unknownName}));
+  fireEvent.click(screen.getByRole("button", {name: "鉴定"}));
+  await waitFor(() => expect(screen.getByRole("heading", {name: art.name})).toBeInTheDocument(), {timeout: 15000});
+  expect(await screen.findByText(art.appraisal[0].text)).toBeInTheDocument();
+  const after = session.getSnapshot().record!;
+  expect(after.snapshot.campaign.funds.party).toBe(shop.funds);
+  expect(f.runtime.queries.shop(after)!.loot!.history).toMatchObject([{kind: "appraise", gold: 0}]);
+  if (after.schemaVersion !== 4) throw Error("Expected current save");
+  expect(after.snapshot.campaign.shopVisit).toBeUndefined();
+  expect(after.facts.some(fact => fact.kind === "progression" && fact.payload.type === "shop-visit-operated")).toBe(false);
+  expect(await f.runtime.application.open(locator.saveId)).toMatchObject({ok: true});
+}, 30000);
 
 it("trades earned content-21 stacks and a paid curio after completing the first SHOP visit", async () => {
   const f = await startOrdinaryDrops("tide-reef.ordinary");

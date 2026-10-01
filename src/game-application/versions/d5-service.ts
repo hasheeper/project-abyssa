@@ -20,6 +20,7 @@ import { airpCommandPayload } from "./airp-replay";
 import { parseAirpOnlineIntent, reduceAirpApplicationCommit } from "../airp/gameplay";
 import { parseAirpDirectIntent } from "../airp-direct-gameplay/parse";
 import { parseDirectorIntent } from "../airp-director/parse";
+import { carriesDirectorGMBaseline } from "../airp-director/contracts";
 import { guardAirpGameCommand } from "../airp-game/validation";
 import { rebaseAirpGame } from "../airp-game/projection";
 import { projectGMShare, readGMShare, sameGMShareContent } from "../airp-game/gm-share";
@@ -80,7 +81,7 @@ export function createD5Application(catalog: ValidatedD5Catalog, store: D5Store,
       let event: D5ProgressEvent | null = null, combat: D5CombatEvidence | undefined, journey: D5JourneyEvidence | undefined;
       const online = command.type.startsWith("airp-online-") ? parseAirpOnlineIntent({ version: 1, command }) : undefined;
       const director = command.type.startsWith("airp-director-") ? parseDirectorIntent({version: 1, command}) : undefined;
-      if (director && command.type === "airp-director-configure" && (command.lowContextVersion ?? 0) >= 17) {
+      if (director && carriesDirectorGMBaseline(director.command)) {
         const share = projectGMShare(current), previous = readGMShare(current.facts, current.retractedFactIds);
         if (!previous || !sameGMShareContent(previous, share)) director.gmShare = share;
       }

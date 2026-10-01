@@ -1,4 +1,4 @@
-import { FACILITIES_CATALOG } from "../../game-runtime/facilities-context";
+import { ESTATE_AIRP_CATALOG } from "../../game-runtime/estate-context";
 import { describe, expect, it } from "vitest";
 import { MemoryGameDatabase, MemoryGameStore } from "../../game-infrastructure/storage/memory";
 import { createPlayerRuntime, type GameStartPoint } from "../../game-runtime/player-runtime";
@@ -23,7 +23,7 @@ function fixture() {
 }
 
 describe("new-game starting points", () => {
-  it.each<GameStartPoint>(["prologue", "first-morning", "tutorial", "hub", "debug-shop"])("keeps the named %s start through replay, backup recovery and copy", async startAt => {
+  it.each<GameStartPoint>(["prologue", "first-morning", "tutorial", "hub", "debug-shop", "debug-offline"])("keeps the named %s start through replay, backup recovery and copy", async startAt => {
     const f = fixture(), request = {...f.request, startAt, playerName: "林恩"};
     expect(await f.runtime.application.createNewGame(request)).toMatchObject({ok: true});
     const record = await f.read();
@@ -39,13 +39,10 @@ describe("new-game starting points", () => {
     expect(await recovery.runtime.application.restoreSave({archive: archive.archive, clientRequestId: "restore"})).toMatchObject({ok: true});
     expect(await recovery.read()).toEqual(record);
     const copied = await f.runtime.application.importSave({saveId: "copy", epoch: "copy-epoch", clientRequestId: "copy", archive: archive.archive});
-    if (startAt === "prologue" || startAt === "first-morning") {
-      // Existing active-story copy protection remains; exact backup recovery above is permitted.
-      expect(copied).toMatchObject({ok: false, error: {code: "run-active"}});
-    } else {
-      expect(copied).toMatchObject({ok: true});
-      expect((await f.read("copy")).snapshot.campaign.playerName).toBe("林恩");
-    }
+    // Normal starts carry the formal director. Identity recovery uses
+    // restoreSave above; the existing cross-identity AIRP copy gate still applies.
+    if (record.airpDirector) expect(copied).toMatchObject({ok: false, error: {code: "content-unavailable"}});
+    else expect(copied).toMatchObject({ok: true});
   });
 
   it("rejects invalid names before creating any save", async () => {
@@ -70,6 +67,7 @@ describe("new-game starting points", () => {
     expect(c.loot).toHaveLength(4);
     expect(f.runtime.queries.startReward(before)).toMatchObject({gold: 4400});
     expect(f.runtime.queries.shop(before)?.introduction).toMatchObject({step: 0, lastStep: 3});
+    expect(f.runtime.queries.shop(before)?.firstVisit).toEqual({progress: null, canBegin: true});
     for (let step = 0; step <= 3; step++) {
       expect(await f.send({type: "advance-shop-introduction", shopId: "shop.mansion", step, choice: "continue"})).toMatchObject({ok: true});
     }
@@ -95,7 +93,7 @@ describe("new-game starting points", () => {
     expect(await f.runtime.application.createNewGame({...f.request, startAt})).toMatchObject({ok: true});
     const record = await f.read(), c = record.snapshot.campaign;
     expect(record.head.revision).toBe(1);
-    expect(record.contentRef.contentVersion).toBe(25);
+    expect(record.contentRef.contentVersion).toBe(28);
     expect(c.loot).toHaveLength(startAt === "hub" ? 4 : 0);
     expect(c.funds.party).toBe(startAt === "hub" ? 4400 : 0);
     expect(c.supplies.map(s => [s.definitionId, s.charges])).toEqual(startAt === "hub" ? [["item.food", 3], ["item.potion", 2]] : []);
@@ -112,8 +110,8 @@ describe("new-game starting points", () => {
     expect(c.shopIntroduction).toEqual({step: 0, status: startAt === "hub" ? "exempt" : "pending"});
     expect(f.runtime.queries.shop(record)?.introduction).toBeNull();
     expect(c.tutorial).toEqual(startAt === "hub" ? {status: "exempt", reason: "player-skipped"} : {status: "pending"});
-    const {prologue: _p, opening: _o, tutorial: _t, funds: _f, supplies: _s, loot: _l, startReward: _r, shopIntroduction: _si, shop: _shop, facilities: _facilities, ...world} = c;
-    const {prologue: _ip, opening: _io, tutorial: _it, funds: _if, supplies: _is, loot: _il, shopIntroduction: _isi, shop: _initialShop, facilities: _initialFacilities, ...initial} = initialD5Projection(FACILITIES_CATALOG);
+    const {prologue: _p, opening: _o, tutorial: _t, funds: _f, supplies: _s, loot: _l, startReward: _r, openingFlowVersion: _of, shopIntroduction: _si, shop: _shop, facilities: _facilities, ...world} = c;
+    const {prologue: _ip, opening: _io, tutorial: _it, funds: _if, supplies: _is, loot: _il, shopIntroduction: _isi, shop: _initialShop, facilities: _initialFacilities, ...initial} = initialD5Projection(ESTATE_AIRP_CATALOG);
     expect(c.shop).toMatchObject({day: 1, offers: [], purchases: {}});
     expect(world).toEqual(initial);
     expect(!!c.facilities).toBe(startAt === "hub");
@@ -129,21 +127,23 @@ describe("new-game starting points", () => {
     expect(await recovery.read()).toEqual(record);
   });
 
-  it("starts the fixed tutorial normally and permits a hub departure from real stock", async () => {
+  it("starts the authored tutorial directly and requires a proven AIRP arrangement for free departures", async () => {
     for (const startAt of ["tutorial", "hub"] as const) {
       const f = fixture(), spec = GUIDED_TIDE_CATALOG.data.tutorial!;
       await f.runtime.application.createNewGame({...f.request, startAt});
       expect(await f.send({type: "start-expedition", runId: "first-run", routeId: startAt === "tutorial" ? spec.routeId : "old-manor.first-clear",
-        partyIds: spec.partyIds, itemIds: spec.itemIds, ...(startAt === "hub" ? {supplyQuantities: {"item.food": 3, "item.potion": 2}} : {}), seed: 19})).toMatchObject({ok: true});
+        partyIds: spec.partyIds, itemIds: spec.itemIds, ...(startAt === "hub" ? {supplyQuantities: {"item.food": 3, "item.potion": 2}} : {}), seed: 19})).toMatchObject({ok: startAt === "tutorial"});
+      if (startAt === "hub") {
+        expect((await f.read()).snapshot.run).toBeNull();
+        continue;
+      }
       const r = await f.read();
       expect(r.snapshot.campaign.settlements).toEqual([]);
-      expect(r.snapshot.campaign.funds.party).toBe(startAt === "hub" ? 4400 : 0);
+      expect(r.snapshot.campaign.funds.party).toBe(0);
       expect(r.snapshot.run?.kind).toBe("expedition");
       if (r.snapshot.run?.kind !== "expedition") throw Error("run");
       expect(r.snapshot.run.state.run.supplies).toHaveLength(spec.itemIds.length);
-      if (startAt === "tutorial") {
-        expect(r.snapshot.run.state.tutorial).toMatchObject({stage: "story", story: {id: "S3-1", step: 0}, guide: {mode: "guided", cursor: 0}});
-      } else expect(r.snapshot.run.state.tutorial).toBeUndefined();
+      expect(r.snapshot.run.state.tutorial).toMatchObject({stage: "story", story: {id: "S3-1", step: 0}, guide: {mode: "guided", cursor: 0}});
     }
   });
 
@@ -167,7 +167,8 @@ describe("new-game starting points", () => {
     expect(await f.send({type: "select-game-start", startAt: "hub"})).toMatchObject({ok: false, error: {code: "content-unavailable"}});
     expect(await f.read()).toEqual(before);
     const fresh = fixture();
-    await fresh.runtime.application.createNewGame({...fresh.request, startAt: "hub"});
+    await fresh.runtime.application.create({...fresh.runtime.defaultCreation, ...fresh.request, contentVersion: 27});
+    await fresh.send({type: "select-game-start", startAt: "hub"});
     const archive = await fresh.runtime.application.exportSave(fresh.request.saveId);
     if (!archive.ok) throw Error("export");
     expect(await fresh.runtime.application.importSave({saveId: "copy", epoch: "copy-epoch", clientRequestId: "copy", archive: archive.archive})).toMatchObject({ok: true});

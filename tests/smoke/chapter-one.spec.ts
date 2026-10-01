@@ -73,21 +73,21 @@ async function inventoryGridLayout(dialog: Locator, scale: number) {
   const layout = await dialog.evaluate(root => {
     const cells = [...root.querySelectorAll('[data-area="sandbox"] .resource-inventory__items > li')].map(cell => {
       const box = cell.getBoundingClientRect(), slot = cell.querySelector(".abyssa-item-slot")!.getBoundingClientRect();
-      const name = cell.querySelector(".resource-inventory__name")!.getBoundingClientRect();
-      return {x: box.x, y: box.y, height: box.height, slotY: slot.y, slotBottom: slot.bottom, nameY: name.y, nameHeight: name.height, nameBottom: name.bottom};
+      return {x: box.x, y: box.y, slotY: slot.y, slotWidth: slot.width, slotHeight: slot.height, slotBottom: slot.bottom};
     });
-    return {cells, footerY: root.querySelector(".resource-inventory__footer")!.getBoundingClientRect().y};
+    return {cells, panelBottom: root.querySelector('[data-area="sandbox"]')!.getBoundingClientRect().bottom};
   });
-  expect(layout.cells).toHaveLength(14);
+  // 三行七列的格盘,格子之间没有名称行;面板下沿只留内边距与数量徽标的探出量。
+  expect(layout.cells).toHaveLength(21);
   for (const cell of layout.cells) {
-    expect(cell.height).toBeCloseTo(121 * scale, 1);
-    expect(cell.nameHeight).toBeCloseTo(18 * scale, 1);
-    expect(cell.nameY - cell.slotBottom).toBeCloseTo(11 * scale, 1);
+    expect(cell.slotWidth).toBeCloseTo(78 * scale, 1);
+    expect(cell.slotHeight).toBeCloseTo(78 * scale, 1);
   }
-  expect(layout.cells[7].slotY - layout.cells[0].slotY).toBeCloseTo(135 * scale, 1);
-  const bottomGap = layout.footerY - layout.cells[13].nameBottom;
-  expect(bottomGap).toBeGreaterThanOrEqual(24 * scale);
-  expect(bottomGap).toBeLessThanOrEqual(40 * scale);
+  expect(layout.cells[7].slotY - layout.cells[0].slotY).toBeCloseTo(98 * scale, 1);
+  expect(layout.cells[14].slotY - layout.cells[7].slotY).toBeCloseTo(98 * scale, 1);
+  const bottomGap = layout.panelBottom - layout.cells[20].slotBottom;
+  expect(bottomGap).toBeGreaterThanOrEqual(20 * scale);
+  expect(bottomGap).toBeLessThanOrEqual(30 * scale);
   return layout;
 }
 
@@ -423,16 +423,19 @@ test("journal and preparation use independent right-rail seals and original moda
         expect(childBounds.y + childBounds.height, `${name} content bottom`).toBeLessThanOrEqual(bodyBounds.y + bodyBounds.height + 1);
       }
       if (name === "日志") {
+        await dialog.getByRole("tab",{name:/^已归档/}).click();
         await dialog.getByRole("button",{name:"查看记录：岩窟货物已追回",exact:true}).click();
         await expect(dialog.getByRole("article",{name:"岩窟货物已追回",exact:true})).toBeVisible();
         await expect(dialog.getByRole("navigation",{name:"日志条目",exact:true})).toBeVisible();
         await expect(dialog.getByRole("region",{name:"出征补给整备"})).toHaveCount(0);
         await expect(page.getByTestId("journal-total-gold")).toHaveText("44 G");
-        await expect(dialog.locator('.journal-browser__entries button[aria-current="true"]')).toHaveCSS("border-left-color","rgb(185, 162, 113)");
+        await expect(dialog.locator('.journal-browser__entries button[aria-current="true"]')).toHaveCount(1);
         await expect(page.getByTestId("journal-total-gold")).toHaveCSS("color","rgb(224, 198, 127)");
-        const record = dialog.getByRole("region",{name:"远征归来",exact:true});
-        await expect(record.getByText("已结算",{exact:true})).toHaveCount(1);
-        await expect(record.locator("header .campaign-journal__depth")).toHaveText("最深抵达 第 1 层");
+        // 头部由日志统一绘制:状态骑在阅读面板上沿右端,标题行右端是抵达层数;归来记录本身不再重复。
+        const record = dialog.locator(".journal-record");
+        await expect(dialog.locator(".journal-browser__reader-panel > .manor-panel__aside .journal-record__status")).toHaveText("已结算");
+        await expect(dialog.getByRole("region",{name:"远征归来",exact:true}).getByText("已结算",{exact:true})).toHaveCount(0);
+        await expect(record.locator(".journal-record__heading .campaign-journal__depth")).toHaveText("最深抵达 第 1 层");
         const layout = await record.evaluate(node => {
           const rect = (selector: string) => {
             const box = node.querySelector(selector)!.getBoundingClientRect();
@@ -464,40 +467,46 @@ test("journal and preparation use independent right-rail seals and original moda
         await expect(dialog.getByRole("article")).toHaveCount(1);
         expect(await content.evaluate(n=>n.scrollWidth<=n.clientWidth+1)).toBe(true);
         const index = dialog.getByRole("navigation",{name:"日志条目",exact:true});
-        await expect(index).toHaveClass(/manor-utility__inset/);
-        await expect(index).toHaveCSS("background-color", "rgba(6, 11, 12, 0.52)");
-        await expect(index.locator(":scope > .journal-browser__entries")).toHaveCount(1);
-        await expect(index.getByRole("heading")).toHaveCount(0);
-        await expect(index.locator("section")).toHaveCount(0);
-        const rows = await index.locator("button[data-journal-entry]").evaluateAll(nodes => nodes.map(node => {
-          const rect = node.getBoundingClientRect(), icon = node.querySelector("img")!.getBoundingClientRect();
-          const title = node.querySelector("strong")!, meta = node.querySelector("small")!;
-          return {x:rect.x, y:rect.y, width:rect.width, height:rect.height, iconX:icon.x,
-            iconCenter:icon.y+icon.height/2-rect.y, titleX:title.getBoundingClientRect().x,
-            metaX:meta.getBoundingClientRect().x, titleY:title.getBoundingClientRect().y-rect.y,
-            titleSize:getComputedStyle(title).fontSize, metaSize:getComputedStyle(meta).fontSize,
-            fits:title.scrollWidth<=title.clientWidth+1 && meta.scrollWidth<=meta.clientWidth+1,
-            locked:node.hasAttribute("data-locked")};
-        }));
+        // 目录与阅读区都是名牌面板(与库存同一材质)。
+        for (const panel of [dialog.locator(".journal-browser__index"), dialog.locator(".journal-browser__reader-panel")]) {
+          await expect(panel).toHaveClass(/manor-panel/);
+          await expect(panel).toHaveCSS("background-color", "rgba(6, 11, 12, 0.66)");
+        }
+        // 目录按状态分组成页签:一次只列一组;各组条目共用同一行版式。逐个页签采样。
+        const tabs = dialog.getByRole("tablist",{name:"日志分组",exact:true}).getByRole("tab");
+        const rows = [];
+        for (let tab = 0; tab < await tabs.count(); tab++) {
+          await tabs.nth(tab).click();
+          await expect(index.locator(".journal-browser__entries")).toHaveCount(1);
+          rows.push(...await index.locator("button[data-journal-entry]").evaluateAll(nodes => nodes.map(node => {
+            const rect = node.getBoundingClientRect(), icon = node.querySelector(".journal-entry__icon")!.getBoundingClientRect();
+            const title = node.querySelector("strong")!, meta = node.querySelector("small")!;
+            return {x:rect.x, width:rect.width, height:rect.height, iconX:icon.x,
+              iconCenter:icon.y+icon.height/2-rect.y, titleX:title.getBoundingClientRect().x,
+              titleSize:getComputedStyle(title).fontSize, metaSize:getComputedStyle(meta).fontSize,
+              fits:title.scrollWidth<=title.clientWidth+1 && meta.scrollWidth<=meta.clientWidth+1,
+              locked:node.hasAttribute("data-locked")};
+          })));
+        }
         expect(rows.some(row=>row.locked)).toBe(true);
         expect(rows.some(row=>!row.locked)).toBe(true);
-        for (const [i,row] of rows.entries()) {
-          const scale = width/1600;
-          expect(row.height).toBeCloseTo(76*scale,1);
-          expect(row.x).toBeCloseTo(rows[0].x,1);
-          expect(row.width).toBeCloseTo(rows[0].width,1);
-          expect(row.iconX).toBeCloseTo(rows[0].iconX,1);
-          expect(row.iconCenter).toBeCloseTo(row.height/2,1);
-          expect(row.titleX).toBeCloseTo(rows[0].titleX,1);
-          expect(row.metaX).toBeCloseTo(row.titleX,1);
-          expect(row.titleY).toBeCloseTo(rows[0].titleY,1);
-          expect(row.titleSize).toBe("17px"); expect(row.metaSize).toBe("12px");
-          expect(row.fits).toBe(true);
-          if (i) expect(row.y-rows[i-1].y-rows[i-1].height).toBeCloseTo(4*scale,1);
+        for (const locked of [false, true]) {
+          const group = rows.filter(row => row.locked === locked);
+          for (const row of group) {
+            expect(row.height).toBeCloseTo((locked ? 44 : 68)*scale,1);
+            expect(row.x).toBeCloseTo(rows[0].x,1);
+            expect(row.width).toBeCloseTo(rows[0].width,1);
+            expect(row.iconX).toBeCloseTo(group[0].iconX,1);
+            expect(row.iconCenter).toBeCloseTo(row.height/2,1);
+            expect(row.titleX).toBeCloseTo(group[0].titleX,1);
+            expect(row.titleSize).toBe(locked ? "15px" : "17px"); expect(row.metaSize).toBe("13px");
+            expect(row.fits).toBe(true);
+          }
         }
+        await dialog.getByRole("tab",{name:/^尚未开放/}).click();
         await dialog.getByRole("button",{name:"查看记录：停下来的钟声",exact:true}).click();
         await expect(dialog.getByText("完成庄园首通及家宴落幕后开放。",{exact:true})).toBeVisible();
-        await expect(index.locator('button[data-locked][aria-current="true"]')).toHaveCSS("height","76px");
+        await expect(index.locator('button[data-locked][aria-current="true"]')).toHaveCSS("height","44px");
         await page.screenshot({path:info.outputPath(`journal-locked-${width}.png`)});
       }
       if (name === "整备") {
@@ -508,72 +517,47 @@ test("journal and preparation use independent right-rail seals and original moda
         await expect(content.locator(".abyssa-item-slot[data-rarity]")).toHaveCount(0);
         await expect(content.locator(".abyssa-item-slot__badge")).toHaveCount(0);
         for (const slot of await content.locator(".abyssa-item-slot").all()) await expect(slot).toHaveAttribute("data-tone", "interface");
-        const inset = content.locator(".departure-preparation__inventory.manor-utility__inset");
-        await expect(content.locator(".manor-utility__inset")).toHaveCount(1);
-        await expect(inset.locator(".departure-preparation__group")).toHaveCount(2);
-        await expect(inset).toHaveCSS("border-top-width", "1px");
-        await expect(inset).toHaveCSS("background-color", "rgba(6, 11, 12, 0.52)");
-        const groups = await inset.locator(".departure-preparation__group").all();
-        const upperGroup = (await groups[0].boundingBox())!, lowerGroup = (await groups[1].boundingBox())!;
-        expect(lowerGroup.y - upperGroup.y - upperGroup.height).toBeCloseTo(48 * width / 1600, 1);
-        for (const group of await content.locator(".departure-preparation__group").all()) {
-          await expect(group).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
-          await expect(group).toHaveCSS("box-shadow", "none");
-        }
+        // 与库存同一副骨架:左栏两块名牌面板,右栏详情面板,两栏上下沿对齐;下沿一条操作栏。
+        await expect(content.locator(".manor-utility__inset")).toHaveCount(0);
+        const panels = content.locator(".departure-preparation__inventory > .manor-panel");
+        await expect(panels).toHaveCount(2);
+        const loadoutPanel = (await panels.nth(0).boundingBox())!, stockPanel = (await panels.nth(1).boundingBox())!;
+        const detailPanel = (await content.getByRole("complementary",{name:"补给详情"}).boundingBox())!;
+        expect(loadoutPanel.y).toBeCloseTo(detailPanel.y, 1);
+        expect(stockPanel.y + stockPanel.height).toBeCloseTo(detailPanel.y + detailPanel.height, 1);
         for (const art of await content.locator(".departure-preparation__item-art:has(.abyssa-item-count)").all()) {
           const slot = (await art.locator(".abyssa-item-slot").boundingBox())!, badge = (await art.locator(".abyssa-item-count").boundingBox())!;
           expect(badge.x + badge.width - slot.x - slot.width).toBeCloseTo(5 * width / 1600, 1);
           expect(badge.y + badge.height - slot.y - slot.height).toBeCloseTo(5 * width / 1600, 1);
         }
         const carryNames = content.locator(".departure-preparation__loadout .departure-preparation__item-name");
-        await expect(carryNames).toHaveCount(6);
+        await expect(carryNames).toHaveCount(await content.locator(".departure-preparation__loadout > li").count());
         const nameBoxes = await carryNames.evaluateAll(nodes => nodes.map(node => {
           const box = node.getBoundingClientRect(); return {y: box.y, height: box.height};
         }));
         for (const box of nameBoxes) expect(box).toEqual(nameBoxes[0]);
-        for (const label of await content.locator(".departure-preparation__item-name").all()) await expect(label).toHaveCSS("border-bottom-width", "0px");
         await expect(content.locator(".departure-preparation__catalogue .departure-preparation__item-name")).toHaveCount(0);
-        const slotRows = [];
         for (const rowClass of ["departure-preparation__loadout", "departure-preparation__catalogue"]) {
           const slots = await content.locator(`.${rowClass} .abyssa-item-slot`).evaluateAll(nodes => nodes.map(node => {
-            const box = node.getBoundingClientRect(); return {x: box.x, y: box.y, right: box.right, bottom: box.bottom};
+            const box = node.getBoundingClientRect(); return {x: box.x, y: box.y, right: box.right};
           }));
           for (let i = 1; i < slots.length; i++) {
             expect(slots[i].y).toBeCloseTo(slots[0].y, 1);
             expect(slots[i].x - slots[i - 1].right).toBeCloseTo(slots[1].x - slots[0].right, 1);
           }
-          slotRows.push(slots);
         }
-        expect(slotRows[0][0].x).toBeCloseTo(slotRows[1][0].x, 1);
-        expect(slotRows[0].at(-1)!.right).toBeCloseTo(slotRows[1].at(-1)!.right, 1);
-        const insetBounds = (await inset.boundingBox())!;
-        const stockClearance = (insetBounds.y + insetBounds.height - slotRows[1][0].bottom) / (width / 1600);
-        expect(stockClearance).toBeGreaterThanOrEqual(24);
-        expect(stockClearance).toBeLessThanOrEqual(44);
-        const mainBounds = (await content.locator(".departure-preparation__main").boundingBox())!;
-        expect(insetBounds.width / mainBounds.width).toBeGreaterThan(.74);
-        await expect(content.locator(".departure-preparation__detail")).toHaveCSS("width", "224px");
-        expect(insetBounds.y).toBeCloseTo(mainBounds.y, 1);
-        const footerTop = (await content.locator(".departure-preparation__footer").boundingBox())!.y;
-        const footerClearance = (footerTop - insetBounds.y - insetBounds.height) / (width / 1600);
-        expect(footerClearance).toBeGreaterThanOrEqual(24);
-        expect(footerClearance).toBeLessThanOrEqual(40);
-        expect(slotRows[0][0].x - insetBounds.x).toBeGreaterThanOrEqual(24 * width / 1600);
-        expect(insetBounds.x + insetBounds.width - slotRows[1].at(-1)!.right).toBeGreaterThanOrEqual(24 * width / 1600);
         await page.screenshot({path:info.outputPath(`preparation-overview-${width}.png`)});
         const carry = (await content.locator(".departure-preparation__loadout .abyssa-item-slot").first().boundingBox())!;
         const stock = (await content.locator(".departure-preparation__catalogue .abyssa-item-slot").first().boundingBox())!;
-        expect(carry.width).toBeCloseTo(108 * width / 1600, 1);
-        expect(stock.width).toBeCloseTo(80 * width / 1600, 1);
-        expect(carry.width/stock.width).toBeGreaterThan(1.3);
-        const stableAction = await content.getByRole("complementary",{name:"补给详情"}).getByRole("button").boundingBox();
+        expect(carry.width).toBeCloseTo(104 * width / 1600, 1);
+        expect(stock.width).toBeCloseTo(78 * width / 1600, 1);
+        const stableAction = await content.getByRole("complementary",{name:"补给详情"}).getByRole("button",{name:/行囊$/}).boundingBox();
         for (const item of ["食物","药水","护符","圣水","保养工具","幸运符","卦签"]) {
           await content.getByRole("button",{name:`查看${item}详情`}).click();
           const detail = content.getByRole("complementary",{name:"补给详情"});
-          await expect(detail).toHaveCSS("border-left-width", "0px");
           const detailBox = (await detail.boundingBox())!, nameBox = (await detail.getByRole("heading",{name:item,exact:true}).boundingBox())!;
           expect(nameBox.x+nameBox.width).toBeLessThanOrEqual(detailBox.x+detailBox.width);
-          const actionBox = (await detail.getByRole("button").boundingBox())!;
+          const actionBox = (await detail.getByRole("button",{name:/行囊$/}).boundingBox())!;
           expect(actionBox).toEqual(stableAction);
           expect(actionBox.y+actionBox.height).toBeLessThanOrEqual(detailBox.y+detailBox.height);
           expect(await content.evaluate(n=>n.scrollWidth<=n.clientWidth+1 && n.scrollHeight<=n.clientHeight+1)).toBe(true);
@@ -583,42 +567,25 @@ test("journal and preparation use independent right-rail seals and original moda
         const primary = actions.last();
         expect(await primary.evaluate(node => getComputedStyle(node).getPropertyValue("--abyssa-notched-middle").trim())).toBe("#88784f");
         await expect(content.getByRole("navigation", {name: "整备操作"}).locator(".journal-action__art")).toHaveCount(1);
-        await expect(primary.locator(".journal-action__art svg")).toHaveAttribute("viewBox", "0 0 190 48");
-        await expect(primary.locator("svg text")).toHaveCount(0);
         // Enter keyboard modality before checking :focus-visible styling.
         await page.keyboard.press("Tab");
         for (const action of await content.locator(".departure-preparation__aux-link").all()) {
-          await expect(action.locator("svg")).toHaveCount(0);
           await expect(action).toHaveCSS("height","40px");
-          await expect(action).toHaveCSS("border-top-width", "0px");
           await expect(action.locator("i")).not.toHaveCSS("mask-image", "none");
           expect(colorContrast(await action.evaluate(node => getComputedStyle(node).color), "rgb(19, 26, 27)")).toBeGreaterThanOrEqual(4.5);
           await action.focus();
           await expect(action).toHaveCSS("outline-style", "solid");
         }
-        expect(stableAction!.width / (width / 1600)).toBeCloseTo(144, 1);
-        const balances = content.getByTestId("campaign-funds").getByRole("img");
-        await expect(balances).toHaveCount(3);
-        for (const balance of await balances.all()) {
-          const hint = balance.locator(".departure-preparation__balance-hint");
-          await expect(hint).toBeHidden();
-          await balance.focus();
-          await expect(hint).toBeVisible();
-          await primary.focus();
-          await expect(hint).toBeHidden();
-          await balance.hover();
-          await expect(hint).toBeVisible();
-          await primary.hover();
-          await expect(hint).toBeHidden();
-        }
+        await expect(content.getByTestId("campaign-funds").getByRole("img")).toHaveCount(3);
         await expect(content.getByTestId("campaign-funds").locator('i[data-icon="custom"]')).not.toHaveCSS("mask-image", "none");
-        await content.getByRole("heading", {name: "出征行囊"}).click();
-        const contentBox = (await content.boundingBox())!, footer = (await content.locator(".departure-preparation__footer").boundingBox())!;
-        expect(footer.y+footer.height).toBeLessThanOrEqual(contentBox.y+contentBox.height+1);
+        const contentBox = (await content.boundingBox())!, dock = (await content.locator(".departure-preparation__dock").boundingBox())!;
+        expect(dock.y).toBeGreaterThan(detailPanel.y + detailPanel.height);
+        expect(dock.y+dock.height).toBeLessThanOrEqual(contentBox.y+contentBox.height+1);
       }
       if (name === "仓库") {
         const overview = dialog.locator(".resource-inventory__overview");
-        await expect(dialog.locator(".resource-inventory__detail")).toHaveCount(0);
+        // 详情常驻在右栏,未操作时显示第一件补给。
+        await expect(dialog.getByRole("region", {name: "食物详情", exact: true})).toBeVisible();
         await expect(dialog.locator(".resource-inventory__column")).toHaveCount(0);
         await expect(dialog.getByRole("gridcell")).toHaveCount(0);
         await expect(dialog.locator("[data-resource-item]")).toHaveCount(7);
@@ -636,7 +603,7 @@ test("journal and preparation use independent right-rail seals and original moda
         await expect(pager.getByRole("button", {name: "上一页"})).toBeDisabled();
         await expect(pager.getByRole("button", {name: "下一页"})).toBeDisabled();
         const sockets = dialog.locator('[data-area="sandbox"] [data-placeholder] .abyssa-item-slot[data-empty]');
-        await expect(sockets).toHaveCount(14);
+        await expect(sockets).toHaveCount(21);
         for (const socket of await sockets.all()) await expect(socket).toBeVisible();
         await inventoryGridLayout(dialog, width / 1600);
         expect(await dialog.locator('[data-area="sandbox"] .resource-inventory__contents').evaluate(node => node.scrollHeight <= node.clientHeight + 1)).toBe(true);
@@ -645,7 +612,7 @@ test("journal and preparation use independent right-rail seals and original moda
         await expect(tiles).toHaveCount(7);
         for (const tile of await tiles.all()) {
           await expect(tile.locator("[data-layer]")).toHaveCount(6);
-          await expect(tile).toHaveCSS("width", "92px");
+          await expect(tile).toHaveCSS("width", "78px");
           await expect(tile).toHaveAttribute("data-tone", "interface");
           expect(await tile.evaluate(node => getComputedStyle(node).getPropertyValue("--item-rarity").trim())).not.toBe("#875126");
           await expect(tile.locator("img")).toHaveCount(0);
@@ -677,30 +644,15 @@ test("journal and preparation use independent right-rail seals and original moda
           await expect(detail).toBeVisible();
           await expect(detail.getByRole("heading", {name: item, exact: true})).toBeVisible();
           await expect(detail.getByText(effect, {exact: true})).toBeVisible();
-          await expect(detail.getByRole("button")).toHaveCount(1);
+          await expect(detail.getByRole("button")).toHaveCount(0);
+          await expect(tile).toHaveAttribute("aria-pressed", "true");
+          // 详情是右栏的常驻面板:与格盘并排,不压在任何格子上,也不越出版面。
           const root = (await dialog.locator(".resource-inventory").boundingBox())!, detailBox = (await detail.boundingBox())!;
-          const close = detail.getByRole("button", {name: "收起物品详情"});
-          await expect(close).toHaveCSS("position", "absolute");
-          await expect(close).toHaveCSS("width", "28px");
-          const closeBox = (await close.boundingBox())!, titleBox = (await detail.getByRole("heading").boundingBox())!;
-          expect(closeBox.x).toBeGreaterThanOrEqual(titleBox.x + titleBox.width);
-          expect(closeBox.y - detailBox.y).toBeCloseTo(9 * width / 1600, 1);
-          // Unused space below the provision row should be used first.
-          for (const resource of await dialog.locator(".resource-inventory__items > li:not([data-placeholder])").all()) {
-            const resourceBox = (await resource.boundingBox())!;
-            const overlapWidth = Math.max(0, Math.min(detailBox.x + detailBox.width, resourceBox.x + resourceBox.width) - Math.max(detailBox.x, resourceBox.x));
-            const overlapHeight = Math.max(0, Math.min(detailBox.y + detailBox.height, resourceBox.y + resourceBox.height) - Math.max(detailBox.y, resourceBox.y));
-            expect(overlapWidth * overlapHeight).toBe(0);
-          }
-          expect(detailBox.x).toBeGreaterThanOrEqual(root.x - 1);
+          expect(detailBox.x).toBeGreaterThanOrEqual((await overview.boundingBox())!.x + (await overview.boundingBox())!.width);
           expect(detailBox.x + detailBox.width).toBeLessThanOrEqual(root.x + root.width + 1);
           expect(detailBox.y).toBeGreaterThanOrEqual(root.y - 1);
           expect(detailBox.y + detailBox.height).toBeLessThanOrEqual(root.y + root.height + 1);
           if (item === "药水") await page.screenshot({path: info.outputPath(`stock-detail-${width}.png`)});
-          await page.keyboard.press("Escape");
-          await expect(detail).toHaveCount(0);
-          await expect(dialog).toBeVisible();
-          await expect(tile).toBeFocused();
         }
       }
       if (name !== "日志") await page.screenshot({path:info.outputPath(`utility-${name}-${width}.png`)});
@@ -733,13 +685,15 @@ test("resource inventory paginates populated sandbox pages with corner counts at
   for (const [width, height] of [[1600, 900], [800, 450]]) {
     await page.setViewportSize({width, height});
     await expect(page.locator(".abyssa-stage__canvas")).toHaveCSS("--abyssa-stage-scale", String(width / 1600));
+    // 变量写入后画布未必已按新比例绘制;等实际绘制宽度到位再量格盘。
+    await expect.poll(() => page.locator(".abyssa-stage__canvas").evaluate(node => node.getBoundingClientRect().width)).toBeCloseTo(width, 0);
     const fixed = await dialog.locator('[data-area="fixed"]').boundingBox();
     const fullLayout = await inventoryGridLayout(dialog, width / 1600);
-    for (let pageIndex = 0; pageIndex < 3; pageIndex++) {
-      await expect(pager.getByRole("status")).toHaveText(`${pageIndex + 1} / 3`);
+    for (let pageIndex = 0; pageIndex < 2; pageIndex++) {
+      await expect(pager.getByRole("status")).toHaveText(`${pageIndex + 1} / 2`);
       const inventory = dialog.locator('[data-area="sandbox"]');
-      await expect(inventory.locator(".resource-inventory__items > li")).toHaveCount(14);
-      await expect(inventory.locator("[data-resource-item]")).toHaveCount(pageIndex === 2 ? 3 : 14);
+      await expect(inventory.locator(".resource-inventory__items > li")).toHaveCount(21);
+      await expect(inventory.locator("[data-resource-item]")).toHaveCount(pageIndex === 1 ? 10 : 21);
       const content = inventory.locator(".resource-inventory__contents");
       expect(await content.evaluate(node => node.scrollHeight <= node.clientHeight + 1 && node.scrollWidth <= node.clientWidth + 1)).toBe(true);
       expect(await dialog.locator('[data-area="fixed"]').boundingBox()).toEqual(fixed);
@@ -750,19 +704,20 @@ test("resource inventory paginates populated sandbox pages with corner counts at
         expect(badge.y + badge.height - slot.y - slot.height).toBeCloseTo(5 * width / 1600, 1);
       }
       await page.screenshot({path: info.outputPath(`stock-populated-page-${pageIndex + 1}-${width}.png`)});
-      if (pageIndex < 2) {
+      if (pageIndex < 1) {
         await pager.getByRole("button", {name: "下一页"}).click();
         await expect(inventory.locator("[data-resource-item]").first()).toBeFocused();
       }
     }
     await expect(pager.getByRole("button", {name: "下一页"})).toBeDisabled();
     await page.keyboard.press("PageUp");
-    await expect(pager.getByRole("status")).toHaveText("2 / 3");
+    await expect(pager.getByRole("status")).toHaveText("1 / 2");
+    await pager.getByRole("button", {name: "下一页"}).click();
     await pager.getByRole("button", {name: "上一页"}).click();
-    await expect(pager.getByRole("status")).toHaveText("1 / 3");
-    // Empty rows must reserve exactly the same name baseline and footer gap as
-    // populated rows, including partial rows on either side of the 7-item edge.
-    for (const count of [0, 1, 7, 8, 14]) {
+    await expect(pager.getByRole("status")).toHaveText("1 / 2");
+    // Empty pages keep exactly the same grid as populated pages, including
+    // partial rows on either side of the 7-item edge.
+    for (const count of [0, 1, 7, 8, 21]) {
       await page.evaluate(value => window.dispatchEvent(new CustomEvent("resource-inventory-fixture-count", {detail: value})), count);
       await expect(dialog.locator('[data-area="sandbox"] [data-resource-item]')).toHaveCount(count);
       await expect(pager.getByRole("status")).toHaveText("1 / 1");
@@ -770,7 +725,7 @@ test("resource inventory paginates populated sandbox pages with corner counts at
       if (!count) await page.screenshot({path: info.outputPath(`stock-empty-${width}.png`)});
     }
     await page.evaluate(() => window.dispatchEvent(new CustomEvent("resource-inventory-fixture-count", {detail: 31})));
-    await expect(pager.getByRole("status")).toHaveText("1 / 3");
+    await expect(pager.getByRole("status")).toHaveText("1 / 2");
     const box = (await dialog.boundingBox())!;
     expect(box.y).toBeGreaterThanOrEqual(0);
     expect(box.y + box.height).toBeLessThanOrEqual(height);

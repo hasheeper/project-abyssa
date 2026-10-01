@@ -22,6 +22,7 @@ export type ReadingPlayerProps<Id extends string = string> = {
   finalLabel?: string; busy?: boolean; error?: unknown; instant?: boolean; className?: string; initialLayout?: ReadingLayout;
   decision?: StoryDecision<Id> | null; onChoose?: (id: Id) => void | Promise<void>;
   actions?: ReactNode; feedback?: ReactNode; onEscape?: () => void;
+  sceneNavigation?: { index: number; total: number; onScene: (index: number) => void; previousDisabled?: boolean; nextDisabled?: boolean };
   renderEffect?: (pageId: string, live: boolean) => ReactNode; onInteraction?: () => void;
 };
 
@@ -80,9 +81,11 @@ export function ReadingPlayer<Id extends string>(p: ReadingPlayerProps<Id>) {
     </section>
     <ReadingControls layout={layout} reading={reading} reviewing={review.reviewing} auto={playback.auto} skipping={playback.skipping} disabled={locked}
       canReplay={review.canReplay} canPlay={p.canAdvance && !decision && !reading && !review.reviewing} canSkip={!reading && !review.reviewing && (!ready || p.canAdvance && !decision)}
-      sceneIndex={review.index} sceneTotal={review.total} location={p.location} label={label} nextDisabled={!!decision && ready && !reading && !review.reviewing}
+      sceneIndex={p.sceneNavigation?.index ?? review.index} sceneTotal={p.sceneNavigation?.total ?? review.total}
+      previousSceneDisabled={p.sceneNavigation?.previousDisabled} nextSceneDisabled={p.sceneNavigation?.nextDisabled}
+      location={p.location} label={label} nextDisabled={!!decision && ready && !reading && !review.reviewing}
       onLayout={() => change(layout === "adv" ? "nvl" : "adv", false)} onLog={() => change(layout, !reading)}
-      onReplay={() => reviewingAction(review.reviewing ? review.exit : review.replay)} onScene={index => reviewingAction(() => review.go(index))}
+      onReplay={() => reviewingAction(review.reviewing ? review.exit : review.replay)} onScene={index => reviewingAction(() => p.sceneNavigation ? p.sceneNavigation.onScene(index) : review.go(index))}
       onAuto={() => playback.toggle("auto")} onSkip={() => {if (!p.canAdvance || decision) reveal();else playback.toggle("skip");}} onNext={next}
       actions={<span className="rp-app__scene-actions" onClickCapture={e => {
         if (!locked && !(e.target as HTMLElement).closest("button:disabled")) playback.stop();

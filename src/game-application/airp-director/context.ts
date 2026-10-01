@@ -10,6 +10,7 @@ import { directorTaskGuide } from "./task-guide";
 import { directorReplyPurpose } from "./continuation";
 import { withResidentCapabilities } from "./residents";
 import { directorReplyPurposeV20 } from "./event-brief-v20";
+import { tutorialMemories } from "./tutorial-memories";
 
 export const ongoingDirectorEvent = (e: DirectorEvent) => ["offered", "accepted", "waiting-action", "feedback", "ready"].includes(e.status);
 export function directorFollowupCard(parent: DirectorEvent): DirectorCard {
@@ -24,9 +25,9 @@ export function projectDirectorContext(catalog: ValidatedD5Catalog, state: Direc
     text: canonicalJson([22, 24, 26, 28].includes(catalog.ref.contentVersion) && f.kind === "progression" && f.payload.type === "expedition-settled" ? { type: f.payload.type, runId: f.payload.terminal.runId, routeId: f.payload.terminal.routeId, outcome: f.payload.terminal.outcome, deepestLayer: f.payload.terminal.deepestLayer } : f.payload), knownBy: ["kael"], evidenceIds: [f.id]}] : []);
   const shared = directorSettlementContext(input, withResidentCapabilities(content.capabilities, state.residentCast), [22, 24, 26, 28].includes(catalog.ref.contentVersion), (state.lowContextVersion ?? 0) >= 19 ? directorMemoryContext(state, input) : undefined);
   facts.push(...shared.facts);
-  const memories = [...state.memories.filter(m => m.phase <= phase && m.evidenceIds.every(id => effective.some(f => f.id === id))), ...shared.memories];
+  const memories = [...state.memories.filter(m => m.phase <= phase && m.evidenceIds.every(id => effective.some(f => f.id === id))), ...tutorialMemories(catalog, input), ...shared.memories];
   const world: DirectorWorld = {
-    head: {...input.head}, phase, eligible: airpEligible(c), availableActorIds: [...new Set([...c.availableCharacterIds, ...Object.keys(state.residentCast?.locations ?? {})])], occupiedActorIds: state.residentCast ? [...new Set([...shared.occupiedActorIds, ...(input.run?.run.party.map(p => p.id) ?? [])])] : shared.occupiedActorIds,
+    head: {...input.head}, phase, eligible: airpEligible(c, catalog), availableActorIds: [...new Set([...c.availableCharacterIds, ...Object.keys(state.residentCast?.locations ?? {})])], occupiedActorIds: state.residentCast ? [...new Set([...shared.occupiedActorIds, ...(input.run?.run.party.map(p => p.id) ?? [])])] : shared.occupiedActorIds,
     sourceIds: [...facts.map(f => f.id), ...memories.map(m => m.id)],
     existing: state.events.filter(ongoingDirectorEvent).map(e => ({id: e.id, load: e.card.load, form: e.card.form, status: e.status === "offered" ? "offered" : e.status === "ready" ? "ready" : "accepted"})),
     requiredStoryIds: c.activeStoryId ? [c.activeStoryId] : [], busyFocus: !!c.activeRunRef,

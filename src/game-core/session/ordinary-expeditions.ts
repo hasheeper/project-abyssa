@@ -7,10 +7,10 @@ export function isOrdinaryExpedition(catalog: D5Catalog, routeId: string) {
 }
 
 /** Used by departure, fact replay and the runtime's read-only map projection. */
-export function ordinaryExpeditionAvailable(catalog: D5Catalog, campaign: Pick<D5Projection, "manor" | "airpDemoStart" | "tutorial">, routeId: string) {
+export function ordinaryExpeditionAvailable(catalog: D5Catalog, campaign: Pick<D5Projection, "manor" | "airpDemoStart" | "tutorial" | "openingFlowVersion">, routeId: string) {
   if (campaign.tutorial && !["completed", "exempt"].includes(campaign.tutorial.status)) return false;
   if (catalog.expeditions?.[routeId]) return true;
-  return routeId === (hasManorPatrolAccess(campaign) ? catalog.manor?.maintenanceRouteId : catalog.manor?.firstClearRouteId);
+  return routeId === (hasManorPatrolAccess(campaign, catalog) ? catalog.manor?.maintenanceRouteId : catalog.manor?.firstClearRouteId);
 }
 
 export function ordinaryReturnGrantsGrowth(catalog: D5Catalog, routeId: string) {

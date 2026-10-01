@@ -14,7 +14,7 @@ export const NEW_GAME_PENDING_KEY = "abyssa:new-save:opening-v1";
 function pendingOpening(): NewGameSelection | null {
   try {
     const value = JSON.parse(sessionStorage.getItem(NEW_GAME_PENDING_KEY) ?? "null");
-    if (!value || !["prologue", "first-morning", "tutorial", "hub", "debug-shop", "airp-demo", "airp-director"].includes(value.startAt)) return null;
+    if (!value || !["prologue", "first-morning", "tutorial", "hub", "debug-offline", "debug-shop", "airp-demo", "airp-director"].includes(value.startAt)) return null;
     return {startAt: value.startAt, playerName: parsePlayerName(value.playerName)};
   } catch { return null; }
 }

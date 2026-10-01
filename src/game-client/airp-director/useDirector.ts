@@ -1,13 +1,10 @@
 import { useEffect, useMemo, useSyncExternalStore } from "react";
 import { aiConfiguration, assertNoCredentialInPublicConfig, effectiveAiConfiguration } from "../../game-runtime/airp-configuration";
 import { createDirectorDriver, type DirectorDriverPort } from "../../game-runtime/airp-director-driver";
-import { activatedDirectorDocuments } from "../../content/presentation/airp/director-documents";
 import { directorView, directorHash, type DirectorCommand } from "../../game-runtime/airp-director-view";
 import { useGameSession, useGameState } from "../react";
 import type { GameSession } from "../session";
-import { householdDirectorDocuments } from "../../content/presentation/airp/household-documents";
-import { HOUSEHOLD_RESIDENT_CAST } from "../../content/gameplay/airp-director/residents";
-import { lowR8Source, householdLowR8Source } from "../../content/presentation/airp/low-r8-source";
+import { directorConfiguration, FORMAL_AIRP_VERSION, needsFormalResidentUpgrade } from "../../game-runtime/airp-director-configuration";
 import { directorStage } from "../../game-runtime/airp-director-view";
 import { dispatchDirector } from "./dispatch";
 import { registerBackgroundDriver, serializeTaskCommand, taskSessionFor } from "../airp-generation/background-tasks";
@@ -65,15 +62,15 @@ export function useDirector() {
       return after;
     },
     async prepareDay(replan = false) {
-      const household = game.record?.contentRef.contentVersion === 28;
-      const connection = effectiveAiConfiguration(config), material = {...connection.material, resources: {...connection.material.resources, sources: structuredClone(household ? householdDirectorDocuments : activatedDirectorDocuments)}};
+      const contentVersion = game.record?.contentRef.contentVersion ?? FORMAL_AIRP_VERSION;
+      const connection = effectiveAiConfiguration(config), configuration = directorConfiguration(contentVersion, connection.material), material = configuration.material;
       const secrets = Object.values(connection.keys).map(k => k.trim()).filter(Boolean);
       if (!secrets.length || secrets.some(key => JSON.stringify(material).includes(key))) throw Error("请前往设置填写并保存连接；Key 不能进入资料。");
-      const formal = [22, 24, 26, 28].includes(game.record?.contentRef.contentVersion ?? 0);
-      if (household && !view?.state.residentCast || view?.state.materialHash !== directorHash(material) || formal && (!view?.state.lowMaterial || view.state.lowReadVersion !== 6 || view.state.lowContextVersion !== 21)) await send({type: "airp-director-configure", material, ...(formal ? { lowMaterial: household ? householdLowR8Source : lowR8Source, lowReadVersion: 6, lowContextVersion: 21, ...(household ? {residentCast: HOUSEHOLD_RESIDENT_CAST} : {}) } : {})});
+      if (view?.state.materialHash !== directorHash(material) || configuration.lowMaterial && (!view?.state.lowMaterial || view.state.lowReadVersion !== 6 || view.state.lowContextVersion !== 21) ||
+        contentVersion === FORMAL_AIRP_VERSION && view && needsFormalResidentUpgrade(view.state)) await send(configuration);
       const runtime = taskSession.runtime;
-      if (household && "airpGame" in runtime) {
-        await serializeTaskCommand(taskSession, () => runtime.airpGame.forSave(session.locator.saveId, 28, session.locator.epoch).sync());
+      if (contentVersion === FORMAL_AIRP_VERSION && "airpGame" in runtime) {
+        await serializeTaskCommand(taskSession, () => runtime.airpGame.forSave(session.locator.saveId, contentVersion, session.locator.epoch).sync());
         await taskSession.refresh({background: true});
       }
       const r = await send({type: replan ? "airp-director-prepare-replan" : "airp-director-prepare-day"});

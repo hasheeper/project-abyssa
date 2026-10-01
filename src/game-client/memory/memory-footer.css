@@ -1,0 +1,49 @@
+.memory-footer {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--memory-column-gap);
+  width: 100%;
+  min-height: 48px;
+  color: #a5b2a5;
+}
+.menu-content .memory-panel > .abyssa-system-panel__footer::before { left: 0; right: 0; background: linear-gradient(90deg, transparent, rgb(197 187 160 / 12%) 48px, rgb(197 187 160 / 12%) calc(100% - 48px), transparent); }
+.memory-footer__browse { display: flex; align-items: center; gap: 24px; min-width: 0; }
+.memory-footer__context { color: #a5b2a5; font-size: 14px; white-space: nowrap; }
+.memory-footer__summary { display: flex; align-items: baseline; gap: 16px; }
+.memory-footer__summary > span:last-child { color: #7e8e82; font-size: 13px; }
+.memory-footer__undated { display: inline-flex; align-items: center; gap: 12px; min-height: 44px; padding: 8px 0; border: 0; background: none; color: #b6baa3; font: 15px/1.5 var(--abyssa-font-body); cursor: pointer; }
+.memory-footer__undated-count { color: #d1c8aa; font: inherit; font-variant-numeric: tabular-nums; }
+.memory-footer__undated:hover, .memory-footer__undated[aria-pressed="true"] { color: #e5dbbb; }
+.memory-footer__undated:focus-visible { outline: 1px solid #c7c8ad; outline-offset: 4px; }
+.memory-footer__actions { display: grid; grid-template-columns: 188px 172px; align-items: center; justify-self: end; gap: 24px; }
+.memory-footer__navigation { display: flex; align-items: center; gap: 20px; }
+.memory-footer__navigation[hidden] { display: none; }
+.memory-footer__navigation > button {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px; width: 84px; min-height: 44px; padding: 8px 0;
+  border: 0; background: none; color: #c8c0a6; font: 15px/1.5 var(--abyssa-font-body); cursor: pointer;
+}
+.memory-footer__navigation > button:hover:not(:disabled) { color: #e8dfc6; }
+.memory-footer__navigation > button:focus-visible { outline: 1px solid #d9ceb0; outline-offset: 4px; }
+.memory-footer i[data-direction] { display: block; width: 7px; height: 7px; border-top: 1px solid currentColor; border-right: 1px solid currentColor; }
+.memory-footer i[data-direction="previous"] { rotate: -135deg; }
+.memory-footer i[data-direction="next"] { rotate: 45deg; }
+.memory-footer__position { display: flex; align-items: baseline; gap: 9px; font-variant-numeric: tabular-nums; }
+.memory-footer__position > strong { color: #d7d1b8; font: 400 21px/1 var(--abyssa-font-display); }
+.memory-footer__position > span { color: #7c8d80; font: 16px/1 var(--abyssa-font-display); }
+.memory-footer__position > span[aria-hidden] { color: #596c60; font-size: 13px; }
+.memory-footer__position > small { margin-left: 5px; color: #7e8e82; font-size: 13px; }
+.memory-footer__scene { display: flex; align-items: center; min-width: 0; }
+.memory-footer__recollection { display: flex; align-items: center; gap: 22px; }
+.memory-footer .scene-feedback__action { width: 156px; margin: 0; }
+.memory-footer .memory-footer__return { --abyssa-shape-middle: rgb(203 195 165 / 48%); grid-column: 2; width: 172px; }
+.memory-footer .memory-footer__return > .abyssa-shape-button__content { color: #e3dbc2; }
+.memory-footer .memory-footer__return:is(:hover, :focus-visible):not(:disabled) { --abyssa-shape-middle: #c9bf9f; --abyssa-shape-fill: rgb(180 190 161 / 8%); }
+.memory-footer .memory-footer__return:focus-visible { outline: none; }
+.memory-footer__return:focus-visible [data-part="frame-middle"] { stroke-width: 3; }
+.memory-footer__replay { min-height: 44px; padding: 8px 0; border: 0; background: none; color: #8b9989; font: 15px/1.5 var(--abyssa-font-body); cursor: default; }
+.memory-footer__replay:focus-visible { outline: 1px solid #8b9989; outline-offset: 4px; }
+.memory-footer__replay:not([aria-disabled]):not(:disabled) { color: #c8c0a6; cursor: pointer; }
+.memory-footer__replay:not([aria-disabled]):not(:disabled):hover { color: #e8dfc6; }
+.memory-footer__replay:focus-visible + .memory-footer__unavailable, .memory-footer__replay:hover + .memory-footer__unavailable { color: #9ba28e; }
+.memory-footer__unavailable { color: #6f8072; font-size: 12px; white-space: nowrap; }

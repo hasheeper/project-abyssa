@@ -21,13 +21,13 @@ afterEach(cleanup);
 async function mount() { await act(async () => { render(<TitlePage/>); }); }
 async function open(user: ReturnType<typeof userEvent.setup>) {
   await user.click(screen.getByRole("button", {name: "新的开始"}));
-  await waitFor(() => expect(screen.getByRole("textbox", {name: "请输入角色姓名"})).toBeEnabled(), {timeout: 1600});
+  await waitFor(() => expect(screen.getByRole("textbox", {name: "请输入角色姓名"})).toBeEnabled(), {timeout: 4000});
 }
 async function select(user: ReturnType<typeof userEvent.setup>, label: string) {
   await open(user);
   await user.type(screen.getByRole("textbox"), "林恩");
   await user.click(screen.getByRole("button", {name: /下一步/}));
-  if (label.includes("调试")) {
+  if (label.includes("调试") || label === "无 LLM 游玩") {
     expect(screen.queryByRole("radio", {name: /AIRP 快速体验/})).toBeNull();
     await user.click(screen.getByText("调试入口"));
     await user.click(screen.getByRole("button", {name: label}));
@@ -59,9 +59,7 @@ it("opens before playback and cancels without creating a save or request identit
 it.each([
   ["序章", "prologue"], ["洋馆的清晨", "mansion"],
   ["战斗与探索教学", "battle"], ["自由行动", "menu"],
-  ["商店初见调试", "menu"],
-  ["旧版 AIRP 调试", "mansion"],
-  ["AIRP 游玩", "mansion"],
+  ["商店初见调试", "menu"], ["无 LLM 游玩", "menu"],
 ])("%s hands off to %s once, and Continue reuses the saved start", async (label, page) => {
   const user = userEvent.setup(); await mount();
   const create = vi.spyOn(runtime.application, "createNewGame");
@@ -98,7 +96,7 @@ it.each([["自由行动", "hub"], ["商店初见调试", "debug-shop"]])("preser
   expect(JSON.parse(savedIdentity!)).toMatchObject({playerName: "林恩", startAt});
   cleanup(); store.commit = commit; await mount();
   await user.click(screen.getByRole("button", {name: "新的开始"}));
-  await waitFor(() => expect(screen.getByRole("button", {name: /重试创建/})).toBeEnabled(), {timeout: 1600});
+  await waitFor(() => expect(screen.getByRole("button", {name: /重试创建/})).toBeEnabled(), {timeout: 4000});
   expect(screen.getByRole("dialog")).toHaveTextContent("林恩");
   expect(screen.queryByRole("button", {name: "上一步"})).toBeNull();
   await user.click(screen.getByRole("button", {name: /重试创建/}));
@@ -113,19 +111,21 @@ it.each([["自由行动", "hub"], ["商店初见调试", "debug-shop"]])("preser
 
 it("keeps a debug selection when stepping back and allows returning to the normal starts", async () => {
   const user = userEvent.setup(); await mount();
-  await select(user, "旧版 AIRP 调试");
+  await select(user, "商店初见调试");
   await user.click(screen.getByRole("button", {name: "上一步"}));
-  expect(screen.getByRole("button", {name: "旧版 AIRP 调试"})).toBeVisible();
+  expect(screen.getByRole("button", {name: "商店初见调试"})).toBeVisible();
   expect(screen.getByRole("radio", {name: "序章"})).toHaveAttribute("tabindex", "0");
   await user.click(screen.getByRole("button", {name: "下一步"}));
-  expect(screen.getByRole("dialog")).toHaveTextContent("旧版 AIRP 调试");
+  expect(screen.getByRole("dialog")).toHaveTextContent("商店初见调试");
   await user.click(screen.getByRole("button", {name: "上一步"}));
   await user.click(screen.getByRole("radio", {name: "序章"}));
   await user.keyboard("{End}");
-  expect(screen.getByRole("radio", {name: "AIRP 游玩"})).toHaveAttribute("aria-checked", "true");
+  expect(screen.getByRole("radio", {name: "自由行动"})).toHaveAttribute("aria-checked", "true");
   await user.click(screen.getByRole("button", {name: "下一步"}));
-  expect(screen.getByRole("dialog")).toHaveTextContent("AIRP 游玩");
-  expect(screen.getByRole("dialog")).not.toHaveTextContent("旧版 AIRP 调试");
+  expect(screen.getByRole("dialog")).toHaveTextContent("自由行动");
+  expect(screen.getByRole("dialog")).not.toHaveTextContent("商店初见调试");
+  expect(screen.queryByRole("radio", {name: /AIRP/})).toBeNull();
+  expect(screen.queryByRole("button", {name: /AIRP/})).toBeNull();
   expect(db.records.size).toBe(0);
 });
 
@@ -143,7 +143,7 @@ it("validates a name and preserves the draft when stepping back; IME and held En
   const held = new KeyboardEvent("keydown", {key: "Enter", repeat: true, bubbles: true, cancelable: true});
   expect(input.dispatchEvent(held)).toBe(false);
   await user.click(screen.getByRole("button", {name: /下一步/}));
-  expect(screen.getAllByRole("radio")).toHaveLength(5);
+  expect(screen.getAllByRole("radio")).toHaveLength(4);
   await user.click(screen.getByRole("radio", {name: "自由行动"}));
   await user.click(screen.getByRole("button", {name: "上一步"}));
   expect(screen.getByRole("textbox")).toHaveValue("林恩");

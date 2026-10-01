@@ -12,7 +12,12 @@ afterEach(() => { fixture.session.dispose(); vi.restoreAllMocks(); vi.clearAllMo
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { MenuPage } from "./MenuPage";
+import { MenuPage, MenuPageContent } from "./MenuPage";
+import { GameSessionScope } from "../../game-client/react";
+import { SceneTransitionProvider } from "../../shared/transition";
+import { memoryFixtures } from "./dev/memory-samples";
+import { createMenuBackendPreviewRuntime } from "../../game-runtime/menu-preview";
+import { GameSession } from "../../game-client/session";
 import { StrictMode } from "react";
 import { readTitleSaveList } from "../../game-client/title-save-list";
 vi.setConfig({ testTimeout: 15000 });
@@ -25,6 +30,106 @@ const settled = (view: string) => waitFor(() => {
 afterEach(cleanup);
 
 describe("MenuPage", () => {
+  it("uses the real journal query by default and reading or returning never commits gameplay", async () => {
+    const source = await createMenuBackendPreviewRuntime();
+    const session = new GameSession(source.runtime, source.locator, { getItem: () => null, setItem() {}, removeItem() {} });
+    await session.refresh();
+    const data = source.runtime.queries.memoryJournal(session.getSnapshot().record!);
+    if (data.status !== "ready" || !data.entries.length) throw Error("Missing backend journal");
+    const before = JSON.stringify([...source.database.records]), commit = vi.spyOn(source.store, "commit"), dispatch = vi.spyOn(session, "dispatch");
+    const user = userEvent.setup();
+    const { unmount } = render(<SceneTransitionProvider><GameSessionScope session={session}><MenuPageContent preview/></GameSessionScope></SceneTransitionProvider>);
+    try {
+      const entry = data.entries[0];
+      await user.click(screen.getByRole("button", { name: `阅读：${entry.title}` }));
+      await waitFor(() => expect(screen.getByRole("heading", { name: entry.title })).toBeInTheDocument());
+      const reader = screen.getByRole("article");
+      expect(within(reader).getByText(entry.summary!)).toBeVisible();
+      expect(document.querySelector("#memory-transcript")).not.toBeVisible();
+      await user.click(screen.getByRole("button", { name: "展开原文" }));
+      expect(document.querySelector("#memory-transcript")).toBeVisible();
+      expect(reader).toHaveTextContent(entry.blocks[0].text);
+      expect(screen.queryByRole("button", { name: "阅读：走廊里的脚步声" })).not.toBeInTheDocument();
+      await waitFor(() => expect(screen.getByRole("button", { name: "回想场景" })).toBeEnabled(), { timeout: 2500 });
+      reader.scrollTop = 170;
+      await user.click(screen.getByRole("button", { name: "回想场景" }));
+      await waitFor(() => expect(screen.getByRole("region", { name: `场景回想：${entry.title}` })).toBeInTheDocument());
+      expect(document.querySelector(".menu-app")).toHaveAttribute("inert");
+      await user.keyboard("{Escape}");
+      await waitFor(() => expect(screen.queryByRole("region", { name: `场景回想：${entry.title}` })).not.toBeInTheDocument());
+      expect(reader.scrollTop).toBe(170);
+      expect(screen.getByRole("button", { name: "回想场景" })).toHaveFocus();
+      expect(document.querySelector(".memory-panel")).toHaveAttribute("data-memory-mode", "reading");
+      await user.keyboard("{Escape}");
+      await waitFor(() => expect(document.querySelector(".memory-panel")).toHaveAttribute("data-memory-mode", "catalogue"));
+      expect(dispatch).not.toHaveBeenCalled(); expect(commit).not.toHaveBeenCalled();
+      expect(JSON.stringify([...source.database.records])).toBe(before);
+    } finally { unmount(); session.dispose(); }
+  });
+
+  it("opens the memory shell without inventing records, then returns focus to its sidebar entry", async () => {
+    const user = userEvent.setup(); const { container } = render(<MenuPage/>);
+    const stage = container.querySelector(".menu-stage"), backdrop = container.querySelector(".menu-system-backdrop");
+    await user.click(screen.getByRole("button", { name: "记忆" })); await settled("memory");
+    expect(screen.getByRole("heading", { name: "记忆 MEMORY" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "暂时无法读取记忆" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /^阅读：/ })).not.toBeInTheDocument();
+    expect(container.querySelector(".menu-system-backdrop")).toBe(backdrop);
+    await user.keyboard("{Escape}"); await settled("home");
+    expect(screen.getByRole("button", { name: "记忆" })).toHaveFocus();
+    expect(container.querySelector(".menu-stage")).toBe(stage);
+  });
+
+  it("keeps one catalogue and scene through reading, consumes Escape first, and preserves the game record", async () => {
+    const user = userEvent.setup(), before = fixture.session.getSnapshot().record;
+    const { container } = render(<SceneTransitionProvider><GameSessionScope session={fixture.session}>
+      <MenuPageContent memoryData={{ status: "ready", entries: memoryFixtures }} preview/>
+    </GameSessionScope></SceneTransitionProvider>);
+    const catalogue = container.querySelector(".memory-catalogue"), scene = container.querySelector(".memory-scene");
+    const sameDay = container.querySelectorAll('[aria-label="第 9 天"] .memory-entry__when > span');
+    expect(Array.from(sameDay, element => element.textContent)).toEqual(["第 9 天", "第 9 天"]);
+    const corridor = screen.getByRole("button", { name: "阅读：走廊里的脚步声" });
+    await user.click(corridor);
+    await waitFor(() => expect(container.querySelector(".memory-panel")).toHaveAttribute("data-memory-mode", "reading"));
+    expect(screen.getByRole("heading", { name: "走廊里的脚步声" })).toHaveFocus();
+    expect(screen.getByText("我选择留下来，和她一起检查走廊。")).toBeInTheDocument();
+    expect(container.querySelector(".memory-catalogue")).toBe(catalogue);
+    expect(container.querySelector(".memory-scene")).toBe(scene);
+    await waitFor(() => expect(container.querySelector(".memory-panel")).not.toHaveAttribute("data-memory-changing"), { timeout: 2200 });
+    await user.click(screen.getByRole("button", { name: "阅读：归来之后" }));
+    await waitFor(() => expect(screen.getByRole("heading", { name: "归来之后" })).toHaveFocus());
+    // Escape must work even when focus leaves the reader for the global sidebar.
+    screen.getByRole("button", { name: "记忆" }).focus();
+    await user.keyboard("{Escape}");
+    await waitFor(() => expect(container.querySelector(".memory-panel")).toHaveAttribute("data-memory-mode", "catalogue"));
+    expect(screen.getByRole("button", { name: "阅读：归来之后" })).toHaveFocus();
+    expect(container.querySelector(".menu-entry")).toHaveAttribute("data-menu-view", "memory");
+    expect(container.querySelector(".memory-catalogue")).toBe(catalogue);
+    await user.keyboard("{Escape}"); await settled("home");
+    expect(fixture.session.getSnapshot().record).toBe(before);
+    expect(await fixture.store.listSaveIds()).toEqual(["save"]);
+  });
+
+  it("filters memory by time, clears the reader, and retains reading state across settings", async () => {
+    const user = userEvent.setup(); const { container } = render(<SceneTransitionProvider><GameSessionScope session={fixture.session}>
+      <MenuPageContent memoryData={{ status: "ready", entries: memoryFixtures }} preview/>
+    </GameSessionScope></SceneTransitionProvider>);
+    await user.click(screen.getByRole("button", { name: "阅读：走廊里的脚步声" }));
+    await waitFor(() => expect(screen.getByRole("heading", { name: "走廊里的脚步声" })).toBeInTheDocument());
+    await user.click(screen.getByRole("button", { name: "设置" })); await settled("settings");
+    await user.click(screen.getByRole("button", { name: "记忆" })); await settled("memory");
+    expect(screen.getByRole("heading", { name: "走廊里的脚步声" })).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "调整日期：全部经历" }));
+    await user.clear(screen.getByRole("spinbutton", { name: "结束天数" }));
+    await user.type(screen.getByRole("spinbutton", { name: "结束天数" }), "5");
+    await user.click(screen.getByRole("button", { name: /^确定$/ }));
+    await waitFor(() => expect(container.querySelector(".memory-panel")).toHaveAttribute("data-memory-mode", "catalogue"));
+    await waitFor(() => expect(screen.queryByRole("button", { name: "阅读：走廊里的脚步声" })).not.toBeInTheDocument(), { timeout: 2500 });
+    expect(screen.getByRole("button", { name: "阅读：一封没有署名、暂时留在书架第二层的来信" })).toBeInTheDocument();
+    await waitFor(() => expect(container.querySelector(".memory-panel")).not.toHaveAttribute("data-memory-changing"));
+    await user.click(screen.getByRole("button", { name: "按时间从近到远排列，切换为从远到近" }));
+    await waitFor(() => expect(container.querySelector("[data-memory-id]")).toHaveAttribute("data-memory-id", "sample-first"));
+  });
   it("keeps the grid, page and selection mounted when switching LOAD to SAVE and back", async () => {
     const user = userEvent.setup(); const { container } = render(<MenuPage />);
     await user.click(screen.getByRole("button", { name: "读档" })); await settled("load");
@@ -209,9 +314,9 @@ describe("MenuPage", () => {
 
     expect(screen.getByLabelText("第 12 天")).toBeInTheDocument();
     expect(screen.getByRole("img", { name: "当前相位 昏" })).toBeInTheDocument();
-    // 三笔资源各自可读,金额走 CurrencyAmount 的 toLocaleString。
-    expect(screen.getByLabelText("维稳公款 12800")).toBeInTheDocument();
-    expect(screen.getByLabelText("小队资金 1450")).toBeInTheDocument();
+    // Legacy fixture amounts use the existing ×100 presentation scale and G unit.
+    expect(screen.getByLabelText("维稳公款 1,280,000 G")).toBeInTheDocument();
+    expect(screen.getByLabelText("小队资金 145,000 G")).toBeInTheDocument();
     expect(screen.getByLabelText("远古晶石 8")).toBeInTheDocument();
     expect(screen.getByLabelText("时间与相位")).toHaveAttribute("data-side", "left");
     expect(screen.getByLabelText("持有资源")).toHaveAttribute("data-side", "right");
@@ -285,7 +390,7 @@ describe("MenuPage", () => {
   });
 
   /* 没有目标页的条目仍是纯占位:点两次也不许拉黑幕。 */
-  it.each(["图鉴", "成就", "记忆"])("keeps the %s placeholder on the menu after repeated clicks", async label => {
+  it.each(["图鉴", "成就"])("keeps the %s placeholder on the menu after repeated clicks", async label => {
     const user = userEvent.setup();
     const { container } = render(<MenuPage />);
 

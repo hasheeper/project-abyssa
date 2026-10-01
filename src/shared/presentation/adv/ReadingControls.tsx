@@ -25,6 +25,7 @@ export type ReadingControlsProps = {
   layout: ReadingLayout; reading: boolean; reviewing: boolean; auto: boolean; skipping: boolean;
   disabled?: boolean; layoutDisabled?: boolean; canReplay: boolean; canPlay: boolean; canSkip: boolean;
   sceneIndex: number; sceneTotal: number; location: string; label: string; nextDisabled?: boolean;
+  previousSceneDisabled?: boolean; nextSceneDisabled?: boolean;
   onLayout: () => void; onLog: () => void; onReplay: () => void; onAuto: () => void; onSkip: () => void;
   onScene: (index: number) => void; onNext: () => void; actions?: ReactNode;
 };
@@ -34,12 +35,12 @@ export function ReadingControls(p: ReadingControlsProps) {
     <DiamondWatermark className="rp-app__bar-watermark" size={48} innerInset={10} patternTransform="translate(0 2)"
       outerFill="currentColor" innerFill="currentColor" outerOpacity={0.09} innerOpacity={0.016}/>
     <nav className="rp-app__pager" aria-label="幕切换" title={p.location}>
-      <button type="button" className="rp-app__chip rp-app__chip--nav" aria-label="上一幕" disabled={p.disabled || p.sceneIndex <= 0} onClick={() => p.onScene(p.sceneIndex - 1)}><Chevron flip/></button>
+      <button type="button" className="rp-app__chip rp-app__chip--nav" aria-label="上一幕" disabled={p.disabled || p.previousSceneDisabled || p.sceneIndex <= 0} onClick={() => p.onScene(p.sceneIndex - 1)}><Chevron flip/></button>
       <span className="rp-app__cell rp-app__scene" data-live={!p.reviewing || undefined}>
         <span className="rp-app__cell-main rp-app__scene-no">{readingRoman(p.sceneIndex + 1)}<em>/</em>{readingRoman(p.sceneTotal)}</span>
         <span className="rp-app__cell-label">{p.reviewing ? "REPLAY" : "SCENE"}</span>
       </span>
-      <button type="button" className="rp-app__chip rp-app__chip--nav" aria-label="下一幕" disabled={p.disabled || p.sceneIndex >= p.sceneTotal - 1} onClick={() => p.onScene(p.sceneIndex + 1)}><Chevron/></button>
+      <button type="button" className="rp-app__chip rp-app__chip--nav" aria-label="下一幕" disabled={p.disabled || p.nextSceneDisabled || p.sceneIndex >= p.sceneTotal - 1} onClick={() => p.onScene(p.sceneIndex + 1)}><Chevron/></button>
     </nav>
     <button type="button" className="rp-app__cell rp-app__cue" aria-label={p.label} disabled={p.disabled || p.nextDisabled} onClick={p.onNext}>
       <span className="rp-app__cue-line"><Caret side="start"/><span className="rp-app__cue-word">{Array.from(p.label).map((char,i)=><span key={i}>{char}</span>)}</span><Caret side="end"/></span>

@@ -82,6 +82,7 @@ export function validateD5EvidenceContent(catalog: ValidatedD5Catalog, entry: D5
     if (!catalog.data.facilities) v.invalid("facilities", "Unavailable content", "content-unavailable");
   } else if (e.type === "game-start-selected") {
     validateGameStart(catalog, e.startAt);
+    if (e.openingFlowVersion !== undefined && (catalog.ref.contentVersion !== 28 && !(catalog.ref.contentVersion === 27 && (e.startAt === "debug-offline" || e.startAt === "debug-shop")))) v.invalid("openingFlowVersion", "Opening flow requires the current player or debugging package", "content-unavailable");
   } else if (e.type === "shop-introduction-advanced") {
     validateShopIntroductionAdvance(catalog, e);
   } else if (e.type === "opening-advanced") {
@@ -184,6 +185,10 @@ export function projectD5Progress(catalog: ValidatedD5Catalog, raw: unknown, rea
     if (e.type === "game-start-selected") {
       if (entry.revision !== 1 || readers.baseline) v.invalid("startAt", "Only a fresh, unplayed save can select its start", "command-not-available");
       applyGameStart(catalog, state, e.startAt, entry.id, e.playerName);
+      if (e.openingFlowVersion !== undefined) {
+        if (catalog.ref.contentVersion !== 28 && !(catalog.ref.contentVersion === 27 && (e.startAt === "debug-offline" || e.startAt === "debug-shop"))) v.invalid("openingFlowVersion", "Opening flow requires the current player or debugging package", "content-unavailable");
+        state.openingFlowVersion = e.openingFlowVersion;
+      }
       if (catalog.data.shop) state.shop = initializeShop(catalog.data.shop, entry.id);
       advanceFacilities(catalog, state, entry.id);
       continue;

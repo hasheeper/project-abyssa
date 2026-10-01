@@ -3,7 +3,7 @@ import { animate, motion, useMotionValue } from "motion/react";
 import { motionTokens } from "../../shared/ui/motion/presets";
 import type { MenuView } from "./useMenuView";
 
-/** One persistent surface for all three system sections. Its lifecycle follows
+/** One persistent surface for the system sections. Its lifecycle follows
  * the home/system boundary, never a content, page or SAVE/LOAD mode clock. */
 export function MenuSystemBackdrop({ displayed, target, skip }: { displayed: MenuView; target: MenuView; skip: boolean }) {
   const visible = displayed !== "home" && target !== "home";
@@ -11,7 +11,7 @@ export function MenuSystemBackdrop({ displayed, target, skip }: { displayed: Men
   const boundaryTiming = useRef<{ surfaceMs: number; enterMs: number; exitMs: number }>(motionTokens.saveSlots);
   // Read timing only when crossing the boundary. Changing system sections must
   // not restart even a partially completed backdrop entrance.
-  boundaryTiming.current = displayed === "save" || displayed === "load" ? motionTokens.saveSlots : motionTokens.settingsPanel;
+  boundaryTiming.current = displayed === "save" || displayed === "load" ? motionTokens.saveSlots : displayed === "memory" ? motionTokens.memoryJournal : motionTokens.settingsPanel;
   useLayoutEffect(() => {
     const goal = visible ? 1 : 0;
     if (skip) { opacity.set(goal); return; }

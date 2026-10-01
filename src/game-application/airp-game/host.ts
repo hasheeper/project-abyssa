@@ -18,6 +18,8 @@ import { pendingHomeBoundary } from "./home";
 import { projectGMShare, readGMShare, sameGMShareContent } from "./gm-share";
 import { recordMemoryContext } from "../airp-memory/d5";
 import { createD5Application } from "../versions/d5-service";
+import type { DirectorCommand } from "../airp-director/contracts";
+import { directorStage } from "../airp-director/jobs";
 
 /** Formal D5 owning-save adapters. No second gameplay root, wallet or drop implementation. */
 export function createAirpGameHost(store: D5Store, catalog: ValidatedD5Catalog, saveId: string) {
@@ -35,6 +37,20 @@ export function createAirpGameHost(store: D5Store, catalog: ValidatedD5Catalog, 
     if (r.snapshot.run) throw Error("请先结束当前远征，再更新委托登记。");
     const result = await createD5Application(catalog, store).dispatch({protocolVersion: 4, saveId, expectedHead: r.head,
       clientRequestId: `commission-registration:${r.head.epoch}:${r.head.revision}`, command: {type: "airp-director-enable-commissions"}});
+    if (!result.ok) throw Error(result.error.message);
+    return read();
+  }
+  async function enableResidents(command: Extract<DirectorCommand, {type: "airp-director-enable-residents"}>, expectedHead?: HeadRef) {
+    const r = await read(), state = r.airpDirector, game = r.airpGame;
+    if (expectedHead && !sameHead(r.head, expectedHead)) return r;
+    // Finish saved requests and settlements with their original inputs first.
+    if (r.snapshot.run || pendingHomeBoundary(r) || state?.reading && !state.reading.completed && !state.reading.paused ||
+      state?.jobs.some(j => j.attempts.some(a => a.status === "running") || directorStage(j) === "scene-plan") ||
+      game?.settlement.jobs.some(j => j.status !== "applied") ||
+      Object.values(game?.nodes ?? {}).some(n => n.jobs.some(j => j.status === "open")) ||
+      game?.gm.jobs.some(j => !["cancelled", "started"].includes(j.status))) return r;
+    const result = await createD5Application(catalog, store).dispatch({protocolVersion: 4, saveId, expectedHead: r.head,
+      clientRequestId: `resident-registration:${r.head.epoch}:${r.head.revision}`, command});
     if (!result.ok) throw Error(result.error.message);
     return read();
   }
@@ -108,7 +124,7 @@ export function createAirpGameHost(store: D5Store, catalog: ValidatedD5Catalog, 
       return commit(r.head, "prepare", false, n => { n.airpGame = { version: 1, worldHead: gameClone(r.head), material: gameClone(material), preparation: null, gm: { version: 1, jobs: [] }, nodes: {},
         settlement: createSettlementLedger(policy, { protocol: 1, policyId: policy.id, head: r.head, phase: airpPhaseIndex(r.snapshot.campaign.clock.day, r.snapshot.campaign.clock.phase), actors: [], affinity: [] }) }; });
   }
-  return { read, gm, nodes, settlement, registerCommissions, initialize,
+  return { read, gm, nodes, settlement, registerCommissions, enableResidents, initialize,
     async prepare(departure: D5Departure, material: LowMaterial, intent = "沿选定路线探索，承接当前队伍与已经接受的委托。", appraiser?: Omit<ExpeditionDocument, "triggerIds">) {
       let r = await read(); if (r.snapshot.run || r.airpDirector?.reading && !r.airpDirector.reading.paused) throw Error("请先结束当前远征或交谈。");
       if (pendingHomeBoundary(r)) throw Error("请先整理本次反馈或选择仅记程序事实。");

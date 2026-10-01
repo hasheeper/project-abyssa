@@ -48,7 +48,7 @@ export function createPlayerRuntime(store: VersionedGameStore, environment: {new
   return {
     ...environment,
     airpGame: createAirpGameRuntime(store),
-    defaultCreation: {protocolVersion: 4 as const, contentVersion: 27 as const, profileId: "profile.demo.first-run"},
+    defaultCreation: {protocolVersion: 4 as const, contentVersion: 28 as const, profileId: "profile.demo.first-run"},
     queries: { ...runtime.queries, continuation(record: AnyGameRecord) {
       const next = runtime.queries.continuation(record);
       if (next && record.schemaVersion === 4 && [22, 24, 26, 28].includes(record.contentRef.contentVersion)) {
@@ -83,10 +83,18 @@ export function createPlayerRuntime(store: VersionedGameStore, environment: {new
       async createNewGame(raw: {saveId: string; epoch: string; clientRequestId: string; startAt: GameStartPoint; playerName?: string}) {
         try {
           const r = v.record(raw, "newGame", ["saveId", "epoch", "clientRequestId", "startAt"], ["playerName"]);
-          const startAt = v.choice(r.startAt, GAME_START_POINTS, "startAt");
+          const requestedStart = v.choice(r.startAt, GAME_START_POINTS, "startAt");
           // Reject an invalid name before even the empty save is created.
           const naming = "playerName" in r ? {playerName: parsePlayerName(r.playerName)} : {};
-          const catalog = startAt === "airp-director" ? ESTATE_AIRP_CATALOG : startAt === "airp-demo" ? AIRP_DIRECT_CATALOG : ESTATE_CATALOG;
+          // New games share the formal package; old packages only recover an existing identity.
+          const prior = await store.read(v.id(r.saveId, "saveId"));
+          const registered = prior?.schemaVersion === 4 && PLAYER_CATALOGS.find(entry => entry.version === 4 && v.canonicalJson(entry.catalog.ref) === v.canonicalJson(prior.contentRef));
+          const catalog = registered && registered.version === 4 ? registered.catalog : requestedStart === "debug-offline" || requestedStart === "debug-shop" ? ESTATE_CATALOG : ESTATE_AIRP_CATALOG;
+          const priorStart = prior?.schemaVersion === 4 ? prior.facts.find(f => f.kind === "progression" && f.payload.type === "game-start-selected") : undefined;
+          const historicalSelection = priorStart?.kind === "progression" && priorStart.payload.type === "game-start-selected" && priorStart.payload.openingFlowVersion !== 1;
+          const startAt = catalog.ref.contentVersion === 28 && !historicalSelection && ["airp-demo", "airp-director"].includes(requestedStart) ? "hub" : requestedStart;
+          const unified = catalog.ref.contentVersion === 28 || catalog.ref.contentVersion === 27 && (startAt === "debug-offline" || startAt === "debug-shop");
+          const openingFlowVersion = unified && (!priorStart || priorStart.kind === "progression" && priorStart.payload.type === "game-start-selected" && priorStart.payload.openingFlowVersion === 1) ? {openingFlowVersion: 1 as const} : {};
           const request = {protocolVersion: 4 as const, profileId: catalog.data.journey!.defaultProfileId,
             saveId: v.id(r.saveId, "saveId"), epoch: v.id(r.epoch, "epoch"), clientRequestId: v.id(r.clientRequestId, "clientRequestId")};
           const created = await runtime.create({contentRef: catalog.ref, request});
@@ -95,7 +103,7 @@ export function createPlayerRuntime(store: VersionedGameStore, environment: {new
           // must fail fingerprint validation, not silently change the start.
           return await runtime.dispatch({protocolVersion: 4, saveId: request.saveId, expectedHead: created.receipt.after,
             clientRequestId: `start:${v.sha256(v.canonicalJson(request)).slice(0, 32)}`,
-            command: {type: "select-game-start", startAt, ...naming}});
+            command: {type: "select-game-start", startAt, ...naming, ...openingFlowVersion}});
         } catch (e) { return {ok: false as const, error: applicationError(e)}; }
       },
       continueSave(raw: {sourceSaveId:string;expectedSourceHead:AnyGameRecord["head"];saveId:string;epoch:string;clientRequestId:string;kind:"upgrade"|"cycle";contentVersion?:8|9|10}) {

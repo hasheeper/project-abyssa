@@ -1,0 +1,4 @@
+.memory-replay { position: absolute; inset: 0; z-index: 30; background: #101616; color: #d4cdb7; outline: none; }
+.memory-replay__surface { width: 100%; height: 100%; }
+.memory-replay__caption { position: absolute; top: 24px; left: 38px; display: flex; align-items: baseline; gap: 16px; pointer-events: none; font: 15px/1.5 var(--abyssa-font-body); text-shadow: 0 2px 14px #000; }
+.memory-replay__caption > span:first-child { font-size: 12px; color: #9ba99b; }

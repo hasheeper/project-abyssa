@@ -10,7 +10,7 @@ import { createExpeditionGMService } from "../game-application/airp-expedition-g
 import { createNodeService, nodeStage } from "../game-application/airp-expedition-play/service";
 import { nodeBoundaryReady, nodeGate } from "../game-application/airp-expedition-play/context";
 import { createSettlementService } from "../game-application/airp-settlement/service";
-import { lowR8Source, householdLowR8Source } from "../content/presentation/airp/low-r8-source";
+import { airpMaterialForVersion, FORMAL_AIRP_VERSION, formalResidentUpgrade, needsFormalResidentUpgrade } from "./airp-director-configuration";
 import { tibbyAppraisalReference } from "../content/presentation/airp/appraisal-reference";
 import { AIRP_GAME_CATALOG } from "./airp-game-context";
 import { createExpeditionGMDriver } from "./airp-expedition-gm-driver";
@@ -33,12 +33,22 @@ export function createAirpGameRuntime(store: VersionedGameStore) {
       async commit(command) {if(command.epoch!==epoch)throw Error("档案身份已变化，拒绝写入原任务。");return bridge.commit(command);},
     };
     const host = createAirpGameHost(scoped, contentVersion === 28 ? ESTATE_AIRP_CATALOG : contentVersion === 26 ? FACILITIES_AIRP_CATALOG : contentVersion === 24 ? SHOP_AIRP_CATALOG : AIRP_GAME_CATALOG, saveId);
-    const source = contentVersion === 28 ? householdLowR8Source : lowR8Source;
+    const source = airpMaterialForVersion(contentVersion);
+    async function configureDirector() {
+      const record = await host.read();
+      if (contentVersion !== FORMAL_AIRP_VERSION || !record.airpDirector ||
+        record.snapshot.campaign.tutorial?.status === "pending" || record.snapshot.campaign.tutorial?.status === "active") return record;
+      const updated = needsFormalResidentUpgrade(record.airpDirector) ? await host.enableResidents(formalResidentUpgrade(record.airpDirector), record.head) : record;
+      return updated.airpDirector?.residentCast ? host.initialize(source) : updated;
+    }
     const gm = createExpeditionGMService(host.gm), nodes = createNodeService(host.nodes), settlement = createSettlementService(host.settlement);
-    return { host, gm, nodes, settlement, gmDriver: createExpeditionGMDriver(), nodeDriver: createNodeDriver(), settlementDriver: createSettlementDriver(),
-      async prepare(departure: D5Departure) { await host.prepare(departure, source, undefined, tibbyAppraisalReference); return gm.enqueue(); },
+    return { host, gm, nodes, settlement, configureDirector, gmDriver: createExpeditionGMDriver(), nodeDriver: createNodeDriver(), settlementDriver: createSettlementDriver(),
+      async prepare(departure: D5Departure) { await configureDirector(); await host.prepare(departure, source, undefined, tibbyAppraisalReference); return gm.enqueue(); },
       /** Pure bookkeeping recovery after real gameplay; NEVER calls a provider. */
       async sync() {
+        const before = await host.read();
+        if (before.snapshot.campaign.tutorial?.status === "pending" || before.snapshot.campaign.tutorial?.status === "active") return;
+        await configureDirector();
         const r = await host.initialize(source), plan = currentGamePlan(r);
         if (!plan) return;
         if (plan.status === "accepted" && r.snapshot.run?.kind === "expedition") await gm.recordStarted(plan.id);

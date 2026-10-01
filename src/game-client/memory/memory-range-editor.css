@@ -1,0 +1,53 @@
+/* Same feathered, translucent material as the sidebar's confirmation/feedback UI. */
+.memory-time__editor.scene-feedback__surface {
+  position: absolute;
+  z-index: 20;
+  top: 76px;
+  left: -20px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  width: max-content;
+  padding: 23px 32px;
+  color: #c7c9b7;
+  font-size: 16px;
+}
+.memory-time__editor::before { background: rgb(10 18 19 / 76%); }
+.memory-time__editor::after {
+  background:
+    linear-gradient(90deg, transparent 4%, rgb(180 191 174 / 28%) 24%, rgb(180 191 174 / 12%) 78%, transparent 96%) top / 100% 1px no-repeat,
+    linear-gradient(90deg, transparent 4%, rgb(180 191 174 / 12%) 38%, transparent 96%) bottom / 100% 1px no-repeat;
+}
+.memory-time__editor label { display: flex; align-items: baseline; gap: 10px; white-space: nowrap; }
+.memory-time__editor input {
+  appearance: textfield;
+  width: 68px;
+  padding: 5px 2px 7px;
+  border: 0;
+  border-bottom: 1px solid rgb(179 189 162 / 36%);
+  border-radius: 0;
+  background: linear-gradient(180deg, transparent, rgb(180 190 161 / 5%));
+  color: #e8dfc6;
+  font: 26px/1.2 var(--abyssa-font-display);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  transition: border-color var(--abyssa-motion-hover), background var(--abyssa-motion-hover);
+}
+.memory-time__editor input::-webkit-inner-spin-button,
+.memory-time__editor input::-webkit-outer-spin-button { margin: 0; appearance: none; }
+.memory-time__editor input:focus { outline: none; border-color: #d4c9a8; background: linear-gradient(180deg, transparent, rgb(180 190 161 / 10%)); }
+.memory-time__editor input::selection { background: rgb(185 162 113 / 26%); }
+.memory-time__editor .memory-time__apply.scene-feedback__action {
+  --abyssa-shape-middle: rgb(205 196 166 / 52%);
+  --abyssa-shape-fill: rgb(18 27 28 / 14%);
+  width: 136px;
+  margin: 0 0 0 2px;
+}
+.memory-time__apply.scene-feedback__action > .abyssa-shape-button__content { padding-inline: 12px; color: #e8dfc6; font-size: 16px; }
+.memory-time__editor .memory-time__apply:is(:hover, :focus-visible):not(:disabled) { --abyssa-shape-middle: #cfc5a6; --abyssa-shape-fill: rgb(180 190 161 / 9%); }
+.memory-time__editor .memory-time__apply:focus-visible { outline: none; }
+.memory-time__apply:focus-visible [data-part="frame-middle"] { stroke-width: 3; }
+.memory-time__editor .memory-time__cancel { min-height: 44px; padding: 0 8px; color: #aeb6a8; font-size: 15px; }
+.memory-time__editor .memory-time__cancel:hover { color: #e8dfc6; }
+.memory-time__editor:has(.memory-time__editor-hint) { padding-bottom: 48px; }
+.memory-time__editor-hint { position: absolute; left: 32px; bottom: 17px; margin: 0; color: #d1bb89; font-size: 13px; line-height: 18px; }

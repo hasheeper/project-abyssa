@@ -16,13 +16,14 @@ import {emptySettlementProposal} from "../airp-settlement/context";
 import {emptyUsage} from "../airp-generation/contracts";
 import {parseDirectorCommand} from "./parse";
 import {compileDirectorJob} from "./jobs";
+import {formalResidentUpgrade} from "../../game-runtime/airp-director-configuration";
 
 const material = () => ({...directorTestMaterial(8), resources: {...directorTestMaterial(8).resources, sources: structuredClone(householdDirectorDocuments)}});
 const configuration = () => ({type: "airp-director-configure" as const, material: material(), lowMaterial: householdLowR8Source,
   lowReadVersion: 6 as const, lowContextVersion: 21 as const, residentCast: HOUSEHOLD_RESIDENT_CAST});
 async function setup() {
   const f = await formalAirpFixture(undefined, 28);
-  await f.flow.sync(); // An existing four-person host must upgrade without resetting its state.
+  await f.flow.sync();
   await f.send(configuration()); await f.flow.sync();
   return {...f, wf: {read: async () => f.raw(), send: f.send}};
 }
@@ -44,12 +45,13 @@ it("loads intact two-character originals and guidance while preserving the legac
   expect(guide.text).toContain("不按日期轮播");
 });
 
-it("opts in at a replayable mansion checkpoint without unlocking combat or overwriting saved day frames", async () => {
-  const f = await formalAirpFixture(undefined, 28); await f.flow.sync();
+it("automatically upgrades an existing mansion save without unlocking combat or overwriting saved day frames", async () => {
+  const f = await formalAirpFixture(undefined, 28);
+  await f.flow.host.initialize(lowR8Source); // Historical host, before automatic resident registration.
   await f.send({type: "airp-director-configure", material: directorTestMaterial(8), lowMaterial: lowR8Source, lowReadVersion: 6, lowContextVersion: 21});
   await f.send({type: "airp-director-prepare-day"});
   const original = f.raw().airpDirector!.jobs[0], combat = f.raw().snapshot.campaign.availableCharacterIds;
-  await f.send(configuration()); await f.flow.sync();
+  await f.flow.sync();
   const view = directorView(f.raw())!;
   expect(view.context.capabilities.actorIds).toHaveLength(6);
   expect(view.context.world.availableActorIds).toEqual(expect.arrayContaining(["marietta", "abyssa"]));
@@ -57,6 +59,7 @@ it("opts in at a replayable mansion checkpoint without unlocking combat or overw
   expect(combat).not.toContain("marietta"); expect(combat).not.toContain("abyssa");
   for (const id of ["marietta", "abyssa"]) expect(() => createD5ExpeditionEngine(ESTATE_AIRP_CATALOG).create(f.raw().snapshot.campaign, {...f.departure, partyIds: ["kael", id]})).toThrow();
   expect(f.raw().airpDirector!.jobs[0]).toEqual(original);
+  expect(f.raw().airpDirector!.materials[original.materialHash]).toEqual(directorTestMaterial(8));
   expect(f.raw().airpGame!.settlement.policy.actorIds).toEqual(expect.arrayContaining(["marietta", "abyssa"]));
   await archive({...f, wf: {read: async () => f.raw(), send: f.send}});
 }, 120000);
@@ -132,3 +135,32 @@ it("rejects unknown residents, invalid locations, absent full sources and legacy
   await expect(f.send(bad)).rejects.toThrow(/originals/);
   const legacy = await formalAirpFixture(); await expect(legacy.send(configuration())).rejects.toThrow(/checkpoint/);
 });
+
+it("defers automatic migration during a saved request, then preserves its frozen input on retry", async () => {
+  const f = await formalAirpFixture(undefined, 28), wf = {read: async () => f.raw(), send: f.send};
+  await f.flow.host.initialize(lowR8Source);
+  await f.send({type: "airp-director-configure", material: directorTestMaterial(8), lowMaterial: lowR8Source, lowReadVersion: 6, lowContextVersion: 21});
+  await f.send({type: "airp-director-prepare-day"});
+  const job = f.raw().airpDirector!.jobs.at(-1)!, input = compileDirectorJob(directorTestMaterial(8), job);
+  await f.send({type: "airp-director-begin", jobId: job.id, attemptId: "in-flight", stage: "director", at: 1});
+  const before = f.raw();
+  await f.flow.sync(); expect(f.raw()).toEqual(before);
+  await expect(f.send(formalResidentUpgrade(before.airpDirector!))).rejects.toThrow(/frozen scene request/);
+  await f.send({type: "airp-director-fail", jobId: job.id, attemptId: "in-flight", error: "interrupted", outcomeUnknown: true, usage: emptyUsage(), at: 2});
+  const interrupted = f.raw().airpDirector!.jobs.at(-1)!;
+  await f.flow.sync();
+  expect(f.raw().airpDirector!.jobs.at(-1)).toEqual(interrupted);
+  expect(compileDirectorJob(f.raw().airpDirector!.materials[job.materialHash], interrupted)).toEqual(input);
+  const result = await directorOutput(wf, interrupted, "director", JSON.stringify({version: 1, day: 1, reason: "沿用已保存安排", focus: null, entries: []}));
+  await f.send({type: "airp-director-accept-day", jobId: result.id});
+  expect(directorView(f.raw())!.context.capabilities.actorIds).toHaveLength(6);
+  await archive({...f, wf});
+}, 30000);
+
+it("rejects an incomplete connection-free resident bootstrap", async () => {
+  const f = await formalAirpFixture(undefined, 28), command = formalResidentUpgrade(f.raw().airpDirector!);
+  const before = f.raw();
+  command.lowMaterial = {...command.lowMaterial, sources: command.lowMaterial.sources.filter(s => s.id !== "abyssa")};
+  await expect(f.send(command)).rejects.toThrow(/full originals/);
+  expect(f.raw()).toEqual(before);
+}, 30000);

@@ -9,8 +9,7 @@ import { AiSettingsButton } from "../settings/AiSettingsButton";
 import { InlineFeedback } from "../../shared/ui/patterns/SceneFeedback";
 import { GameOperationFeedback } from "../GameOperationFeedback";
 import type { AuthoredLine } from "../../content/presentation/authored-story";
-import manor from "../../assets/backgrounds/old-manor/service-corridor.jpg";
-import shore from "../../assets/backgrounds/tide-reef/bg.tide-reef.shore.jpg";
+import { airpExpeditionBackground } from "../../content/presentation/airp-expedition";
 import { navigateTo } from "../../shared/routing/location";
 import { gameHref, recordLocator } from "../navigation";
 import { CallLog } from "../airp-generation/CallLog";
@@ -55,7 +54,7 @@ export function AirpGameGate({ children }: { children: ReactNode }) {
   const needsRewardUpgrade = preparing && !!plan!.frames.at(-1)!.context.rules.commissions.length && plan!.frames.at(-1)!.context.rules.commissionRewardVersion !== 1;
   const busy = working || !!gmProgress?.busy || !!nodeProgress?.busy || !!settleProgress?.busy;
   const pending = !!(gmProgress?.pendingResult || nodeProgress?.pendingResult || settleProgress?.pendingResult);
-  const background = !home && formal.airpGame!.preparation?.departure.routeId.includes("tide-reef") ? shore : manor;
+  const background = airpExpeditionBackground(!home ? formal.airpGame!.preparation?.departure.routeId ?? "" : "");
   const act = async (fn: () => Promise<unknown>) => {
     if (flight.current) return;
     flight.current = true; setWorking(true); setError("");

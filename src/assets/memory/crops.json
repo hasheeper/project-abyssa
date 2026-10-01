@@ -1,0 +1,35 @@
+{
+  "source": "docs/design/memory-journal-2026-09-30/reference-01-main-ui.png",
+  "boxesLTRB": {
+    "corridor": [
+      550,
+      217,
+      635,
+      301
+    ],
+    "leaves": [
+      550,
+      352,
+      635,
+      437
+    ],
+    "tower": [
+      550,
+      486,
+      635,
+      572
+    ],
+    "candles": [
+      550,
+      622,
+      635,
+      709
+    ],
+    "journal": [
+      550,
+      758,
+      635,
+      841
+    ]
+  }
+}

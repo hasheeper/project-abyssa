@@ -60,6 +60,7 @@ export function tideStory(id: string, edition: TideStoryEdition = "legacy") {
     return storyStages[stage];
   });
   return {
+    nodes,
     title: story.sections.find(s => s.id === id)!.title,
     revision,
     isFinal: story.sections.at(-1)?.id === id,

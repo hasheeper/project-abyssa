@@ -5,6 +5,10 @@ import { GameProvider, GameGate, useGameSession, useGameState } from "../../game
 import { createManualSaveAttempt, type ManualSaveAttempt } from "../../game-client/manual-save";
 import { SaveSlotsPanel } from "../../game-client/SaveSlotsPanel";
 import { SettingsPanel } from "../../game-client/settings/SettingsPanel";
+import { MemoryPanel } from "../../game-client/memory/MemoryPanel";
+import { MemoryReplay } from "../../game-client/memory/MemoryReplay";
+import { useMemoryJournal } from "../../game-client/memory/useMemoryJournal";
+import type { MemoryJournalData } from "../../game-client/memory/memory-types";
 import { sameHead } from "../../game-runtime/views";
 import { gameHref, recordLocator, type GamePage } from "../../game-client/navigation";
 import type { CSSProperties } from "react";
@@ -114,44 +118,52 @@ export function MenuPage() {
   );
 }
 
-function MenuPageContent() {
+export function MenuPageContent({ memoryData: previewData, preview = false }: { memoryData?: MemoryJournalData; preview?: boolean } = {}) {
   const { navigate, phase: scenePhase } = useSceneTransition();
   const intro = useMenuIntro(scenePhase);
   const session = useGameSession();
   const game = useGameState(), record = game.record!, locator = recordLocator(record);
-  const view = useMenuView(intro.ref, true);
+  const memoryData = useMemo(() => previewData ?? session.runtime.queries.memoryJournal(record), [previewData, session, record]);
+  const view = useMenuView(intro.ref, true, preview ? "memory" : "home");
+  const journal = useMemoryJournal(`${record.head.saveId}:${record.head.epoch}`, memoryData, record.snapshot.campaign.clock.day);
   const startingReward = useMemo(() => session.runtime.queries.startReward(record), [record, session]);
   const [operationBusy, setOperationBusy] = useState(false);
   const operationLock = useRef(false);
   const onBusyChange = useCallback((busy: boolean) => { operationLock.current = busy; setOperationBusy(busy); }, []);
   const saveAttempt = useRef<ManualSaveAttempt | null>(null);
-  const lastSection = useRef<MenuView>("home");
+  const lastSection = useRef<MenuView>(preview ? "memory" : "home");
   const contentRef = useRef<HTMLDivElement>(null);
   const home = view.displayed === "home";
   useMenuParallax(intro.ref, intro.blocked || view.target !== "home" || !home || view.transitioning);
   function openSystem(next: Exclude<MenuView, "home">) {
+    if (preview && (next === "save" || next === "load")) return;
     if (operationLock.current || view.target === next || (next !== "settings" && game.status !== "ready")) return;
     if (next === "save" && view.displayed !== "save" && (!saveAttempt.current || saveAttempt.current.completed || !sameHead(saveAttempt.current.source.head, record.head)))
       saveAttempt.current = createManualSaveAttempt(session.runtime, record);
     lastSection.current = next;
+    journal.remember();
     view.request(next);
   }
   const requestView = view.request;
-  const back = useCallback(() => { if (!operationLock.current) requestView("home"); }, [requestView]);
+  const rememberMemory = journal.remember;
+  const back = useCallback(() => { if (!operationLock.current) { rememberMemory(); requestView("home"); } }, [requestView, rememberMemory]);
+  const memoryBack = journal.showCatalogue;
   useEffect(() => {
     if (view.target === "home") return;
     const escape = (event: KeyboardEvent) => {
       if (event.key !== "Escape" || event.defaultPrevented || event.repeat || event.isComposing || event.altKey || event.ctrlKey || event.metaKey) return;
-      event.preventDefault(); back();
+      event.preventDefault();
+      if (!operationLock.current && view.target === "memory" && view.displayed === "memory" && memoryBack()) return;
+      back();
     };
     window.addEventListener("keydown", escape);
     return () => window.removeEventListener("keydown", escape);
-  }, [view.target, back]);
+  }, [view.target, view.displayed, back, memoryBack]);
   useEffect(() => {
-    if (view.transitioning || lastSection.current === "home") return;
+    if (view.transitioning || lastSection.current === "home" || intro.state !== "ready") return;
     if (home) intro.ref.current?.querySelector<HTMLButtonElement>(`[data-section="${lastSection.current}"]`)?.focus({ preventScroll: true });
     else contentRef.current?.focus({ preventScroll: true });
-  }, [view.transitioning, home, view.displayed, intro.ref]);
+  }, [view.transitioning, home, view.displayed, intro.ref, intro.state]);
   const route = (href: string) => gameHref(href.replace(/^\.\//, "").replace(/\.html$/, "") as GamePage, locator);
   const [selectedCommand, setSelectedCommand] = useState<MenuCommandId>("estate");
   const [selectedSection, setSelectedSection] = useState<MenuSectionId | null>(null);
@@ -192,7 +204,7 @@ function MenuPageContent() {
       >
       <div className="menu-scenery" aria-hidden="true" />
       <div className="menu-scenery-shade" aria-hidden="true" />
-      <AbyssaProvider className="menu-app">
+      <AbyssaProvider className="menu-app" inert={!!journal.replayEntry} aria-hidden={!!journal.replayEntry || undefined}>
         {home && <div className="menu-home-backdrop" aria-hidden="true"><MenuBackdrop /></div>}
         <MenuTopBar
           day={day}
@@ -236,12 +248,13 @@ function MenuPageContent() {
         <div className="menu-app__body">
           <MenuSidebar
             selectedId={view.target === "home" ? selectedSection : view.target}
-            archiveDisabled={game.status !== "ready"}
+            archiveDisabled={preview || game.status !== "ready"}
             disabled={operationBusy}
             onSelect={(id) => {
               if (operationLock.current) return;
-              if (id === "save" || id === "load" || id === "settings") { openSystem(id); return; }
-              // 图鉴、成就、记忆仍仅占位；角色从右侧四键进入原页面。
+              if (id === "save" || id === "load" || id === "settings" || id === "memory") { openSystem(id); return; }
+              // 图鉴、成就仍仅占位；角色从右侧四键进入原页面。
+              journal.remember();
               view.request("home");
               setSelectedSection(id);
               say(SECTION_LINES[id]);
@@ -280,6 +293,7 @@ function MenuPageContent() {
                 say(COMMAND_LINES[id]);
               }}
               onActivate={(id) => {
+                if (preview) return;
                 const target = COMMAND_DESTINATIONS[id];
                 navigate(id === "sortie" && activeRunId(record) ? gameHref("battle", locator) : route(target.href), {
                   destination: target.destination,
@@ -304,13 +318,16 @@ function MenuPageContent() {
               onClose={back} onBusyChange={onBusyChange}
               sceneMotion={view.archiveMotion}
               navigate={href => navigate(href, { destination: "存档进度", channel: "正在读取", entry: "restore" })} />
-            : view.displayed === "settings" ? <SettingsPanel embedded onBack={back} sceneMotion={view.settingsMotion} /> : null}
+            : view.displayed === "settings" ? <SettingsPanel embedded onBack={back} sceneMotion={view.settingsMotion} />
+            : view.displayed === "memory" ? <MemoryPanel journal={journal} data={memoryData} onBack={back} sceneMotion={view.memoryMotion}/> : null}
           </motion.div>
         </div>
         {startingReward && <StartingRewards key={`${record.head.saveId}:${record.head.epoch}:${startingReward.id}`}
           reward={startingReward} saveId={record.head.saveId} epoch={record.head.epoch}
           paused={intro.blocked || intro.state !== "ready" || !home || view.transitioning || view.target !== "home"}/>}
       </AbyssaProvider>
+      {journal.replayEntry && <AbyssaProvider><MemoryReplay key={`${journal.scope}:${journal.replayEntry.id}:${journal.replayActId}`} entry={journal.replayEntry} actId={journal.replayActId}
+        leaving={journal.replayLeaving} onClose={journal.stopReplay} onExited={journal.finishReplay}/></AbyssaProvider>}
       </div></ArchiveOverlayScope>
     </Stage>
   );

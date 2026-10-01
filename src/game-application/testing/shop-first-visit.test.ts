@@ -3,7 +3,7 @@ import { GameStorageError } from "../index";
 import { shopFixture } from "./shop-foundation-fixture";
 import type { ShopVisitPhase } from "../../game-core/contracts/shop-visit";
 
-async function create(startAt: "hub" | "debug-shop" | "airp-director" = "hub") {
+async function create(startAt: "hub" | "debug-shop" | "airp-director" = "debug-shop") {
   const f = shopFixture();
   const result = await f.runtime.application.createNewGame({saveId: f.saveId, epoch: "visit-epoch", clientRequestId: "create", startAt});
   expect(result.ok).toBe(true);
@@ -91,6 +91,16 @@ it("enables the complete scene for the AIRP shortcut without forging a tutorial 
   expect(f.read().snapshot.campaign.tutorial?.status).toBe("exempt");
   expect(f.read().snapshot.campaign.settlements).toEqual([]);
   expect((await f.runtime.application.open(f.saveId)).ok).toBe(true);
+});
+
+it("keeps an already-begun free-start visit readable when new free starts use the ordinary counter", async () => {
+  const f = await create("hub");
+  expect(f.view().firstVisit).toBeNull();
+  // A historical begin receipt remains replayable even though new UI skips it.
+  await f.commit({type: "begin-shop-visit", shopId: "shop.mansion"});
+  await f.advance();
+  expect(f.view().firstVisit).toMatchObject({canBegin: false, progress: {status: "active", phase: "arrival", step: 1}});
+  expect(await shopFixture(f.read()).runtime.application.open(f.saveId)).toEqual({ok: true, record: f.read()});
 });
 
 it("keeps previously sold lots and frozen old prices intact instead of granting missing story props", async () => {

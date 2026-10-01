@@ -83,7 +83,7 @@ test("opening uses library controls and a continuous blackout without explanator
   await input.fill("林恩");
   await page.screenshot({path: info.outputPath("opening-name.png")});
   await page.getByRole("button", {name: "下一步", exact: true}).click();
-  await expect(dialog.getByRole("radio")).toHaveCount(5);
+  await expect(dialog.getByRole("radio")).toHaveCount(4);
   await expect(dialog.locator(".new-game-opening__body")).toHaveCSS("height", "306px");
   await page.getByRole("radio", {name: /序章/}).focus();
   await page.keyboard.press("ArrowDown");
@@ -231,7 +231,7 @@ test("debug skip keeps the normal first SHOP performance and the tutorial reward
   await page.getByText("调试入口", {exact: true}).click();
   const debug = page.getByRole("button", {name: "商店初见调试", exact: true});
   await expect(debug).toBeVisible();
-  await expect(page.getByRole("radio")).toHaveCount(5);
+  await expect(page.getByRole("radio")).toHaveCount(4);
   await expect(page.locator(".new-game-opening__body")).toHaveCSS("height", "384px");
   await page.screenshot({path: info.outputPath("debug-start-1280.png")});
   await debug.click();

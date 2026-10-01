@@ -4,16 +4,16 @@ import { useUiMotion } from "../../shared/ui/motion/UiMotionProvider";
 import { motionTokens, uiTransition } from "../../shared/ui/motion/presets";
 import { bindMenuHomeMotion, homeTitleReveal } from "./menu-home-motion";
 
-export type MenuView = "home" | "save" | "load" | "settings";
+export type MenuView = "home" | "save" | "load" | "settings" | "memory";
 const timing = motionTokens.menuSection;
 const isArchive = (view: MenuView) => view === "save" || view === "load";
 
 /** Home reverses its layered entrance; sections exchange only their local body.
  * A changed destination does not restart exit. Reversal retains the live clock. */
-export function useMenuView(root: RefObject<HTMLDivElement | null>, waitForArchive = false) {
-  const [target, request] = useState<MenuView>("home");
+export function useMenuView(root: RefObject<HTMLDivElement | null>, waitForArchive = false, initialView: MenuView = "home") {
+  const [target, request] = useState<MenuView>(initialView);
   const latestTarget = useRef(target); latestTarget.current = target;
-  const [displayed, setDisplayed] = useState<MenuView>("home");
+  const [displayed, setDisplayed] = useState<MenuView>(initialView);
   const [phase, setPhase] = useState<"ready" | "leaving" | "entering">("ready");
   const [hidden, setHidden] = useState(() => document.hidden);
   const { reduced } = useUiMotion();
@@ -52,6 +52,7 @@ export function useMenuView(root: RefObject<HTMLDivElement | null>, waitForArchi
       return;
     }
     const isHome = displayed === "home";
+    const panelTiming = displayed === "memory" ? motionTokens.memoryJournal : motionTokens.settingsPanel;
     if (modeChanging) {
       // SAVE/LOAD share a mounted archive. Contents cross-fade without
       // re-drawing rails; the title keeps the same slide used by other sections.
@@ -89,7 +90,7 @@ export function useMenuView(root: RefObject<HTMLDivElement | null>, waitForArchi
             * (exiting ? timing.homeExitMs : timing.homeMs) / 1000, ease: "linear",
         })]
       : [archive ? animate(archiveTime, archiveGoal, { duration: Math.abs(archiveGoal - archiveTime.get()) * (exiting ? motionTokens.saveSlots.exitMs : motionTokens.saveSlots.enterMs) / 1000, ease: "linear" })
-          : animate(opacity, exiting ? 0 : 1, { duration: Math.abs((exiting ? 0 : 1) - opacity.get()) * (exiting ? motionTokens.settingsPanel.exitMs : motionTokens.settingsPanel.enterMs) / 1000, ease: "linear" }),
+          : animate(opacity, exiting ? 0 : 1, { duration: Math.abs((exiting ? 0 : 1) - opacity.get()) * (exiting ? panelTiming.exitMs : panelTiming.enterMs) / 1000, ease: "linear" }),
          animate(titleOpacity, exiting ? 0 : 1, transition),
          animate(titleX, exiting ? -timing.withdrawPx : 0, transition)];
     if (returningMode) controls.push(animate(modeOpacity, 1, { duration: motionTokens.saveSlots.modeInMs / 1000, ease: "linear" }));
@@ -104,6 +105,7 @@ export function useMenuView(root: RefObject<HTMLDivElement | null>, waitForArchi
     return () => { current = false; controls.forEach(control => control.stop()); };
   }, [exiting, displayed, modeChanging, reduced, hidden, homeTime, opacity, titleOpacity, titleX, archiveTime, modeOpacity, archive, awaitingArchive, waitForArchive]);
   return { target, displayed, phase, opacity, titleOpacity, titleX, request, transitioning: phase !== "ready" || exiting,
+    memoryMotion: { clock: opacity, exiting: displayed === "memory" && exiting, skip: reduced || hidden },
     settingsMotion: { clock: opacity, exiting: displayed === "settings" && exiting, skip: reduced || hidden },
     archiveMotion: { clock: archiveTime, modeOpacity, exiting: archive && sceneExiting, skip: reduced || hidden, onReady: setArchiveReady } };
 }

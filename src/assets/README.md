@@ -34,6 +34,10 @@
 
 `characters/portraits/tibby-shop.png`由仓库内缇比纸娃娃的`base`、`eyes_1`、`mouth_1`按原画布叠合，704×1472。供原商店肖像框裁切展示，替代原外部图床URL；没有引入新的生成美术。
 
+### 缇比头像
+
+`characters/avatars/tibby.png`为用户于2026-10-01提供的`IMG_20261001_154406.png`，277×277，原文件直接入库。剧情身份的`thumbnailUrl`统一使用此头像，记忆参与者和阅读舞台头像共用；无需从整身立绘裁切或重新制作头像。
+
 ## 洋馆制药素材待补（2026-09-25）
 
 设施功能已接入，复用现有工坊房间背景、`icons/items/health-potion.svg`与`icons/items/herbs-bundle.svg`。尚需制药台的药锅／蒸馏器／瓶架工作区素材，以及药草与净光草的最终区分图标；当前共用草束图标不代表专属美术已定稿。无新增临时装饰SVG。

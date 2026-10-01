@@ -143,6 +143,8 @@ export type DirectorState = {
 };
 export type DirectorCommand = DirectorJobCommand
   | {type: "airp-director-enable-commissions"}
+  /** Program-owned roster/material upgrade, independent of an AI connection. */
+  | {type: "airp-director-enable-residents"; residentCast: import("../../game-core/contracts").DirectorResidentCast; lowMaterial: LowMaterial; material?: DirectorMaterial}
   | {type: "airp-director-configure"; material: DirectorMaterial; lowMaterial?: LowMaterial; lowReadVersion?: 2 | 3 | 4 | 5 | 6; lowContextVersion?: DirectorLowContextVersion; residentCast?: import("../../game-core/contracts").DirectorResidentCast}
   | {type: "airp-director-respond"; jobId: string; index: number}
   | {type: "airp-director-revalidate-low"; jobId: string; readerVersion: 2 | 3 | 4 | 5}
@@ -159,4 +161,7 @@ export type DirectorCommand = DirectorJobCommand
   | {type: "airp-director-deliver"; eventId: string}
   | {type: "airp-director-defer" | "airp-director-decline"; eventId: string};
 export type DirectorIntent = {version: 1; command: DirectorCommand; gmShare?: import("../airp-game/gm-share-contracts").GMShare};
+export function carriesDirectorGMBaseline(command: DirectorCommand): boolean {
+  return command.type === "airp-director-enable-residents" || command.type === "airp-director-configure" && (command.lowContextVersion ?? 0) >= 17;
+}
 export const emptyDirectorState = (): DirectorState => ({version: 1, materialHash: null, materials: {}, jobs: [], events: [], budgets: [], days: [], memories: [], cursors: {}, reading: null});

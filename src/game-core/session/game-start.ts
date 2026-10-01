@@ -1,5 +1,5 @@
 import * as v from "../contracts/validation";
-import type { ValidatedD5Catalog } from "../contracts/d5";
+import type { D5Catalog, ValidatedD5Catalog } from "../contracts/d5";
 import { GAME_START_POINTS, type D5Projection, type GameStartPoint } from "./d5-types";
 import { parsePlayerName } from "../contracts/player-name";
 import { sha256 } from "../contracts/sha256";
@@ -9,6 +9,8 @@ export function validateGameStart(catalog: ValidatedD5Catalog, startAt: GameStar
   v.choice(startAt, GAME_START_POINTS, "startAt");
   if (catalog.ref.contentVersion < 11 || !catalog.data.prologue || !catalog.data.opening || !catalog.data.tutorial?.guide)
     v.invalid("startAt", "Start selection requires the guided demo release", "content-unavailable");
+  if (startAt === "debug-offline" && catalog.ref.contentVersion !== 27)
+    v.invalid("startAt", "Offline debugging requires the estate package", "content-unavailable");
   if (startAt === "debug-shop" && (!catalog.data.shopIntroduction || !catalog.data.tutorialSkipReward))
     v.invalid("startAt", "Shop debugging requires the introduction and starter reward", "content-unavailable");
   if (startAt === "airp-director" && !catalog.data.airpDirector) v.invalid("startAt", "Director start requires content19", "content-unavailable");
@@ -17,8 +19,10 @@ export function validateGameStart(catalog: ValidatedD5Catalog, startAt: GameStar
 }
 
 /** Access is not completion. Growth and memory chapter gates still require the real takeover. */
-export function hasManorPatrolAccess(state: Pick<D5Projection, "manor" | "airpDemoStart">): boolean {
-  return !!state.manor.takeover || state.airpDemoStart?.id === "start.airp.patrol";
+export function hasManorPatrolAccess(state: Pick<D5Projection, "manor" | "airpDemoStart" | "tutorial" | "openingFlowVersion">, catalog?: D5Catalog): boolean {
+  const openingFinished = state.openingFlowVersion === 1 && catalog?.contentVersion === 28 && !!catalog.airpDirector &&
+    (state.tutorial?.status === "completed" || state.tutorial?.status === "exempt" && state.tutorial.reason === "player-skipped");
+  return !!openingFinished || !!state.manor.takeover || state.airpDemoStart?.id === "start.airp.patrol";
 }
 
 /** The first committed progression owns the skip reward. Its fact identity makes
@@ -30,7 +34,7 @@ export function applyGameStart(catalog: ValidatedD5Catalog, state: D5Projection,
   state.prologue!.status = "skipped";
   if (startAt === "first-morning") return;
   state.opening = {step: catalog.data.opening!.lastStep, status: "skipped", choices: []};
-  if (startAt !== "hub" && startAt !== "debug-shop" && startAt !== "airp-demo" && startAt !== "airp-director") return;
+  if (startAt !== "hub" && startAt !== "debug-offline" && startAt !== "debug-shop" && startAt !== "airp-demo" && startAt !== "airp-director") return;
   if (startAt === "airp-director") state.airpDemoStart = {...catalog.data.airpDirector!.demoStart, claimId};
   if (startAt === "airp-demo") state.airpDemoStart = {...catalog.data.airpDirect!.demoStart, claimId};
   state.tutorial = {status: "exempt", reason: "player-skipped"};

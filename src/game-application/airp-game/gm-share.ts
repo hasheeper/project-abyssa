@@ -7,6 +7,7 @@ import type { D5Fact, D5GameRecord } from "../versions/d5-contracts";
 import type { ExpeditionFrame, ExpeditionJob } from "../airp-expedition-gm/contracts";
 import type { GMShare } from "./gm-share-contracts";
 import { correctionEnvelope } from "../airp-memory/effective";
+import { carriesDirectorGMBaseline } from "../airp-director/contracts";
 export type { GMShare } from "./gm-share-contracts";
 
 const equal = (a: unknown, b: unknown) => v.canonicalJson(a) === v.canonicalJson(b);
@@ -115,7 +116,7 @@ function factShare(fact: D5Fact): GMShare | null {
   const share = parseGMShare(fact.payload.gmShare);
   const expected = fact.kind === "airp-game" ? fact.source : { ...fact.source, revision: fact.source.revision - 1 };
   if (!sameHead(share.sourceHead, expected)) fail("Share is not bound to its owning commit/checkpoint");
-  if (fact.kind === "airp-director" && (fact.payload.command.type !== "airp-director-configure" || (fact.payload.command.lowContextVersion ?? 0) < 17)) fail("Internal baseline requires an explicit new-context configuration");
+  if (fact.kind === "airp-director" && !carriesDirectorGMBaseline(fact.payload.command)) fail("Internal baseline requires an explicit new-context configuration");
   return share;
 }
 
@@ -137,7 +138,7 @@ export function validateGMShares(record: D5GameRecord): void {
   const checkedPlans = new Set<string>();
   let optedIn = false;
   for (const fact of record.facts) {
-    if (fact.kind === "airp-director" && fact.payload.command.type === "airp-director-configure" && (fact.payload.command.lowContextVersion ?? 0) >= 17) optedIn = true;
+    if (fact.kind === "airp-director" && carriesDirectorGMBaseline(fact.payload.command)) optedIn = true;
     const share = factShare(fact);
     if (!share) continue;
     if (!optedIn) fail("GM handoff predates the new-context opt-in");

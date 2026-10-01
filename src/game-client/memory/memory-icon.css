@@ -1,0 +1,27 @@
+.memory-panel .memory-entry .memory-entry__art[data-memory-icon] {
+  box-shadow: none;
+  filter: none;
+}
+.memory-panel .memory-entry:is(:hover, :focus-visible, [aria-current]) .memory-entry__art[data-memory-icon] {
+  border-color: rgb(143 165 151 / 44%);
+}
+.memory-icon {
+  display: block;
+  width: 100%;
+  height: 100%;
+  opacity: .42;
+  transition: opacity var(--abyssa-motion-hover);
+  pointer-events: none;
+}
+.memory-icon__mask {
+  display: block;
+  width: 100%;
+  height: 100%;
+  mask-position: center;
+  mask-repeat: no-repeat;
+  mask-size: 86%;
+  /* A fading imprint: alpha varies across the same neutral ink, with no bevel. */
+  background: linear-gradient(155deg, rgb(166 169 154 / 72%) 5%, rgb(166 169 154 / 44%) 48%, rgb(166 169 154 / 12%) 94%);
+}
+.memory-entry:is(:hover, :focus-visible) .memory-icon { opacity: .56; }
+.memory-entry[aria-current] .memory-icon { opacity: .52; }

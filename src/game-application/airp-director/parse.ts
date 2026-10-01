@@ -1,7 +1,7 @@
 import * as v from "../../game-core/contracts";
 import { parseDirectMaterial } from "../airp-direct-gameplay/parse";
 import { parseDirectorJobCommand } from "./jobs";
-import { DIRECTOR_RUNTIME_LIMITS, type DirectorCommand, type DirectorIntent } from "./contracts";
+import { carriesDirectorGMBaseline, DIRECTOR_RUNTIME_LIMITS, type DirectorCommand, type DirectorIntent } from "./contracts";
 import { parseResidentCast } from "./residents";
 import { parseModel } from "../airp-generation/contracts";
 
@@ -13,6 +13,12 @@ export function parseDirectorCommand(raw: unknown): DirectorCommand {
   if (type === "airp-director-revalidate-low") { v.record(c, "command", ["type", "jobId", "readerVersion"]); return { type, jobId: v.id(c.jobId, "jobId"), readerVersion: v.choice(c.readerVersion, [2, 3, 4, 5] as const, "readerVersion") }; }
   if (type === "airp-director-reconnect") { v.record(c, "command", ["type", "jobId", "config"]); return { type, jobId: v.id(c.jobId, "jobId"), config: parseModel(c.config) }; }
   if (["airp-director-begin", "airp-director-result", "airp-director-fail", "airp-director-use-format"].includes(type)) return parseDirectorJobCommand(c);
+  if (type === "airp-director-enable-residents") {
+    v.record(c, "command", ["type", "residentCast", "lowMaterial"], ["material"]);
+    v.record(c.lowMaterial, "lowMaterial", ["version", "preset", "sources", "common", "specials"]);
+    return {type, residentCast: parseResidentCast(c.residentCast), lowMaterial: structuredClone(c.lowMaterial) as import("../airp-low/contracts").LowMaterial,
+      ...(c.material === undefined ? {} : {material: parseDirectMaterial(c.material)})};
+  }
   if (type === "airp-director-configure") {
     v.record(c, "command", ["type", "material"], ["lowMaterial", "lowReadVersion", "lowContextVersion", "residentCast"]);
     if (c.lowMaterial !== undefined) v.record(c.lowMaterial, "lowMaterial", ["version", "preset", "sources", "common", "specials"]);
@@ -33,7 +39,7 @@ export function parseDirectorIntent(raw: unknown): DirectorIntent {
   const r = v.record(raw, "director.intent", ["version", "command"], ["gmShare"]);
   const intent: DirectorIntent = {version: v.choice(r.version, [1], "version"), command: parseDirectorCommand(r.command)};
   if (r.gmShare !== undefined) {
-    if (intent.command.type !== "airp-director-configure" || (intent.command.lowContextVersion ?? 0) < 17) v.invalid("director.intent.gmShare", "Only an explicit new-context configuration carries an internal baseline");
+    if (!carriesDirectorGMBaseline(intent.command)) v.invalid("director.intent.gmShare", "Only an explicit new-context configuration carries an internal baseline");
     v.assertJson(r.gmShare);
     const share = v.record(r.gmShare, "gmShare", ["version", "sourceHead", "plans", "reads", "pendingSettlements"]);
     v.choice(share.version, [1], "gmShare.version");

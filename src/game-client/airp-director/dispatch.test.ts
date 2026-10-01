@@ -23,3 +23,26 @@ it("mansion/journal entry upgrades the next frame without changing an existing f
     expect(f.raw().airpDirector!.jobs.find(j => j.id === job.id)).toEqual(job);
   } finally { session.dispose(); }
 }, 30000);
+
+it("upgrades a formal28 mansion entry with complete resident cards and the matching settlement policy", async () => {
+  const f = await formalAirpFixture(undefined, 28);
+  await f.flow.host.initialize(lowR8Source);
+  await f.send({type: "airp-director-configure", material: directorTestMaterial(8), lowMaterial: lowR8Source, lowReadVersion: 6, lowContextVersion: 12});
+  const day = await directorPlan({read: async () => f.raw(), send: f.send}, {kind: "fixed", definitionId: "ripple.elora.old-medicine-case"});
+  await f.send({type: "advance-phase"}); await f.send({type: "advance-phase"});
+  const eventId = f.raw().airpDirector!.events[0].id;
+  const session = new GameSession(f.runtime, {saveId: "formal-airp", epoch: "epoch:1"}, {getItem: () => null, setItem() {}, removeItem() {}}, () => {});
+  try {
+    expect(await dispatchDirector(session, {type: "airp-director-open", eventId})).toBeTruthy();
+    const state = f.raw().airpDirector!, scene = state.jobs.at(-1)!;
+    expect(state.jobs.find(j => j.id === day.id)).toEqual(day);
+    expect(scene.gmContext!.capabilities.actorIds).toHaveLength(6);
+    expect(scene.gmContext!.documents.map(d => d.id)).toEqual(expect.arrayContaining(["abyssa", "marietta", "household-guidance"]));
+    expect(scene.lowContextVersion).toBe(21);
+    expect(f.raw().airpGame!.settlement.policy.actorIds).toHaveLength(6);
+    const frame = scene.lowFrame;
+    await dispatchDirector(session, {type: "airp-director-pause"});
+    await dispatchDirector(session, {type: "airp-director-open", eventId});
+    expect(f.raw().airpDirector!.jobs.find(j => j.id === scene.id)!.lowFrame).toEqual(frame);
+  } finally {session.dispose();}
+}, 30000);

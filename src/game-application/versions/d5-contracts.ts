@@ -64,7 +64,7 @@ export type D5Command =
   | import("../../game-core/contracts").FacilityCommand
   | {type: "start-expedition"; runId: string; routeId: string; partyIds: string[]; itemIds?: string[]; supplyQuantities?: Record<string, number>; seed: number}
   | { type: "advance-phase" }
-  | { type: "select-game-start"; startAt: import("../../game-core/session").GameStartPoint; playerName?: string }
+  | { type: "select-game-start"; startAt: import("../../game-core/session").GameStartPoint; playerName?: string; openingFlowVersion?: 1 }
   | AirpPoolCommand
   | AirpOnlineCommand
   | AirpDirectCommand

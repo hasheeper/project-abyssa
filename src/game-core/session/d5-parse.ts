@@ -50,13 +50,14 @@ export function parseD5ProgressEntry(raw: unknown): D5ProgressEntry {
   v.id(e.id, "entry.id"); v.number(e.revision, "entry.revision", 1);
   const event = v.record(e.event, "event");
   const type = v.choice(event.type, Object.keys(D5_EVENT_FIELDS) as D5ProgressEvent["type"][], "event.type");
-  v.record(event, "event", ["type", ...D5_EVENT_FIELDS[type]], type === "expedition-started" ? ["supplyQuantities"] : type === "memory-read" ? ["choice"] : type === "game-start-selected" ? ["playerName"] : type === "loot-sold" ? ["quantity"] : type === "equipment-moved" ? ["targetFaceId"] : []);
+  v.record(event, "event", ["type", ...D5_EVENT_FIELDS[type]], type === "expedition-started" ? ["supplyQuantities"] : type === "memory-read" ? ["choice"] : type === "game-start-selected" ? ["playerName", "openingFlowVersion"] : type === "loot-sold" ? ["quantity"] : type === "equipment-moved" ? ["targetFaceId"] : []);
   v.choice(e.origin, [d5EventOrigin(type)], "entry.origin");
   if (type === "shop-visit-operated") parseShopVisitCommand(event.command);
   if (type === "facility-operated") parseFacilityCommand(event.command);
   if (type === "expedition-started" && event.supplyQuantities !== undefined) parseSupplyQuantities(event.supplyQuantities);
   if (type === "game-start-selected") v.choice(event.startAt, GAME_START_POINTS, "startAt");
   if (type === "game-start-selected" && "playerName" in event) parsePlayerName(event.playerName);
+  if (type === "game-start-selected" && "openingFlowVersion" in event) v.choice(event.openingFlowVersion, [1], "openingFlowVersion");
   for (const key of ["runId", "routeId", "terminalId", "chapterId", "templateId", "sessionId", "eventId", "basisId", "instanceId", "shotId", "shopId", "targetFaceId", "productId"])
     if (key in event) v.id(event[key], key);
   for (const key of ["fromOwnerId", "toOwnerId"])

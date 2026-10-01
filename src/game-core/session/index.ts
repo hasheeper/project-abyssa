@@ -33,6 +33,7 @@ export * from "./demo-expedition";
 export * from "./demo-items-events";
 export type * from "./d5-types";
 export { GAME_START_POINTS } from "./d5-types";
+export { hasManorPatrolAccess } from "./game-start";
 export { parseD5RunRef, parseD5ProgressEntry, d5EventOrigin } from "./d5-parse";
 export { initialD5Projection, projectD5Progress, validateD5EvidenceContent, validateD5MemoryBattle, d5EquipmentId, d5EventEligibility, d5MemorySupplyId, d5StoryFor } from "./d5-progress";
 export type { D5RunStarts } from "./d5-progress";

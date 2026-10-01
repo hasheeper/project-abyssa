@@ -1,5 +1,5 @@
 /* The sidebar and Stage never move. Only columns 2–3 exchange their content. */
-.menu-stage { overflow: clip; }
+.menu-stage { overflow: clip; grid-template: minmax(0, 1fr) / minmax(0, 1fr); }
 .menu-content {
   position: relative;
   isolation: isolate;

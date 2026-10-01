@@ -2,6 +2,7 @@ import type { ExpressionId } from "./expressions";
 import type { EmotePlacement } from "./emotes";
 import type { SpriteCalibration } from "./spriteCalibration";
 import type { CharacterEmotionProfile } from "../../domain/presentation/emotion";
+import { deriveStageSlots } from "../../domain/presentation/stage-slots";
 
 export type RpSeat = "left" | "right";
 
@@ -53,24 +54,5 @@ export interface RpStageState {
  * keep their seat; a third actor replaces the least-recently-speaking seat.
  */
 export function deriveRpStage(messages: readonly RpMessage[], initialSlots?: Partial<Record<RpSeat, string>>): RpStageState {
-  const slots: Record<RpSeat, string | null> = { left: initialSlots?.left ?? null, right: initialSlots?.right ?? null };
-  const lastSpoke: Record<RpSeat, number> = { left: -1, right: -1 };
-  const sideByMessage = new Map<string, RpSeat>();
-  let tick = 0;
-
-  for (const message of messages) {
-    if (message.kind !== "stage" && (message.kind !== "say" || message.offstage)) continue;
-    let side: RpSeat;
-    if (slots.left === message.actorId) side = "left";
-    else if (slots.right === message.actorId) side = "right";
-    else if (slots.left === null) side = "left";
-    else if (slots.right === null) side = "right";
-    else side = lastSpoke.left <= lastSpoke.right ? "left" : "right";
-
-    slots[side] = message.actorId;
-    lastSpoke[side] = tick++;
-    sideByMessage.set(message.id, side);
-  }
-
-  return { slots, sideByMessage };
+  return deriveStageSlots(messages, initialSlots);
 }

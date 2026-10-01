@@ -12,6 +12,7 @@ import { projectGMContext, selectGMDocuments } from "../airp-director/gm-context
 import { recordMemoryContext } from "../airp-memory/d5";
 import { effectiveSettlementMemories, effectiveThreads } from "../airp-memory/effective";
 import { expeditionAppraisalSlots } from "../../game-core/session";
+import { tutorialMemories } from "../airp-director/tutorial-memories";
 
 /** Only accepts records already returned by the version-specific application reader/replay. */
 export function projectD5ExpeditionPreparation(options: {
@@ -58,7 +59,8 @@ export function projectD5ExpeditionPreparation(options: {
   // every route objective would turn an unaccepted commission into exploration.
   const activeObjectiveIds = new Set(related.flatMap(e => { const a = e.card.actions[e.actionIndex]; return a.kind === "patrol" ? [a.objectiveId] : []; }));
   const requiredActorIds = [...new Set([...d.partyIds.filter(id => id !== "kael"), ...related.flatMap(e => e.card.actorIds)])];
-  for (const m of director?.memories ?? []) if (m.phase <= phase && m.evidenceIds.length && m.evidenceIds.every(id => effective.some(f => f.id === id)) && (m.knownBy.some(id => requiredActorIds.includes(id)) || related.some(e => e.evidenceIds.some(id => m.evidenceIds.includes(id))))) add(m.id, "program", m.text, m.phase, m.knownBy, m.evidenceIds);
+  const opening = tutorialMemories(catalog, {head: r.head, before: c, after: c, run: null, facts: effective, group: [], retracted: []});
+  for (const m of [...(director?.memories ?? []), ...opening]) if (m.phase <= phase && m.evidenceIds.length && m.evidenceIds.every(id => effective.some(f => f.id === id)) && (m.knownBy.some(id => requiredActorIds.includes(id)) || related.some(e => e.evidenceIds.some(id => m.evidenceIds.includes(id))))) add(m.id, "program", m.text, m.phase, m.knownBy, m.evidenceIds);
   for (const f of effective) {
     if (f.kind !== "airp-director" || f.payload.command.type !== "airp-director-read") continue;
     const command = f.payload.command, job = director?.jobs.find(j => j.id === command.jobId), line = job?.text?.lines[command.cursor];

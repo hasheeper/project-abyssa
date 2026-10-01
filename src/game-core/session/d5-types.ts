@@ -7,7 +7,7 @@ import type { ManorProgression } from "./manor-progression";
 import type { TutorialProgress, TutorialRunState } from "./tutorial-types";
 
 export type D5RunRef = { kind: "expedition"; id: string } | { kind: "memory"; id: string; attempt: number };
-export const GAME_START_POINTS = ["prologue", "first-morning", "tutorial", "hub", "debug-shop", "airp-demo", "airp-director"] as const;
+export const GAME_START_POINTS = ["prologue", "first-morning", "tutorial", "hub", "debug-offline", "debug-shop", "airp-demo", "airp-director"] as const;
 export type GameStartPoint = typeof GAME_START_POINTS[number];
 export type D5UserChoiceTone = "iron" | "seasoned" | "pragmatic";
 export type D5StoryAdvanceChoice = "continue" | "skip" | "later" | D5UserChoiceTone;
@@ -39,7 +39,7 @@ export type D5ProgressEvent =
   | OpeningAdvance
   | ShopIntroductionAdvance
   | { type: "phase-advanced" }
-  | { type: "game-start-selected"; startAt: GameStartPoint; playerName?: string }
+  | { type: "game-start-selected"; startAt: GameStartPoint; playerName?: string; openingFlowVersion?: 1 }
   | { type: "prologue-advanced"; shotId: string }
   | { type: "prologue-completed"; shotId: string; choice: "continue" | "skip" }
   | { type: "loot-sold"; shopId: string; instanceId: string; quoteVersion: number; quantity?: number }
@@ -86,6 +86,8 @@ export type D5MemorySession = {
 export type D5Projection = {
   shopVisit?: import("../contracts/shop-visit").ShopVisitProgress;
   facilities?: import("./facility-types").FacilityState | null;
+  /** Current opening history, opted in by the start receipt. Historical saves omit it. */
+  openingFlowVersion?: 1;
   /** Explicit demo access, derived only from the start fact; never a first-clear or reward. */
   airpDemoStart?: {id: "start.airp.patrol"; claimId: string; routeId: string};
   /** Absent on historical saves; assigned with the fresh save's start selection. */

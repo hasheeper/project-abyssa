@@ -15,11 +15,15 @@ export const NEW_GAME_STARTS: {id: GameStartPoint; label: string; description: s
   {id: "first-morning", label: "洋馆的清晨", description: "略过序章，从洋馆的第一个清晨开始。"},
   {id: "tutorial", label: "战斗与探索教学", description: "从岩窟篇的实战教学开始。"},
   {id: "hub", label: "自由行动", description: "跳过教程，带上教程奖励开始自由行动。"},
-  {id: "airp-director", label: "AIRP 游玩", description: "日度事件与副本叙事，接入普通副本和正式掉落。需自备模型连接；剧情暂用工作稿。"},
 ];
 const DEBUG_STARTS = [
+  {id: "debug-offline", label: "无 LLM 游玩", description: "跳过教程，使用固定玩法与程序结算。"},
   {id: "debug-shop", label: "商店初见调试", description: "跳过开场与教程，获得教程奖励，保留首次 SHOP 演出。"},
-  {id: "airp-demo", label: "旧版 AIRP 调试", description: "旧版药箱流程，仅供兼容复验。"},
+] as const;
+// Recover an interrupted historical request without offering a separate AIRP start.
+const LEGACY_STARTS = [
+  {id: "airp-director", label: "自由行动", description: "跳过教程，带上教程奖励开始自由行动。"},
+  {id: "airp-demo", label: "旧版 AIRP 调试", description: "恢复此前尚未完成的创建。"},
 ] as const;
 export type NewGameSelection = {playerName: string; startAt: GameStartPoint};
 type Props = {
@@ -44,15 +48,29 @@ function Opening({busy, message, onClose, onStart, pending, onPresentChange}: Pr
   const [debugOpen, setDebugOpen] = useState(DEBUG_STARTS.some(start => start.id === pending?.startAt));
   const [attempted, setAttempted] = useState(!!pending), [invalid, setInvalid] = useState(false);
   const root = useRef<HTMLDivElement>(null), panel = useRef<HTMLDivElement>(null);
+  const content = useRef<HTMLDivElement>(null);
+  const [bodyHeight, setBodyHeight] = useState<number | "auto">("auto");
   const composing = useRef(false), submitting = useRef(false);
   useModalPresentation(panel, root, present, undefined, onPresentChange);
   const normalizedName = name.trim().normalize("NFC");
   const problem = playerNameProblem(normalizedName);
   const normalStart = NEW_GAME_STARTS.find(start => start.id === startAt);
-  const selected = normalStart ?? DEBUG_STARTS.find(start => start.id === startAt)!;
+  const selected = normalStart ?? DEBUG_STARTS.find(start => start.id === startAt) ?? LEGACY_STARTS.find(start => start.id === startAt)!;
   const locked = !present || !ready || busy;
   const backLabel = attempted || step === "name" ? "返回标题" : "上一步";
   const advanceLabel = step === "confirm" ? busy ? "正在建立" : attempted ? "重试创建" : "开始游戏" : "下一步";
+
+  useLayoutEffect(() => {
+    const node = content.current;
+    if (!node) return;
+    // offsetHeight measures the canvas layout before Stage scales it.
+    const measure = () => { if (node.offsetHeight > 0) setBodyHeight(node.offsetHeight); };
+    measure();
+    if (typeof ResizeObserver === "undefined") return;
+    const observer = new ResizeObserver(measure);
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [step, debugOpen, invalid, problem, selected.description]);
 
   useLayoutEffect(() => {
     let active = true;
@@ -125,9 +143,10 @@ function Opening({busy, message, onClose, onStart, pending, onPresentChange}: Pr
           <form onSubmit={event => {event.preventDefault(); advance();}} autoComplete="off">
             <h2 className="new-game-opening__heading scene-loading-title">{step === "name" ? "角色姓名" : step === "start" ? "开始位置" : "确认开始"}</h2>
             <motion.div className="new-game-opening__body" initial={false}
-              animate={{height: step === "name" ? 78 : step === "start" ? debugOpen ? 384 : 306 : 132}}
+              animate={{height: bodyHeight}}
               transition={uiTransition(reduced ? 0 : 220)}>
             <UiContentTransition contentKey={step} className="new-game-opening__content">
+              <div ref={content} className="new-game-opening__measure">
               {step === "name" ? <div className="new-game-opening__naming">
                 <input id="new-game-name" name="player-name" value={name} maxLength={48} spellCheck={false} disabled={locked} aria-label="请输入角色姓名"
                   aria-describedby={invalid && problem ? "new-game-name-hint" : undefined} aria-invalid={invalid && !!problem || undefined}
@@ -166,6 +185,7 @@ function Opening({busy, message, onClose, onStart, pending, onPresentChange}: Pr
                   <div className="new-game-opening__difficulty"><dt>游戏难度</dt><dd title="难度调整暂未开放">标准</dd></div>
                 </dl>
               </>}
+              </div>
             </UiContentTransition>
             </motion.div>
             <footer className="new-game-opening__footer">

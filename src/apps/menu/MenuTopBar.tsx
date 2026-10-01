@@ -4,7 +4,7 @@ import { MenuHudFrame } from "./MenuHudFrame";
 import { motion, type MotionValue } from "motion/react";
 import type { MenuView } from "./useMenuView";
 
-const sectionTitles = { save: ["存档", "SAVE", 380], load: ["读档", "LOAD", 380], settings: ["设置", "SETTINGS", 448] } as const;
+const sectionTitles = { save: ["存档", "SAVE", 380], load: ["读档", "LOAD", 380], settings: ["设置", "SETTINGS", 448], memory: ["记忆", "MEMORY", 448] } as const;
 
 /* ============ 顶栏 ============
  * 左「天数 + 相位」/ 中留空 / 右「三笔资源」。

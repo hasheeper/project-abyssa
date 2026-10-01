@@ -61,6 +61,9 @@ export function guardAirpGameCommand(r: D5GameRecord, catalog: v.ValidatedD5Cata
     if (item && r.snapshot.campaign.loot?.some(i => i.definitionId === item.definitionId && i.resultId === item.resultId && gameAppraisal(r, i)))
       v.invalid("loot.quantity", "特殊鉴定物需要逐件出售。", "command-not-available");
   }
+  // The authored teaching route uses its own guide, encounters and read receipts.
+  if (command.type === "start-expedition" && command.routeId === catalog.data.tutorial?.routeId) return;
+  if (r.snapshot.run?.kind === "expedition" && r.snapshot.run.state.tutorial) return;
   if (command.type === "start-expedition") {
     const plan = currentGamePlan(r), ticket = plan?.departureTicket;
     const { type: _type, ...departure } = command;

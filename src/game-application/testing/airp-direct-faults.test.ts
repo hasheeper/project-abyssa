@@ -87,7 +87,8 @@ it("rejects forged gameplay sources, retracted proof, foreign epoch and same-ide
 }, 90000);
 it("watch-note's missed aftermath and cooldown remain unique through advance, reopen and replay", async () => {
   const f = poolTestRuntime();
-  expect(await f.runtime.application.createNewGame({saveId: "pool", epoch: "missed", clientRequestId: "create", startAt: "airp-demo"})).toMatchObject({ok: true});
+  expect(await f.runtime.application.create({protocolVersion: 4, contentVersion: 18, profileId: "profile.demo.first-run", saveId: "pool", epoch: "missed", clientRequestId: "create"})).toMatchObject({ok: true});
+  await f.send({type: "select-game-start", startAt: "airp-demo"});
   const note = (await f.read()).narrative.instances.find(i => i.definition.id === "ripple.elora.watch-note")!;
   expect(note).toBeTruthy();
   for (let i = 0; i < 4; i++) await f.send({type: "advance-phase"});

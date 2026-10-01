@@ -51,12 +51,13 @@ try {
   await page.getByRole('button', {name: '新的开始', exact: true}).click();
   await page.getByRole('textbox', {name: '请输入角色姓名'}).fill('林恩');
   await page.getByRole('button', {name: /下一步/}).click();
-  await page.getByRole('radio', {name: 'AIRP 游玩', exact: true}).click();
+  await page.getByRole('radio', {name: '自由行动', exact: true}).click();
   await page.getByRole('button', {name: /下一步/}).click();
   await page.getByRole('button', {name: /开始游戏/}).click();
-  await expect(page).toHaveURL(/#\/mansion\?/, {timeout: 60000});
-  await expect(page.getByRole('button', {name: '展开菜单', exact: true})).toBeVisible({timeout: 60000});
+  await expect(page).toHaveURL(/#\/menu\?/, {timeout: 60000});
   const saveQuery = new URL(page.url()).hash.split('?')[1];
+  await page.goto(origin + '/index.html#/mansion?' + saveQuery);
+  await expect(page.getByRole('button', {name: '展开菜单', exact: true})).toBeVisible({timeout: 60000});
   await page.goto(origin + '/index.html#/settings?' + saveQuery);
   await page.getByRole('tab', {name: 'Model', exact: true}).click();
   await expect(page.getByRole('heading', {name: '服务连接', exact: true})).toBeVisible({timeout: 60000});

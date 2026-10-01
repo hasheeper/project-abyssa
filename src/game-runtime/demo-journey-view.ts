@@ -18,6 +18,7 @@ import { manorGuestCount } from "../game-core/battle/rules/v3/manor";
 import { demoActionOptions } from "../game-core/battle/rules/v2/combat";
 import { journeyRoutes } from "./journey-routes";
 import { ordinaryExpeditionAvailable } from "../game-core/session/ordinary-expeditions";
+import { hasManorPatrolAccess } from "../game-core/session/game-start";
 import { publicGameAppraisal } from "../game-application/airp-game/appraisals";
 import type { PublicAppraisal } from "../game-core/contracts/expedition-appraisal";
 
@@ -108,7 +109,7 @@ export function d5JourneyView(catalog: ValidatedD5Catalog, record: D5GameRecord)
   const selected = run?.kind === "memory" && run.battle ? createD5MemoryEngine(catalog).select(run.battle)
     : run?.kind === "expedition" && run.state.node === "battle" ? createD5BattleEngine(catalog).select(asDemoBattle(run.state)!) : null;
   // Presentation-only shape retains the actual content reference and run configuration.
-  const view = ruleJourneyView(catalog, { head: record.head, contentRef: record.contentRef, snapshot: { campaign: record.snapshot.campaign, expedition }, facts: withMemoryDialogue(record, d5VisibleEvents(record, record.snapshot.campaign.activeRunRef)), retractedFactIds: [] }, selected, !!(catalog.data.airpDirect || catalog.data.airpDirector) && !!record.snapshot.campaign.airpDemoStart);
+  const view = ruleJourneyView(catalog, { head: record.head, contentRef: record.contentRef, snapshot: { campaign: record.snapshot.campaign, expedition }, facts: withMemoryDialogue(record, d5VisibleEvents(record, record.snapshot.campaign.activeRunRef)), retractedFactIds: [] }, selected, hasManorPatrolAccess(record.snapshot.campaign, catalog.data));
   if (view) {
     const campaign = record.snapshot.campaign;
     const acquired = [...(expedition?.run.carriedLoot ?? []), ...campaign.settlements.flatMap(s => [...(s.returnedLoot ?? []), ...(s.lootLedger?.banked ?? []), ...(s.lootLedger?.unbanked ?? [])])];

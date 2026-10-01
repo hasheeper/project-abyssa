@@ -65,9 +65,10 @@ export function parseD5Request(raw: unknown, internal = false, airpEnabled: bool
     v.record(c, "command", ["type"]);
     command = { type };
   } else if (type === "select-game-start") {
-    v.record(c, "command", ["type", "startAt"], ["playerName"]);
+    v.record(c, "command", ["type", "startAt"], ["playerName", "openingFlowVersion"]);
     command = {type, startAt: v.choice(c.startAt, GAME_START_POINTS, "startAt"),
-      ...("playerName" in c ? {playerName: parsePlayerName(c.playerName)} : {})};
+      ...("playerName" in c ? {playerName: parsePlayerName(c.playerName)} : {}),
+      ...("openingFlowVersion" in c ? {openingFlowVersion: v.choice(c.openingFlowVersion, [1] as const, "openingFlowVersion")} : {})};
   } else if (["begin-shop-visit", "advance-shop-visit", "appraise-shop-visit", "sell-shop-visit"].includes(type)) {
     command = parseShopVisitCommand(c);
   } else if (type === "advance-shop-introduction") {

@@ -34,6 +34,7 @@ import { demoJourneyView, d5JourneyView } from "./demo-journey-view";
 import { lootAppraisalFee, lootSalePrice } from "../game-core/contracts/loot";
 import { bundledLoot, lootStackable } from "../game-core/session/d5-loot";
 import { publicGameAppraisal, gameAppraisal } from "../game-application/airp-game/appraisals";
+import { createMemoryJournalQuery } from "./memory-journal-view";
 
 export function parseVersionedRequest(
   raw: unknown,
@@ -54,6 +55,7 @@ export function parseVersionedRequest(
 export function createVersionedQueries(registry: CatalogRegistry) {
   const journeyCache = new WeakMap<AnyGameRecord, ReturnType<typeof demoJourneyView>>();
   return {
+    memoryJournal: createMemoryJournalQuery(registry),
     archive: createCharacterArchiveQuery(registry),
     mansionTime(raw: AnyGameRecord) {
       const record = registry.read(raw);
@@ -83,10 +85,15 @@ export function createVersionedQueries(registry: CatalogRegistry) {
       const record = registry.read(raw), entry = registry.resolve(record.schemaVersion, record.contentRef);
       if (record.schemaVersion !== 4 || entry.version !== 4 || !entry.catalog.data.economy) return null;
       const c = record.snapshot.campaign, e = entry.catalog.data.economy;
+      // Free starts go straight to the counter. Keep any historical visit that
+      // was already begun readable, without changing its facts or transactions.
+      const skipFirstVisit = c.openingFlowVersion === 1 && record.facts.some(f =>
+        f.kind === "progression" && f.payload.type === "game-start-selected" &&
+        (f.payload.startAt === "hub" || f.payload.startAt === "debug-offline"));
       const individualDefinitions = new Set((c.loot ?? []).filter(item => gameAppraisal(record, item)).map(item => item.definitionId));
       return {shopId: e.shopId, quoteVersion: entry.catalog.data.shop?.quoteVersion ?? e.quoteVersion, day: c.shop?.day, scheduleVersion: entry.catalog.data.shop?.version, funds: c.funds.party, crystals: c.funds.crystals,
         introduction: shopIntroductionView(entry.catalog, c),
-        firstVisit: shopVisitView(entry.catalog, c),
+        firstVisit: skipFirstVisit && !c.shopVisit ? null : shopVisitView(entry.catalog, c),
         available: !c.activeRunRef && !c.activeStoryId,
         ...(entry.catalog.data.loot ? {loot: {
           quoteVersion: entry.catalog.data.loot.quoteVersion,
