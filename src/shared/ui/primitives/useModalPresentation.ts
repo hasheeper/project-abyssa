@@ -7,6 +7,19 @@ export function modalFocusables(panel: HTMLElement) {
     (node.offsetParent !== null || node === document.activeElement));
 }
 
+/** Portals can appear before their opener in DOM order. Match input ownership
+ * to the actual SceneLayer stack, keeping document order for equal layers. */
+export function topmostModal() {
+  let top: HTMLElement | undefined, level = -Infinity;
+  for (const node of document.querySelectorAll<HTMLElement>("[data-ui-modal-present]")) {
+    if (node.closest("[inert]")) continue;
+    const layer = node.closest<HTMLElement>(".game-system-layer");
+    const next = layer ? Number.parseInt(getComputedStyle(layer).zIndex, 10) || 0 : 0;
+    if (next >= level) { top = node; level = next; }
+  }
+  return top;
+}
+
 /** Focus/input ownership lasts until real removal, not merely open=false. */
 export function useModalPresentation(
   panelRef: RefObject<HTMLDivElement | null>, rootRef: RefObject<HTMLDivElement | null>,
@@ -25,8 +38,7 @@ export function useModalPresentation(
     const host = root.closest<HTMLElement>(".abyssa-stage__canvas") ?? root.parentElement;
     if (!source.current) source.current = returnFocusRef?.current ??
       (document.activeElement instanceof HTMLElement ? document.activeElement : null);
-    const topmost = () => [...document.querySelectorAll<HTMLElement>("[data-ui-modal-present]")]
-      .filter(node => !node.closest("[inert]")).at(-1) === root;
+    const topmost = () => topmostModal() === root;
     const focusInside = () => (current.current.present ? modalFocusables(panel)[0] ?? panel : panel).focus({ preventScroll: true });
     // Capturing at window also catches background document/window shortcuts.
     const guard = (event: Event) => {
@@ -59,7 +71,7 @@ export function useModalPresentation(
         // its trigger remains on the current page. A removed route has neither.
         if (!host?.isConnected && !source.current?.isConnected) return;
         const target = source.current;
-        const remaining = [...document.querySelectorAll<HTMLElement>("[data-ui-modal-present]")].filter(node => !node.closest("[inert]")).at(-1);
+        const remaining = topmostModal();
         // Nested confirmation returning to the still-open LOAD scene is valid.
         // Never hand focus to the game behind an unrelated/new modal.
         if (remaining && (!target || !remaining.contains(target))) {

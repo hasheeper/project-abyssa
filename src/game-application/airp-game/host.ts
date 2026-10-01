@@ -126,7 +126,7 @@ export function createAirpGameHost(store: D5Store, catalog: ValidatedD5Catalog, 
   }
   return { read, gm, nodes, settlement, registerCommissions, enableResidents, initialize,
     async prepare(departure: D5Departure, material: LowMaterial, intent = "沿选定路线探索，承接当前队伍与已经接受的委托。", appraiser?: Omit<ExpeditionDocument, "triggerIds">) {
-      let r = await read(); if (r.snapshot.run || r.airpDirector?.reading && !r.airpDirector.reading.paused) throw Error("请先结束当前远征或交谈。");
+      let r = await read(); if (r.snapshot.run || r.airpDirector?.reading && !r.airpDirector.reading.paused && !r.airpDirector.reading.completed) throw Error("请先结束当前远征或交谈。");
       if (pendingHomeBoundary(r)) throw Error("请先整理本次反馈或选择仅记程序事实。");
       createD5ExpeditionEngine(catalog).create(gameClone(r.snapshot.campaign), gameClone(departure));
       r = await registerCommissions();

@@ -92,7 +92,7 @@ function MansionEntry() {
   const opening=useRef(record?.schemaVersion===4 && record.snapshot.campaign.opening?.status==="playing");
   if (opening.current) return <FirstMorningStory/>;
   const directorReading = record?.schemaVersion === 4 ? record.airpDirector?.reading : null;
-  const directorLocked = !!directorReading && !directorReading.paused;
+  const directorLocked = !!directorReading && !directorReading.paused && !directorReading.completed;
   const locked = !!narrative?.locked || directorLocked;
   return <>
     <div className="mansion-scene-resident" data-suspended={locked}><MansionScene suspended={locked}/></div>

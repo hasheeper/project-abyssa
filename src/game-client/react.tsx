@@ -54,7 +54,7 @@ export function GameGate({ children, allowPrologue = false, allowOpening = false
   const needsOpening = !allowOpening && !allowPrologue && !needsPrologue && state.record?.schemaVersion === 4 && state.record.snapshot.campaign.opening?.status === "playing";
   const tutorial = state.record && session.runtime.queries.tutorial(state.record);
   const directorReading = state.record?.schemaVersion === 4 ? state.record.airpDirector?.reading : null;
-  const needsAirp = !allowAirp && !!state.record && (!!session.runtime.queries.narrative(state.record)?.locked || !!directorReading && !directorReading.paused);
+  const needsAirp = !allowAirp && !!state.record && (!!session.runtime.queries.narrative(state.record)?.locked || !!directorReading && !directorReading.paused && !directorReading.completed);
   const needsTutorial = !!tutorial && ["pending", "active"].includes(tutorial.progress.status) && !needsPrologue && !needsOpening && !allowPrologue && !openingEntered.current &&
     (!allowTutorial || tutorial.progress.status === "active" && !locatorMatchesRun(state.record!, session.locator));
   useEffect(() => {

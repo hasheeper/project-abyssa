@@ -337,7 +337,7 @@ export function reduceDirectorCommit(catalog: v.ValidatedD5Catalog, previous: v.
     }
   } else {
     if (fact.kind === "airp" || fact.kind === "airp-direct" || fact.kind === "airp-online") deny("Legacy event writers are disabled in content19");
-    if (state.reading && !state.reading.paused) deny("Pause the scene before leaving or advancing time");
+    if (state.reading && !state.reading.paused && !state.reading.completed) deny("Pause the scene before leaving or advancing time");
     for (const e of state.events) {
       const action = e.card.actions[e.actionIndex];
       if (!registeredPatrol(e) && (e.status !== "waiting-action" || e.actionPhase === null)) continue;

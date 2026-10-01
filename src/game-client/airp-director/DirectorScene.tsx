@@ -16,6 +16,7 @@ import { generationAction } from "../airp-generation/GenerationFlow";
 import { directorOperationRevision, useDirectorOperation } from "./useDirectorOperation";
 import { FlowGuide } from "../../shared/ui/patterns/flow/FlowGuide";
 import { flowKey } from "../../shared/ui/patterns/flow/contracts";
+import { pendingHomeBoundary } from "../../game-runtime/airp-game-runtime";
 
 export function DirectorScene() {
   const d = useDirector(), reading = d.view?.state.reading;
@@ -25,6 +26,8 @@ export function DirectorScene() {
   const {working,error,work}=useDirectorOperation(scope,revision);
   const act = async (operation: () => Promise<unknown>) => {try {await work(operation);} catch { /* Reported by the scoped operation and reader. */ }};
   if (!d.view || !reading) return null;
+  // Settlement owns this boundary; the old guide must release its input layer.
+  if (d.game.record?.schemaVersion === 4 && pendingHomeBoundary(d.game.record)) return null;
   const state = d.view.state, job = state.jobs.find(j => j.id === reading.jobId)!, event = state.events.find(e => e.id === reading.eventId)!;
   const taskKey = flowKey({...d.session.locator,family:"director",jobId:job.id,frameId:job.id});
   const worldPhase = d.view.context.world.phase;

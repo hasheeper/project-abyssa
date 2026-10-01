@@ -76,7 +76,11 @@ export function createAirpGameRuntime(store: VersionedGameStore) {
       async useHomeProgramFacts() {
         const r = await host.read(), b = pendingHomeBoundary(r);
         if (!b) return;
-        const packet = homeSettlementPacket(r, b), id = await settlement.enqueue(packet.input, packet.materials);
+        let id = r.airpGame!.settlement.jobs.find(j => j.frames.at(-1)!.input.scope.boundaryId === b.factId)?.id;
+        if (!id) {
+          const packet = homeSettlementPacket(r, b);
+          id = await settlement.enqueue(packet.input, packet.materials);
+        }
         await settlement.useProgramFacts(id); await settlement.apply(id);
       },
       async changeNodeConnection(nodeId: string, config: ModelConfiguration) {
