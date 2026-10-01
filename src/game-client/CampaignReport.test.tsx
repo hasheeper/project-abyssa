@@ -37,7 +37,10 @@ it("shows the actual pending loot and appraisal route without granting or identi
     expect(reader.queryByText("黯秘银结界钉")).toBeNull();
     expect(reader.getByRole("region", {name: "尚未鉴定"})).toHaveTextContent("1 件");
     expect(reader.getAllByRole("listitem")).toHaveLength(1);
-    expect(reader.getByRole("link", {name: "前往鉴定"})).toHaveAttribute("href", appraisalHref(locator));
+    // 操作钉在阅读面板下沿的操作栏,不在正文里。
+    expect(reader.queryByRole("link")).toBeNull();
+    expect(screen.getByRole("link", {name: "前往鉴定"})).toHaveAttribute("href", appraisalHref(locator));
+    expect(screen.getByRole("link", {name: "前往鉴定"}).closest(".journal-dock")).toHaveTextContent("杂货铺");
     expect(dispatch).not.toHaveBeenCalled();
     expect(session.getSnapshot().record).toBe(before);
   } finally {cleanup(); session.dispose();}
@@ -54,13 +57,13 @@ it("keeps the new tutorial record quiet and does not fabricate pre-tutorial ware
     await user.click(screen.getByRole("button",{name:"日志"}));
     expect(screen.getByText("旅途尚未留下足迹")).toBeInTheDocument();
     expect(screen.queryByText("建设与生产尚未开放")).toBeNull();
-    expect(screen.queryByRole("tablist")).toBeNull();
+    // 窗口之间没有页签切换;日志里唯一的页签组是目录分组。
+    expect(screen.getAllByRole("tablist").map(tablist => tablist.getAttribute("aria-label"))).toEqual(["日志分组"]);
     expect(screen.queryByRole("region",{name:"出征补给整备"})).toBeNull();
     expect(screen.queryByText("馆内片段")).toBeNull();
     expect(screen.queryByRole("button",{name:"谈起旧日回廊"})).toBeNull();
     const index = within(screen.getByRole("navigation",{name:"日志条目"}));
-    expect(index.getAllByRole("list")).toHaveLength(1);
-    expect(index.queryByRole("heading")).toBeNull();
+    expect(within(screen.getByRole("tablist",{name:"日志分组"})).getAllByRole("tab").map(tab => tab.textContent?.replace(/\d+$/, ""))).toEqual(["尚未开放"]);
     expect(index.queryByText("尚无记事")).toBeNull();
     expect(screen.getByRole("button",{name:"查看记录：停下来的钟声"})).toHaveAttribute("data-locked","true");
     await user.click(screen.getByRole("button",{name:"查看记录：停下来的钟声"}));

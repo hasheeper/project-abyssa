@@ -1,8 +1,30 @@
 /* Manor utility palette, taken from mansion-room-drawer.css.
    Opt-in only: it must not recolor the world, other game screens or item rarity. */
+
+/* ---- 洋馆字阶:工具窗(库存、日志、整备)与房间抽屉的唯一来源 ----
+   画布整体缩放,1440 宽约 0.88 倍,故最小 12。manor-surface 给不属于工具窗、
+   但共用字阶的洋馆面板(房间抽屉)使用,它不带工具窗的配色。 */
+:is(.manor-utility, .manor-surface) {
+  --manor-type-display: 30px; /* 阅读区标题 */
+  --manor-type-title: 24px;   /* 物品详情标题 */
+  --manor-type-figure: 24px;  /* 数值行的数字 */
+  --manor-type-heading: 19px; /* 窗口内区块名 */
+  --manor-type-lead: 17px;    /* 条目名、批次、概要 */
+  --manor-type-body: 15px;    /* 正文 */
+  --manor-type-label: 13px;   /* 小节名、附注、说明 */
+  --manor-type-min: 12px;     /* 键位提示等最次要信息 */
+}
 .manor-utility {
   --manor-window-width: 1080px;
   --manor-window-height: 620px;
+  /* 右侧常驻详情面板(库存)的宽度与展台物品格。 */
+  --manor-detail-width: 296px;
+  --manor-detail-slot: 112px;
+  /* 名牌面板的版面量(库存、日志共用,两个窗口的框线落在同一位置):
+     名牌探出面板上沿的高度、版面顶到面板上沿的留白、面板下沿到窗框内边的留白。 */
+  --manor-panel-tag: 17px;
+  --manor-board-top: calc(var(--manor-panel-tag) + 12px);
+  --manor-board-chin: 24px;
   --manor-window: rgb(19 26 27 / 97%);
   --manor-void: rgb(10 15 16 / 98%);
   --manor-well: rgb(6 11 12 / 52%);
@@ -18,6 +40,9 @@
   --manor-gold-bright: #e0c67f;
   --manor-gold-edge: #88784f;
   --manor-gold-shadow: #7b6d47;
+  /* ---- 细线与选中:逐渐隐去的线,不画通栏硬边(同记忆目录) ---- */
+  --manor-rule: linear-gradient(90deg, rgb(171 189 175 / 24%), rgb(171 189 175 / 8%) 72%, transparent);
+  --manor-highlight: linear-gradient(90deg, rgb(181 195 167 / 14%), rgb(133 158 143 / 3%) 82%, transparent);
   --abyssa-text: var(--manor-title);
   --abyssa-text-soft: var(--manor-body);
   --abyssa-text-muted: var(--manor-muted);
@@ -46,12 +71,6 @@
   flex-direction: column;
   flex: 1;
   min-height: 0;
-}
-/* A dark inset with a quiet edge; its depth is independent of content spacing. */
-.manor-utility .manor-utility__inset {
-  border: 1px solid var(--manor-hair);
-  background: var(--manor-well);
-  box-shadow: inset 0 1px rgb(255 255 255 / 3%), 0 1px rgb(0 0 0 / 18%);
 }
 .manor-utility > .abyssa-modal__panel > .abyssa-frame {
   --abyssa-frame-surface: var(--manor-window);
@@ -103,4 +122,334 @@
 .manor-utility .abyssa-inventory__detail-body,
 .manor-utility .abyssa-inventory__footer { border-color: var(--manor-hair); }
 
-.manor-utility .departure-preparation .departure-preparation__effect { color: var(--manor-body); }
+/* ---- 共用分节(ManorSection) ----
+   图标 + 名称 + 右端附注;major 下方一条逐渐隐去的细线,minor 只有名称。 */
+.manor-glyph {
+  display: inline-block;
+  flex: none;
+  width: 1.15em;
+  height: 1.15em;
+  background: currentColor;
+  mask-position: center;
+  mask-repeat: no-repeat;
+  mask-size: contain;
+}
+.manor-utility .manor-section { min-width: 0; }
+.manor-utility .manor-section__heading {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.manor-utility .manor-section__heading > :is(h3, h4) {
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.manor-utility .manor-section__aside {
+  margin-left: auto;
+  color: var(--manor-muted);
+  font: var(--manor-type-label)/1 var(--abyssa-font-display);
+  font-variant-numeric: lining-nums tabular-nums;
+  white-space: nowrap;
+}
+.manor-utility .manor-section[data-tier="major"] > .manor-section__heading {
+  margin-bottom: 22px;
+  padding-bottom: 12px;
+}
+.manor-utility .manor-section[data-tier="major"] > .manor-section__heading::after {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 1px;
+  background: var(--manor-rule);
+  content: "";
+}
+.manor-utility .manor-section[data-tier="major"] > .manor-section__heading > .manor-glyph { color: var(--manor-gold); font-size: 20px; }
+.manor-utility .manor-section[data-tier="major"] > .manor-section__heading > :is(h3, h4) {
+  color: var(--manor-title);
+  font: 500 var(--manor-type-heading)/1.4 var(--abyssa-font-display);
+  letter-spacing: .16em;
+}
+.manor-utility .manor-section[data-tier="minor"] > .manor-section__heading { gap: 8px; margin-bottom: 10px; }
+.manor-utility .manor-section[data-tier="minor"] > .manor-section__heading > .manor-glyph { color: var(--manor-gold-edge); font-size: 16px; }
+.manor-utility .manor-section[data-tier="minor"] > .manor-section__heading > :is(h3, h4) {
+  color: var(--manor-gold);
+  font: 500 var(--manor-type-label)/1.5 var(--abyssa-font-body);
+  letter-spacing: .14em;
+}
+
+/* ---- 分页(ManorPager):菱形箭头只留一道细边,数字用游戏字体 ---- */
+.manor-utility .manor-pager { display: inline-flex; align-items: center; gap: 8px; }
+.manor-utility .manor-pager > [role="status"] {
+  min-width: 44px;
+  color: var(--manor-body);
+  font: var(--manor-type-label)/1 var(--abyssa-font-display);
+  font-variant-numeric: lining-nums tabular-nums;
+  text-align: center;
+}
+.manor-utility .manor-pager__arrow.abyssa-icon-button[data-size] {
+  --abyssa-icon-size: 32px;
+  --abyssa-icon-fill: var(--manor-void);
+  --abyssa-icon-middle: var(--manor-edge-strong);
+  --abyssa-icon-ink: var(--manor-gold);
+  margin-block: -4px;
+}
+.manor-pager__arrow .abyssa-icon-button__art > path:is(:nth-of-type(2), :nth-of-type(4), :nth-of-type(5)) { display: none; }
+.manor-pager__arrow .abyssa-icon-button__art > path:nth-of-type(3) { stroke-width: 5; }
+.manor-pager__arrow .abyssa-icon-button__custom { inset: 32%; }
+.manor-pager__arrow .abyssa-arrow-icon { stroke-width: 3.4; }
+.manor-utility .manor-pager__arrow.abyssa-icon-button:is(:hover, :focus-visible):not(:disabled) {
+  --abyssa-icon-middle: var(--manor-gold);
+  --abyssa-icon-ink: var(--manor-gold-bright);
+}
+.manor-utility .manor-pager__arrow.abyssa-icon-button:disabled { cursor: default; filter: none; opacity: .32; }
+
+/* ---- 数量选择(ManorQuantity):同分页的一对菱形箭头,数字同数值行的金色游戏字体 ---- */
+.manor-utility .manor-quantity { display: inline-flex; align-items: center; gap: 6px; vertical-align: middle; }
+.manor-utility .manor-quantity > output {
+  min-width: 2ch;
+  color: var(--manor-gold-bright);
+  font: 400 var(--manor-type-figure)/1 var(--abyssa-font-display);
+  font-variant-numeric: lining-nums tabular-nums;
+  text-align: center;
+}
+.manor-utility .manor-stat > dd > .manor-quantity + small { margin-left: 5px; }
+
+/* ---- 键位提示(ManorKeys) ---- */
+.manor-utility .manor-keys { display: inline-flex; align-items: center; gap: 22px; color: var(--manor-muted); font-size: var(--manor-type-label); line-height: 1; }
+.manor-utility .manor-keys__hint { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.manor-utility .manor-keys__hint > kbd:last-of-type { margin-right: 2px; }
+.manor-utility .manor-keys kbd {
+  display: inline-grid;
+  min-width: 24px;
+  height: 22px;
+  padding: 0 6px;
+  box-sizing: border-box;
+  place-items: center;
+  border: 1px solid var(--manor-edge);
+  background: linear-gradient(180deg, rgb(255 255 255 / 4%), transparent), var(--manor-void);
+  box-shadow: 0 1px 0 rgb(0 0 0 / 50%);
+  color: var(--manor-body);
+  font: var(--manor-type-min)/1 var(--abyssa-font-display);
+}
+
+/* ---- 材质:名牌面板(ManorPanel) ----
+   与房间抽屉的「名牌 + 内凹面板」同一配方:双线内框、下沿两角金色刻痕;
+   名牌骑在上沿左端,右端斜切,带三点装饰;附件(分页等)骑在上沿右端,
+   用窗面色垫底,读作嵌进框线的缺口。 */
+.manor-utility .manor-panel {
+  position: relative;
+  min-width: 0;
+  box-sizing: border-box;
+  border: 1px solid var(--manor-edge);
+  background: linear-gradient(180deg, rgb(255 255 255 / 2.5%), transparent 42%), rgb(6 11 12 / 66%);
+  box-shadow:
+    0 0 0 2px rgb(4 8 9 / 88%),
+    inset 0 0 0 3px rgb(6 11 12 / 92%),
+    inset 0 0 0 4px rgb(126 150 145 / 15%),
+    inset 0 0 26px rgb(0 0 0 / 44%);
+}
+.manor-utility .manor-panel::before,
+.manor-utility .manor-panel::after {
+  position: absolute;
+  bottom: 8px;
+  width: 9px;
+  height: 9px;
+  border: 0 solid rgb(185 162 113 / 52%);
+  content: "";
+  pointer-events: none;
+}
+.manor-utility .manor-panel::before { left: 8px; border-bottom-width: 1px; border-left-width: 1px; }
+.manor-utility .manor-panel::after { right: 8px; border-right-width: 1px; border-bottom-width: 1px; }
+/* 名牌(以及当前页签)的牌面:1px 描边取面板自己的边色(上亮下暗),读作框线的延续;
+   牌面只比窗面略亮;外侧一道贴身暗影,对应面板外缘的暗边。 */
+.manor-utility :is(.manor-panel__tag, .manor-panel__tab[aria-selected="true"]) {
+  --manor-plate-rim: linear-gradient(180deg, var(--manor-edge-strong), var(--manor-edge));
+  --manor-plate-face: linear-gradient(180deg, rgb(255 255 255 / 5%), transparent 55%), linear-gradient(180deg, #1b2526, #101718);
+  filter: drop-shadow(0 1px 1px rgb(0 0 0 / 70%));
+}
+.manor-utility :is(.manor-panel__tag, .manor-panel__tab[aria-selected="true"])::before,
+.manor-utility :is(.manor-panel__tag, .manor-panel__tab[aria-selected="true"])::after {
+  position: absolute;
+  z-index: -1;
+  content: "";
+}
+.manor-utility :is(.manor-panel__tag, .manor-panel__tab[aria-selected="true"])::before {
+  inset: 0;
+  background: var(--manor-plate-rim);
+  clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 100%, 0 100%);
+}
+.manor-utility :is(.manor-panel__tag, .manor-panel__tab[aria-selected="true"])::after {
+  inset: 1px;
+  background: var(--manor-plate-face);
+  clip-path: polygon(0 0, calc(100% - 15.6px) 0, calc(100% - .7px) 100%, 0 100%);
+}
+.manor-utility .manor-panel__tag {
+  position: absolute;
+  z-index: 1;
+  top: -16px;
+  left: 12px;
+  display: flex;
+  height: 30px;
+  align-items: center;
+  pointer-events: none;
+}
+.manor-utility .manor-panel__tag > h3 {
+  position: relative;
+  display: flex;
+  height: 100%;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 0 36px 0 14px;
+  color: var(--manor-title);
+  font: 500 var(--manor-type-body)/1 var(--abyssa-font-display);
+  letter-spacing: .18em;
+  text-shadow: 0 1px 2px rgb(0 0 0 / 70%);
+  white-space: nowrap;
+}
+/* 名牌右上的三点装饰(参考图 name tag 的「···」),压到边色,只作纹样。 */
+.manor-utility :is(.manor-panel__tag > h3, .manor-panel__tab[aria-selected="true"] > span)::after {
+  position: absolute;
+  top: 6px;
+  right: 24px;
+  width: 13px;
+  height: 3px;
+  background: radial-gradient(circle, var(--manor-edge-strong) 0 1px, transparent 1.3px) 0 0 / 5px 3px repeat-x;
+  content: "";
+}
+.manor-utility .manor-panel__tag .manor-glyph { color: var(--manor-gold); font-size: 17px; }
+/* ---- 页签行:骑在上沿左端。当前页签是名牌;其余页签不垫牌,用窗面色垫底,
+   框线在它们下面断开(同分页的处理),悬停只提亮字色。 ---- */
+.manor-utility .manor-panel__tabs {
+  position: absolute;
+  z-index: 1;
+  top: -16px;
+  left: 12px;
+  display: flex;
+  height: 30px;
+}
+.manor-utility .manor-panel__tab {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin: 0;
+  padding: 0 14px;
+  border: 0;
+  background: var(--manor-window);
+  color: var(--manor-muted);
+  font: 500 var(--manor-type-body)/1 var(--abyssa-font-display);
+  letter-spacing: .18em;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color var(--abyssa-motion-hover, 140ms);
+}
+.manor-utility .manor-panel__tab > span { position: relative; display: flex; height: 100%; align-items: center; gap: 8px; }
+.manor-utility .manor-panel__tab b { color: var(--manor-dim); font: 400 var(--manor-type-label)/1 var(--abyssa-font-display); letter-spacing: 0; }
+.manor-utility .manor-panel__tab:hover { color: var(--manor-body); }
+.manor-utility .manor-panel__tab:focus-visible { outline: 1px solid #a9b8ad; outline-offset: -4px; }
+.manor-utility .manor-panel__tab[aria-selected="true"] {
+  padding: 0 36px 0 14px;
+  background: none;
+  color: var(--manor-title);
+  text-shadow: 0 1px 2px rgb(0 0 0 / 70%);
+  cursor: default;
+}
+.manor-utility .manor-panel__tab[aria-selected="true"] b { color: var(--manor-muted); }
+.manor-utility .manor-panel__tab[aria-selected="true"] > span::after { right: -12px; }
+.manor-utility .manor-panel__tabpanel { min-width: 0; min-height: 0; }
+
+/* 附件(分页等)骑在上沿右端,不垫牌;用窗面色垫底,框线在它两侧断开,留一段空隙。 */
+.manor-utility .manor-panel__aside {
+  position: absolute;
+  z-index: 1;
+  top: -16px;
+  right: 12px;
+  display: flex;
+  height: 30px;
+  align-items: center;
+  padding: 0 10px;
+  background: var(--manor-window);
+}
+
+/* ---- 物品展台(ManorItemShowcase) ----
+   菱形暗纹向四周淡出,物品格下方一道两端隐去的台面线,中点一枚小菱形;名称在台下。 */
+.manor-utility .manor-showcase { min-width: 0; }
+.manor-utility .manor-showcase__stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  height: calc(var(--manor-detail-slot) + 48px);
+  overflow: hidden;
+  background: radial-gradient(closest-side, rgb(168 192 178 / 13%), transparent) center / 78% 92% no-repeat;
+}
+.manor-utility .manor-showcase__pattern {
+  --abyssa-watermark-outer: rgb(190 210 198 / 6%);
+  --abyssa-watermark-inner: rgb(190 210 198 / 3%);
+  mask-image: radial-gradient(closest-side, #000 30%, transparent);
+}
+.manor-utility .manor-showcase__stage::before,
+.manor-utility .manor-showcase__stage::after { position: absolute; left: 50%; translate: -50% 0; content: ""; }
+.manor-utility .manor-showcase__stage::after {
+  bottom: 18px;
+  width: 70%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--manor-line) 30% 70%, transparent);
+}
+.manor-utility .manor-showcase__stage::before {
+  bottom: 15px;
+  z-index: 1;
+  width: 6px;
+  height: 6px;
+  border: 1px solid var(--manor-gold-edge);
+  background: var(--manor-void);
+  rotate: 45deg;
+}
+.manor-utility .manor-showcase__stage > .abyssa-item-slot {
+  --slot-size: var(--manor-detail-slot);
+  position: relative;
+  margin-top: -10px;
+  filter: drop-shadow(0 8px 10px rgb(0 0 0 / 45%));
+}
+.manor-utility .manor-showcase__tag {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  padding: 3px 8px;
+  border: 1px solid var(--manor-gold-shadow);
+  background: var(--manor-void);
+  color: var(--manor-gold);
+  font-size: var(--manor-type-min);
+  line-height: 1.3;
+}
+.manor-utility .manor-showcase__name {
+  margin: 4px 0 0;
+  color: var(--manor-title);
+  font: 500 var(--manor-type-title)/1.35 var(--abyssa-font-display);
+  letter-spacing: .06em;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+/* ---- 数值行(ManorStat):标签左、数字右,数字一律金色游戏字体 ---- */
+.manor-utility .manor-stats { display: grid; gap: 8px; margin: 0; }
+.manor-utility .manor-stat { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; min-width: 0; }
+.manor-utility .manor-stat > dt { color: var(--manor-muted); font-size: var(--manor-type-label); }
+.manor-utility .manor-stat > dd { margin: 0; color: var(--manor-muted); font-size: var(--manor-type-label); white-space: nowrap; }
+.manor-utility .manor-stat > dd > b {
+  margin-right: 5px;
+  color: var(--manor-gold-bright);
+  font: 400 var(--manor-type-figure)/1 var(--abyssa-font-display);
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+/* 物品数量徽标:库内通用件用的是系统无衬线,洋馆工具窗统一回游戏字体。 */
+.manor-utility .abyssa-item-count {
+  font: 600 var(--manor-type-label)/1 var(--abyssa-font-display);
+  font-variant-numeric: lining-nums tabular-nums;
+}

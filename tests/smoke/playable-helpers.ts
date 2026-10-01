@@ -24,6 +24,9 @@ export async function openManorJournal(page: Page, entry?: string) {
   if (entry) {
     const button = index.getByRole("button", {name:`查看记录：${entry}`,exact:true})
       .or(index.locator(`button[data-journal-entry="${entry}"], button[data-source-id="${entry}"]`));
+    // 目录按分组页签列出;目标不在当前页签时,逐个切换页签去找。
+    const tabs = page.getByRole("tablist", {name:"日志分组",exact:true}).getByRole("tab");
+    for (let i = 0, count = await tabs.count(); i < count && !await button.count(); i++) await tabs.nth(i).click();
     await button.click();
     await expect(button).toHaveAttribute("aria-current","true");
   }

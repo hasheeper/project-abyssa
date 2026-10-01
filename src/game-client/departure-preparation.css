@@ -1,82 +1,73 @@
-/* One inventory inset groups both rows; the item artwork supplies the relief.
-   Details stay on the window plane, without a second set of nested trays. */
+/* 与库存同一副骨架,只在这里排位置与格子尺寸:左栏两块名牌面板(行囊、补给),
+   右栏一块详情面板,窗口下沿一条与日志同款的操作栏。面板、展台、数值行都来自 manor-utility.css。 */
 .departure-preparation {
+  --prep-carry-slot: 104px;
+  --prep-stock-slot: 78px;
   display: grid;
-  grid-template-rows: minmax(0, 1fr) 48px;
-  gap: 16px;
+  grid-template-columns: minmax(0, 1fr) var(--manor-detail-width, 296px);
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 20px 18px;
   height: 100%;
-  padding: 0;
+  padding-top: var(--manor-board-top, 29px);
   box-sizing: border-box;
 }
-/* The larger slots fit the shared window's scale. Keep the assembly on the
-   common top baseline, without centering or stretching the groups apart. */
-.departure-preparation__main { display: grid; grid-template-columns: minmax(0, 1fr) 224px; align-content: start; align-items: start; gap: 24px; min-height: 0; }
-.departure-preparation__inventory { display: flex; flex-direction: column; gap: 48px; min-width: 0; padding: 32px 24px; box-sizing: border-box; }
-.departure-preparation__group { min-width: 0; }
-.departure-preparation__heading { display: flex; align-items: center; gap: 18px; margin: 0 0 32px; }
-.departure-preparation .departure-preparation__heading h3 { margin: 0; color: var(--abyssa-text); font: 20px/1.4 var(--abyssa-font-display); letter-spacing: .16em; white-space: nowrap; }
-.departure-preparation__rule { flex: 1; position: relative; height: 1px; background: var(--manor-hair, #354345); }
-.departure-preparation__rule::before { content: ""; position: absolute; left: 0; top: -2px; width: 5px; height: 5px; background: var(--manor-gold-shadow, #7b6d47); transform: rotate(45deg); }
-.departure-preparation__capacity { display: flex; gap: 6px; align-items: baseline; white-space: nowrap; }
-.departure-preparation__capacity b { color: var(--abyssa-text); font: 24px/1 var(--abyssa-font-display); }
-.departure-preparation__capacity i { font: 14px/1 var(--abyssa-font-display); color: var(--abyssa-text-muted); }
+.departure-preparation[data-capacity="6"] { --prep-carry-slot: 88px; }
 .departure-preparation ul, .departure-preparation ol { margin: 0; padding: 0; list-style: none; }
-/* Distribute the slots themselves, so both rows share the same outer edges. */
-.departure-preparation .departure-preparation__loadout,
-.departure-preparation .departure-preparation__catalogue { display: grid; justify-content: space-between; padding: 4px 4px 8px; }
-.departure-preparation .departure-preparation__loadout { grid-template-columns: repeat(6, 108px); gap: 12px; }
-.departure-preparation[data-capacity="4"] .departure-preparation__loadout { grid-template-columns: repeat(4, 108px); }
-.departure-preparation__loadout li, .departure-preparation__catalogue li { min-width: 0; display: grid; justify-items: center; align-content: start; gap: 11px; }
-/* Empty carry positions reserve the same name line as occupied positions. */
-.departure-preparation__item-name { display: block; max-width: 100%; height: 24px; color: var(--abyssa-text); font-size: 16px; line-height: 24px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.departure-preparation .departure-preparation__catalogue { grid-template-columns: repeat(7, 80px); gap: 12px; }
+
+/* 左栏:两块面板的间距要容下下一块的名牌;行囊一块占去余下的高度。 */
+.departure-preparation__inventory { display: flex; flex-direction: column; gap: calc(var(--manor-panel-tag, 17px) + 20px); min-width: 0; min-height: 0; }
+.manor-utility .departure-preparation__group { display: flex; flex-direction: column; min-height: 0; padding: 32px 20px 18px; }
+.manor-utility .departure-preparation__group[data-area="loadout"] { flex: 1; padding-bottom: 14px; }
+.departure-preparation__capacity { display: flex; gap: 6px; align-items: baseline; white-space: nowrap; }
+.departure-preparation__capacity b { color: var(--manor-gold-bright); font: var(--manor-type-lead)/1 var(--abyssa-font-display); }
+.departure-preparation__capacity i { color: var(--manor-muted); font: var(--manor-type-label)/1 var(--abyssa-font-display); font-style: normal; }
 .departure-preparation__item-art { position: relative; }
+
+/* 携带位:等分面板宽度,每格一方展台(菱形暗纹 + 台面线),名称在台下;整排在面板里垂直居中。 */
+.departure-preparation .departure-preparation__loadout { --manor-detail-slot: var(--prep-carry-slot); display: grid; flex: 1; grid-auto-columns: minmax(0, 1fr); grid-auto-flow: column; align-content: center; gap: 12px; }
+.departure-preparation__loadout li { display: grid; justify-items: stretch; align-content: start; gap: 2px; min-width: 0; }
+.departure-preparation__loadout .abyssa-item-slot { --slot-size: var(--prep-carry-slot); }
+.departure-preparation__berth > .departure-preparation__item-art { margin-top: -10px; filter: drop-shadow(0 8px 10px rgb(0 0 0 / 45%)); }
+.departure-preparation__loadout li[data-empty] .abyssa-item-slot { opacity: .5; }
+.departure-preparation__item-name { display: block; height: 24px; overflow: hidden; color: var(--manor-title); font-size: var(--manor-type-body); line-height: 24px; text-align: center; text-overflow: ellipsis; white-space: nowrap; }
+.departure-preparation__loadout li[data-empty] .departure-preparation__item-name { color: var(--manor-dim); font-size: var(--manor-type-label); letter-spacing: .14em; }
+
+/* 补给:与库存「常备补给」同一格盘。右下 6px 是数量徽标探出格外的部分。 */
+.departure-preparation .departure-preparation__catalogue { display: grid; grid-template-columns: repeat(7, var(--prep-stock-slot)); justify-content: space-between; gap: 20px 12px; padding: 0 6px 6px 0; }
+.departure-preparation__catalogue li { display: flex; min-width: 0; }
+.departure-preparation__catalogue .abyssa-item-slot { --slot-size: var(--prep-stock-slot); }
 .departure-preparation__catalogue li[data-stocked="false"] .abyssa-item-slot [data-layer^="glyph"] { opacity: .45; }
-.departure-preparation__carried { position: absolute; top: -5px; right: -4px; z-index: 5; display: grid; width: 16px; height: 16px; place-items: center; border: 1px solid var(--manor-gold-edge, #88784f); background: #171b1a; color: var(--manor-gold-bright, #e0c67f); font: 11px/1 sans-serif; pointer-events: none; }
+/* 已装入行囊:格位右上一枚点亮的切面菱形,与日志「待处理」同一标记。 */
+.departure-preparation__carried.abyssa-facet-diamond { --abyssa-facet-size: 18px; position: absolute; top: -7px; right: -7px; z-index: 5; pointer-events: none; }
 
-/* An unboxed detail column: identity / effect / quantities / action.
-   Two side-by-side quantities leave enough room for longer item descriptions. */
-.departure-preparation__detail { display: flex; flex-direction: column; min-width: 0; min-height: 0; padding: 32px 0 8px 8px; box-sizing: border-box; }
-.departure-preparation__detail-identity { display: flex; align-items: center; gap: 14px; padding: 0 0 26px; }
-.departure-preparation__detail-identity .abyssa-item-slot { flex-shrink: 0; }
-.departure-preparation__kind { color: var(--abyssa-text-muted); font-size: 11px; letter-spacing: .1em; }
-.departure-preparation .departure-preparation__detail h3 { margin: 5px 0 0; color: var(--abyssa-text); font-size: 24px; line-height: 1.4; }
-.departure-preparation .departure-preparation__effect { margin: 0 0 24px; color: var(--abyssa-text); font-size: 16px; line-height: 1.6; }
-.departure-preparation__detail dl { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin: 0; padding: 12px 0 10px; }
-.departure-preparation__detail dt { color: var(--abyssa-text-muted); font-size: 11px; line-height: 18px; }
-.departure-preparation__detail dd { margin: 3px 0 0; font: 25px/1.2 var(--abyssa-font-display); color: var(--abyssa-text-soft); }
-.departure-preparation__detail dd small { font: 11px var(--abyssa-font-body); color: var(--abyssa-text-muted); }
-.departure-preparation__detail-action { margin-top: 22px; text-align: left; }
-/* Local item operation, not a second full-width navigation bar. */
-.departure-preparation .departure-preparation__detail-action > .journal-action {
-  width: 144px; min-width: 144px; height: 36px; padding: 0 16px; font-size: 13px;
-  --abyssa-notched-fill: transparent;
-  --abyssa-notched-middle: var(--manor-edge);
-  --abyssa-notched-ornament: transparent;
-  --abyssa-notched-pattern-dark: transparent;
-  --abyssa-notched-pattern-light: transparent;
-}
-.departure-preparation .departure-preparation__detail-action > p { min-height: 16px; margin: 0 0 4px; color: var(--abyssa-text-muted); font-size: 10px; line-height: 1.6; }
+/* 详情:展台 → 库存与携带 → 用途;装入/移出沉在面板底部,位置不随物品变化。 */
+/* 展台比库存略小(96):详情里还要放携带数量与装入按钮。 */
+.manor-utility .departure-preparation__detail { --manor-detail-slot: 96px; display: flex; flex-direction: column; min-height: 0; padding: 28px 20px 16px; overflow-wrap: anywhere; }
+.departure-preparation__sheet { display: flex; flex: 1; flex-direction: column; min-height: 0; overflow: auto; scrollbar-width: thin; }
+.manor-utility .departure-preparation__stats { flex: none; margin-top: 18px; padding-bottom: 12px; background: var(--manor-rule) left bottom / 100% 1px no-repeat; }
+.manor-utility .departure-preparation__stats .manor-stat:has(.manor-quantity) { align-items: center; }
+.departure-preparation .departure-preparation__effect { margin: 16px 0 0; color: var(--manor-body); font-size: var(--manor-type-body); line-height: 1.8; }
+.departure-preparation__detail-action { display: grid; flex: none; justify-items: center; gap: 6px; padding-top: 14px; background: var(--manor-rule) left top / 100% 1px no-repeat; }
+.departure-preparation .departure-preparation__detail-action > p { margin: 0; color: var(--manor-muted); font-size: var(--manor-type-label); line-height: 1.6; text-align: center; }
+.departure-preparation .departure-preparation__detail-action > .journal-action { width: 160px; }
 
-/* Resources / quiet utility links / one framed primary command. */
-.departure-preparation__footer { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 8px 0 0; border-top: 1px solid var(--manor-hair, #354345); }
-.departure-preparation__funds { display: flex; align-items: center; gap: 26px; }
-.departure-preparation__balance { position: relative; display: inline-flex; align-items: center; min-height: 32px; cursor: help; }
-.departure-preparation__balance > span[aria-hidden="true"] { display: inline-flex; align-items: center; }
-.departure-preparation__balance .abyssa-currency-amount { gap: 8px; font: 20px/1 var(--abyssa-font-display); font-variant-numeric: tabular-nums; }
+/* 操作栏:跨两栏,钉在窗口下沿。左端三项余额(小字名称在上,数额在下,同日志的「地点」),
+   右端两处去处是安静的图标文字,只有「出征编队」带框。 */
+.departure-preparation__dock { grid-column: 1 / -1; min-width: 0; }
+.departure-preparation__funds { display: flex; align-items: center; gap: 36px; }
+.departure-preparation__balance { display: grid; gap: 2px; justify-items: start; }
+.departure-preparation__balance > small { color: var(--manor-muted); font: var(--manor-type-min, 12px)/18px var(--abyssa-font-body); letter-spacing: .14em; white-space: nowrap; }
+.departure-preparation__balance > span[aria-hidden="true"] { display: inline-flex; align-items: center; height: 22px; }
+.departure-preparation__balance .abyssa-currency-amount { gap: 7px; font: 19px/1 var(--abyssa-font-display); font-variant-numeric: tabular-nums; }
 .departure-preparation__balance[data-currency="gold"] { color: var(--journal-gold); }
 .departure-preparation__balance[data-currency="crystal"] { color: var(--journal-crystal); }
-.departure-preparation__balance .abyssa-currency-amount[data-currency="lira"] i { width: 18px; height: 18px; }
-.departure-preparation__balance .abyssa-currency-amount i[data-icon="custom"] { width: 22px; height: 22px; }
-.departure-preparation__balance .abyssa-currency-amount[data-currency="crystal"] i { width: 12px; height: 12px; margin: 0 3px; }
-.departure-preparation__balance .departure-preparation__balance-hint { position: absolute; bottom: calc(100% + 6px); left: 0; z-index: 20; padding: 5px 9px; border: 1px solid var(--manor-edge); background: var(--manor-void); color: var(--abyssa-text-soft); font: 11px/1.5 var(--abyssa-font-body); white-space: nowrap; opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 120ms ease; }
-.departure-preparation__balance:is(:hover, :focus-visible) .departure-preparation__balance-hint { opacity: 1; visibility: visible; }
-.departure-preparation__balance:focus-visible { outline: 1px solid var(--abyssa-focus); outline-offset: 3px; }
-.departure-preparation__footer > div > span { display: block; color: var(--abyssa-text-muted); font-size: 10px; line-height: 1.5; }
-.departure-preparation__footer > div > [role="alert"] { color: var(--abyssa-danger); }
-.departure-preparation__footer nav { display: flex; gap: 24px; align-items: center; }
-.departure-preparation .departure-preparation__aux-link { display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 4px; color: var(--abyssa-text-muted); font: 13px/1.4 var(--abyssa-font-body); text-decoration: none; white-space: nowrap; }
-.departure-preparation__aux-link i { width: 22px; height: 22px; flex: none; background: currentColor; mask-position: center; mask-repeat: no-repeat; mask-size: contain; }
-.departure-preparation .departure-preparation__aux-link:hover { color: var(--abyssa-text); }
+.departure-preparation__balance .abyssa-currency-amount[data-currency="lira"] i { width: 17px; height: 17px; }
+.departure-preparation__balance .abyssa-currency-amount i[data-icon="custom"] { width: 20px; height: 20px; }
+.departure-preparation__balance .abyssa-currency-amount[data-currency="crystal"] i { width: 11px; height: 11px; margin: 0 3px; }
+.departure-preparation .departure-preparation__alert { display: block; margin-top: 6px; color: var(--abyssa-danger); font-size: var(--manor-type-label); line-height: 1.5; }
+.departure-preparation__dock .journal-record__actions { gap: 10px 24px; }
+.departure-preparation .departure-preparation__aux-link { display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 4px; color: var(--manor-muted); font: var(--manor-type-label)/1.4 var(--abyssa-font-body); letter-spacing: .06em; text-decoration: none; white-space: nowrap; }
+.departure-preparation__aux-link i { width: 20px; height: 20px; flex: none; background: currentColor; mask-position: center; mask-repeat: no-repeat; mask-size: contain; }
+.departure-preparation .departure-preparation__aux-link:hover { color: var(--manor-title); }
 .departure-preparation__aux-link:focus-visible { outline: 1px solid var(--abyssa-focus); outline-offset: 3px; }
-.departure-preparation__footer .campaign-journal__link { width: 150px; margin-left: 8px; white-space: nowrap; }
+.departure-preparation__dock .campaign-journal__link { width: 150px; white-space: nowrap; }

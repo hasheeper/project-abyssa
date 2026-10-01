@@ -9,6 +9,8 @@ export interface MansionUtilityRailProps {
   stockTotal: number;
   actionable: number;
   inert?: boolean;
+  /** 右侧房间抽屉压在工具栏上时为真:淡出并退出焦点顺序。 */
+  covered?: boolean;
   onOpen: (entry: Entry) => void;
   buttonRefs: Record<Entry, Ref<HTMLButtonElement>>;
 }
@@ -27,13 +29,14 @@ function UtilitySeal() {
   </svg>;
 }
 
-export function MansionUtilityRail({active, stockTotal, actionable, inert, onOpen, buttonRefs}: MansionUtilityRailProps) {
+export function MansionUtilityRail({active, stockTotal, actionable, inert, covered, onOpen, buttonRefs}: MansionUtilityRailProps) {
+  const hidden = inert || covered || undefined;
   const entries = [
     {id: "stock", label: "仓库", icon: chestGlyph, count: stockTotal, description: `领地库存，共 ${stockTotal} 件`},
     {id: "journal", label: "日志", icon: journalGlyph, count: actionable, description: actionable ? `${actionable} 项待办与进行中的委托` : "归来记录与同伴近况"},
     {id: "preparation", label: "整备", icon: preparationGlyph, count: 0, description: "出征行囊与补给"}
   ] as const;
-  return <nav className="mansion-utility-rail" aria-label="洋馆功能" data-no-pan inert={inert} aria-hidden={inert}>
+  return <nav className="mansion-utility-rail" aria-label="洋馆功能" data-no-pan data-covered={covered || undefined} inert={hidden} aria-hidden={hidden}>
     {entries.map(entry => <div className="mansion-utility-rail__entry" key={entry.id}>
       <button ref={buttonRefs[entry.id]} type="button" className="mansion-utility-rail__button"
         aria-label={entry.label} aria-description={entry.description} aria-haspopup="dialog"

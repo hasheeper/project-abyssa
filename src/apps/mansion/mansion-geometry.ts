@@ -27,7 +27,8 @@ export const PAN_STEP = Math.round(STAGE_CANVAS_WIDTH * 0.4);
 export const PAN_KEY_STEP = Math.round(STAGE_CANVAS_WIDTH * 0.09);
 
 const ROOM_FOCUS_ZOOM = 1.45;
-const ROOM_FOCUS_CENTER_X = 590;
+/** 右侧抽屉占 x 1036..1576,聚焦房间放在剩余画面(0..1036)的中线;左侧抽屉镜像。 */
+const ROOM_FOCUS_CENTER_X = 518;
 const ROOM_FOCUS_CENTER_Y = STAGE_CANVAS_HEIGHT / 2;
 const ROOM_PREVIEW_WIDTH = 148;
 const ROOM_PREVIEW_HEIGHT = 94;

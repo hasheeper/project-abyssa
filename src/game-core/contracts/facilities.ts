@@ -3,6 +3,7 @@ import * as v from "./validation";
 export const FACILITY_IDS = ["kitchen", "greenhouse", "workshop", "storage", "maid"] as const;
 export type FacilityId = typeof FACILITY_IDS[number];
 export type FacilityLevel = 0 | 1 | 2 | 3;
+export const FACILITY_MAX_LEVEL: FacilityLevel = 3;
 export type FacilityContent = {
   version: 1;
   rooms: Record<FacilityId, {name: string; initialLevel: FacilityLevel; availableDay: number}>;

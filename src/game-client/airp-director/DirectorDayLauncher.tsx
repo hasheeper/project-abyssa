@@ -1,5 +1,5 @@
 import type { FlowTaskView } from "../../shared/ui/patterns/flow/contracts";
-import { JournalButton, JournalStatus, type JournalStatusTone } from "../JournalPrimitives";
+import { JournalButton, JournalDock, JournalStatus, type JournalStatusTone } from "../JournalPrimitives";
 
 function dayStatus(task: FlowTaskView): {label: string; note: string; tone: JournalStatusTone} {
   switch (task.phase) {
@@ -16,10 +16,11 @@ function dayStatus(task: FlowTaskView): {label: string; note: string; tone: Jour
   }
 }
 
-/** Opens the existing flow. Viewing the journal never prepares or accepts a day. */
+/** Opens the existing flow. Viewing the journal never prepares or accepts a day.
+ *  进度留在正文,按钮放进日志的操作栏(不在日志里时排在进度下方)。 */
 export function DirectorDayLauncher({task, onOpen}: {task: FlowTaskView; onOpen: () => void}) {
   return <>
     <JournalStatus {...dayStatus(task)}/>
-    <div className="journal-record__actions"><JournalButton emphasis={task.phase === "waiting" ? "primary" : "normal"} onClick={onOpen}>查看今日安排</JournalButton></div>
+    <JournalDock><JournalButton emphasis={task.phase === "waiting" ? "primary" : "normal"} onClick={onOpen}>查看今日安排</JournalButton></JournalDock>
   </>;
 }

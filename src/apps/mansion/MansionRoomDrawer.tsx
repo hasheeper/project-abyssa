@@ -1,80 +1,104 @@
-import type { ReactNode, RefObject } from "react";
-import { CurrencyAmount } from "../../shared/ui/primitives/CurrencyAmount";
+import { useState } from "react";
+import type { KeyboardEvent, RefObject } from "react";
+import type { FacilityCommand } from "../../game-core/contracts/facilities";
+import type { FacilitiesView } from "../../game-runtime/facilities-view";
 import { IconButton } from "../../shared/ui/primitives/IconButton";
+import { RpgFacetDiamond } from "../../shared/ui/primitives/RpgFacetDiamond";
 import { RpgFrame } from "../../shared/ui/primitives/RpgFrame";
 import { RpgNotchedPillButton } from "../../shared/ui/primitives/RpgNotchedPillButton";
-import type {
-  MansionCharacter,
-  MansionFund,
-  MansionRoomDetail
-} from "./data";
-import { PRODUCTION_GLYPHS, RepairIcon } from "./MansionMarkers";
+import type { MansionCharacter, MansionRoomDetail } from "./data";
+import {
+  FACILITY_ROOM_GLYPHS,
+  FacilityGrade,
+  Glyph,
+  MansionFacilityOperation,
+  MansionFacilityWorks,
+  OVERVIEW_GLYPH,
+  RoomNotice,
+  RoomSection,
+  TRACE_GLYPH,
+  WORKS_GLYPH
+} from "./MansionFacilitySections";
 import { MansionRoomPreview, ResidentAvatar } from "./MansionRoomViews";
 import { cleanRegionLabel, type DrawerSide, type SceneRegion } from "./mansion-geometry";
-import {
-  MAX_FACILITY_LEVEL,
-  REPAIR_STEPS,
-  promoteCost
-} from "./mansion-state";
+
+type RoomTab = "overview" | "operation" | "works";
+
+const TAB_LABELS: Record<RoomTab, string> = { overview: "概况", operation: "运作", works: "工程" };
 
 export type MansionRoomDrawerProps = {
-  readOnly?: boolean;
-  facilitiesEnabled?: boolean;
-  facilityPanel?: ReactNode;
   region: SceneRegion;
   detail: MansionRoomDetail;
   side: DrawerSide;
   inert: boolean | undefined;
   closeButtonRef: RefObject<HTMLButtonElement | null>;
   occupants: MansionCharacter[];
-  level: number;
-  upgradeRemaining: number | undefined;
-  repairComplete: boolean;
-  repairSteps: number;
-  canPromote: boolean;
-  funds: Record<MansionFund, number>;
-  readyProduction: ReadonlySet<string>;
+  /** 旧档没有设施视图:设施房间只给一条说明,不画档位与按钮。 */
+  facilities: FacilitiesView | null;
+  itemIcons: Readonly<Record<string, string>>;
+  busy: boolean;
+  productionReady: boolean;
+  onFacilityCommand: (command: FacilityCommand) => void;
+  onOpenStock: () => void;
   onClose: () => void;
-  onCollectProduction: (roomId: string) => void;
-  onStartUpgrade: (roomId: string) => void;
-  onPromoteFacility: (roomId: string) => void;
   onNavigate: (href: string) => void;
 };
 
 export function MansionRoomDrawer({
-  readOnly = false,
-  facilitiesEnabled = false,
-  facilityPanel,
   region,
   detail,
   side,
   inert,
   closeButtonRef,
   occupants,
-  level,
-  upgradeRemaining,
-  repairComplete,
-  repairSteps,
-  canPromote,
-  funds,
-  readyProduction,
+  facilities,
+  itemIcons,
+  busy,
+  productionReady,
+  onFacilityCommand,
+  onOpenStock,
   onClose,
-  onCollectProduction,
-  onStartUpgrade,
-  onPromoteFacility,
   onNavigate
 }: MansionRoomDrawerProps) {
   const roomName = cleanRegionLabel(region.label);
-  const productionReady = readyProduction.has(region.id);
+  const room = facilities?.rooms.find((item) => item.id === region.id) ?? null;
+  const tabs: RoomTab[] = !room ? ["overview"]
+    : room.build && facilities?.funding ? ["overview", "operation", "works"]
+    : ["overview", "operation"];
+  const defaultTab: RoomTab = !room ? "overview" : !room.level && tabs.includes("works") ? "works" : "operation";
+  /* 换房间时抽屉不重挂(否则重播入场动效),所以页签按房间记忆:
+     换到别的房间即回到该房间的默认页。 */
+  const [picked, setPicked] = useState<{ roomId: string; tab: RoomTab } | null>(null);
+  const tab = picked && picked.roomId === region.id && tabs.includes(picked.tab) ? picked.tab : defaultTab;
+  const tabbed = tabs.length > 1;
+  const titleId = `mansion-room-title-${region.id}`;
+  const panelId = `mansion-room-${region.id}-panel`;
+  const tabId = (id: RoomTab) => `mansion-room-${region.id}-tab-${id}`;
+  const tabGlyph = (id: RoomTab) => id === "overview" ? OVERVIEW_GLYPH
+    : id === "works" ? WORKS_GLYPH
+    : FACILITY_ROOM_GLYPHS[region.id];
+  const choose = (next: RoomTab) => setPicked({ roomId: region.id, tab: next });
+  /* 与 SystemTabs / 角色档案页签同一套键位:左右循环,Home/End 到两端。 */
+  const moveTab = (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
+    const next = event.key === "ArrowRight" ? (index + 1) % tabs.length
+      : event.key === "ArrowLeft" ? (index + tabs.length - 1) % tabs.length
+      : event.key === "Home" ? 0
+      : event.key === "End" ? tabs.length - 1
+      : null;
+    if (next === null) return;
+    event.preventDefault();
+    choose(tabs[next]);
+    document.getElementById(tabId(tabs[next]))?.focus({ preventScroll: true });
+  };
 
   return (
     <aside
-      className="mansion-room-drawer"
+      className="mansion-room-drawer manor-surface"
       data-side={side}
       data-no-pan
       role="dialog"
       aria-modal="false"
-      aria-labelledby={`mansion-room-title-${region.id}`}
+      aria-labelledby={titleId}
       inert={inert}
       aria-hidden={inert}
     >
@@ -87,11 +111,12 @@ export function MansionRoomDrawer({
         onClick={onClose}
       />
       <RpgFrame className="mansion-room-card" padding="md" variant="dark">
-        <div className="mansion-room-card__hero">
+        <header className="mansion-room-card__hero">
           <MansionRoomPreview region={region} label={roomName} />
           <div className="mansion-room-card__identity">
             <small>{detail.subtitle}</small>
-            <h2 id={`mansion-room-title-${region.id}`}>{roomName}</h2>
+            <h2 id={titleId}>{roomName}</h2>
+            {room && facilities && <FacilityGrade view={facilities} room={room} />}
             <div className="mansion-room-card__residents">
               <span>当前驻在</span>
               {occupants.length ? (
@@ -109,178 +134,92 @@ export function MansionRoomDrawer({
               )}
             </div>
           </div>
-        </div>
+        </header>
 
-        {detail.state === "sealed" && (
-          <div className="mansion-room-card__warning">最高禁约 · 仅可查看封印状态</div>
-        )}
-        {detail.state === "provisional" && (
-          <div className="mansion-room-card__provisional">美术补充区域 · 正式设定待确认</div>
-        )}
-
-        <div className="mansion-room-card__brief">
-          <small>房间职能</small>
-          <p className="mansion-room-card__description">{detail.description}</p>
-        </div>
-
-        <div className="mansion-room-card__trace">
-          <small><i aria-hidden="true" />生活痕迹</small>
-          <p>{detail.trace}</p>
-        </div>
-        {readOnly && !facilitiesEnabled && <p className="mansion-room-card__description">建设与生产尚未开放</p>}
-
-        {facilityPanel}
-
-        {!facilitiesEnabled && detail.production && (
-          <div className="mansion-room-card__harvest">
-            <small>本相位产出</small>
-            <button
-              type="button"
-              className="mansion-room-card__collect"
-              data-ready={productionReady || undefined}
-              aria-label={readOnly ? "建设与生产尚未开放" : productionReady
-                ? `收取${detail.production.label} ${detail.production.amount}${detail.production.unit}`
-                : `${detail.production.label}本相位已收取`}
-              disabled={readOnly || !productionReady}
-              onClick={() => onCollectProduction(region.id)}
-            >
-              <i
-                className="mansion-room-card__collect-glyph"
-                style={{
-                  WebkitMaskImage: `url("${PRODUCTION_GLYPHS[detail.production.icon]}")`,
-                  maskImage: `url("${PRODUCTION_GLYPHS[detail.production.icon]}")`
-                }}
-                aria-hidden="true"
-              />
-              <span className="mansion-room-card__collect-name">{detail.production.label}</span>
-              <span className="mansion-room-card__collect-amount">
-                ×{detail.production.amount}<i>{detail.production.unit}</i>
-              </span>
-              <span className="mansion-room-card__collect-state">
-                {readOnly ? "未开放" : productionReady ? "收取" : "已收"}
-              </span>
-            </button>
-          </div>
-        )}
-
-        {!facilitiesEnabled && detail.state !== "sealed" && detail.state !== "provisional" && (
-          <div className="mansion-room-card__tier" role="group" aria-label="设施状态">
-            <span className="mansion-room-card__tier-label">设施档位</span>
-            <span
-              className="mansion-room-card__tier-track"
-              role="progressbar"
-              aria-label={`设施档位 · Lv.${level}`}
-              aria-valuemin={1}
-              aria-valuemax={MAX_FACILITY_LEVEL}
-              aria-valuenow={level}
-            >
-              {Array.from({ length: MAX_FACILITY_LEVEL }, (_, index) => (
-                <i key={index} data-on={index < level || undefined} />
-              ))}
-            </span>
-            <span className="mansion-room-card__tier-value" aria-hidden="true">
-              <em>Lv</em><b>{level}</b><s>/ {MAX_FACILITY_LEVEL}</s>
-            </span>
-
-            {!repairComplete && (
-              <>
-                <span className="mansion-room-card__tier-label" data-sub="">
-                  修缮进度
-                </span>
-                <span
-                  className="mansion-room-card__tier-track"
-                  data-sub=""
-                  role="progressbar"
-                  aria-label={`修缮进度 ${repairSteps}/${REPAIR_STEPS}`}
-                  aria-valuemin={0}
-                  aria-valuemax={REPAIR_STEPS}
-                  aria-valuenow={repairSteps}
-                >
-                  {Array.from({ length: REPAIR_STEPS }, (_, index) => (
-                    <i
-                      key={index}
-                      data-on={index < repairSteps || undefined}
-                      data-busy={
-                        index === repairSteps && upgradeRemaining ? "" : undefined
-                      }
-                    />
-                  ))}
-                </span>
-                <span
-                  className="mansion-room-card__tier-value"
-                  data-sub=""
-                  aria-hidden="true"
-                >
-                  <b>{repairSteps}</b><s>/ {REPAIR_STEPS}</s>
-                </span>
-              </>
-            )}
-          </div>
-        )}
-
-        {((!facilitiesEnabled && detail.upgradeCost) || (detail.href && detail.actionLabel)) && (
-          <div className="mansion-room-card__footer">
-            <div className="mansion-room-card__actions">
-              {!facilitiesEnabled && detail.upgradeCost && detail.fund && canPromote && (
+        {tabbed && (
+          <div className="mansion-room-card__tabs" role="tablist" aria-label={`${roomName}分页`}>
+            {tabs.map((id, index) => {
+              const selected = tab === id;
+              const ready = id === "operation" && productionReady;
+              return (
                 <button
                   type="button"
-                  className="mansion-room-card__promote"
-                  aria-label={`升级至 Lv.${level + 1}，花费 ${promoteCost(detail.upgradeCost)} G`}
-                  disabled={readOnly || funds[detail.fund] < promoteCost(detail.upgradeCost)}
-                  onClick={() => onPromoteFacility(region.id)}
+                  key={id}
+                  id={tabId(id)}
+                  className="mansion-room-tab"
+                  role="tab"
+                  data-selected={selected || undefined}
+                  aria-selected={selected}
+                  aria-controls={panelId}
+                  aria-label={ready ? "运作 · 有可收取的成品" : undefined}
+                  tabIndex={selected ? 0 : -1}
+                  onClick={() => choose(id)}
+                  onKeyDown={(event) => moveTab(event, index)}
                 >
-                  <span className="mansion-room-card__promote-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24">
-                      <path d="M12 4 L12 20" />
-                      <path d="M5 11 L12 4 L19 11" />
-                    </svg>
-                  </span>
-                  <strong>升级建筑</strong>
-                  <CurrencyAmount
-                    value={promoteCost(detail.upgradeCost)}
-                    label="升级费用"
-                  />
+                  <Glyph src={tabGlyph(id)} />
+                  <span>{TAB_LABELS[id]}</span>
+                  {ready && <RpgFacetDiamond className="mansion-room-tab__ready" label="" state="current" aria-hidden="true" />}
                 </button>
-              )}
-              {!facilitiesEnabled && detail.upgradeCost && detail.fund && !canPromote && (
-                <button
-                  type="button"
-                  className="mansion-room-card__repair"
-                  aria-label={upgradeRemaining
-                    ? `修缮中，还需 ${upgradeRemaining} 相位`
-                    : repairComplete
-                      ? `修缮已完成，Lv.${MAX_FACILITY_LEVEL}`
-                      : `修缮，花费 ${detail.upgradeCost} G`}
-                  disabled={readOnly || Boolean(upgradeRemaining) || repairComplete}
-                  onClick={() => onStartUpgrade(region.id)}
-                >
-                  <span className="mansion-room-card__repair-icon"><RepairIcon /></span>
-                  <strong>{upgradeRemaining ? "施工中" : repairComplete ? "已满档" : "修缮"}</strong>
-                  {upgradeRemaining ? (
-                    <small>{upgradeRemaining} 相位</small>
-                  ) : repairComplete ? (
-                    <small>Lv.{MAX_FACILITY_LEVEL}</small>
-                  ) : (
-                    <CurrencyAmount
-                      value={detail.upgradeCost}
-                      label="修缮费用"
-                    />
-                  )}
-                </button>
-              )}
-              {detail.href && detail.actionLabel && (
-                <RpgNotchedPillButton
-                  className="mansion-room-card__action"
-                  variant="teal"
-                  label={detail.actionLabel}
-                  disabled={readOnly && detail.href!.includes("dice")}
-                  onClick={() => onNavigate(detail.href!)}
-                />
-              )}
-            </div>
+              );
+            })}
           </div>
+        )}
+
+        <div
+          className="mansion-room-card__body"
+          id={panelId}
+          role={tabbed ? "tabpanel" : undefined}
+          aria-labelledby={tabbed ? tabId(tab) : undefined}
+        >
+          {tab === "overview" && (
+            <RoomOverview
+              detail={detail}
+              legacyFacility={!facilities && (detail.production != null || detail.upgradeCost != null)}
+            />
+          )}
+          {tab === "operation" && room && facilities && (
+            <MansionFacilityOperation
+              view={facilities}
+              room={room}
+              icons={itemIcons}
+              busy={busy}
+              onCommand={onFacilityCommand}
+              onStock={onOpenStock}
+            />
+          )}
+          {tab === "works" && room && facilities && (
+            <MansionFacilityWorks view={facilities} room={room} icons={itemIcons} busy={busy} onCommand={onFacilityCommand} />
+          )}
+        </div>
+
+        {detail.href && detail.actionLabel && (
+          <footer className="mansion-room-card__footer">
+            <RpgNotchedPillButton
+              className="mansion-room-card__action"
+              variant="teal"
+              label={detail.actionLabel}
+              disabled={detail.href.includes("dice")}
+              onClick={() => onNavigate(detail.href!)}
+            />
+          </footer>
         )}
       </RpgFrame>
     </aside>
+  );
+}
+
+function RoomOverview({ detail, legacyFacility }: { detail: MansionRoomDetail; legacyFacility: boolean }) {
+  return (
+    <>
+      {detail.state === "sealed" && <RoomNotice tone="alert">最高禁约 · 仅可查看封印状态</RoomNotice>}
+      {detail.state === "provisional" && <RoomNotice glyph={OVERVIEW_GLYPH}>美术补充区域 · 正式设定待确认</RoomNotice>}
+      <RoomSection label="房间职能" glyph={OVERVIEW_GLYPH}>
+        <p className="mansion-room-card__description">{detail.description}</p>
+      </RoomSection>
+      <RoomSection label="生活痕迹" glyph={TRACE_GLYPH}>
+        <p className="mansion-room-card__trace">{detail.trace}</p>
+      </RoomSection>
+      {legacyFacility && <RoomNotice>建设与生产尚未开放</RoomNotice>}
+    </>
   );
 }

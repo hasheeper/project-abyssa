@@ -1,4 +1,4 @@
-/* Flat editorial surfaces: whitespace and rules carry hierarchy, not bevels. */
+/* Journal content materials. Hierarchy comes from spacing, section name tags and fading rules. */
 .journal-surface {
   position: relative;
   min-width: 0;
@@ -32,21 +32,50 @@
 .journal-action[data-emphasis="primary"] { --abyssa-notched-middle: var(--abyssa-teal-soft); }
 .journal-action:focus-visible { outline: 2px solid var(--abyssa-focus); outline-offset: 3px; }
 
-/* Open ledger rows share the reader's surface; only the small icon has a well. */
-.journal-ledger { margin-top: 32px; min-width: 0; }
-.journal-ledger__head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding-bottom: 8px; border-bottom: 1px solid var(--journal-line); }
-.journal-ledger .journal-ledger__head > h4 { margin: 0; color: var(--abyssa-text-muted); font-size: 13px; font-weight: 500; letter-spacing: .1em; line-height: 20px; }
-.journal-ledger__head > span { flex: none; color: var(--abyssa-text-muted); font-size: 12px; line-height: 20px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+/* 物品清单:小节名牌在上;每行一枚物品格(数量是右下角徽标,同库存),行间是逐渐隐去的细线。 */
 .journal-ledger__rows { list-style: none; margin: 0; padding: 0; }
-.journal-ledger__row { display: grid; grid-template-columns: 36px minmax(0, 1fr) minmax(3.5em, auto); align-items: start; gap: 14px; min-height: 56px; padding: 10px 0; box-sizing: border-box; border-bottom: 1px solid var(--journal-line-faint); }
-.journal-ledger__icon { display: grid; place-items: center; width: 36px; height: 36px; background: var(--manor-well); box-shadow: inset 0 0 0 1px var(--manor-hair); }
-.journal-ledger__icon img { width: 28px; height: 28px; object-fit: contain; }
-.journal-ledger__text { display: grid; gap: 2px; min-width: 0; padding-top: 7px; }
-.journal-ledger__text > strong { color: var(--abyssa-text-soft); font-size: 15px; font-weight: 500; line-height: 22px; overflow-wrap: anywhere; }
-.journal-ledger__text > small { color: var(--abyssa-text-muted); font-size: 13px; line-height: 20px; overflow-wrap: anywhere; }
-.journal-ledger__qty { padding-top: 7px; color: var(--manor-gold); font-size: 15px; line-height: 22px; text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
-.journal-ledger__qty > span { margin-right: .2em; opacity: .7; font-size: 13px; }
-.journal-ledger__qty[data-single] { color: var(--abyssa-text-muted); }
+.journal-ledger__row { position: relative; display: grid; grid-template-columns: var(--journal-ledger-slot, 56px) minmax(0, 1fr); align-items: center; gap: 16px; padding: 12px 0; box-sizing: border-box; }
+.journal-ledger__row + .journal-ledger__row::before { position: absolute; top: 0; right: 0; left: calc(var(--journal-ledger-slot, 56px) + 16px); height: 1px; background: var(--manor-rule); content: ""; }
+.journal-ledger__art { position: relative; display: block; }
+.journal-ledger__art > .abyssa-item-slot { --slot-size: var(--journal-ledger-slot, 56px); }
+.journal-ledger__text { display: grid; gap: 2px; min-width: 0; }
+.journal-ledger__text > strong { color: var(--manor-title); font-size: var(--manor-type-body); font-weight: 500; line-height: 22px; overflow-wrap: anywhere; }
+.journal-ledger__text > small { color: var(--manor-muted); font-size: var(--manor-type-label); line-height: 20px; overflow-wrap: anywhere; }
+/* 数量的读屏文字;视觉上由徽标表达。 */
+.journal-ledger__count { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+
+/* 事实行:期限、目标、路线。金色短标签在左,值在右;不画表格线。 */
+.journal-facts { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 8px 22px; margin: 0; }
+.journal-facts > div { display: contents; }
+.journal-facts dt { color: var(--manor-gold); font-size: var(--manor-type-label); line-height: 26px; letter-spacing: .14em; }
+.journal-facts dd { min-width: 0; margin: 0; color: var(--manor-body); font-size: var(--manor-type-body); line-height: 26px; overflow-wrap: anywhere; }
+
+/* 操作栏:左端说明,右端按钮(主操作在最右)。日志里钉在阅读面板下沿,整备钉在窗口下沿,
+   都由外层 .journal-dock 画上方一道逐渐隐去的细线;别处原地排成一行。 */
+.journal-dock__bar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; min-width: 0; }
+.journal-dock > .journal-dock__bar { padding-top: 14px; background: var(--manor-rule) left top / 100% 1px no-repeat; }
+.journal-dock__lead { flex: 1 1 180px; min-width: 0; }
+.journal-record__actions { display: flex; flex: none; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 10px 14px; max-width: 100%; margin-left: auto; }
+.journal-record__actions .journal-action { min-height: 40px; height: auto; padding-block: 10px; }
+/* 地点:与目录同款的细框暗格 + 地名。 */
+.journal-dock__place { display: inline-flex; align-items: center; gap: 12px; min-width: 0; }
+.journal-dock__socket { display: grid; flex: none; width: 36px; height: 36px; box-sizing: border-box; place-items: center; border: 1px solid rgb(143 165 151 / 26%); background: rgb(10 18 18 / 46%); }
+.journal-dock__socket > .manor-glyph { width: 24px; height: 24px; background: linear-gradient(155deg, rgb(236 214 152 / 88%) 5%, rgb(196 168 104 / 52%) 55%, rgb(160 136 84 / 22%) 95%); }
+.journal-dock__copy { display: grid; min-width: 0; }
+.journal-dock__copy > small { color: var(--manor-muted); font-size: var(--manor-type-min, 12px); line-height: 18px; letter-spacing: .14em; }
+.journal-dock__copy > strong { overflow: hidden; color: var(--manor-title); font-size: var(--manor-type-body); font-weight: 500; line-height: 22px; text-overflow: ellipsis; white-space: nowrap; }
+/* 折叠记录:同记忆阅读区的「展开原文 +」,文字按钮,不画方框。 */
+.journal-disclosure { min-width: 0; }
+.journal-disclosure__toggle { display: inline-flex; align-items: center; gap: 14px; min-height: 40px; padding: 4px 0; border: 0; background: none; color: var(--manor-muted); font: var(--manor-type-label)/1.5 var(--abyssa-font-body); letter-spacing: .12em; cursor: pointer; }
+.journal-disclosure__toggle > i { color: var(--manor-gold); font: 400 var(--manor-type-lead)/1 var(--abyssa-font-display); }
+.journal-disclosure__toggle:hover { color: var(--manor-title); }
+.journal-disclosure__toggle:focus-visible { outline: 1px solid var(--abyssa-focus); outline-offset: 4px; }
+.journal-disclosure__body { display: grid; gap: 14px; padding: 6px 0 4px; }
+.journal-disclosure__body[hidden] { display: none; }
+.campaign-journal .journal-disclosure__body p { margin: 0; color: var(--manor-body); font-size: var(--manor-type-body); line-height: 1.85; }
+.journal-disclosure__body h5 { margin: 0 0 4px; color: var(--manor-gold); font: 500 var(--manor-type-label)/1.6 var(--abyssa-font-body); letter-spacing: .12em; }
+/* 已读原文保留作者换行。 */
+.journal-record__transcript { white-space: pre-wrap; }
 
 /* A quiet state marker, without a second panel or continuously running effect. */
 .journal-status { margin: 4px 0 0; }
@@ -58,8 +87,5 @@
 .journal-status[data-tone="settled"] .journal-status__label::before { background: var(--manor-gold-shadow); }
 
 @container journal-reader (max-width: 440px) {
-  .journal-ledger__row { grid-template-columns: 32px minmax(0, 1fr) minmax(3em, auto); column-gap: 12px; }
-  .journal-ledger__icon { width: 32px; height: 32px; }
-  .journal-ledger__icon img { width: 24px; height: 24px; }
-  .journal-ledger__text, .journal-ledger__qty { padding-top: 5px; }
+  .journal-ledger__rows { --journal-ledger-slot: 48px; }
 }

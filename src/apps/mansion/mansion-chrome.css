@@ -314,7 +314,12 @@
   right: 30px;
   display: grid;
   gap: 16px;
+  transition: opacity 180ms var(--abyssa-ease, ease);
 }
+/* 右侧房间抽屉会整张压住工具栏:淡出并退出焦点顺序(见 MansionPage 的 railCovered)。 */
+.mansion-utility-rail[data-covered] { opacity: 0; pointer-events: none; }
+/* 设施操作的本地反馈落点;游戏内由全局 dock 接管,这里只兜底。 */
+.mansion-facility-feedback { position: absolute; top: 86px; right: 24px; z-index: 110; pointer-events: none; }
 .mansion-utility-rail__entry { display: grid; justify-items: center; gap: 5px; }
 .mansion-utility-rail__label {
   color: var(--abyssa-text-soft);

@@ -200,13 +200,25 @@ describe("MansionPage", () => {
     expect(screen.queryByRole("dialog", { name: "与艾比希斯交谈" })).not.toBeInTheDocument();
   });
 
-  it("disables unimplemented repairs and leaves real funds unchanged", async () => {
+  it("shows legacy facility rooms without construction controls and leaves real funds unchanged", async () => {
     const user = userEvent.setup(); render(<MansionPage />);
-    await user.click(screen.getByRole("button", { name: "查看大厅" }));
-    const repair = screen.getByRole("button", { name: /修缮，花费/ });
-    expect(repair).toBeDisabled(); await user.click(repair);
+    await user.click(screen.getByRole("button", { name: /查看女仆工作间/ }));
+    const drawer = screen.getByRole("dialog");
+    expect(within(drawer).getByText("建设与生产尚未开放")).toBeInTheDocument();
+    expect(within(drawer).queryByRole("tablist")).not.toBeInTheDocument();
+    expect(within(drawer).queryByRole("button", { name: /修缮|升级|收取/ })).not.toBeInTheDocument();
     expect(fixture.session.getSnapshot().record!.snapshot.campaign.funds.public).toBe(12800);
-    expect(screen.getAllByText("建设与生产尚未开放").length).toBeGreaterThan(0);
+  });
+
+  it("hides the utility rail behind a right-side drawer only", async () => {
+    const user = userEvent.setup(); render(<MansionPage />);
+    const rail = screen.getByRole("navigation", { name: "洋馆功能" });
+    await user.click(screen.getByRole("button", { name: "查看大厅" }));
+    expect(rail).toHaveAttribute("data-covered");
+    expect(rail).toHaveAttribute("inert");
+    await user.click(screen.getByRole("button", { name: "关闭房间详情" }));
+    await user.click(screen.getByRole("button", { name: "查看正门" }));
+    expect(rail).not.toHaveAttribute("data-covered");
   });
 
   it("does not expose prototype production or advance the campaign clock", async () => {

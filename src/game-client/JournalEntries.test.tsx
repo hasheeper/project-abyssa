@@ -5,7 +5,12 @@ import { tutorialEntryFixture } from "./testing/new-game";
 import { growthJournalEntries } from "./GrowthEvents";
 import { airpJournalEntries } from "./AirpJournalEntries";
 import type { AirpPoolView } from "../game-runtime/airp-pool-view";
+import { JournalBrowser, type JournalEntry } from "./JournalBrowser";
 afterEach(cleanup);
+
+// 条目只给数据;经日志的统一版式渲染后,操作按钮在阅读面板下沿的操作栏里。
+const renderEntry = (entry: JournalEntry) => render(<JournalBrowser entries={[entry]} selectedId={entry.id} onSelect={() => {}} empty={null}/>);
+const actionButtons = () => screen.queryAllByRole("button").filter(button => !button.hasAttribute("data-journal-entry"));
 
 it("keeps locked growth non-spoiling and only dispatches the selected available conversation", async () => {
   const f = await tutorialEntryFixture(), user = userEvent.setup();
@@ -15,20 +20,22 @@ it("keeps locked growth non-spoiling and only dispatches the selected available 
     const dispatch = vi.spyOn(f.session,"dispatch").mockResolvedValue(null);
     const locked = growthJournalEntries(view,f.session,false,"/equipment");
     expect(locked.every(e => e.group === "locked")).toBe(true);
-    render(<>{locked[0].content}</>);
+    renderEntry(locked[0]);
     expect(screen.queryByText(/第6面苏醒/)).toBeNull();
-    expect(screen.queryByRole("button")).toBeNull(); cleanup();
+    expect(screen.getByText("本人参加第三层撤离或五层通关。")).toBeInTheDocument();
+    expect(actionButtons()).toEqual([]); cleanup();
     // Presentation projection only; no save or eligibility evidence is fabricated.
     const available = {...view, canMove:true, canBegin:true, events:[{...view.events[0],basisId:"settlement-basis"}]};
     const [entry] = growthJournalEntries(available,f.session,false,"/equipment");
     expect(entry).toMatchObject({group:"current",actionable:true});
     expect(dispatch).not.toHaveBeenCalled();
-    render(<>{entry.content}</>);
+    renderEntry(entry);
     await user.click(screen.getByRole("button",{name:"谈起 · 把剑暂时放下"}));
     expect(dispatch).toHaveBeenCalledWith({type:"begin-story",eventId:view.events[0].eventId,basisId:"settlement-basis"});
     expect(f.session.getSnapshot().record).toBe(before); cleanup();
-    render(<>{growthJournalEntries({...available,canMove:false},f.session,false,"/equipment")[0].content}</>);
-    expect(screen.getByRole("button")).toBeDisabled();
+    renderEntry(growthJournalEntries({...available,canMove:false},f.session,false,"/equipment")[0]);
+    expect(actionButtons()).toHaveLength(1);
+    expect(actionButtons()[0]).toBeDisabled();
   } finally {f.session.dispose();}
 });
 
@@ -38,7 +45,7 @@ it("completed growth exposes recap, not another grant", async () => {
     const view = f.runtime.queries.progression(f.session.getSnapshot().record!)!;
     const completed = {...view, events:[{...view.events[0],completed:true}]};
     const [entry] = growthJournalEntries(completed,f.session,false,"/equipment",review);
-    expect(entry.group).toBe("archive"); render(<>{entry.content}</>);
+    expect(entry.group).toBe("archive"); renderEntry(entry);
     await user.click(screen.getByRole("button",{name:"回顾把剑暂时放下"}));
     expect(review).toHaveBeenCalledWith(view.events[0].eventId);
     expect(screen.queryByRole("button",{name:/谈起/})).toBeNull();
@@ -60,10 +67,10 @@ it("omits reserved notes and preserves the real liaison command and location gua
     const live = poolEntry(), reserved = poolEntry({instance:{...live.instance,id:"unseen",status:"closed",reason:"reserved"}});
     const entries = airpJournalEntries(pool([reserved,live]),f.session,false);
     expect(entries.map(e=>e.id)).toEqual(["instance"]); expect(dispatch).not.toHaveBeenCalled();
-    render(<>{entries[0].content}</>);
+    renderEntry(entries[0]);
     await user.click(screen.getByRole("button",{name:"找尤斯缇丝传话"}));
     expect(dispatch).toHaveBeenCalledWith({type:"airp-visit",instanceId:"instance",actorId:"eustice",locationId:"mansion.common-room"}); cleanup();
-    render(<>{airpJournalEntries(pool([poolEntry({visitLocation:null})]),f.session,false)[0].content}</>);
+    renderEntry(airpJournalEntries(pool([poolEntry({visitLocation:null})]),f.session,false)[0]);
     expect(screen.getByRole("button",{name:"尤斯缇丝此刻不在约定地点"})).toBeDisabled();
   } finally {f.session.dispose();}
 });
@@ -73,7 +80,7 @@ it("retains opening, aftermath and online followup actions with their own instan
   try {
     const dispatch = vi.spyOn(f.session,"dispatch").mockResolvedValue(null), base = poolEntry();
     const entries = airpJournalEntries(pool([poolEntry({instance:{...base.instance,status:"closed",reason:"missed"},canOpen:true,canFollowup:true})]),f.session,false);
-    render(<>{entries[0].content}</>);
+    renderEntry(entries[0]);
     await user.click(screen.getByRole("button",{name:"看看「两张整备表」的后续"}));
     await user.click(screen.getByRole("button",{name:"再和艾洛拉聊聊药箱"}));
     expect(dispatch.mock.calls.map(([command])=>command)).toEqual([{type:"airp-open",instanceId:"instance"},{type:"airp-online-followup",instanceId:"instance"}]);
@@ -86,7 +93,7 @@ it("exposes browser-direct followup in the actual manor journal without dispatch
     const dispatch = vi.spyOn(f.session, "dispatch").mockResolvedValue(null), base = poolEntry();
     const [entry] = airpJournalEntries(pool([poolEntry({instance: {...base.instance, status: "resolved"}, canDirectFollowup: true})]), f.session, false);
     expect(entry).toMatchObject({group: "current", actionable: true});
-    render(<>{entry.content}</>);
+    renderEntry(entry);
     await user.click(screen.getByRole("button", {name: "再和艾洛拉聊聊药箱"}));
     expect(dispatch).toHaveBeenCalledExactlyOnceWith({type: "airp-direct-followup", instanceId: "instance"});
   } finally {f.session.dispose();}

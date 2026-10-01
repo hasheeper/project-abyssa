@@ -15,7 +15,6 @@ const facilityLevels = Object.fromEntries(Object.entries(MANSION_ROOM_DETAILS).m
 const noProgress: Readonly<Record<string, number>> = {};
 const noRooms: ReadonlySet<string> = new Set();
 const previewPhase = (_phase: MansionPhaseId) => {};
-const noFacilityAction = (_id: string) => {};
 
 /** All quantities and production readiness come from the validated campaign. */
 export function useMansionEstate() {
@@ -51,6 +50,11 @@ export function useMansionEstate() {
     if (room.id === "workshop" && facilities.order) return [[room.id, {label: facilities.order.name, amount: facilities.order.quantity, icon: "potion" as MansionProductionIcon}]];
     return [];
   })) : undefined, [facilities]);
+  /** 设施界面里的物品图标:补给按种类取 supplyArt,原料统一药草束 —— 与仓库页同一取法。 */
+  const itemIcons = useMemo<Readonly<Record<string, string>>>(() => Object.fromEntries([
+    ...(journey?.items ?? []).flatMap(item => supplyArt[item.kind] ? [[item.id, supplyArt[item.kind].icon]] : []),
+    ...(facilities?.materials ?? []).map(material => [material.id, herbIcon]),
+  ]), [journey, facilities]);
   const collectProduction = useCallback((roomId: string) => {
     const room = facilities?.rooms.find(r => r.id === roomId), batch = room?.batch;
     if (batch?.collectMaximum) void operateFacility({type: "facility-collect", roomId: room!.id, batchId: batch.id, quantity: batch.collectMaximum});
@@ -91,12 +95,12 @@ export function useMansionEstate() {
   }, [record, session, journey, facilities]);
   return {
     capacity: record.schemaVersion === 1 ? record.snapshot.campaign.inventory.capacity : undefined, phase: campaign.clock.phase, day: campaign.clock.day, funds: campaign.funds,
-    facilities, operateFacility, production, feedback, dismissFeedback, busy: game.status !== "ready",
+    facilities, itemIcons, operateFacility, production, feedback, dismissFeedback, busy: game.status !== "ready",
     levels, upgrading, repairProgress: noProgress,
     damaged: noRooms, readyProduction,
     stockOpen, toast: "", ...stock,
     time, previewPhase, advancePhase,
-    collectProduction, startUpgrade: noFacilityAction, promoteFacility: noFacilityAction,
+    collectProduction,
     toggleStock, closeStock,
   };
 }

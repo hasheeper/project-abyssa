@@ -14,6 +14,7 @@ import "../../../src/shared/stage/stage.css";
 
 // The smoke-test bundle uses base64 SVGs so quoted CSS mask URLs stay valid.
 const iconUrl = (data: string) => `data:image/svg+xml;base64,${data}`;
+const sectionIcons = {fixed: iconUrl(bag), sandbox: iconUrl(bag)};
 
 const fixedEntries = ["食物", "药水", "护符", "圣水", "保养工具", "幸运符", "卦签"].map((name, index) => ({
   id: `fixed-${index}`, name, icon: iconUrl(index ? potion : bread), quantity: index < 2 ? index + 3 : 0, unit: "份", type: "常备补给", description: "测试补给效果",
@@ -30,7 +31,7 @@ const root = createRoot(document.getElementById("root")!);
 function renderInventory(count: number) {
   root.render(
     <AbyssaProvider><Stage style={{height: "100vh"}} background="#101616">
-      <ResourceInventoryDialog open onClose={() => {}} className="manor-utility" fixedEntries={fixedEntries} entries={entries.slice(0, count)}/>
+      <ResourceInventoryDialog open onClose={() => {}} className="manor-utility" sectionIcons={sectionIcons} fixedEntries={fixedEntries} entries={entries.slice(0, count)}/>
     </Stage></AbyssaProvider>,
   );
 }

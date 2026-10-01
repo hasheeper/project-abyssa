@@ -1,0 +1,387 @@
+/* ============ 房间抽屉 · 区块 ============
+   概况 / 运作 / 工程三页共用的件(MansionFacilitySections.tsx)。
+   字阶与色板变量定义在 .mansion-room-drawer,这里只引用。
+
+   语言与洋馆其余部分一致,不做网页件:
+     名牌 + 内凹面板   —— 取代「小字 + 发丝引线」
+     物品格 + 角标数量 —— 取代「名称 ……… ×2」表格行(见 items.css 的说明)
+     切面菱形          —— 取代扁平进度条,与顶部相位栏同源
+     八角徽记          —— 世界图钉同款牌面(MansionMarkers 的 Shell) */
+
+/* ---- 内凹面板:双线内框 + 下沿两角刻痕 ---- */
+.mansion-room-panel {
+  position: relative;
+  display: grid;
+  padding: 30px 16px 16px;
+  border: 1px solid #3a4849;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 2.5%), transparent 42%),
+    rgb(6 11 12 / 66%);
+  box-shadow:
+    0 0 0 2px rgb(4 8 9 / 88%),
+    inset 0 0 0 3px rgb(6 11 12 / 92%),
+    inset 0 0 0 4px rgb(126 150 145 / 15%),
+    inset 0 0 26px rgb(0 0 0 / 44%);
+  gap: 14px;
+}
+.mansion-room-panel::before,
+.mansion-room-panel::after {
+  position: absolute;
+  bottom: 8px;
+  width: 9px;
+  height: 9px;
+  border: 0 solid rgb(185 162 113 / 52%);
+  content: "";
+  pointer-events: none;
+}
+.mansion-room-panel::before { left: 8px; border-bottom-width: 1px; border-left-width: 1px; }
+.mansion-room-panel::after { right: 8px; border-right-width: 1px; border-bottom-width: 1px; }
+
+/* ---- 名牌:骑在面板上沿,右端斜切,三层描边与图钉同一配方 ---- */
+.mansion-room-panel__tag {
+  position: absolute;
+  z-index: 1;
+  top: -19px;
+  left: 10px;
+  display: flex;
+  height: 38px;
+  align-items: center;
+  pointer-events: none;
+}
+.mansion-room-panel__tag h3 {
+  position: relative;
+  z-index: 0;
+  display: flex;
+  height: 30px;
+  align-items: center;
+  margin: 0 0 0 -10px;
+  padding: 0 34px 0 20px;
+  background: linear-gradient(180deg, #8a9b9a, #3d4a4b);
+  clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 100%, 0 100%);
+  color: #efe6cc;
+  font-size: var(--room-body);
+  font-weight: 600;
+  letter-spacing: .2em;
+  text-shadow: 0 1px 2px rgb(0 0 0 / 80%);
+  white-space: nowrap;
+}
+.mansion-room-panel__tag h3::before {
+  position: absolute;
+  z-index: -1;
+  inset: 2px 2px 2px 0;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 7%), transparent 48%),
+    linear-gradient(180deg, #243132 0%, #131b1c 62%, #0d1314 100%);
+  clip-path: polygon(0 0, calc(100% - 15px) 0, 100% 100%, 0 100%);
+  content: "";
+}
+/* 名牌右上的三点装饰(参考图 name tag 的「···」)。 */
+.mansion-room-panel__tag h3::after {
+  position: absolute;
+  top: 6px;
+  right: 26px;
+  width: 13px;
+  height: 3px;
+  background: radial-gradient(circle, #9fb0ae 0 1px, transparent 1.3px) 0 0 / 5px 3px repeat-x;
+  content: "";
+  opacity: .8;
+}
+
+/* ---- 徽记:八角牌面,配色值与 mansion-world.css 的图钉同源 ---- */
+.mansion-room-emblem {
+  --marker-fill: #243334;
+  --marker-lit: #4d6667;
+  --marker-shade: #0f191a;
+  --marker-edge: #8fa6a5;
+  --marker-rim: #c9d8d6;
+  --marker-glow: rgb(150 190 186 / 24%);
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 38px;
+  height: 38px;
+  flex: none;
+  filter: drop-shadow(0 3px 5px rgb(0 0 0 / 55%));
+}
+.mansion-room-emblem svg { display: block; width: 100%; height: 100%; overflow: visible; shape-rendering: geometricPrecision; }
+.mansion-room-emblem[data-tone="production"] {
+  --marker-fill: #2f4a3f;
+  --marker-lit: #5c8770;
+  --marker-shade: #16261f;
+  --marker-edge: #8fbfa4;
+  --marker-rim: #c3e2ce;
+  --marker-glow: rgb(139 224 180 / 40%);
+}
+.mansion-room-emblem[data-tone="repair"] {
+  --marker-fill: #3c3a2a;
+  --marker-lit: #6e6748;
+  --marker-shade: #1d1c14;
+  --marker-edge: #b3a377;
+  --marker-rim: #d9c9a1;
+  --marker-glow: rgb(226 204 139 / 40%);
+}
+.mansion-room-emblem[data-tone="promote"] {
+  --marker-fill: #4d3d18;
+  --marker-lit: #8a7134;
+  --marker-shade: #271e0b;
+  --marker-edge: #d5b874;
+  --marker-rim: #f2ddab;
+  --marker-promote-ink: #f7e7b4;
+  --marker-glow: rgb(238 205 122 / 46%);
+}
+
+/* ---- 行内小图标(时钟、锁等):mask 着色,随文字色 ---- */
+.mansion-room-glyph {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  flex: none;
+  background: currentColor;
+  mask-position: center;
+  mask-repeat: no-repeat;
+  mask-size: contain;
+}
+
+/* ---- 物品行:格位 + 名称 + 说明,可挂右侧操作 ---- */
+.mansion-room-item {
+  display: grid;
+  align-items: center;
+  gap: 16px;
+  grid-template-columns: auto minmax(0, 1fr);
+}
+.mansion-room-item[data-action] { grid-template-columns: auto minmax(0, 1fr) auto; }
+.mansion-room-item + .mansion-room-item { padding-top: 12px; border-top: 1px solid rgb(126 150 145 / 12%); }
+.mansion-room-item__info { display: grid; min-width: 0; gap: 8px; }
+.mansion-room-item__info strong {
+  overflow: hidden;
+  color: var(--room-ink-title);
+  font-size: var(--room-lead);
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.mansion-room-figure {
+  color: var(--room-gold-bright);
+  font: 600 20px/1 var(--abyssa-font-display, Georgia, serif);
+  letter-spacing: .02em;
+}
+.mansion-room-item .abyssa-notched-pill { width: 112px; height: 36px; }
+
+/* 物品格数量角标:items.css 默认 11px,在抽屉里提到最小字号。 */
+.mansion-room-panel .abyssa-item-slot__badge { min-width: 24px; font-size: 13px; }
+
+/* ---- 相位刻度 + 剩余时间 ---- */
+.mansion-room-time { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; }
+.mansion-room-phases { display: flex; align-items: center; gap: 3px; }
+.mansion-room-phases .abyssa-facet-diamond { --abyssa-facet-size: 20px; }
+.mansion-room-phases .abyssa-facet-diamond[data-state="current"] { transform: none; }
+.mansion-room-time__text {
+  display: inline-flex;
+  align-items: center;
+  color: var(--room-ink-muted);
+  font-size: var(--room-meta);
+  gap: 6px;
+  letter-spacing: .04em;
+}
+
+.mansion-room-arrow {
+  width: 28px;
+  height: 12px;
+  flex: none;
+  margin: 0 4px;
+  fill: none;
+  stroke: #b9a271;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.6;
+}
+
+/* ---- 改进项:线条小图标 + 名称 + 数值跃迁 ----
+   图标不套物品格:面板里已有徽记与按钮两种框,再加框就显乱。 */
+.mansion-room-gains { display: grid; gap: 6px; }
+.mansion-room-gain {
+  display: grid;
+  min-height: 30px;
+  align-items: center;
+  color: var(--room-ink-body);
+  font-size: var(--room-body);
+  gap: 10px;
+  grid-template-columns: 20px minmax(0, 1fr) auto;
+}
+.mansion-room-gain > .mansion-room-glyph { width: 20px; height: 20px; color: #b9a271; }
+.mansion-room-gain > b {
+  color: var(--room-gold-bright);
+  font: 600 var(--room-num)/1 var(--abyssa-font-display, Georgia, serif), var(--abyssa-font-body, serif);
+  white-space: nowrap;
+}
+
+/* ---- 操作栏左侧的代价:工期 + 公款,不加边框,紧挨确认键 ---- */
+.mansion-room-cost {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  color: var(--room-ink-muted);
+  font-size: var(--room-meta);
+  gap: 6px 18px;
+}
+.mansion-room-cost { min-width: 0; }
+.mansion-room-cost > span { display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; }
+.mansion-room-cost .abyssa-currency-amount {
+  color: #ead99f;
+  font: 600 var(--room-num)/1 var(--abyssa-font-display, Georgia, serif);
+}
+
+.mansion-room-panel .abyssa-currency-amount i { width: 15px; height: 15px; }
+
+/* ---- 公款账簿牌:「◇ 标题 ◇」 + 大号金额 ---- */
+.mansion-room-ledger {
+  display: grid;
+  justify-items: center;
+  padding: 12px 14px 14px;
+  border: 1px solid #4b5858;
+  background: linear-gradient(180deg, rgb(255 255 255 / 3%), transparent 50%), #080d0e;
+  box-shadow: 0 0 0 2px #101616, inset 0 1px rgb(255 255 255 / 6%);
+  gap: 8px;
+}
+.mansion-room-ledger__title {
+  display: flex;
+  align-items: center;
+  color: #9aaba8;
+  font-size: var(--room-meta);
+  letter-spacing: .2em;
+}
+.mansion-room-ledger__title::before,
+.mansion-room-ledger__title::after {
+  width: 5px;
+  height: 5px;
+  margin: 0 10px;
+  border: 1px solid rgb(154 171 168 / 60%);
+  content: "";
+  transform: rotate(45deg);
+}
+.mansion-room-ledger .abyssa-currency-amount {
+  color: #ead99f;
+  font: 600 22px/1 var(--abyssa-font-display, Georgia, serif);
+  letter-spacing: .03em;
+  text-shadow: 0 1px 5px rgb(0 0 0 / 68%);
+}
+.mansion-room-ledger .abyssa-currency-amount i { width: 17px; height: 17px; }
+
+/* ---- 合成式:[原料] + [原料] → [成品] ---- */
+.mansion-room-formula { display: flex; align-items: flex-start; justify-content: center; gap: 10px; }
+.mansion-room-formula__op {
+  align-self: center;
+  margin-top: -22px;
+  color: #b9a271;
+  font: 600 20px/1 var(--abyssa-font-display, Georgia, serif);
+}
+.mansion-room-formula > .mansion-room-arrow { align-self: center; margin-top: -22px; }
+.mansion-room-formula__slot { display: grid; justify-items: center; margin: 0; gap: 6px; }
+.mansion-room-formula__slot figcaption {
+  display: grid;
+  justify-items: center;
+  color: var(--room-ink-body);
+  font-size: var(--room-meta);
+  gap: 2px;
+  white-space: nowrap;
+}
+.mansion-room-formula__slot small { color: var(--room-ink-muted); font-size: 12px; }
+.mansion-room-formula__slot[data-short] .abyssa-item-slot {
+  border-color: #9a4d48;
+  box-shadow: 0 0 0 2px var(--abyssa-frame-dark, #171007), 0 0 0 3px rgb(206 119 114 / 40%), inset 0 0 18px rgb(0 0 0 / 82%);
+}
+.mansion-room-formula__slot[data-short] small { color: #e79a92; }
+
+/* ---- 储藏:物品格阵列,格下注明容量 ---- */
+.mansion-room-stock { display: flex; flex-wrap: wrap; gap: 14px 18px; }
+.mansion-room-stock__cell { display: grid; justify-items: center; margin: 0; gap: 6px; }
+.mansion-room-stock__cell figcaption {
+  display: grid;
+  justify-items: center;
+  color: var(--room-ink-body);
+  font-size: var(--room-meta);
+  gap: 2px;
+  white-space: nowrap;
+}
+.mansion-room-stock__cell small { color: var(--room-ink-num); font: 600 13px/1.2 var(--abyssa-font-display, Georgia, serif), var(--abyssa-font-body, serif); }
+
+/* ---- 种植选择:可点的物品格 ---- */
+.mansion-room-choices { display: flex; flex-wrap: wrap; gap: 14px; }
+.mansion-room-choice { display: grid; justify-items: center; margin: 0; gap: 6px; }
+.mansion-room-choice figcaption { color: var(--room-ink-body); font-size: var(--room-meta); }
+.mansion-room-choice .abyssa-item-slot[data-selected] + figcaption { color: #b8e0d9; }
+
+/* ---- 操作行:主操作靠右,说明或数量步进靠左 ---- */
+.mansion-room-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+.mansion-room-actions > :first-child:not(:last-child) { margin-right: auto; }
+.mansion-room-actions > .abyssa-notched-pill { width: 156px; height: 40px; }
+
+/* ---- 说明与提示 ---- */
+.mansion-room-note {
+  margin: 0;
+  color: var(--room-ink-muted);
+  font-size: var(--room-meta);
+  letter-spacing: .02em;
+  line-height: 1.6;
+}
+/* 提示:内凹铭牌 + 左侧图标,不是彩色边框警告框。 */
+.mansion-room-notice {
+  display: flex;
+  align-items: center;
+  margin: 0;
+  padding: 10px 14px;
+  background: linear-gradient(90deg, rgb(185 162 113 / 10%), transparent 70%), rgb(4 8 9 / 72%);
+  box-shadow: inset 0 0 0 1px rgb(126 150 145 / 16%), inset 2px 0 #8a7a4e;
+  color: #dccba5;
+  font-size: var(--room-meta);
+  gap: 10px;
+  letter-spacing: .04em;
+  line-height: 1.5;
+}
+.mansion-room-notice > .mansion-room-glyph { width: 20px; height: 20px; color: #c9b27a; }
+.mansion-room-notice[data-tone="alert"] {
+  background: linear-gradient(90deg, rgb(206 119 114 / 12%), transparent 70%), rgb(4 8 9 / 72%);
+  box-shadow: inset 0 0 0 1px rgb(206 119 114 / 22%), inset 2px 0 #9a4d48;
+  color: #e8b5ba;
+}
+.mansion-room-notice[data-tone="alert"] > .mansion-room-glyph { color: #e08c86; }
+
+/* ---- 头部的设施等级:三枚切面菱形 + Lv ---- */
+.mansion-facility-grade { display: flex; align-items: center; margin-top: 10px; gap: 12px; }
+.mansion-facility-grade__gems { display: flex; align-items: center; gap: 2px; }
+.mansion-facility-grade .abyssa-facet-diamond { --abyssa-facet-size: 26px; }
+.mansion-facility-grade .abyssa-facet-diamond b { font: 600 12px/1 var(--abyssa-font-display, Georgia, serif); }
+.mansion-facility-grade .abyssa-facet-diamond[data-building] { animation: mansion-room-gem-pulse 1.5s ease-in-out infinite; }
+@keyframes mansion-room-gem-pulse {
+  0%, 100% { opacity: .55; }
+  50% { opacity: 1; }
+}
+.mansion-app[data-ui-motion="reduced"] .mansion-facility-grade .abyssa-facet-diamond[data-building] { animation: none; }
+@media (prefers-reduced-motion: reduce) {
+  .mansion-facility-grade .abyssa-facet-diamond[data-building] { animation: none; }
+}
+.mansion-facility-grade__value {
+  display: flex;
+  align-items: baseline;
+  color: var(--room-ink-muted);
+  font-size: var(--room-meta);
+  gap: 4px;
+  letter-spacing: .08em;
+  white-space: nowrap;
+}
+.mansion-facility-grade__value b {
+  color: var(--room-gold-bright);
+  font: 600 18px/1 var(--abyssa-font-display, Georgia, serif);
+  letter-spacing: .04em;
+}
+.mansion-facility-grade__value s {
+  color: var(--room-ink-dim);
+  font: 13px/1 var(--abyssa-font-display, Georgia, serif);
+  text-decoration: none;
+}

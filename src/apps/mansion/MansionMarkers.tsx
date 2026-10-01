@@ -50,8 +50,11 @@ const PLATE = "M14 3 H30 L41 14 V30 L30 41 H14 L3 30 V14 Z";
 
 interface ShellProps {
   children: React.ReactNode;
-  tone: "repair" | "production" | "promote";
+  tone: MarkerTone;
 }
+
+/** 配色变量由外层提供:世界图钉见 mansion-world.css,抽屉徽记见 mansion-room-sections.css。 */
+export type MarkerTone = "repair" | "production" | "promote" | "neutral";
 
 /** 共用外壳:垫底 + 牌面 + 光照 + 三层描边。 */
 function Shell({ children, tone }: ShellProps) {
@@ -118,6 +121,23 @@ export function PromoteIcon() {
         strokeWidth="3"
         strokeLinecap="round"
         strokeLinejoin="round"
+      />
+    </Shell>
+  );
+}
+
+/** 任意素材库图标套同一副八角牌面。房间抽屉的区块徽记用它,与世界图钉同形。 */
+export function MarkerGlyph({ glyph, tone = "neutral" }: { glyph: string; tone?: MarkerTone }) {
+  return (
+    <Shell tone={tone}>
+      <image
+        className="mansion-marker__library-glyph"
+        href={glyph}
+        x="9.5"
+        y="9.5"
+        width="25"
+        height="25"
+        preserveAspectRatio="xMidYMid meet"
       />
     </Shell>
   );

@@ -37,24 +37,27 @@
 .campaign-journal__eyebrow { display: block; color: var(--abyssa-text-muted); font: 12px/1.4 var(--abyssa-font-body); letter-spacing: .18em; }
 .campaign-journal__surface > .journal-surface__content { padding: 16px 0; }
 .campaign-journal__return { min-width: 0; }
-.campaign-journal .campaign-journal__depth { flex-shrink: 0; margin: 0; color: var(--abyssa-text-muted); font-size: 13px; text-align: right; white-space: nowrap; }
+.campaign-journal .campaign-journal__depth { flex-shrink: 0; margin: 0; color: var(--abyssa-text-muted); font-size: var(--manor-type-label); text-align: right; white-space: nowrap; }
 .campaign-journal__depth strong { margin-left: 10px; font-size: 16px; font-weight: 500; color: var(--abyssa-text-soft); }
 .campaign-journal__return-notes { display: grid; gap: 12px; }
 .campaign-journal__return-notes:empty { display: none; }
 .campaign-journal__return-notes:empty + .campaign-journal__settlement { margin-top: 0; }
 .campaign-journal__return-notes > p { margin: 0; font-size: 15px; line-height: 1.95; }
 .campaign-journal__return-notes .campaign-journal__loss { font-size: 13px; color: var(--abyssa-danger); }
-.campaign-journal__settlement { position: relative; width: 100%; box-sizing: border-box; margin-top: 24px; padding: 20px 22px; border: 1px solid var(--manor-edge); background: var(--manor-well); box-shadow: inset 3px 0 var(--manor-gold-shadow); }
-.campaign-journal__settlement-heading { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
-.campaign-journal__settlement-heading h4 { margin: 0; color: var(--manor-gold); }
-.campaign-journal__settlement-heading > span { color: var(--abyssa-text-muted); font-size: 12px; }
+/* 本次入账:与其它小节同一语言(图标 + 金色小节名),不再画边框盒与金色竖条;
+   与上文之间一道逐渐隐去的细线。 */
+.campaign-journal__settlement { position: relative; width: 100%; box-sizing: border-box; margin-top: 24px; padding-top: 22px; background: var(--manor-rule) left top / 100% 1px no-repeat; }
+.campaign-journal__settlement-heading { display: flex; align-items: center; gap: 8px; }
+.campaign-journal__settlement-heading > .manor-glyph { color: var(--manor-gold-edge); font-size: 16px; }
+.campaign-journal .campaign-journal__settlement-heading h4 { margin: 0; color: var(--manor-gold); font-size: var(--manor-type-label); letter-spacing: .14em; }
 .campaign-journal__stats { display: grid; gap: 8px; margin: 20px 0 16px; }
 .campaign-journal__stats div { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: baseline; gap: 24px; }
-.campaign-journal__stats dt { color: var(--abyssa-text-muted); font-size: 14px; }
+.campaign-journal__stats dt { color: var(--abyssa-text-muted); font-size: var(--manor-type-body); }
 .campaign-journal__stats dd { margin: 0; font: 18px/1.6 var(--abyssa-font-display); }
 .campaign-journal__stats dd small { color: var(--abyssa-text-muted); }
-.campaign-journal__total { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: baseline; gap: 24px; border-top: 1px solid var(--journal-line-faint); padding-top: 16px; }
-.campaign-journal__total > span { color: var(--abyssa-text-soft); font-size: 14px; }
+.campaign-journal__total { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: baseline; gap: 24px; padding-top: 16px; }
+.campaign-journal__total::before { position: absolute; top: 0; right: 0; left: 0; height: 1px; background: var(--manor-rule); content: ""; }
+.campaign-journal__total > span { color: var(--abyssa-text-soft); font-size: var(--manor-type-body); }
 .campaign-journal__total strong { color: var(--journal-gold); font: 28px/1.4 var(--abyssa-font-display); }
 /* The value edge and unit column stay aligned even when the total is larger. */
 .campaign-journal__amount { display: inline-grid; grid-template-columns: auto 12px; align-items: baseline; column-gap: 6px; text-align: right; white-space: nowrap; }

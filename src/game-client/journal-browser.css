@@ -1,69 +1,109 @@
-/* Journal geometry; color roles come from the shared manor utility palette. */
+/* 日志:左目录 / 右阅读,两块都是共用的名牌面板(manor-utility.css)。
+   版面量与库存同一套变量:面板上沿、下沿与库存窗口落在同一位置。
+   目录行参照记忆目录:图标格 + 标题 + 副标题的稳定行;选中用左起渐隐的光,
+   行间是逐渐隐去的细线,不画左侧色条和通栏硬边。 */
 .campaign-journal .campaign-journal__page--browser { container: journal / inline-size; overflow: hidden; padding: 0; scrollbar-gutter: auto; }
-.journal-browser { display: grid; grid-template-columns: 302px minmax(0, 1fr); height: 100%; min-height: 0; }
-.journal-browser__index { overflow: auto; overscroll-behavior: contain; scrollbar-gutter: stable; padding: 12px; border: 1px solid var(--manor-edge); background: transparent; box-shadow: inset 0 1px rgb(255 255 255 / 4%), inset 0 -1px rgb(0 0 0 / 24%); }
-/* One rhythm across current, archived and locked entries; state never changes geometry. */
-.journal-browser__entries { display: grid; gap: 2px; list-style: none; margin: 0; padding: 0; }
+.journal-browser { display: grid; grid-template-columns: var(--journal-index-width, 372px) minmax(0, 1fr); gap: 18px; height: 100%; min-height: 0; box-sizing: border-box; padding: var(--manor-board-top, 29px) 0 var(--manor-board-chin, 24px); }
+.manor-utility :is(.journal-browser__index, .journal-browser__reader-panel) { display: flex; flex-direction: column; min-height: 0; }
+.manor-utility .journal-browser__index { padding: 30px 4px 8px 10px; }
+.journal-browser__index > .manor-panel__tabpanel { display: flex; flex: 1; flex-direction: column; }
+/* 页签字距比名牌略紧:三组页签要排进目录宽度。 */
+.journal-browser__index .manor-panel__tab { letter-spacing: .12em; }
+
+/* 目录在面板内滚动;下沿渐隐提示还有更多,滚到底时末行已离开渐隐区。 */
+.journal-browser__list { flex: 1; min-height: 0; overflow: auto; overscroll-behavior: contain; scrollbar-gutter: stable; scrollbar-width: thin; scrollbar-color: #4b5a5a transparent; padding: 0 4px 24px 0; mask-image: linear-gradient(180deg, #000 calc(100% - 28px), transparent); }
+
+.journal-browser__entries { display: grid; list-style: none; margin: 0; padding: 0; }
 .journal-browser__entries > li { min-width: 0; margin: 0; padding: 0; }
-.journal-browser__entries button { position: relative; display: grid; grid-template-columns: 22px minmax(0, 1fr); align-items: center; gap: 12px; width: 100%; height: 64px; padding: 10px 12px; box-sizing: border-box; border: 1px solid transparent; border-left-width: 2px; background: transparent; color: var(--abyssa-text-soft); text-align: left; font: inherit; cursor: pointer; transition: background-color 140ms, border-color 140ms, color 140ms, box-shadow 140ms; }
-.journal-browser__entries button > img { width: 22px; height: 22px; object-fit: contain; opacity: .65; }
-.journal-browser__entries button > span { min-width: 0; }
+.journal-browser__entries button { position: relative; isolation: isolate; display: grid; grid-template-columns: 40px minmax(0, 1fr) 16px; align-items: center; gap: 14px; width: 100%; min-height: 68px; padding: 10px 10px 10px 8px; box-sizing: border-box; border: 0; background: none; color: var(--manor-body); text-align: left; font: inherit; cursor: pointer; }
+.journal-browser__entries button::before { position: absolute; z-index: -1; inset: 0; background: var(--manor-highlight); content: ""; opacity: 0; transition: opacity var(--abyssa-motion-hover, 140ms); }
+.journal-browser__entries button::after { position: absolute; right: 0; bottom: 0; left: 62px; height: 1px; background: var(--manor-rule); content: ""; }
+.journal-browser__entries > li:last-child > button::after { display: none; }
+.journal-browser__entries button:hover::before { opacity: .6; }
+.journal-browser__entries button[aria-current="true"]::before { opacity: 1; }
+.journal-browser__entries button:focus-visible { outline: 1px solid #a9b8ad; outline-offset: -2px; }
+
+/* 图标格:同记忆目录的细框暗格;图标是渐隐的印记,状态只改它的明暗与色温。 */
+.journal-entry__icon { display: grid; width: 40px; height: 40px; box-sizing: border-box; place-items: center; border: 1px solid rgb(143 165 151 / 26%); background: rgb(10 18 18 / 46%); transition: border-color var(--abyssa-motion-hover, 140ms); }
+.journal-entry__icon .manor-glyph { width: 28px; height: 28px; background: linear-gradient(155deg, rgb(196 198 180 / 78%) 5%, rgb(166 169 154 / 46%) 50%, rgb(166 169 154 / 16%) 95%); }
+.journal-browser__entries button[data-tone="action"] .journal-entry__icon .manor-glyph { background: linear-gradient(155deg, rgb(236 214 152 / 92%) 5%, rgb(196 168 104 / 58%) 50%, rgb(160 136 84 / 22%) 95%); }
+.journal-browser__entries button:is(:hover, [aria-current="true"]) .journal-entry__icon { border-color: rgb(171 189 175 / 48%); }
+
+.journal-entry__copy { min-width: 0; }
 .journal-browser__entries strong, .journal-browser__entries small { display: block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-.journal-browser__entries strong { font-size: 16px; font-weight: 500; line-height: 22px; }
-.journal-browser__entries small { margin-top: 2px; font-size: 12px; line-height: 18px; color: var(--abyssa-text-muted); }
-.journal-browser__entries button:hover { background: rgb(255 255 255 / 3%); border-color: var(--journal-line); color: var(--abyssa-text); }
-.journal-browser__entries button[aria-current="true"] { background: var(--manor-well); border-color: var(--manor-gold-shadow); border-left-color: var(--manor-gold); color: var(--manor-title); box-shadow: inset 0 1px rgb(206 191 146 / 12%), inset 0 -2px rgb(0 0 0 / 34%); }
-.journal-browser__entries button:active { box-shadow: inset 0 1px 3px var(--abyssa-frame-deep); }
-.journal-browser__entries button[aria-current="true"] img { opacity: 1; }
-.journal-browser__entries button:focus-visible { outline: 1px solid var(--abyssa-focus); outline-offset: -3px; }
-.journal-browser__entries button[data-locked] { color: var(--abyssa-text-muted); }
-.journal-browser__entries button[data-locked] small { opacity: .75; }
-.journal-browser__entries button[data-locked] img { opacity: .3; }
-.journal-browser__entries button[data-locked]:hover { color: var(--abyssa-text-soft); }
-.journal-browser__entries button[data-locked][aria-current="true"] { border-color: var(--journal-line); border-left-color: var(--abyssa-ornament); background: var(--abyssa-panel-dark); color: var(--abyssa-text-soft); box-shadow: inset 0 1px var(--journal-line-faint), inset 0 -1px var(--abyssa-frame-dark); }
-.journal-browser__index-empty { padding-left: 14px; color: var(--abyssa-text-muted); font-size: 14px; }
-.journal-browser__tools { margin: 22px 16px 0; font-size: 12px; }
-.journal-browser__tools summary { font-size: 12px; }
+.journal-browser__entries strong { color: var(--manor-body); font-size: var(--manor-type-lead); font-weight: 500; line-height: 1.45; transition: color var(--abyssa-motion-hover, 140ms); }
+.journal-browser__entries small { margin-top: 3px; color: var(--manor-muted); font-size: var(--manor-type-label); line-height: 1.5; }
+.journal-browser__entries button:is(:hover, [aria-current="true"]) strong { color: var(--manor-title); }
+.journal-entry__marker.abyssa-facet-diamond { --abyssa-facet-size: 14px; justify-self: end; }
+
+/* 尚未开放:单行、调暗,人物名放在行尾。 */
+.journal-browser__entries button[data-locked] { grid-template-columns: 28px minmax(0, 1fr); gap: 12px; min-height: 44px; padding-block: 6px; color: var(--manor-muted); }
+.journal-browser__entries button[data-locked]::after { left: 48px; }
+.journal-browser__entries button[data-locked] .journal-entry__icon { width: 28px; height: 28px; border-color: transparent; background: none; }
+.journal-entry__node { display: block; width: 7px; height: 7px; border: 1px solid var(--manor-dim); transform: rotate(45deg); }
+.journal-browser__entries button[data-locked]:is(:hover, [aria-current="true"]) .journal-entry__node { border-color: var(--manor-muted); }
+.journal-browser__entries button[data-locked] .journal-entry__copy { display: flex; align-items: baseline; gap: 12px; }
+.journal-browser__entries button[data-locked] strong { min-width: 0; color: var(--manor-muted); font-size: var(--manor-type-body); font-weight: 400; }
+.journal-browser__entries button[data-locked] small { flex: none; margin: 0 0 0 auto; color: var(--manor-dim); }
+.journal-browser__entries button[data-locked]:is(:hover, [aria-current="true"]) strong { color: var(--manor-body); }
+
+.journal-browser__index-empty { padding-left: 14px; color: var(--manor-muted); font-size: var(--manor-type-body); }
+.journal-browser__tools { display: grid; gap: 4px; margin: 22px 10px 0; font-size: var(--manor-type-label); }
 .journal-browser__tools .airp-online input { width: 100%; min-width: 0; box-sizing: border-box; }
 .journal-browser__tools .airp-online { overflow-wrap: anywhere; }
-.journal-browser__reader { container: journal-reader / inline-size; overflow: auto; overscroll-behavior: contain; scrollbar-gutter: stable; min-width: 0; min-height: 0; padding: 14px 12px 32px 36px; }
+
+/* ---- 阅读面板:名牌写类别,状态骑在上沿右端;正文在面板内滚动 ---- */
+.manor-utility .journal-browser__reader-panel { padding: 30px 0 12px; }
+.journal-browser__reader { container: journal-reader / inline-size; flex: 1; overflow: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: #4b5a5a transparent; min-width: 0; min-height: 0; padding: 4px 28px 24px; }
 .journal-browser__reader:focus { outline: none; }
 .journal-browser__reader:focus-visible { box-shadow: inset 2px 0 var(--abyssa-ornament-light); }
-.journal-browser__reading { max-width: 34em; }
-.journal-record__heading { padding-bottom: 14px; margin-bottom: 18px; border-bottom: 1px solid var(--journal-line); }
+.journal-browser__reading { max-width: 600px; }
+.journal-record__status { display: inline-flex; flex: none; align-items: center; gap: 8px; color: var(--manor-body); font: var(--manor-type-label)/1 var(--abyssa-font-body); letter-spacing: .1em; }
+.journal-record__status .abyssa-facet-diamond { --abyssa-facet-size: 13px; }
+.journal-record__status .manor-glyph { width: 15px; height: 15px; }
+.journal-record__status[data-tone="action"] { color: var(--manor-gold-bright); }
+.journal-record__status:is([data-tone="done"], [data-tone="locked"]) { color: var(--manor-muted); }
+
+/* 头部:语境行(人物 · 地点)/ 标题;下方一道逐渐隐去的细线,与正文分层。
+   阅读区的竖向节奏统一 24px:细线 → 操作栏 → 细线 → 正文各块。 */
+.journal-record__heading { margin-bottom: 24px; padding-bottom: 20px; background: var(--manor-rule) left bottom / 100% 1px no-repeat; }
+.campaign-journal .journal-record__context { margin: 0 0 8px; overflow: hidden; color: var(--manor-muted); font-size: var(--manor-type-label); line-height: 1.6; letter-spacing: .08em; text-overflow: ellipsis; white-space: nowrap; }
 .journal-record__title-row { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 24px; }
-.journal-record__title-row > h3 { min-width: 0; overflow-wrap: anywhere; }
-.campaign-journal .journal-record__meta { margin: 0 0 6px; color: var(--abyssa-text-muted); font-size: 12px; line-height: 18px; letter-spacing: .08em; }
-.campaign-journal .journal-record__heading h3 { margin: 0; font-size: 22px; font-weight: 500; letter-spacing: .05em; line-height: 1.4; overflow-wrap: anywhere; }
-.journal-browser__reading p { font-size: 15px; line-height: 1.85; color: var(--abyssa-text-soft); overflow-wrap: anywhere; }
-.journal-browser__reading > p, .journal-browser__reading > section > p { margin: 0 0 .8em; }
-.journal-browser__reading .campaign-journal__note { font-size: 13px; }
-.journal-record__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; margin-top: 20px; }
-.journal-record__actions:empty { display: none; }
-.journal-record__actions .journal-action { min-height: 40px; height: auto; padding-block: 10px; }
-.journal-record__action-note { color: var(--abyssa-text-muted); font-size: 13px; line-height: 1.6; }
-.campaign-journal .journal-record__history { margin-top: 32px; border-top: 1px solid var(--journal-line-faint); }
-.journal-record__history summary { font-size: 14px; }
-.journal-record__history > details { margin: 0; padding-left: 12px; }
+.campaign-journal .journal-record__heading h3 { min-width: 0; margin: 0; color: var(--manor-title); font: 500 var(--manor-type-display)/1.35 var(--abyssa-font-display); letter-spacing: .06em; overflow-wrap: anywhere; }
+.journal-record[data-tone="locked"] .journal-record__heading h3 { color: var(--manor-body); }
+
+/* 正文:概要 → 小节 → 操作 → 记录,统一由间距分层。 */
+.journal-record__body { display: grid; gap: 24px; min-width: 0; }
+.campaign-journal .journal-record__body > p, .campaign-journal .journal-record__body > section > p { margin: 0; }
+.journal-browser__reading p { color: var(--manor-body); font-size: var(--manor-type-body); line-height: 1.85; overflow-wrap: anywhere; }
+.campaign-journal .journal-record__lead { color: var(--manor-body); font-size: var(--manor-type-lead); line-height: 1.85; }
+.campaign-journal .journal-record__note { margin: 0; color: var(--manor-muted); font-size: var(--manor-type-label); line-height: 1.7; }
+.campaign-journal .journal-record__body .journal-section > p + p { margin-top: 8px; }
+.journal-record__body:empty { display: none; }
+
+/* 操作栏钉在阅读面板下沿:上方一道渐隐细线,左端地点或进度,右端按钮;左右与正文对齐。 */
+.journal-browser .journal-dock { flex: none; min-width: 0; margin: 0 28px; }
+.journal-browser .journal-dock:empty { display: none; }
+.journal-browser .journal-dock__bar { padding-bottom: 6px; }
+
 .journal-browser__reading .campaign-journal__empty { align-content: start; justify-items: start; text-align: left; min-height: 0; padding-top: 10px; }
-.journal-browser__reading .campaign-journal__empty h3 { font-size: 20px; font-weight: 500; }
+.journal-browser__reading .campaign-journal__empty h3 { font-size: 22px; font-weight: 500; }
 .journal-browser__reading .campaign-journal__empty p { max-width: 26em; margin: 12px 0 24px; }
 
 /* Query the containing page, so the grid itself can change columns. */
 @container journal (max-width: 860px) {
-  .journal-browser { grid-template-columns: 248px minmax(0, 1fr); }
-  .journal-browser__entries strong { font-size: 15px; }
-  .journal-browser__reader { padding-left: 24px; }
+  .journal-browser { --journal-index-width: 340px; }
+  .journal-browser__reader { padding-inline: 24px; }
+  .journal-browser .journal-dock { margin-inline: 24px; }
 }
 @container journal (max-width: 620px) {
-  .journal-browser { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); }
-  .journal-browser__index { max-height: 194px; }
-  .journal-browser__reader { padding: 16px 8px 24px 16px; }
+  .journal-browser { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); row-gap: calc(var(--manor-panel-tag, 17px) + 14px); }
+  .journal-browser__index { max-height: 220px; }
+  .journal-browser__reader { padding: 4px 8px 24px 16px; }
 }
 @container journal-reader (max-width: 440px) {
-  .campaign-journal .journal-record__heading h3 { font-size: 20px; }
-  .journal-record__actions { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .campaign-journal .journal-record__heading h3 { font-size: 24px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .journal-browser__entries button { transition: none; }
+  .journal-browser__entries button::before, .journal-browser__entries strong, .journal-entry__icon { transition: none; }
 }

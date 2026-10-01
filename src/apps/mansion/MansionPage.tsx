@@ -19,6 +19,7 @@ import type { CampaignReportControls, CampaignReportView } from "../../game-clie
 import { MANSION_ATMOSPHERE, MANSION_NIGHT_LIGHTS, MANSION_SCENE_REGIONS } from "./mansion-scenery";
 import { InventoryDialog } from "../../shared/ui/patterns/InventoryDialog";
 import { ResourceInventoryDialog } from "../../shared/ui/patterns/ResourceInventoryDialog";
+import { MANOR_SECTION_ICONS, manorIcon } from "../../shared/ui/patterns/manor-icons";
 import { MansionPhaseBar } from "./MansionPhaseBar";
 import { AdvStage } from "../../shared/presentation/adv/AdvStage";
 import { CHARACTER_EMOTION_PROFILES } from "../../content/presentation/character-emotions";
@@ -57,14 +58,11 @@ import { GrowthStory } from "../../game-client/GrowthStory";
 import { FirstMorningStory } from "../../game-client/FirstMorningStory";
 import { growthStories, teamMilestoneStory } from "../../content/presentation/growth-stories";
 import {
-  MAX_FACILITY_LEVEL,
-  REPAIR_STEPS,
   STOCK_COLUMNS,
   STOCK_ROWS
 } from "./mansion-state";
 import { MansionWorld, type CharacterPlacement } from "./MansionWorld";
 import { SceneFeedback } from "../../shared/ui/patterns/SceneFeedback";
-import { MansionFacilityPanel } from "./MansionFacilityPanel";
 import { MansionRoomDrawer } from "./MansionRoomDrawer";
 import { useMansionPresentation } from "./useMansionPresentation";
 import { MansionTimeLoading } from "./MansionTimeLoading";
@@ -74,6 +72,8 @@ import { useMansionIntro } from "./useMansionIntro";
 
 const ResidentCampaignPanel = memo(CampaignPanel);
 const ResidentInventory = memo(ResourceInventoryDialog);
+/** 库存两块名牌的图标:与整备、日志同一套检索词。模块级常量,不破坏 memo。 */
+const STOCK_SECTION_ICONS = {fixed: manorIcon(MANOR_SECTION_ICONS.provisions), sandbox: manorIcon(MANOR_SECTION_ICONS.storage)};
 
 /** 右侧宿舍群与大门会被右侧详情卡遮挡，因此只为这五个区域换到左侧。 */
 const LEFT_DRAWER_REGION_IDS = new Set(["eustice", "norma", "elora", "kororo", "gate"]);
@@ -359,8 +359,6 @@ function MansionScene({suspended = false}: {suspended?: boolean}) {
   };
 
   const collectProduction = estate.collectProduction;
-  const startUpgrade = estate.startUpgrade;
-  const promoteFacility = estate.promoteFacility;
 
   const activateCharacter = useCallback((character: MansionCharacter) => {
     if (isClickSuppressed()) return;
@@ -380,15 +378,8 @@ function MansionScene({suspended = false}: {suspended?: boolean}) {
       .filter((placement) => placement.roomId === selectedRegion.id)
       .map((placement) => placement.character)
     : [];
-  const selectedLevel = selectedRegion && selectedDetail
-    ? levels[selectedRegion.id] ?? selectedDetail.level
-    : 0;
-  const selectedUpgradeRemaining = selectedRegion ? upgrading[selectedRegion.id] : undefined;
-  /** 已达最高档:修缮与升级都到顶。 */
-  const selectedRepairComplete = selectedLevel >= MAX_FACILITY_LEVEL;
-  const selectedRepairSteps = selectedRegion ? repairProgress[selectedRegion.id] ?? 0 : 0;
-  /** 进度满格且未到顶 -> 该出现升级键。 */
-  const selectedCanPromote = selectedRepairSteps >= REPAIR_STEPS && !selectedRepairComplete;
+  /** 右侧抽屉(x 1036..1576)整张压住右上工具栏。 */
+  const railCovered = Boolean(selectedRegion) && selectedDrawerSide === "right";
 
   const navigateTo = (href: string) => {
     if (href.includes("dice")) return;
@@ -403,7 +394,7 @@ function MansionScene({suspended = false}: {suspended?: boolean}) {
     onPresentChange: (view, present) => setReportsPresented(previous => previous[view] === present ? previous : {...previous, [view]: present}),
     returnFocusRefs: {journal: journalButtonRef, preparation: preparationButtonRef},
     renderEntries: actionable => <MansionUtilityRail active={stockOpen ? "stock" : reportView}
-      stockTotal={stockTotal} actionable={actionable} inert={chromeInert}
+      stockTotal={stockTotal} actionable={actionable} inert={chromeInert} covered={railCovered}
       buttonRefs={{stock: stockButtonRef, journal: journalButtonRef, preparation: preparationButtonRef}}
       onOpen={entry => {
         if (chromeInert) return;
@@ -411,7 +402,7 @@ function MansionScene({suspended = false}: {suspended?: boolean}) {
         if (entry === "stock") { setReportView(null); toggleStock(); }
         else { closeStock(); setReportView(entry); }
       }}/>,
-  }), [reportView, stockOpen, stockTotal, chromeInert, closeStock, toggleStock]);
+  }), [reportView, stockOpen, stockTotal, chromeInert, railCovered, closeStock, toggleStock]);
 
   return (
     <Stage background="#0a1114" canvasClassName="mansion-stage-canvas">
@@ -545,26 +536,19 @@ function MansionScene({suspended = false}: {suspended?: boolean}) {
 
         {selectedRegion && selectedDetail && (
           <MansionRoomDrawer
-            readOnly
-            facilitiesEnabled={!!estate.facilities}
-            facilityPanel={estate.facilities && <MansionFacilityPanel key={selectedRegion.id} view={estate.facilities} roomId={selectedRegion.id} busy={estate.busy} onCommand={estate.operateFacility} onStock={estate.toggleStock}/>}
             region={selectedRegion}
             detail={selectedDetail}
             side={selectedDrawerSide}
             inert={chromeInert}
             closeButtonRef={drawerCloseRef}
             occupants={selectedOccupants}
-            level={selectedLevel}
-            upgradeRemaining={selectedUpgradeRemaining}
-            repairComplete={selectedRepairComplete}
-            repairSteps={selectedRepairSteps}
-            canPromote={selectedCanPromote}
-            funds={funds}
-            readyProduction={readyProduction}
+            facilities={estate.facilities}
+            itemIcons={estate.itemIcons}
+            busy={estate.busy}
+            productionReady={readyProduction.has(selectedRegion.id)}
+            onFacilityCommand={estate.operateFacility}
+            onOpenStock={estate.toggleStock}
             onClose={closeRegion}
-            onCollectProduction={collectProduction}
-            onStartUpgrade={startUpgrade}
-            onPromoteFacility={promoteFacility}
             onNavigate={navigateTo}
           />
         )}
@@ -636,6 +620,7 @@ function MansionScene({suspended = false}: {suspended?: boolean}) {
           open={stockOpen}
           onPresentChange={setStockPresented}
           onClose={estate.closeStock}
+          sectionIcons={STOCK_SECTION_ICONS}
           fixedEntries={estate.fixedEntries}
           entries={estate.sandboxEntries}
           returnFocusRef={stockButtonRef}

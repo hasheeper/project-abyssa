@@ -1,7 +1,7 @@
 import { airpLocked } from "../game-application/versions/airp-replay";
 import type { ValidatedD5Catalog } from "../game-core/contracts";
 import type { D5GameRecord } from "../game-application";
-import { FACILITY_IDS } from "../game-core/contracts/facilities";
+import { FACILITY_IDS, FACILITY_MAX_LEVEL } from "../game-core/contracts/facilities";
 import { facilityTier, facilitySupplyLimit, supplyStorageCapacity, supplyStorageRoom } from "../game-core/session/facilities";
 import { campaignPhaseIndex, mansionTimeBlock } from "../game-core/session/d5-clock";
 import { quoteConstruction } from "../game-core/session/facility-construction";
@@ -12,15 +12,15 @@ export function facilitiesView(catalog: ValidatedD5Catalog, record: D5GameRecord
   const materialCapacity = content.storage.materials[facilityTier(campaign, "storage")];
   const construction = state.construction ? {...state.construction, name: content.rooms[state.construction.roomId].name, remainingPhases: Math.max(0, state.construction.readyAt - now)} : null;
   return {
-    blocked, state, day: campaign.clock.day, now, itemLimit: facilitySupplyLimit(catalog, campaign),
+    blocked, state, day: campaign.clock.day, now, maxLevel: FACILITY_MAX_LEVEL, itemLimit: facilitySupplyLimit(catalog, campaign),
     construction,
     funding: state.funding ? {...state.funding, balance: campaign.funds.public, nextDay: (state.funding.paidThroughWeek + 1) * 7 + 1} : null,
     rooms: FACILITY_IDS.map(id => {
       const spec = content.rooms[id], batch = state.batches[id], project = batch && content.projects[batch.projectId];
       const room = project ? project.kind === "supply" ? supplyStorageRoom(catalog, campaign, project.definitionId) : materialCapacity - (state.materials[project.definitionId] ?? 0) : 0;
       const level = state.levels[id], config = content.construction;
-      const quote = config && level < 3 && !(id === "workshop" && state.order) ? quoteConstruction(content, state, id, config.basePrices[id], now) : null;
-      const reason = blocked ?? (construction ? `${construction.name}施工中` : campaign.clock.day < spec.availableDay ? `第 ${spec.availableDay} 日开放` : id === "workshop" && state.order ? "请先领取加工成品" : level === 3 ? "已达最高等级" : quote && quote.cost > campaign.funds.public ? "公款不足" : null);
+      const quote = config && level < FACILITY_MAX_LEVEL && !(id === "workshop" && state.order) ? quoteConstruction(content, state, id, config.basePrices[id], now) : null;
+      const reason = blocked ?? (construction ? `${construction.name}施工中` : campaign.clock.day < spec.availableDay ? `第 ${spec.availableDay} 日开放` : id === "workshop" && state.order ? "请先领取加工成品" : level === FACILITY_MAX_LEVEL ? "已达最高等级" : quote && quote.cost > campaign.funds.public ? "公款不足" : null);
       const improvement = (label: string, values: readonly number[], unit: string) => ({label, before: `${level ? values[level - 1] : 0}${unit}`, after: `${values[Math.min(level, 2)]}${unit}`});
       const improvements = id === "kitchen" ? [improvement("每批食物", content.projects["production.food"].amounts, " 份")]
         : id === "greenhouse" ? [improvement("每批药草", content.projects[state.selectedProject].amounts, " 束")]
@@ -30,7 +30,7 @@ export function facilitiesView(catalog: ValidatedD5Catalog, record: D5GameRecord
       return {id, ...spec, level, canEnable: !config && !blocked && !level && campaign.clock.day >= spec.availableDay,
         build: config ? {quote, reason, improvements, discount: id === "maid" || !state.levels.maid ? 0 : content.repairDiscount[state.levels.maid - 1]} : null,
         batch: batch && project ? {...batch, definitionId: project.definitionId, name: project.kind === "supply" ? catalog.data.journey!.items[project.definitionId].name : content.materials[project.definitionId].name,
-          kind: project.kind, remainingPhases: Math.max(0, batch.readyAt - now), collectMaximum: !blocked && batch.readyAt <= now ? Math.min(batch.remaining, Math.max(0, room)) : 0} : null};
+          kind: project.kind, phases: project.phases, remainingPhases: Math.max(0, batch.readyAt - now), collectMaximum: !blocked && batch.readyAt <= now ? Math.min(batch.remaining, Math.max(0, room)) : 0} : null};
     }),
     materials: Object.values(content.materials).map(m => ({...m, quantity: state.materials[m.id] ?? 0, capacity: materialCapacity})),
     projects: Object.values(content.projects).filter(p => p.roomId === "greenhouse").map(p => ({id: p.id, name: content.materials[p.definitionId].name})),

@@ -31,21 +31,23 @@ it("separates six carry slots, seven inspectable supplies, and real stock versus
   expect(screen.queryByRole("status")).toBeNull();
   expect(within(screen.getByRole("navigation",{name:"整备操作"})).getAllByRole("link")).toHaveLength(3);
   const detail = screen.getByRole("complementary",{name:"补给详情"});
-  expect(detail).toHaveTextContent("当前库存1 份出征携带4 份");
+  expect(detail).toHaveTextContent("库存1份携带4份");
   await user.click(screen.getByRole("button",{name:"查看幸运符详情"}));
   expect(detail).toHaveTextContent("增加一次重掷");
   expect(screen.getByRole("button",{name:"加入行囊"})).toBeDisabled();
   expect(detail).toHaveTextContent("暂无库存，请先补充");
 });
 
-it("uses the warehouse interface artwork and corner counts without nested trays or collapsed empty labels", async () => {
+it("builds the stock window's frame: two name-tag panels, a detail panel and the warehouse artwork", async () => {
   const user = userEvent.setup();
   const {container} = render(<Preparation/>);
   expect(container.querySelectorAll(".journal-surface")).toHaveLength(0);
-  const inset = container.querySelector(".departure-preparation__inventory.manor-utility__inset");
-  expect(inset).not.toBeNull();
-  expect(inset!.querySelectorAll(".departure-preparation__group")).toHaveLength(2);
-  expect(container.querySelectorAll(".manor-utility__inset")).toHaveLength(1);
+  const inventory = container.querySelector(".departure-preparation__inventory")!;
+  expect([...inventory.querySelectorAll(":scope > .manor-panel")].map(panel => panel.getAttribute("data-area"))).toEqual(["loadout", "catalogue"]);
+  expect(screen.getByRole("heading", {name: "出征行囊"}).closest(".manor-panel__tag")).not.toBeNull();
+  expect(screen.getByRole("complementary", {name: "补给详情"})).toHaveClass("manor-panel");
+  expect(within(screen.getByRole("complementary", {name: "补给详情"})).getByRole("heading", {name: "免费配给"})).toBeInTheDocument();
+  expect(container.querySelectorAll(".departure-preparation__berth")).toHaveLength(6);
   expect(container.querySelectorAll(".abyssa-item-slot[data-rarity]")).toHaveLength(0);
   for (const slot of container.querySelectorAll(".abyssa-item-slot")) expect(slot).toHaveAttribute("data-tone", "interface");
   for (const slot of container.querySelectorAll(".abyssa-item-slot:not([data-empty])")) {
@@ -53,8 +55,6 @@ it("uses the warehouse interface artwork and corner counts without nested trays 
       .toEqual(["surface", "halo-a", "halo-b", "glyph-depth", "glyph", "glyph-highlight"]);
   }
   const loadout = screen.getByRole("list", {name: "出征携带位"}), catalogue = screen.getByRole("list", {name: "可选补给"});
-  for (const slot of loadout.querySelectorAll(".abyssa-item-slot")) expect(slot).toHaveStyle("--slot-size: 108px");
-  for (const slot of catalogue.querySelectorAll(".abyssa-item-slot")) expect(slot).toHaveStyle("--slot-size: 80px");
   const counts = (root: HTMLElement) => [...root.querySelectorAll(".abyssa-item-count")].map(node => node.textContent);
   expect(counts(loadout)).toEqual(["4", "2"]);
   expect(counts(catalogue)).toEqual(["1", "0", "2", "1", "1", "0", "0"]);
@@ -66,7 +66,7 @@ it("uses the warehouse interface artwork and corner counts without nested trays 
   expect(container.querySelector(".abyssa-item-slot__badge")).toBeNull();
   expect(screen.getByRole("button", {name: "查看药水详情"})).toHaveAccessibleDescription("库存 0 份，免费配给 2 份，已装入行囊");
   expect(loadout.querySelectorAll(".departure-preparation__item-name")).toHaveLength(6);
-  expect(loadout.querySelectorAll('[data-empty] .departure-preparation__item-name')).toHaveLength(4);
+  expect([...loadout.querySelectorAll('[data-empty] .departure-preparation__item-name')].map(name => name.textContent)).toEqual(["空位", "空位", "空位", "空位"]);
   await user.click(screen.getByRole("button", {name: "移出行囊"}));
   expect(counts(loadout)).toEqual(["2"]);
   expect(loadout.querySelectorAll(".departure-preparation__item-name")).toHaveLength(6);
@@ -78,7 +78,8 @@ it("uses three identifiable icon balances and only one framed footer command", (
   const {container} = render(<Preparation/>);
   const funds = screen.getByTestId("campaign-funds");
   for (const label of ["公款 0 G", "小队资金 44 G", "晶石 0"]) {
-    expect(within(funds).getByRole("img", {name: label})).toHaveAttribute("tabindex", "0");
+    // 名称常显,不再藏在悬停提示里。
+    expect(within(funds).getByRole("img", {name: label})).toHaveTextContent(label.split(" ")[0]);
   }
   expect(funds.querySelectorAll(".abyssa-currency-amount")).toHaveLength(3);
   expect(funds.querySelectorAll('[data-icon="custom"]')).toHaveLength(1);
@@ -131,7 +132,8 @@ it("edits actual selected quantities without changing the warehouse count", asyn
   const user = userEvent.setup(); render(<ActualStock/>);
   await user.click(screen.getByRole("button", {name: "减少食物携带数量"}));
   expect(screen.getByRole("group", {name: "食物携带数量"})).toHaveTextContent("2");
-  expect(screen.getByRole("complementary", {name: "补给详情"})).toHaveTextContent("当前库存8 份出征携带2 份");
+  expect(screen.getByRole("complementary", {name: "补给详情"})).toHaveTextContent("库存8份携带2份");
+  expect(screen.getByRole("button", {name: "增加食物携带数量"})).toBeEnabled();
   expect(screen.getByRole("button", {name: "行囊第 1 格：食物"})).toHaveAccessibleDescription("出征携带 2 份");
   expect(screen.queryByText("免费配给")).toBeNull();
 });

@@ -1,9 +1,9 @@
-import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
-import type { CSSProperties, KeyboardEvent, RefObject } from "react";
+import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
+import type { KeyboardEvent, RefObject } from "react";
 import { RpgModal, type RpgModalProps } from "../primitives/RpgModal";
-import { IconButton } from "../primitives/IconButton";
 import { ItemSlot, ItemSlotStatic } from "../primitives/ItemSlot";
 import { UiContentTransition } from "../motion/UiContentTransition";
+import { ManorItemShowcase, ManorPager, ManorPanel, ManorStat, ManorStats } from "./ManorParts";
 import "./resource-inventory.css";
 
 /** Fixed provisions plus an open-ended inventory. The latter accepts arbitrary
@@ -33,52 +33,43 @@ export interface ResourceInventoryDialogProps {
   returnFocusRef?: RefObject<HTMLElement | null>;
   onPresentChange?: (present: boolean) => void;
   motionPreset?: RpgModalProps["motionPreset"];
+  /** 两块名牌上的图标地址。由调用方从素材库取(manorIcon),共用件本身不依赖素材库。 */
+  sectionIcons?: {fixed?: string; sandbox?: string};
 }
 
 const ITEM_COLUMNS = 7;
-const INVENTORY_PAGE_SIZE = ITEM_COLUMNS * 2;
+const INVENTORY_PAGE_SIZE = ITEM_COLUMNS * 3;
 const NO_FIXED_ENTRIES: readonly ResourceInventoryEntry[] = [];
 
 export function ResourceInventoryDialog({
-  open, onClose, entries, fixedEntries = NO_FIXED_ENTRIES, title = "领地库存", className, returnFocusRef, onPresentChange, motionPreset,
+  open, onClose, entries, fixedEntries = NO_FIXED_ENTRIES, title = "领地库存", className, returnFocusRef, onPresentChange, motionPreset, sectionIcons,
 }: ResourceInventoryDialogProps) {
   const uid = useId();
-  const rootRef = useRef<HTMLDivElement>(null);
-  const detailRef = useRef<HTMLElement>(null);
   const buttons = useRef(new Map<string, HTMLButtonElement>());
   const pendingPageFocus = useRef<string | null>(null);
   const [pageIndex, setPageIndex] = useState(0);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [focusId, setFocusId] = useState<string | null>(null);
-  const [position, setPosition] = useState<CSSProperties>({visibility: "hidden"});
+  const [cursorId, setCursorId] = useState<string | null>(null);
   const pageCount = Math.max(1, Math.ceil(entries.length / INVENTORY_PAGE_SIZE));
   const page = Math.min(pageIndex, pageCount - 1);
   const pageEntries = useMemo(() => entries.slice(page * INVENTORY_PAGE_SIZE, (page + 1) * INVENTORY_PAGE_SIZE), [entries, page]);
 
   const groups = useMemo(() => [
-    {id: "fixed", label: "常备补给", entries: fixedEntries, emptyHint: "暂无补给"},
-    {id: "sandbox", label: "物品库存", entries: pageEntries, emptyHint: "尚未存放其他物品"},
-  ], [fixedEntries, pageEntries]);
+    {id: "fixed", label: "常备补给", icon: sectionIcons?.fixed, entries: fixedEntries, emptyHint: "暂无补给"},
+    {id: "sandbox", label: "物品库存", icon: sectionIcons?.sandbox, entries: pageEntries, emptyHint: "尚未存放其他物品"},
+  ], [fixedEntries, pageEntries, sectionIcons?.fixed, sectionIcons?.sandbox]);
   const orderedEntries = useMemo(() => groups.flatMap(group => group.entries), [groups]);
-  const currentFocus = orderedEntries.some(entry => entry.id === focusId) ? focusId : orderedEntries[0]?.id;
-  const selected = open ? orderedEntries.find(entry => entry.id === selectedId) : undefined;
-
-  const closeDetail = useCallback((restore = false) => {
-    if (restore && selectedId) buttons.current.get(selectedId)?.focus({preventScroll: true});
-    setSelectedId(null);
-  }, [selectedId]);
+  // 光标即选中:右栏常驻显示光标所在的物品;光标失效时回到第一件。
+  const selected = orderedEntries.find(entry => entry.id === cursorId) ?? orderedEntries[0];
+  const selectedFixed = !!selected && fixedEntries.some(entry => entry.id === selected.id);
 
   useEffect(() => {
-    if (!open) { setSelectedId(null); setFocusId(null); setPageIndex(0); pendingPageFocus.current = null; }
-    else if (selectedId && !orderedEntries.some(entry => entry.id === selectedId)) {
-      setSelectedId(null);
-      buttons.current.get(pageEntries[0]?.id ?? currentFocus ?? "")?.focus({preventScroll: true});
-    } else if (focusId && !orderedEntries.some(entry => entry.id === focusId)) {
-      const fallback = pageEntries[0]?.id ?? fixedEntries[0]?.id;
-      setFocusId(fallback ?? null);
-      if (document.activeElement === document.body) buttons.current.get(fallback ?? "")?.focus({preventScroll: true});
-    }
-  }, [open, orderedEntries, selectedId, currentFocus, focusId, pageEntries, fixedEntries]);
+    if (!open) { setCursorId(null); setPageIndex(0); pendingPageFocus.current = null; return; }
+    if (!cursorId || orderedEntries.some(entry => entry.id === cursorId)) return;
+    const fallback = pageEntries[0]?.id ?? fixedEntries[0]?.id ?? null;
+    setCursorId(fallback);
+    // 被移除的格位带走了焦点时,把它交给新的光标。
+    if (document.activeElement === document.body) buttons.current.get(fallback ?? "")?.focus({preventScroll: true});
+  }, [open, orderedEntries, cursorId, pageEntries, fixedEntries]);
 
   useEffect(() => { if (pageIndex !== page) setPageIndex(page); }, [page, pageIndex]);
 
@@ -94,75 +85,19 @@ export function ResourceInventoryDialog({
     if (next === page) return;
     const first = next * INVENTORY_PAGE_SIZE;
     const target = entries[Math.min(first + slot, entries.length - 1)];
-    setSelectedId(null);
-    setFocusId(target?.id ?? null);
+    setCursorId(target?.id ?? null);
     pendingPageFocus.current = target?.id ?? null;
     setPageIndex(next);
   }
 
   function handlePageKeys(event: KeyboardEvent<HTMLElement>) {
-    if (event.key !== "PageDown" && event.key !== "PageUp" || detailRef.current?.contains(event.target as Node)) return;
+    if (event.key !== "PageDown" && event.key !== "PageUp") return;
     event.preventDefault();
-    const slot = Math.max(0, pageEntries.findIndex(entry => entry.id === focusId));
+    const slot = Math.max(0, pageEntries.findIndex(entry => entry.id === selected?.id));
     changePage(page + (event.key === "PageDown" ? 1 : -1), slot);
   }
 
-  useLayoutEffect(() => {
-    if (!selected) return;
-    const root = rootRef.current, detail = detailRef.current, anchor = buttons.current.get(selected.id);
-    if (!root || !detail || !anchor) return;
-    const bounds = root.getBoundingClientRect(), tile = anchor.getBoundingClientRect();
-    // Stage is transformed: viewport pixels are not the panel's CSS pixels.
-    const scale = bounds.width / root.clientWidth || 1;
-    const anchorLeft = (tile.left - bounds.left) / scale;
-    const anchorRight = (tile.right - bounds.left) / scale;
-    const left = anchorRight + 16 + detail.offsetWidth <= root.clientWidth
-      ? anchorRight + 16 : anchorLeft - detail.offsetWidth - 16;
-    const top = (tile.top - bounds.top) / scale;
-    const clamp = (x: number, y: number) => ({
-      left: Math.max(0, Math.min(x, root.clientWidth - detail.offsetWidth)),
-      top: Math.max(0, Math.min(y, root.clientHeight - detail.offsetHeight)),
-    });
-    // Prefer adjacent placement, then unused space below the fixed provision
-    // row. Compare real card bounds, including names and counts.
-    const occupied = [...root.querySelectorAll(".resource-inventory__items > li:not([data-placeholder])")].map(node => {
-      const rect = node.getBoundingClientRect();
-      return {left: (rect.left - bounds.left) / scale, right: (rect.right - bounds.left) / scale,
-        top: (rect.top - bounds.top) / scale, bottom: (rect.bottom - bounds.top) / scale};
-    });
-    const overlap = (point: {left: number; top: number}) => occupied.reduce((sum, rect) => sum +
-      Math.max(0, Math.min(point.left + detail.offsetWidth, rect.right) - Math.max(point.left, rect.left)) *
-      Math.max(0, Math.min(point.top + detail.offsetHeight, rect.bottom) - Math.max(point.top, rect.top)), 0);
-    const below = ((anchor.closest("li")?.getBoundingClientRect().bottom ?? tile.bottom) - bounds.top) / scale + 16;
-    const candidates = [clamp(left, top), clamp(anchorLeft, below), clamp(root.clientWidth - detail.offsetWidth, top), clamp(0, top),
-      clamp(anchorLeft, top - detail.offsetHeight - 16)];
-    setPosition(candidates.reduce((best, point) => overlap(point) < overlap(best) ? point : best));
-  }, [selected]);
-
-  useEffect(() => {
-    if (!selected) return;
-    const dismiss = (event: PointerEvent) => {
-      const target = event.target;
-      if (!(target instanceof Node) || detailRef.current?.contains(target)) return;
-      if (target instanceof Element && target.closest("[data-resource-item]")) return;
-      closeDetail(detailRef.current?.contains(document.activeElement));
-    };
-    const resize = () => closeDetail(true);
-    const escape = (event: globalThis.KeyboardEvent) => {
-      if (event.key !== "Escape") return;
-      event.preventDefault(); event.stopPropagation(); closeDetail(true);
-    };
-    document.addEventListener("pointerdown", dismiss, true);
-    document.addEventListener("keydown", escape, true);
-    window.addEventListener("resize", resize);
-    return () => {
-      document.removeEventListener("pointerdown", dismiss, true);
-      document.removeEventListener("keydown", escape, true);
-      window.removeEventListener("resize", resize);
-    };
-  }, [selected, closeDetail]);
-
-  function moveFocus(event: KeyboardEvent<HTMLButtonElement>, id: string) {
+  function moveCursor(event: KeyboardEvent<HTMLButtonElement>, id: string) {
     const index = orderedEntries.findIndex(entry => entry.id === id);
     const group = groups.find(group => group.entries.some(entry => entry.id === id))!;
     const groupIndex = group.entries.findIndex(entry => entry.id === id);
@@ -183,82 +118,65 @@ export function ResourceInventoryDialog({
     else if (event.key === "End") next = orderedEntries.at(-1);
     else return;
     event.preventDefault();
-    closeDetail();
-    if (next) { setFocusId(next.id); buttons.current.get(next.id)?.focus(); }
+    if (next) { setCursorId(next.id); buttons.current.get(next.id)?.focus(); }
   }
 
   return <RpgModal open={open} onClose={onClose} title={title} header={null} motionPreset={motionPreset}
     signboard={title} signboardVariant="slim" className={className}
     panelClassName="resource-inventory-panel manor-utility__window" returnFocusRef={returnFocusRef} onPresentChange={onPresentChange}>
-    <div className="resource-inventory" ref={rootRef} onKeyDown={handlePageKeys}>
+    <div className="resource-inventory" onKeyDown={handlePageKeys}>
+      {/* 左:两块名牌面板,各自随内容高度;分页骑在「物品库存」面板上沿。 */}
       <div className="resource-inventory__overview">
-          {groups.map(group => <section
-            className="resource-inventory__group" data-area={group.id} key={group.id} aria-labelledby={`${uid}-${group.id}`}>
-            <header className="resource-inventory__heading">
-              <h3 id={`${uid}-${group.id}`}>{group.label}</h3>
-              <span aria-hidden="true" />
-            </header>
-            <div className="resource-inventory__contents" id={group.id === "sandbox" ? `${uid}-inventory-page` : undefined}
-              onScroll={() => closeDetail(true)}>
+          {groups.map(group => <ManorPanel className="resource-inventory__group" data-area={group.id} key={group.id}
+            label={group.label} icon={group.icon}
+            aside={group.id === "sandbox" ? <ManorPager subject="物品库存" page={page} count={pageCount}
+              controls={`${uid}-inventory-page`} onPage={next => changePage(next)}/> : undefined}>
+            <div className="resource-inventory__contents" id={group.id === "sandbox" ? `${uid}-inventory-page` : undefined}>
             {group.entries.length || group.id === "sandbox" ? <ul className="resource-inventory__items">
               {group.entries.map(entry => <li key={entry.id}>
                 <div className="resource-inventory__art">
                 <ItemSlot className="resource-inventory__item" data-resource-item={entry.id}
-                  icon={entry.icon} name={entry.name} rarity={entry.rarity} size={92} showRarity={!!entry.rarity}
+                  icon={entry.icon} name={entry.name} rarity={entry.rarity} showRarity={!!entry.rarity}
                   tone={group.id === "fixed" ? "interface" : "rarity"}
                   selected={selected?.id === entry.id} data-depleted={entry.quantity === 0 || undefined}
                   aria-label={`查看${entry.name}详情，${entry.quantity}${entry.unit}${entry.status ? `，${entry.status}` : ""}`}
-                  aria-expanded={selected?.id === entry.id}
-                  aria-controls={selected?.id === entry.id ? `${uid}-detail` : undefined}
-                  tabIndex={currentFocus === entry.id ? 0 : -1}
+                  aria-controls={`${uid}-detail`}
+                  tabIndex={selected?.id === entry.id ? 0 : -1}
                   ref={node => { if (node) buttons.current.set(entry.id, node); else buttons.current.delete(entry.id); }}
-                  onFocus={() => setFocusId(entry.id)} onKeyDown={event => moveFocus(event, entry.id)}
-                  onClick={() => { setPosition({visibility: "hidden"}); setSelectedId(selectedId === entry.id ? null : entry.id); }} />
+                  onFocus={() => setCursorId(entry.id)} onKeyDown={event => moveCursor(event, entry.id)}
+                  onClick={() => setCursorId(entry.id)} />
                 {entry.status && <small className="resource-inventory__status">{entry.status}</small>}
                 <span className="abyssa-item-count resource-inventory__badge" data-depleted={entry.quantity === 0 || undefined} aria-hidden="true">
                   {entry.quantity.toLocaleString("zh-CN")}
                 </span>
                 </div>
-                {group.id !== "fixed" && <span className="resource-inventory__name">{entry.name}</span>}
               </li>)}
               {group.id === "sandbox" && Array.from({length: INVENTORY_PAGE_SIZE - group.entries.length}, (_, index) =>
                 <li key={`empty-${index}`} data-placeholder aria-hidden="true">
-                  <ItemSlotStatic size={92} showRarity={false} />
-                  <span className="resource-inventory__name" />
+                  <ItemSlotStatic showRarity={false} />
                 </li>)}
             </ul> : <div className="resource-inventory__empty">
               <p>{group.emptyHint}</p>
             </div>}
             </div>
-          </section>)}
+          </ManorPanel>)}
       </div>
-      {selected && <aside ref={detailRef} id={`${uid}-detail`} className="resource-inventory__detail"
-        role="region" aria-label={`${selected.name}详情`} style={position}>
-        <IconButton className="resource-inventory__detail-close" label="收起物品详情" icon="close" size="sm" onClick={() => closeDetail(true)} />
-        <UiContentTransition contentKey={selected.id}>
-        <header>
-          <ItemSlotStatic className="resource-inventory__preview" icon={selected.icon} name={selected.name}
-            tone={fixedEntries.some(entry => entry.id === selected.id) ? "interface" : "rarity"}
-            rarity={selected.rarity} size={64} showRarity={!!selected.rarity} aria-hidden="true" />
-          <div>{selected.type && <small>{selected.type}</small>}<h4>{selected.name}</h4></div>
-        </header>
-        <dl><dt>{selected.status ? "持有" : "库存"}</dt><dd><b>{selected.quantity.toLocaleString("zh-CN")}</b> {selected.unit}</dd></dl>
-        {selected.description && <p className="resource-inventory__effect">{selected.description}</p>}
-        {selected.ownership && <p className="resource-inventory__ownership">{selected.ownership}</p>}
-        {selected.note && <p className="resource-inventory__note">{selected.note}</p>}
+      {/* 右:同一种面板,名牌写类别;里面依次是展台、数值、说明,附注沉到底部。 */}
+      {selected ? <ManorPanel id={`${uid}-detail`} className="resource-inventory__detail" aria-label={`${selected.name}详情`}
+        label={selected.type ?? "物品详情"}>
+        <UiContentTransition className="resource-inventory__sheet" contentKey={selected.id}>
+          <ManorItemShowcase icon={selected.icon} name={selected.name} tag={selected.status}
+            tone={selectedFixed ? "interface" : "rarity"} rarity={selected.rarity}/>
+          <ManorStats className="resource-inventory__stats">
+            <ManorStat label={selected.status ? "持有" : "库存"} value={selected.quantity.toLocaleString("zh-CN")} unit={selected.unit}/>
+          </ManorStats>
+          {selected.description && <p className="resource-inventory__effect">{selected.description}</p>}
+          {selected.ownership && <p className="resource-inventory__ownership">{selected.ownership}</p>}
+          {selected.note && <p className="resource-inventory__note">{selected.note}</p>}
         </UiContentTransition>
-      </aside>}
+      </ManorPanel> : <ManorPanel id={`${uid}-detail`} className="resource-inventory__detail" label="物品详情">
+        <p className="resource-inventory__vacant">尚无物品</p>
+      </ManorPanel>}
     </div>
-    <footer className="resource-inventory__footer" onKeyDown={handlePageKeys}>
-      <span>选择物品查看详情</span>
-      <nav className="abyssa-inventory__pagination resource-inventory__pagination" aria-label="物品库存分页">
-        <button type="button" aria-label="上一页" aria-controls={`${uid}-inventory-page`} disabled={page === 0}
-          onClick={() => changePage(page - 1)}>‹</button>
-        <span role="status" aria-live="polite" aria-atomic="true" aria-label={`物品库存，第 ${page + 1} 页，共 ${pageCount} 页`}>{page + 1} / {pageCount}</span>
-        <button type="button" aria-label="下一页" aria-controls={`${uid}-inventory-page`} disabled={page === pageCount - 1}
-          onClick={() => changePage(page + 1)}>›</button>
-      </nav>
-      <span><kbd>Esc</kbd> 返回</span>
-    </footer>
   </RpgModal>;
 }

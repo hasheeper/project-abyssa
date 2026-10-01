@@ -1,12 +1,12 @@
 import { cleanup, render, screen, within } from "@testing-library/react";
 import { afterEach, expect, it } from "vitest";
-import { CampaignReturnRecord } from "./CampaignReturnRecord";
+import { CampaignReturnRecord, ReturnDepth } from "./CampaignReturnRecord";
 
 afterEach(cleanup);
 const settlement = {deepestLayer:1,totalGold:36,lostLooseGold:0,lostBankedGold:0};
 
 it("separates the return narrative from the itemized 36 + 8 gold receipt", () => {
-  render(<CampaignReturnRecord title="岩窟货物已追回" settlement={settlement} credits={[{id:"quest",label:"委托酬金",gold:8}]}>
+  render(<CampaignReturnRecord settlement={settlement} credits={[{id:"quest",label:"委托酬金",gold:8}]}>
     <p>草药、古籍与旧毛毯都已物归原主。</p>
   </CampaignReturnRecord>);
   const receipt = screen.getByRole("complementary",{name:"本次入账"});
@@ -14,11 +14,10 @@ it("separates the return narrative from the itemized 36 + 8 gold receipt", () =>
   expect(within(receipt).getByTestId("journal-credit-quest")).toHaveTextContent("8 G");
   expect(within(receipt).getByTestId("journal-total-gold")).toHaveTextContent("44 G");
   expect(receipt).not.toContainElement(screen.getByText("草药、古籍与旧毛毯都已物归原主。"));
-  const heading = screen.getByRole("heading",{name:"岩窟货物已追回"}).closest("header")!;
-  expect(heading).toContainElement(screen.getByText("第 1 层"));
-  expect(within(heading).getByText("最近归来")).toBeInTheDocument();
-  expect(screen.getAllByText("已结算")).toHaveLength(1);
-  expect(receipt).toContainElement(screen.getByText("已结算"));
+  // 标题与「已结算」状态由日志头部统一绘制,记录本身不再重复。
+  expect(screen.queryByRole("heading",{level:3})).toBeNull();
+  expect(screen.queryByText("已结算")).toBeNull();
+  expect(within(receipt).getByRole("heading",{name:"本次入账"})).toBeInTheDocument();
   for (const id of ["journal-expedition-gold","journal-credit-quest","journal-total-gold"]) {
     const amount = screen.getByTestId(id);
     expect(amount).toHaveClass("campaign-journal__amount");
@@ -31,7 +30,7 @@ it("separates the return narrative from the itemized 36 + 8 gold receipt", () =>
 });
 
 it("shows already-applied losses without subtracting them a second time or inventing a reward", () => {
-  render(<CampaignReturnRecord title="从撤离点返回" settlement={{...settlement,totalGold:25,lostLooseGold:4}} credits={[]}>
+  render(<CampaignReturnRecord settlement={{...settlement,totalGold:25,lostLooseGold:4}} credits={[]}>
     <p>余下的配给已收好。</p>
   </CampaignReturnRecord>);
   expect(screen.getByTestId("journal-total-gold")).toHaveTextContent("25 G");
@@ -40,11 +39,16 @@ it("shows already-applied losses without subtracting them a second time or inven
 });
 
 it("keeps the shared value/unit columns for zero and multiple large credits", () => {
-  render(<CampaignReturnRecord title="远征顺利完成" settlement={{...settlement,totalGold:0}} credits={[
+  render(<CampaignReturnRecord settlement={{...settlement,totalGold:0}} credits={[
     {id:"quest",label:"委托酬金",gold:8}, {id:"takeover",label:"接管奖励",gold:1234}
   ]}><p>本次远征已结束。</p></CampaignReturnRecord>);
   expect(screen.getByTestId("journal-expedition-gold")).toHaveTextContent("0 G");
   expect(screen.getByTestId("journal-credit-takeover")).toHaveTextContent("1,234 G");
   expect(screen.getByTestId("journal-total-gold")).toHaveTextContent("1,242 G");
   expect(screen.getAllByText("G")).toHaveLength(4);
+});
+
+it("shows the deepest layer as a heading detail", () => {
+  render(<ReturnDepth layer={3}/>);
+  expect(screen.getByText("最深抵达")).toHaveTextContent("最深抵达 第 3 层");
 });
