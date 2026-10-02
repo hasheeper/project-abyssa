@@ -11,7 +11,7 @@ export function MenuSystemBackdrop({ displayed, target, skip }: { displayed: Men
   const boundaryTiming = useRef<{ surfaceMs: number; enterMs: number; exitMs: number }>(motionTokens.saveSlots);
   // Read timing only when crossing the boundary. Changing system sections must
   // not restart even a partially completed backdrop entrance.
-  boundaryTiming.current = displayed === "save" || displayed === "load" ? motionTokens.saveSlots : displayed === "memory" ? motionTokens.memoryJournal : motionTokens.settingsPanel;
+  boundaryTiming.current = displayed === "save" || displayed === "load" ? motionTokens.saveSlots : displayed === "memory" ? motionTokens.memoryJournal : displayed === "codex" ? motionTokens.codexPanel : motionTokens.settingsPanel;
   useLayoutEffect(() => {
     const goal = visible ? 1 : 0;
     if (skip) { opacity.set(goal); return; }

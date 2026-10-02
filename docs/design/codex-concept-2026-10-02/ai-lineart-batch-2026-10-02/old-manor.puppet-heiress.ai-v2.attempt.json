@@ -1,0 +1,35 @@
+{
+  "assetId": "old-manor.puppet-heiress",
+  "version": "v2",
+  "model": "gpt-image-2.5-sunburst@local",
+  "options": {
+    "quality": "high",
+    "size": "1536x1024",
+    "output_format": "png"
+  },
+  "sourceFile": "/Users/liuhang/Documents/project-abyssa/src/assets/battle/old-manor/last-seat-puppet-heiress.png",
+  "sourceSha256": "32fdfa005361825efdc5023232a00f0c7c41af80777f17855fb1729dbe312965",
+  "inputFile": "/Users/liuhang/Documents/project-abyssa/docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/references/old-manor.puppet-heiress.png",
+  "inputSha256": "69a789d33355806b7f17aff5c98a5fe5279a03f5537cedb4f805084ddaf1e8ec",
+  "inputProcess": "alpha-visible bounds, proportional contain at 90%, white composite; all attached details retained",
+  "styleFile": "/Users/liuhang/Documents/project-abyssa/docs/design/codex-concept-2026-10-02/ai-lineart-sample/reef-crab-ai-v2.png",
+  "styleSha256": "be588b93ede425b086e842bb2dbb6c56d60828530e91dafb6ec672541d0af817",
+  "promptFile": "/Users/liuhang/Documents/project-abyssa/docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/old-manor.puppet-heiress.prompt-v2.txt",
+  "promptSha256": "e6a9a1695510172aac35c05a4e27693c96efd42334944517bea050cc517f55e6",
+  "requestSha256": "4feb0b8352bddbf019c8ee1523866c7c54e171df1a877ad3dac6f2b27ed787b4",
+  "quote": {
+    "cost": 0,
+    "mode": "free",
+    "images": 1
+  },
+  "state": "saved",
+  "imageFile": "/Users/liuhang/Documents/project-abyssa/docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/old-manor.puppet-heiress.ai-v2.png",
+  "mime": "image/png",
+  "width": 1536,
+  "height": 1024,
+  "bytes": 1665920,
+  "sha256": "a1a4f6f9c94ed39f494cac4d893dfd4658ccb146cd3fd53c35599eee571f6399",
+  "startedAt": "2026-10-02T11:49:06.469Z",
+  "completedAt": "2026-10-02T11:49:49.329Z",
+  "elapsedMs": 42852
+}

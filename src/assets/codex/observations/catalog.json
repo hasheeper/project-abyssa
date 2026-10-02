@@ -1,0 +1,200 @@
+[
+  {
+    "id": "enemy.slime.mire",
+    "source": "src/assets/battle/tide-reef/enemy.slime.mire.png",
+    "name": "浊泥史莱姆",
+    "englishName": "MIRE SLIME",
+    "family": "软泥族",
+    "region": "潮声溶洞",
+    "behavior": "攻击",
+    "loot": [
+      "mire-gel",
+      "shell"
+    ],
+    "description": "浊泥色的半透明躯体，泥水中夹杂着碎石与贝壳。可在雾滩洞口与洞内石阶一带遇见。",
+    "traits": "半透明躯体 · 浊泥色"
+  },
+  {
+    "id": "enemy.beast.reef-crab",
+    "source": "src/assets/battle/tide-reef/enemy.beast.reef-crab.png",
+    "name": "硬壳礁蟹",
+    "englishName": "REEF CRAB",
+    "family": "礁岸生物",
+    "region": "潮声溶洞",
+    "behavior": "攻击",
+    "loot": [
+      "crab-shell",
+      "shell"
+    ],
+    "description": "礁石与藤壶附着在厚重甲壳上。两只螯钳一大一小，低伏的足节撑起躯体。",
+    "traits": "厚甲 · 双螯"
+  },
+  {
+    "id": "enemy.beast.shell-leech",
+    "source": "src/assets/battle/tide-reef/enemy.beast.shell-leech.png",
+    "name": "藏壳海蛭",
+    "englishName": "SHELL LEECH",
+    "family": "礁岸生物",
+    "region": "潮声溶洞",
+    "behavior": "封锁命数骰",
+    "loot": [
+      "shell"
+    ],
+    "description": "硬壳包住前端，肥厚的分节躯体伸在壳外。壳面布满孔洞、尖刺与附着物。",
+    "traits": "分节软体 · 硬壳"
+  },
+  {
+    "id": "enemy.outlaw.blade",
+    "source": "src/assets/battle/tide-reef/enemy.outlaw.blade.png",
+    "name": "亡命徒·刀手",
+    "englishName": "OUTLAW BLADE",
+    "family": "亡命徒",
+    "region": "走私栈道",
+    "behavior": "攻击",
+    "loot": [
+      "scrap-iron",
+      "copper-parts"
+    ],
+    "description": "宽檐帽和布巾遮住面部。手中握着缺口长刀，身体前倾，另一只手向外张开。",
+    "traits": "长刀 · 轻装"
+  },
+  {
+    "id": "enemy.outlaw.crossbow",
+    "source": "src/assets/battle/tide-reef/enemy.outlaw.crossbow.png",
+    "name": "亡命徒·弩手",
+    "englishName": "OUTLAW CROSSBOW",
+    "family": "亡命徒",
+    "region": "走私栈道",
+    "behavior": "蓄力射击",
+    "loot": [
+      "scrap-iron",
+      "crossbow-spring"
+    ],
+    "description": "兜帽覆住头脸，身后背着箭筒。以低伏姿态托住长弩，弩身指向前方。",
+    "traits": "长弩 · 兜帽"
+  },
+  {
+    "id": "enemy.outlaw.hauler",
+    "source": "src/assets/battle/tide-reef/enemy.outlaw.hauler.png",
+    "name": "亡命徒·扛夫",
+    "englishName": "OUTLAW HAULER",
+    "family": "亡命徒",
+    "region": "走私栈道",
+    "behavior": "攻击",
+    "loot": [
+      "old-linen",
+      "copper-parts"
+    ],
+    "description": "沉重的木架压在背上，破旧衣物裹住魁梧躯体。双手握着长柄铁镐。",
+    "traits": "背架 · 长柄铁镐"
+  },
+  {
+    "id": "enemy.outlaw.chief",
+    "source": "src/assets/battle/tide-reef/enemy.outlaw.chief.png",
+    "name": "亡命头目",
+    "englishName": "OUTLAW CHIEF",
+    "family": "亡命徒",
+    "region": "潮声溶洞",
+    "behavior": "攻击",
+    "loot": [],
+    "description": "一脚踩着木箱，钩状长柄兵器横在肩头。长外套垂到膝下，帽檐遮住半张脸。",
+    "traits": "钩刃 · 长外套"
+  },
+  {
+    "id": "old-manor.clockwork-beast",
+    "source": "src/assets/battle/old-manor/clockwork-beast.png",
+    "name": "刻仪兽",
+    "englishName": "CLOCKWORK BEAST",
+    "family": "旧洋馆",
+    "region": "服务走廊",
+    "behavior": "蓄力攻击",
+    "loot": [
+      "clock-parts",
+      "clock-wheel"
+    ],
+    "description": "钟面与木制箱体组成躯干，细长肢节向下伸展。外侧露出弧形骨架与嵌合的机械构件。",
+    "traits": "钟面 · 机械肢节"
+  },
+  {
+    "id": "old-manor.waiting-guest",
+    "source": "src/assets/battle/old-manor/waiting-guest.png",
+    "name": "候席客",
+    "englishName": "WAITING GUEST",
+    "family": "旧洋馆",
+    "region": "迎客门厅 / 宴会厅",
+    "behavior": "攻击",
+    "loot": [
+      "blackwood",
+      "old-linen"
+    ],
+    "description": "破损衣布盖住弓起的身形。椅背立在身后，细线从上方垂下，牵住身体与肢节。",
+    "traits": "椅背 · 悬线"
+  },
+  {
+    "id": "old-manor.platter-bearer",
+    "source": "src/assets/battle/old-manor/platter-bearer.png",
+    "name": "执盘侍者",
+    "englishName": "PLATTER BEARER",
+    "family": "旧洋馆",
+    "region": "服务走廊",
+    "behavior": "蓄力攻击",
+    "loot": [
+      "silverware",
+      "copper-parts"
+    ],
+    "description": "瘦长身躯向侧面倾斜，将沉重盘罩举过头顶。细线从手臂和背后向上牵起。",
+    "traits": "盘罩 · 细长肢体"
+  },
+  {
+    "id": "old-manor.mending-maid",
+    "source": "src/assets/battle/old-manor/mending-maid.png",
+    "name": "缝补女佣",
+    "englishName": "MENDING MAID",
+    "family": "旧洋馆",
+    "region": "服务走廊 / 宴会厅",
+    "behavior": "修复",
+    "loot": [
+      "sewing-needle",
+      "old-linen"
+    ],
+    "description": "围裙覆在层叠长裙外，细瘦手指拈着缝补工具。头部与躯体由上方垂下的线牵引。",
+    "traits": "围裙 · 缝补工具"
+  },
+  {
+    "id": "old-manor.curtain-butler",
+    "source": "src/assets/battle/old-manor/curtain-butler.png",
+    "name": "落幕管家",
+    "englishName": "CURTAIN BUTLER",
+    "family": "旧洋馆",
+    "region": "服务走廊",
+    "behavior": "封锁 / 攻击",
+    "loot": [],
+    "description": "礼帽下是细长的身形，两侧展开高大的屏板。垂线与衣摆交叠，延伸至脚边。",
+    "traits": "礼帽 · 屏板"
+  },
+  {
+    "id": "old-manor.puppet-heiress",
+    "source": "src/assets/battle/old-manor/last-seat-puppet-heiress.png",
+    "name": "末席的提线千金",
+    "englishName": "PUPPET HEIRESS",
+    "family": "旧洋馆",
+    "region": "宴会厅",
+    "behavior": "召唤候席客",
+    "loot": [],
+    "description": "层叠长裙铺开在座席之间。身后竖着密集牵线，桌沿与座椅环绕两侧。",
+    "traits": "层叠长裙 · 密集牵线"
+  },
+  {
+    "id": "memory.marietta",
+    "source": "src/assets/battle/old-manor/marietta-memory-boss.png",
+    "name": "玛丽埃塔·提线魔女",
+    "englishName": "MARIETTA",
+    "family": "回忆",
+    "region": "旧版回忆",
+    "behavior": "待机",
+    "loot": [],
+    "archived": true,
+    "description": "细线从双手向外延伸，长发垂在两侧。层叠裙摆下露出笼状支架与悬挂的小偶。",
+    "traits": "长发 · 裙撑 · 提线"
+  }
+]

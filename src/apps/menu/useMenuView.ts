@@ -4,7 +4,7 @@ import { useUiMotion } from "../../shared/ui/motion/UiMotionProvider";
 import { motionTokens, uiTransition } from "../../shared/ui/motion/presets";
 import { bindMenuHomeMotion, homeTitleReveal } from "./menu-home-motion";
 
-export type MenuView = "home" | "save" | "load" | "settings" | "memory";
+export type MenuView = "home" | "save" | "load" | "settings" | "memory" | "codex";
 const timing = motionTokens.menuSection;
 const isArchive = (view: MenuView) => view === "save" || view === "load";
 
@@ -52,7 +52,7 @@ export function useMenuView(root: RefObject<HTMLDivElement | null>, waitForArchi
       return;
     }
     const isHome = displayed === "home";
-    const panelTiming = displayed === "memory" ? motionTokens.memoryJournal : motionTokens.settingsPanel;
+    const panelTiming = displayed === "memory" ? motionTokens.memoryJournal : displayed === "codex" ? motionTokens.codexPanel : motionTokens.settingsPanel;
     if (modeChanging) {
       // SAVE/LOAD share a mounted archive. Contents cross-fade without
       // re-drawing rails; the title keeps the same slide used by other sections.
@@ -107,5 +107,6 @@ export function useMenuView(root: RefObject<HTMLDivElement | null>, waitForArchi
   return { target, displayed, phase, opacity, titleOpacity, titleX, request, transitioning: phase !== "ready" || exiting,
     memoryMotion: { clock: opacity, exiting: displayed === "memory" && exiting, skip: reduced || hidden },
     settingsMotion: { clock: opacity, exiting: displayed === "settings" && exiting, skip: reduced || hidden },
+    codexMotion: { clock: opacity, exiting: displayed === "codex" && exiting, skip: reduced || hidden },
     archiveMotion: { clock: archiveTime, modeOpacity, exiting: archive && sceneExiting, skip: reduced || hidden, onReady: setArchiveReady } };
 }

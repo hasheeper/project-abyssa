@@ -1,0 +1,153 @@
+{
+  "catalogueCount": 14,
+  "preparedCount": 14,
+  "missing": [],
+  "checks": "source/raw/output hashes, high model params, full coverage, single RGB, transparent borders",
+  "visualReviewSheets": [
+    "review-01.jpg",
+    "review-02.jpg",
+    "review-03.jpg"
+  ],
+  "metrics": [
+    {
+      "assetId": "enemy.slime.mire",
+      "inkCoverage": 0.0899,
+      "maximumOpaqueWidth": 12.65,
+      "mainSize": [
+        1100,
+        548
+      ],
+      "sourceHashUnchanged": true
+    },
+    {
+      "assetId": "enemy.beast.reef-crab",
+      "inkCoverage": 0.208,
+      "maximumOpaqueWidth": 12.81,
+      "mainSize": [
+        1100,
+        702
+      ],
+      "sourceHashUnchanged": true
+    },
+    {
+      "assetId": "enemy.beast.shell-leech",
+      "inkCoverage": 0.1572,
+      "maximumOpaqueWidth": 10.0,
+      "mainSize": [
+        1100,
+        563
+      ],
+      "sourceHashUnchanged": true
+    },
+    {
+      "assetId": "enemy.outlaw.blade",
+      "inkCoverage": 0.1145,
+      "maximumOpaqueWidth": 21.26,
+      "mainSize": [
+        1099,
+        800
+      ],
+      "sourceHashUnchanged": true
+    },
+    {
+      "assetId": "enemy.outlaw.crossbow",
+      "inkCoverage": 0.1649,
+      "maximumOpaqueWidth": 18.87,
+      "mainSize": [
+        1100,
+        721
+      ],
+      "sourceHashUnchanged": true
+    },
+    {
+      "assetId": "enemy.outlaw.hauler",
+      "inkCoverage": 0.1757,
+      "maximumOpaqueWidth": 14.14,
+      "mainSize": [
+        811,
+        800
+      ],
+      "sourceHashUnchanged": true
+    },
+    {
+      "assetId": "enemy.outlaw.chief",
+      "inkCoverage": 0.1544,
+      "maximumOpaqueWidth": 12.17,
+      "mainSize": [
+        653,
+        800
+      ],
+      "sourceHashUnchanged": true
+    },
+    {
+      "assetId": "old-manor.clockwork-beast",
+      "inkCoverage": 0.1636,
+      "maximumOpaqueWidth": 15.62,
+      "mainSize": [
+        1100,
+        673
+      ],
+      "sourceHashUnchanged": true
+    },
+    {
+      "assetId": "old-manor.waiting-guest",
+      "inkCoverage": 0.1197,
+      "maximumOpaqueWidth": 6.32,
+      "mainSize": [
+        597,
+        800
+      ],
+      "sourceHashUnchanged": true
+    },
+    {
+      "assetId": "old-manor.platter-bearer",
+      "inkCoverage": 0.1282,
+      "maximumOpaqueWidth": 10.0,
+      "mainSize": [
+        766,
+        800
+      ],
+      "sourceHashUnchanged": true
+    },
+    {
+      "assetId": "old-manor.mending-maid",
+      "inkCoverage": 0.0817,
+      "maximumOpaqueWidth": 7.21,
+      "mainSize": [
+        470,
+        800
+      ],
+      "sourceHashUnchanged": true
+    },
+    {
+      "assetId": "old-manor.curtain-butler",
+      "inkCoverage": 0.1697,
+      "maximumOpaqueWidth": 12.0,
+      "mainSize": [
+        1035,
+        800
+      ],
+      "sourceHashUnchanged": true
+    },
+    {
+      "assetId": "old-manor.puppet-heiress",
+      "inkCoverage": 0.1507,
+      "maximumOpaqueWidth": 5.66,
+      "mainSize": [
+        1100,
+        781
+      ],
+      "sourceHashUnchanged": true
+    },
+    {
+      "assetId": "memory.marietta",
+      "inkCoverage": 0.1291,
+      "maximumOpaqueWidth": 4.47,
+      "mainSize": [
+        1100,
+        743
+      ],
+      "sourceHashUnchanged": true
+    }
+  ]
+}

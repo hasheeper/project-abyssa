@@ -1,0 +1,35 @@
+{
+  "assetId": "enemy.outlaw.hauler",
+  "version": "v2",
+  "model": "gpt-image-2.5-sunburst@local",
+  "options": {
+    "quality": "high",
+    "size": "1024x1024",
+    "output_format": "png"
+  },
+  "sourceFile": "/Users/liuhang/Documents/project-abyssa/src/assets/battle/tide-reef/enemy.outlaw.hauler.png",
+  "sourceSha256": "58f18b296c352410ba2960daebcde06a08814689f9d2f96c6236f99040bb65c8",
+  "inputFile": "/Users/liuhang/Documents/project-abyssa/docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/references/enemy.outlaw.hauler.png",
+  "inputSha256": "f7f6978f584bf7f9bba88ec7c601a73007760f20b0ef086cd5b930ee3dced037",
+  "inputProcess": "alpha-visible bounds, proportional contain at 90%, white composite; all attached details retained",
+  "styleFile": "/Users/liuhang/Documents/project-abyssa/docs/design/codex-concept-2026-10-02/ai-lineart-sample/reef-crab-ai-v2.png",
+  "styleSha256": "be588b93ede425b086e842bb2dbb6c56d60828530e91dafb6ec672541d0af817",
+  "promptFile": "/Users/liuhang/Documents/project-abyssa/docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/enemy.outlaw.hauler.prompt-v2.txt",
+  "promptSha256": "e6a9a1695510172aac35c05a4e27693c96efd42334944517bea050cc517f55e6",
+  "requestSha256": "a2369b72c43a2710b2081b704efa6811949664b60086f7c6e84c15f307781084",
+  "quote": {
+    "cost": 0,
+    "mode": "free",
+    "images": 1
+  },
+  "state": "saved",
+  "imageFile": "/Users/liuhang/Documents/project-abyssa/docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/enemy.outlaw.hauler.ai-v2.png",
+  "mime": "image/png",
+  "width": 1024,
+  "height": 1024,
+  "bytes": 1164476,
+  "sha256": "19cb2f08790c0420410e262fd048345704767a66fabca55d03e5fd206c9a6a8d",
+  "startedAt": "2026-10-02T11:52:15.703Z",
+  "completedAt": "2026-10-02T11:53:06.026Z",
+  "elapsedMs": 50321
+}

@@ -13,12 +13,13 @@ import { InlineFeedback } from "../shared/ui/patterns/SceneFeedback";
 import { GenerationFeedbackScope } from "./airp-generation/GenerationFeedbackScope";
 import { activateBackgroundIdentity, registerBackgroundFactory } from "./airp-generation/background-tasks";
 import { EstateFeedback } from "./EstateFeedback";
+import { CodexFeedback } from "./codex/CodexFeedback";
 
 import { downloadJson, gameErrorText } from "./game-errors";
 export { downloadJson, gameErrorText } from "./game-errors";
 
 const Context = createContext<GameSession | null>(null);
-export function GameSessionScope({ session, children }: { session: GameSession; children: ReactNode }) { return <Context.Provider value={session}><PlayerIdentityScope session={session}><GameFeedbackScope><GenerationFeedbackScope session={session}>{children}<EstateFeedback session={session}/></GenerationFeedbackScope></GameFeedbackScope></PlayerIdentityScope></Context.Provider>; }
+export function GameSessionScope({ session, children }: { session: GameSession; children: ReactNode }) { return <Context.Provider value={session}><PlayerIdentityScope session={session}><GameFeedbackScope><GenerationFeedbackScope session={session}>{children}<EstateFeedback session={session}/><CodexFeedback session={session}/></GenerationFeedbackScope></GameFeedbackScope></PlayerIdentityScope></Context.Provider>; }
 export function useGameSession() { const session = useContext(Context); if (!session) throw new Error("Game session required"); return session; }
 export function useGameState() { const session = useGameSession(); return useSyncExternalStore(session.subscribe, session.getSnapshot); }
 export function GameProvider({ children, factory = createBrowserGameRuntime }: { children: ReactNode; factory?: () => ClientRuntime }) {

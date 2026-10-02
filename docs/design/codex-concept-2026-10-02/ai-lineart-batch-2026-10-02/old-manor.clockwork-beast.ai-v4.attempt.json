@@ -1,0 +1,35 @@
+{
+  "assetId": "old-manor.clockwork-beast",
+  "version": "v4",
+  "model": "gpt-image-2.5-flare@local",
+  "options": {
+    "quality": "high",
+    "size": "1536x1024",
+    "output_format": "png"
+  },
+  "sourceFile": "/Users/liuhang/Documents/project-abyssa/src/assets/battle/old-manor/clockwork-beast.png",
+  "sourceSha256": "80537c5b3479b2375a419184d351ca6239dc3e9324e6c62c8584c073087bb8b5",
+  "inputFile": "/Users/liuhang/Documents/project-abyssa/docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/references/old-manor.clockwork-beast.jpg",
+  "inputSha256": "724346219c37fd3175cf826463670c21ccb774d6305391fd66bcfcbb1404e48c",
+  "inputProcess": "alpha-visible bounds, proportional contain at 90%, white composite; all attached details retained; JPEG95 re-encoding for a targeted gateway image-input diagnostic, subject and layout unchanged",
+  "styleFile": "/Users/liuhang/Documents/project-abyssa/docs/design/codex-concept-2026-10-02/ai-lineart-sample/reef-crab-ai-v2.png",
+  "styleSha256": "be588b93ede425b086e842bb2dbb6c56d60828530e91dafb6ec672541d0af817",
+  "promptFile": "/Users/liuhang/Documents/project-abyssa/docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/old-manor.clockwork-beast.prompt-v4.txt",
+  "promptSha256": "f90b3ab6a5d396317ebb3d87bbdac821c0ef82b3510d0d5094067fc796607f27",
+  "requestSha256": "6c7770326751685fb16eb4d4b9e35d8402bf9095e70f109108769e3cca29a8e8",
+  "quote": {
+    "cost": 0,
+    "mode": "free",
+    "images": 1
+  },
+  "state": "saved",
+  "imageFile": "/Users/liuhang/Documents/project-abyssa/docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/old-manor.clockwork-beast.ai-v4.png",
+  "mime": "image/png",
+  "width": 1536,
+  "height": 1024,
+  "bytes": 1547821,
+  "sha256": "d84db25d29c1d2511a9219d730cf605f98971c3f280dde8f71242f57a001b700",
+  "startedAt": "2026-10-02T11:42:57.334Z",
+  "completedAt": "2026-10-02T11:43:24.603Z",
+  "elapsedMs": 27262
+}

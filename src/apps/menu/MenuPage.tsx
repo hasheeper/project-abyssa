@@ -6,6 +6,8 @@ import { createManualSaveAttempt, type ManualSaveAttempt } from "../../game-clie
 import { SaveSlotsPanel } from "../../game-client/SaveSlotsPanel";
 import { SettingsPanel } from "../../game-client/settings/SettingsPanel";
 import { MemoryPanel } from "../../game-client/memory/MemoryPanel";
+import { CodexPanel, type CodexEntry } from "../../game-client/codex/CodexPanel";
+import { codexEntries as presentCodexEntries } from "../../game-client/codex/codex-entries";
 import { MemoryReplay } from "../../game-client/memory/MemoryReplay";
 import { useMemoryJournal } from "../../game-client/memory/useMemoryJournal";
 import type { MemoryJournalData } from "../../game-client/memory/memory-types";
@@ -118,20 +120,23 @@ export function MenuPage() {
   );
 }
 
-export function MenuPageContent({ memoryData: previewData, preview = false }: { memoryData?: MemoryJournalData; preview?: boolean } = {}) {
+export function MenuPageContent({ memoryData: previewData, codexEntries, preview = false, initialSection }: { memoryData?: MemoryJournalData; codexEntries?: readonly CodexEntry[]; preview?: boolean; initialSection?: "memory" | "codex" } = {}) {
   const { navigate, phase: scenePhase } = useSceneTransition();
   const intro = useMenuIntro(scenePhase);
   const session = useGameSession();
   const game = useGameState(), record = game.record!, locator = recordLocator(record);
   const memoryData = useMemo(() => previewData ?? session.runtime.queries.memoryJournal(record), [previewData, session, record]);
-  const view = useMenuView(intro.ref, true, preview ? "memory" : "home");
+  const codexData = useMemo(() => codexEntries ? null : session.runtime.queries.codex(record), [codexEntries, session, record]);
+  const creatureEntries = useMemo(() => codexEntries ?? (codexData?.status === "ready" ? presentCodexEntries(codexData.entries) : []), [codexEntries, codexData]);
+  const initialView = preview ? initialSection ?? (codexEntries ? "codex" : "memory") : "home";
+  const view = useMenuView(intro.ref, true, initialView);
   const journal = useMemoryJournal(`${record.head.saveId}:${record.head.epoch}`, memoryData, record.snapshot.campaign.clock.day);
   const startingReward = useMemo(() => session.runtime.queries.startReward(record), [record, session]);
   const [operationBusy, setOperationBusy] = useState(false);
   const operationLock = useRef(false);
   const onBusyChange = useCallback((busy: boolean) => { operationLock.current = busy; setOperationBusy(busy); }, []);
   const saveAttempt = useRef<ManualSaveAttempt | null>(null);
-  const lastSection = useRef<MenuView>(preview ? "memory" : "home");
+  const lastSection = useRef<MenuView>(initialView);
   const contentRef = useRef<HTMLDivElement>(null);
   const home = view.displayed === "home";
   useMenuParallax(intro.ref, intro.blocked || view.target !== "home" || !home || view.transitioning);
@@ -253,7 +258,8 @@ export function MenuPageContent({ memoryData: previewData, preview = false }: { 
             onSelect={(id) => {
               if (operationLock.current) return;
               if (id === "save" || id === "load" || id === "settings" || id === "memory") { openSystem(id); return; }
-              // 图鉴、成就仍仅占位；角色从右侧四键进入原页面。
+              if (id === "codex") { openSystem("codex"); return; }
+              // 成就仍仅占位；角色从右侧四键进入原页面。
               journal.remember();
               view.request("home");
               setSelectedSection(id);
@@ -319,6 +325,8 @@ export function MenuPageContent({ memoryData: previewData, preview = false }: { 
               sceneMotion={view.archiveMotion}
               navigate={href => navigate(href, { destination: "存档进度", channel: "正在读取", entry: "restore" })} />
             : view.displayed === "settings" ? <SettingsPanel onBack={back} sceneMotion={view.settingsMotion} />
+            : view.displayed === "codex" ? <CodexPanel key={`${record.head.saveId}:${record.head.epoch}`} entries={creatureEntries} onBack={back} sceneMotion={view.codexMotion}
+              unavailable={codexData?.status === "unavailable" ? codexData.message : undefined}/>
             : view.displayed === "memory" ? <MemoryPanel journal={journal} data={memoryData} onBack={back} sceneMotion={view.memoryMotion}/> : null}
           </motion.div>
         </div>

@@ -1,0 +1,844 @@
+{
+  "assets": [
+    {
+      "assetId": "enemy.slime.mire",
+      "status": "ai-lineart-awaiting-user-review",
+      "source": "src/assets/battle/tide-reef/enemy.slime.mire.png",
+      "sourceSha256": "f7b860ce09bbfd94c6955d1a7f6cb78c9b02376d28eab917eef6efebcc6d4f75",
+      "aiOriginal": "docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/enemy.slime.mire.ai-v1.png",
+      "aiOriginalSha256": "de7f02e43dfd1dfc4929633d81fccdf2eda9e6eb94335c52b46598907edfd404",
+      "generationRecord": "docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/enemy.slime.mire.ai-v1.attempt.json",
+      "process": "white-to-alpha-v2-tight-crop",
+      "lineRgb": [
+        190,
+        190,
+        175
+      ],
+      "exportCropBounds": [
+        67,
+        164,
+        1468,
+        854
+      ],
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "alphaBounds": [
+        69,
+        166,
+        1466,
+        852
+      ],
+      "visualCenter": [
+        0.4874770394433792,
+        0.5964922930304944
+      ],
+      "groundAnchor": 0.9872262773722628,
+      "exportPaddingPixels": {
+        "main": 6,
+        "thumbnail": 2
+      },
+      "outputs": [
+        {
+          "file": "enemy.slime.mire.webp",
+          "size": [
+            1100,
+            548
+          ],
+          "sha256": "00ed692570b6d463c55180530edc37be5eb82c6221e6aec22f46b4952d37f4bc"
+        },
+        {
+          "file": "enemy.slime.mire.thumb.webp",
+          "size": [
+            164,
+            83
+          ],
+          "sha256": "451966cb8394ff869cc9a08608a7d847b78ceba5e66dfe98f8fa41452c51390b"
+        }
+      ]
+    },
+    {
+      "assetId": "enemy.beast.reef-crab",
+      "status": "user-accepted-direction",
+      "source": "src/assets/battle/tide-reef/enemy.beast.reef-crab.png",
+      "sourceSha256": "8d18f6da1ad6386ef933aa5f3c0bbeabfa85eccd1a3f39f76d8deb0cd1459db7",
+      "aiOriginal": "docs/design/codex-concept-2026-10-02/ai-lineart-sample/reef-crab-ai-v2.png",
+      "aiOriginalSha256": "be588b93ede425b086e842bb2dbb6c56d60828530e91dafb6ec672541d0af817",
+      "generationRecord": "docs/design/codex-concept-2026-10-02/ai-lineart-sample/reef-crab-ai-v2.attempt.json",
+      "process": "white-to-alpha-v2-tight-crop",
+      "lineRgb": [
+        190,
+        190,
+        175
+      ],
+      "exportCropBounds": [
+        40,
+        43,
+        1466,
+        947
+      ],
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "alphaBounds": [
+        42,
+        45,
+        1464,
+        945
+      ],
+      "visualCenter": [
+        0.4962906936837421,
+        0.5068223261029152
+      ],
+      "groundAnchor": 0.99002849002849,
+      "exportPaddingPixels": {
+        "main": 6,
+        "thumbnail": 2
+      },
+      "outputs": [
+        {
+          "file": "enemy.beast.reef-crab.webp",
+          "size": [
+            1100,
+            702
+          ],
+          "sha256": "69728a577d62f4250a1d96dbdcb8250294782f7fee3438b23ef89f5377e74647"
+        },
+        {
+          "file": "enemy.beast.reef-crab.thumb.webp",
+          "size": [
+            164,
+            105
+          ],
+          "sha256": "fd995160ac0751a0e194ac35266aa93617a2b6e4312a4af95aca7fe88ff428cd"
+        }
+      ]
+    },
+    {
+      "assetId": "enemy.beast.shell-leech",
+      "status": "ai-lineart-awaiting-user-review",
+      "source": "src/assets/battle/tide-reef/enemy.beast.shell-leech.png",
+      "sourceSha256": "e738d6affe7d079d531d3fea3a1a158a8cad75d2f8ef5a13fe40d2f9e9908063",
+      "aiOriginal": "docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/enemy.beast.shell-leech.ai-v1.png",
+      "aiOriginalSha256": "e7659665228b71aac30c1344eff1721325abde2cf43b598d816d0ff025dd8d70",
+      "generationRecord": "docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/enemy.beast.shell-leech.ai-v1.attempt.json",
+      "process": "white-to-alpha-v2-tight-crop",
+      "lineRgb": [
+        190,
+        190,
+        175
+      ],
+      "exportCropBounds": [
+        68,
+        155,
+        1467,
+        864
+      ],
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "alphaBounds": [
+        70,
+        157,
+        1465,
+        862
+      ],
+      "visualCenter": [
+        0.42666680053189704,
+        0.4822641347742453
+      ],
+      "groundAnchor": 0.9875666074600356,
+      "exportPaddingPixels": {
+        "main": 6,
+        "thumbnail": 2
+      },
+      "outputs": [
+        {
+          "file": "enemy.beast.shell-leech.webp",
+          "size": [
+            1100,
+            563
+          ],
+          "sha256": "cf6fa03fcafdd3a85a6801c564e80115107d786a92470528803f8d657643cdfa"
+        },
+        {
+          "file": "enemy.beast.shell-leech.thumb.webp",
+          "size": [
+            164,
+            85
+          ],
+          "sha256": "4113f78007e5d2bd1b946c8b40ef6166aef1d3a1b27920620bda7a0c7eb78f63"
+        }
+      ]
+    },
+    {
+      "assetId": "enemy.outlaw.blade",
+      "status": "user-confirmed-B-stroke-profile",
+      "source": "src/assets/battle/tide-reef/enemy.outlaw.blade.png",
+      "sourceSha256": "d4d89fa2bfa3be68355435a44b5226886c8dfd75a158627746ba8a1723d001fe",
+      "aiOriginal": "docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/enemy.outlaw.blade.ai-v2.png",
+      "aiOriginalSha256": "47f002745d9db0b3de01935face97b11f1904ecac536f62b589056a57631434d",
+      "generationRecord": "docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/enemy.outlaw.blade.ai-v2.attempt.json",
+      "process": "white-to-alpha-v4-contrast-balance",
+      "lineRgb": [
+        190,
+        190,
+        175
+      ],
+      "exportCropBounds": [
+        86,
+        27,
+        1412,
+        988
+      ],
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "alphaBounds": [
+        88,
+        29,
+        1410,
+        986
+      ],
+      "visualCenter": [
+        0.5807658644725769,
+        0.4884141569647201
+      ],
+      "groundAnchor": 0.99,
+      "exportPaddingPixels": {
+        "main": 6,
+        "thumbnail": 2
+      },
+      "outputs": [
+        {
+          "file": "enemy.outlaw.blade.webp",
+          "size": [
+            1099,
+            800
+          ],
+          "sha256": "c2c5c14ed46bbee76d3602c289f73659625ae1b8d02180c84b2ad140de54c6b8"
+        },
+        {
+          "file": "enemy.outlaw.blade.thumb.webp",
+          "size": [
+            164,
+            120
+          ],
+          "sha256": "794eb507a4938d38ee4a332574e4dd136dbd4d1f198ae4149ee8184d57bf1187"
+        }
+      ],
+      "strokeBalance": {
+        "source": "existing AI ink only",
+        "width": "original AI width preserved",
+        "contrastMatchBlend": 0.4,
+        "detailPeakTarget": 0.82,
+        "primaryPeakTarget": 1.0
+      }
+    },
+    {
+      "assetId": "enemy.outlaw.crossbow",
+      "status": "user-confirmed-B-stroke-profile",
+      "source": "src/assets/battle/tide-reef/enemy.outlaw.crossbow.png",
+      "sourceSha256": "41332378aea16c338c8fb22368e7c23cc36be8e7ba6ce3e09932b9f4a86f59a6",
+      "aiOriginal": "docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/enemy.outlaw.crossbow.ai-v2.png",
+      "aiOriginalSha256": "5b09e4962be129943bb7ece0dc245b877404fd9e57562e4571152ce5bf3a96e9",
+      "generationRecord": "docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/enemy.outlaw.crossbow.ai-v2.attempt.json",
+      "process": "white-to-alpha-v4-contrast-balance",
+      "lineRgb": [
+        190,
+        190,
+        175
+      ],
+      "exportCropBounds": [
+        122,
+        72,
+        1479,
+        956
+      ],
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "alphaBounds": [
+        124,
+        74,
+        1477,
+        954
+      ],
+      "visualCenter": [
+        0.35338276203823643,
+        0.4696476779463812
+      ],
+      "groundAnchor": 0.9902912621359223,
+      "exportPaddingPixels": {
+        "main": 6,
+        "thumbnail": 2
+      },
+      "outputs": [
+        {
+          "file": "enemy.outlaw.crossbow.webp",
+          "size": [
+            1100,
+            721
+          ],
+          "sha256": "32e2aa363bf176ace7f715928f6c010a388edf2b323544df269a68ab36b43e0a"
+        },
+        {
+          "file": "enemy.outlaw.crossbow.thumb.webp",
+          "size": [
+            164,
+            108
+          ],
+          "sha256": "0d855dffcd08a4a4b844a1495ff717d485a81fe8ff5f0454c9b4e2ad19c5f20f"
+        }
+      ],
+      "strokeBalance": {
+        "source": "existing AI ink only",
+        "width": "original AI width preserved",
+        "contrastMatchBlend": 0.4,
+        "detailPeakTarget": 0.82,
+        "primaryPeakTarget": 1.0
+      }
+    },
+    {
+      "assetId": "enemy.outlaw.hauler",
+      "status": "user-confirmed-B-stroke-profile",
+      "source": "src/assets/battle/tide-reef/enemy.outlaw.hauler.png",
+      "sourceSha256": "58f18b296c352410ba2960daebcde06a08814689f9d2f96c6236f99040bb65c8",
+      "aiOriginal": "docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/enemy.outlaw.hauler.ai-v2.png",
+      "aiOriginalSha256": "19cb2f08790c0420410e262fd048345704767a66fabca55d03e5fd206c9a6a8d",
+      "generationRecord": "docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/enemy.outlaw.hauler.ai-v2.attempt.json",
+      "process": "white-to-alpha-v4-contrast-balance",
+      "lineRgb": [
+        190,
+        190,
+        175
+      ],
+      "exportCropBounds": [
+        46,
+        37,
+        990,
+        968
+      ],
+      "sourceSize": [
+        1024,
+        1024
+      ],
+      "alphaBounds": [
+        48,
+        39,
+        988,
+        966
+      ],
+      "visualCenter": [
+        0.3954026430415101,
+        0.49683037655887397
+      ],
+      "groundAnchor": 0.99125,
+      "exportPaddingPixels": {
+        "main": 6,
+        "thumbnail": 2
+      },
+      "outputs": [
+        {
+          "file": "enemy.outlaw.hauler.webp",
+          "size": [
+            811,
+            800
+          ],
+          "sha256": "e1aa3496b77dad43f5fd30ae977312b01612335519be7641708c4d55a24036d7"
+        },
+        {
+          "file": "enemy.outlaw.hauler.thumb.webp",
+          "size": [
+            126,
+            124
+          ],
+          "sha256": "57ce950f7b0f7b6cff46a2823f6237cc24277738e118007169e762c02b75ec95"
+        }
+      ],
+      "strokeBalance": {
+        "source": "existing AI ink only",
+        "width": "original AI width preserved",
+        "contrastMatchBlend": 0.4,
+        "detailPeakTarget": 0.82,
+        "primaryPeakTarget": 1.0
+      }
+    },
+    {
+      "assetId": "enemy.outlaw.chief",
+      "status": "user-confirmed-B-stroke-profile",
+      "source": "src/assets/battle/tide-reef/enemy.outlaw.chief.png",
+      "sourceSha256": "9fcdcf26fb95eb7630e56bc290ce7280beff411564d18c830848d36e76c69a61",
+      "aiOriginal": "docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/enemy.outlaw.chief.ai-v3.png",
+      "aiOriginalSha256": "5b514289cdda077104fbe9677f32c30620020a3139a810bfa90e68f5985ef952",
+      "generationRecord": "docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/enemy.outlaw.chief.ai-v3.attempt.json",
+      "process": "white-to-alpha-v4-contrast-balance",
+      "lineRgb": [
+        190,
+        190,
+        175
+      ],
+      "exportCropBounds": [
+        127,
+        44,
+        896,
+        990
+      ],
+      "sourceSize": [
+        1024,
+        1024
+      ],
+      "alphaBounds": [
+        129,
+        46,
+        894,
+        988
+      ],
+      "visualCenter": [
+        0.4731024518946318,
+        0.5067870975326151
+      ],
+      "groundAnchor": 0.99125,
+      "exportPaddingPixels": {
+        "main": 6,
+        "thumbnail": 2
+      },
+      "outputs": [
+        {
+          "file": "enemy.outlaw.chief.webp",
+          "size": [
+            653,
+            800
+          ],
+          "sha256": "aec981dd793257e8bdba1858ea637536cd3ba6f9b88486907c0e284c87eba64a"
+        },
+        {
+          "file": "enemy.outlaw.chief.thumb.webp",
+          "size": [
+            102,
+            124
+          ],
+          "sha256": "7e83461b56374f822daf046a571ce5e633e95ec8cb3c8b278d7121a68b63a540"
+        }
+      ],
+      "strokeBalance": {
+        "source": "existing AI ink only",
+        "width": "original AI width preserved",
+        "contrastMatchBlend": 0.4,
+        "detailPeakTarget": 0.82,
+        "primaryPeakTarget": 1.0
+      }
+    },
+    {
+      "assetId": "old-manor.clockwork-beast",
+      "status": "ai-lineart-awaiting-user-review",
+      "source": "src/assets/battle/old-manor/clockwork-beast.png",
+      "sourceSha256": "80537c5b3479b2375a419184d351ca6239dc3e9324e6c62c8584c073087bb8b5",
+      "aiOriginal": "docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/old-manor.clockwork-beast.ai-v5.png",
+      "aiOriginalSha256": "83fdaec0b4dd3e9b90be386e7fb62d2a74f8189e9c8df2359728e28a6bebcaca",
+      "generationRecord": "docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/old-manor.clockwork-beast.ai-v5.attempt.json",
+      "process": "white-to-alpha-v2-tight-crop",
+      "lineRgb": [
+        190,
+        190,
+        175
+      ],
+      "exportCropBounds": [
+        68,
+        93,
+        1450,
+        933
+      ],
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "alphaBounds": [
+        70,
+        95,
+        1448,
+        931
+      ],
+      "visualCenter": [
+        0.5402389675756711,
+        0.4665065578614538
+      ],
+      "groundAnchor": 0.9881129271916791,
+      "exportPaddingPixels": {
+        "main": 6,
+        "thumbnail": 2
+      },
+      "outputs": [
+        {
+          "file": "old-manor.clockwork-beast.webp",
+          "size": [
+            1100,
+            673
+          ],
+          "sha256": "1a5ab2a1459817e627e777f390349fcd0061ab3a3cd142d04cba289187a390fb"
+        },
+        {
+          "file": "old-manor.clockwork-beast.thumb.webp",
+          "size": [
+            164,
+            101
+          ],
+          "sha256": "426f1b69cc7de91ab62a20ea47df1d4f7f6904e3b453143f6bbdc8c018c11194"
+        }
+      ]
+    },
+    {
+      "assetId": "old-manor.waiting-guest",
+      "status": "ai-lineart-awaiting-user-review",
+      "source": "src/assets/battle/old-manor/waiting-guest.png",
+      "sourceSha256": "7f3041db606fb5963200a41fad9f52df1afd91f367af17a55bb6a1d2ecc0a97c",
+      "aiOriginal": "docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/old-manor.waiting-guest.ai-v2.png",
+      "aiOriginalSha256": "2a0f55c939398c316717272a34f3fe3122d2e24c12d783231c3088fcfdecd24c",
+      "generationRecord": "docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/old-manor.waiting-guest.ai-v2.attempt.json",
+      "process": "white-to-alpha-v2-tight-crop",
+      "lineRgb": [
+        190,
+        190,
+        175
+      ],
+      "exportCropBounds": [
+        45,
+        114,
+        975,
+        1367
+      ],
+      "sourceSize": [
+        1024,
+        1536
+      ],
+      "alphaBounds": [
+        47,
+        116,
+        973,
+        1365
+      ],
+      "visualCenter": [
+        0.5627566943875925,
+        0.5204691659672391
+      ],
+      "groundAnchor": 0.99125,
+      "exportPaddingPixels": {
+        "main": 6,
+        "thumbnail": 2
+      },
+      "outputs": [
+        {
+          "file": "old-manor.waiting-guest.webp",
+          "size": [
+            597,
+            800
+          ],
+          "sha256": "3d5dd91ec7ba6d658260bd97da50c6f6ffd10b5dd59bbf7070850c3c5ff18bdc"
+        },
+        {
+          "file": "old-manor.waiting-guest.thumb.webp",
+          "size": [
+            93,
+            124
+          ],
+          "sha256": "f633d45a795b47b6e020542deafa8a8b0594c263168f54d17175465e60bb96e4"
+        }
+      ]
+    },
+    {
+      "assetId": "old-manor.platter-bearer",
+      "status": "ai-lineart-awaiting-user-review",
+      "source": "src/assets/battle/old-manor/platter-bearer.png",
+      "sourceSha256": "c5b4d999a098f95a451377d3bfaf29893f37a18d584866c804d062cfd6872ca4",
+      "aiOriginal": "docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/old-manor.platter-bearer.ai-v2.png",
+      "aiOriginalSha256": "351fd2545af5e79aa11657578a8e7511c72313085608df5c08919049a230065c",
+      "generationRecord": "docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/old-manor.platter-bearer.ai-v2.attempt.json",
+      "process": "white-to-alpha-v2-tight-crop",
+      "lineRgb": [
+        190,
+        190,
+        175
+      ],
+      "exportCropBounds": [
+        96,
+        0,
+        993,
+        938
+      ],
+      "sourceSize": [
+        1024,
+        1024
+      ],
+      "alphaBounds": [
+        98,
+        0,
+        991,
+        936
+      ],
+      "visualCenter": [
+        0.5487958531565169,
+        0.48138193109230726
+      ],
+      "groundAnchor": 0.99125,
+      "exportPaddingPixels": {
+        "main": 6,
+        "thumbnail": 2
+      },
+      "outputs": [
+        {
+          "file": "old-manor.platter-bearer.webp",
+          "size": [
+            766,
+            800
+          ],
+          "sha256": "e823e99d56a400e32a76fd687d124e64e780846abe042eb450ed38919eb1e433"
+        },
+        {
+          "file": "old-manor.platter-bearer.thumb.webp",
+          "size": [
+            119,
+            124
+          ],
+          "sha256": "57e17b663ec09f64def101b6a39c51be0731667b2c56ef819979128f84e10a38"
+        }
+      ]
+    },
+    {
+      "assetId": "old-manor.mending-maid",
+      "status": "ai-lineart-awaiting-user-review",
+      "source": "src/assets/battle/old-manor/mending-maid.png",
+      "sourceSha256": "42330c16a94f0295c946123a21ac6fce5fa045dd3cdf4b66674831b002323e1b",
+      "aiOriginal": "docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/old-manor.mending-maid.ai-v3.png",
+      "aiOriginalSha256": "827abf8474377810908291f893c7f9be3395896aae9b99c74f41aa105a58c98f",
+      "generationRecord": "docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/old-manor.mending-maid.ai-v3.attempt.json",
+      "process": "white-to-alpha-v2-tight-crop",
+      "lineRgb": [
+        190,
+        190,
+        175
+      ],
+      "exportCropBounds": [
+        94,
+        67,
+        917,
+        1484
+      ],
+      "sourceSize": [
+        1024,
+        1536
+      ],
+      "alphaBounds": [
+        96,
+        69,
+        915,
+        1482
+      ],
+      "visualCenter": [
+        0.600498317289141,
+        0.4991735850721414
+      ],
+      "groundAnchor": 0.99125,
+      "exportPaddingPixels": {
+        "main": 6,
+        "thumbnail": 2
+      },
+      "outputs": [
+        {
+          "file": "old-manor.mending-maid.webp",
+          "size": [
+            470,
+            800
+          ],
+          "sha256": "eb26ff22afbb82dc845da2e3ac67ec64e7fc206c1ca8c3bcb9418ac0bfa93ae9"
+        },
+        {
+          "file": "old-manor.mending-maid.thumb.webp",
+          "size": [
+            74,
+            124
+          ],
+          "sha256": "d7bad6d7d4ed7ec169af156a7c33c4783fd50c0c1d4f12008bdf8c9da8b67019"
+        }
+      ]
+    },
+    {
+      "assetId": "old-manor.curtain-butler",
+      "status": "ai-lineart-awaiting-user-review",
+      "source": "src/assets/battle/old-manor/curtain-butler.png",
+      "sourceSha256": "ddca4fd2c5bc4c0252188b5332f8f3c10501b20cb313f2a7270d03b5212ff9f5",
+      "aiOriginal": "docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/old-manor.curtain-butler.ai-v2.png",
+      "aiOriginalSha256": "79c234fe413b6d05228d356b21e9a5c648f80b051da913c4f8fc4cdcb79959b5",
+      "generationRecord": "docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/old-manor.curtain-butler.ai-v2.attempt.json",
+      "process": "white-to-alpha-v2-tight-crop",
+      "lineRgb": [
+        190,
+        190,
+        175
+      ],
+      "exportCropBounds": [
+        137,
+        24,
+        1381,
+        982
+      ],
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "alphaBounds": [
+        139,
+        26,
+        1379,
+        980
+      ],
+      "visualCenter": [
+        0.5408868345914649,
+        0.5296393175105931
+      ],
+      "groundAnchor": 0.99125,
+      "exportPaddingPixels": {
+        "main": 6,
+        "thumbnail": 2
+      },
+      "outputs": [
+        {
+          "file": "old-manor.curtain-butler.webp",
+          "size": [
+            1035,
+            800
+          ],
+          "sha256": "db854664bbbdc63a01458d3414be90a383be6003d06a2a1d1a59bf274f03b3b2"
+        },
+        {
+          "file": "old-manor.curtain-butler.thumb.webp",
+          "size": [
+            160,
+            124
+          ],
+          "sha256": "7335190be657cddf06ccf2525a4405a261085ac4dd724acb4ad449c0a322c9cb"
+        }
+      ]
+    },
+    {
+      "assetId": "old-manor.puppet-heiress",
+      "status": "ai-lineart-awaiting-user-review",
+      "source": "src/assets/battle/old-manor/last-seat-puppet-heiress.png",
+      "sourceSha256": "32fdfa005361825efdc5023232a00f0c7c41af80777f17855fb1729dbe312965",
+      "aiOriginal": "docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/old-manor.puppet-heiress.ai-v2.png",
+      "aiOriginalSha256": "a1a4f6f9c94ed39f494cac4d893dfd4658ccb146cd3fd53c35599eee571f6399",
+      "generationRecord": "docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/old-manor.puppet-heiress.ai-v2.attempt.json",
+      "process": "white-to-alpha-v2-tight-crop",
+      "lineRgb": [
+        190,
+        190,
+        175
+      ],
+      "exportCropBounds": [
+        77,
+        9,
+        1455,
+        983
+      ],
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "alphaBounds": [
+        79,
+        11,
+        1453,
+        981
+      ],
+      "visualCenter": [
+        0.49280080828726425,
+        0.5231907732042753
+      ],
+      "groundAnchor": 0.9910371318822023,
+      "exportPaddingPixels": {
+        "main": 6,
+        "thumbnail": 2
+      },
+      "outputs": [
+        {
+          "file": "old-manor.puppet-heiress.webp",
+          "size": [
+            1100,
+            781
+          ],
+          "sha256": "254b1fb90bb417a9d30df0e023b52bfee6c4ebc78ca026a2490ed3b4300a509b"
+        },
+        {
+          "file": "old-manor.puppet-heiress.thumb.webp",
+          "size": [
+            164,
+            117
+          ],
+          "sha256": "8f9c660dd7831a0d6ffe1a60d628055be6a2a356a6fd506c05a0f8323d33a4c9"
+        }
+      ]
+    },
+    {
+      "assetId": "memory.marietta",
+      "status": "ai-lineart-awaiting-user-review",
+      "source": "src/assets/battle/old-manor/marietta-memory-boss.png",
+      "sourceSha256": "54adff4c6ac389ed0412732c6181fbe5a5896e5a311f6c2b8e9ec8d82f86c7de",
+      "aiOriginal": "docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/memory.marietta.ai-v2.png",
+      "aiOriginalSha256": "f11f2416a51f9f41f5f7a008e356563e69df81d05e38372a7baeb293f4e7ba43",
+      "generationRecord": "docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/memory.marietta.ai-v2.attempt.json",
+      "process": "white-to-alpha-v2-tight-crop",
+      "lineRgb": [
+        190,
+        190,
+        175
+      ],
+      "exportCropBounds": [
+        54,
+        20,
+        1485,
+        982
+      ],
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "alphaBounds": [
+        56,
+        22,
+        1483,
+        980
+      ],
+      "visualCenter": [
+        0.49309596198996297,
+        0.5649738436241022
+      ],
+      "groundAnchor": 0.990578734858681,
+      "exportPaddingPixels": {
+        "main": 6,
+        "thumbnail": 2
+      },
+      "outputs": [
+        {
+          "file": "memory.marietta.webp",
+          "size": [
+            1100,
+            743
+          ],
+          "sha256": "a7764f01d712934a1475a7a0bc5cea534efe0e655ef5bd4b364a681c40030a7c"
+        },
+        {
+          "file": "memory.marietta.thumb.webp",
+          "size": [
+            164,
+            112
+          ],
+          "sha256": "442a1077db71b9fce7222cbbaf5683bf12dffd2f57d14496e0b09f4a984982bd"
+        }
+      ]
+    }
+  ]
+}

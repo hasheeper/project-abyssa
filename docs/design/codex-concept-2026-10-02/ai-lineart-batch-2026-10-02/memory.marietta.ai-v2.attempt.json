@@ -1,0 +1,35 @@
+{
+  "assetId": "memory.marietta",
+  "version": "v2",
+  "model": "gpt-image-2.5-sunburst@local",
+  "options": {
+    "quality": "high",
+    "size": "1536x1024",
+    "output_format": "png"
+  },
+  "sourceFile": "/Users/liuhang/Documents/project-abyssa/src/assets/battle/old-manor/marietta-memory-boss.png",
+  "sourceSha256": "54adff4c6ac389ed0412732c6181fbe5a5896e5a311f6c2b8e9ec8d82f86c7de",
+  "inputFile": "/Users/liuhang/Documents/project-abyssa/docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/references/memory.marietta.png",
+  "inputSha256": "2494cbf26dcfb106cab2f27dacc75a0af8fc4734c77409ccf4744899a41f5acb",
+  "inputProcess": "alpha-visible bounds, proportional contain at 90%, white composite; all attached details retained",
+  "styleFile": "/Users/liuhang/Documents/project-abyssa/docs/design/codex-concept-2026-10-02/ai-lineart-sample/reef-crab-ai-v2.png",
+  "styleSha256": "be588b93ede425b086e842bb2dbb6c56d60828530e91dafb6ec672541d0af817",
+  "promptFile": "/Users/liuhang/Documents/project-abyssa/docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/memory.marietta.prompt-v2.txt",
+  "promptSha256": "e6a9a1695510172aac35c05a4e27693c96efd42334944517bea050cc517f55e6",
+  "requestSha256": "c6ab652dcf23a1fa3774aab7f46d84e41305cc3857ec9c6d3a9dcad01eee78af",
+  "quote": {
+    "cost": 0,
+    "mode": "free",
+    "images": 1
+  },
+  "state": "saved",
+  "imageFile": "/Users/liuhang/Documents/project-abyssa/docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/memory.marietta.ai-v2.png",
+  "mime": "image/png",
+  "width": 1536,
+  "height": 1024,
+  "bytes": 1558008,
+  "sha256": "f11f2416a51f9f41f5f7a008e356563e69df81d05e38372a7baeb293f4e7ba43",
+  "startedAt": "2026-10-02T11:49:53.978Z",
+  "completedAt": "2026-10-02T11:50:37.022Z",
+  "elapsedMs": 43043
+}

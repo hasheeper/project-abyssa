@@ -1,0 +1,32 @@
+{
+  "assetId": "old-manor.mending-maid",
+  "version": "v1",
+  "model": "gpt-image-2.5-sunburst@local",
+  "options": {
+    "quality": "high",
+    "size": "1024x1536",
+    "output_format": "png"
+  },
+  "sourceFile": "/Users/liuhang/Documents/project-abyssa/src/assets/battle/old-manor/mending-maid.png",
+  "sourceSha256": "42330c16a94f0295c946123a21ac6fce5fa045dd3cdf4b66674831b002323e1b",
+  "inputFile": "/Users/liuhang/Documents/project-abyssa/docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/references/old-manor.mending-maid.png",
+  "inputSha256": "d9e28934cd4ee63b69c4f410ffe7c5235516c669beac48b48220de48ea854095",
+  "inputProcess": "alpha-visible bounds, proportional contain at 90%, white composite; all attached details retained",
+  "styleFile": "/Users/liuhang/Documents/project-abyssa/docs/design/codex-concept-2026-10-02/ai-lineart-sample/reef-crab-ai-v2.png",
+  "styleSha256": "be588b93ede425b086e842bb2dbb6c56d60828530e91dafb6ec672541d0af817",
+  "promptFile": "/Users/liuhang/Documents/project-abyssa/docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/prompt.txt",
+  "promptSha256": "f90b3ab6a5d396317ebb3d87bbdac821c0ef82b3510d0d5094067fc796607f27",
+  "requestSha256": "f6e4cf201e7170c139dba67942dfa284f79d009d877a92a10288c23489f4c339",
+  "quote": {
+    "cost": 0,
+    "mode": "free",
+    "images": 1
+  },
+  "state": "outcome-unknown",
+  "startedAt": "2026-10-02T11:35:40.805Z",
+  "endedAt": "2026-10-02T11:35:54.123Z",
+  "errorClass": "Error",
+  "httpStatus": 400,
+  "upstreamCategory": "image-input",
+  "upstreamMessage": "Sub-proxy rejected image editing (HTTP 400)"
+}

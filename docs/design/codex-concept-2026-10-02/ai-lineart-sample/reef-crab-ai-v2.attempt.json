@@ -1,0 +1,27 @@
+{
+  "version": "v2",
+  "model": "gpt-image-2.5-sunburst@local",
+  "options": {
+    "quality": "high",
+    "size": "1536x1024",
+    "output_format": "png"
+  },
+  "sourceFile": "/Users/liuhang/Documents/project-abyssa/docs/design/codex-concept-2026-10-02/ai-lineart-sample/01-reef-crab-original.png",
+  "sourceSha256": "8d18f6da1ad6386ef933aa5f3c0bbeabfa85eccd1a3f39f76d8deb0cd1459db7",
+  "promptFile": "/Users/liuhang/Documents/project-abyssa/docs/design/codex-concept-2026-10-02/ai-lineart-sample/04-execution-prompt-v2.txt",
+  "promptSha256": "bf9b774c6b067d31437c26fc668278b949ec5059055d2632dc1043e1ce6f4800",
+  "requestSha256": "298fe53ae98a4eae49df2e6dee40517a43ee054c1c7d20dc525a75d13e9515b7",
+  "quote": {
+    "cost": 0,
+    "mode": "free",
+    "images": 1
+  },
+  "state": "saved",
+  "imageFile": "/Users/liuhang/Documents/project-abyssa/docs/design/codex-concept-2026-10-02/ai-lineart-sample/reef-crab-ai-v2.png",
+  "mime": "image/png",
+  "bytes": 1857605,
+  "sha256": "be588b93ede425b086e842bb2dbb6c56d60828530e91dafb6ec672541d0af817",
+  "startedAt": "2026-10-02T11:12:29.904Z",
+  "completedAt": "2026-10-02T11:13:08.816Z",
+  "elapsedMs": 38904
+}

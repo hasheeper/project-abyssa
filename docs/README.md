@@ -18,6 +18,7 @@
 | --- | --- |
 | 第一章／教学 | [剧情与分工](design/CHAPTER_ONE_AND_TUTORIAL.md) · [规则与恢复](architecture/TUTORIAL_RULES_AND_RECOVERY.md) · [首晨实现](design/FIRST_MORNING_IMPLEMENTATION.md) |
 | 记忆 | [视觉与交互](design/MEMORY_PANEL_UI.md) · [事件／幕／切片、来源与回想](architecture/MEMORY_NARRATIVE_AND_REPLAY.md) · [三张原始参考](design/memory-journal-2026-09-30/README.md) |
+| 图鉴 | [观察草图、布局与收录存档合同](design/CODEX_PANEL_UI.md) · [两张原始参考与来源](design/codex-concept-2026-10-02/README.md)；正式入口与三阶段收录已接入 |
 | 经济／商店 | [经济B定稿](design/ECONOMY_BASELINE_B.md) · [九件装备](design/SHOP_FIRST_WAVE_ITEMS.md) · [日期货架](design/SHOP_SCHEDULE.md) · [正式首访](audits/2026-09-25-shop-first-visit-alignment.md) |
 | 普通远征 | [溶洞路线与美术](design/TIDE_REEF_DUNGEON.md) · [正式掉落表](design/ORDINARY_DUNGEON_DROPS.md) · [庄园设计来源](design/OLD_MANOR_DESIGN.md) |
 | 洋馆 | [设施与修缮](design/MANSION_FACILITIES_AND_UPKEEP.md) · [原材料与补给](design/MANSION_SUPPLY_PRODUCTION.md) · [材质处理](design/MANSION_MATERIAL_PASS.md) |

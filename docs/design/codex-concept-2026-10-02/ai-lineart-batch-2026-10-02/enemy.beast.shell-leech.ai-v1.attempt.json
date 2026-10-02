@@ -1,0 +1,35 @@
+{
+  "assetId": "enemy.beast.shell-leech",
+  "version": "v1",
+  "model": "gpt-image-2.5-sunburst@local",
+  "options": {
+    "quality": "high",
+    "size": "1536x1024",
+    "output_format": "png"
+  },
+  "sourceFile": "/Users/liuhang/Documents/project-abyssa/src/assets/battle/tide-reef/enemy.beast.shell-leech.png",
+  "sourceSha256": "e738d6affe7d079d531d3fea3a1a158a8cad75d2f8ef5a13fe40d2f9e9908063",
+  "inputFile": "/Users/liuhang/Documents/project-abyssa/docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/references/enemy.beast.shell-leech.png",
+  "inputSha256": "7966db52519c44e357610e292011981772e998bfdc15b7ab879faa5b3f3f65a3",
+  "inputProcess": "alpha-visible bounds, proportional contain at 90%, white composite; all attached details retained",
+  "styleFile": "/Users/liuhang/Documents/project-abyssa/docs/design/codex-concept-2026-10-02/ai-lineart-sample/reef-crab-ai-v2.png",
+  "styleSha256": "be588b93ede425b086e842bb2dbb6c56d60828530e91dafb6ec672541d0af817",
+  "promptFile": "/Users/liuhang/Documents/project-abyssa/docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/prompt.txt",
+  "promptSha256": "f90b3ab6a5d396317ebb3d87bbdac821c0ef82b3510d0d5094067fc796607f27",
+  "requestSha256": "c30418181ce65d6d15c72bad53ec8af02797772acf98fa6f66609fd9fd42c1e0",
+  "quote": {
+    "cost": 0,
+    "mode": "free",
+    "images": 1
+  },
+  "state": "saved",
+  "imageFile": "/Users/liuhang/Documents/project-abyssa/docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/enemy.beast.shell-leech.ai-v1.png",
+  "mime": "image/png",
+  "width": 1536,
+  "height": 1024,
+  "bytes": 1384300,
+  "sha256": "e7659665228b71aac30c1344eff1721325abde2cf43b598d816d0ff025dd8d70",
+  "startedAt": "2026-10-02T11:21:44.371Z",
+  "completedAt": "2026-10-02T11:22:51.567Z",
+  "elapsedMs": 67197
+}

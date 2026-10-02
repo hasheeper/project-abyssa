@@ -22,6 +22,7 @@ import { parseAirpDirectIntent } from "../airp-direct-gameplay/parse";
 import { parseDirectorIntent } from "../airp-director/parse";
 import { emptyDirectorState, type DirectorState } from "../airp-director/contracts";
 import { parseAirpGameProof, validateAirpGame } from "../airp-game/validation";
+import { enemyTransitionEvidence, memoryVictoryEvidence, visibleJourneyBattle, type EnemyEvidence } from "./enemy-evidence";
 
 export const d5FactId = demoFactId;
 export function d5EvidenceRunRef(e: D5ProgressEvent): D5RunRef | null {
@@ -37,7 +38,7 @@ export function d5EvidenceRunRef(e: D5ProgressEvent): D5RunRef | null {
 }
 const same = (a: unknown, b: unknown) => canonicalSaveJson(a) === canonicalSaveJson(b);
 
-type VerifiedReplay = { catalog: ValidatedD5Catalog; memory: D5RunReaders["memory"]; expedition: D5RunReaders["expedition"]; requireJourneyHistory: boolean | undefined; baseline: D5RunReaders["baseline"]; entries: D5ProgressEntry[]; requests: Set<string>; retracted: string[]; anchors: string[]; lastCombat: D5CombatEvidence | null; lastJourney: D5ExpeditionState | null; projection: ReturnType<typeof projectD5Progress> | null; ordinaryReturns: number; narrative?: AirpNarrativeState; online?: AirpOnlineState; direct?: AirpDirectState; director?: DirectorState };
+type VerifiedReplay = { catalog: ValidatedD5Catalog; memory: D5RunReaders["memory"]; expedition: D5RunReaders["expedition"]; requireJourneyHistory: boolean | undefined; baseline: D5RunReaders["baseline"]; entries: D5ProgressEntry[]; requests: Set<string>; retracted: string[]; anchors: string[]; lastCombat: D5CombatEvidence | null; lastJourney: D5ExpeditionState | null; projection: ReturnType<typeof projectD5Progress> | null; ordinaryReturns: number; enemies: readonly EnemyEvidence[]; narrative?: AirpNarrativeState; online?: AirpOnlineState; direct?: AirpDirectState; director?: DirectorState };
 const verifiedReplays = new WeakMap<D5GameRecord, VerifiedReplay>();
 /** A verified immutable prefix can accelerate append validation; bytes, not head alone, must match. */
 export function validateD5Record(raw: unknown, catalog: ValidatedD5Catalog, readers: D5RunReaders = {}, prefix?: D5GameRecord): D5GameRecord {
@@ -66,6 +67,7 @@ export function validateD5Record(raw: unknown, catalog: ValidatedD5Catalog, read
   if (!commits.length || commits.length !== head.revision + 1) v.invalid("commits", "Broken evidence chain");
   const cached = prefix && verifiedReplays.get(prefix);
   const reuse = cached && cached.catalog === catalog && cached.memory === readers.memory && cached.expedition === readers.expedition && cached.requireJourneyHistory === readers.requireJourneyHistory && prefix.head.saveId === head.saveId && prefix.head.epoch === head.epoch && prefix.head.revision < head.revision && same(r.originRef, prefix.originRef) && same(commits.slice(0, prefix.commits.length), prefix.commits) && same(facts.slice(0, prefix.facts.length), prefix.facts) ? cached : null;
+  const enemies: EnemyEvidence[] = reuse ? [...reuse.enemies] : [];
   const retracted = reuse ? [...reuse.retracted] : [], anchors = reuse ? [...reuse.anchors] : [...(baseline?.anchors ?? [])];
   let lastCombat = reuse?.lastCombat ?? null, lastJourney = reuse ? reuse.lastJourney : baseline?.run?.kind === "expedition" ? baseline.run.state : null;
   let projection = reuse?.projection ?? null;
@@ -129,6 +131,7 @@ export function validateD5Record(raw: unknown, catalog: ValidatedD5Catalog, read
         retracted.push(...proof.retracts);
       } else if (proof.before && proof.after.undo.length > proof.before.undo.length) anchors.push(factId);
       else if (!proof.after.undo.length) anchors.length = 0;
+      enemies.push(...enemyTransitionEvidence(catalog, factId, visibleJourneyBattle(proof.before), visibleJourneyBattle(proof.after), proof.events));
       lastJourney = proof.after;
     } else if(f.kind === "combat") {
       const progress = projection ??= projectD5Progress(catalog, entries, readers), payload = v.record(f.payload,"combat fact"), ref = parseD5RunRef(payload.runRef);
@@ -158,6 +161,7 @@ export function validateD5Record(raw: unknown, catalog: ValidatedD5Catalog, read
         retracted.push(...proof.retracts);
       } else if(["act","toggle-load","item"].includes(command)) anchors.push(factId);
       else anchors.length = 0;
+      enemies.push(...enemyTransitionEvidence(catalog, factId, proof.before, proof.after, proof.events, !previous));
       lastCombat = proof;
     } else {
       if (f.kind !== "progression") v.invalid("fact.kind", "Unsupported D5 capability");
@@ -168,6 +172,11 @@ export function validateD5Record(raw: unknown, catalog: ValidatedD5Catalog, read
       if (entry.event.type === "expedition-started" && readers.requireJourneyHistory && c.kind !== "journey") v.invalid("departure", "Missing executed departure");
       if (entry.event.type === "expedition-settled" && (readers.requireJourneyHistory || lastJourney) && !same(lastJourney, entry.event.finalRun)) v.invalid("terminal", "Settlement differs from the committed journey");
       if (entry.event.type === "memory-ended" && readers.requireJourneyHistory && c.kind !== "combat") v.invalid("memory", "Completion requires an atomic combat terminal");
+      if (entry.event.type === "memory-advanced" && entry.event.node === "battle") {
+        const battle = createD5MemoryEngine(catalog).create({runId: entry.event.runRef.id, seed: (projection ??= projectD5Progress(catalog, entries, readers)).memory!.seed});
+        enemies.push(...enemyTransitionEvidence(catalog, factId, null, battle, []));
+      }
+      if (entry.event.type === "memory-ended") enemies.push(...memoryVictoryEvidence(catalog, factId, entry.event.terminal.finalBattle));
       entries.push(entry);
       projection = null;
       if (entry.event.type === "memory-ended" && lastCombat && same(lastCombat.runRef,entry.event.terminal.runRef) && !same(lastCombat.after,entry.event.terminal.finalBattle)) v.invalid("memory.terminal", "Completion differs from committed battle");
@@ -203,7 +212,7 @@ export function validateD5Record(raw: unknown, catalog: ValidatedD5Catalog, read
   if (readers.requireJourneyHistory && !lastCombat && checked.run?.kind === "memory" && checked.campaign.memory?.node === "battle" && !same(checked.run, baseline?.run ?? null) && !same(checked.run.battle, createD5MemoryEngine(catalog).create({runId: checked.run.id, seed: checked.campaign.memory.seed}))) v.invalid("memory", "Unproved initial battle");
   validateAirpGame(raw as D5GameRecord, catalog);
   const record = v.freezeData(structuredClone(raw) as D5GameRecord);
-  verifiedReplays.set(record, {catalog, memory: readers.memory, expedition: readers.expedition, requireJourneyHistory: readers.requireJourneyHistory, baseline, entries, requests, retracted, anchors, lastCombat, lastJourney, projection, ordinaryReturns, narrative, online, direct, director});
+  verifiedReplays.set(record, {catalog, memory: readers.memory, expedition: readers.expedition, requireJourneyHistory: readers.requireJourneyHistory, baseline, entries, requests, retracted, anchors, lastCombat, lastJourney, projection, ordinaryReturns, enemies: v.freezeData(enemies), narrative, online, direct, director});
   return record;
 }
 
@@ -212,6 +221,13 @@ export function d5ReplayBasis(record: D5GameRecord) {
   const replay = verifiedReplays.get(record);
   if (!replay) v.invalid("record", "Expected a validated D5 record");
   return {baseline: replay.baseline, anchors: [...replay.anchors]};
+}
+
+/** The caller must read the record through its Catalog registry first. */
+export function d5EnemyEvidence(record: D5GameRecord): readonly EnemyEvidence[] {
+  const replay = verifiedReplays.get(record);
+  if (!replay) v.invalid("record", "Expected a validated D5 record");
+  return replay.enemies;
 }
 
 export function validateD5Receipt(raw: unknown, catalog: ValidatedD5Catalog, readers: D5RunReaders = {}): D5Receipt {

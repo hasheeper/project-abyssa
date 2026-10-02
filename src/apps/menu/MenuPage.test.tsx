@@ -390,7 +390,7 @@ describe("MenuPage", () => {
   });
 
   /* 没有目标页的条目仍是纯占位:点两次也不许拉黑幕。 */
-  it.each(["图鉴", "成就"])("keeps the %s placeholder on the menu after repeated clicks", async label => {
+  it.each(["成就"])("keeps the %s placeholder on the menu after repeated clicks", async label => {
     const user = userEvent.setup();
     const { container } = render(<MenuPage />);
 
@@ -399,6 +399,17 @@ describe("MenuPage", () => {
     await user.click(codex);
 
     expect(container.querySelector(".scene-transition")).toHaveAttribute("data-phase", "idle");
+  });
+
+  it("opens the real codex query and returns to its sidebar without changing the save", async () => {
+    const user = userEvent.setup(), before = JSON.stringify(fixture.session.getSnapshot().record);
+    render(<MenuPage/>);
+    await user.click(screen.getByRole("button", {name: "图鉴"})); await settled("codex");
+    expect(screen.getByRole("region", {name: "图鉴资料"})).toBeInTheDocument();
+    expect(screen.getByRole("heading", {name: "暂时无法读取图鉴"})).toBeInTheDocument();
+    await user.click(screen.getByRole("button", {name: "返回"})); await settled("home");
+    expect(screen.getByRole("button", {name: "图鉴"})).toHaveFocus();
+    expect(JSON.stringify(fixture.session.getSnapshot().record)).toBe(before);
   });
 
   it("places the host dialogue below the command dial instead of over the portrait", () => {

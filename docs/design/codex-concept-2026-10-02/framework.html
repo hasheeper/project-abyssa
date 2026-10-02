@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8">
+<title>图鉴大框 · Opus 5.5 v2</title>
+<link rel="stylesheet" href="../../../src/assets/fonts/game-fonts.css">
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:1600px;height:900px;overflow:hidden;background:#071011}
+.canvas{position:relative;width:1600px;height:900px}
+.canvas>img,.canvas>svg{position:absolute;inset:0;width:1600px;height:900px}
+.canvas{font-family:"Noto Serif SC",serif}
+</style></head><body><main class="canvas">
+<img src="menu-shell.png" alt="当前 Menu 的子页外壳">
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <defs>
+    <style>
+      .t{font-family:'Noto Serif SC','Songti SC',serif;fill:#e8e0cf}
+      .dim{fill:#8f9c95}
+      .rule{stroke:#8ea69d;stroke-opacity:.6;stroke-width:1.5}
+      .bar{fill:#c4bdab;opacity:.32}
+    </style>
+  </defs>
+
+  <!-- 分类切换（标题右侧空位） -->
+  <g class="t" font-size="20" letter-spacing="4">
+    <text x="440" y="78">生物</text>
+    <line x1="440" y1="90" x2="482" y2="90" stroke="#d8cfb8" stroke-width="2"/>
+    <text x="540" y="78" class="dim">地点</text>
+    <text x="640" y="78" class="dim">器物</text>
+    <text x="740" y="78" class="dim">世界知识</text>
+    <text x="1540" y="78" text-anchor="end" font-size="16" class="dim">12 / 40</text>
+  </g>
+
+  <!-- 索引：无容器文字列 -->
+  <g class="t" font-size="18" letter-spacing="2">
+    <path d="M262 214 l6 -6 6 6 -6 6z" fill="#d8cfb8"/>
+    <text x="284" y="220">灰烬蛾</text>
+    <line x1="284" y1="232" x2="392" y2="232" stroke="#d8cfb8" stroke-opacity=".7"/>
+    <text x="284" y="276" class="dim">长廊守灯者</text>
+    <text x="284" y="326" class="dim">沉钟水母</text>
+    <text x="284" y="376" class="dim">？？？</text>
+    <text x="284" y="426" class="dim">铁荆棘</text>
+    <text x="284" y="476" class="dim">雾中马</text>
+    <text x="284" y="526" class="dim">？？？</text>
+    <text x="284" y="576" class="dim">白蜡烛虫</text>
+  </g>
+
+  <!-- 页幅：共享的上下结构线 -->
+  <line class="rule" x1="540" y1="180" x2="1560" y2="180"/>
+  <line class="rule" x1="540" y1="820" x2="1560" y2="820"/>
+  <path d="M540 180 l-8 -6 M540 180 l-8 6 M1560 820 l8 -6 M1560 820 l8 6" class="rule" fill="none"/>
+
+  <!-- 对象插图：无框，向下收进页脚线 -->
+  <g fill="#cfc7b2" fill-opacity=".13" stroke="#cfc7b2" stroke-opacity=".45" stroke-width="1.5">
+    <path d="M800 260 C700 250 600 330 610 450 C620 560 700 600 760 620 L770 820 L830 820 L840 620 C900 600 980 560 990 450 C1000 330 900 250 800 260Z"/>
+  </g>
+
+  <!-- 记录：与插图顶部对齐 -->
+  <g class="t">
+    <text x="1060" y="250" font-size="40" letter-spacing="6">灰烬蛾</text>
+    <text x="1062" y="282" font-size="14" class="dim" letter-spacing="3">ASH MOTH · 生物</text>
+
+    <rect class="bar" x="1060" y="330" width="480" height="10"/>
+    <rect class="bar" x="1060" y="356" width="460" height="10"/>
+    <rect class="bar" x="1060" y="382" width="420" height="10"/>
+
+    <text x="1060" y="452" font-size="18" letter-spacing="3">已知</text>
+    <rect class="bar" x="1060" y="476" width="470" height="10"/>
+    <rect class="bar" x="1060" y="502" width="440" height="10"/>
+    <rect class="bar" x="1060" y="528" width="300" height="10"/>
+
+    <text x="1060" y="598" font-size="18" letter-spacing="3">见闻</text>
+    <rect class="bar" x="1060" y="622" width="460" height="10"/>
+    <rect class="bar" x="1060" y="648" width="260" height="10"/>
+
+    <text x="1060" y="800" font-size="15" class="dim" letter-spacing="2">尚有未解明的记述……</text>
+  </g>
+</svg>
+
+</main></body></html>

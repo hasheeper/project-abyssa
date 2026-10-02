@@ -1,0 +1,35 @@
+{
+  "assetId": "enemy.outlaw.crossbow",
+  "version": "v2",
+  "model": "gpt-image-2.5-sunburst@local",
+  "options": {
+    "quality": "high",
+    "size": "1536x1024",
+    "output_format": "png"
+  },
+  "sourceFile": "/Users/liuhang/Documents/project-abyssa/src/assets/battle/tide-reef/enemy.outlaw.crossbow.png",
+  "sourceSha256": "41332378aea16c338c8fb22368e7c23cc36be8e7ba6ce3e09932b9f4a86f59a6",
+  "inputFile": "/Users/liuhang/Documents/project-abyssa/docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/references/enemy.outlaw.crossbow.png",
+  "inputSha256": "c11160c75d343daa2e2c998734a7a848884f1a7e2d8b870cda160a3aa9f184ff",
+  "inputProcess": "alpha-visible bounds, proportional contain at 90%, white composite; all attached details retained",
+  "styleFile": "/Users/liuhang/Documents/project-abyssa/docs/design/codex-concept-2026-10-02/ai-lineart-sample/reef-crab-ai-v2.png",
+  "styleSha256": "be588b93ede425b086e842bb2dbb6c56d60828530e91dafb6ec672541d0af817",
+  "promptFile": "/Users/liuhang/Documents/project-abyssa/docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/enemy.outlaw.crossbow.prompt-v2.txt",
+  "promptSha256": "e6a9a1695510172aac35c05a4e27693c96efd42334944517bea050cc517f55e6",
+  "requestSha256": "eda1018654ce5e480dca6f387bde415bfb16304dc5251abb961f888c9ef9cedb",
+  "quote": {
+    "cost": 0,
+    "mode": "free",
+    "images": 1
+  },
+  "state": "saved",
+  "imageFile": "/Users/liuhang/Documents/project-abyssa/docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/enemy.outlaw.crossbow.ai-v2.png",
+  "mime": "image/png",
+  "width": 1536,
+  "height": 1024,
+  "bytes": 1383769,
+  "sha256": "5b09e4962be129943bb7ece0dc245b877404fd9e57562e4571152ce5bf3a96e9",
+  "startedAt": "2026-10-02T11:51:28.340Z",
+  "completedAt": "2026-10-02T11:52:13.471Z",
+  "elapsedMs": 45128
+}

@@ -1,0 +1,33 @@
+{
+  "userSelection": "B",
+  "comparison": "line-history-comparison.jpg",
+  "reference": "line-B-confirmed-reference.webp",
+  "referenceSha256": "aec981dd793257e8bdba1858ea637536cd3ba6f9b88486907c0e284c87eba64a",
+  "sourceAssetId": "enemy.outlaw.chief",
+  "process": "white-to-alpha-v4-contrast-balance",
+  "strokeBalance": {
+    "source": "existing AI ink only",
+    "width": "original AI width preserved",
+    "contrastMatchBlend": 0.4,
+    "detailPeakTarget": 0.82,
+    "primaryPeakTarget": 1.0
+  },
+  "assets": [
+    {
+      "assetId": "enemy.outlaw.blade",
+      "outputSha256": "c2c5c14ed46bbee76d3602c289f73659625ae1b8d02180c84b2ad140de54c6b8"
+    },
+    {
+      "assetId": "enemy.outlaw.crossbow",
+      "outputSha256": "32e2aa363bf176ace7f715928f6c010a388edf2b323544df269a68ab36b43e0a"
+    },
+    {
+      "assetId": "enemy.outlaw.hauler",
+      "outputSha256": "e1aa3496b77dad43f5fd30ae977312b01612335519be7641708c4d55a24036d7"
+    },
+    {
+      "assetId": "enemy.outlaw.chief",
+      "outputSha256": "aec981dd793257e8bdba1858ea637536cd3ba6f9b88486907c0e284c87eba64a"
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "assetId": "old-manor.curtain-butler",
+  "version": "v1",
+  "model": "gpt-image-2.5-sunburst@local",
+  "options": {
+    "quality": "high",
+    "size": "1536x1024",
+    "output_format": "png"
+  },
+  "sourceFile": "/Users/liuhang/Documents/project-abyssa/src/assets/battle/old-manor/curtain-butler.png",
+  "sourceSha256": "ddca4fd2c5bc4c0252188b5332f8f3c10501b20cb313f2a7270d03b5212ff9f5",
+  "inputFile": "/Users/liuhang/Documents/project-abyssa/docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/references/old-manor.curtain-butler.png",
+  "inputSha256": "c4889f8ddc8b848792e10fbdac2d2f04cb66d07df0acdca95735dc3eecbf33af",
+  "inputProcess": "alpha-visible bounds, proportional contain at 90%, white composite; all attached details retained",
+  "styleFile": "/Users/liuhang/Documents/project-abyssa/docs/design/codex-concept-2026-10-02/ai-lineart-sample/reef-crab-ai-v2.png",
+  "styleSha256": "be588b93ede425b086e842bb2dbb6c56d60828530e91dafb6ec672541d0af817",
+  "promptFile": "/Users/liuhang/Documents/project-abyssa/docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/prompt.txt",
+  "promptSha256": "f90b3ab6a5d396317ebb3d87bbdac821c0ef82b3510d0d5094067fc796607f27",
+  "requestSha256": "e95d7814fbab2e8f9d51195181a9b75b469842626d3e55be50ae25e675f489c4",
+  "quote": {
+    "cost": 0,
+    "mode": "free",
+    "images": 1
+  },
+  "state": "saved",
+  "imageFile": "/Users/liuhang/Documents/project-abyssa/docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/old-manor.curtain-butler.ai-v1.png",
+  "mime": "image/png",
+  "width": 1536,
+  "height": 1024,
+  "bytes": 1787606,
+  "sha256": "c33a58b3d5f81387aa6956cee562b592754e59c058daa60b05314dbc5c3521b2",
+  "startedAt": "2026-10-02T11:36:56.684Z",
+  "completedAt": "2026-10-02T11:38:29.092Z",
+  "elapsedMs": 92401
+}

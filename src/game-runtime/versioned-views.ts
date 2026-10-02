@@ -35,6 +35,7 @@ import { lootAppraisalFee, lootSalePrice } from "../game-core/contracts/loot";
 import { bundledLoot, lootStackable } from "../game-core/session/d5-loot";
 import { publicGameAppraisal, gameAppraisal } from "../game-application/airp-game/appraisals";
 import { createMemoryJournalQuery } from "./memory-journal-view";
+import { createCodexQuery } from "./codex-view";
 
 export function parseVersionedRequest(
   raw: unknown,
@@ -56,6 +57,7 @@ export function createVersionedQueries(registry: CatalogRegistry) {
   const journeyCache = new WeakMap<AnyGameRecord, ReturnType<typeof demoJourneyView>>();
   return {
     memoryJournal: createMemoryJournalQuery(registry),
+    codex: createCodexQuery(registry),
     archive: createCharacterArchiveQuery(registry),
     mansionTime(raw: AnyGameRecord) {
       const record = registry.read(raw);

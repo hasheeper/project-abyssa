@@ -1,0 +1,251 @@
+{
+  "date": "2026-10-02",
+  "designPlan": "../CODEX_PANEL_UI.md",
+  "motionDesign": {
+    "date": "2026-10-02",
+    "model": "proxy:claude-opus-5-5 [perplexity]",
+    "consultationId": "c-2c6038b1-bcc1-480c-ae1a-08548c958e3b",
+    "initialTurnId": "t-62841bce-9cd0-45b7-b83e-42b7a82ea6f1",
+    "revisedTurnId": "t-ddacd0e3-6b67-4aef-93bf-179d6b74ae0a",
+    "rawAnswer": "opus-motion-discussion.md",
+    "reference": "motion-current-layout.jpg",
+    "status": "Implemented in local preview; visual review pending",
+    "integration": "1000ms entrance, 620ms exit, 680ms entry exchange. Latest user steering supersedes the static dial proposal: expand, rotate, focus; fading follows the same sequence. Existing art mask and steady-state scale/strokes are preserved.",
+    "userSteering": "切换的时候，轮牌能不能转动？随后明确：扩散，旋转，聚焦；淡入淡出关系也是这样的。",
+    "capture": "ui-motion-expand-focus.webp"
+  },
+  "userReferences": [
+    {
+      "name": "reference-01-contour.png",
+      "sourceFilename": "codex-clipboard-462a554f-8638-429c-afed-0a292565ac7a.png",
+      "source": "User-provided generated UI reference; preserved byte-for-byte",
+      "role": "Observation drawing language from the faint contour in the lower right",
+      "width": 1672,
+      "height": 941,
+      "sha256": "6708af7b25444f7eeabce65f3db0caa8f246d5bdcb74445265d36ae585302185"
+    },
+    {
+      "name": "reference-02-layout.png",
+      "sourceFilename": "codex-clipboard-8196b1ea-4fc6-4374-a0ab-b5c6eb3ea5c1.png",
+      "source": "User-provided generated UI reference; preserved byte-for-byte",
+      "role": "User-preferred overall composition, reading order and horizontal bottom record",
+      "width": 1672,
+      "height": 941,
+      "sha256": "ae6c80b77cf13c0ad192119aed9f5ed6b824caac96cd6ec38147013b1637009f"
+    },
+    {
+      "name": "reference-03-observation-dial.png",
+      "sourceFilename": "codex-clipboard-29f54c67-a3d8-427e-92ca-cfbc7cb78d8b.png",
+      "source": "User-provided crop; preserved byte-for-byte",
+      "role": "User-requested faint background glow and observation dial; keep existing outlined drawing",
+      "width": 736,
+      "height": 708,
+      "sha256": "4fd189cfc6d6a3980bf58fbfc9f4e407ea9c7ddea7d62086829578ed456676bc"
+    }
+  ],
+  "observationDesign": {
+    "model": "proxy:claude-opus-5-5 [perplexity]",
+    "consultationId": "c-92d50eac-867e-454d-acc5-26ff02e2790b",
+    "turnId": "t-26ff8a37-4a70-48c6-a0ea-87aab8a7323f",
+    "parentTurnId": "t-08b83c95-a137-4c15-a484-333733fbcea3",
+    "initialProposalTurnId": "t-1714e1a5-2278-4d21-b8ac-76358f51b042",
+    "originalFrameworkParentTurnId": "t-6b46c4bd-8386-4afd-890a-fb232e43fe10",
+    "rawAnswer": "opus-design.md",
+    "source": "Algorithm experiments retained offline. All 14 entries now use AI line-art assets; visual presentation follows current user feedback.",
+    "layoutReviewTurnId": "t-4f514e60-ded5-48ac-b071-7985608f26a6",
+    "algorithmProposalTurnId": "t-fe0a0da9-25be-4f14-8811-4dea5c361ca5",
+    "algorithmV6TurnId": "t-08b83c95-a137-4c15-a484-333733fbcea3",
+    "followupConsultation": {
+      "consultationId": "c-47c03936-8e49-4455-9b50-3b8736c478c2",
+      "turnId": "t-05d856d3-91d1-4b87-83e2-485ac3d72643",
+      "rawAnswer": "opus-design.md",
+      "userAcceptance": false
+    }
+  },
+  "revision": "95e1711cbbf1fdd1b2f29974bff3647f1cf83c87",
+  "canvas": {
+    "width": 1600,
+    "height": 900
+  },
+  "menuReference": {
+    "capture": "Current source dev game; isolated browser and sample save; normal Menu home",
+    "source": "src/apps/menu/MenuPage.tsx"
+  },
+  "menuShell": {
+    "capture": "Current source Menu subpage; remove content only in capture DOM, change title to CODEX and selection to codex",
+    "source": "src/apps/menu/MenuPage.tsx"
+  },
+  "framework": {
+    "model": "proxy:claude-opus-5-5 [perplexity]",
+    "consultationId": "c-92d50eac-867e-454d-acc5-26ff02e2790b",
+    "turnId": "t-6b46c4bd-8386-4afd-890a-fb232e43fe10",
+    "render": "Raw model SVG over menu-shell.png; not implemented or user-approved"
+  },
+  "files": [
+    {
+      "name": "menu-reference.png",
+      "bytes": 1545893,
+      "sha256": "8b48d6809de6efeba0abf509a5da65d697e901d10ee2a80f4b5627d0ae576658"
+    },
+    {
+      "name": "menu-shell.png",
+      "bytes": 971376,
+      "sha256": "cfc6795a031f143d503808635da8df05d583c7a96944d22935e2435001777102"
+    },
+    {
+      "name": "opus-framework.svg",
+      "bytes": 3094,
+      "sha256": "ddcb0cf9fd687a4245e172afa62d72c883ec3e4e0223c8fcad41284c7bf5f53d"
+    },
+    {
+      "name": "opus-framework.png",
+      "bytes": 1021749,
+      "sha256": "76bfc98ede8ba79626c764be8c20a9cb8c908f36bb1f02c346174a2afe680c13"
+    },
+    {
+      "name": "image-prompt.txt",
+      "bytes": 776,
+      "sha256": "b9f020c3eef5ecc51d26775f00d78694b52b920c8c5ad7b95b8d5becd9212ec2"
+    }
+  ],
+  "prompt": {
+    "model": "proxy:claude-opus-5-5 [perplexity]",
+    "consultationId": "c-ecacd4f7-eff2-4963-8e69-460295f8d1f0",
+    "turnId": "t-35c09d2a-07e2-4eb4-9e7e-584de7a2270c",
+    "parentTurnId": "t-9143ca8d-b363-4c68-873c-255a7d47e462",
+    "source": "Raw Opus 5.5 prompt-refinement v3 answer; single specimen, flexible size and layout, beauty first",
+    "previousVersion": {
+      "model": "proxy:claude-opus-5-5 [perplexity]",
+      "consultationId": "c-ecacd4f7-eff2-4963-8e69-460295f8d1f0",
+      "turnId": "t-9143ca8d-b363-4c68-873c-255a7d47e462",
+      "source": "Main agent scope correction to Opus 5.5 prompt v2: one specimen only; image numbering adjusted",
+      "parentTurnId": "t-3820b317-b0ab-4a8f-abbc-2ce1029796f4",
+      "previousVersion": {
+        "model": "proxy:claude-opus-5-5 [perplexity]",
+        "consultationId": "c-ecacd4f7-eff2-4963-8e69-460295f8d1f0",
+        "turnId": "t-3820b317-b0ab-4a8f-abbc-2ce1029796f4",
+        "source": "Raw prompt-refinement answer"
+      }
+    }
+  },
+  "lineartPrompt": {
+    "model": "proxy:claude-opus-5-5 [perplexity]",
+    "consultationId": "c-4c371542-a245-4725-a538-0b2c6f21ebd1",
+    "turnId": "t-76189a47-f3b5-4918-83c7-8a348c84662f",
+    "rawAnswer": "ai-lineart-sample/03-opus-prompt.txt",
+    "executionPrompt": "ai-lineart-sample/04-execution-prompt-v2.txt",
+    "adaptation": "Main agent adapted to dark gray lines on white, then refined v2 to reduce hatching and emphasize original pose. Both actual prompts retained."
+  },
+  "aiLineartSample": {
+    "assetId": "enemy.beast.reef-crab",
+    "selectedVersion": "v2",
+    "model": "gpt-image-2.5-sunburst@local",
+    "quality": "high",
+    "state": "user-accepted-direction",
+    "raw": "ai-lineart-sample/reef-crab-ai-v2.png",
+    "generationRecord": "ai-lineart-sample/reef-crab-ai-v2.attempt.json",
+    "assetManifest": "../../../src/assets/codex/ai-observations/sources.json",
+    "uiScreenshot": "ai-lineart-sample/06-ai-lineart-ui.jpg"
+  },
+  "lineartBatch": {
+    "quality": "high",
+    "count": 13,
+    "catalogueCount": 14,
+    "removedIds": [
+      "legacy.sentinel",
+      "legacy.amalgam",
+      "legacy.choir"
+    ],
+    "state": "14-prepared-awaiting-user-review",
+    "prompt": "ai-lineart-batch-2026-10-02/prompt.txt",
+    "jobs": "ai-lineart-batch-2026-10-02/jobs.json",
+    "promptConsultationId": "c-4c371542-a245-4725-a538-0b2c6f21ebd1",
+    "promptTurnId": "t-90056415-366b-4ce0-8ec3-77e8543398a5",
+    "models": [
+      "gpt-image-2.5-sunburst@local",
+      "gpt-image-2.5-flare@local"
+    ],
+    "revisionCount": 11,
+    "revisionPrompt": "ai-lineart-batch-2026-10-02/prompt-humanoid-revision.txt",
+    "revisionPromptTurnId": "t-40955445-4010-4037-96e5-c00b584ed488",
+    "assetManifest": "../../../src/assets/codex/ai-observations/sources.json",
+    "currentFeedback": "主体放大；四角和外围渐淡，不能切成明显圆形；亡命徒保留AI线宽，细节对比轻调；海蛭放大。",
+    "selectedAssets": [
+      {
+        "assetId": "enemy.slime.mire",
+        "raw": "docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/enemy.slime.mire.ai-v1.png",
+        "model": "gpt-image-2.5-sunburst@local"
+      },
+      {
+        "assetId": "enemy.beast.reef-crab",
+        "raw": "docs/design/codex-concept-2026-10-02/ai-lineart-sample/reef-crab-ai-v2.png",
+        "model": "gpt-image-2.5-sunburst@local"
+      },
+      {
+        "assetId": "enemy.beast.shell-leech",
+        "raw": "docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/enemy.beast.shell-leech.ai-v1.png",
+        "model": "gpt-image-2.5-sunburst@local"
+      },
+      {
+        "assetId": "enemy.outlaw.blade",
+        "raw": "docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/enemy.outlaw.blade.ai-v2.png",
+        "model": "gpt-image-2.5-sunburst@local"
+      },
+      {
+        "assetId": "enemy.outlaw.crossbow",
+        "raw": "docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/enemy.outlaw.crossbow.ai-v2.png",
+        "model": "gpt-image-2.5-sunburst@local"
+      },
+      {
+        "assetId": "enemy.outlaw.hauler",
+        "raw": "docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/enemy.outlaw.hauler.ai-v2.png",
+        "model": "gpt-image-2.5-sunburst@local"
+      },
+      {
+        "assetId": "enemy.outlaw.chief",
+        "raw": "docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/enemy.outlaw.chief.ai-v3.png",
+        "model": "gpt-image-2.5-flare@local"
+      },
+      {
+        "assetId": "old-manor.clockwork-beast",
+        "raw": "docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/old-manor.clockwork-beast.ai-v5.png",
+        "model": "gpt-image-2.5-flare@local"
+      },
+      {
+        "assetId": "old-manor.waiting-guest",
+        "raw": "docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/old-manor.waiting-guest.ai-v2.png",
+        "model": "gpt-image-2.5-sunburst@local"
+      },
+      {
+        "assetId": "old-manor.platter-bearer",
+        "raw": "docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/old-manor.platter-bearer.ai-v2.png",
+        "model": "gpt-image-2.5-sunburst@local"
+      },
+      {
+        "assetId": "old-manor.mending-maid",
+        "raw": "docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/old-manor.mending-maid.ai-v3.png",
+        "model": "gpt-image-2.5-flare@local"
+      },
+      {
+        "assetId": "old-manor.curtain-butler",
+        "raw": "docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/old-manor.curtain-butler.ai-v2.png",
+        "model": "gpt-image-2.5-sunburst@local"
+      },
+      {
+        "assetId": "old-manor.puppet-heiress",
+        "raw": "docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/old-manor.puppet-heiress.ai-v2.png",
+        "model": "gpt-image-2.5-sunburst@local"
+      },
+      {
+        "assetId": "memory.marietta",
+        "raw": "docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/memory.marietta.ai-v2.png",
+        "model": "gpt-image-2.5-sunburst@local"
+      }
+    ],
+    "confirmedStrokeProfile": {
+      "choice": "B",
+      "record": "ai-lineart-batch-2026-10-02/line-B-confirmed.json",
+      "userFeedback": "B啊"
+    }
+  }
+}

@@ -1,0 +1,204 @@
+{
+  "version": 1,
+  "jobs": [
+    {
+      "assetId": "enemy.slime.mire",
+      "name": "浊泥史莱姆",
+      "sourceFile": "/Users/liuhang/Documents/project-abyssa/src/assets/battle/tide-reef/enemy.slime.mire.png",
+      "sourceSha256": "f7b860ce09bbfd94c6955d1a7f6cb78c9b02376d28eab917eef6efebcc6d4f75",
+      "inputFile": "/Users/liuhang/Documents/project-abyssa/docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/references/enemy.slime.mire.png",
+      "sourceBounds": [
+        123,
+        130,
+        1283,
+        706
+      ],
+      "inputProcess": "alpha-visible bounds, proportional contain at 90%, white composite; all attached details retained",
+      "size": "1536x1024"
+    },
+    {
+      "assetId": "enemy.beast.shell-leech",
+      "name": "藏壳海蛭",
+      "sourceFile": "/Users/liuhang/Documents/project-abyssa/src/assets/battle/tide-reef/enemy.beast.shell-leech.png",
+      "sourceSha256": "e738d6affe7d079d531d3fea3a1a158a8cad75d2f8ef5a13fe40d2f9e9908063",
+      "inputFile": "/Users/liuhang/Documents/project-abyssa/docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/references/enemy.beast.shell-leech.png",
+      "sourceBounds": [
+        198,
+        161,
+        1240,
+        687
+      ],
+      "inputProcess": "alpha-visible bounds, proportional contain at 90%, white composite; all attached details retained",
+      "size": "1536x1024"
+    },
+    {
+      "assetId": "enemy.outlaw.blade",
+      "name": "亡命徒·刀手",
+      "sourceFile": "/Users/liuhang/Documents/project-abyssa/src/assets/battle/tide-reef/enemy.outlaw.blade.png",
+      "sourceSha256": "d4d89fa2bfa3be68355435a44b5226886c8dfd75a158627746ba8a1723d001fe",
+      "inputFile": "/Users/liuhang/Documents/project-abyssa/docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/references/enemy.outlaw.blade.png",
+      "sourceBounds": [
+        234,
+        39,
+        1187,
+        749
+      ],
+      "inputProcess": "alpha-visible bounds, proportional contain at 90%, white composite; all attached details retained",
+      "size": "1536x1024"
+    },
+    {
+      "assetId": "enemy.outlaw.crossbow",
+      "name": "亡命徒·弩手",
+      "sourceFile": "/Users/liuhang/Documents/project-abyssa/src/assets/battle/tide-reef/enemy.outlaw.crossbow.png",
+      "sourceSha256": "41332378aea16c338c8fb22368e7c23cc36be8e7ba6ce3e09932b9f4a86f59a6",
+      "inputFile": "/Users/liuhang/Documents/project-abyssa/docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/references/enemy.outlaw.crossbow.png",
+      "sourceBounds": [
+        100,
+        61,
+        1201,
+        755
+      ],
+      "inputProcess": "alpha-visible bounds, proportional contain at 90%, white composite; all attached details retained",
+      "size": "1536x1024"
+    },
+    {
+      "assetId": "enemy.outlaw.hauler",
+      "name": "亡命徒·扛夫",
+      "sourceFile": "/Users/liuhang/Documents/project-abyssa/src/assets/battle/tide-reef/enemy.outlaw.hauler.png",
+      "sourceSha256": "58f18b296c352410ba2960daebcde06a08814689f9d2f96c6236f99040bb65c8",
+      "inputFile": "/Users/liuhang/Documents/project-abyssa/docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/references/enemy.outlaw.hauler.png",
+      "sourceBounds": [
+        536,
+        47,
+        2044,
+        1499
+      ],
+      "inputProcess": "alpha-visible bounds, proportional contain at 90%, white composite; all attached details retained",
+      "size": "1024x1024"
+    },
+    {
+      "assetId": "enemy.outlaw.chief",
+      "name": "亡命头目",
+      "sourceFile": "/Users/liuhang/Documents/project-abyssa/src/assets/battle/tide-reef/enemy.outlaw.chief.png",
+      "sourceSha256": "9fcdcf26fb95eb7630e56bc290ce7280beff411564d18c830848d36e76c69a61",
+      "inputFile": "/Users/liuhang/Documents/project-abyssa/docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/references/enemy.outlaw.chief.png",
+      "sourceBounds": [
+        404,
+        14,
+        1014,
+        749
+      ],
+      "inputProcess": "alpha-visible bounds, proportional contain at 90%, white composite; all attached details retained",
+      "size": "1024x1024"
+    },
+    {
+      "assetId": "old-manor.clockwork-beast",
+      "name": "刻仪兽",
+      "sourceFile": "/Users/liuhang/Documents/project-abyssa/src/assets/battle/old-manor/clockwork-beast.png",
+      "sourceSha256": "80537c5b3479b2375a419184d351ca6239dc3e9324e6c62c8584c073087bb8b5",
+      "inputFile": "/Users/liuhang/Documents/project-abyssa/docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/references/old-manor.clockwork-beast.jpg",
+      "sourceBounds": [
+        53,
+        0,
+        1310,
+        754
+      ],
+      "inputProcess": "alpha-visible bounds, proportional contain at 90%, white composite; all attached details retained; JPEG95 re-encoding for a targeted gateway image-input diagnostic, subject and layout unchanged",
+      "size": "1536x1024",
+      "version": "v4",
+      "modelId": "gpt-image-2.5-flare@local"
+    },
+    {
+      "assetId": "old-manor.waiting-guest",
+      "name": "候席客",
+      "sourceFile": "/Users/liuhang/Documents/project-abyssa/src/assets/battle/old-manor/waiting-guest.png",
+      "sourceSha256": "7f3041db606fb5963200a41fad9f52df1afd91f367af17a55bb6a1d2ecc0a97c",
+      "inputFile": "/Users/liuhang/Documents/project-abyssa/docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/references/old-manor.waiting-guest.png",
+      "sourceBounds": [
+        417,
+        0,
+        979,
+        729
+      ],
+      "inputProcess": "alpha-visible bounds, proportional contain at 90%, white composite; all attached details retained",
+      "size": "1024x1536"
+    },
+    {
+      "assetId": "old-manor.platter-bearer",
+      "name": "执盘侍者",
+      "sourceFile": "/Users/liuhang/Documents/project-abyssa/src/assets/battle/old-manor/platter-bearer.png",
+      "sourceSha256": "c5b4d999a098f95a451377d3bfaf29893f37a18d584866c804d062cfd6872ca4",
+      "inputFile": "/Users/liuhang/Documents/project-abyssa/docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/references/old-manor.platter-bearer.png",
+      "sourceBounds": [
+        243,
+        0,
+        1088,
+        752
+      ],
+      "inputProcess": "alpha-visible bounds, proportional contain at 90%, white composite; all attached details retained",
+      "size": "1024x1024"
+    },
+    {
+      "assetId": "old-manor.mending-maid",
+      "name": "缝补女佣",
+      "sourceFile": "/Users/liuhang/Documents/project-abyssa/src/assets/battle/old-manor/mending-maid.png",
+      "sourceSha256": "42330c16a94f0295c946123a21ac6fce5fa045dd3cdf4b66674831b002323e1b",
+      "inputFile": "/Users/liuhang/Documents/project-abyssa/docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/references/old-manor.mending-maid.png",
+      "sourceBounds": [
+        420,
+        0,
+        860,
+        760
+      ],
+      "inputProcess": "alpha-visible bounds, proportional contain at 90%, white composite; all attached details retained",
+      "size": "1024x1536",
+      "modelId": "gpt-image-2.5-flare@local",
+      "version": "v2"
+    },
+    {
+      "assetId": "old-manor.curtain-butler",
+      "name": "落幕管家",
+      "sourceFile": "/Users/liuhang/Documents/project-abyssa/src/assets/battle/old-manor/curtain-butler.png",
+      "sourceSha256": "ddca4fd2c5bc4c0252188b5332f8f3c10501b20cb313f2a7270d03b5212ff9f5",
+      "inputFile": "/Users/liuhang/Documents/project-abyssa/docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/references/old-manor.curtain-butler.png",
+      "sourceBounds": [
+        171,
+        0,
+        1151,
+        736
+      ],
+      "inputProcess": "alpha-visible bounds, proportional contain at 90%, white composite; all attached details retained",
+      "size": "1536x1024"
+    },
+    {
+      "assetId": "old-manor.puppet-heiress",
+      "name": "末席的提线千金",
+      "sourceFile": "/Users/liuhang/Documents/project-abyssa/src/assets/battle/old-manor/last-seat-puppet-heiress.png",
+      "sourceSha256": "32fdfa005361825efdc5023232a00f0c7c41af80777f17855fb1729dbe312965",
+      "inputFile": "/Users/liuhang/Documents/project-abyssa/docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/references/old-manor.puppet-heiress.png",
+      "sourceBounds": [
+        0,
+        0,
+        1216,
+        832
+      ],
+      "inputProcess": "alpha-visible bounds, proportional contain at 90%, white composite; all attached details retained",
+      "size": "1536x1024"
+    },
+    {
+      "assetId": "memory.marietta",
+      "name": "玛丽埃塔·提线魔女",
+      "sourceFile": "/Users/liuhang/Documents/project-abyssa/src/assets/battle/old-manor/marietta-memory-boss.png",
+      "sourceSha256": "54adff4c6ac389ed0412732c6181fbe5a5896e5a311f6c2b8e9ec8d82f86c7de",
+      "inputFile": "/Users/liuhang/Documents/project-abyssa/docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/references/memory.marietta.png",
+      "sourceBounds": [
+        0,
+        0,
+        1856,
+        1280
+      ],
+      "inputProcess": "alpha-visible bounds, proportional contain at 90%, white composite; all attached details retained",
+      "size": "1536x1024"
+    }
+  ]
+}

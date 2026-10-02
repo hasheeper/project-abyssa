@@ -1,0 +1,35 @@
+{
+  "assetId": "old-manor.waiting-guest",
+  "version": "v2",
+  "model": "gpt-image-2.5-sunburst@local",
+  "options": {
+    "quality": "high",
+    "size": "1024x1536",
+    "output_format": "png"
+  },
+  "sourceFile": "/Users/liuhang/Documents/project-abyssa/src/assets/battle/old-manor/waiting-guest.png",
+  "sourceSha256": "7f3041db606fb5963200a41fad9f52df1afd91f367af17a55bb6a1d2ecc0a97c",
+  "inputFile": "/Users/liuhang/Documents/project-abyssa/docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/references/old-manor.waiting-guest.png",
+  "inputSha256": "de10cde268de2df0bd57b18fc97a6802971e2fc9553bfef2235d5b18cedcbed0",
+  "inputProcess": "alpha-visible bounds, proportional contain at 90%, white composite; all attached details retained",
+  "styleFile": "/Users/liuhang/Documents/project-abyssa/docs/design/codex-concept-2026-10-02/ai-lineart-sample/reef-crab-ai-v2.png",
+  "styleSha256": "be588b93ede425b086e842bb2dbb6c56d60828530e91dafb6ec672541d0af817",
+  "promptFile": "/Users/liuhang/Documents/project-abyssa/docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/old-manor.waiting-guest.prompt-v2.txt",
+  "promptSha256": "e6a9a1695510172aac35c05a4e27693c96efd42334944517bea050cc517f55e6",
+  "requestSha256": "3d4383e0a81ea5bf0edec106030581b71495c5c9d422c881f6803f553a6b16c7",
+  "quote": {
+    "cost": 0,
+    "mode": "free",
+    "images": 1
+  },
+  "state": "saved",
+  "imageFile": "/Users/liuhang/Documents/project-abyssa/docs/design/codex-concept-2026-10-02/ai-lineart-batch-2026-10-02/old-manor.waiting-guest.ai-v2.png",
+  "mime": "image/png",
+  "width": 1024,
+  "height": 1536,
+  "bytes": 1267062,
+  "sha256": "2a0f55c939398c316717272a34f3fe3122d2e24c12d783231c3088fcfdecd24c",
+  "startedAt": "2026-10-02T11:55:28.306Z",
+  "completedAt": "2026-10-02T11:56:13.495Z",
+  "elapsedMs": 45187
+}

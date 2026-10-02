@@ -11,11 +11,13 @@ import "./menu.css";
 // CSS backgrounds are not document.images: keep the first scene ready on a cold visit.
 export const prepare = () => prepareImages([manorNightGallery]);
 
-const MemoryPreview = import.meta.env.DEV ? lazy(() => import("./dev/MemoryMenuPreview")) : null;
+const MenuPreview = import.meta.env.DEV ? lazy(() => import("./dev/MenuPreview")) : null;
 
 export default function Page() {
   const sample = import.meta.env.DEV ? new URLSearchParams(routeSearch()).get("memory-preview") : null;
-  if (sample && MemoryPreview) return <Suspense fallback={null}><MemoryPreview sample={sample}/></Suspense>;
+  const codex = import.meta.env.DEV ? new URLSearchParams(routeSearch()).get("codex-preview") : null;
+  if (codex && MenuPreview) return <Suspense fallback={null}><MenuPreview key={`codex:${codex}`} sample={codex} section="codex"/></Suspense>;
+  if (sample && MenuPreview) return <Suspense fallback={null}><MenuPreview key={`memory:${sample}`} sample={sample}/></Suspense>;
   return (
     <>
       <MenuPage />

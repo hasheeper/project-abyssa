@@ -1,0 +1,40 @@
+{
+  "date": "2026-10-02",
+  "purpose": "Image-AI reference using one real shipped enemy: mire slime",
+  "baseFramework": "../opus-framework.svg",
+  "menuReference": "../menu-reference.png",
+  "changes": "Main agent adapts Opus v2 open page to the real art. Illustrations shown at moderate size; no new illustration, environment or alternate pose is generated.",
+  "assets": [
+    {
+      "id": "slime",
+      "name": "浊泥史莱姆",
+      "source": "src/assets/battle/tide-reef/enemy.slime.mire.png",
+      "bytes": 573184,
+      "sha256": "f7b860ce09bbfd94c6955d1a7f6cb78c9b02376d28eab917eef6efebcc6d4f75",
+      "previewProcessing": "Read alpha bounds and fit the original pixels into the reference composition; no repaint, recolor or shape change",
+      "previewMetrics": {
+        "original": [
+          1376,
+          768
+        ],
+        "alphaBounds": [
+          123,
+          130,
+          1283,
+          706
+        ],
+        "displayed": [
+          435,
+          216
+        ]
+      }
+    }
+  ],
+  "outputs": [
+    {
+      "filename": "layout-slime.png",
+      "bytes": 1133187,
+      "sha256": "ed73bf500b52ba13830f9aa86d55272ba93361c8f6172d51cdaa0227644dabd4"
+    }
+  ]
+}

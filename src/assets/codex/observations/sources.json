@@ -1,0 +1,673 @@
+{
+  "parameters": {
+    "version": 5,
+    "displayBox": [
+      550,
+      380
+    ],
+    "supersampling": 2,
+    "padding": 12,
+    "ink": [
+      198,
+      191,
+      172
+    ],
+    "contourPixels": 0.9,
+    "inkThresholds": [
+      0.12,
+      0.32
+    ],
+    "structureLevels": 5,
+    "densityCellPixels": 6,
+    "localLineCoverage": 0.145,
+    "primaryLinePixels": 1.0,
+    "secondaryLinePixels": 0.7,
+    "maxDarkMarks": 12
+  },
+  "assets": [
+    {
+      "assetId": "enemy.slime.mire",
+      "source": "src/assets/battle/tide-reef/enemy.slime.mire.png",
+      "sourceSha256": "f7b860ce09bbfd94c6955d1a7f6cb78c9b02376d28eab917eef6efebcc6d4f75",
+      "acceptedSegments": 101,
+      "densityRejectedSegments": 1,
+      "meanSegmentPixels": 29.193,
+      "localInkDensityP95": 0.1095,
+      "sourceSize": [
+        1376,
+        768
+      ],
+      "alphaBounds": [
+        123,
+        130,
+        1283,
+        706
+      ],
+      "workScale": 0.906897,
+      "strokeWidthPixels": 2.0,
+      "visualCenter": [
+        0.47508277658032044,
+        0.5407033186683388
+      ],
+      "groundAnchor": 0.9526315789473684,
+      "inkCoverage": 0.0435,
+      "contourCoverage": 0.0151,
+      "outputs": [
+        {
+          "file": "enemy.slime.mire.webp",
+          "size": [
+            1100,
+            570
+          ],
+          "sha256": "4d5201f11629195b1c5d207eea9acafa44291b941879374b358d2b8905a0bfbb"
+        },
+        {
+          "file": "enemy.slime.mire.thumb.webp",
+          "size": [
+            164,
+            89
+          ],
+          "sha256": "38bbe75096916dd7a4be0f75e1dae6ab5613d52e22905eac5a70759fc02e4925"
+        }
+      ]
+    },
+    {
+      "assetId": "enemy.beast.reef-crab",
+      "source": "src/assets/battle/tide-reef/enemy.beast.reef-crab.png",
+      "sourceSha256": "8d18f6da1ad6386ef933aa5f3c0bbeabfa85eccd1a3f39f76d8deb0cd1459db7",
+      "acceptedSegments": 381,
+      "densityRejectedSegments": 12,
+      "meanSegmentPixels": 13.549,
+      "localInkDensityP95": 0.1315,
+      "sourceSize": [
+        1376,
+        768
+      ],
+      "alphaBounds": [
+        59,
+        36,
+        1281,
+        743
+      ],
+      "workScale": 0.860884,
+      "strokeWidthPixels": 2.0,
+      "visualCenter": [
+        0.5157405024410842,
+        0.5471039386601462
+      ],
+      "groundAnchor": 0.9604261796042618,
+      "inkCoverage": 0.053,
+      "contourCoverage": 0.0265,
+      "outputs": [
+        {
+          "file": "enemy.beast.reef-crab.webp",
+          "size": [
+            1100,
+            657
+          ],
+          "sha256": "2bf98e6d0d461b74601cd1a161f9bb76483e80e2bd79dd646a23ab894b59bd3c"
+        },
+        {
+          "file": "enemy.beast.reef-crab.thumb.webp",
+          "size": [
+            164,
+            102
+          ],
+          "sha256": "3019b7fd8e75e091fa7d5ee3b7186888ca6677349dcfd7f9b9a2d2dbabe6cb9f"
+        }
+      ]
+    },
+    {
+      "assetId": "enemy.beast.shell-leech",
+      "source": "src/assets/battle/tide-reef/enemy.beast.shell-leech.png",
+      "sourceSha256": "e738d6affe7d079d531d3fea3a1a158a8cad75d2f8ef5a13fe40d2f9e9908063",
+      "acceptedSegments": 267,
+      "densityRejectedSegments": 17,
+      "meanSegmentPixels": 19.18,
+      "localInkDensityP95": 0.141,
+      "sourceSize": [
+        1376,
+        768
+      ],
+      "alphaBounds": [
+        198,
+        161,
+        1240,
+        687
+      ],
+      "workScale": 1.009597,
+      "strokeWidthPixels": 2.0,
+      "visualCenter": [
+        0.4703333992491273,
+        0.46595569471619275
+      ],
+      "groundAnchor": 0.9533678756476683,
+      "inkCoverage": 0.068,
+      "contourCoverage": 0.0211,
+      "outputs": [
+        {
+          "file": "enemy.beast.shell-leech.webp",
+          "size": [
+            1100,
+            579
+          ],
+          "sha256": "6ec4e92dcfb1d121d2e560d6a9ef7e8c2546f9f31d923f8fb8cfad7c8d11a649"
+        },
+        {
+          "file": "enemy.beast.shell-leech.thumb.webp",
+          "size": [
+            164,
+            91
+          ],
+          "sha256": "e5d143629f43674d9beafeee521586f81fd0c04636fc52cd4e9aa3ba48763f8c"
+        }
+      ]
+    },
+    {
+      "assetId": "enemy.outlaw.blade",
+      "source": "src/assets/battle/tide-reef/enemy.outlaw.blade.png",
+      "sourceSha256": "d4d89fa2bfa3be68355435a44b5226886c8dfd75a158627746ba8a1723d001fe",
+      "acceptedSegments": 268,
+      "densityRejectedSegments": 25,
+      "meanSegmentPixels": 15.909,
+      "localInkDensityP95": 0.1452,
+      "sourceSize": [
+        1376,
+        768
+      ],
+      "alphaBounds": [
+        234,
+        39,
+        1187,
+        749
+      ],
+      "workScale": 1.002817,
+      "strokeWidthPixels": 1.414,
+      "visualCenter": [
+        0.5693535078113431,
+        0.4858914789165303
+      ],
+      "groundAnchor": 0.9657894736842105,
+      "inkCoverage": 0.0894,
+      "contourCoverage": 0.0386,
+      "outputs": [
+        {
+          "file": "enemy.outlaw.blade.webp",
+          "size": [
+            1004,
+            760
+          ],
+          "sha256": "d5b5b77e5aa4416cf3d9f8aed8ed9924aff0fdaa4a334e3805efe9bad660314a"
+        },
+        {
+          "file": "enemy.outlaw.blade.thumb.webp",
+          "size": [
+            161,
+            124
+          ],
+          "sha256": "a3ae97f5ed0c44e93d1afeb015707180cea8e748275baf9dccee0c5274ec5604"
+        }
+      ]
+    },
+    {
+      "assetId": "enemy.outlaw.crossbow",
+      "source": "src/assets/battle/tide-reef/enemy.outlaw.crossbow.png",
+      "sourceSha256": "41332378aea16c338c8fb22368e7c23cc36be8e7ba6ce3e09932b9f4a86f59a6",
+      "acceptedSegments": 319,
+      "densityRejectedSegments": 13,
+      "meanSegmentPixels": 13.876,
+      "localInkDensityP95": 0.1428,
+      "sourceSize": [
+        1376,
+        768
+      ],
+      "alphaBounds": [
+        100,
+        61,
+        1201,
+        755
+      ],
+      "workScale": 0.955495,
+      "strokeWidthPixels": 2.0,
+      "visualCenter": [
+        0.3799105023540488,
+        0.5007763393224489
+      ],
+      "groundAnchor": 0.9634317862165963,
+      "inkCoverage": 0.0662,
+      "contourCoverage": 0.0357,
+      "outputs": [
+        {
+          "file": "enemy.outlaw.crossbow.webp",
+          "size": [
+            1100,
+            711
+          ],
+          "sha256": "b467325b4d1f6d56738ec082f80d2a41de1368abef7eaf62831f230babc06a60"
+        },
+        {
+          "file": "enemy.outlaw.crossbow.thumb.webp",
+          "size": [
+            164,
+            109
+          ],
+          "sha256": "44eb80ffbf572fe479fbcbf1423380e138cb842b030a7861fe3c183b15d36586"
+        }
+      ]
+    },
+    {
+      "assetId": "enemy.outlaw.hauler",
+      "source": "src/assets/battle/tide-reef/enemy.outlaw.hauler.png",
+      "sourceSha256": "58f18b296c352410ba2960daebcde06a08814689f9d2f96c6236f99040bb65c8",
+      "acceptedSegments": 301,
+      "densityRejectedSegments": 25,
+      "meanSegmentPixels": 15.145,
+      "localInkDensityP95": 0.1553,
+      "sourceSize": [
+        2752,
+        1536
+      ],
+      "alphaBounds": [
+        536,
+        47,
+        2044,
+        1499
+      ],
+      "workScale": 0.490358,
+      "strokeWidthPixels": 2.0,
+      "visualCenter": [
+        0.39462715084796945,
+        0.5086634548420991
+      ],
+      "groundAnchor": 0.9671052631578947,
+      "inkCoverage": 0.0745,
+      "contourCoverage": 0.0271,
+      "outputs": [
+        {
+          "file": "enemy.outlaw.hauler.webp",
+          "size": [
+            787,
+            760
+          ],
+          "sha256": "b6436685e6c37b54cedda3b8472cf8223f95a565f5882d9605e363e1b8e07df2"
+        },
+        {
+          "file": "enemy.outlaw.hauler.thumb.webp",
+          "size": [
+            128,
+            124
+          ],
+          "sha256": "25925fcf953cd42cbabc560f9c841cee791c720ceaf6538a42be63f085e879b1"
+        }
+      ]
+    },
+    {
+      "assetId": "enemy.outlaw.chief",
+      "source": "src/assets/battle/tide-reef/enemy.outlaw.chief.png",
+      "sourceSha256": "9fcdcf26fb95eb7630e56bc290ce7280beff411564d18c830848d36e76c69a61",
+      "acceptedSegments": 208,
+      "densityRejectedSegments": 22,
+      "meanSegmentPixels": 14.885,
+      "localInkDensityP95": 0.1481,
+      "sourceSize": [
+        1376,
+        768
+      ],
+      "alphaBounds": [
+        404,
+        14,
+        1014,
+        749
+      ],
+      "workScale": 0.968707,
+      "strokeWidthPixels": 2.0,
+      "visualCenter": [
+        0.46758295777957676,
+        0.5407152802683762
+      ],
+      "groundAnchor": 0.9657894736842105,
+      "inkCoverage": 0.0645,
+      "contourCoverage": 0.041,
+      "outputs": [
+        {
+          "file": "enemy.outlaw.chief.webp",
+          "size": [
+            639,
+            760
+          ],
+          "sha256": "6969d44104fabce9dba7bb5b73b230f53f7f156e1a1f6b70f3e3b141835084f1"
+        },
+        {
+          "file": "enemy.outlaw.chief.thumb.webp",
+          "size": [
+            106,
+            124
+          ],
+          "sha256": "3aed67a7cbd4ac5e47a5cf54ef43058f13f92b1712a06030e611b6aaf8119727"
+        }
+      ]
+    },
+    {
+      "assetId": "old-manor.clockwork-beast",
+      "source": "src/assets/battle/old-manor/clockwork-beast.png",
+      "sourceSha256": "80537c5b3479b2375a419184d351ca6239dc3e9324e6c62c8584c073087bb8b5",
+      "acceptedSegments": 400,
+      "densityRejectedSegments": 97,
+      "meanSegmentPixels": 16.674,
+      "localInkDensityP95": 0.163,
+      "sourceSize": [
+        1408,
+        768
+      ],
+      "alphaBounds": [
+        53,
+        0,
+        1310,
+        754
+      ],
+      "workScale": 0.836913,
+      "strokeWidthPixels": 1.414,
+      "visualCenter": [
+        0.5398086869323383,
+        0.4807798418490581
+      ],
+      "groundAnchor": 0.9617083946980854,
+      "inkCoverage": 0.1005,
+      "contourCoverage": 0.0679,
+      "outputs": [
+        {
+          "file": "old-manor.clockwork-beast.webp",
+          "size": [
+            1100,
+            679
+          ],
+          "sha256": "2d8a58a2b5db57ceca3facabfd06057d1d90116b3b2635e55404b4739bd15dd6"
+        },
+        {
+          "file": "old-manor.clockwork-beast.thumb.webp",
+          "size": [
+            164,
+            105
+          ],
+          "sha256": "2a3f0f34333b5bfc540cfa847674aedbb8f3bddf068ce6c58f7c97bd3440cce8"
+        }
+      ]
+    },
+    {
+      "assetId": "old-manor.waiting-guest",
+      "source": "src/assets/battle/old-manor/waiting-guest.png",
+      "sourceSha256": "7f3041db606fb5963200a41fad9f52df1afd91f367af17a55bb6a1d2ecc0a97c",
+      "acceptedSegments": 178,
+      "densityRejectedSegments": 21,
+      "meanSegmentPixels": 20.469,
+      "localInkDensityP95": 0.1761,
+      "sourceSize": [
+        1376,
+        768
+      ],
+      "alphaBounds": [
+        417,
+        0,
+        979,
+        729
+      ],
+      "workScale": 0.97668,
+      "strokeWidthPixels": 1.414,
+      "visualCenter": [
+        0.5064207316491443,
+        0.5150091560207011
+      ],
+      "groundAnchor": 0.9644736842105263,
+      "inkCoverage": 0.0952,
+      "contourCoverage": 0.0502,
+      "outputs": [
+        {
+          "file": "old-manor.waiting-guest.webp",
+          "size": [
+            597,
+            760
+          ],
+          "sha256": "4392184f64549f128b6941c2865bfd2c4b95a5b5b44f8911979cc7b426a535ce"
+        },
+        {
+          "file": "old-manor.waiting-guest.thumb.webp",
+          "size": [
+            99,
+            124
+          ],
+          "sha256": "d35b69867ac439bf266bcbcd26977c73e6f127e436d19fb076f3a8ffa2a94185"
+        }
+      ]
+    },
+    {
+      "assetId": "old-manor.platter-bearer",
+      "source": "src/assets/battle/old-manor/platter-bearer.png",
+      "sourceSha256": "c5b4d999a098f95a451377d3bfaf29893f37a18d584866c804d062cfd6872ca4",
+      "acceptedSegments": 223,
+      "densityRejectedSegments": 39,
+      "meanSegmentPixels": 16.628,
+      "localInkDensityP95": 0.1618,
+      "sourceSize": [
+        1376,
+        768
+      ],
+      "alphaBounds": [
+        243,
+        0,
+        1088,
+        752
+      ],
+      "workScale": 0.946809,
+      "strokeWidthPixels": 1.414,
+      "visualCenter": [
+        0.592055923749335,
+        0.48189883084697344
+      ],
+      "groundAnchor": 0.9657894736842105,
+      "inkCoverage": 0.0905,
+      "contourCoverage": 0.0721,
+      "outputs": [
+        {
+          "file": "old-manor.platter-bearer.webp",
+          "size": [
+            848,
+            760
+          ],
+          "sha256": "877ba542164009506fa4032921b59cb13793f9e31f63662c5baca438d3a8bb40"
+        },
+        {
+          "file": "old-manor.platter-bearer.thumb.webp",
+          "size": [
+            137,
+            124
+          ],
+          "sha256": "de99a8af4a55ce178d035db6ad2b4fc4b4b6ef40049aed966ee10d90fe0c16b4"
+        }
+      ]
+    },
+    {
+      "assetId": "old-manor.mending-maid",
+      "source": "src/assets/battle/old-manor/mending-maid.png",
+      "sourceSha256": "42330c16a94f0295c946123a21ac6fce5fa045dd3cdf4b66674831b002323e1b",
+      "acceptedSegments": 61,
+      "densityRejectedSegments": 6,
+      "meanSegmentPixels": 22.869,
+      "localInkDensityP95": 0.1743,
+      "sourceSize": [
+        1376,
+        768
+      ],
+      "alphaBounds": [
+        420,
+        0,
+        860,
+        760
+      ],
+      "workScale": 0.936842,
+      "strokeWidthPixels": 2.0,
+      "visualCenter": [
+        0.5712240174776885,
+        0.5753854438523789
+      ],
+      "groundAnchor": 0.9657894736842105,
+      "inkCoverage": 0.0601,
+      "contourCoverage": 0.0573,
+      "outputs": [
+        {
+          "file": "old-manor.mending-maid.webp",
+          "size": [
+            460,
+            760
+          ],
+          "sha256": "f86691a069872035a6af8f83b5cb12cd23e758628f8444a536733d84e03984d6"
+        },
+        {
+          "file": "old-manor.mending-maid.thumb.webp",
+          "size": [
+            79,
+            124
+          ],
+          "sha256": "46aa80de08a38d7849d41e859aa99e0eab6266916af9e64bb6da88e73f4dfe51"
+        }
+      ]
+    },
+    {
+      "assetId": "old-manor.curtain-butler",
+      "source": "src/assets/battle/old-manor/curtain-butler.png",
+      "sourceSha256": "ddca4fd2c5bc4c0252188b5332f8f3c10501b20cb313f2a7270d03b5212ff9f5",
+      "acceptedSegments": 251,
+      "densityRejectedSegments": 63,
+      "meanSegmentPixels": 28.578,
+      "localInkDensityP95": 0.1678,
+      "sourceSize": [
+        1376,
+        768
+      ],
+      "alphaBounds": [
+        171,
+        0,
+        1151,
+        736
+      ],
+      "workScale": 0.967391,
+      "strokeWidthPixels": 2.0,
+      "visualCenter": [
+        0.5258227055548824,
+        0.573297561105188
+      ],
+      "groundAnchor": 0.9657894736842105,
+      "inkCoverage": 0.08,
+      "contourCoverage": 0.0374,
+      "outputs": [
+        {
+          "file": "old-manor.curtain-butler.webp",
+          "size": [
+            996,
+            760
+          ],
+          "sha256": "3f996922377102f3b240cf158e55e3b6f6d1ea56ef4953486777d60f075f00cd"
+        },
+        {
+          "file": "old-manor.curtain-butler.thumb.webp",
+          "size": [
+            160,
+            124
+          ],
+          "sha256": "3c027c9f7b64695fe6fdf6e45bdc973ed0484ab8d158222b944e6806697ea63a"
+        }
+      ]
+    },
+    {
+      "assetId": "old-manor.puppet-heiress",
+      "source": "src/assets/battle/old-manor/last-seat-puppet-heiress.png",
+      "sourceSha256": "32fdfa005361825efdc5023232a00f0c7c41af80777f17855fb1729dbe312965",
+      "acceptedSegments": 300,
+      "densityRejectedSegments": 14,
+      "meanSegmentPixels": 12.947,
+      "localInkDensityP95": 0.1041,
+      "sourceSize": [
+        1216,
+        832
+      ],
+      "alphaBounds": [
+        0,
+        0,
+        1216,
+        832
+      ],
+      "workScale": 0.855769,
+      "strokeWidthPixels": 2.0,
+      "visualCenter": [
+        0.4975506901944913,
+        0.5815105093651307
+      ],
+      "groundAnchor": 0.9671052631578947,
+      "inkCoverage": 0.0309,
+      "contourCoverage": 0.0476,
+      "outputs": [
+        {
+          "file": "old-manor.puppet-heiress.webp",
+          "size": [
+            1089,
+            760
+          ],
+          "sha256": "f2eb739eb740d5d5781c17af1f5d5bd48323c3e385006a6afdc5cdd8869acf33"
+        },
+        {
+          "file": "old-manor.puppet-heiress.thumb.webp",
+          "size": [
+            164,
+            117
+          ],
+          "sha256": "b4a51085b96c28b7bddf3bd895dc0fc2ce2e75f884ea9e97f46951fd07872666"
+        }
+      ]
+    },
+    {
+      "assetId": "memory.marietta",
+      "source": "src/assets/battle/old-manor/marietta-memory-boss.png",
+      "sourceSha256": "54adff4c6ac389ed0412732c6181fbe5a5896e5a311f6c2b8e9ec8d82f86c7de",
+      "acceptedSegments": 207,
+      "densityRejectedSegments": 13,
+      "meanSegmentPixels": 14.08,
+      "localInkDensityP95": 0.1184,
+      "sourceSize": [
+        1856,
+        1280
+      ],
+      "alphaBounds": [
+        0,
+        0,
+        1856,
+        1280
+      ],
+      "workScale": 0.55625,
+      "strokeWidthPixels": 2.0,
+      "visualCenter": [
+        0.49047092026803374,
+        0.5724739835036528
+      ],
+      "groundAnchor": 0.9671052631578947,
+      "inkCoverage": 0.0396,
+      "contourCoverage": 0.0728,
+      "outputs": [
+        {
+          "file": "memory.marietta.webp",
+          "size": [
+            1080,
+            760
+          ],
+          "sha256": "ed38fde8f0fc67045b62e94c1e6645033f81558c35fcb15726ca11d0b016fed5"
+        },
+        {
+          "file": "memory.marietta.thumb.webp",
+          "size": [
+            164,
+            118
+          ],
+          "sha256": "dc79047e890113d9ac753eb8287e1aadc7c7b61eb4b02a4593024622000cceab"
+        }
+      ]
+    }
+  ]
+}
