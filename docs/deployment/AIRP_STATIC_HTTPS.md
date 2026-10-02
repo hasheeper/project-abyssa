@@ -1,10 +1,12 @@
 # AIRP：Cloudflare Pages 静态发布
 
-当前发布阶段：**Alpha**。正式试玩站为[abyssa-airp-alpha.pages.dev](https://abyssa-airp-alpha.pages.dev/)，源码仓库为[hasheeper/project-abyssa](https://github.com/hasheeper/project-abyssa)。ABOUT 标识 `ABYSSA · ALPHA`。10-01 在现有 Pages 项目更新 production 部署。
+当前发布阶段：**Alpha**。正式试玩站为[abyssa-airp-alpha.pages.dev](https://abyssa-airp-alpha.pages.dev/)，源码仓库为[hasheeper/project-abyssa](https://github.com/hasheeper/project-abyssa)。ABOUT 标识 `ABYSSA · ALPHA`。10-02 在现有 Pages 项目更新 production 部署。
 
-更新：2026-10-01。当前运行源码 `7fcfce150244887ba9b274f126c7bc7f364ee609` 已推送 GitHub main；从独立、干净的发布工作树使用 Node 22.23.2／npm 10.9.8 重建，严格 `check:pages -- --release` 与 `check:output -- game` 均通过。仅上传 `dist/game`，Cloudflare 确认 production 部署成功，source 为 `7fcfce1`。后续文档提交仅记录发布结果。
+更新：2026-10-02。当前运行源码 `3bffd28988b5df6b98599e248ba54273b51c79cd` 已推送 GitHub main；从独立、干净的发布工作树使用 Node 22.23.2／npm 10.9.8 重建，严格 `check:pages -- --release` 与 `check:output -- game` 均通过。仅上传 `dist/game`，Wrangler 4.140.0 确认 production 部署成功，source 为 `3bffd28`。后续文档提交仅记录发布结果。
 
-本次补齐洋馆房间「概况／运作／工程」抽屉，以及仓库、日志和整备的统一面板、分区、图标、数量控制与底部操作栏；设施操作仍接正式应用命令，教程未结束时不提前显示 AIRP 今日安排。详见[洋馆 UI 发布审查](../audits/2026-10-01-mansion-ui-pages-release.md)。
+本次上线正式图鉴：AI 观察线稿、同页目录与资料、轮盘扩散／旋转／聚焦动效，以及未遇见 → 已遇见 → 已击败的存档收录。首次遇见开放基础观察，首次击败补全已配置资料；重复遭遇不重播更新，撤销唯一击败可回退。跳过教程与菜单回想不伪造解锁，各存档独立。规则、素材来源和接线维护见[图鉴方案](../design/CODEX_PANEL_UI.md)。
+
+10-01 的 `7fcfce1` 补齐洋馆房间「概况／运作／工程」抽屉，以及仓库、日志和整备的统一面板、分区、图标、数量控制与底部操作栏；设施操作仍接正式应用命令，教程未结束时不提前显示 AIRP 今日安排。详见[洋馆 UI 发布审查](../audits/2026-10-01-mansion-ui-pages-release.md)。
 
 10-01 前一次 `d393ac5` 修复结算模态层重叠、读完仍锁页、取消后保底冲突与连接设置输入，详见[结算恢复审查](../audits/2026-10-01-airp-settlement-recovery.md)。本次同包保留这些修复，结算与记忆浏览器回归共 3 项通过。
 
@@ -13,15 +15,17 @@
 | 发布证据 | 当前结果 |
 | --- | --- |
 | Pages 项目／分支 | `abyssa-airp-alpha`／`main`，Direct Upload |
-| Production 部署 ID | `adaef2b6-48ff-4c23-88da-451a4c87c95e` |
-| 当前部署地址 | [adaef2b6.abyssa-airp-alpha.pages.dev](https://adaef2b6.abyssa-airp-alpha.pages.dev/) |
-| 发布目录 | `dist/game`，886 文件／160.80 MiB，最大 7.81 MiB |
-| 上传结果 | 885 静态文件（43 个新上传、842 个复用）＋由 Pages 解析的 `_headers` |
-| 清单 SHA-256 | `94b9c7aebc63d8998c1c60fc4d09fa8f6e9272d8ed53f8d5c35e670201710afa` |
+| Production 部署 ID | `f74d1d3c-f3e3-42a5-a01b-ab4bf43cff4c` |
+| 当前部署地址 | [f74d1d3c.abyssa-airp-alpha.pages.dev](https://f74d1d3c.abyssa-airp-alpha.pages.dev/) |
+| 发布目录 | `dist/game`，915 文件／163.21 MiB，最大 7.81 MiB |
+| 上传结果 | 914 静态文件（78 个新上传、836 个复用）＋由 Pages 解析的 `_headers` |
+| 清单 SHA-256 | `8bb3c359cdfec052fc30558e254e6d9826182d38a58a93495eef21660273ebc3` |
 
-上一版 production 保留为回退候选：`fb89e017-8800-4167-a508-c6dc750a501c`，源码 `d393ac53f0f48934e21d7992284321d92a0a9b0c`，部署地址 [fb89e017.abyssa-airp-alpha.pages.dev](https://fb89e017.abyssa-airp-alpha.pages.dev/)，清单 SHA-256 为 `f4d31b2c3d1baa1a581facbf3dae885b948571ee35ac551763501b7fcab4f156`。
+上一版 production 保留为回退候选：`adaef2b6-48ff-4c23-88da-451a4c87c95e`，源码 `7fcfce150244887ba9b274f126c7bc7f364ee609`，部署地址 [adaef2b6.abyssa-airp-alpha.pages.dev](https://adaef2b6.abyssa-airp-alpha.pages.dev/)，清单 SHA-256 为 `94b9c7aebc63d8998c1c60fc4d09fa8f6e9272d8ed53f8d5c35e670201710afa`。
 
-本次线上 HTTP 核对：54 个变化文件和根目录运行文件的字节摘要与发布包一致；CSP 与 nosniff 响应头生效，3 个私有／缺失路径返回 404。正式域名的新洋馆 UI 流程通过，包括房间三页签、库存选择、日志分组／重开、整备与缩放，存档不变、模型 POST 与页面异常为 0。本地结算恢复、记忆回想与 CSP 预检通过。未操作玩家真实存档或调用真实模型；只上传运行产物，已知本地 Key／端点标记命中为 0。完整包与证据保留在本机 `dist/releases/mansion-ui-7fcfce1/game` 和 `dist/reports/mansion-ui-release-2026-10-01/`。
+本次线上 HTTP 核对：正式域名 89 个变化／入口文件的字节摘要与发布包一致；CSP 与 nosniff 响应头生效，3 个私有／缺失路径返回 404。在独立部署地址通过正常 UI 创建自由行动新档，核对正式图鉴入口、13 项全锁、返回主菜单与重新进入，控制台错误为 0；没有操作正式域名的玩家存档或配置模型。干净发布副本的图鉴／Menu 40 项回归、应用与前端类型检查、模块边界、动效令牌及发布门禁均通过；接线阶段的应用战斗／事务回归另有 12 项通过。该结果不等于完整远端 CI、全流程战斗或回退演练通过。
+
+源码和完整发布包均扫描已知本地 Key／端点标记，命中为 0；只上传运行产物。完整包与证据保留在本机 `dist/releases/codex-3bffd28/game` 和 `dist/reports/codex-release-2026-10-02/`。首次 Git 大包上传遇到连接重置，改用 HTTP/1.1 重试后成功，远端 `main` 已核对为 `3bffd28`；没有强制推送或改写历史。
 
 最新[发布与密钥审计](../audits/2026-09-25-release-security.md)记录源码／产物扫描与初轮 Git 历史证据，受检范围内没有发现已知 Key 外泄；重连误填、开发服务私档、CI 报告上传和发布门禁已修复。上传范围不含配置、源码地图、私人报告、实验页或工具页。部署成功与完整玩家流程、模型生成、更新回退验收分别记录。
 
