@@ -88,9 +88,10 @@ export function CodexPanel({ entries, initialEntryId, onBack, sceneMotion, unava
             {[30, 60, 120, 150, 210, 240, 300, 330].map(angle => <path className="codex-observation__tick" key={angle} transform={`rotate(${angle} 240 240)`} d="M240 12V28M240 45V63"/>)}
           </svg>
           <div className="codex-observation__art">
-            {entry.image ? <img src={entry.image} alt={`${entry.name}的观察草图`} draggable={false} data-codex-reveal="art"
-              style={{ width: artLayout.width, height: artLayout.height, transform: `translate(calc(-50% + ${artLayout.offsetX}px), calc(-50% + ${artLayout.offsetY}px)) scale(var(--codex-art-scale, 1))` }}/> : <span className="codex-observation__unknown" aria-hidden="true" data-codex-reveal="art">?</span>}
+            {entry.image && <img src={entry.image} alt={`${entry.name}的观察草图`} draggable={false} data-codex-reveal="art"
+              style={{ width: artLayout.width, height: artLayout.height, transform: `translate(calc(-50% + ${artLayout.offsetX}px), calc(-50% + ${artLayout.offsetY}px)) scale(var(--codex-art-scale, 1))` }}/>}
           </div>
+          {!entry.image && <span className="codex-observation__unknown" aria-hidden="true" data-codex-reveal="art">?</span>}
         </div>
       </figure>
     </div>
