@@ -7,11 +7,13 @@ import { createTargetConfig } from '../../config/vite/create-config.mjs';
 import { projectRoot } from '../../config/paths.mjs';
 import { resolveTarget } from '../../config/targets.mjs';
 import { fileHash, listFiles } from './files.mjs';
+import { captureGameBuild, assertGameBuildSource } from './game-release.mjs';
 
 const execute = promisify(execFile);
 /** @param {string} targetId @param {import('../../config/types.js').TargetOptions} [options] */
 export async function buildTarget(targetId, options = {}) {
-  const config = createTargetConfig(targetId, options);
+  const gameBuild = options.gameBuild ?? captureGameBuild(projectRoot, true);
+  const config = createTargetConfig(targetId, {...options, gameBuild});
   config.logLevel = 'warn';
   const directory = /** @type {string} */ (config.build?.outDir);
   await build(config);
@@ -19,18 +21,14 @@ export async function buildTarget(targetId, options = {}) {
   const files = [];
   for (const file of await listFiles(directory)) files.push({ path: relative(directory, file).split('\\').join('/'), bytes: (await stat(file)).size, sha256: await fileHash(file) });
   const pkg = JSON.parse(await readFile(resolve(projectRoot, 'package.json'), 'utf8'));
-  /** @type {string | null} */
-  let revision = null;
-  /** @type {boolean | null} */
-  let dirty = null;
-  try {
-    revision = (await execute('git', ['rev-parse', 'HEAD'], { cwd: projectRoot })).stdout.trim();
-    dirty = (await execute('git', ['status', '--porcelain'], { cwd: projectRoot })).stdout.trim() !== '';
-  } catch { /* Source archives can build without Git; unknown provenance stays explicit. */ }
   const toolVersions = Object.fromEntries(await Promise.all(['vite', 'typescript'].map(async name => [name, JSON.parse(await readFile(resolve(projectRoot, 'node_modules', name, 'package.json'), 'utf8')).version])));
+  assertGameBuildSource(gameBuild, projectRoot);
   const report = {
     target: targetId, entries: resolveTarget(targetId).entries.map(entry => entry.id),
-    revision, dirty, node: process.version, packageManager: pkg.packageManager, toolVersions,
+    revision: gameBuild.source.revision, dirty: gameBuild.source.dirty, sourceFingerprint: gameBuild.source.fingerprint,
+    ...(resolveTarget(targetId).entries.some(entry => entry.kind === 'game') ? {gameRelease: gameBuild.release} : {}),
+    node: process.version, npm: process.env.npm_config_user_agent?.match(/^npm\/([\d.]+)/)?.[1] ?? null,
+    packageManager: pkg.packageManager, toolVersions,
     files, totalBytes: files.reduce((n, file) => n + file.bytes, 0),
   };
   const reports = resolve(projectRoot, 'dist/reports');

@@ -160,6 +160,9 @@ describe("TitlePage", () => {
     expect(footer).toBeInTheDocument();
     expect(footer.querySelector(".title-hint")).toBeInTheDocument();
     expect(footer.querySelector(".title-imprint")).toBeInTheDocument();
+    expect(footer.querySelector(".title-imprint")).not.toHaveTextContent("裂隙远征");
+    expect(footer.querySelector(".title-imprint")).toHaveTextContent("本机存档");
+    expect(footer.querySelector('[aria-label^="游戏版本 "]')).toBeInTheDocument();
     expect(stack.querySelector(".title-hint")).toBeNull();
   });
 

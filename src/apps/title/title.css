@@ -362,9 +362,6 @@
   text-transform: none;
 }
 
-/* ---- 底部信息带 ----
-   高 = TITLE_FOOTER_H。它与中轴是**相邻**关系,不是叠在中轴上,
-   所以两行用 flex 在带内排布,而不是各自 bottom 定位。 */
 .title-footer {
   position: absolute;
   bottom: 0;
@@ -387,17 +384,21 @@
 }
 
 .title-hint {
+  max-width: 860px;
   color: var(--abyssa-text-muted, #8b7a5d);
   font-size: 15px;
   letter-spacing: 0.08em;
 }
 
 .title-imprint {
+  position: absolute;
+  inset-inline-end: 32px;
+  inset-block-end: 16px;
   color: var(--abyssa-ornament, #6b563a);
   font-family: var(--abyssa-font-display, Georgia, serif);
   font-size: 12px;
-  letter-spacing: 0.34em;
-  /* 尾隙补偿,与命令键同理。 */
-  text-indent: 0.34em;
-  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  text-align: end;
+  text-indent: 0;
+  text-transform: none;
 }

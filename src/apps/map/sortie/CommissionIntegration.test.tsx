@@ -9,7 +9,7 @@ import {AirpGameGate} from "../../../game-client/airp-game/AirpGameGate";
 import {directorJournalEntries} from "../../../game-client/airp-director/DirectorJournal";
 import {CommissionList} from "../../../game-client/airp-director/CommissionList";
 import {dispatchDirector} from "../../../game-client/airp-director/dispatch";
-import {SortieQuestPanel} from "./SortieQuestPanel";
+import {SortieDossier} from "./SortieDossier";
 import {sortieLeader, sortieRoster} from "./sortie-roster";
 import {cloneMapLocations} from "../types";
 
@@ -24,13 +24,15 @@ it("uses the same accepted task in the journal, route panel, saved confirmation 
     expect(await dispatchDirector(session, {type: "airp-director-choose", eventId: f.eventId, choiceId: "participate"})).toBeTruthy();
     expect(f.event()).toMatchObject({status: "accepted", actionPhase: 2});
     const tasks = directorCommissions(f.raw(), f.departure.routeId)!;
-    const panel = render(<SortieQuestPanel location={cloneMapLocations().find(l => l.id === "tower")!} side="left" roster={sortieRoster} leader={sortieLeader}
-      party={{memberIds: [], command: "personal"}} rejection={null} onEditParty={() => {}} onDepart={() => {}} onClose={() => {}}
+    const panel = render(<SortieDossier location={cloneMapLocations().find(l => l.id === "tower")!} side="left" status="ready" roster={sortieRoster} leader={sortieLeader}
+      party={{memberIds: [], command: "personal"}} notice={null} onEditParty={() => {}} onDepart={() => {}} onClose={() => {}}
       commissions={<CommissionList tasks={tasks} title="路线委托"/>}/>);
     expect(within(screen.getByRole("region", {name: "路线委托"})).getByText(f.event().card.title)).toBeInTheDocument();
     expect(screen.getByText(/接单反馈未读完，任务目标已登记/)).toBeInTheDocument();
     expect(screen.getByText("目标：取回空药箱")).toBeInTheDocument();
-    expect(screen.getByRole("button", {name: "出发"}).closest(".abyssa-sortie-quest__scroll")).toBeNull();
+    /* 便条别在可滚动的纸面上；出发钉在板下沿，不随纸面滚走。 */
+    expect(screen.getByRole("region", {name: "路线委托"}).closest(".abyssa-sortie-dossier__scroll")).not.toBeNull();
+    expect(screen.getByRole("button", {name: "出发"}).closest(".abyssa-sortie-dossier__scroll")).toBeNull();
     panel.unmount();
     await f.readScene();
     const journal = directorJournalEntries(f.raw(), session, false, () => {}).find(e => e.id === f.eventId)!;

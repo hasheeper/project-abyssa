@@ -120,7 +120,7 @@ describe("sortie roster", () => {
     });
   });
 
-  it("keeps party-stage figures out of the poster and quest renderers", () => {
+  it("keeps party-stage figures out of the poster and dossier renderers", () => {
     const stageSource = readFileSync(
       resolve(import.meta.dirname, "./SortiePartyStage.tsx"),
       "utf8"
@@ -129,8 +129,8 @@ describe("sortie roster", () => {
       resolve(import.meta.dirname, "./SortieRosterPanel.tsx"),
       "utf8"
     );
-    const questSource = readFileSync(
-      resolve(import.meta.dirname, "./SortieQuestPanel.tsx"),
+    const dossierSource = readFileSync(
+      resolve(import.meta.dirname, "./SortieDossier.tsx"),
       "utf8"
     );
 
@@ -146,7 +146,8 @@ describe("sortie roster", () => {
     expect(stageSource).toContain("partyFigureStyle(leader.id)");
     expect(posterSource).toContain("<img src={member.portraitUrl}");
     expect(posterSource).not.toContain("member.figureUrl");
-    expect(questSource).toContain("<img src={leader.portraitUrl}");
-    expect(questSource).not.toContain("leader.figureUrl");
+    expect(dossierSource).toContain("<img src={leader.portraitUrl}");
+    /* 委托书的队伍格用 member?.thumbnailUrl，可选链也不许借道取立绘。 */
+    expect(dossierSource).not.toMatch(/(?:leader|member)\??\.figureUrl/);
   });
 });

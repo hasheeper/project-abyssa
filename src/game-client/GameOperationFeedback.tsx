@@ -4,6 +4,7 @@ import { ErrorDetails } from "../shared/ui/patterns/feedback/ErrorDetails";
 import { downloadJson, gameErrorText } from "./game-errors";
 import { JournalButton } from "./JournalPrimitives";
 import { SceneLayer } from "./SceneLayer";
+import { withReleaseIdentity } from "../shared/release/game-release";
 import type { GameSession, SessionState } from "./session";
 import "./game-operation-feedback.css";
 
@@ -70,7 +71,7 @@ function OperationDialog({current, open, onClose}: {current: Report | null; open
           <JournalButton disabled={busy} onClick={() => void work(async () => {
             const result = await session.runtime.application.exportDiagnostic(session.locator.saveId);
             if (!result.ok) throw new Error("Diagnostic export failed");
-            downloadJson(result.archive, `abyssa-diagnostic-${session.locator.saveId}.json`);
+            downloadJson(withReleaseIdentity(result.archive), `abyssa-diagnostic-${session.locator.saveId}.json`);
           })}>导出诊断</JournalButton>
         </ErrorDetails>
         {exportError && <p role="alert">{exportError}</p>}

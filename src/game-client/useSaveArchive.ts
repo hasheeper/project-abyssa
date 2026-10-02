@@ -3,6 +3,7 @@ import type { createBrowserGameRuntime } from "../game-runtime/browser";
 import type { GameStartPoint, PlayerSaveListEntry as SaveListEntry } from "../game-runtime/player-runtime";
 import { gameHref, recentSave, rememberSave, recordLocator, locatorHasRun, type SaveLocator } from "./navigation";
 import { downloadJson, gameErrorText } from "./game-errors";
+import { withReleaseIdentity } from "../shared/release/game-release";
 import { readTitleSaveList } from "./title-save-list";
 import { archiveCandidates, isSaveArchived, readSaveArchive, writeSaveArchive, type ArchivedSave } from "./save-archive";
 import { parsePlayerName } from "../game-runtime/player-name";
@@ -184,7 +185,7 @@ export function useSaveArchive(navigate: (href: string) => void, options: { onBu
     exportGame: (saveId: string, diagnostic = false) => operation(async () => {
       const app = runtime.current!.application;
       const result = diagnostic ? await app.exportDiagnostic(saveId) : await app.exportSave(saveId);
-      if (result.ok) downloadJson(result.archive, `abyssa-${diagnostic ? "diagnostic-" : ""}${saveId}.json`);
+      if (result.ok) downloadJson(diagnostic ? withReleaseIdentity(result.archive) : result.archive, `abyssa-${diagnostic ? "diagnostic-" : ""}${saveId}.json`);
       else setMessage(gameErrorText(result.error.code));
     }),
     refresh: () => operation(list),

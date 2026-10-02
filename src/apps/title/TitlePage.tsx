@@ -23,6 +23,7 @@ import { useTitleArchive } from "./useTitleArchive";
 import { NewGameDialog } from "./NewGameDialog";
 import { TitleCommandMenu } from "./TitleCommandMenu";
 import { useTitleParallax } from "./useTitleParallax";
+import { ReleaseStamp } from "../../shared/release/ReleaseStamp";
 
 /* ============ 标题画面 ============
  *
@@ -147,7 +148,7 @@ function TitlePageContent() {
             两者不再叠加(上一版提示行压在第四个键上,重叠 36.93px)。 */}
         <footer className="title-footer">
           <p className="title-hint" role={modalOpen ? undefined : "status"}>{modalOpen ? "" : hint || archive.message}</p>
-          <p className="title-imprint">裂隙远征 · 本机存档</p>
+          <p className="title-imprint">本机存档 · <ReleaseStamp /></p>
         </footer>
 
       </AbyssaProvider>

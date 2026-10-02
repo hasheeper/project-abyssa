@@ -182,8 +182,9 @@ input { font: inherit; }
 .abyssa-map-wood-frame__corners .abyssa-metal-corner {
   position: absolute;
   display: block;
-  /* 与 shop 的金属角同宽(76px),原 clamp(44px, 5vw, 60px) 含视口单位。 */
-  width: 76px;
+  /* 与 shop 的金属角同宽(76px),原 clamp(44px, 5vw, 60px) 含视口单位。
+     委托书沿用同一组角件，只改这个令牌。 */
+  width: var(--abyssa-map-frame-corner, 76px);
   height: auto;
   overflow: hidden;
   filter: drop-shadow(0 2px 2px rgb(0 0 0 / 72%));

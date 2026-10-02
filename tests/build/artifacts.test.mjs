@@ -30,10 +30,14 @@ test('CSS artifact validation ignores nested SVG fragment URLs but still finds m
 });
 
 test('mansion build closes navigation and detects missing pages, chunks and dynamic art', async t => {
+  const previousEpoch = process.env.SOURCE_DATE_EPOCH;
+  process.env.SOURCE_DATE_EPOCH = '1700000000';
+  t.after(() => { if (previousEpoch === undefined) delete process.env.SOURCE_DATE_EPOCH; else process.env.SOURCE_DATE_EPOCH = previousEpoch; });
   const temporary = await mkdtemp(resolve(tmpdir(), 'abyssa-assets-'));
   t.after(() => rm(temporary, { recursive: true, force: true }));
   const outDir = resolve(temporary, 'mansion output');
   const first = await buildTarget('entry:mansion', { outDir });
+  assert.deepEqual(JSON.parse(await readFile(resolve(outDir, 'release.json'), 'utf8')), first.report.gameRelease);
   assert.deepEqual(await validateBuildOutput('entry:mansion', outDir), []);
   assert.match(await readFile(resolve(outDir, 'mansion.html'), 'utf8'), /index\.html#\/mansion/);
   const second = await buildTarget('entry:mansion', { outDir });

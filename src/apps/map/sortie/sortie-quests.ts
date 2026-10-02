@@ -1,7 +1,7 @@
 import type { MapLocationId } from "../types";
-import abandonedWatchtowerSceneUrl from "../../../assets/map/quest-backgrounds/abandoned-watchtower.jpg";
-import tidecallGrottoSceneUrl from "../../../assets/map/quest-backgrounds/tidecall-grotto.jpg";
-import weatheredSanctumSceneUrl from "../../../assets/map/quest-backgrounds/weathered-sanctum.jpg";
+import abandonedWatchtowerSceneUrl from "../../../assets/map/dossier/print-abandoned-watchtower.webp";
+import tidecallGrottoSceneUrl from "../../../assets/map/dossier/print-tidecall-grotto.webp";
+import weatheredSanctumSceneUrl from "../../../assets/map/dossier/print-weathered-sanctum.webp";
 
 /* ============ 地图基础说明 ============
  *
@@ -32,7 +32,7 @@ export interface QuestYieldEntry {
 
 export interface QuestBrief {
   nodeId: MapLocationId;
-  /** 侧板顶部场景横幅；未配置时展示正式占位构图。 */
+  /** 委托书上的棕褐版画（assets/map/dossier，离线由原画处理）；未配置时不画。 */
   sceneImageUrl?: string;
   /** 一句风味。 */
   flavor: string;

@@ -1,3 +1,17 @@
+import type { GameRelease } from "../src/shared/release/game-release";
+
+export type GameBuild = {
+  release: GameRelease;
+  source: { revision: string | null; dirty: boolean | null; fingerprint: string | null };
+  configurationSha256: string;
+};
+export type GameReleaseRecord = {
+  version: string;
+  revision: string;
+  builtAt: string;
+  manifestSha256: string;
+  deployments: { id: string; url: string; recordedAt: string }[];
+};
 export type EntryKind = "game" | "lab" | "tool";
 export type AssetProfile = "mansion" | "paper-dolls" | "emotes";
 export type Entry = {
@@ -28,4 +42,5 @@ export type TargetOptions = {
   open?: boolean;
   enableAi?: boolean;
   base?: string;
+  gameBuild?: GameBuild;
 };

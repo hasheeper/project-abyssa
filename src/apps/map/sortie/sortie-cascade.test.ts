@@ -103,31 +103,23 @@ describe("sortie frame cascade", () => {
     expect(reset!.weight).toBe(3);
   });
 
-  it("gives both overlays a padding that outranks that reset", () => {
-    for (const name of ["abyssa-sortie-roster", "abyssa-sortie-quest"]) {
-      const won = winner(rules, [name, "abyssa-frame", "abyssa-frame__content"]);
-      expect(won, name).toBeDefined();
-      /* 胜出的必须是我们自己那条，而不是 foundation 的 padding:0。 */
-      expect(won!.selector, name).toContain(name);
-      expect(won!.value, name).not.toBe("0");
-    }
+  /* 委托书不是 RpgFrame（它借地图画框的木轨与黄铜带，见 sortie-dossier.css），
+     这道关只剩出战名单一个 RpgFrame 浮层。 */
+  it("gives the roster drawer a padding that outranks that reset", () => {
+    const won = winner(rules, ["abyssa-sortie-roster", "abyssa-frame", "abyssa-frame__content"]);
+    expect(won).toBeDefined();
+    /* 胜出的必须是我们自己那条，而不是 foundation 的 padding:0。 */
+    expect(won!.selector).toContain("abyssa-sortie-roster");
+    expect(won!.value).not.toBe("0");
   });
 
-  /* RpgFrame 三层装饰的最内侧：inset:10 处 2px 宽的四角括号 → 12px。
-     padding 要压过它，且净间隙 6px 以上才不显得「贴着」。 */
-  it("clears the frame ornaments by a visible margin", () => {
-    const token = CSS!.match(/--sortie-pad:\s*([0-9.]+)px/);
-    expect(token).not.toBeNull();
-    const padding = Number(token![1]);
-    expect(padding - 12).toBeGreaterThanOrEqual(6);
-
+  /* 胜出的值必须是名单自己的三枚令牌 —— 它们与四角括号的净间隙
+     在 sortie-layout.test.ts 里核算，这里只证明算的就是生效的那条。 */
+  it("lets the roster padding tokens win the cascade", () => {
     expect(
       winner(rules, ["abyssa-sortie-roster", "abyssa-frame", "abyssa-frame__content"])!.value
     ).toBe(
       "var(--sortie-roster-pad-top) var(--sortie-roster-pad-x) var(--sortie-roster-pad-bottom)"
     );
-    expect(
-      winner(rules, ["abyssa-sortie-quest", "abyssa-frame", "abyssa-frame__content"])!.value
-    ).toBe("var(--sortie-pad)");
   });
 });

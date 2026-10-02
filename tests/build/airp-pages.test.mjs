@@ -26,7 +26,7 @@ test('Pages uses a real 404 and a bounded policy compatible with inline bookmark
 });
 
 test('upload allowlist rejects private, executable-server, hidden, source-map and archive files', () => {
-  for (const path of ['.vite/manifest.json', '_headers', '404.html', 'assets/main-abc.js', 'character-art/elora/eyes_1.png', 'mansion-map/composite-reference.png']) assert.equal(allowedPagesPath(path), true, path);
+  for (const path of ['.vite/manifest.json', '_headers', '404.html', 'release.json', 'assets/main-abc.js', 'character-art/elora/eyes_1.png', 'mansion-map/composite-reference.png']) assert.equal(allowedPagesPath(path), true, path);
   for (const path of ['config/airp-test.local.json', 'assets/settings.local.json', 'reports/result.json', '.env', '.DS_Store', 'assets/.hidden', '_worker.js', 'functions/api.js', 'assets/main.js.map', 'assets/backup.zip', 'src/main.ts', '../index.html']) assert.equal(allowedPagesPath(path), false, path);
   assert.throws(() => validatePagesInventory([{path: 'assets/big.png', bytes: pagesLimits.fileBytes + 1}]), /size limit/);
   assert.throws(() => validatePagesInventory(Array.from({length: 20001}, () => ({path: 'index.html', bytes: 1}))), /file-count/);

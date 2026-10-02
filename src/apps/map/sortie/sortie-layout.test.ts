@@ -6,27 +6,45 @@ import { describe, expect, it } from "vitest";
    这些量只能从样式表本身核对。
    注释必须先剥掉：里面写着「12 太挤」「不是全身」这类反例说明，
    不剥会命中自己的说明文字。 */
+const stripComments = (css: string) => css.replace(/\/\*[\s\S]*?\*\//g, "");
 const CSS = readFileSync(resolve(import.meta.dirname, "./sortie.css"), "utf8");
-const RULES = CSS.replace(/\/\*[\s\S]*?\*\//g, "");
+const RULES = stripComments(CSS);
+/* 委托书自成一张样式表；字阶令牌在地图材料表里。 */
+const DOSSIER = stripComments(readFileSync(resolve(import.meta.dirname, "./sortie-dossier.css"), "utf8"));
+const MATERIALS = stripComments(readFileSync(resolve(import.meta.dirname, "../map-materials.css"), "utf8"));
 
-function token(name: string): number {
-  const match = RULES.match(new RegExp(`--${name}:\\s*([0-9.]+)px`));
+function token(name: string, rules = RULES): number {
+  const match = rules.match(new RegExp(`--${name}:\\s*([0-9.]+)px`));
   if (!match) throw new Error(`token --${name} not found`);
   return Number(match[1]);
 }
 
-/* RpgFrame 的三层嵌套装饰，最内侧是 inset:10 处 2px 宽的四角括号。
-   数值取自 components-foundation.css，那里是唯一来源。 */
-const FRAME_ORNAMENT_EDGE = 10 + 2;
+const escapeSelector = (selector: string) => selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+/** 规则体：选择器必须独占一条规则的开头，不会误中复合选择器的尾巴。 */
+function ruleBody(rules: string, selector: string): string {
+  return rules.match(new RegExp(`(?:^|[\\n}])\\s*${escapeSelector(selector)}\\s*\\{([^}]*)\\}`))?.[1] ?? "";
+}
 
 describe("sortie layout", () => {
-  /* 老毛病：只看外框不看装饰层，把 padding 设成 12 → 净间隙 0，
-     内容正好压在四角括号上。 */
-  it("clears the RpgFrame ornaments instead of butting against them", () => {
-    const pad = token("sortie-pad");
-    expect(pad).toBeGreaterThan(FRAME_ORNAMENT_EDGE);
-    /* 6px 以下肉眼仍然是「贴着」。sm(14) 只剩 2px，不够。 */
-    expect(pad - FRAME_ORNAMENT_EDGE).toBeGreaterThanOrEqual(6);
+  /* 老毛病：只看外框不看装饰层，padding 一小 → 净间隙 0，内容正好压在四角括号上。
+     名单改过 RpgFrame 的括号（inset 与线宽见 .abyssa-sortie-roster > .abyssa-frame__ornaments），
+     间隙按它自己的括号内缘核算，不套 foundation 的 10 + 2。 */
+  it("clears the roster frame ornaments instead of butting against them", () => {
+    const inset = Number(
+      ruleBody(RULES, ".abyssa-sortie-roster > .abyssa-frame__ornaments").match(/inset:\s*([0-9.]+)px/)![1]
+    );
+    const line = Number(
+      ruleBody(RULES, '.abyssa-sortie-roster > .abyssa-frame__ornaments [data-corner="tl"]')
+        .match(/border-width:\s*([0-9.]+)px/)![1]
+    );
+    const edge = inset + line;
+
+    /* 海报排与信息栏贴着两侧和底边走：6px 以下肉眼仍然是「贴着」。 */
+    expect(token("sortie-roster-pad-x") - edge).toBeGreaterThanOrEqual(6);
+    expect(token("sortie-roster-pad-bottom") - edge).toBeGreaterThanOrEqual(6);
+    /* 顶边让给标题带与右栏铭牌的上沿，目前净间隙 3px，只守住不压线。 */
+    expect(token("sortie-roster-pad-top")).toBeGreaterThan(edge);
   });
 
   /* 「padding 是否真的生效」不在这里断言 —— 读源码只能证明规则存在，
@@ -421,21 +439,16 @@ describe("sortie layout", () => {
     expect(hiddenPopStages).toEqual([]);
   });
 
-  /* 侧板占 [18, 438] 或 [873.67, 1293.67]；集结区必须完整落在反侧，
-     不能靠 panel 的 z-index 把重叠人物盖住来假装版面正确。 */
-  it("keeps the quest muster opposite either side panel without overlap", () => {
+  /* 委托书占 [28, 468] 或 [843.67, 1283.67]；集结区必须完整落在反侧，
+     不能靠委托书的 z-index 把重叠人物盖住来假装版面正确。
+     委托书的内缩写在它自己的样式表里，比其他浮层的 18 多让出 10。 */
+  it("keeps the muster opposite either side of the dossier without overlap", () => {
     const viewportWidth = 1311.67;
-    const inset = token("sortie-inset");
+    const inset = token("sortie-inset", DOSSIER);
     const panelWidth = token("sortie-quest-w");
     const musterWidth = token("sortie-muster-w");
     const musterLeft = token("sortie-muster-left-x");
     const musterRight = token("sortie-muster-right-x");
-    const panelRightRule = RULES.match(
-      /\.abyssa-sortie-quest\[data-side="right"\]\s*\{([^}]*)\}/
-    )?.[1] ?? "";
-    const panelLeftRule = RULES.match(
-      /\.abyssa-sortie-quest\[data-side="left"\]\s*\{([^}]*)\}/
-    )?.[1] ?? "";
     const partyByRightPanel = RULES.match(
       /\.abyssa-sortie-stage\[data-mode="pop"\]\[data-quest-side="right"\]\s*\{([^}]*)\}/
     )?.[1] ?? "";
@@ -443,8 +456,9 @@ describe("sortie layout", () => {
       /\.abyssa-sortie-stage\[data-mode="pop"\]\[data-quest-side="left"\]\s*\{([^}]*)\}/
     )?.[1] ?? "";
 
-    expect(panelRightRule).toMatch(/right:\s*var\(--sortie-inset\)/);
-    expect(panelLeftRule).toMatch(/left:\s*var\(--sortie-inset\)/);
+    expect(ruleBody(DOSSIER, ".abyssa-sortie-dossier")).toMatch(/width:\s*var\(--sortie-quest-w\)/);
+    expect(ruleBody(DOSSIER, '.abyssa-sortie-dossier[data-side="right"]')).toMatch(/right:\s*var\(--sortie-inset\)/);
+    expect(ruleBody(DOSSIER, '.abyssa-sortie-dossier[data-side="left"]')).toMatch(/left:\s*var\(--sortie-inset\)/);
     expect(partyByRightPanel).toMatch(/left:\s*var\(--sortie-muster-left-x\)/);
     expect(partyByLeftPanel).toMatch(/left:\s*var\(--sortie-muster-right-x\)/);
 
@@ -487,43 +501,49 @@ describe("sortie layout", () => {
     });
   });
 
-  /* 长句正文保持阅读字号；奖励与队伍状态属于短标签，可以更轻、更小，
+  /* 长句正文保持阅读字号；收获、行囊标签与提示属于短标签，可以更轻、更小，
      但仍要靠字号形成明确层级，不能重新堆成一片重字。 */
-  it("keeps the quest panel body text readable", () => {
-    const size = (selector: string) =>
-      Number(
-        RULES.match(
-          new RegExp(`${selector.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\\\$&")}\\s*\\{[^}]*font-size:\\s*([0-9.]+)px`)
-        )![1]
-      );
+  it("keeps the dossier body text readable", () => {
+    /* px 直接读；var(--map-type-*) 回到地图材料表的字阶。 */
+    const size = (selector: string) => {
+      const value = ruleBody(DOSSIER, selector).match(/font-size:\s*([^;]+)/)?.[1].trim();
+      if (!value) throw new Error(`font-size for ${selector} not found`);
+      const step = value.match(/^var\(--(map-type-[\w-]+)\)$/);
+      return step ? token(step[1], MATERIALS) : Number(value.match(/^([0-9.]+)px$/)![1]);
+    };
 
-    /* 需要连续阅读的风味和威胁不得小于 14。 */
-    expect(size(".abyssa-sortie-quest__flavor")).toBeGreaterThanOrEqual(14);
-    expect(size(".abyssa-sortie-quest__threats span")).toBeGreaterThanOrEqual(14);
+    /* 需要连续阅读的风味、敌情与未开放说明不得小于 14。 */
+    expect(size(".abyssa-sortie-dossier__flavor")).toBeGreaterThanOrEqual(14);
+    expect(size(".abyssa-sortie-dossier__facts dd")).toBeGreaterThanOrEqual(14);
+    expect(size(".abyssa-sortie-dossier__condition")).toBeGreaterThanOrEqual(14);
     /* 短标签可以退后，但不能小到不可读。 */
-    expect(size(".abyssa-sortie-quest__yields li > span")).toBeGreaterThanOrEqual(12);
-    expect(size(".abyssa-sortie-quest__kv dd")).toBeGreaterThanOrEqual(12);
-    expect(size(".abyssa-sortie-quest__block h3")).toBeGreaterThanOrEqual(12);
-    expect(size(".abyssa-sortie-quest__kv dt")).toBeGreaterThanOrEqual(11);
-    expect(size(".abyssa-sortie-quest__reject")).toBeGreaterThanOrEqual(11);
+    expect(size(".abyssa-sortie-dossier__yields li > span:not([class])")).toBeGreaterThanOrEqual(12);
+    expect(size(".abyssa-sortie-dossier__facts dt")).toBeGreaterThanOrEqual(12);
+    expect(size(".abyssa-sortie-dossier__row-label")).toBeGreaterThanOrEqual(11);
+    expect(size(".abyssa-sortie-dossier__notice")).toBeGreaterThanOrEqual(11);
 
-    /* 标题仍要明显压过正文，层级不能因为放大而抹平。 */
-    expect(size(".abyssa-sortie-quest__hd h2")).toBeGreaterThan(
-      size(".abyssa-sortie-quest__flavor") + 4
+    /* 标题由顶轨上的单行名牌承担（深底铭牌 + 字距），不再靠大一号压住正文；
+       但不得小于正文。 */
+    expect(size(".abyssa-sortie-dossier__plate .abyssa-nameplate__content strong")).toBeGreaterThanOrEqual(
+      size(".abyssa-sortie-dossier__flavor")
     );
-    /* 标签必须弱于它标注的值。 */
-    expect(size(".abyssa-sortie-quest__kv dt")).toBeLessThan(size(".abyssa-sortie-quest__kv dd"));
+    /* 小标必须弱于它标注的正文。 */
+    expect(size(".abyssa-sortie-dossier__facts dt")).toBeLessThan(size(".abyssa-sortie-dossier__facts dd"));
   });
 
-  /* 场景图底部由渐暗自然过渡，不能再叠半透明 border、四边 inset 和
-     下沿 inset；三层混色会在裁切口形成明暗不一的“幽灵边”。 */
-  it("does not double-draw the quest hero clipping edge", () => {
-    const hero = RULES.match(/\.abyssa-sortie-quest__hero\s*\{([^}]*)\}/)?.[1] ?? "";
+  /* 版画由蒙版化进纸里，不能再给它或图片叠 border、outline、box-shadow；
+     那会在裁切口画出一圈「幽灵边」，退回贴在纸上的相片。
+     蒙版必须随框拉伸（100% 100%）：版画收矮时边缘照样化开。 */
+  it("dissolves the dossier print into the paper instead of drawing a crop edge", () => {
+    const print = ruleBody(DOSSIER, ".abyssa-sortie-dossier__print");
+    const image = ruleBody(DOSSIER, ".abyssa-sortie-dossier__print img");
 
-    expect(hero).toMatch(/border:\s*0/);
-    expect(hero).not.toMatch(/border-bottom\s*:/);
-    expect(hero).not.toMatch(/inset\s+0\s+0\s+0/);
-    expect(hero).not.toMatch(/inset\s+0\s+-/);
+    expect(image).toMatch(/(?:^|[;\s])mask:\s*url\([^)]*print-mask-v1\.webp[^)]*\)[^;]*\/\s*100% 100%/);
+    expect(image).toMatch(/mix-blend-mode:\s*multiply/);
+    for (const [name, body] of [["print", print], ["image", image]]) {
+      expect(body, name).not.toBe("");
+      expect(body, name).not.toMatch(/(?:^|[;\s])(?:border|outline|box-shadow)(?:-[a-z]+)*\s*:/);
+    }
   });
 
   /* 内框只允许落在有明确语义的轻拟物部件上，不能给每一段内容都套框。
@@ -531,7 +551,6 @@ describe("sortie layout", () => {
   it("limits interior frames to purposeful lightweight elements", () => {
     expect(RULES).not.toContain(".abyssa-sortie-stage__bg");
     const allowed = new Set([
-      ".abyssa-sortie-quest__go",
       ".abyssa-sortie-figure__art",
       '.abyssa-sortie-figure[data-empty="true"] .abyssa-sortie-figure__art',
       ".abyssa-sortie-poster__void",
@@ -545,9 +564,7 @@ describe("sortie layout", () => {
       ".abyssa-sortie-roster__title::before",
       ".abyssa-sortie-roster.abyssa-frame",
       ".abyssa-sortie-info-panel",
-      ".abyssa-sortie-info__dice::after",
-      /* 场景图占位符右上角的小太阳，是圆形图案而非分区框。 */
-      ".abyssa-sortie-quest__hero-placeholder i::after"
+      ".abyssa-sortie-info__dice::after"
     ]);
 
     const boxed = [...RULES.matchAll(/([^{}]+)\{([^}]*)\}/g)]

@@ -11,6 +11,7 @@ import { GameOperationFeedback } from "../GameOperationFeedback";
 import { JournalButton } from "../JournalPrimitives";
 import { ConfirmationDialog } from "../../shared/ui/patterns/ConfirmationDialog";
 import { SceneLayer } from "../SceneLayer";
+import { withReleaseIdentity } from "../../shared/release/game-release";
 import "./direct-game.css";
 
 const drivers = new WeakMap<GameSession, ReturnType<typeof createDirectGameDriver>>();
@@ -122,8 +123,8 @@ export function DirectControls({sceneId}: {sceneId: string}) {
         try {setInspection(JSON.stringify(inspectDirectAttempt(record, sceneId, a.id), (key, value) => key === "baseUrl" ? "[连接地址仅在设置显示]" : value, 2));}
         catch {setInspection("输入重建与原哈希不一致，拒绝显示为原请求。");}
       }}>核对完整输入与输出</JournalButton><pre>{a.output ?? "没有输出"}</pre></details>)}
-      {inspection && <><pre aria-label="完整请求核对">{inspection}</pre><JournalButton onClick={() => downloadJson(inspection, "airp-attempt-inspection.json")}>导出此阶段核对记录</JournalButton></>}
-      <JournalButton onClick={() => {try {downloadJson(exportDirectDiagnostic(record), "airp-redacted-diagnostic.json");} catch {setInspection("输入未能按原哈希重建，无法导出已验证诊断。请保留完整存档供本机排查。");}}}>导出脱敏诊断（不能恢复存档）</JournalButton>
+      {inspection && <><pre aria-label="完整请求核对">{inspection}</pre>{inspection.trimStart().startsWith("{") && <JournalButton onClick={() => downloadJson(withReleaseIdentity(inspection), "airp-attempt-inspection.json")}>导出此阶段核对记录</JournalButton>}</>}
+      <JournalButton onClick={() => {try {downloadJson(withReleaseIdentity(exportDirectDiagnostic(record)), "airp-redacted-diagnostic.json");} catch {setInspection("输入未能按原哈希重建，无法导出已验证诊断。请保留完整存档供本机排查。");}}}>导出脱敏诊断（不能恢复存档）</JournalButton>
     </details>
     <SceneLayer active={confirm || confirmationPresent}><ConfirmationDialog open={confirm} title="本场改用手写稿？" description="选定后，本场不能再切回AI生成。迟到的模型结果不会替换手写稿。" confirmLabel="使用手写稿" onPresentChange={setConfirmationPresent}
       busy={choosing || state.busy || state.pendingResult || status !== "ready"} onConfirm={() => void chooseHandwritten()} onCancel={() => setConfirm(false)} returnFocusRef={handwrite}>

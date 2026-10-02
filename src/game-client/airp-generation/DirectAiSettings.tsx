@@ -1,8 +1,9 @@
-import { useState, useSyncExternalStore, type ChangeEvent } from "react";
+import { useEffect, useMemo, useState, useSyncExternalStore, type ChangeEvent } from "react";
 import { aiConfiguration, effectiveAiConfiguration } from "../../game-runtime/airp-configuration";
 import { ModelConnectionFields } from "./ModelConnectionFields";
 import { SaveFileIcon } from "../SaveFileIcon";
 import { AiConnectionHelp, AiConnectionStorage } from "./AiConnectionStorage";
+import { createModelListController } from "../../game-runtime/airp-model-list";
 import "./direct-game.css";
 import "./direct-settings.css";
 
@@ -17,7 +18,9 @@ export function DirectAiSettings({layout = "inline", fixedR8 = false, saveInFoot
   const config = useSyncExternalStore(aiConfiguration.subscribe, aiConfiguration.getSnapshot), effective = effectiveAiConfiguration(config);
   const vault = useSyncExternalStore(aiConfiguration.subscribe, aiConfiguration.persistence.getSnapshot);
   const [error, setError] = useState(""), [notice, setNotice] = useState("");
-  const connectionProps = {value: config, effectiveModels: effective.models, onChange: aiConfiguration.patch, presentation: "settings" as const, disabled: vault.busy && vault.initialized};
+  const catalog = useMemo(() => createModelListController(), []);
+  useEffect(() => () => catalog.dispose(), [catalog]);
+  const connectionProps = {value: config, effectiveModels: effective.models, onChange: aiConfiguration.patch, catalog, presentation: "settings" as const, disabled: vault.busy && vault.initialized};
   return <section className={`airp-direct-settings airp-direct-settings--${layout}${fixedR8 ? " airp-direct-settings--game" : ""}`} aria-label="AIRP 浏览器直连设置">
     <div className="airp-settings-main">
       <header className="airp-settings-heading"><h3>服务连接</h3><ImportFile label="导入测试配置" disabled={connectionProps.disabled} onChange={async e => {

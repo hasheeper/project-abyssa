@@ -100,7 +100,7 @@ export async function productionAssets(directory) {
   const files = (await listFiles(directory)).filter(file => {
     const path = relative(directory, file);
     if (path.startsWith('mansion-map/') && !mansionFiles.has(path)) return false;
-    return !path.startsWith('.') && !['game-assets.json', 'game-cache.js'].includes(path) && /\.(?:html|js|css|png|jpe?g|webp|avif|gif|apng|svg|woff2?|ttf|mp3|ogg|wav|json|wasm)$/i.test(file);
+    return !path.startsWith('.') && !['game-assets.json', 'game-cache.js', 'release.json'].includes(path) && /\.(?:html|js|css|png|jpe?g|webp|avif|gif|apng|svg|woff2?|ttf|mp3|ogg|wav|json|wasm)$/i.test(file);
   });
   const manifest = await Promise.all(files.sort().map(async file => ({url: './' + relative(directory, file).split('\\').join('/'), bytes: (await stat(file)).size, revision: digest(await readFile(file))})));
   orderForWarmup(manifest);
@@ -139,7 +139,7 @@ export function gameStartup(target) {
     async closeBundle() {
       if (!enabled || !building) return;
       await mkdir(resolve(outDir, 'licenses/fonts'), {recursive: true});
-      for (const file of ['OFL-Cinzel.txt', 'OFL-NotoSerifSC.txt']) await copyFile(resolve(projectRoot, 'src/assets/fonts', file), resolve(outDir, 'licenses/fonts', file));
+      for (const file of ['OFL-Cinzel.txt', 'OFL-NotoSerifSC.txt', 'OFL-LXGWWenKai.txt']) await copyFile(resolve(projectRoot, 'src/assets/fonts', file), resolve(outDir, 'licenses/fonts', file));
       const assets = await productionAssets(outDir);
       const manifest = {version: digest(JSON.stringify(assets)), development: false, assets};
       await writeFile(resolve(outDir, 'game-assets.json'), JSON.stringify(manifest));

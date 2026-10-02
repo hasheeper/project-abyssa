@@ -1,5 +1,5 @@
 /* Same dark wood / aged brass plane as the roster, not the client debug skin. */
-.map-supplies, .map-supply-entry {
+.map-supplies {
   --abyssa-panel-black: #211c17;
   --abyssa-text: #ded2be;
   --abyssa-frame-dark: #17130f;
@@ -20,14 +20,6 @@
 }
 .map-command > .map-command__gem[data-edge="left"] { left: -3px; }
 .map-command > .map-command__gem[data-edge="right"] { right: -3px; }
-.map-supply-entry.abyssa-ribbon-button {
-  position: absolute; top: 22px; left: 22px; z-index: 12;
-  width: 254px; height: 52px; aspect-ratio: auto;
-  filter: drop-shadow(0 3px 4px #0008);
-}
-.map-supply-entry .abyssa-ribbon-button__label { font-size: 18px; letter-spacing: 2px; }
-.map-supply-entry .abyssa-ribbon-button__label > span { margin-left: 4px; font-size: 15px; color: #bda987; }
-.map-supply-entry[aria-expanded="true"] { --abyssa-frame-light: #c2a675; --abyssa-ribbon-fill: #34291d; }
 .map-supplies { position: absolute; top: 106px; left: 126px; width: 1060px; height: 572px; }
 .map-supplies.abyssa-frame[data-padding] > .abyssa-frame__content {
   height: 100%; display: flex; flex-direction: column; padding: 28px; gap: 22px; overflow: hidden;

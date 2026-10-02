@@ -46,7 +46,7 @@ export function allowedPagesPath(path) {
   if (path === '.vite/manifest.json') return true;
   if (path.split('/').some(part => part.startsWith('.') || /(?:^|[.-])local(?:[.-]|$)/i.test(part))) return false;
   if (/(?:^|\/)(?:functions|config|reports|private|node_modules|src|st|_worker\.js)(?:\/|$)/i.test(path)) return false;
-  if (/^(?:_headers|404\.html|game-assets\.json|game-cache\.js)$/.test(path)) return true;
+  if (/^(?:_headers|404\.html|game-assets\.json|game-cache\.js|release\.json)$/.test(path)) return true;
   if (/^(?:index|battle|character-status|dice|mansion|map|menu|prologue|settings|shop|title)\.html$/.test(path)) return true;
   return /^(?:assets|character-art|emote-art|mansion-map|licenses)\/.+\.(?:js|css|json|txt|png|jpe?g|webp|avif|gif|apng|svg|woff2?|ttf|mp3|ogg|wav|wasm)$/i.test(path);
 }

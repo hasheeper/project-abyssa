@@ -5,6 +5,7 @@ import { GameProvider, GameGate, useGameSession, useGameState } from "../../game
 import { createManualSaveAttempt, type ManualSaveAttempt } from "../../game-client/manual-save";
 import { SaveSlotsPanel } from "../../game-client/SaveSlotsPanel";
 import { SettingsPanel } from "../../game-client/settings/SettingsPanel";
+import { ReleaseStamp } from "../../shared/release/ReleaseStamp";
 import { MemoryPanel } from "../../game-client/memory/MemoryPanel";
 import { CodexPanel, type CodexEntry } from "../../game-client/codex/CodexPanel";
 import { codexEntries as presentCodexEntries } from "../../game-client/codex/codex-entries";
@@ -324,7 +325,8 @@ export function MenuPageContent({ memoryData: previewData, codexEntries, preview
               onClose={back} onBusyChange={onBusyChange}
               sceneMotion={view.archiveMotion}
               navigate={href => navigate(href, { destination: "存档进度", channel: "正在读取", entry: "restore" })} />
-            : view.displayed === "settings" ? <SettingsPanel onBack={back} sceneMotion={view.settingsMotion} />
+            : view.displayed === "settings" ? <SettingsPanel onBack={back} sceneMotion={view.settingsMotion}
+                saveIdentity={{protocolVersion: record.schemaVersion, rulesVersion: record.contentRef.rulesVersion, contentVersion: record.contentRef.contentVersion, catalogDigest: record.contentRef.digest}} />
             : view.displayed === "codex" ? <CodexPanel key={`${record.head.saveId}:${record.head.epoch}`} entries={creatureEntries} onBack={back} sceneMotion={view.codexMotion}
               unavailable={codexData?.status === "unavailable" ? codexData.message : undefined}/>
             : view.displayed === "memory" ? <MemoryPanel journal={journal} data={memoryData} onBack={back} sceneMotion={view.memoryMotion}/> : null}
@@ -333,6 +335,7 @@ export function MenuPageContent({ memoryData: previewData, codexEntries, preview
         {startingReward && <StartingRewards key={`${record.head.saveId}:${record.head.epoch}:${startingReward.id}`}
           reward={startingReward} saveId={record.head.saveId} epoch={record.head.epoch}
           paused={intro.blocked || intro.state !== "ready" || !home || view.transitioning || view.target !== "home"}/>}
+        {home && <p className="menu-release"><ReleaseStamp /></p>}
       </AbyssaProvider>
       {journal.replayEntry && <AbyssaProvider><MemoryReplay key={`${journal.scope}:${journal.replayEntry.id}:${journal.replayActId}`} entry={journal.replayEntry} actId={journal.replayActId}
         leaving={journal.replayLeaving} onClose={journal.stopReplay} onExited={journal.finishReplay}/></AbyssaProvider>}

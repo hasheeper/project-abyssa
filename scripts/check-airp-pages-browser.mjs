@@ -1,12 +1,17 @@
-import { readFile } from 'node:fs/promises';
+import { mkdir, readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { chromium, expect } from '@playwright/test';
 import { projectRoot } from '../config/paths.mjs';
 import { createArtifactServer } from './serve-built.mjs';
 import { prepareAirpPages } from './prepare-airp-pages.mjs';
+import { validateGameRelease } from './lib/game-release.mjs';
 
 // Local CSP/UI preflight only: not a Cloudflare emulator, TLS, CORS or cache acceptance.
 await prepareAirpPages(true);
+const release = validateGameRelease(JSON.parse(await readFile(resolve(projectRoot, 'dist/game/release.json'), 'utf8')));
+const releaseLabel = `v${release.version}${release.development ? ' · 开发版' : ''}`;
+const evidence = resolve(projectRoot, 'dist/reports/game-release');
+await mkdir(evidence, {recursive: true});
 const policy = await readFile(resolve(projectRoot, 'dist/game/_headers'), 'utf8');
 const csp = /^  Content-Security-Policy: (.+)$/m.exec(policy)?.[1];
 if (!csp) throw Error('Prepared CSP is missing.');
@@ -39,6 +44,8 @@ try {
   page.on('pageerror', () => errors.push('page-error'));
   await page.exposeFunction('recordCspFailure', () => violations.push('csp-violation'));
   await page.addInitScript(() => {
+    const local = /** @type {Window & {releaseCopied?: string}} */ (window);
+    Object.defineProperty(navigator, 'clipboard', {configurable: true, value: {writeText: async (/** @type {string} */ text) => { local.releaseCopied = text; }}});
     document.addEventListener('securitypolicyviolation', () => {
       void /** @type {Window & {recordCspFailure?: () => Promise<void>}} */(window).recordCspFailure?.();
     });
@@ -46,6 +53,16 @@ try {
   const response = await page.goto(origin + '/');
   expect(response?.headers()['content-security-policy']).toBe(csp);
   await expect(page.getByRole('button', {name: '新的开始', exact: true})).toBeVisible({timeout: 60000});
+  await expect(page.locator('.scene-transition').first()).toHaveAttribute('data-phase', 'idle');
+  await expect(page.getByRole('button', {name: '新的开始', exact: true})).toBeEnabled();
+  await expect(page.locator('.title-imprint')).toContainText(releaseLabel);
+  await expect(page.locator('.title-imprint')).not.toContainText('版本未知');
+  const imprint = await page.locator('.title-imprint').boundingBox();
+  if (!imprint) throw Error('Title release identity is missing.');
+  expect(Math.round(imprint.x + imprint.width)).toBe(1568);
+  expect(Math.round(imprint.y + imprint.height)).toBe(884);
+  expect(await (await context.request.get(origin + '/release.json')).json()).toEqual(release);
+  await page.screenshot({path: resolve(evidence, 'title.local.png')});
   await page.goto(origin + '/title.html');
   await expect(page).toHaveURL(/index\.html#\/title/, {timeout: 60000});
   await page.getByRole('button', {name: '新的开始', exact: true}).click();
@@ -55,10 +72,26 @@ try {
   await page.getByRole('button', {name: /下一步/}).click();
   await page.getByRole('button', {name: /开始游戏/}).click();
   await expect(page).toHaveURL(/#\/menu\?/, {timeout: 60000});
+  await expect(page.locator('.scene-transition').first()).toHaveAttribute('data-phase', 'idle');
+  await expect(page.locator('.menu-entry')).toHaveAttribute('data-menu-intro', 'ready');
+  await expect(page.locator('.menu-release')).toBeVisible();
+  await expect(page.locator('.menu-release')).toContainText(releaseLabel);
+  await page.screenshot({path: resolve(evidence, 'menu.local.png')});
   const saveQuery = new URL(page.url()).hash.split('?')[1];
+  await page.getByRole('button', {name: '设置', exact: true}).click();
+  await page.getByRole('tab', {name: 'About', exact: true}).click();
+  await expect(page.getByText(releaseLabel, {exact: true})).toBeVisible();
+  await page.getByRole('button', {name: '复制版本信息', exact: true}).click();
+  expect(await page.evaluate(() => /** @type {Window & {releaseCopied?: string}} */ (window).releaseCopied)).toContain(release.revision);
+  await page.screenshot({path: resolve(evidence, 'about.local.png')});
+  await page.getByText('当前存档身份', {exact: true}).click();
+  await expect(page.locator('.settings-release-details dl')).toBeVisible();
   await page.goto(origin + '/index.html#/mansion?' + saveQuery);
   await expect(page.getByRole('button', {name: '展开菜单', exact: true})).toBeVisible({timeout: 60000});
   await page.goto(origin + '/index.html#/settings?' + saveQuery);
+  await page.getByRole('tab', {name: 'About', exact: true}).click();
+  await expect(page.getByText(releaseLabel, {exact: true})).toBeVisible();
+  await expect(page.getByText('当前存档身份', {exact: true})).toHaveCount(0);
   await page.getByRole('tab', {name: 'Model', exact: true}).click();
   await expect(page.getByRole('heading', {name: '服务连接', exact: true})).toBeVisible({timeout: 60000});
   await page.getByText('保存说明', {exact: true}).click();
@@ -92,7 +125,8 @@ try {
   expect(externalRequests).toBe(0); expect(modelRequests).toBe(0);
   expect(errors).toEqual([]); expect(violations).toEqual([]);
   console.log(JSON.stringify({localOnly: true, published: false, cspEnforced: true, legacyBookmark: true,
-    directNewGame: true, aiSettings: true, externalRequests, modelRequests, pageErrors: errors.length, cspViolations: violations.length}));
+    directNewGame: true, aiSettings: true, releaseIdentity: true, versionCopy: true,
+    externalRequests, modelRequests, pageErrors: errors.length, cspViolations: violations.length}));
 } finally {
   await browser?.close();
   await new Promise(resolve => server.close(() => resolve(undefined)));

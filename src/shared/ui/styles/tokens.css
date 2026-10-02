@@ -21,6 +21,8 @@
   --abyssa-danger: #ce7772;
   --abyssa-font-display: "Cinzel", "Times New Roman", serif;
   --abyssa-font-body: "Noto Serif SC", "Songti SC", serif;
+  /* 手写楷体：只给纸面文书（委托书、信笺），界面文字仍用 body。缺字逐字回落到系统楷体再到宋体。 */
+  --abyssa-font-hand: "LXGW WenKai GB Screen", "Kaiti SC", "STKaiti", "KaiTi", "Noto Serif SC", serif;
   --abyssa-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
   --abyssa-shadow: 0 12px 28px rgb(9 14 14 / 24%);
 }

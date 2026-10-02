@@ -229,9 +229,9 @@ describe("map sortie", () => {
     expect(depart).toBeDisabled();
     expect(within(quest).getByText("至少要带一个人。")).toBeInTheDocument();
 
-    const editParty = within(quest).getByRole("button", { name: "调整队伍" });
-    expect(editParty).toHaveClass("abyssa-sortie-quest__edit-party");
-    expect(editParty.querySelector("svg")).not.toBeNull();
+    const editParty = within(quest).getByRole("button", { name: "编队" });
+    expect(editParty).toHaveClass("abyssa-sortie-dossier__tool");
+    expect(editParty.querySelector(".abyssa-icon-button__custom i")).not.toBeNull();
     expect(editParty).toHaveTextContent("");
     await user.click(editParty);
     await user.click(screen.getByRole("button", { name: "尤斯缇丝·格里芬" }));
@@ -273,7 +273,7 @@ describe("map sortie", () => {
     expect(drawer.textContent ?? "").not.toMatch(/圣辉|渊影|彼岸/);
   });
 
-  it("frames both overlays with RpgFrame rather than a bare border", async () => {
+  it("frames the drawer with RpgFrame and the dossier with the map's own wood frame", async () => {
     const user = userEvent.setup();
     render(<MapPage />);
 
@@ -286,8 +286,12 @@ describe("map sortie", () => {
     await user.click(screen.getByRole("button", { name: "关闭当前面板" }));
     act(() => mocks.select?.({ id: "cave" }));
     const quest = await screen.findByRole("complementary", { name: "潮声溶洞 委托" });
-    expect(quest).toHaveClass("abyssa-frame");
-    expect(quest.querySelector(":scope > .abyssa-frame__content")).not.toBeNull();
+    /* 委托书是地图画框的缩小版：木轨、黄铜带与金属角件同源，不另套 RpgFrame，也不是裸边框。 */
+    expect(quest).not.toHaveClass("abyssa-frame");
+    expect(quest.querySelector(":scope > .abyssa-map-wood-frame__rails")).not.toBeNull();
+    const brass = quest.querySelector(":scope > .abyssa-map-wood-frame__brass");
+    expect(brass).not.toBeNull();
+    expect(brass!.querySelector(":scope > .abyssa-map-wood-frame__corners")).not.toBeNull();
   });
 
   /* 点进副本至少要有简报。三块全是空虚线框等于没做。
@@ -300,7 +304,9 @@ describe("map sortie", () => {
     expect(quest).toHaveTextContent("在出口层选择带宝离场或继续深入");
     act(() => mocks.select?.({ id: "cave" }));
     quest = await screen.findByRole("complementary", { name: "潮声溶洞 委托" });
-    expect(within(quest).getByRole("button", { name: "出发" })).toBeDisabled();
+    /* 未开放的委托书只剩一张纸：没有出发键可按，而不是一枚灰掉的键。 */
+    expect(quest).toHaveAttribute("data-state", "closed");
+    expect(within(quest).queryByRole("button", { name: "出发" })).toBeNull();
     expect(quest).toHaveTextContent("此处当前未开放远征");
   });
 
@@ -318,16 +324,19 @@ describe("map sortie", () => {
     const quest = await screen.findByRole("complementary", { name: "潮声溶洞 委托" });
     expect(quest.textContent ?? "").not.toMatch(/收益[薄中厚]/);
 
-    await user.click(within(quest).getByRole("button", { name: "调整队伍" }));
+    act(() => mocks.select?.({ id: "tower" }));
+    const rift = await screen.findByRole("complementary", { name: "裂隙远征 委托" });
+    expect(rift.textContent ?? "").not.toMatch(/收益[薄中厚]/);
+    await user.click(within(rift).getByRole("button", { name: "编队" }));
     const drawer = screen.getByRole("region", { name: "出战名单" });
     /* 构成表的 sr 文本同理，不能重复出现在可见文案里。 */
     expect(drawer.textContent ?? "").not.toMatch(/(攻击|格挡|治疗).*\1/);
   });
 
-  /* 当前队伍摘要与点位副本名册统一使用共享头像框和同一张 avatar。
+  /* 当前队伍摘要与委托书的队伍格统一使用共享头像框和同一张 avatar。
      塞 704x1472 的全身立绘要放大两倍再裁掉 99.5% 的像素，
      既费解码又不如裁好的脸清楚。凯尔缺 avatar，是唯一例外。 */
-  it("uses the same framed avatar art in the party summary and quest slots", async () => {
+  it("uses the same framed avatar art in the party summary and dossier slots", async () => {
     const user = userEvent.setup();
     const { container } = render(<MapPage />);
     await openTeam(user);
@@ -360,19 +369,26 @@ describe("map sortie", () => {
 
     await user.click(done);
 
-    act(() => mocks.select?.({ id: "cave" }));
-    const quest = await screen.findByRole("complementary", { name: "潮声溶洞 委托" });
+    /* 未开放的委托书不摆队伍格，取可出发的那一份。 */
+    act(() => mocks.select?.({ id: "tower" }));
+    const quest = await screen.findByRole("complementary", { name: "裂隙远征 委托" });
+    const party = within(quest).getByRole("group", { name: /^出战队伍：/ });
 
     /* 头像框是共享件（切角六边形），不是自己画的圆或圆角矩形。 */
-    const filled = quest.querySelector('[data-faction] .abyssa-sortie-slot__art');
+    const filled = party.querySelector('[data-faction] .abyssa-sortie-slot__art');
     expect(filled).toHaveClass("abyssa-avatar");
     expect(filled!.querySelector(".abyssa-avatar__art")).not.toBeNull();
     /* 素材走 avatar（1:1 裁好的脸），不是 png 下的全身立绘。 */
     expect(filled!.querySelector("img")!.getAttribute("src")).toBe(summarySrc);
 
-    /* 四个槽位恒定画出，空位也要占地。 */
-    expect(quest.querySelectorAll(".abyssa-sortie-slot").length).toBe(5);
-    expect(quest.querySelectorAll('[data-empty="true"]').length).toBe(3);
+    /* 玩家位同样走共享头像框，放校准过的档案立绘。 */
+    const leaderChip = party.querySelector('[data-leader="true"] .abyssa-sortie-slot__art');
+    expect(leaderChip).toHaveClass("abyssa-avatar");
+    expect(leaderChip!.querySelector("img")).not.toBeNull();
+
+    /* 四个槽位恒定画出，空位也要占地；第五席是玩家。 */
+    expect(party.querySelectorAll(".abyssa-sortie-dossier__chip").length).toBe(5);
+    expect(party.querySelectorAll('.abyssa-sortie-dossier__chip[data-empty="true"]').length).toBe(3);
   });
 
   it("closes the drawer from the backdrop", async () => {

@@ -5,17 +5,19 @@ import { projectRoot, assertOutputDirectory } from '../config/paths.mjs';
 import { validateBuildOutput } from './check-build-output.mjs';
 import { isMain } from './lib/files.mjs';
 import { assertReleaseSource, pagesHeaders, pagesInventory, privateMarkers, scanPrivateMarkers, sha256, validatePagesInventory, verifyBuildSnapshot, pagesLimits } from './lib/airp-pages.mjs';
+import { assertReleaseMetadata, assertPublicationIdentity, validateReleaseRecords } from './lib/game-release.mjs';
 
 /** Local-only packaging. No account discovery, upload, network fetch or API call.
  * @param {boolean} [checkOnly]
  * @param {boolean} [releaseReady]
  */
-export async function prepareAirpPages(checkOnly = false, releaseReady = false) {
+export async function prepareAirpPages(checkOnly = false, releaseReady = false, publicationReady = false) {
   const directory = assertOutputDirectory(resolve(projectRoot, 'dist/game'), resolve(projectRoot, 'dist/game'));
   const before = await pagesInventory(directory);
   validatePagesInventory(before);
   const built = JSON.parse(await readFile(resolve(projectRoot, 'dist/reports/game.json'), 'utf8'));
   if (built.target !== 'game') throw Error('Expected the game build report.');
+  const release = assertReleaseMetadata(JSON.parse(await readFile(resolve(directory, 'release.json'), 'utf8')), built);
   if (releaseReady) {
     let current;
     try {
@@ -25,6 +27,9 @@ export async function prepareAirpPages(checkOnly = false, releaseReady = false) 
       };
     } catch { throw Error('Release source is not a clean Git revision; publication stopped.'); }
     assertReleaseSource(built, current);
+    const nodeVersion = (await readFile(resolve(projectRoot, '.nvmrc'), 'utf8')).trim();
+    const packageManager = JSON.parse(await readFile(resolve(projectRoot, 'package.json'), 'utf8')).packageManager;
+    if (built.node !== `v${nodeVersion}` || process.version !== `v${nodeVersion}` || `npm@${built.npm}` !== packageManager) throw Error('Release toolchain differs from the pinned Node/npm versions.');
   }
   verifyBuildSnapshot(before, built.files);
   let config = null;
@@ -48,15 +53,20 @@ export async function prepareAirpPages(checkOnly = false, releaseReady = false) 
   const report = {
     version: 1, target: 'cloudflare-pages-root', localOnly: true, published: false,
     preparedAt: new Date().toISOString(), node: process.version,
-    build: {revision: built.revision, dirty: built.dirty, node: built.node, packageManager: built.packageManager},
+    gameRelease: release,
+    build: {revision: built.revision, dirty: built.dirty, node: built.node, npm: built.npm, packageManager: built.packageManager},
     manifestSha256: sha256(JSON.stringify(files)), files,
     fileCount: files.length, totalBytes: files.reduce((sum, file) => sum + file.bytes, 0),
     largestFileBytes: Math.max(...files.map(file => file.bytes)),
     dragAndDropCompatible: files.length <= pagesLimits.dragAndDropFiles, limits: pagesLimits,
     privacy: {configPresent: config !== null, keyMarkersPresent: markers.keys.length > 0,
       endpointMarkersPresent: markers.endpoints.length > 0, matchedPrivateMarkers: 0},
-    pending: ['author-material-sharing-confirmation', 'cloudflare-project-creation', 'public-https-acceptance', 'source-baseline-freeze'],
+    pending: ['production-upload', 'public-https-acceptance', 'player-flow-acceptance', 'update-rollback-acceptance'],
   };
+  if (publicationReady) {
+    const records = validateReleaseRecords(JSON.parse(await readFile(resolve(projectRoot, 'docs/deployment/game-releases.json'), 'utf8')));
+    assertPublicationIdentity(release, report.manifestSha256, records, projectRoot);
+  }
   const reportPath = resolve(projectRoot, 'dist/reports/airp-p3/pages-release.local.json');
   if (checkOnly) {
     const prepared = JSON.parse(await readFile(reportPath, 'utf8'));
@@ -73,8 +83,8 @@ export async function prepareAirpPages(checkOnly = false, releaseReady = false) 
 
 if (isMain(import.meta.url)) {
   const args = process.argv.slice(2);
-  if (args.some(arg => !['--check', '--release'].includes(arg)) || args.length !== new Set(args).size || args.includes('--release') && !args.includes('--check')) throw Error('Usage: node scripts/prepare-airp-pages.mjs [--check [--release]]');
-  try { await prepareAirpPages(args.includes('--check'), args.includes('--release')); }
+  if (args.some(arg => !['--check', '--release', '--publish'].includes(arg)) || args.length !== new Set(args).size || args.includes('--release') && !args.includes('--check') || args.includes('--publish') && !args.includes('--release')) throw Error('Usage: node scripts/prepare-airp-pages.mjs [--check [--release [--publish]]]');
+  try { await prepareAirpPages(args.includes('--check'), args.includes('--release'), args.includes('--publish')); }
   catch (error) {
     const sourceBlocked = error instanceof Error && error.message === 'Release source is not a clean Git revision; publication stopped.';
     console.error(sourceBlocked ? error.message : 'Pages local preparation/check failed. No upload was attempted. Inspect build checks and local configuration; private details were withheld.');

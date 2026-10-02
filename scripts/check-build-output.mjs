@@ -5,6 +5,7 @@ import { resolveTarget } from '../config/targets.mjs';
 import { isWithin, projectRoot } from '../config/paths.mjs';
 import { runtimeAssetDirectories } from '../config/vite/plugins.mjs';
 import { fileHash, isMain, listFiles } from './lib/files.mjs';
+import { validateGameRelease } from './lib/game-release.mjs';
 
 /** @param {string} targetId @param {string} [directory] */
 export async function validateBuildOutput(targetId, directory = resolveTarget(targetId).outDir) {
@@ -21,8 +22,14 @@ export async function validateBuildOutput(targetId, directory = resolveTarget(ta
   if (target.entries.some(entry => entry.kind === 'game')) {
     requireFile('game-assets.json', 'startup');
     requireFile('game-cache.js', 'startup');
+    requireFile('release.json', 'game release');
+    if (existsSync(resolve(directory, 'release.json'))) {
+      try { validateGameRelease(JSON.parse(await readFile(resolve(directory, 'release.json'), 'utf8'))); }
+      catch { errors.push('Invalid game release metadata'); }
+    }
     requireFile('licenses/fonts/OFL-Cinzel.txt', 'font license');
     requireFile('licenses/fonts/OFL-NotoSerifSC.txt', 'font license');
+    requireFile('licenses/fonts/OFL-LXGWWenKai.txt', 'font license');
     if (existsSync(resolve(directory, 'game-assets.json'))) {
       const manifest = JSON.parse(await readFile(resolve(directory, 'game-assets.json'), 'utf8'));
       if (!Array.isArray(manifest.assets) || !manifest.assets.length) errors.push('Empty startup asset manifest');

@@ -83,6 +83,9 @@
 .airp-direct-settings .airp-settings-action { display: inline-block; padding: 4px 0; margin: 0 0 8px; border: 0; border-bottom: 1px solid rgb(143 196 173 / 32%); background: none; color: #b4c9bd; font: 14px/1.5 var(--abyssa-font-body); cursor: pointer; }
 .airp-direct-settings .airp-settings-action:hover:not(:disabled) { color: #f2e9ce; }
 .airp-direct-settings .airp-settings-action:disabled { opacity: .45; cursor: not-allowed; }
+.airp-model-list-action { display: flex; align-items: baseline; flex-wrap: wrap; gap: 12px; margin-top: 8px; }
+.airp-model-list-action > span { color: #819e8d; font-size: 12px; }
+.airp-model-list-error { margin: 4px 0 10px; color: #e4bda3; font: 13px/1.7 var(--abyssa-font-body); }
 .airp-direct-settings .airp-settings-help p { margin: 8px 0; color: #99afa1; font-size: 13px; line-height: 1.8; }
 .airp-direct-settings .airp-settings-feedback:empty { display: none; }
 .airp-direct-settings .airp-settings-feedback p { margin: 14px 0 0; padding: 10px 0; border-top: 1px solid var(--airp-settings-rule); color: #bcd1bb; font-size: 14px; overflow-wrap: anywhere; }

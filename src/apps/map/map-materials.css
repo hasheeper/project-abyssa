@@ -1,0 +1,26 @@
+/* ============ 作战桌材料 ============
+   地图页上的浮层都是摆在桌上的实物，只取地图自己的材料：
+     木轨 + 黄铜带 + 金属角件 —— 画框（MapWoodFrame），委托书是它的缩小版；
+     羊皮纸 + 墨              —— 文书，纸裁自地图底纸并提亮一档（scripts/prepare-map-dossier.py）。
+   纸纹、版画与印章颗粒都是离线处理的图，页面不用实时滤镜。
+   字阶按画框 .85 的缩放补偿：28 / 18 / 15 / 14，在 1600 画布上约为 24 / 15 / 13 / 12。 */
+.abyssa-map-page {
+  --map-walnut: #3e2919;
+  --map-walnut-deep: #24170c;
+  --map-walnut-edge: #0d0805;
+  --map-brass: #c29b58;
+  --map-brass-bright: #e2c27f;
+  --map-brass-deep: #6f4f26;
+  --map-brass-line: rgb(214 176 108 / 58%);
+  --map-cream: #ecdcbc;
+  --map-cream-muted: #b49b77;
+  --map-paper: #ead8b6;
+  --map-ink: #2e1f12;
+  --map-ink-soft: #4b3523;
+  --map-ink-mute: #7a5f43;
+  --map-cinnabar: #9a3322;
+  --map-type-title: 28px;
+  --map-type-body: 18px;
+  --map-type-label: 15px;
+  --map-type-min: 14px;
+}

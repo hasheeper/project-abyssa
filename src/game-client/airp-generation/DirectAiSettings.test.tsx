@@ -109,4 +109,93 @@ describe("AIRP settings presentation", () => {
     expect(screen.getByRole("alert")).not.toHaveTextContent("synthetic-secret");
     expect(fetch).not.toHaveBeenCalled();
   });
+
+  it("fetches one shared list, searches exact IDs and saves selected models without a generation call", async () => {
+    const fetch=vi.fn().mockImplementation(async()=>Response.json({data:[{id:"gemini-available"},{id:"gpt-available"}]}));
+    vi.stubGlobal("fetch",fetch);
+    const user=userEvent.setup(); const {container}=render(<DirectAiSettings layout="panel" fixedR8/>);
+    fireEvent.change(screen.getByLabelText("公共 API 地址"),{target:{value:"https://shared.invalid/v1"}});
+    fireEvent.change(screen.getByLabelText("公共 API Key"),{target:{value:"synthetic-shared-key"}});
+    expect(fetch).not.toHaveBeenCalled();
+    await user.click(screen.getByRole("button",{name:"获取模型列表"}));
+    await screen.findByText("已获取 2 个模型");
+    await user.click(screen.getByRole("button",{name:"选择GM模型"}));
+    const list = await screen.findByRole("listbox", {name:"GM模型列表"});
+    expect(container).not.toContainElement(list);
+    expect(screen.queryByRole("dialog")).toBeNull();
+    expect(screen.getByRole("button",{name:"选择GM模型"})).toHaveAttribute("aria-haspopup", "listbox");
+    expect(screen.getByRole("searchbox",{name:"搜索GM模型"})).toHaveFocus();
+    await user.type(screen.getByRole("searchbox",{name:"搜索GM模型"}),"gemini");
+    expect(screen.queryByRole("option",{name:"gpt-available"})).toBeNull();
+    await user.keyboard("{ArrowDown}");
+    expect(screen.getByRole("option",{name:"gemini-available"})).toHaveFocus();
+    await user.keyboard("{Enter}");
+    expect(screen.getByLabelText("GM模型 ID")).toHaveValue("gemini-available");
+    expect(screen.queryByRole("listbox",{name:"GM模型列表"})).toBeNull();
+    expect(screen.getByRole("button",{name:"选择GM模型"})).toHaveFocus();
+    await user.click(screen.getByRole("button",{name:"选择正文模型"}));
+    await screen.findByRole("listbox", {name:"正文模型列表"});
+    await user.click(screen.getByRole("option",{name:"gemini-available"}));
+    expect(screen.queryByRole("listbox",{name:"正文模型列表"})).toBeNull();
+    expect(fetch).toHaveBeenCalledTimes(1);
+    expect(fetch.mock.calls[0]).toEqual(["https://shared.invalid/v1/models",expect.objectContaining({method:"GET"})]);
+    await user.click(screen.getByRole("button",{name:"保存"}));
+    const restored=createAiConfiguration();await restored.persistence.initialize();
+    expect(restored.getSnapshot().models.planning.model).toBe("gemini-available");
+    expect(restored.getSnapshot().models.writing.model).toBe("gemini-available");
+  });
+
+  it("uses the independent slot key and never presents a previous connection's list after an edit", async () => {
+    const fetch=vi.fn().mockImplementation(async()=>Response.json({data:[{id:"writing-only"}]}));vi.stubGlobal("fetch",fetch);
+    const user=userEvent.setup();render(<DirectAiSettings fixedR8/>);
+    await user.click(screen.getByRole("checkbox",{name:"正文独立连接"}).closest("label")!);
+    fireEvent.change(screen.getByLabelText("正文 API 地址"),{target:{value:"https://writing.invalid/v1"}});
+    fireEvent.change(screen.getByLabelText("正文 API Key"),{target:{value:"synthetic-writing-key"}});
+    await user.click(screen.getByRole("button",{name:"选择正文模型"}));
+    await screen.findByRole("option",{name:"writing-only"});
+    expect(fetch.mock.calls[0]).toEqual(["https://writing.invalid/v1/models",expect.objectContaining({headers:{Accept:"application/json",Authorization:"Bearer synthetic-writing-key"}})]);
+    fireEvent.change(screen.getByLabelText("正文 API 地址"),{target:{value:"https://new.invalid/v1"}});
+    expect(screen.queryByRole("option",{name:"writing-only"})).toBeNull();
+    await user.click(screen.getByRole("button",{name:"选择GM模型"}));
+    expect(screen.queryByRole("option",{name:"writing-only"})).toBeNull();
+  });
+
+  it("keeps the anchored list inside its settings dialog, marks the selection and dismisses without closing settings", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(Response.json({data:[{id:"selected-model"},{id:"other-model"}]})));
+    const closeSettings = vi.fn(), user = userEvent.setup();
+    render(<div role="dialog" aria-label="系统设置" onKeyDown={event => { if (event.key === "Escape") closeSettings(); }}>
+      <DirectAiSettings fixedR8/>
+    </div>);
+    fireEvent.change(screen.getByLabelText("公共 API 地址"), {target:{value:"https://shared.invalid/v1"}});
+    fireEvent.change(screen.getByLabelText("公共 API Key"), {target:{value:"synthetic-shared-key"}});
+    fireEvent.change(screen.getByLabelText("GM模型 ID"), {target:{value:"selected-model"}});
+    await user.click(screen.getByRole("button",{name:"选择GM模型"}));
+    expect(await screen.findByRole("option",{name:"selected-model"})).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByRole("dialog",{name:"系统设置"})).toContainElement(screen.getByRole("listbox",{name:"GM模型列表"}));
+    await user.keyboard("{Escape}");
+    expect(screen.queryByRole("listbox")).toBeNull();
+    expect(closeSettings).not.toHaveBeenCalled();
+    await user.click(screen.getByRole("button",{name:"选择GM模型"}));
+    await user.click(screen.getByLabelText("公共 API 地址"));
+    expect(screen.queryByRole("listbox")).toBeNull();
+    expect(screen.getByLabelText("公共 API 地址")).toHaveFocus();
+    expect(screen.getByLabelText("GM模型 ID")).toHaveValue("selected-model");
+  });
+
+  it("keeps manual entry and existing model IDs when a provider does not support model discovery", async () => {
+    const fetch=vi.fn().mockResolvedValue(new Response("synthetic-upstream-secret",{status:404}));vi.stubGlobal("fetch",fetch);
+    const user=userEvent.setup();render(<DirectAiSettings fixedR8/>);
+    fireEvent.change(screen.getByLabelText("公共 API 地址"),{target:{value:"https://shared.invalid/v1"}});
+    fireEvent.change(screen.getByLabelText("公共 API Key"),{target:{value:"synthetic-shared-key"}});
+    await user.click(screen.getByRole("button",{name:"选择GM模型"}));
+    expect(await screen.findByRole("alert")).toHaveTextContent("此接口未提供模型列表");
+    expect(screen.getByLabelText("GM模型 ID")).toHaveValue("gpt-5.6-sol");
+    expect(screen.getByRole("alert")).not.toHaveTextContent("synthetic-upstream-secret");
+    await user.keyboard("{Escape}");
+    expect(screen.getByRole("button",{name:"选择GM模型"})).toHaveAttribute("aria-expanded","false");
+    expect(screen.queryByRole("listbox",{name:"GM模型列表"})).toBeNull();
+    expect(screen.getByRole("button",{name:"选择GM模型"})).toHaveFocus();
+    fireEvent.change(screen.getByLabelText("GM模型 ID"),{target:{value:"manually-entered-model"}});
+    expect(aiConfiguration.getSnapshot().models.planning.model).toBe("manually-entered-model");
+  });
 });

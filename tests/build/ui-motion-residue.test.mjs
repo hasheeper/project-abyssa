@@ -21,14 +21,14 @@ const keyframes = root => {
 };
 
 test('retired mansion and sortie entrances have neither definitions nor callers', () => {
-  const roots = [css('mansion/mansion-dialogue.css'), css('mansion/mansion-room-drawer.css'), css('map/sortie/sortie.css'), css('map/map-motion.css')];
+  const roots = [css('mansion/mansion-dialogue.css'), css('mansion/mansion-room-drawer.css'), css('map/sortie/sortie.css'), css('map/map-motion.css'), css('map/sortie/sortie-dossier.css')];
   const retired = /mansion-loading|mansion-room-card-in|abyssa-sortie-(?:drawer-in|quest-in-[lr])/;
   for (const root of roots) {
     root.walkAtRules('keyframes', rule => assert.doesNotMatch(rule.params, retired));
     root.walkDecls(/^animation/, decl => assert.doesNotMatch(decl.value, retired));
     root.walkRules(rule => assert.doesNotMatch(rule.selector, /\.mansion-(?:loading|light)(?![\w-])/));
   }
-  assert.deepEqual(declarations(roots[3], '.map-panel-layer :is(.abyssa-sortie-roster, .abyssa-sortie-quest)', 'animation'), []);
+  assert.deepEqual(declarations(roots[3], '.map-panel-layer :is(.abyssa-sortie-roster, .abyssa-sortie-dossier)', 'animation'), []);
 });
 
 test('mansion drawer keeps its anchor, current entrance and both reduced-motion guards', () => {
@@ -55,11 +55,13 @@ test('mansion drawer keeps its anchor, current entrance and both reduced-motion 
 
 test('sortie panels keep layout but no nested arrival; party muster stays independent', () => {
   const root = css('map/sortie/sortie.css');
-  for (const selector of ['.abyssa-sortie-roster', '.abyssa-sortie-quest[data-side="left"]', '.abyssa-sortie-quest[data-side="right"]']) {
-    assert.deepEqual(declarations(root, selector, 'animation'), []);
+  const dossier = css('map/sortie/sortie-dossier.css');
+  assert.deepEqual(declarations(root, '.abyssa-sortie-roster', 'animation'), []);
+  for (const selector of ['.abyssa-sortie-dossier', '.abyssa-sortie-dossier[data-side="left"]', '.abyssa-sortie-dossier[data-side="right"]']) {
+    assert.deepEqual(declarations(dossier, selector, 'animation'), []);
   }
-  assert.deepEqual(declarations(root, '.abyssa-sortie-quest[data-side="left"]', 'left'), ['var(--sortie-inset)']);
-  assert.deepEqual(declarations(root, '.abyssa-sortie-quest[data-side="right"]', 'right'), ['var(--sortie-inset)']);
+  assert.deepEqual(declarations(dossier, '.abyssa-sortie-dossier[data-side="left"]', 'left'), ['var(--sortie-inset)']);
+  assert.deepEqual(declarations(dossier, '.abyssa-sortie-dossier[data-side="right"]', 'right'), ['var(--sortie-inset)']);
   assert.ok(keyframes(root).includes('abyssa-sortie-muster-in'));
 });
 

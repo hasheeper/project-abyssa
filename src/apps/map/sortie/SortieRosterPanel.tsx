@@ -14,6 +14,7 @@ import { RpgFacetDiamond } from "../../../shared/ui/primitives/RpgFacetDiamond";
 import { RpgFrame } from "../../../shared/ui/primitives/RpgFrame";
 import { getCalibration } from "../../../shared/ui/patterns/spriteCalibration";
 import { SORTIE_ACTION_ICONS, maskStyle } from "./sortie-icons";
+import { slotPortraitFraming } from "./sortie-roster";
 import {
   SORTIE_COMMAND_LABELS,
   SORTIE_SLOT_COUNT,
@@ -179,14 +180,6 @@ function portraitFraming(characterId: string): CSSProperties {
   const { scale, x } = getCalibration(characterId);
   return {
     width: `calc(var(--sortie-poster-w) * var(--sortie-poster-zoom) * ${scale})`,
-    transform: `translateX(calc(-50% + ${x * 100}%))`
-  };
-}
-
-function leaderAvatarFraming(characterId: string): CSSProperties {
-  const { scale, x } = getCalibration(characterId);
-  return {
-    width: `calc(var(--sortie-slot-w) * var(--sortie-slot-zoom) * ${scale})`,
     transform: `translateX(calc(-50% + ${x * 100}%))`
   };
 }
@@ -373,7 +366,7 @@ export function SortieRosterPanel({
                     <img
                       src={leader.portraitUrl}
                       alt=""
-                      style={leaderAvatarFraming(leader.id)}
+                      style={slotPortraitFraming(leader.id)}
                     />
                   )}
                 </AvatarFrame>

@@ -5,6 +5,8 @@ import { resolveTarget } from '../targets.mjs';
 import { minifyVendorOnly, targetAssets } from './plugins.mjs';
 import { gamePageStyles } from './game-page-styles.mjs';
 import { gameStartup } from './game-startup.mjs';
+import { gameRelease } from './game-release.mjs';
+import { captureGameBuild } from '../../scripts/lib/game-release.mjs';
 
 /** @param {string} targetId @param {import('../types.js').TargetOptions} [options] @returns {import('vite').InlineConfig} */
 export function createTargetConfig(targetId, options = {}) {
@@ -14,13 +16,15 @@ export function createTargetConfig(targetId, options = {}) {
   const readable = target.profile === 'readable';
   const hasMap = target.entries.some(entry => entry.id === 'map');
   const enableAi = options.enableAi ?? false;
+  const gameBuild = options.gameBuild ?? captureGameBuild(projectRoot);
+  const hasGame = target.entries.some(entry => entry.kind === 'game');
   return {
     configFile: false, root: projectRoot, base: options.base ?? './',
     // Concurrent game/lab servers must not replace each other's optimized deps.
     cacheDir: resolve(projectRoot, 'node_modules/.vite', `${target.id.replace(':', '-')}${enableAi ? '-ai' : ''}`),
-    plugins: [react(), ...(!ui ? [targetAssets(target), gameStartup(target)] : []), ...(readable ? [minifyVendorOnly()] : [])],
+    plugins: [react(), ...(!ui ? [targetAssets(target), gameRelease(gameBuild, hasGame), gameStartup(target)] : []), ...(readable ? [minifyVendorOnly()] : [])],
     css: { postcss: { plugins: target.entries.some(e => e.kind === 'game') ? [gamePageStyles()] : [] } },
-    define: { 'import.meta.env.VITE_DICE_RUNTIME_ENABLED': JSON.stringify(String(enableAi)) },
+    define: { 'import.meta.env.VITE_DICE_RUNTIME_ENABLED': JSON.stringify(String(enableAi)), __ABYSSA_GAME_RELEASE__: JSON.stringify(gameBuild.release) },
     server: {
       host: options.host ?? '127.0.0.1', port: options.port ?? target.port, strictPort: true,
       open: options.open ?? target.open,

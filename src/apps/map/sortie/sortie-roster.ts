@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import kaelPortrait from "../../../assets/characters/portraits/kael.png";
 import { partyFigureCatalogById } from "../../../assets/map/party-figures/catalog";
 import type { PartyFigureId } from "../../../content/characters/partyFigureCalibration";
@@ -5,6 +6,7 @@ import { characterProfiles } from "../../../content/characters/profiles";
 import { findDiceLoadout } from "../../../content/characters/diceLoadouts";
 import type { SortieAbsence, SortieFaction, SortieLeader, SortieMember } from "./sortie-model";
 import { DEFAULT_PLAYER_NAME } from "../../../shared/domain/player-identity";
+import { getCalibration } from "../../../shared/ui/patterns/spriteCalibration";
 
 /* ============ 名单适配器 ============
  *
@@ -86,3 +88,14 @@ export const sortieLeader: SortieLeader = {
   boardingLine: "",
   stayLine: ""
 };
+
+/** 玩家位没有头像素材（avatars/ 只有固定角色），队伍槽里退回档案立绘，按 RP 那套逐角色校准取景。
+ *  只取 scale 与 x：校准表的 y 是为「站地」设计的，这里锚定顶部，套用会把头切掉。
+ *  槽宽与放大倍数取调用方的 --sortie-slot-w / --sortie-slot-zoom，编队抽屉与委托书共用。 */
+export function slotPortraitFraming(characterId: string): CSSProperties {
+  const { scale, x } = getCalibration(characterId);
+  return {
+    width: `calc(var(--sortie-slot-w) * var(--sortie-slot-zoom) * ${scale})`,
+    transform: `translateX(calc(-50% + ${x * 100}%))`
+  };
+}

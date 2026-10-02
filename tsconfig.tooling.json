@@ -20,6 +20,7 @@
     "scripts/check-entries.mjs",
     "scripts/check-build-output.mjs",
     "scripts/prepare-airp-pages.mjs",
+    "scripts/record-airp-release.mjs",
     "scripts/check-airp-pages-browser.mjs",
     "scripts/check-package-release.mjs",
     "scripts/build-static-preview.mjs",

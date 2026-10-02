@@ -10,4 +10,3 @@
 .commission-card__target, .commission-card small { opacity: .8; }
 .commission-card[data-commission-state="return"] header > span,
 .commission-card[data-commission-state="delivery"] header > span { color: #bdd2b2; }
-.abyssa-sortie-quest .commission-list { margin-block: .8rem; }

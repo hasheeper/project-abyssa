@@ -1,0 +1,46 @@
+.airp-model-picker { flex: 1; min-width: 0; }
+.airp-model-picker__field { display: flex; min-width: 0; align-items: flex-end; gap: 10px; }
+.airp-model-picker__field > label { flex: 1; }
+.airp-model-picker__toggle {
+  display: flex; flex: none; align-items: center; gap: 8px; padding: 8px 2px;
+  border: 0; border-bottom: 1px solid rgb(143 196 173 / 32%); background: none;
+  color: #a7c1b1; font: 13px/1.6 var(--abyssa-font-body); cursor: pointer;
+}
+.airp-model-picker__toggle > span { color: #819e8d; }
+.airp-model-picker__toggle:hover, .airp-model-picker__toggle[aria-expanded=true] { color: #f2e9ce; border-color: #bbd6c5; }
+.airp-model-picker__toggle:focus-visible { outline: 1px solid #bbd6c5; outline-offset: 2px; }
+
+/* A compact anchored selection menu. Its portal stays in the owning settings dialog. */
+.airp-model-picker__menu {
+  z-index: 20; display: flex; flex-direction: column; padding: 6px; max-width: 100%;
+  border: 1px solid rgb(157 180 168 / 42%); border-radius: 6px;
+  background: #202c27; box-shadow: 0 8px 28px rgb(0 0 0 / 36%), inset 0 1px rgb(223 236 223 / 5%);
+  color: #d4ddd6; font: 15px/1.5 var(--abyssa-font-body);
+}
+.airp-model-picker__menu, .airp-model-picker__menu * { box-sizing: border-box; }
+.airp-model-picker__menu[data-side=above] { transform: translateY(-100%); }
+.airp-model-picker__search { display: flex; flex: none; align-items: center; gap: 8px; padding: 3px 6px 9px; border-bottom: 1px solid rgb(147 180 167 / 16%); }
+.airp-model-picker__search input {
+  display: block; flex: 1; min-width: 0; height: 32px; padding: 5px 8px;
+  border: 1px solid rgb(155 188 170 / 20%); border-radius: 3px; background: rgb(4 15 11 / 22%);
+  color: #d7e0d8; font: 14px/1.5 var(--abyssa-font-body); color-scheme: dark;
+}
+.airp-model-picker__search input::placeholder { color: #91a498; opacity: 1; }
+.airp-model-picker__search input:focus { outline: 1px solid #9bbdab; outline-offset: 0; }
+.airp-model-picker__refresh { flex: none; padding: 4px 5px; border: 0; background: none; color: #aabeb1; font: 12px/1.5 var(--abyssa-font-body); cursor: pointer; }
+.airp-model-picker__refresh:hover:not(:disabled) { color: #ede6d2; }
+.airp-model-picker__refresh:disabled { opacity: .45; cursor: default; }
+.airp-model-picker__options { min-height: 0; max-height: 252px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: #627a6d transparent; list-style: none; padding: 4px 0 0; margin: 0; }
+.airp-model-picker__options:empty { display: none; }
+.airp-model-picker__options button {
+  display: flex; align-items: center; gap: 9px; width: 100%; min-height: 36px; padding: 7px 10px;
+  border: 0; border-radius: 3px; background: none; color: #c8d5cb; text-align: left;
+  font: 15px/1.4 var(--abyssa-font-body); cursor: pointer;
+}
+.airp-model-picker__check { flex: none; width: 16px; color: #d6e5d4; }
+.airp-model-picker__options button > span:last-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.airp-model-picker__options button[aria-selected=true] { background: #3e6250; color: #f1f2df; }
+.airp-model-picker__options button:hover, .airp-model-picker__options button:focus-visible { background: #456553; color: #f2f0df; outline: none; }
+.airp-model-picker__message { margin: 0; padding: 14px 12px; color: #a8bdb0; font-size: 13px; }
+.airp-model-picker__message[role=alert] { color: #e4bda3; }
+.airp-model-picker__refresh:focus-visible { outline: 1px solid #bbd6c5; outline-offset: 1px; }

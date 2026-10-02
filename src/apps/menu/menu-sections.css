@@ -1,5 +1,16 @@
 /* The sidebar and Stage never move. Only columns 2–3 exchange their content. */
 .menu-stage { overflow: clip; grid-template: minmax(0, 1fr) / minmax(0, 1fr); }
+.menu-release {
+  position: absolute;
+  inset-inline-end: 32px;
+  inset-block-end: 16px;
+  z-index: 1;
+  margin: 0;
+  color: var(--abyssa-text-muted);
+  font-size: 12px;
+  letter-spacing: .08em;
+  pointer-events: none;
+}
 .menu-content {
   position: relative;
   isolation: isolate;

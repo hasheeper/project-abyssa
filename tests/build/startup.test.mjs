@@ -10,7 +10,7 @@ test('release asset manifest covers copied art and chunks with content revisions
   const root = await mkdtemp(resolve(tmpdir(), 'abyssa-startup-'));
   t.after(() => rm(root, {recursive:true,force:true}));
   await mkdir(resolve(root,'assets'));await mkdir(resolve(root,'character-art'));
-  for(const [name,body] of [['index.html','home'],['assets/page.js','page'],['assets/font.woff2','font'],['character-art/base.png','image'],['assets/page.js.map','map'],['game-assets.json','manifest'],['game-cache.js','worker']]) await writeFile(resolve(root,name),body);
+  for(const [name,body] of [['index.html','home'],['assets/page.js','page'],['assets/font.woff2','font'],['character-art/base.png','image'],['assets/page.js.map','map'],['game-assets.json','manifest'],['game-cache.js','worker'],['release.json','identity']]) await writeFile(resolve(root,name),body);
   const first=await productionAssets(root);
   assert.deepEqual(first.map(a=>a.url).sort(),['./assets/font.woff2','./assets/page.js','./character-art/base.png','./index.html']);
   assert(first.findIndex(a=>a.url==='./assets/page.js') < first.findIndex(a=>a.url==='./character-art/base.png'));

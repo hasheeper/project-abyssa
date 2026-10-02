@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useReducer, useRef, useState, type CSS
 import { SystemPanel } from "../../shared/ui/patterns/SystemPanel";
 import { SystemTabs } from "../../shared/ui/patterns/SystemTabs";
 import { RpgHexButton } from "../../shared/ui/primitives/RpgHexButton";
-import { AboutSection } from "./sections/AboutSection";
+import { AboutSection, type SaveReleaseIdentity } from "./sections/AboutSection";
 import { AiServiceSection } from "./sections/AiServiceSection";
 import { AiConnectionStorage } from "../airp-generation/AiConnectionStorage";
 import { DisplaySection } from "./sections/DisplaySection";
@@ -26,8 +26,9 @@ const TABS = [
 ] as const;
 type TabId = typeof TABS[number]["id"];
 
-export function SettingsPanel({ fullScene = false, onBack, sceneMotion, onBackdropTextureChange, initialTab = "performance" }: {
+export function SettingsPanel({ fullScene = false, onBack, sceneMotion, onBackdropTextureChange, initialTab = "performance", saveIdentity }: {
   fullScene?: boolean; onBack: () => void; sceneMotion?: SystemSceneMotion; onBackdropTextureChange?: (enabled: boolean) => void; initialTab?: TabId;
+  saveIdentity?: SaveReleaseIdentity;
 }) {
   const [state, dispatch] = useReducer(settingsReducer, DEFAULT_SETTINGS);
   useEffect(() => { onBackdropTextureChange?.(state.backdropTexture); }, [onBackdropTextureChange, state.backdropTexture]);
@@ -64,7 +65,7 @@ export function SettingsPanel({ fullScene = false, onBack, sceneMotion, onBackdr
         {shownTab === "performance" && <PerformanceSection state={state} onChange={onChange} previewActive={localMotion.previewActive} />}
         {shownTab === "display" && <DisplaySection state={state} onChange={onChange} />}
         {shownTab === "ai" && <AiServiceSection />}
-        {shownTab === "about" && <AboutSection />}
+        {shownTab === "about" && <AboutSection saveIdentity={saveIdentity} />}
       </section>
     </SystemPanel>;
 }

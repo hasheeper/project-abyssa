@@ -117,6 +117,8 @@
     "build:game": "node scripts/run-target.mjs build game",
     "prepare:pages": "npm run build:game && node scripts/prepare-airp-pages.mjs",
     "check:pages": "node scripts/prepare-airp-pages.mjs --check",
+    "check:pages:publish": "node scripts/prepare-airp-pages.mjs --check --release --publish",
+    "record:pages": "node scripts/record-airp-release.mjs",
     "check:pages:browser": "node scripts/check-airp-pages-browser.mjs",
     "preview:game": "node scripts/run-target.mjs preview game",
     "dev:lab": "node scripts/run-target.mjs dev lab",

@@ -186,7 +186,7 @@ describe("MenuPage", () => {
     await settled("home");
     expect(container.querySelector(".menu-system-backdrop")).toBe(backdrop);
     expect(backdrop).toHaveStyle({ opacity: "0" });
-    expect(screen.getByRole("button", { name: "设置" })).toHaveFocus();
+    await waitFor(() => expect(screen.getByRole("button", { name: "设置" })).toHaveFocus());
     expect(container.querySelector(".abyssa-stage__canvas")).toBe(stage);
     expect(container.querySelector(".menu-entry")).toBe(entry);
     expect(screen.getByRole("navigation", { name: "档案与设置" })).toBe(sidebar);

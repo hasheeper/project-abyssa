@@ -3,6 +3,7 @@ import { expect, it, vi } from "vitest";
 import { CallLog } from "./CallLog";
 import type { CallLogEntry } from "../../game-runtime/airp-call-log";
 import { serializeCallLog } from "../../game-runtime/airp-call-log";
+import { GAME_RELEASE } from "../../shared/release/game-release";
 
 const download = vi.hoisted(() => vi.fn());
 vi.mock("../react", () => ({ downloadJson: download }));
@@ -15,6 +16,8 @@ it("exposes the retained raw error and an export without endpoint configuration"
   fireEvent.click(screen.getByRole("button", { name: "导出调用日志" }));
   expect(download).toHaveBeenCalledOnce(); const json = JSON.parse(download.mock.calls[0][0]);
   expect(json.calls[0]).toMatchObject({ output: "保存的原稿", durationMs: 130, diagnostics: { requestId: "req-1" } });
+  expect(json.exportedBy).toEqual(GAME_RELEASE);
+  expect(json.calls[0]).not.toHaveProperty("clientVersion");
 });
 it("redacts strings before serialization so URLs, newlines and quotes cannot break exported JSON", () => {
   const raw = serializeCallLog([], ['https://private.invalid/v1\n"下一行仍保留"', 'Authorization: Bearer sk-test-secret']);

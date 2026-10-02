@@ -1,6 +1,6 @@
 import { activeRunId } from "../../game-client/session";
 import { usePlayerName } from "../../shared/domain/PlayerIdentity";
-import manorHall from "../../assets/backgrounds/old-manor/welcoming-hall.jpg";
+import manorHallPrint from "../../assets/map/dossier/print-old-manor-hall.webp";
 import manorMapIcon from "../../assets/map/landmarks/old-manor.png";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence } from "motion/react";
@@ -9,7 +9,6 @@ import { AbyssaProvider } from "../../shared/ui/primitives/AbyssaProvider";
 import { RpgHeader } from "../../shared/ui/primitives/RpgHeader";
 import { Stage } from "../../shared/stage";
 import { SceneTransitionProvider, useSceneReady, useSceneTransition } from "../../shared/transition";
-import { MapCommand } from "./MapCommand";
 import { supplyArt } from "../../content/presentation/supply-icons";
 import { MapLoadoutPanel, type MapLoadoutItem } from "./MapLoadoutPanel";
 import { MapPanel } from "./MapPanel";
@@ -21,7 +20,7 @@ import { MapWoodFrame } from "./MapWoodFrame";
 import { cloneMapLocations } from "./types";
 import type { MapLocationId } from "./types";
 import { SortiePartyStage } from "./sortie/SortiePartyStage";
-import { SortieQuestPanel } from "./sortie/SortieQuestPanel";
+import { SortieDossier, type SortieDossierStatus } from "./sortie/SortieDossier";
 import { SortieRosterPanel } from "./sortie/SortieRosterPanel";
 import { liveParty } from "./sortie/live-roster";
 import type { SortieParty } from "./sortie/sortie-model";
@@ -35,7 +34,7 @@ import { gameContent } from "../../game-runtime/views";
 import { useSortie } from "./sortie/useSortie";
 import { useDepartureLoadout } from "../../game-client/useDepartureLoadout";
 import { departureDestination, departureNodes } from "./sortie/live-destinations";
-import { findQuestBrief } from "./sortie/sortie-quests";
+import { findQuestBrief, type QuestBrief } from "./sortie/sortie-quests";
 
 /** 委托侧板靠哪边：地标在画面右半就贴左，免得侧板压住刚点的地标。 */
 const QUEST_SIDE: Record<MapLocationId, "left" | "right"> = {
@@ -51,7 +50,9 @@ function MapPageBody() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [airpError, setAirpError] = useState("");
+  /* ref 是同步闸门，防连点；state 只给委托书画「正在安排」。 */
   const airpPreparing = useRef(false);
+  const [airpBusy, setAirpBusy] = useState(false);
   useSceneReady(!loading);
   const intro = useMapIntro(!loading);
   const introState = useRef(intro.state);
@@ -79,9 +80,10 @@ function MapPageBody() {
         if (record.schemaVersion === 4 && [22, 24, 26, 28].includes(record.contentRef.contentVersion ?? 0) && "airpGame" in session.runtime) {
           setAirpError("");
           airpPreparing.current = true;
+          setAirpBusy(true);
           void session.runtime.airpGame.forSave(record.head.saveId, record.contentRef.contentVersion).prepare({ runId: expeditionId, routeId: destination.routeId, partyIds: [manor.leaderId, ...party.memberIds], itemIds, ...loadout.selection, seed: session.runtime.newSeed() })
             .then(() => session.refresh({ background: true, notify: true })).catch(e => setAirpError(e instanceof Error ? e.message : "出征安排未保存。"))
-            .finally(() => { airpPreparing.current = false; });
+            .finally(() => { airpPreparing.current = false; setAirpBusy(false); });
           return;
         }
         void session.dispatch({type: "start-expedition", runId: expeditionId, routeId: destination.routeId,
@@ -173,12 +175,35 @@ function MapPageBody() {
     : undefined;
   const activeQuestSide = activeLocation ? QUEST_SIDE[activeLocation.id] : undefined;
   const destination = activeNode ? departureDestination(manor, activeNode) : undefined;
-  const commissions = directorCommissions(record, destination?.routeId);
+  /* 进行中的远征会让所有路线暂不可选，委托书仍要认得这里的路线：
+     先取可出发的那条，否则按当前路线的简报认回同一条。 */
+  const nodeRoutes = manor && activeNode ? manor.destinations.filter(d => d.nodeId === activeNode) : [];
+  const knownRoute = destination ?? nodeRoutes.find(d => d.brief.flavor === manor?.brief.flavor) ?? nodeRoutes[0];
+  const commissions = directorCommissions(record, knownRoute?.routeId);
+  const dossier = activeLocation && (() => {
+    const id = activeLocation.id, plain = findQuestBrief(id);
+    const hasRoute = record.schemaVersion === 1 ? nodeIds.includes(id) : !!knownRoute;
+    const status: SortieDossierStatus = !hasRoute ? "closed" : activeRunId(record) ? "active" : game.status !== "ready" ? "saving" : airpBusy ? "preparing" : "ready";
+    const brief: QuestBrief = knownRoute
+      ? {nodeId: id, sceneImageUrl: id === "tower" ? manorHallPrint : plain?.sceneImageUrl, ...knownRoute.brief, yields: id === "cave" && destination ? plain!.yields : []}
+      : {nodeId: id, sceneImageUrl: plain?.sceneImageUrl, flavor: hasRoute ? "带上伙伴进入裂隙，在出口层选择带宝离场或继续深入。" : "", threats: [], yields: []};
+    const activeRef = record.schemaVersion !== 1 ? record.snapshot.campaign.activeRunRef as {kind?: string} | null : null;
+    return {
+      status, brief,
+      route: knownRoute && {layerCount: knownRoute.layerCount, exitLayers: knownRoute.exitLayers, ending: knownRoute.ending},
+      notice: status === "closed" ? "此处当前未开放远征。" : status !== "ready" ? null
+        : !nodeIds.includes(id) ? "此处当前无法出发，请先完成开场或进行中的剧情。" : sortie.rejection,
+      resumeLabel: activeRef?.kind === "memory" ? "继续回忆" : "继续远征",
+    };
+  })();
+  const bag = manor || record.schemaVersion === 1 ? {
+    items: supplies.filter(item => item.selected).map(({id, name, icon, quantity}) => ({id, name, icon, quantity})),
+    limit: record.schemaVersion === 1 ? supplies.length : loadout.itemLimit,
+  } : undefined;
 
   return (
     <Stage canvasClassName="abyssa-map-canvas">
       <AbyssaProvider className="abyssa-map-page" density="compact" data-map-reduced={intro.reduced}>
-        {airpError && <p className="game-client-status" role="alert">{airpError}</p>}
         <div ref={intro.ref} className="map-board" data-map-intro={intro.state}
           onKeyDown={event => { if (event.key === "Escape" && mode !== "map") { event.preventDefault(); event.stopPropagation(); sortie.dismiss(); } }}>
         {/* 招牌与 shop 同构:absolute 挂墙,不参与流,允许压住画框上沿。 */}
@@ -245,20 +270,22 @@ function MapPageBody() {
               />
             </MapPanel>}
 
-            {mode === "pop" && activeLocation && <MapPanel key={`quest-${activeNode}`} kind="quest" side={activeQuestSide}>
-              <SortieQuestPanel
-                commissions={commissions && <CommissionList tasks={commissions} title="路线委托"/>}
+            {mode === "pop" && activeLocation && dossier && <MapPanel key={`quest-${activeNode}`} kind="quest" side={activeQuestSide}>
+              <SortieDossier
                 location={activeLocation}
                 side={activeQuestSide!}
+                {...dossier}
+                commissions={commissions?.some(task => task.active) && <CommissionList tasks={commissions} title="路线委托"/>}
                 roster={sortieRoster}
                 leader={sortieLeader}
                 party={sortie.party}
-                rejection={activeRunId(record) ? "已有远征，请先继续或完成结算。" : game.status !== "ready" ? "正在保存或恢复进度。" : !nodeIds.includes(activeLocation.id) ? "此处当前无法出发，请先完成开场或进行中的剧情。" : sortie.rejection}
-                briefOverride={destination ? {nodeId: activeLocation.id, sceneImageUrl: activeNode === "tower" ? manorHall : findQuestBrief(activeLocation.id)?.sceneImageUrl,
-                  ...destination.brief, yields: activeNode === "cave" ? findQuestBrief("cave")!.yields : []}
-                  : {nodeId: activeLocation.id, flavor: record.schemaVersion === 1 && activeNode === "tower" ? "带上伙伴进入裂隙，在出口层选择带宝离场或继续深入。" : "此处当前未开放远征。", threats: [], yields: []}}
+                bag={bag}
+                error={airpError || undefined}
+                bagTriggerRef={supplyTrigger}
                 onEditParty={() => sortie.openTeam(activeLocation.id)}
+                onEditBag={sortie.openLoadout}
                 onDepart={sortie.depart}
+                onResume={() => navigate(gameHref("battle", recordLocator(record)), {channel: dossier.resumeLabel, entry: "restore"})}
                 onClose={sortie.closeAll}
               />
             </MapPanel>}
@@ -267,10 +294,6 @@ function MapPageBody() {
               notice={loadout.storageUnavailable ? "此窗口无法保留方案，请在本页确认后出发。" : record.schemaVersion === 1 ? "携带已编入伙伴的物品与装备；出发前仍可调整。" : record.contentRef.rulesVersion === 4 && record.contentRef.contentVersion >= 3 ? undefined : "出发前将所选配给免费补足。"}
               onToggle={toggleSupply} onClose={sortie.finishLoadout}/></MapPanel>}
             </AnimatePresence>
-            {(manor || record.schemaVersion === 1) && <MapCommand ref={supplyTrigger} className="map-supply-entry"
-              aria-expanded={mode === "loadout"} onClick={mode === "loadout" ? sortie.finishLoadout : sortie.openLoadout}>
-              出征行囊 <span>{supplies.filter(item => item.selected).length} / {record.schemaVersion === 1 ? supplies.length : loadout.itemLimit}</span>
-            </MapCommand>}
           </section>
         </MapWoodFrame>
         </div>

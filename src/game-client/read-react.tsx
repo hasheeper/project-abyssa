@@ -15,6 +15,7 @@ import { downloadJson, gameErrorText } from "./game-errors";
 import "./game-client.css";
 import { GameLoading } from "./GameLoading";
 import { PlayerIdentityScope } from "./PlayerIdentityScope";
+import { withReleaseIdentity } from "../shared/release/game-release";
 
 const Context = createContext<ReadGameSession | null>(null);
 export function ReadSessionScope({
@@ -114,7 +115,7 @@ export function ReadGameGate({ children }: { children: ReactNode }) {
     );
     if (result.ok)
       downloadJson(
-        result.archive,
+        withReleaseIdentity(result.archive),
         `abyssa-diagnostic-${session.locator.saveId}.json`,
       );
   };

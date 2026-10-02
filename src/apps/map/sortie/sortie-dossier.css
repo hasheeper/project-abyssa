@@ -1,0 +1,414 @@
+/* ============ 委托书 ============
+   地图画框的缩小版：同一套木轨（MapWoodRails）、黄铜带（.abyssa-map-wood-frame__brass）
+   与金属角件（MapMetalCorners），只把令牌改细。黄铜带围出上下两格：
+   上格是纸 —— 地图底纸提亮一档，纸面贴着画框，不是木板上浮起的一张卡片；
+   下格是木台 —— 地图画框里垫边的同一种木色，放队伍、行囊与出发。
+   顶轨正中骑一块单行名牌。可出发时上下吃满视口，未开放时高度随内容；
+   过长时只有纸面滚动。 */
+.abyssa-sortie-dossier {
+  --sortie-inset: 28px;
+  --sortie-dossier-top: 30px;
+  --sortie-dossier-bottom: 24px;
+  /* 线宽与黄铜带沿用地图画框，只把木轨收窄到 10：外沿到纸面约 18px。 */
+  --abyssa-map-frame-rail: 10px;
+  --abyssa-map-frame-corner: 46px;
+  --paper-pad-top: 30px;
+  --paper-pad-x: 22px;
+  position: absolute;
+  top: var(--sortie-dossier-top);
+  bottom: var(--sortie-dossier-bottom);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  width: var(--sortie-quest-w);
+  padding: var(--abyssa-map-frame-rail);
+  box-sizing: border-box;
+  border: var(--abyssa-frame-border) solid #090603;
+  background: #1a1008;
+  box-shadow:
+    0 0 0 1px #3a2817,
+    0 0 0 2px #0b0704,
+    0 16px 30px rgb(4 2 1 / 55%),
+    0 4px 8px rgb(0 0 0 / 40%);
+  font-family: var(--abyssa-font-body, "Noto Serif SC", serif);
+}
+/* 未开放只有一张纸，不撑满。 */
+.abyssa-sortie-dossier[data-state="closed"] { bottom: auto; max-height: calc(100% - var(--sortie-dossier-top) - var(--sortie-dossier-bottom)); }
+.abyssa-sortie-dossier[data-side="right"] { right: var(--sortie-inset); }
+.abyssa-sortie-dossier[data-side="left"] { left: var(--sortie-inset); }
+.abyssa-sortie-dossier ul,
+.abyssa-sortie-dossier ol { margin: 0; padding: 0; list-style: none; }
+
+/* 黄铜带：上格纸、下格木台，中间露出的一道就是黄铜横档。 */
+.abyssa-sortie-dossier__brass {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: var(--abyssa-frame-brass);
+  min-height: 0;
+}
+/* 角件压在两格的外角上，与地图画框里压住地图四角是同一个位置关系。 */
+.abyssa-sortie-dossier__corners.abyssa-map-wood-frame__corners { inset: var(--abyssa-frame-brass); z-index: 3; }
+
+/* ---- 名牌：单行，中线压在顶轨中线上；上不顶地图画框，下不压版画与角件 ---- */
+.abyssa-sortie-dossier__head {
+  position: absolute;
+  top: calc(var(--abyssa-map-frame-rail) / 2);
+  left: 50%;
+  z-index: 5;
+  transform: translate(-50%, -50%);
+  filter: drop-shadow(0 3px 4px rgb(4 2 1 / 55%));
+  pointer-events: none;
+}
+.abyssa-sortie-dossier__plate.abyssa-nameplate {
+  --abyssa-frame-dark: #0d0805;
+  --abyssa-frame-light: #b89257;
+  --abyssa-frame-deep: #21140d;
+  --abyssa-nameplate-fill: #3a2717;
+  --abyssa-nameplate-ink: #f1dfc1;
+  width: max-content;
+  max-width: calc(var(--sortie-quest-w) - 120px);
+}
+.abyssa-sortie-dossier__plate .abyssa-nameplate__content { min-height: 30px; padding: 5px 30px; }
+.abyssa-sortie-dossier__plate .abyssa-nameplate__content strong { font-size: 20px; letter-spacing: .16em; text-indent: .16em; line-height: 1; white-space: nowrap; }
+
+.abyssa-sortie-dossier__close.abyssa-icon-button[data-size] {
+  --abyssa-icon-size: 40px;
+  --abyssa-icon-fill: #2e1e11;
+  --abyssa-icon-middle: #a07a44;
+  --abyssa-icon-ornament: rgb(226 194 127 / 60%);
+  --abyssa-icon-ink: var(--map-cream);
+  --abyssa-icon-pattern-dark: rgb(0 0 0 / 10%);
+  --abyssa-icon-pattern-light: rgb(226 194 127 / 4%);
+  position: absolute;
+  top: -17px;
+  right: -17px;
+  z-index: 6;
+  filter: drop-shadow(0 3px 5px rgb(4 2 1 / 58%));
+}
+
+/* ---- 纸：地图底纸，贴着画框；只有画框投下的影子，没有描边和浮起 ---- */
+.abyssa-sortie-dossier__paper {
+  position: relative;
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+  border: 1px solid #1c0f08;
+  background: var(--map-paper) url("../../../assets/map/dossier/paper-v2.webp") center top / cover;
+  /* 光从左上来：顶轨与左轨的影子落在纸上，四周再沉一点旧纸的边。 */
+  box-shadow:
+    inset 0 7px 8px -6px rgb(30 15 5 / 46%),
+    inset 6px 0 7px -6px rgb(30 15 5 / 30%),
+    inset 0 0 40px rgb(110 70 30 / 18%);
+  color: var(--map-ink);
+}
+/* 纸上的字是手写楷体（--abyssa-font-hand）；木台与名牌上的字仍是界面字体。 */
+.abyssa-sortie-dossier__scroll {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+  /* 左右必须等宽：滚动条槽两侧对称预留（悬浮滚动条两侧都不留），
+     否则整列会向一侧偏。顶部让出名牌压在纸上的那一截。 */
+  padding: var(--paper-pad-top) var(--paper-pad-x) 14px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-color: rgb(122 95 67 / 55%) transparent;
+  scrollbar-gutter: stable both-edges;
+  scrollbar-width: thin;
+  font-family: var(--abyssa-font-hand);
+}
+.abyssa-sortie-dossier__scroll > * { flex-shrink: 0; }
+.abyssa-sortie-dossier__scroll:focus-visible { outline: 2px solid rgb(154 51 34 / 55%); outline-offset: -4px; }
+
+/* 版画：铺到纸边，正片叠底印在纸上，四周由离线的蒙版化进纸里 —— 像印进纸里，不是贴上去的相片。
+   顶端压在名牌下，下摆让正文从化开的地方接上。
+   版画是纸面上唯一会让步的一块：正文长时它先收矮（cover 裁切，蒙版随框拉伸，边缘照样化开），
+   短时按原比例铺开。 */
+.abyssa-sortie-dossier__scroll > .abyssa-sortie-dossier__print { flex-shrink: 1; }
+.abyssa-sortie-dossier__print {
+  position: relative;
+  min-height: 112px;
+  margin: calc(-1 * var(--paper-pad-top)) calc(-1 * var(--paper-pad-x)) -20px;
+  aspect-ratio: 960 / 400;
+}
+.abyssa-sortie-dossier__print img {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 40%;
+  mix-blend-mode: multiply;
+  -webkit-mask: url("../../../assets/map/dossier/print-mask-v1.webp") 0 0 / 100% 100% no-repeat;
+  mask: url("../../../assets/map/dossier/print-mask-v1.webp") 0 0 / 100% 100% no-repeat;
+}
+/* 未开放：一枚朱砂印，颗粒取自离线的印章纹理。 */
+.abyssa-sortie-dossier__stamp {
+  position: absolute;
+  right: 16%;
+  bottom: 30%;
+  padding: 2px 8px 2px 16px;
+  border: 3px double currentColor;
+  color: rgb(158 44 28 / 90%);
+  /* 印文是刻出来的，不用手写体。 */
+  font-family: var(--abyssa-font-body);
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: .32em;
+  line-height: 1.3;
+  mix-blend-mode: multiply;
+  transform: rotate(-9deg);
+  -webkit-mask: url("../../../assets/map/dossier/stamp-grain-v1.webp") 0 0 / 128px 128px repeat;
+  mask: url("../../../assets/map/dossier/stamp-grain-v1.webp") 0 0 / 128px 128px repeat;
+}
+
+/* 正文一组：版画下方余白里上下居中；版式左右对称。 */
+.abyssa-sortie-dossier__text { display: flex; flex-direction: column; gap: 12px; margin-block: auto; text-align: center; }
+.abyssa-sortie-dossier__condition { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 0; color: var(--map-ink-soft); font-size: 18px; line-height: 1.6; }
+.abyssa-sortie-dossier__condition i { flex: none; width: 16px; height: 16px; background: var(--map-ink-mute); }
+
+/* 风味：居中，各行等长 —— 题在版画下的一段题记。楷体字面比宋体小，字号上调一档。 */
+.abyssa-sortie-dossier__flavor { margin: 0 4px; color: var(--map-ink); font-size: 20px; line-height: 1.65; text-wrap: balance; }
+
+/* 路线 / 敌情 / 收获：朱字小标居中，两侧各一笔收尖的墨线；正文在下方居中。 */
+.abyssa-sortie-dossier__facts { display: grid; gap: 12px; margin: 0; }
+.abyssa-sortie-dossier__facts > div { display: grid; justify-items: center; gap: 2px; }
+.abyssa-sortie-dossier__facts dt {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--map-cinnabar);
+  font-size: 17px;
+  /* 末字后的字距由首行缩进抵掉，字组才在两笔之间居中。 */
+  letter-spacing: .5em;
+  line-height: 22px;
+  text-indent: .5em;
+}
+.abyssa-sortie-dossier__facts dt::before,
+.abyssa-sortie-dossier__facts dt::after {
+  width: 38px;
+  height: 5px;
+  background: rgb(58 38 21 / 58%);
+  content: "";
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 6' preserveAspectRatio='none'%3E%3Cpath d='M0 3L100 1.6V4.4Z'/%3E%3C/svg%3E") 0 0 / 100% 100% no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 6' preserveAspectRatio='none'%3E%3Cpath d='M0 3L100 1.6V4.4Z'/%3E%3C/svg%3E") 0 0 / 100% 100% no-repeat;
+}
+.abyssa-sortie-dossier__facts dt::after { transform: scaleX(-1); }
+.abyssa-sortie-dossier__facts dd { width: 100%; margin: 0; color: var(--map-ink); font-size: 18px; line-height: 1.55; }
+.abyssa-sortie-dossier__facts [data-fact="threats"] li { text-wrap: balance; }
+
+/* 行军线：地图 drawRoute 的同一种虚线与节点，按层数定长、居中。 */
+.abyssa-sortie-dossier__trail { display: block; max-width: 100%; height: auto; margin-inline: auto; overflow: visible; }
+.abyssa-sortie-dossier__trail [data-part="path"] { fill: none; stroke: #4a2f1c; stroke-dasharray: 6 4.6; stroke-linecap: round; stroke-width: 2.2; }
+.abyssa-sortie-dossier__trail [data-part="dot"] { fill: #301b0f; }
+.abyssa-sortie-dossier__trail [data-part="eye"] { fill: #c79e70; }
+.abyssa-sortie-dossier__trail [data-part="ring"] { fill: none; stroke: #6b452b; stroke-dasharray: 2.8 2.2; stroke-width: 1.6; }
+.abyssa-sortie-dossier__trail [data-part="finale"] { fill: none; stroke: #301b0f; stroke-width: 1.6; }
+.abyssa-sortie-dossier__trail [data-part="staff"] { stroke: #301b0f; stroke-width: 1.4; }
+.abyssa-sortie-dossier__trail [data-part="flag"] { fill: var(--map-cinnabar); }
+.abyssa-sortie-dossier__trail text { fill: var(--map-ink-soft); font: 15px/1 var(--abyssa-font-hand); text-anchor: middle; }
+
+.abyssa-sortie-dossier__yields { display: flex; flex-wrap: wrap; justify-content: center; gap: 0 20px; }
+.abyssa-sortie-dossier__yields li { display: inline-flex; align-items: center; gap: 7px; min-height: 30px; }
+.abyssa-sortie-dossier__spoil { width: 18px; height: 18px; background: var(--map-ink-soft); }
+.abyssa-sortie-dossier__coin { display: inline-flex; width: 18px; justify-content: center; gap: 0; }
+.abyssa-sortie-dossier__coin i { width: 16px; height: 16px; }
+.abyssa-sortie-dossier__coin[data-currency="crystal"] i { width: 12px; height: 12px; }
+.abyssa-sortie-dossier__yields li > span:not([class]) { color: var(--map-ink); font-size: 18px; }
+.abyssa-sortie-dossier__stars { display: inline-flex; gap: 2px; }
+.abyssa-sortie-dossier__stars svg { width: 13px; height: 13px; fill: none; stroke: rgb(46 31 18 / 62%); stroke-width: .9; }
+.abyssa-sortie-dossier__stars svg[data-active] { fill: var(--map-ink); stroke: var(--map-ink); }
+
+/* 委托便条：别在纸上的一张小签，黄铜图钉；没有进行中的委托就不出现。 */
+.abyssa-sortie-dossier__slip {
+  position: relative;
+  padding: 12px 14px 8px;
+  background: rgb(253 246 228 / 62%);
+  box-shadow: 0 0 0 1px rgb(46 31 18 / 10%), 0 1px 3px rgb(60 35 15 / 30%);
+  transform: rotate(-.5deg);
+}
+.abyssa-sortie-dossier__slip::before {
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #f2d898, #a57b3a 58%, #4a3014);
+  box-shadow: 0 2px 2px rgb(0 0 0 / 40%);
+  content: "";
+  transform: translateX(-50%);
+}
+.abyssa-sortie-dossier__slip .commission-list { padding: 0; border: 0; color: var(--map-ink); font-size: var(--map-type-label); line-height: 1.6; text-align: left; }
+.abyssa-sortie-dossier__slip .commission-list > h3 { margin: 0 0 4px; color: var(--map-cinnabar); font-size: var(--map-type-label); font-weight: 500; letter-spacing: .2em; }
+.abyssa-sortie-dossier__slip .commission-card { padding: 6px 0; }
+.abyssa-sortie-dossier__slip .commission-card + .commission-card { border-top: 1px dashed rgb(46 31 18 / 24%); }
+.abyssa-sortie-dossier__slip .commission-card h4 { font-size: 16px; }
+.abyssa-sortie-dossier__slip .commission-card header > span { color: var(--map-cinnabar); font-size: var(--map-type-min); }
+.abyssa-sortie-dossier__slip .commission-card p { margin: 4px 0; }
+
+/* ---- 木台：地图画框垫边的同一种木色与内阴影 ---- */
+.abyssa-sortie-dossier__ledge {
+  position: relative;
+  display: grid;
+  flex: none;
+  gap: 7px;
+  padding: 10px 12px 12px;
+  border: 2px solid #211307;
+  background-color: #49301f;
+  background-image: linear-gradient(135deg, rgb(214 171 111 / 9%), transparent 34% 72%, rgb(18 9 5 / 18%));
+  box-shadow: inset 0 0 0 1px rgb(224 187 111 / 34%), inset 0 0 24px rgb(7 4 2 / 48%);
+  color: var(--map-cream);
+}
+/* 一行是一道刻进木台的凹槽：左端竖排标签，中间人或物两端对齐，右端工具钮。 */
+.abyssa-sortie-dossier__row {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  min-height: 54px;
+  padding: 4px 6px 4px 4px;
+  background: linear-gradient(180deg, rgb(16 9 4 / 66%), rgb(34 21 11 / 44%));
+  box-shadow:
+    inset 0 2px 6px rgb(0 0 0 / 60%),
+    inset 0 0 0 1px rgb(0 0 0 / 30%),
+    0 1px 0 rgb(224 187 111 / 18%);
+}
+.abyssa-sortie-dossier__row-label {
+  justify-self: center;
+  color: var(--map-cream-muted);
+  font-size: var(--map-type-label);
+  font-weight: 600;
+  /* 竖排时 text-indent 落在顶端，抵掉末字后面的字距，字组才居中。 */
+  letter-spacing: .3em;
+  line-height: 1;
+  text-indent: .3em;
+  writing-mode: vertical-rl;
+}
+.abyssa-sortie-dossier__chips,
+.abyssa-sortie-dossier__bag { display: flex; gap: 6px; min-width: 0; padding-inline: 3px; }
+/* 两排两端对齐：五个席位与六格行囊左右齐边。 */
+.abyssa-sortie-dossier__chips,
+.abyssa-sortie-dossier__bag { justify-content: space-between; }
+
+/* 队伍：与编队抽屉同一个头像件（.abyssa-sortie-slot__art），尺寸由槽宽令牌给出；
+   这里只换木台上的颜色。玩家位的立绘取景同样读这组令牌。 */
+/* 小格里玩家剪影少放大一档，露出头肩，不是一团黑。 */
+.abyssa-sortie-dossier__chips { --sortie-slot-w: 46px; --sortie-slot-h: 46px; --sortie-slot-zoom: 1.6; }
+.abyssa-sortie-dossier__chip { position: relative; flex: none; }
+.abyssa-sortie-dossier .abyssa-sortie-dossier__chip-art {
+  --abyssa-avatar-fill: #2a1b10;
+  --abyssa-avatar-frame: #1c1108;
+  --abyssa-avatar-middle: var(--slot-accent, #8a6a42);
+  --abyssa-avatar-deep: #120a05;
+  --abyssa-avatar-ornament: rgb(226 194 127 / 50%);
+}
+.abyssa-sortie-dossier__chip-art .abyssa-avatar__photo { background: #24170d; }
+.abyssa-sortie-dossier__chip-art[data-kind="portrait"] .abyssa-avatar__photo img { top: -3px; }
+.abyssa-sortie-dossier__chip[data-faction="hero-party"] { --slot-accent: #aa9474; }
+.abyssa-sortie-dossier__chip[data-faction="demon-cadre"] { --slot-accent: #78999a; }
+.abyssa-sortie-dossier__chip[data-faction="demon-lord"] { --slot-accent: #9e7672; }
+.abyssa-sortie-dossier__chip[data-leader][data-enlisted] { --slot-accent: var(--map-brass-bright); }
+.abyssa-sortie-dossier__chip[data-leader]:not([data-enlisted]) img { filter: grayscale(.6) brightness(.6); }
+.abyssa-sortie-dossier__chip[data-empty] .abyssa-sortie-dossier__chip-art {
+  --abyssa-avatar-fill: #24170c;
+  --abyssa-avatar-middle: rgb(194 155 88 / 26%);
+  --abyssa-avatar-ornament: rgb(194 155 88 / 22%);
+}
+.abyssa-sortie-dossier__chip[data-empty] .abyssa-avatar__photo { background: #1f140b; }
+
+/* 行囊：木色的物品格，恒为六格。 */
+.abyssa-sortie-dossier__bag { --bag-slot: 38px; }
+.abyssa-sortie-dossier__bag li { position: relative; flex: none; }
+.abyssa-sortie-dossier__bag .abyssa-item-slot {
+  --slot-size: var(--bag-slot);
+  --abyssa-ornament-light: #b08d5a;
+  --abyssa-text: var(--map-cream);
+  --abyssa-panel-black: #2a1b10;
+  --abyssa-frame-dark: #1c1108;
+  --abyssa-frame-deep: #120a05;
+}
+.abyssa-sortie-dossier__bag .abyssa-item-slot[data-empty] {
+  border-color: rgb(194 155 88 / 24%);
+  background: #23170d;
+  box-shadow: 0 0 0 2px #1c1108, 0 0 0 3px rgb(194 155 88 / 14%), inset 0 2px 7px rgb(0 0 0 / 62%);
+}
+.abyssa-sortie-dossier__bag .abyssa-item-slot[data-empty] [data-layer="socket"] { border-color: rgb(194 155 88 / 22%); }
+/* 未解锁：格子沉下去，正中一把小锁；储藏室升级后打开。 */
+.abyssa-sortie-dossier__bag li[data-locked] .abyssa-item-slot { opacity: .62; }
+.abyssa-sortie-dossier__bag li[data-locked] [data-layer="socket"] { display: none; }
+.abyssa-sortie-dossier__lock { position: absolute; inset: 0; width: 14px; height: 14px; margin: auto; background: rgb(194 155 88 / 50%); pointer-events: none; }
+/* 数量角标：木色小牌 + 黄铜边，数字用界面字体，不再是黑方块。 */
+.abyssa-sortie-dossier__bag .abyssa-item-count {
+  right: -3px;
+  bottom: -3px;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  border-color: rgb(217 181 110 / 70%);
+  background: linear-gradient(180deg, #5b3e29, #3a2817);
+  box-shadow: 0 0 0 1.5px #140b05, 0 2px 3px rgb(0 0 0 / 45%);
+  color: var(--map-cream);
+  font-family: var(--abyssa-font-body);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* 编队 / 整备：共享圆钮，与关闭钮同一枚；图标走 mask 着色。 */
+.abyssa-sortie-dossier__tool.abyssa-icon-button[data-size] {
+  --abyssa-icon-size: 44px;
+  --abyssa-icon-fill: #2e1e11;
+  --abyssa-icon-middle: #a07a44;
+  --abyssa-icon-ornament: rgb(226 194 127 / 55%);
+  --abyssa-icon-ink: var(--map-cream);
+  --abyssa-icon-pattern-dark: rgb(0 0 0 / 10%);
+  --abyssa-icon-pattern-light: rgb(226 194 127 / 4%);
+  --abyssa-frame-dark: #0d0805;
+  --abyssa-frame-deep: #24170c;
+}
+.abyssa-sortie-dossier__tool .abyssa-icon-button__custom i { display: block; width: 20px; height: 20px; background: var(--map-cream); }
+.abyssa-sortie-dossier__tool.abyssa-icon-button:hover:not(:disabled) { --abyssa-icon-middle: var(--map-brass-bright); }
+.abyssa-sortie-dossier__tool.abyssa-icon-button:disabled { --abyssa-icon-middle: #4d3a26; cursor: default; }
+.abyssa-sortie-dossier__tool.abyssa-icon-button:disabled .abyssa-icon-button__custom i { background: #7d6a52; }
+
+/* 出发：共享六角钮的原配方 —— 实底、两端菱纹、三层描边 —— 只换成黄铜色令牌，
+   不另画渐变。不可出发时退回木色。 */
+.abyssa-sortie-dossier__go { display: grid; gap: 8px; padding-top: 2px; }
+.abyssa-sortie-dossier__notice { margin: 0; color: var(--map-cream-muted); font-size: var(--map-type-min); line-height: 1.5; text-align: center; }
+.abyssa-sortie-dossier__notice[data-tone="error"] { color: #eba78e; }
+.abyssa-sortie-dossier .abyssa-sortie-dossier__depart.abyssa-hex-button {
+  --abyssa-hex-fill: #c19b5c;
+  --abyssa-hex-text: #26160a;
+  --abyssa-hex-frame-middle: #e3c68a;
+  --abyssa-hex-pattern-dark: rgb(84 52 20 / 20%);
+  --abyssa-hex-pattern-light: rgb(255 238 200 / 22%);
+  --abyssa-frame-dark: #140b05;
+  --abyssa-frame-deep: #5b3d17;
+  filter: drop-shadow(0 3px 5px rgb(4 2 1 / 50%));
+}
+.abyssa-sortie-dossier .abyssa-sortie-dossier__depart.abyssa-hex-button:hover:not(:disabled) { filter: drop-shadow(0 3px 5px rgb(4 2 1 / 50%)) brightness(1.06); }
+/* 共享六角钮下沿的五点饰纹，在这块铭牌的尺寸上只剩几粒碎屑，不画。 */
+.abyssa-sortie-dossier__depart .abyssa-hex-button__dots { display: none; }
+.abyssa-sortie-dossier__depart .abyssa-hex-button__label {
+  padding-inline: 48px;
+  font-family: var(--abyssa-font-body, "Noto Serif SC", serif);
+  font-size: 21px;
+  font-weight: 700;
+  letter-spacing: .5em;
+  text-indent: .5em;
+}
+.abyssa-sortie-dossier .abyssa-sortie-dossier__depart.abyssa-hex-button:disabled {
+  --abyssa-hex-fill: #3b2919;
+  --abyssa-hex-text: #8f7a5e;
+  --abyssa-hex-frame-middle: #5a4430;
+  --abyssa-hex-pattern-dark: rgb(0 0 0 / 12%);
+  --abyssa-hex-pattern-light: rgb(226 194 127 / 4%);
+  --abyssa-frame-deep: #24170c;
+  cursor: default;
+  filter: drop-shadow(0 3px 4px rgb(4 2 1 / 45%));
+  opacity: 1;
+}
+.abyssa-sortie-dossier__depart:disabled .abyssa-hex-button__label { font-weight: 600; letter-spacing: .3em; text-indent: .3em; }

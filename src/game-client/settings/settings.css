@@ -70,6 +70,12 @@
 .settings-repository__arrow { justify-self: end; color: var(--abyssa-text-muted); font-size: 18px; }
 
 .settings-row__text { display: grid; gap: 5px; min-width: 0; }
+.settings-release-copy { flex-wrap: wrap; font-size: 13px; }
+.settings-release-details { margin-block-start: 18px; font-size: 13px; }
+.settings-release-details summary { cursor: pointer; }
+.settings-release-details pre { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 12px; line-height: 1.6; }
+.settings-release-details dl { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px 12px; }
+.settings-release-details dd { margin: 0; overflow-wrap: anywhere; }
 
 .settings-row__text strong {
   color: var(--abyssa-text-soft);

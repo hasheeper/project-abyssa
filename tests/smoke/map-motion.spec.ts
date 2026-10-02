@@ -2,7 +2,7 @@ import { test, expect, type Page } from "@playwright/test";
 import { ready, openSortie } from "./playable-helpers";
 import { confirmNewGame } from "./new-game-helpers";
 
-type IntroFrame = { time: number; wood: number; y: number; map: number; party: number; entry: number; veil: number };
+type IntroFrame = { time: number; wood: number; y: number; map: number; party: number; veil: number };
 type MapWindow = Window & { mapEntrance?: Promise<IntroFrame[]>; panelSamples?: Promise<{ opacity: number; x: number; y: number }[]> };
 
 async function menu(page: Page, reduced = false) {
@@ -20,6 +20,12 @@ async function map(page: Page) {
   await expect(page.locator(".abyssa-map-loading")).toHaveCount(0);
 }
 async function settled(page: Page) { await expect(page.locator(".map-board")).toHaveAttribute("data-map-intro", "ready"); }
+async function quest(page: Page) {
+  const canvas = page.locator(".abyssa-map-scene canvas"), bounds = (await canvas.boundingBox())!;
+  await canvas.click({ position: { x: bounds.width * .48, y: bounds.height * .495 } });
+  await expect(page.locator(".abyssa-map-viewport")).toHaveAttribute("data-mode", "pop");
+  await expect(page.getByRole("complementary", { name: /委托/ })).toBeVisible();
+}
 async function record(page: Page) {
   await page.addInitScript(() => {
     const seen = new WeakSet<Element>();
@@ -27,14 +33,14 @@ async function record(page: Page) {
       const root = document.querySelector('.map-board[data-map-intro="playing"]');
       if (!root || seen.has(root)) return;
       seen.add(root);
-      const nodes = [root, ...[".abyssa-map-scene", ".abyssa-sortie-stage__slots", ".map-supply-entry"].map(selector => root.querySelector(selector)!)];
+      const nodes = [root, ...[".abyssa-map-scene", ".abyssa-sortie-stage__slots"].map(selector => root.querySelector(selector)!)];
       (window as MapWindow).mapEntrance = new Promise(resolve => {
         const frames: IntroFrame[] = [], start = performance.now();
         const tick = (time: number) => {
           const css = nodes.map(node => getComputedStyle(node));
           const veil = document.querySelector(".scene-transition__veil");
           frames.push({ time: time - start, wood: Number(css[0].opacity), y: parseFloat(css[0].translate.split(" ")[1]) || 0,
-            map: Number(css[1].opacity), party: Number(css[2].opacity), entry: Number(css[3].opacity), veil: veil ? Number(getComputedStyle(veil).opacity) : 0 });
+            map: Number(css[1].opacity), party: Number(css[2].opacity), veil: veil ? Number(getComputedStyle(veil).opacity) : 0 });
           if (time - start < 1560) requestAnimationFrame(tick); else resolve(frames);
         };
         requestAnimationFrame(tick);
@@ -58,10 +64,9 @@ test("map paper stage has visible layered frames on arrival, refresh and return"
     expect(frames.find(frame => frame.y >= -17)!.time).toBeGreaterThan(220);
     expect(frames.find(frame => frame.y >= -3.4)!.time).toBeGreaterThan(450);
     expect(Math.max(...frames.map(frame => frame.veil))).toBeLessThan(.01);
-    const half = (key: "wood" | "map" | "party" | "entry") => frames.find(frame => frame[key] > .5)!.time;
+    const half = (key: "wood" | "map" | "party") => frames.find(frame => frame[key] > .5)!.time;
     expect(half("wood")).toBeLessThan(half("map"));
     expect(half("map")).toBeLessThan(half("party"));
-    expect(half("party")).toBeLessThan(half("entry"));
     expect(await page.locator(".abyssa-map-canvas").evaluate(el => getComputedStyle(el).backgroundImage)).toContain("url(");
   };
   await check("arrival");
@@ -77,10 +82,8 @@ for (const width of [1600, 1280]) test(`map supplies fit the frame and retain th
   test.setTimeout(60_000);
   await page.setViewportSize({ width, height: width === 1600 ? 900 : 800 });
   await menu(page); await map(page); await settled(page);
-  const canvas = page.locator(".abyssa-map-scene canvas"), bounds = (await canvas.boundingBox())!;
-  await canvas.click({ position: { x: bounds.width * .48, y: bounds.height * .495 } });
-  await expect(page.locator(".abyssa-map-viewport")).toHaveAttribute("data-mode", "pop");
-  await page.getByRole("button", { name: /出征行囊/ }).click();
+  await quest(page);
+  await page.getByRole("button", { name: "整备", exact: true }).click();
   const panel = page.getByRole("region", { name: "出征行囊", exact: true });
   await expect(panel).toBeVisible();
   await expect(page.locator('.map-panel-layer[data-exiting]')).toHaveCount(0);
@@ -96,10 +99,10 @@ for (const width of [1600, 1280]) test(`map supplies fit the frame and retain th
   });
   expect(geometry.fits).toBe(true); expect(geometry.outside).toBe(false); expect(geometry.width).toBeCloseTo(901, 0);
   // Compact commands may stretch their middle ribbon, never the end diamonds.
-  const diamonds = await page.locator(".map-command__gem").evaluateAll(nodes => nodes.map(node => {
+  const diamonds = await panel.locator(".map-command__gem").evaluateAll(nodes => nodes.map(node => {
     const r = node.getBoundingClientRect(); return { width: r.width, height: r.height };
   }));
-  expect(diamonds.length).toBe(6);
+  expect(diamonds.length).toBe(4);
   for (const diamond of diamonds) { expect(diamond.width).toBeGreaterThan(10); expect(diamond.width).toBeCloseTo(diamond.height, 2); }
   await panel.getByRole("button", { name: "查看补给：护符" }).click();
   await expect(panel.getByRole("button", { name: "加入行囊" })).toBeDisabled();
@@ -110,9 +113,9 @@ for (const width of [1600, 1280]) test(`map supplies fit the frame and retain th
   await page.screenshot({ path: info.outputPath("supplies.png") });
   await page.keyboard.press("Escape");
   await expect(page.locator(".abyssa-map-viewport")).toHaveAttribute("data-mode", "pop");
-  await expect(page.getByRole("button", { name: /出征行囊/ })).toBeFocused();
+  await expect(page.getByRole("button", { name: "整备", exact: true })).toBeFocused();
   await expect(page.getByRole("complementary", { name: /委托/ })).toBeVisible();
-  await page.getByRole("button", { name: "调整队伍", exact: true }).click();
+  await page.getByRole("button", { name: "编队", exact: true }).click();
   await expect(page.getByRole("region", { name: "出战名单" })).toBeVisible();
   await page.getByRole("button", { name: "完成编队", exact: true }).click();
   await expect(page.locator(".abyssa-map-viewport")).toHaveAttribute("data-mode", "pop");
@@ -123,7 +126,8 @@ for (const manual of [false, true]) test(`map respects ${manual ? "manual" : "sy
   await menu(page, !manual); await map(page); await settled(page);
   await expect(page.locator(".abyssa-map-page")).toHaveAttribute("data-map-reduced", "true");
   expect(await page.locator(".map-board").evaluate(el => el.getAnimations({ subtree: true }).filter(a => a.playState === "running").length)).toBe(0);
-  await page.getByRole("button", { name: /出征行囊/ }).click();
+  await quest(page);
+  await page.getByRole("button", { name: "整备", exact: true }).click();
   await expect(page.locator('.map-panel-layer[data-panel="loadout"]')).toHaveCSS("opacity", "1");
   await page.getByRole("button", { name: "完成整备", exact: true }).click();
   await expect(page.getByRole("region", { name: "出征行囊", exact: true })).toHaveCount(0);
