@@ -1,12 +1,14 @@
 # AIRP：Cloudflare Pages 静态发布
 
-当前发布阶段：**Alpha**。正式试玩站为[abyssa-airp-alpha.pages.dev](https://abyssa-airp-alpha.pages.dev/)，源码仓库为[hasheeper/project-abyssa](https://github.com/hasheeper/project-abyssa)。ABOUT 标识 `ABYSSA · ALPHA`。10-02 在现有 Pages 项目更新 production 部署。
+当前发布阶段：**Alpha**。正式试玩站为[abyssa-airp-alpha.pages.dev](https://abyssa-airp-alpha.pages.dev/)，源码仓库为[hasheeper/project-abyssa](https://github.com/hasheeper/project-abyssa)。ABOUT 标识 `ABYSSA · ALPHA`。10-03 在现有 Pages 项目发布首个编号版本 **v0.1.0-alpha.1**。
 
-更新：2026-10-02。当前运行源码 `5f9390283d2ddb9f4bdaf610ef3ffbe739575c15` 已推送 GitHub main；从独立、干净的发布工作树使用 Node 22.23.2／npm 10.9.8 重建，严格 `check:pages -- --release` 与 `check:output -- game` 均通过。仅上传 `dist/game`，Wrangler 4.140.0 确认 production 部署成功，source 为 `5f93902`。后续文档提交仅记录发布结果。
+更新：2026-10-03。当前运行源码 `5eb82446e4f1f442acdc43a3cb2036a90854bbb2` 和附注标签 `v0.1.0-alpha.1` 已推送 GitHub main；从独立、干净的发布工作树使用 Node 22.23.2／npm 10.9.8 重建，来源、产物、隐私及 `check:pages:publish` 门禁均通过。仅上传 `dist/game`，Wrangler 4.140.0 确认 production 部署成功，source 为 `5eb8244`。后续登记和文档提交仅记录发布结果，不改变已发布源码身份。
 
-本次补发修正主观察区的未收录问号：字号由 80px 增至 160px，脱离线稿外扩裁切层，以轮盘中心独立定位并补偿字体视觉重心。原观察草图与扩散／旋转／聚焦动效保留。面板与动效 10 项回归、前端类型检查通过；正式域名 41 个变化／入口文件字节一致，3 个私有／缺失路径返回 404，CSP 与 nosniff 生效。独立部署地址通过正常 UI 创建自由行动新档、打开正式图鉴，确认问号大小与位置，控制台错误为 0。本机包与证据为 `dist/releases/codex-5f93902/game` 和 `dist/reports/codex-question-fix-2026-10-02/`。干净副本的通用凭据门禁通过，另以本机配置扫描完整产物与两份改动源码，已知私密标记命中为 0。
+本轮同时收口版本管理、地图委托书与木框／纸面素材、霞鹜文楷 GB 屏幕版本地字体，以及模型 ID 的查询、搜索、选择和手填。标题版本信息移到右下角，移除旧副标题；旧 inline-config 开发服务缺少注入时只在开发态读取统一候选编号，不伪造提交或构建时间。140 项本轮前端／模型接口定向测试、137 项 Node 构建测试、4 项地图行囊／减弱动效浏览器检查通过；167 个线上变化／入口文件摘要与完整包一致，3 个私有／缺失路径真正 404，响应头生效。独立部署地址验证正常新档、地图文书字体、版本复制和模拟模型列表选择，真实模型 POST／外部网络请求／页面异常／CSP 违规均为 0。全量基线存在旧战斗断言、超时及冷刷新动效采样失败，没有宣称全量回归或完整玩家验收通过，详见[本轮发布审查](../audits/2026-10-03-alpha-numbered-release.md)。完整包为 `dist/releases/v0.1.0-alpha.1/game`，证据为 `dist/reports/release-2026-10-03/`。
 
-本次上线正式图鉴：AI 观察线稿、同页目录与资料、轮盘扩散／旋转／聚焦动效，以及未遇见 → 已遇见 → 已击败的存档收录。首次遇见开放基础观察，首次击败补全已配置资料；重复遭遇不重播更新，撤销唯一击败可回退。跳过教程与菜单回想不伪造解锁，各存档独立。规则、素材来源和接线维护见[图鉴方案](../design/CODEX_PANEL_UI.md)。
+10-02 的补发修正主观察区的未收录问号：字号由 80px 增至 160px，脱离线稿外扩裁切层，以轮盘中心独立定位并补偿字体视觉重心。原观察草图与扩散／旋转／聚焦动效保留。面板与动效 10 项回归、前端类型检查通过；正式域名 41 个变化／入口文件字节一致，3 个私有／缺失路径返回 404，CSP 与 nosniff 生效。独立部署地址通过正常 UI 创建自由行动新档、打开正式图鉴，确认问号大小与位置，控制台错误为 0。本机包与证据为 `dist/releases/codex-5f93902/game` 和 `dist/reports/codex-question-fix-2026-10-02/`。干净副本的通用凭据门禁通过，另以本机配置扫描完整产物与两份改动源码，已知私密标记命中为 0。
+
+10-02 上线正式图鉴：AI 观察线稿、同页目录与资料、轮盘扩散／旋转／聚焦动效，以及未遇见 → 已遇见 → 已击败的存档收录。首次遇见开放基础观察，首次击败补全已配置资料；重复遭遇不重播更新，撤销唯一击败可回退。跳过教程与菜单回想不伪造解锁，各存档独立。规则、素材来源和接线维护见[图鉴方案](../design/CODEX_PANEL_UI.md)。
 
 10-01 的 `7fcfce1` 补齐洋馆房间「概况／运作／工程」抽屉，以及仓库、日志和整备的统一面板、分区、图标、数量控制与底部操作栏；设施操作仍接正式应用命令，教程未结束时不提前显示 AIRP 今日安排。详见[洋馆 UI 发布审查](../audits/2026-10-01-mansion-ui-pages-release.md)。
 
@@ -17,13 +19,18 @@
 | 发布证据 | 当前结果 |
 | --- | --- |
 | Pages 项目／分支 | `abyssa-airp-alpha`／`main`，Direct Upload |
-| Production 部署 ID | `3d61c3b4-33ae-48d1-bf28-5e09bc0a27d4` |
-| 当前部署地址 | [3d61c3b4.abyssa-airp-alpha.pages.dev](https://3d61c3b4.abyssa-airp-alpha.pages.dev/) |
-| 发布目录 | `dist/game`，915 文件／163.21 MiB，最大 7.81 MiB |
-| 上传结果 | 914 静态文件（30 个新上传、884 个复用）＋由 Pages 解析的 `_headers` |
-| 清单 SHA-256 | `cc750720b9d355df4bc10bccddea119318eef26c04bf066dea19bc395c20d1a3` |
+| 游戏版本／标签 | `0.1.0-alpha.1`／`v0.1.0-alpha.1` |
+| 构建时间（UTC） | `2026-10-02T17:05:01.796Z`，北京时间 10-03 |
+| Production 部署 ID | `83b8a751-ae61-4ae8-82bf-43a0de3cace0` |
+| 当前部署地址 | [83b8a751.abyssa-airp-alpha.pages.dev](https://83b8a751.abyssa-airp-alpha.pages.dev/) |
+| 发布目录 | `dist/game`，1018 文件／166.71 MiB，最大 7.81 MiB |
+| 上传结果 | 1017 静态文件（154 个新上传、863 个复用）＋由 Pages 解析的 `_headers` |
+| 清单 SHA-256 | `746fdc83e77590c5b16aabc6dc09bdc797742e0807c88c9c681d64c106933bf1` |
+| 编号登记 | `docs/deployment/game-releases.json`，源码／时间／摘要与附注标签一致 |
 
-上一版 production 保留为回退候选：`f74d1d3c-f3e3-42a5-a01b-ab4bf43cff4c`，源码 `3bffd28988b5df6b98599e248ba54273b51c79cd`，部署地址 [f74d1d3c.abyssa-airp-alpha.pages.dev](https://f74d1d3c.abyssa-airp-alpha.pages.dev/)，清单 SHA-256 为 `8bb3c359cdfec052fc30558e254e6d9826182d38a58a93495eef21660273ebc3`。
+上一版 production 保留为回退候选：`3d61c3b4-33ae-48d1-bf28-5e09bc0a27d4`，源码 `5f9390283d2ddb9f4bdaf610ef3ffbe739575c15`，部署地址 [3d61c3b4.abyssa-airp-alpha.pages.dev](https://3d61c3b4.abyssa-airp-alpha.pages.dev/)，清单 SHA-256 为 `cc750720b9d355df4bc10bccddea119318eef26c04bf066dea19bc395c20d1a3`。历史包没有发行编号，不补造版本号。
+
+10-02 图鉴首版 production 同样保留：`f74d1d3c-f3e3-42a5-a01b-ab4bf43cff4c`，源码 `3bffd28988b5df6b98599e248ba54273b51c79cd`，部署地址 [f74d1d3c.abyssa-airp-alpha.pages.dev](https://f74d1d3c.abyssa-airp-alpha.pages.dev/)，清单 SHA-256 为 `8bb3c359cdfec052fc30558e254e6d9826182d38a58a93495eef21660273ebc3`。
 
 10-02 图鉴首版 `3bffd28` 的线上 HTTP 核对：正式域名 89 个变化／入口文件的字节摘要与发布包一致；CSP 与 nosniff 响应头生效，3 个私有／缺失路径返回 404。在独立部署地址通过正常 UI 创建自由行动新档，核对正式图鉴入口、13 项全锁、返回主菜单与重新进入，控制台错误为 0；没有操作正式域名的玩家存档或配置模型。干净发布副本的图鉴／Menu 40 项回归、应用与前端类型检查、模块边界、动效令牌及发布门禁均通过；接线阶段的应用战斗／事务回归另有 12 项通过。该结果不等于完整远端 CI、全流程战斗或回退演练通过。
 
@@ -71,9 +78,9 @@ Cloudflare Pages可以托管本机构建好的静态文件，提供`https://<项
 
 选择Direct Upload后，同一Pages项目不能直接改成Git integration，需要另建项目；但该项目可以在网页拖拽与Wrangler上传之间切换。本 Alpha 的源码已推送 GitHub，Pages 使用独立的 Direct Upload；Git 推送不会自动发布站点，不上传整个工作区。
 
-## 游戏版本管理（本地已接入，待首次编号发布）
+## 游戏版本管理（首次编号已发布）
 
-本轮已接入发行配置、构建来源快照、客户端／公开元数据／报告一致性检查、标题／Menu／About 展示、复制和浏览器诊断导出身份，以及编号／标签／产物绑定和发布后登记工具。当前候选编号为 `0.1.0-alpha.1`，工作树构建明确标为开发版；尚未冻结提交、创建正式标签、登记真实部署或上传新版本。上方既有部署仍以原提交和部署 ID 标识，不给历史构建补造发行号。自动更新提示、多标签缓存切换及回退演练未实施／验收。
+本轮已接入发行配置、构建来源快照、客户端／公开元数据／报告一致性检查、标题／Menu／About 展示、复制和浏览器诊断导出身份，以及编号／标签／产物绑定和发布后登记工具。首个编号 `0.1.0-alpha.1` 已按冻结源码 `5eb8244` 创建附注标签、推送、上传并登记真实 production 部署；工作树构建仍明确标为开发版。历史部署继续以原提交和部署 ID 标识，不补造发行号。自动更新提示、多标签缓存切换及回退演练未实施／验收。
 
 ### 当前编号的实际用途
 
@@ -82,20 +89,20 @@ Cloudflare Pages可以托管本机构建好的静态文件，提供`https://<项
 | 游戏发行号 | `config/game-release.json` 是唯一手填位置，阶段由后缀推导；标题、Menu 和 About 显示编译进当前客户端的身份 |
 | `@abyssa/ui` 的 `0.1.0` | package.json 中的组件库版本，不能直接当游戏版本 |
 | Git revision／dirty／文件 SHA-256 | 构建前后来源核对、报告与发布门禁；提交和构建时间可在 About 查看／复制 |
-| Pages deployment ID | Cloudflare 上传后分配，当前台账手工记录；与 Git 提交不同 |
+| Pages deployment ID | Cloudflare 上传后分配，`record:pages` 登记到 `game-releases.json`，与 Git 提交不同 |
 | game-assets.version | 整份运行资源清单的 SHA-256，用于缓存握手；不是可读发行号 |
 | 协议／规则4、内容28、Catalog摘要 | 正常新档的读取与执行身份；旧档按原登记包恢复，调试新档使用内容27 |
 | r8、各导出DTO的 version | 提示词基线或数据格式版本，各自维护合同 |
 
-本轮没有创建 Git tag。CI 与普通 `--release` 检查来源、工具链及元数据；真正上传前另运行 `check:pages:publish`，要求带产物身份的附注标签。发布门禁、来源变更、登记、资源清单及重复构建共20项 Node 定向测试，以及版本／标题／Menu／设置／调用日志／操作反馈／缓存worker共86项前端定向测试通过。本机 Node 22.23.2／npm 10.9.8 实际构建、Pages 准备和产物检查通过，完整包已知私密标记命中为0；真实 CSP 浏览器预检核对客户端／公开身份、正常新档、菜单内嵌与独立设置、复制、旧书签和刷新，外部请求／模型 POST／页面异常／CSP 违规均为0。截图仅保存在 `dist/reports/game-release/`。这些结果不等于已发布、完整远端 CI 或更新回退演练通过。仍待完成的范围为：
+附注标签 `v0.1.0-alpha.1` 已创建并推送，绑定冻结源码、构建时间和完整产物摘要。CI 与普通 `--release` 检查来源、工具链及元数据；真正上传前另运行 `check:pages:publish`。本轮最终 137 项 Node 构建测试、140 项前端／模型接口定向测试及 4 项地图浏览器检查通过；正式包的隐私、来源与工具链门禁、真实 CSP 本机预检和线上身份／文件核对通过。证据保存在 `dist/reports/release-2026-10-03/`，历史失败与验收边界见本轮审查；不代表完整远端 CI、全量回归或更新回退演练通过。仍待完成的范围为：
 
-- 冻结并审查完整发布范围，以干净提交采用首个编号，核对远端标签与实际 production 回执。Git推送与Pages上传仍是两个动作。
-- 从正式 HTTPS 验收界面身份、公开元数据与诊断导出；历史调用未记录客户端版本时仍保留未知，不能用 `exportedBy` 冒充调用当时的版本。
+- 后续发布递增编号，继续核对源码／附注标签／完整产物与实际 production 回执。Git推送与Pages上传仍是两个动作。
+- 正式 HTTPS 的界面身份与公开元数据已核对；真实调用日志及诊断导出的完整玩家路径仍需验收。历史调用未记录客户端版本时保留未知，不能用 `exportedBy` 冒充调用当时的版本。
 - worker 安装后立即 skipWaiting／clients.claim。虽有内容哈希校验和旧哈希资源保留，旧页面与固定URL素材的逐客户端版本绑定仍需验证；多标签更新、离线及回退尚未做完整发布演练。不能把现有单元测试通过扩大为这些场景已通过。
 
 ### 发行编号规则
 
-首个候选统一编号为 `0.1.0-alpha.1`，UI显示 `v0.1.0-alpha.1`；未提交构建另显示“开发版”。这是新的发行编号起点，不给历史构建补造编号，也不由内容28或组件库0.1.0推导。
+首个已发布编号为 `0.1.0-alpha.1`，UI显示 `v0.1.0-alpha.1`；开发态或未提交构建另显示“开发版”。这是新的发行编号起点，不给历史构建补造编号，也不由内容28或组件库0.1.0推导。
 
 - 同一测试目标下，每次对外发布递增阶段序号：`0.1.0-alpha.1` → `0.1.0-alpha.2`，修复同样产生新编号。
 - 进入下一项完整功能目标时递增次版本，如 `0.2.0-alpha.1`；进入Beta时使用对应目标的 `beta.1`。
@@ -124,7 +131,7 @@ Cloudflare Pages可以托管本机构建好的静态文件，提供`https://<项
 2. **设置、界面与问题反馈。** 接入标题／Menu／About共用版本展示及复制操作，更新过时说明；诊断日志携带导出客户端身份。验证正常设置、菜单内嵌设置、独立调试入口及无存档状态。
 3. **发布登记与更新验证。** 发布检查编号格式、标签指向、既有编号占用及产物对应关系，发布后登记部署ID并核对线上身份。稳定域名可检查可用更新；固定部署链接继续标识原发布。更新提示由用户在安全状态下确认刷新，并核对未保存设置、未读正文和正在生成的请求。验证多标签、固定路径素材、断网、离线重开及旧版回退；必要时修正缓存切换策略。
 
-第一轮本地施工覆盖第1～2步和第3步的发布身份校验、登记工具；正式编号发布和远端验收尚未完成。自动更新提示及缓存切换演练单独验收。全程保留游戏发行、源码构建、部署、存档和资源缓存各自的身份，不通过改发行号迁移存档或重跑已冻结任务。
+本轮覆盖第1～2步，以及第3步的发布身份校验、真实登记和线上身份／文件验收，首个编号已正式发布。自动更新提示、完整玩家路径及缓存切换／回退演练仍单独验收。全程保留游戏发行、源码构建、部署、存档和资源缓存各自的身份，不通过改发行号迁移存档或重跑已冻结任务。
 
 ## 本地准备与检查
 
@@ -157,7 +164,7 @@ npm run check:pages:browser
 
 后续更新步骤：
 
-1. 审阅并冻结源码与 `config/game-release.json` 中的编号，从干净提交执行 `npm run prepare:pages`、`npm run check:pages -- --release` 和 `npm run check:output -- game`，保留清单摘要。为该源码提交创建／推送不可移动的附注标签，其 JSON 消息从 `dist/reports/airp-p3/pages-release.local.json` 取 `gameRelease.version`、`gameRelease.builtAt`、`manifestSha256`；随后运行 `npm run check:pages:publish`。本轮施工没有代替用户创建提交或标签。
+1. 审阅并冻结源码与 `config/game-release.json` 中的编号，从干净提交执行 `npm run prepare:pages`、`npm run check:pages -- --release` 和 `npm run check:output -- game`，保留清单摘要。为该源码提交创建／推送不可移动的附注标签，其 JSON 消息从 `dist/reports/airp-p3/pages-release.local.json` 取 `gameRelease.version`、`gameRelease.builtAt`、`manifestSha256`；随后运行 `npm run check:pages:publish`。10-03 已按用户明确的提交／推送／更新 Pages 授权完成首次编号发布。
 2. 核查项目根没有 `functions`、产物没有 `_worker.js`；不创建 Workers 后端、不启用分析脚本、不改域名 DNS。
 3. 用 Node 22.23.2 和 Wrangler 4.140.0 上传，显式指定已有项目及 production branch：
 

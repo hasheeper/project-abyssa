@@ -1,1 +1,15 @@
-[]
+[
+  {
+    "version": "0.1.0-alpha.1",
+    "revision": "5eb82446e4f1f442acdc43a3cb2036a90854bbb2",
+    "builtAt": "2026-10-02T17:05:01.796Z",
+    "manifestSha256": "746fdc83e77590c5b16aabc6dc09bdc797742e0807c88c9c681d64c106933bf1",
+    "deployments": [
+      {
+        "id": "83b8a751-ae61-4ae8-82bf-43a0de3cace0",
+        "url": "https://83b8a751.abyssa-airp-alpha.pages.dev/",
+        "recordedAt": "2026-10-02T17:11:51.410Z"
+      }
+    ]
+  }
+]
