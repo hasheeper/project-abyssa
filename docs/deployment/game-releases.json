@@ -24,5 +24,18 @@
         "recordedAt": "2026-10-03T10:17:05.716Z"
       }
     ]
+  },
+  {
+    "version": "0.1.0-alpha.3",
+    "revision": "775653eee0fab8deca6dadeec0335a09fad71280",
+    "builtAt": "2026-10-03T14:37:55.901Z",
+    "manifestSha256": "c97278fe35d984d126097464479914a81d748eb9587bb8a0670f811dc8eec5e6",
+    "deployments": [
+      {
+        "id": "ac9c2c45-99cb-4c6d-8224-0299e7f0525a",
+        "url": "https://ac9c2c45.abyssa-airp-alpha.pages.dev/",
+        "recordedAt": "2026-10-03T14:44:56.277Z"
+      }
+    ]
   }
 ]
