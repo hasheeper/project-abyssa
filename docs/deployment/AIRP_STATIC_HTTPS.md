@@ -1,10 +1,14 @@
 # AIRP：Cloudflare Pages 静态发布
 
-当前发布阶段：**Alpha**。正式试玩站为[abyssa-airp-alpha.pages.dev](https://abyssa-airp-alpha.pages.dev/)，源码仓库为[hasheeper/project-abyssa](https://github.com/hasheeper/project-abyssa)。ABOUT 标识 `ABYSSA · ALPHA`。10-03 在现有 Pages 项目发布首个编号版本 **v0.1.0-alpha.1**。
+当前发布阶段：**Alpha**。正式试玩站为[abyssa-airp-alpha.pages.dev](https://abyssa-airp-alpha.pages.dev/)，源码仓库为[hasheeper/project-abyssa](https://github.com/hasheeper/project-abyssa)。ABOUT 标识 `ABYSSA · ALPHA`。当前编号版本为 **v0.1.0-alpha.2**。
 
-更新：2026-10-03。当前运行源码 `5eb82446e4f1f442acdc43a3cb2036a90854bbb2` 和附注标签 `v0.1.0-alpha.1` 已推送 GitHub main；从独立、干净的发布工作树使用 Node 22.23.2／npm 10.9.8 重建，来源、产物、隐私及 `check:pages:publish` 门禁均通过。仅上传 `dist/game`，Wrangler 4.140.0 确认 production 部署成功，source 为 `5eb8244`。后续登记和文档提交仅记录发布结果，不改变已发布源码身份。
+更新：2026-10-03。当前运行源码 `c1fa3c93d83269e6a22b4e592878144f85cc4b8b` 和附注标签 `v0.1.0-alpha.2` 已推送 GitHub main；从干净提交使用 Node 22.23.2／npm 10.9.8 构建，来源、产物、隐私和 `check:pages:publish` 门禁均通过。仅上传 `dist/game`，Wrangler 4.140.0 确认 production 部署成功，source 为 `c1fa3c9`。部署 ID 为 `c10d4bf7-794b-4728-a037-e82219723407`，独立地址为 [c10d4bf7.abyssa-airp-alpha.pages.dev](https://c10d4bf7.abyssa-airp-alpha.pages.dev/)；后续登记与文档提交不改变该源码身份。
 
-本轮同时收口版本管理、地图委托书与木框／纸面素材、霞鹜文楷 GB 屏幕版本地字体，以及模型 ID 的查询、搜索、选择和手填。标题版本信息移到右下角，移除旧副标题；旧 inline-config 开发服务缺少注入时只在开发态读取统一候选编号，不伪造提交或构建时间。140 项本轮前端／模型接口定向测试、137 项 Node 构建测试、4 项地图行囊／减弱动效浏览器检查通过；167 个线上变化／入口文件摘要与完整包一致，3 个私有／缺失路径真正 404，响应头生效。独立部署地址验证正常新档、地图文书字体、版本复制和模拟模型列表选择，真实模型 POST／外部网络请求／页面异常／CSP 违规均为 0。全量基线存在旧战斗断言、超时及冷刷新动效采样失败，没有宣称全量回归或完整玩家验收通过，详见[本轮发布审查](../audits/2026-10-03-alpha-numbered-release.md)。完整包为 `dist/releases/v0.1.0-alpha.1/game`，证据为 `dist/reports/release-2026-10-03/`。
+本轮更新出征地图的编队牌、文书内部滚动和按钮，调整黑幕、标题与画框嵌墙效果，并采用独立的整备室背景和深色羊皮纸天幕。地图相关 70 项定向测试、应用类型检查、纸张素材重建检查、本机 Pages 浏览器检查通过；正式域名和独立部署地址各有 5 个关键文件摘要与产物一致，2 个私有路径返回 404，CSP 与 nosniff 生效。未将这些检查扩大为全量回归、真实模型调用或更新回退验收。详见[本轮发布审查](../audits/2026-10-03-alpha2-sortie-release.md)。
+
+上一编号版本 `v0.1.0-alpha.1` 的源码 `5eb82446e4f1f442acdc43a3cb2036a90854bbb2` 与 production 部署 `83b8a751-ae61-4ae8-82bf-43a0de3cace0` 保留为回退候选，其独立地址仍为 [83b8a751.abyssa-airp-alpha.pages.dev](https://83b8a751.abyssa-airp-alpha.pages.dev/)。
+
+首个编号版本 `v0.1.0-alpha.1` 同时收口版本管理、地图委托书与木框／纸面素材、霞鹜文楷 GB 屏幕版本地字体，以及模型 ID 的查询、搜索、选择和手填。标题版本信息移到右下角，移除旧副标题；旧 inline-config 开发服务缺少注入时只在开发态读取统一候选编号，不伪造提交或构建时间。140 项当轮前端／模型接口定向测试、137 项 Node 构建测试、4 项地图行囊／减弱动效浏览器检查通过；167 个线上变化／入口文件摘要与完整包一致，3 个私有／缺失路径真正 404，响应头生效。独立部署地址验证正常新档、地图文书字体、版本复制和模拟模型列表选择，真实模型 POST／外部网络请求／页面异常／CSP 违规均为 0。全量基线存在旧战斗断言、超时及冷刷新动效采样失败，没有宣称全量回归或完整玩家验收通过，详见[首版发布审查](../audits/2026-10-03-alpha-numbered-release.md)。完整包为 `dist/releases/v0.1.0-alpha.1/game`，证据为 `dist/reports/release-2026-10-03/`。
 
 10-02 的补发修正主观察区的未收录问号：字号由 80px 增至 160px，脱离线稿外扩裁切层，以轮盘中心独立定位并补偿字体视觉重心。原观察草图与扩散／旋转／聚焦动效保留。面板与动效 10 项回归、前端类型检查通过；正式域名 41 个变化／入口文件字节一致，3 个私有／缺失路径返回 404，CSP 与 nosniff 生效。独立部署地址通过正常 UI 创建自由行动新档、打开正式图鉴，确认问号大小与位置，控制台错误为 0。本机包与证据为 `dist/releases/codex-5f93902/game` 和 `dist/reports/codex-question-fix-2026-10-02/`。干净副本的通用凭据门禁通过，另以本机配置扫描完整产物与两份改动源码，已知私密标记命中为 0。
 
@@ -19,16 +23,16 @@
 | 发布证据 | 当前结果 |
 | --- | --- |
 | Pages 项目／分支 | `abyssa-airp-alpha`／`main`，Direct Upload |
-| 游戏版本／标签 | `0.1.0-alpha.1`／`v0.1.0-alpha.1` |
-| 构建时间（UTC） | `2026-10-02T17:05:01.796Z`，北京时间 10-03 |
-| Production 部署 ID | `83b8a751-ae61-4ae8-82bf-43a0de3cace0` |
-| 当前部署地址 | [83b8a751.abyssa-airp-alpha.pages.dev](https://83b8a751.abyssa-airp-alpha.pages.dev/) |
-| 发布目录 | `dist/game`，1018 文件／166.71 MiB，最大 7.81 MiB |
-| 上传结果 | 1017 静态文件（154 个新上传、863 个复用）＋由 Pages 解析的 `_headers` |
-| 清单 SHA-256 | `746fdc83e77590c5b16aabc6dc09bdc797742e0807c88c9c681d64c106933bf1` |
+| 游戏版本／标签 | `0.1.0-alpha.2`／`v0.1.0-alpha.2` |
+| 构建时间（UTC） | `2026-10-03T10:12:49.488Z`，北京时间 10-03 |
+| Production 部署 ID | `c10d4bf7-794b-4728-a037-e82219723407` |
+| 当前部署地址 | [c10d4bf7.abyssa-airp-alpha.pages.dev](https://c10d4bf7.abyssa-airp-alpha.pages.dev/) |
+| 发布目录 | `dist/game`，1043 文件／168.02 MiB，最大 7.81 MiB |
+| 上传结果 | 1042 静态文件（68 个新上传、974 个复用）＋由 Pages 解析的 `_headers` |
+| 清单 SHA-256 | `c9fcffe05901c1fbf796a7339abf01763274f6e84a68c11be51e670fef7ef8ab` |
 | 编号登记 | `docs/deployment/game-releases.json`，源码／时间／摘要与附注标签一致 |
 
-上一版 production 保留为回退候选：`3d61c3b4-33ae-48d1-bf28-5e09bc0a27d4`，源码 `5f9390283d2ddb9f4bdaf610ef3ffbe739575c15`，部署地址 [3d61c3b4.abyssa-airp-alpha.pages.dev](https://3d61c3b4.abyssa-airp-alpha.pages.dev/)，清单 SHA-256 为 `cc750720b9d355df4bc10bccddea119318eef26c04bf066dea19bc395c20d1a3`。历史包没有发行编号，不补造版本号。
+更早的无编号 production 也保留：`3d61c3b4-33ae-48d1-bf28-5e09bc0a27d4`，源码 `5f9390283d2ddb9f4bdaf610ef3ffbe739575c15`，部署地址 [3d61c3b4.abyssa-airp-alpha.pages.dev](https://3d61c3b4.abyssa-airp-alpha.pages.dev/)，清单 SHA-256 为 `cc750720b9d355df4bc10bccddea119318eef26c04bf066dea19bc395c20d1a3`。历史包没有发行编号，不补造版本号。
 
 10-02 图鉴首版 production 同样保留：`f74d1d3c-f3e3-42a5-a01b-ab4bf43cff4c`，源码 `3bffd28988b5df6b98599e248ba54273b51c79cd`，部署地址 [f74d1d3c.abyssa-airp-alpha.pages.dev](https://f74d1d3c.abyssa-airp-alpha.pages.dev/)，清单 SHA-256 为 `8bb3c359cdfec052fc30558e254e6d9826182d38a58a93495eef21660273ebc3`。
 
