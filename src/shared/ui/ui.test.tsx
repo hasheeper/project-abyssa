@@ -94,15 +94,19 @@ describe("Abyssa controls", () => {
       <>
         <RpgHeader label="Header A" />
         <RpgHeader label="Header B" variant="teal" />
+        <RpgHeader label="出征地图" subtitle="SORTIE MAP" />
       </>
     );
 
     expect(screen.getByRole("img", { name: "Header A" })).toBeInTheDocument();
     expect(screen.getByRole("img", { name: "Header B" })).toBeInTheDocument();
+    const bilingualHeader = screen.getByRole("img", { name: "出征地图，SORTIE MAP" });
+    expect(bilingualHeader.querySelector(".abyssa-rpg-header__subtitle")).toHaveTextContent("SORTIE MAP");
+    expect(screen.getByRole("img", { name: "Header A" }).querySelectorAll("text")).toHaveLength(1);
     const ids = Array.from(container.querySelectorAll("clipPath")).map(
       (node) => node.id
     );
-    expect(new Set(ids).size).toBe(2);
+    expect(new Set(ids).size).toBe(3);
   });
 
   it("renders hex buttons at the source aspect ratio with unique SVG ids", () => {
@@ -110,6 +114,7 @@ describe("Abyssa controls", () => {
       <>
         <RpgHexButton>Load Game</RpgHexButton>
         <RpgHexButton variant="dark">New Game</RpgHexButton>
+        <RpgHexButton layout="compact">完成编队</RpgHexButton>
       </>
     );
 
@@ -118,10 +123,14 @@ describe("Abyssa controls", () => {
       "viewBox",
       "0 0 920 120"
     );
+    expect(screen.getByRole("button", { name: "完成编队" }).querySelector("svg")).toHaveAttribute(
+      "viewBox",
+      "0 0 186 40"
+    );
     const ids = Array.from(container.querySelectorAll("clipPath")).map(
       (node) => node.id
     );
-    expect(new Set(ids).size).toBe(2);
+    expect(new Set(ids).size).toBe(3);
   });
 
   it("keeps the simple square panel separate from the ornamented RPG panel", () => {

@@ -128,6 +128,8 @@ export function useSortie({ roster, nodeIds, onDepart, storage, now, persistOrde
     finishLoadout,
     party: reconciled,
     activeNode,
+    /** 配队的来路：从委托点进来时是那份委托，编完回到它。 */
+    backTo,
     rejection,
     toggleMember,
     toggleCommand,

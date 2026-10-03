@@ -139,6 +139,29 @@ afterEach(() => {
 });
 
 describe("createMapScene", () => {
+  it("waits for the paper sky before revealing the scene and releases its source texture", async () => {
+    mocks.deferTextures = true;
+    const onReady = vi.fn();
+    const controller = createMapScene(document.createElement("div"), { locations: cloneMapLocations(), onReady });
+    mocks.deferredLoads.forEach((finish, index) => {
+      if (index !== 1) finish();
+    });
+    await flushPromiseQueue();
+    expect(onReady).not.toHaveBeenCalled();
+    mocks.deferredLoads[1]();
+    await flushPromiseQueue();
+    expect(onReady).toHaveBeenCalledOnce();
+    expect(mocks.rawTextures[1].dispose).toHaveBeenCalledOnce();
+    const sky = mocks.renderers[0].scene!.children.find(child =>
+      child instanceof THREE.Mesh && child.geometry instanceof THREE.SphereGeometry
+    ) as THREE.Mesh<THREE.SphereGeometry, THREE.MeshBasicMaterial>;
+    expect(sky.material.map).toBeTruthy();
+    expect(sky.material.map!.anisotropy).toBe(4);
+    expect(sky.material.color.getHex()).toBe(0xffffff);
+    expect(sky.material.toneMapped).toBe(false);
+    controller.destroy();
+  });
+
   it("waits for the page cue, springs the paper above its foot, and cancels to the exact resting pose", async () => {
     const clock = vi.spyOn(performance, "now").mockReturnValue(1000);
     const locations = cloneMapLocations();

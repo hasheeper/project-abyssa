@@ -67,7 +67,7 @@ function MapPageBody() {
   const itemIds = record.schemaVersion === 1 ? legacyItemIds : loadout.ids;
   const setItemIds = record.schemaVersion === 1 ? setLegacyItemIds : loadout.setIds;
 
-  const locations = useMemo(() => cloneMapLocations().map(location => location.id === "tower" ? { ...location, name: manor ? manor.maintenance ? "旧庄园·维护委托" : "克雷格旧庄园" : "裂隙远征", englishName: manor ? "The Old Manor" : "Rift Expedition", imageUrl: manor ? manorMapIcon : location.imageUrl } : location), [!!manor, manor?.maintenance]);
+  const locations = useMemo(() => cloneMapLocations().map(location => location.id === "tower" ? { ...location, name: manor?.maintenance ? "旧庄园·维护委托" : "克雷格旧庄园", englishName: "The Old Manor", imageUrl: manor ? manorMapIcon : location.imageUrl } : location), [!!manor, manor?.maintenance]);
   const nodeIds = useMemo(() => departureNodes(manor, record.schemaVersion === 1), [manor, record.schemaVersion]);
 
   const handleDepart = useCallback(
@@ -98,7 +98,7 @@ function MapPageBody() {
       void session.dispatch({ type: "start-expedition", expeditionId, routeId: gameContent.defaultRouteId,
         partyIds: [gameContent.leaderId, ...party.memberIds], itemIds, equipmentIds: equipmentIds.filter(id => record.snapshot.campaign.inventory.equipment.some(item => item.instanceId === id && [gameContent.leaderId, ...party.memberIds].includes(item.ownerId))), seed: session.runtime.newSeed(),
       }).then(result => {
-        if (result?.after.schemaVersion === 1 && result.after.snapshot.expedition?.id === expeditionId) navigate(gameHref("battle", recordLocator(result.after)), { channel: "正在出发", destination: "裂隙遠征" });
+        if (result?.after.schemaVersion === 1 && result.after.snapshot.expedition?.id === expeditionId) navigate(gameHref("battle", recordLocator(result.after)), { channel: "正在出发", destination: "出征" });
       });
     },
     [session, game.status, record, itemIds, equipmentIds, navigate, manor, loadout.selection]
@@ -107,6 +107,8 @@ function MapPageBody() {
   const sortie = useSortie({ roster: sortieRoster, nodeIds, onDepart: handleDepart, persistOrder: false, personalOnly: true, initialMemberIds: manor?.initialParty.filter(id => id !== manor.leaderId) });
   const { mode, activeNode, openNode } = sortie;
   const stageMode = mode === "loadout" ? sortie.loadoutReturnMode : mode;
+  /* 配队时队伍下台，但不挪站位：从委托点进来的，编完就在委托旁原地弹起。 */
+  const stagePlace = stageMode === "pop" || (stageMode === "team" && sortie.backTo) ? "pop" : "map";
   const loadoutLocked = game.status !== "ready" ? "正在保存或恢复进度" : activeRunId(record) ? "远征进行中，无法更改行囊" : undefined;
   const supplies: MapLoadoutItem[] = record.schemaVersion !== 1 ? (manor?.items ?? []).map(item => ({
     id: item.id, name: item.name, icon: supplyArt[item.kind]?.icon,
@@ -210,8 +212,8 @@ function MapPageBody() {
         <header className="abyssa-map-heading">
           <RpgHeader
             className="abyssa-map-heading__bar"
-            label="守望者之崖"
-            description="守望者之崖"
+            label="出征地图"
+            subtitle="SORTIE MAP"
             variant="dark"
           />
         </header>
@@ -219,7 +221,7 @@ function MapPageBody() {
         <MapWoodFrame>
           <section
             className="abyssa-map-viewport"
-            aria-label="守望者之崖副本地图"
+            aria-label="出征地图"
             data-mode={mode}
             style={{ "--map-focus-duration": `${MAP_FOCUS_MS}ms`, "--map-focus-ease": `cubic-bezier(${MAP_FOCUS_EASE.join(",")})` } as CSSProperties}
           >
@@ -244,18 +246,17 @@ function MapPageBody() {
               onClick={sortie.dismiss}
             />
 
+            {/* 配队时队伍下台，人物换到名单牌上当立牌。 */}
             <SortiePartyStage
               inert={mode === "loadout"}
-              mode={stageMode}
-              questSide={stageMode === "pop" ? activeQuestSide : undefined}
+              mode={stagePlace}
+              offstage={stageMode === "team"}
+              questSide={stagePlace === "pop" ? activeQuestSide : undefined}
               roster={sortieRoster}
               leader={sortieLeader}
               party={sortie.party}
-              delegateLocked
               /* 委托态点人物也能进编队，并且编完要回到当前委托。 */
               onOpen={() => sortie.openTeam(activeNode)}
-              onRemoveMember={sortie.toggleMember}
-              onToggleCommand={sortie.toggleCommand}
             />
 
             <AnimatePresence initial={false}>
@@ -265,7 +266,7 @@ function MapPageBody() {
                 leader={sortieLeader}
                 party={sortie.party}
                 onToggleMember={sortie.toggleMember}
-                inspectHref={id => gameHref("character-status", recordLocator(record), {characterId: id, tab: "summary", from: "map"})}
+                onInspect={id => navigate(gameHref("character-status", recordLocator(record), {characterId: id, tab: "summary", from: "map"}), {channel: "正在翻阅", destination: "角色档案"})}
                 onClose={sortie.finishTeam}
               />
             </MapPanel>}

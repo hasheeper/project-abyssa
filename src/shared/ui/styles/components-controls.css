@@ -141,6 +141,12 @@
   --abyssa-hex-font-max: 36px;
 }
 
+.abyssa-hex-button[data-layout="compact"] {
+  --abyssa-hex-max-width: 186px;
+  --abyssa-hex-font-scale: 9cqi;
+  aspect-ratio: 186 / 40;
+}
+
 .abyssa-hex-button[data-full-width] {
   display: grid;
   width: 100%;
@@ -181,11 +187,12 @@
   gap: 10px;
   padding-inline: 72px;
   font-family: var(--abyssa-font-display, Georgia, serif);
-  font-size: clamp(var(--abyssa-hex-font-min), 4.7cqi, var(--abyssa-hex-font-max));
+  font-size: clamp(var(--abyssa-hex-font-min), var(--abyssa-hex-font-scale, 4.7cqi), var(--abyssa-hex-font-max));
   font-weight: 600;
   letter-spacing: 0.04em;
   line-height: 1;
 }
+.abyssa-hex-button[data-layout="compact"] .abyssa-hex-button__label { padding-inline: 14px; }
 .abyssa-hex-button__icon { display: inline-grid; width: 1em; height: 1em; place-items: center; }
 .abyssa-hex-button__icon svg { width: 100%; height: 100%; }
 .abyssa-hex-button:hover:not(:disabled) { filter: brightness(1.05); }

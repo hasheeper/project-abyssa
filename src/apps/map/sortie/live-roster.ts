@@ -26,7 +26,7 @@ export function liveParty(view: CharacterArchiveView, playerName?: string): {
       factionLabel: art?.status.affiliation?.label ?? "勇者小队",
       thumbnailUrl: art?.thumbnailUrl,
       portraitUrl: art?.portraitUrl,
-      figureUrl: partyFigureCatalogById[ch.id as PartyFigureId]?.url,
+      figureUrl: partyFigureCatalogById[ch.id as PartyFigureId]?.standee,
       faces: dice.faces,
       primarySuit: dice.primarySuit,
       secondarySuit: dice.secondarySuit,

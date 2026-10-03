@@ -31,6 +31,7 @@ import {
   sRGBEncoding
 } from "three";
 import type { Texture } from "three";
+import parchmentSkyUrl from "../../assets/map/terrain/parchment-sky.webp";
 import type { MapLocationConfig, MapLocationId } from "./types";
 import { MAP_GROUND_URL, cloneMapLocations } from "./types";
 import { disposeMapObjectResources } from "./map-resources";
@@ -78,7 +79,7 @@ export function createMapScene(container: HTMLElement, options: MapSceneOptions)
   const locations = cloneMapLocations(options.locations);
   const sceneObjects = new Map<MapLocationId, SceneLocation>();
   const scene = new Scene();
-  scene.background = new Color(0x11191a);
+  scene.background = new Color(0x5e4a36);
 
   const size = () => ({ width: Math.max(container.clientWidth, 1), height: Math.max(container.clientHeight, 1) });
   const initialSize = size();
@@ -105,15 +106,13 @@ export function createMapScene(container: HTMLElement, options: MapSceneOptions)
   renderer.outputEncoding = sRGBEncoding;
   renderer.toneMapping = LinearToneMapping;
   renderer.shadowMap.enabled = false;
-  renderer.domElement.setAttribute("aria-label", "守望者之崖副本地图");
+  renderer.domElement.setAttribute("aria-label", "出征地图");
   container.appendChild(renderer.domElement);
 
-  const skyTexture = createParchmentSkyTexture();
-  skyTexture.anisotropy = renderer.capabilities.getMaxAnisotropy();
   const skyDome = new Mesh(
     new SphereGeometry(72, 40, 24),
     new MeshBasicMaterial({
-      map: skyTexture,
+      color: 0x5e4a36,
       side: BackSide,
       depthWrite: false,
       fog: false,
@@ -493,12 +492,20 @@ export function createMapScene(container: HTMLElement, options: MapSceneOptions)
 
   Promise.all([
     loadTexture(MAP_GROUND_URL),
+    loadTexture(parchmentSkyUrl),
     ...locations.map((location) => loadTexture(location.imageUrl))
-  ]).then(([groundTexture, ...locationTextures]) => {
+  ]).then(([groundTexture, skySourceTexture, ...locationTextures]) => {
     if (runtime.destroyed) {
       disposePendingTextures();
       return;
     }
+    const skyTexture = createParchmentSkyTexture(skySourceTexture.image as CanvasImageSource);
+    skyTexture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+    skyDome.material.map = skyTexture;
+    skyDome.material.color.set(0xffffff);
+    skyDome.material.needsUpdate = true;
+    skySourceTexture.dispose();
+    pendingTextures.delete(skySourceTexture);
     createGround(groundTexture);
     pendingTextures.delete(groundTexture);
     locations.forEach((location, index) => createLocation(location, locationTextures[index]));

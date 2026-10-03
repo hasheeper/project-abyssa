@@ -11,7 +11,8 @@ const meta = {
   },
   argTypes: {
     variant: { control: "inline-radio", options: ["dark", "light", "teal"] },
-    size: { control: "inline-radio", options: ["sm", "md", "lg"] }
+    size: { control: "inline-radio", options: ["sm", "md", "lg"] },
+    layout: { control: "inline-radio", options: ["wide", "compact"] }
   },
   decorators: [
     (Story) => (
@@ -29,3 +30,4 @@ export const Playground: Story = {};
 export const Dark: Story = { args: { variant: "dark" } };
 export const Light: Story = { args: { variant: "light" } };
 export const Disabled: Story = { args: { disabled: true } };
+export const Compact: Story = { args: { layout: "compact", children: "完成编队" } };

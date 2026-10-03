@@ -9,9 +9,13 @@ import { describe, expect, it } from "vitest";
 const stripComments = (css: string) => css.replace(/\/\*[\s\S]*?\*\//g, "");
 const CSS = readFileSync(resolve(import.meta.dirname, "./sortie.css"), "utf8");
 const RULES = stripComments(CSS);
-/* 委托书自成一张样式表；字阶令牌在地图材料表里。 */
+/* 委托书与出战名单各自一张样式表；两者共用的文书（框、纸、木台、名牌、朱字小标）
+   在 map-document.css；字阶令牌在地图材料表里。 */
 const DOSSIER = stripComments(readFileSync(resolve(import.meta.dirname, "./sortie-dossier.css"), "utf8"));
+const ROSTER = stripComments(readFileSync(resolve(import.meta.dirname, "./sortie-roster.css"), "utf8"));
+const DOCUMENT = stripComments(readFileSync(resolve(import.meta.dirname, "../map-document.css"), "utf8"));
 const MATERIALS = stripComments(readFileSync(resolve(import.meta.dirname, "../map-materials.css"), "utf8"));
+const VIEWPORT = { width: 1311.67, height: 787 };
 
 function token(name: string, rules = RULES): number {
   const match = rules.match(new RegExp(`--${name}:\\s*([0-9.]+)px`));
@@ -27,201 +31,120 @@ function ruleBody(rules: string, selector: string): string {
 }
 
 describe("sortie layout", () => {
-  /* 老毛病：只看外框不看装饰层，padding 一小 → 净间隙 0，内容正好压在四角括号上。
-     名单改过 RpgFrame 的括号（inset 与线宽见 .abyssa-sortie-roster > .abyssa-frame__ornaments），
-     间隙按它自己的括号内缘核算，不套 foundation 的 10 + 2。 */
-  it("clears the roster frame ornaments instead of butting against them", () => {
-    const inset = Number(
-      ruleBody(RULES, ".abyssa-sortie-roster > .abyssa-frame__ornaments").match(/inset:\s*([0-9.]+)px/)![1]
-    );
-    const line = Number(
-      ruleBody(RULES, '.abyssa-sortie-roster > .abyssa-frame__ornaments [data-corner="tl"]')
-        .match(/border-width:\s*([0-9.]+)px/)![1]
-    );
-    const edge = inset + line;
-
-    /* 海报排与信息栏贴着两侧和底边走：6px 以下肉眼仍然是「贴着」。 */
-    expect(token("sortie-roster-pad-x") - edge).toBeGreaterThanOrEqual(6);
-    expect(token("sortie-roster-pad-bottom") - edge).toBeGreaterThanOrEqual(6);
-    /* 顶边让给标题带与右栏铭牌的上沿，目前净间隙 3px，只守住不压线。 */
-    expect(token("sortie-roster-pad-top")).toBeGreaterThan(edge);
+  it("keeps the team backdrop translucent without changing its modal behavior", () => {
+    const backdrop = ruleBody(RULES, '.abyssa-map-viewport[data-mode="team"] .abyssa-map-dim');
+    const opacityStops = [...backdrop.matchAll(/rgb\([^/]+\/\s*(\d+)%\)/g)].map(match => Number(match[1]));
+    expect(opacityStops).toEqual([36, 58, 62]);
+    expect(RULES).toMatch(/\.abyssa-map-viewport\[data-mode="team"\] \.abyssa-map-dim,[\s\S]*?opacity:\s*1;\s*pointer-events:\s*auto;/);
   });
 
-  /* 「padding 是否真的生效」不在这里断言 —— 读源码只能证明规则存在，
-     证明不了它赢过 foundation 的 padding:0。那道关在 sortie-cascade.test.ts，
-     对构建产物做真正的权重算术。 */
+  /* ---------- 出战名单：人物牌 ---------- */
 
-  /* 海报必须切在腰以上。
-     素材 704x1472 若 1:1 放进 2:3 的框，会露到 71.7% —— 那是大腿，
-     下半张全是腿和裙子（上一版「下面空一大块」的真因）。
+  /* 立绘按牌宽放大后锚在牌顶上方：头与帽越出牌顶，下沿在名字区上方化进纸里。
+     露出的那一截要落在腰（52%）与大腿（65%）之间 —— 再短是证件照，再长腿就占了半张牌。
      解剖位置由 alpha 通道实测：头 0-13%、肩 22%、胸 35%、腰 52%。 */
-  it("crops posters above the waist instead of down to the thighs", () => {
-    const width = token("sortie-poster-w");
-    const height = token("sortie-poster-h");
-    const zoom = Number(RULES.match(/--sortie-poster-zoom:\s*([0-9.]+)/)![1]);
+  it("crops the card art between waist and thigh with the head breaking out of the top", () => {
+    const width = token("roster-card-w", ROSTER);
+    const zoom = Number(ROSTER.match(/--roster-zoom:\s*([0-9.]+)/)![1]);
+    const breakout = token("roster-breakout", ROSTER);
+    const visible = token("roster-card-h", ROSTER) + breakout - token("roster-label-h", ROSTER);
+    const revealed = visible / ((width * zoom * 1472) / 704);
 
-    const renderedHeight = ((width * zoom) * 1472) / 704;
-    const revealed = height / renderedHeight;
-
-    /* 露出比例要落在胸线(35%)与腰线(52%)之间。 */
-    expect(revealed).toBeGreaterThan(0.35);
-    expect(revealed).toBeLessThan(0.52);
+    expect(revealed).toBeGreaterThan(0.45);
+    expect(revealed).toBeLessThan(0.65);
+    expect(breakout).toBeGreaterThanOrEqual(20);
+    expect(breakout).toBeLessThanOrEqual(48);
+    expect(ruleBody(ROSTER, ".abyssa-sortie-poster__art")).toMatch(/top:\s*calc\(-1 \* var\(--roster-breakout\)\)/);
   });
 
-  it("keeps the poster frame at poster proportions", () => {
-    const ratio = token("sortie-poster-h") / token("sortie-poster-w");
-    /* 2:3 电影海报，允许一点浮动。 */
-    expect(ratio).toBeGreaterThan(1.4);
-    expect(ratio).toBeLessThan(1.6);
+  it("keeps the card at tarot proportions", () => {
+    const ratio = token("roster-card-h", ROSTER) / token("roster-card-w", ROSTER);
+    expect(ratio).toBeGreaterThan(1.6);
+    expect(ratio).toBeLessThan(1.8);
   });
 
-  /* 海报排那一行的纵向预算必须严丝合缝：
-       padding-top(给上浮) + 海报 + 横向滚动条 = 行高
-     三项缺一不可。
-       - 漏掉 lift：卡片上浮时顶出容器上沿，被 overflow-y:hidden 切掉
-         （「上边框被挡住」）；
-       - 漏掉滚动条：九人必定溢出，滚动条常驻并压住卡片底部。
-     曾经 128x192 而行高 252，下方白白空掉 60px，也由这条挡住。 */
-  it("budgets the poster row down to the pixel", () => {
-    const poster = token("sortie-poster-h");
-    const row = token("sortie-row-h");
-    const lift = token("sortie-poster-lift");
-    const scrollbar = token("sortie-scrollbar-h");
-
-    expect(lift + poster + scrollbar).toBe(row);
-    /* 留白不能借「给上浮预留」之名重新长回去。 */
-    expect(lift).toBeLessThanOrEqual(8);
+  /* 出框的头、入队抬起与悬停上浮都要落在牌架自己的上沿留白里：
+     牌架是横向滚动容器，CSS 规定两轴不能一个 visible、一个 auto，
+     超出上沿的部分只会被切掉，不能指望 overflow-y:visible。 */
+  it("reserves room on the rail for the breakout, the chosen lift and the hover", () => {
+    const rail = ruleBody(ROSTER, ".abyssa-sortie-roster__rail");
+    const scrolling = ruleBody(ROSTER, ".abyssa-sortie-roster__shelf[data-scroll] .abyssa-sortie-roster__rail");
+    expect(rail).toMatch(/padding:\s*var\(--roster-rail-top\)/);
+    expect(rail).not.toMatch(/overflow-y:\s*hidden/);
+    expect(scrolling).toMatch(/overflow-y:\s*hidden/);
+    expect(ROSTER).toMatch(/--roster-rail-top:\s*calc\(var\(--roster-standee-h\)[^;]*var\(--roster-hover-lift\)/);
   });
 
-  /* 上浮的空间必须由容器 padding 让出，不能指望 overflow-y:visible：
-     CSS 规定两轴不能一个 visible、一个 auto —— 浏览器会把 y 也算成 auto，
-     纵向冒出滚动条。也不能只让海报比行矮：align-items 是 flex-start，
-     空隙会全落在下方，上浮照样顶出上沿。 */
-  it("reserves the hover lift with padding on the scroller itself", () => {
-    const row = RULES.match(/\.abyssa-sortie-roster__row\s*\{([^}]*)\}/)?.[1] ?? "";
+  /* 立绘在名字区上沿化进纸里，名字整组落在纸上，不压在画面上。 */
+  it("lets the art fade out before the name so the label sits on bare paper", () => {
+    const art = ruleBody(ROSTER, ".abyssa-sortie-poster__art");
+    expect(art).toMatch(/bottom:\s*var\(--roster-label-h\)/);
+    expect(art).toMatch(/(?:^|[;\s])mask:\s*linear-gradient\([^;]*transparent\)/);
 
-    expect(row).toMatch(/padding-top:\s*var\(--sortie-poster-lift\)/);
-    expect(row).toMatch(/overflow-y:\s*hidden/);
-  });
-
-  /* 名字压在立绘上，必须有暗底衬托，否则遇到浅色立绘就糊成一片。
-     用背景渐变而不是 mask —— mask 会连 box-shadow 一起裁掉。 */
-  it("darkens the caption area enough to carry text over artwork", () => {
-    const height = token("sortie-poster-h");
-    const scrimHeight = Number(
-      RULES.match(/\.abyssa-sortie-poster__art::after\s*\{[^}]*height:\s*([0-9.]+)px/)![1]
-    );
-    const nameBottom = Number(
-      RULES.match(/\.abyssa-sortie-poster__nm\s*\{[^}]*bottom:\s*([0-9.]+)px/)![1]
-    );
-    const nameFontSize = Number(
-      RULES.match(/\.abyssa-sortie-poster__nm\s*\{[^}]*font-size:\s*([0-9.]+)px/)![1]
-    );
-
-    /* 名字整行都要落在压暗区内。 */
-    const nameTop = height - nameBottom - nameFontSize * 1.2;
-    expect(nameTop).toBeGreaterThanOrEqual(height - scrimHeight);
+    const label = ruleBody(ROSTER, ".abyssa-sortie-poster__label");
+    const bottom = Number(label.match(/bottom:\s*([0-9.]+)px/)![1]);
+    const name = Number(ruleBody(ROSTER, ".abyssa-sortie-poster__nm").match(/font:\s*700\s+([0-9.]+)px/)![1]);
+    const latin = Number(ruleBody(ROSTER, ".abyssa-sortie-poster__label small").match(/font:\s*600\s+([0-9.]+)px/)![1]);
+    const epithet = token("map-type-min", MATERIALS);
+    /* 称号 1.2 行高 + 名字 1.1 行高 + 英文名 + 两道 2px 间距与 1px 上距。 */
+    expect(bottom + epithet * 1.2 + name * 1.1 + latin + 5).toBeLessThanOrEqual(token("roster-label-h", ROSTER));
   });
 
   it("zooms by width and centres horizontally so faces stay whole", () => {
-    /* 九人上半身水平重心实测都在 47.9%-55%，居中裁是安全的；
-       object-fit:cover 交给浏览器决定裁哪边，控制不住。
-       width 与 transform 由 portraitFraming() 行内注入（逐角色校准）。 */
-    const artRule = RULES.match(/\.abyssa-sortie-poster__art img\s*\{([^}]*)\}/)?.[1] ?? "";
-    expect(artRule).toContain("height: auto");
-    expect(artRule).toMatch(/aspect-ratio:\s*704\s*\/\s*1472/);
-    expect(artRule).not.toContain("object-fit");
-    /* 悬停放大必须走独立的 scale 属性：transform 里存着逐角色 x 校准，
-       覆盖 transform 会把校准冲掉。 */
-    expect(artRule).not.toMatch(/transform:\s*translateX/);
+    /* width 与 transform 由 cardFraming() 行内注入（逐角色校准）；
+       高度随素材自身比例，写死 704:1472 会把 768:1376 的剪影横向压扁。 */
+    const image = ruleBody(ROSTER, ".abyssa-sortie-poster__art img");
+    expect(image).toContain("height: auto");
+    expect(image).not.toContain("aspect-ratio");
+    expect(image).not.toContain("object-fit");
+    expect(image).not.toMatch(/transform:\s*translateX/);
   });
 
-  /* 悬停投影不能被自己裁掉。裁图与投影必须分层：
-     外层浮动 + 投影（overflow:visible），内层裁图（overflow:hidden）。 */
-  it("keeps the hover shadow outside the clipping layer", () => {
-    const outer = RULES.match(/\n\.abyssa-sortie-poster\s*\{([^}]*)\}/)?.[1] ?? "";
-    const clip = RULES.match(/\n\.abyssa-sortie-poster__clip\s*\{([^}]*)\}/)?.[1] ?? "";
+  /* 投影与描边挂在牌底上；裁图只发生在立绘那一层。
+     合成一层的话，overflow / mask 会把自己的 box-shadow 一并切掉。 */
+  it("keeps the card's edge and shadow outside every clipping layer", () => {
+    const card = ruleBody(ROSTER, ".abyssa-sortie-poster");
+    const sheet = ruleBody(ROSTER, ".abyssa-sortie-poster__sheet");
+    const art = ruleBody(ROSTER, ".abyssa-sortie-poster__art");
 
-    expect(outer).toMatch(/overflow:\s*visible/);
-    /* mask 同样会裁掉 box-shadow，外层不许再挂。 */
-    expect(outer).not.toContain("mask-image");
-    expect(clip).toMatch(/overflow:\s*hidden/);
-
-    const hover = RULES.match(
-      /\.abyssa-sortie-poster:hover:not\(:disabled\) \.abyssa-sortie-poster__clip,[^{]*\{([^}]*)\}/
-    )?.[1] ?? "";
-    /* 落在内层的外投影：clip 自己不裁 box-shadow 的外扩部分。 */
-    expect(hover).toMatch(/box-shadow:[^;]*\n?[^;]*0 12px 26px/);
+    expect(card).toMatch(/border:\s*0/);
+    expect(card).not.toMatch(/overflow\s*:|mask\s*:/);
+    expect(sheet).toMatch(/box-shadow:[\s\S]*0 12px 22px/);
+    expect(sheet).not.toMatch(/overflow\s*:|mask\s*:/);
+    expect(art).toMatch(/overflow:\s*hidden/);
+    expect(art).not.toContain("box-shadow");
   });
 
-  /* 「完全没有边框」和「四方粗框」都不对：要一道淡描边 + 内嵌感。 */
-  it("gives the poster a faint edge and an inset well", () => {
-    const clip = RULES.match(/\n\.abyssa-sortie-poster__clip\s*\{([^}]*)\}/)?.[1] ?? "";
-
-    const border = clip.match(/border:\s*1px solid rgb\([^)]*\/\s*([0-9.]+)%\)/);
-    expect(border).not.toBeNull();
-    /* 淡：不超过 30%，否则又变回描边卡。 */
-    expect(Number(border![1])).toBeLessThanOrEqual(30);
-    /* 内嵌：至少一条 inset 阴影。 */
-    expect(clip).toMatch(/box-shadow:[\s\S]*?inset/);
+  /* 牌底与色场是离线印好的图：同一张纸按阵营染色。页面上不拿滤镜现调纸色，
+     也不贴徽章、序号或角标 —— 阵营只靠纸、拱龛与字色区分。 */
+  it("prints each faction's card on its own baked sheet without badges", () => {
+    for (const faction of ["hero-party", "demon-cadre", "demon-lord"]) {
+      expect(ruleBody(ROSTER, `.abyssa-sortie-poster[data-faction="${faction}"] .abyssa-sortie-poster__sheet`))
+        .toMatch(new RegExp(`url\\("[^"]*roster/paper-${faction}\\.webp"\\)`));
+      expect(ruleBody(ROSTER, `.abyssa-sortie-poster[data-faction="${faction}"]`)).toMatch(/--poster-ink:/);
+    }
+    expect(ruleBody(ROSTER, ".abyssa-sortie-poster__sheet")).not.toMatch(/filter\s*:/);
+    expect(ROSTER).not.toMatch(/mix-blend-mode/);
+    expect(ROSTER).not.toMatch(/\.abyssa-sortie-poster__(?:num|seal|badge|crest|rib|tag)\b/);
   });
 
-  /* 卡面不许用四方描边围一圈 —— 那是表格单元格语汇。 */
-  it("does not box the poster in a full border", () => {
-    const posterRule = RULES.match(/\n\.abyssa-sortie-poster\s*\{([^}]*)\}/)?.[1] ?? "";
-    expect(posterRule).toMatch(/border:\s*0/);
+  /* 一排要放得下当前的五人，资料页并排而不压牌；九人时才翻页。 */
+  it("fits five cards beside the sheet", () => {
+    const cards = 5 * token("roster-card-w", ROSTER) + 4 * token("roster-card-gap", ROSTER);
+    const columnGap = Number(ruleBody(ROSTER, ".abyssa-sortie-roster").match(/column-gap:\s*([0-9.]+)px/)![1]);
+    const shelf = VIEWPORT.width - 2 * token("sortie-inset") - token("roster-sheet-w", ROSTER) - columnGap;
+    expect(cards).toBeLessThanOrEqual(shelf);
   });
 
-  /* 左侧海报是凹入的选人槽，右侧资料是装订在底板上的铭牌；两者都要有
-     角色面板式的材质层次，不能再退回一块纯背景上的无边框平铺。 */
-  it("gives the poster well and info plate distinct tactile layers", () => {
-    const rowRule = RULES.match(/\.abyssa-sortie-roster__row\s*\{([^}]*)\}/)?.[1] ?? "";
-    const panelRule = RULES.match(/\.abyssa-sortie-info-panel\s*\{([^}]*)\}/)?.[1] ?? "";
-    const infoRule = RULES.match(/\n\.abyssa-sortie-info\s*\{([^}]*)\}/)?.[1] ?? "";
+  /* ---------- 出战名单：资料页 ---------- */
 
-    expect(rowRule).toMatch(/outline:\s*1px/);
-    expect(rowRule).toMatch(/background:/);
-    expect(rowRule).toMatch(/box-shadow:[\s\S]*inset/);
-    expect(panelRule).toMatch(/border:\s*1px/);
-    expect(panelRule).toMatch(/background:/);
-    expect(panelRule).toMatch(/box-shadow:[\s\S]*inset/);
-    expect(infoRule).toMatch(/border:\s*0/);
-    expect(infoRule).toMatch(/background:/);
-  });
-
-  /* 抽屉高度必须容得下内容行 + 标签行 + 上下 padding，
-     否则内容会被 RpgFrame 的 overflow 切掉。 */
-  it("sizes the drawer from its own parts rather than a hand-picked number", () => {
-    const drawer = token("sortie-drawer-h");
-    const row = token("sortie-row-h");
-    const padTop = token("sortie-roster-pad-top");
-    const padBottom = token("sortie-roster-pad-bottom");
-    const gap = token("sortie-roster-gap");
-    const labelRow = token("sortie-roster-label-h");
-
-    expect(drawer).toBe(padTop + labelRow + gap + row + padBottom);
-  });
-
-  /* 内容行要放得下六面展开图：十字是 3 行格子 + 2 道 4px 间隙。 */
-  /* 六面摊成一排后，约束从「三行会不会太高」变成「六格会不会太宽」。
-     两个方向都要管：横向撑破信息栏会溢出，纵向撑破会顶掉下方读数。 */
-  it("keeps the face strip inside the info column", () => {
-    const cell = token("sortie-cell");
-    const gap = 4;
-
-    /* 横向：六格一排要装进右侧铭牌扣除边框与两侧内边距后的净宽。 */
-    const stripWidth = cell * 6 + gap * 5;
-    /* 右栏边框 2px + info 两侧 padding + 浮雕底板两侧 padding 8px。 */
-    const infoInnerWidth = token("sortie-info-w") - token("sortie-info-pad") * 2 - 2 - 16;
-    expect(stripWidth).toBeLessThanOrEqual(infoInnerWidth);
-
-    /* 纵向：一排只占一格高，加上标题与读数仍要落在行高内。
-       读数区按「能放下三行」取下限，而不是照抄某一版的实得高度
-       —— 那是结果不是约束，骰格一变就会误报。
-       三行 = 战面 / 花色 / 赌法，赌法是整句可能折两行：
-         21(行高) * 4 行 + gap 6*2 + 分隔线 padding 5*2 = 106。 */
-    const infoChrome = 4 + 29 + 20 + 106;
-    expect(cell + infoChrome).toBeLessThanOrEqual(token("sortie-row-h"));
+  /* 六面一排要装进资料页纸面的净宽：文书两侧木轨 10 + 外框 2、纸边 1、版心两侧内距。 */
+  it("keeps the face strip inside the sheet's paper", () => {
+    const strip = token("sortie-cell", ROSTER) * 6 + 4 * 5;
+    const rail = token("abyssa-map-frame-rail", DOCUMENT);
+    const padX = Number(ruleBody(ROSTER, ".abyssa-sortie-roster__page").match(/padding:\s*[0-9.]+px\s+([0-9.]+)px/)![1]);
+    const paper = token("roster-sheet-w", ROSTER) - 2 * (rail + 2) - 2 - 2 * padX;
+    expect(strip).toBeLessThanOrEqual(paper);
   });
 
   /* 骰面必须是一排，不是十字：编队时横向顺次比对，
@@ -233,50 +156,19 @@ describe("sortie layout", () => {
     expect(RULES).not.toContain(".abyssa-sortie__cross");
   });
 
-  /* 信息栏加宽是从名单那一栏借的地。借到名单一屏塞不下一整队为止 ——
-     四个槽位都看不全的话，编队时得来回滚动才能确认阵容。 */
-  it("leaves the roster wide enough to show a full party", () => {
-    /* 可用区 1311.67 - 浮层内缩 18*2 - 抽屉 padding。 */
-    const drawerInner = 1311.67 - 18 * 2 - token("sortie-roster-pad-x") * 2;
-    const rosterWidth = drawerInner - token("sortie-info-w") - token("sortie-roster-pad-x");
-    const poster = token("sortie-poster-w");
-    const gap = token("sortie-gap");
+  /* 资料页是「这套阵容能打成什么样」的答案，字不能退回 10/11px；
+     朱字小标仍要弱于它标注的读数。 */
+  it("gives the readouts and the card names a legible size", () => {
+    const rubric = Number(ruleBody(DOCUMENT, ".abyssa-map-rubric").match(/font-size:\s*([0-9.]+)px/)![1]);
+    const value = Number(ruleBody(ROSTER, ".abyssa-sortie-roster__facts dd").match(/font-size:\s*([0-9.]+)px/)![1]);
+    const tally = Number(ruleBody(ROSTER, ".abyssa-sortie-roster .abyssa-sortie__tally-item b").match(/font-size:\s*([0-9.]+)px/)![1]);
+    const name = Number(ruleBody(ROSTER, ".abyssa-sortie-poster__nm").match(/font:\s*700\s+([0-9.]+)px/)![1]);
 
-    /* SORTIE_SLOT_COUNT = 4。 */
-    const visible = (rosterWidth + gap) / (poster + gap);
-    expect(visible).toBeGreaterThanOrEqual(4);
-  });
-
-  /* 骰面让出的纵向空间要真的用在读数上，不能省下来又空着。
-     这里是「这套阵容能打成什么样」的答案，之前挤在 10/11px 里读不动。 */
-  it("gives the readouts a legible size", () => {
-    const title = Number(
-      RULES.match(/\.abyssa-sortie-roster__title\s*\{[^}]*font-size:\s*([0-9.]+)px/)![1]
-    );
-    const summary = Number(
-      RULES.match(/\.abyssa-sortie-roster__summary > span\s*\{[^}]*font-size:\s*([0-9.]+)px/)![1]
-    );
-    const value = Number(
-      RULES.match(/\.abyssa-sortie-info__kv dd\s*\{[^}]*font-size:\s*([0-9.]+)px/)![1]
-    );
-    const label = Number(
-      RULES.match(/\.abyssa-sortie-info__kv dt\s*\{[^}]*font-size:\s*([0-9.]+)px/)![1]
-    );
-    const tally = Number(
-      RULES.match(/\.abyssa-sortie__tally-item b\s*\{[^}]*font-size:\s*([0-9.]+)px/)![1]
-    );
-    const note = Number(
-      RULES.match(/\.abyssa-sortie-info__kv dd\.abyssa-sortie-info__note\s*\{[^}]*font-size:\s*([0-9.]+)px/)![1]
-    );
-
-    expect(title).toBeGreaterThanOrEqual(15);
-    expect(summary).toBeGreaterThanOrEqual(15);
     expect(value).toBeGreaterThanOrEqual(16);
     expect(tally).toBeGreaterThanOrEqual(15);
-    expect(label).toBeGreaterThanOrEqual(11);
-    expect(note).toBeGreaterThanOrEqual(13);
-    /* 标签仍要弱于数值：层级不能因为放大而抹平。 */
-    expect(label).toBeLessThan(value);
+    expect(name).toBeGreaterThanOrEqual(20);
+    expect(ruleBody(ROSTER, ".abyssa-sortie-poster__label em")).toMatch(/font-size:\s*var\(--map-type-min\)/);
+    expect(rubric).toBeLessThan(value);
   });
 
   /* 队伍舞台现在使用近方形的 Q 版透明图。若沿用纵长海报的 contain，
@@ -315,74 +207,12 @@ describe("sortie layout", () => {
     expect(mapSlots).toMatch(/pointer-events:\s*none/);
   });
 
-  it("compacts the external lineup while keeping the team editor formation readable", () => {
-    const mapStage = RULES.match(
-      /\.abyssa-sortie-stage\[data-mode="map"\]\s*\{([^}]*)\}/
-    )?.[1] ?? "";
-    const mapStageWidth = Number(mapStage.match(/width:\s*([0-9.]+)px/)?.[1]);
-    const mapSlots = [...RULES.matchAll(
-      /\.abyssa-sortie-stage\[data-mode="map"\] \.abyssa-sortie-stage__slot:nth-child\(\d\)[^{]*\{[^}]*width:\s*([0-9.]+)px;[^}]*height:\s*([0-9.]+)px/g
-    )].map((match) => ({ width: Number(match[1]), height: Number(match[2]) }));
-    const mapLineup = RULES.match(
-      /\.abyssa-sortie-stage\[data-mode="map"\] \.abyssa-sortie-stage__slot\[data-lineup-index\]\s*\{([^}]*)\}/
-    )?.[1] ?? "";
-    const stowedRules = [...RULES.matchAll(/([^{}]+)\{([^}]*)\}/g)].filter((match) =>
-      match[1].includes(".abyssa-sortie-stage__slot[data-leader][data-stowed]")
-    );
-    const mapStowed = stowedRules.find((match) => match[1].includes('[data-mode="map"]'))?.[2] ?? "";
-    const popStowed = stowedRules.find((match) => match[1].includes('[data-mode="pop"]'))?.[2] ?? "";
-    const hiddenEmpty = RULES.match(
-      /\.abyssa-sortie-stage\[data-mode="map"\] \.abyssa-sortie-stage__slot\[data-empty\],[^{]*\{([^}]*)\}/
-    )?.[1] ?? "";
-
-    const teamStage = RULES.match(
-      /\.abyssa-sortie-stage\[data-mode="team"\]\s*\{([^}]*)\}/
-    )?.[1] ?? "";
-    const teamStageWidth = Number(teamStage.match(/width:\s*([0-9.]+)px/)?.[1]);
-    const teamStageTop = Number(teamStage.match(/top:\s*([0-9.]+)px/)?.[1]);
-    const teamStageHeight = Number(teamStage.match(/height:\s*([0-9.]+)px/)?.[1]);
-    const teamSlots = [...RULES.matchAll(
-      /\.abyssa-sortie-stage\[data-mode="team"\] \.abyssa-sortie-stage__slot:nth-child\(\d\)[^{]*\{[^}]*left:\s*([0-9.]+)px;[^}]*width:\s*([0-9.]+)px/g
-    )].map((match) => ({ left: Number(match[1]), width: Number(match[2]) }));
-    const teamFigure = RULES.match(
-      /\.abyssa-sortie-stage\[data-mode="team"\]\s+\.abyssa-sortie-figure\[data-art="figure"\]\s+\.abyssa-sortie-figure__art img\s*\{([^}]*)\}/
-    )?.[1] ?? "";
-
-    const centers = (slots: Array<{ left: number; width: number }>) =>
-      slots.map((slot) => slot.left + slot.width / 2);
-    const centerGaps = (slots: Array<{ left: number; width: number }>) =>
-      centers(slots).slice(1).map((center, index) => center - centers(slots)[index]);
-
-    /* 地图态只从连续站位算法接收横坐标；空槽不再占队形位置。 */
-    expect(mapStageWidth).toBe(600);
-    expect(mapSlots).toHaveLength(5);
-    expect(mapLineup).toMatch(/left:\s*var\(--sortie-map-left\)/);
-    expect(hiddenEmpty).toMatch(/opacity:\s*0/);
-    expect(mapStowed).toMatch(/left:\s*-[0-9.]+px/);
-    expect(mapStowed).toMatch(/opacity:\s*0\.[0-9]+/);
-    expect(mapStage).toMatch(/clip-path:\s*inset\(-[0-9.]+px 0 -[0-9.]+px 0\)/);
-    expect(popStowed).toMatch(/visibility:\s*hidden/);
-    expect(popStowed).toMatch(/opacity:\s*0/);
-    expect(popStowed).toMatch(/animation:\s*none/);
-    expect(popStowed).toMatch(/pointer-events:\s*none/);
-    expect(popStowed).not.toMatch(/left\s*:/);
-
-    /* 展开编队反而收紧：相邻中心最多 170px，命中盒最多轻叠 5px。 */
-    expect(teamStageWidth).toBe(880);
-    expect(teamSlots).toHaveLength(5);
-    expect(Math.max(...centerGaps(teamSlots))).toBeLessThanOrEqual(170);
-    teamSlots.forEach((slot, index) => {
-      expect(slot.left + slot.width).toBeLessThanOrEqual(teamStageWidth);
-      const next = teamSlots[index + 1];
-      if (next) expect(next.left - (slot.left + slot.width)).toBeGreaterThanOrEqual(-5);
-    });
-
-    /* 名单抽屉顶边由当前抽屉高度推导，编辑舞台不能压上去。 */
-    const drawerTop = 787 - token("sortie-inset") - token("sortie-drawer-h");
-    expect(teamStageTop + teamStageHeight).toBeLessThan(drawerTop);
-
-    /* 地图态仍用通用规则的 110%；配队态人物吃满扣除名条后的 art 区。 */
-    expect(teamFigure).toMatch(/height:\s*100%/);
+  it("moves the external lineup offstage while the card standees take over", () => {
+    const offstage = ruleBody(RULES, ".abyssa-sortie-stage[data-offstage]");
+    expect(offstage).toMatch(/visibility:\s*hidden/);
+    expect(offstage).toMatch(/transition:\s*visibility/);
+    expect(RULES).toMatch(/\.abyssa-sortie-stage\[data-mode="map"\]\s*\{/);
+    expect(ROSTER).toMatch(/\.abyssa-sortie-poster__standee\s*\{/);
   });
 
   /* 委托不是把地图态的小队原样挪开，更不能再把整组 opacity:0 藏掉。
@@ -444,7 +274,7 @@ describe("sortie layout", () => {
      委托书的内缩写在它自己的样式表里，比其他浮层的 18 多让出 10。 */
   it("keeps the muster opposite either side of the dossier without overlap", () => {
     const viewportWidth = 1311.67;
-    const inset = token("sortie-inset", DOSSIER);
+    const inset = token("sortie-inset");
     const panelWidth = token("sortie-quest-w");
     const musterWidth = token("sortie-muster-w");
     const musterLeft = token("sortie-muster-left-x");
@@ -505,8 +335,8 @@ describe("sortie layout", () => {
      但仍要靠字号形成明确层级，不能重新堆成一片重字。 */
   it("keeps the dossier body text readable", () => {
     /* px 直接读；var(--map-type-*) 回到地图材料表的字阶。 */
-    const size = (selector: string) => {
-      const value = ruleBody(DOSSIER, selector).match(/font-size:\s*([^;]+)/)?.[1].trim();
+    const size = (selector: string, sheet = DOSSIER) => {
+      const value = ruleBody(sheet, selector).match(/font-size:\s*([^;]+)/)?.[1].trim();
       if (!value) throw new Error(`font-size for ${selector} not found`);
       const step = value.match(/^var\(--(map-type-[\w-]+)\)$/);
       return step ? token(step[1], MATERIALS) : Number(value.match(/^([0-9.]+)px$/)![1]);
@@ -518,22 +348,40 @@ describe("sortie layout", () => {
     expect(size(".abyssa-sortie-dossier__condition")).toBeGreaterThanOrEqual(14);
     /* 短标签可以退后，但不能小到不可读。 */
     expect(size(".abyssa-sortie-dossier__yields li > span:not([class])")).toBeGreaterThanOrEqual(12);
-    expect(size(".abyssa-sortie-dossier__facts dt")).toBeGreaterThanOrEqual(12);
+    expect(size(".abyssa-map-rubric", DOCUMENT)).toBeGreaterThanOrEqual(12);
     expect(size(".abyssa-sortie-dossier__row-label")).toBeGreaterThanOrEqual(11);
-    expect(size(".abyssa-sortie-dossier__notice")).toBeGreaterThanOrEqual(11);
+    expect(size(".abyssa-map-document__notice", DOCUMENT)).toBeGreaterThanOrEqual(11);
 
     /* 标题由顶轨上的单行名牌承担（深底铭牌 + 字距），不再靠大一号压住正文；
        但不得小于正文。 */
-    expect(size(".abyssa-sortie-dossier__plate .abyssa-nameplate__content strong")).toBeGreaterThanOrEqual(
+    expect(size(".abyssa-map-document__plate .abyssa-nameplate__content strong", DOCUMENT)).toBeGreaterThanOrEqual(
       size(".abyssa-sortie-dossier__flavor")
     );
     /* 小标必须弱于它标注的正文。 */
-    expect(size(".abyssa-sortie-dossier__facts dt")).toBeLessThan(size(".abyssa-sortie-dossier__facts dd"));
+    expect(size(".abyssa-map-rubric", DOCUMENT)).toBeLessThan(size(".abyssa-sortie-dossier__facts dd"));
+  });
+
+  it("scrolls the dossier paper without compressing its illustration or body", () => {
+    const scroll = ruleBody(DOSSIER, ".abyssa-sortie-dossier__scroll");
+    const print = ruleBody(DOSSIER, ".abyssa-sortie-dossier__print");
+
+    for (const selector of [".abyssa-map-document__brass", ".abyssa-map-document__paper"]) {
+      expect(ruleBody(DOCUMENT, selector), selector).toMatch(/min-height:\s*0/);
+    }
+    expect(scroll).toMatch(/min-height:\s*0/);
+    expect(scroll).toMatch(/overflow-x:\s*hidden/);
+    expect(scroll).toMatch(/overflow-y:\s*auto/);
+    expect(scroll).toMatch(/overscroll-behavior:\s*contain/);
+    expect(ruleBody(DOSSIER, ".abyssa-sortie-dossier__scroll > *")).toMatch(/flex-shrink:\s*0/);
+    expect(print).toMatch(/flex:\s*none/);
+    expect(print).toMatch(/aspect-ratio:\s*960\s*\/\s*400/);
+    expect(DOSSIER).not.toMatch(/flex-shrink:\s*1/);
+    expect(ruleBody(DOCUMENT, ".abyssa-map-document__ledge")).toMatch(/flex:\s*none/);
   });
 
   /* 版画由蒙版化进纸里，不能再给它或图片叠 border、outline、box-shadow；
      那会在裁切口画出一圈「幽灵边」，退回贴在纸上的相片。
-     蒙版必须随框拉伸（100% 100%）：版画收矮时边缘照样化开。 */
+     蒙版必须随框拉伸（100% 100%）。 */
   it("dissolves the dossier print into the paper instead of drawing a crop edge", () => {
     const print = ruleBody(DOSSIER, ".abyssa-sortie-dossier__print");
     const image = ruleBody(DOSSIER, ".abyssa-sortie-dossier__print img");
@@ -547,27 +395,17 @@ describe("sortie layout", () => {
   });
 
   /* 内框只允许落在有明确语义的轻拟物部件上，不能给每一段内容都套框。
-     信息铭牌与标题菱形是本轮新增的两个层次，其余白名单沿用原有语义。 */
+     人物牌的裁口与纸边是 box-shadow 画的线，不在这里。 */
   it("limits interior frames to purposeful lightweight elements", () => {
     expect(RULES).not.toContain(".abyssa-sortie-stage__bg");
     const allowed = new Set([
       ".abyssa-sortie-figure__art",
       '.abyssa-sortie-figure[data-empty="true"] .abyssa-sortie-figure__art',
-      ".abyssa-sortie-poster__void",
-      /* 卡面的淡描边：这是「有边框但很淡」，不是四方粗框。
-         淡到什么程度由上一条 it 单独把关（≤30% 不透明度）。 */
-      ".abyssa-sortie-poster__clip",
-      ".abyssa-sortie-poster__clip::after",
-      /* 出战名册的槽位：与海报卡同一道淡描边（20% 不透明度）。 */
-      ".abyssa-sortie-slot__art",
-      /* 轻拟物标题标记与右侧资料铭牌。 */
-      ".abyssa-sortie-roster__title::before",
-      ".abyssa-sortie-roster.abyssa-frame",
-      ".abyssa-sortie-info-panel",
-      ".abyssa-sortie-info__dice::after"
+      /* 出战名册的槽位：共享头像框。 */
+      ".abyssa-sortie-slot__art"
     ]);
 
-    const boxed = [...RULES.matchAll(/([^{}]+)\{([^}]*)\}/g)]
+    const boxed = [...`${RULES}\n${ROSTER}`.matchAll(/([^{}]+)\{([^}]*)\}/g)]
       .map(([, selector, body]) => ({ selector: selector.trim(), body }))
       .filter(({ selector, body }) =>
         selector.startsWith(".abyssa-sortie") && /(?:^|;)\s*border:\s*1px/.test(body)
@@ -577,22 +415,24 @@ describe("sortie layout", () => {
     expect(boxed.filter((selector) => !allowed.has(selector))).toEqual([]);
   });
 
-  it("uses solid panel surfaces instead of decorative gradients", () => {
+  /* 名单的面是印好的纸与离线色场，不是 CSS 渐变刷出来的板子。 */
+  it("uses printed surfaces instead of decorative gradients", () => {
     for (const selector of [
-      ".abyssa-sortie-roster__lab--list",
-      ".abyssa-sortie-info-panel",
-      ".abyssa-sortie-roster__lab--info",
-      ".abyssa-sortie-roster__row",
-      ".abyssa-sortie-info"
+      ".abyssa-sortie-poster__sheet",
+      ".abyssa-sortie-poster__field",
+      ".abyssa-sortie-roster__rail",
+      ".abyssa-sortie-roster__page"
     ]) {
-      const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-      const body = RULES.match(new RegExp(`${escaped}\\s*\\{([^}]*)\\}`))?.[1] ?? "";
+      const body = ruleBody(ROSTER, selector);
+      expect(body, selector).not.toBe("");
       expect(body, selector).not.toMatch(/(?:linear|radial|conic|repeating-linear)-gradient\(/);
     }
   });
 
   /* 画布内禁视口单位：外层已有 scale，vw/vh 会二次缩放。 */
   it("never uses viewport units inside the fixed canvas", () => {
-    expect(RULES).not.toMatch(/[0-9.]+v(w|h|min|max)\b/);
+    for (const sheet of [RULES, DOSSIER, ROSTER, DOCUMENT]) {
+      expect(sheet).not.toMatch(/[0-9.]+v(w|h|min|max)\b/);
+    }
   });
 });

@@ -80,6 +80,8 @@ describe("map sortie", () => {
     const { container } = render(<MapPage />);
 
     expect(viewport(container).dataset.mode).toBe("map");
+    expect(screen.getByRole("img", { name: "出征地图，SORTIE MAP" })).toBeInTheDocument();
+    expect(viewport(container)).toHaveAttribute("aria-label", "出征地图");
     expect(screen.queryByRole("region", { name: "出战名单" })).toBeNull();
     expect(mocks.setInteractive).toHaveBeenLastCalledWith(true);
   });
@@ -118,7 +120,7 @@ describe("map sortie", () => {
     expect(screen.getByText("已选 1 / 4")).toBeInTheDocument();
   });
 
-  it("moves enlisted members to the head of the roster", async () => {
+  it("keeps the card order stable while marking enlisted members", async () => {
     const user = userEvent.setup();
     const { container } = render(<MapPage />);
     await openTeam(user);
@@ -128,11 +130,12 @@ describe("map sortie", () => {
         (node) => node.textContent
       );
 
-    /* 艾比希斯初始排在尤斯缇丝之后。 */
+    const initialNames = names();
     expect(names().indexOf("诺玛")).toBeGreaterThan(0);
 
     await user.click(screen.getByRole("button", { name: "诺玛·洛克" }));
-    expect(names()[0]).toBe("诺玛");
+    expect(names()).toEqual(initialNames);
+    expect(screen.getByRole("button", { name: "诺玛·洛克" })).toHaveAttribute("aria-pressed", "true");
   });
 
   it("enlists an available member and numbers the slot", async () => {
@@ -152,7 +155,7 @@ describe("map sortie", () => {
     /* 地标是 WebGL 纸片，HTML 遮罩盖不住 canvas 内部 ——
        所以选中态必须下发到 Three 侧，不能只靠 CSS。 */
     act(() => mocks.select?.({ id: "tower" }));
-    expect(await screen.findByRole("complementary", { name: "裂隙远征 委托" })).toBeInTheDocument();
+    expect(await screen.findByRole("complementary", { name: "克雷格旧庄园 委托" })).toBeInTheDocument();
     expect(mocks.setSelected).toHaveBeenLastCalledWith("tower", "right");
   });
 
@@ -183,7 +186,7 @@ describe("map sortie", () => {
     expect(partyStage(container)).toBe(stage);
 
     act(() => mocks.select?.({ id: "tower" }));
-    const tower = await screen.findByRole("complementary", { name: "裂隙远征 委托" });
+    const tower = await screen.findByRole("complementary", { name: "克雷格旧庄园 委托" });
     const towerStage = partyStage(container);
     expect(tower).toHaveAttribute("data-side", "right");
     expect(towerStage).toBe(stage);
@@ -224,13 +227,13 @@ describe("map sortie", () => {
     render(<MapPage />);
 
     act(() => mocks.select?.({ id: "tower" }));
-    const quest = await screen.findByRole("complementary", { name: "裂隙远征 委托" });
+    const quest = await screen.findByRole("complementary", { name: "克雷格旧庄园 委托" });
     const depart = within(quest).getByRole("button", { name: "出发" });
     expect(depart).toBeDisabled();
     expect(within(quest).getByText("至少要带一个人。")).toBeInTheDocument();
 
     const editParty = within(quest).getByRole("button", { name: "编队" });
-    expect(editParty).toHaveClass("abyssa-sortie-dossier__tool");
+    expect(editParty).toHaveClass("abyssa-map-document__tool");
     expect(editParty.querySelector(".abyssa-icon-button__custom i")).not.toBeNull();
     expect(editParty).toHaveTextContent("");
     await user.click(editParty);
@@ -238,7 +241,7 @@ describe("map sortie", () => {
     /* 从委托进的配队，编完要回到那份委托，而不是掉回裸地图。 */
     await user.click(screen.getByRole("button", { name: "完成编队" }));
 
-    const reopened = await screen.findByRole("complementary", { name: "裂隙远征 委托" });
+    const reopened = await screen.findByRole("complementary", { name: "克雷格旧庄园 委托" });
     await user.click(within(reopened).getByRole("button", { name: "出发" }));
 
     expect(sessionStorage.getItem(SORTIE_ORDER_STORAGE_KEY)).toBeNull();
@@ -247,16 +250,15 @@ describe("map sortie", () => {
     expect(record.snapshot.expedition?.party.map(member => member.id)).toEqual(["kael", "eustice"]);
     expect(mocks.navigate).toHaveBeenCalledWith(
       expect.stringMatching(/^#\/battle\?save=save&epoch=epoch&expedition=/),
-      expect.objectContaining({ destination: "裂隙遠征" })
+      expect.objectContaining({ destination: "出征" })
     );
   });
 
-  it("keeps the leader enlisted and disables delegated sorties", async () => {
+  it("keeps the personal command without a delegated sortie control", async () => {
     const user = userEvent.setup(); render(<MapPage />); await openTeam(user);
-    const leader = screen.getByRole("button", { name: /你亲征/ });
-    expect(leader).toBeDisabled();
-    await user.click(leader);
-    expect(leader).toHaveAttribute("aria-pressed", "true");
+    const drawer = screen.getByRole("region", { name: "出战名单" });
+    expect(drawer).toHaveTextContent("亲征");
+    expect(within(drawer).queryByRole("button", { name: /委派|你亲征/ })).toBeNull();
   });
 
   /* 骰面必须以共享骰面件呈现，不许退化成纯文字段落；
@@ -266,6 +268,7 @@ describe("map sortie", () => {
     await user.hover(screen.getByRole("button", { name: "艾洛拉·亚金特" }));
     const drawer = screen.getByRole("region", { name: "出战名单" });
     expect(drawer.querySelectorAll(".abyssa-sortie__strip-cell .expedition-flat-die-frame")).toHaveLength(6);
+    fireEvent.mouseLeave(container.querySelector(".abyssa-sortie-roster__rail")!);
     /* 战面构成表仍是 mask 过的 SVG 图标，不是文字符号。 */
     expect(container.querySelectorAll(".abyssa-sortie__tally-icon").length).toBeGreaterThan(0);
     /* 旧版档案没有花色：不显示同花统计，也不在骰面标题里报花色。 */
@@ -273,15 +276,15 @@ describe("map sortie", () => {
     expect(drawer.textContent ?? "").not.toMatch(/圣辉|渊影|彼岸/);
   });
 
-  it("frames the drawer with RpgFrame and the dossier with the map's own wood frame", async () => {
+  it("frames the roster sheet and dossier with the map document", async () => {
     const user = userEvent.setup();
     render(<MapPage />);
 
     await openTeam(user);
     const drawer = screen.getByRole("region", { name: "出战名单" });
-    expect(drawer).toHaveClass("abyssa-frame");
-    expect(drawer.querySelector(":scope > .abyssa-frame__content")).not.toBeNull();
-    expect(drawer.querySelector(":scope > .abyssa-frame__ornaments")).not.toBeNull();
+    expect(drawer).not.toHaveClass("abyssa-frame");
+    expect(drawer.querySelector(".abyssa-map-document__paper")).not.toBeNull();
+    expect(drawer.querySelector(".abyssa-map-document__corners")).not.toBeNull();
 
     await user.click(screen.getByRole("button", { name: "关闭当前面板" }));
     act(() => mocks.select?.({ id: "cave" }));
@@ -299,7 +302,7 @@ describe("map sortie", () => {
      「编队即难度」，用数字替玩家把牌读完就废了这条设计护栏。 */
   it("briefs the implemented rift and explicitly closes other destinations", async () => {
     render(<MapPage />); act(() => mocks.select?.({ id: "tower" }));
-    let quest = await screen.findByRole("complementary", { name: "裂隙远征 委托" });
+    let quest = await screen.findByRole("complementary", { name: "克雷格旧庄园 委托" });
     expect(quest).toHaveTextContent("带上伙伴进入裂隙");
     expect(quest).toHaveTextContent("在出口层选择带宝离场或继续深入");
     act(() => mocks.select?.({ id: "cave" }));
@@ -312,7 +315,7 @@ describe("map sortie", () => {
 
   it("does not promise prototype items or currency yields before departure", async () => {
     render(<MapPage />); act(() => mocks.select?.({ id: "tower" }));
-    const quest = await screen.findByRole("complementary", { name: "裂隙远征 委托" });
+    const quest = await screen.findByRole("complementary", { name: "克雷格旧庄园 委托" });
     expect(quest.querySelectorAll('[data-spoil]')).toHaveLength(0);
     expect(quest.textContent).not.toMatch(/\d+\s*(金币|里拉|晶石)/);
   });
@@ -325,7 +328,7 @@ describe("map sortie", () => {
     expect(quest.textContent ?? "").not.toMatch(/收益[薄中厚]/);
 
     act(() => mocks.select?.({ id: "tower" }));
-    const rift = await screen.findByRole("complementary", { name: "裂隙远征 委托" });
+    const rift = await screen.findByRole("complementary", { name: "克雷格旧庄园 委托" });
     expect(rift.textContent ?? "").not.toMatch(/收益[薄中厚]/);
     await user.click(within(rift).getByRole("button", { name: "编队" }));
     const drawer = screen.getByRole("region", { name: "出战名单" });
@@ -333,64 +336,31 @@ describe("map sortie", () => {
     expect(drawer.textContent ?? "").not.toMatch(/(攻击|格挡|治疗).*\1/);
   });
 
-  /* 当前队伍摘要与委托书的队伍格统一使用共享头像框和同一张 avatar。
-     塞 704x1472 的全身立绘要放大两倍再裁掉 99.5% 的像素，
-     既费解码又不如裁好的脸清楚。凯尔缺 avatar，是唯一例外。 */
-  it("uses the same framed avatar art in the party summary and dossier slots", async () => {
+  it("mounts the chosen card standee and uses shared avatars in the dossier", async () => {
     const user = userEvent.setup();
     const { container } = render(<MapPage />);
     await openTeam(user);
     await user.click(screen.getByRole("button", { name: "尤斯缇丝·格里芬" }));
 
-    /* userEvent 会先 hover 海报；移出后才回到截图中的“当前队伍”摘要。 */
-    fireEvent.mouseLeave(container.querySelector(".abyssa-sortie-roster__row")!);
-    const drawer = screen.getByRole("region", { name: "出战名单" });
-    const done = within(drawer).getByRole("button", { name: "完成编队" });
-    expect(done).toHaveClass("abyssa-sortie-roster__done");
-    expect(done.querySelector("svg")).not.toBeNull();
-    expect(done).toHaveTextContent("");
-
-    const summarySlots = drawer.querySelectorAll(".abyssa-sortie-info__minis > .abyssa-sortie-slot");
-    expect(summarySlots).toHaveLength(5);
-    expect(drawer.querySelectorAll('.abyssa-sortie-info__minis > [data-empty="true"]')).toHaveLength(3);
-    const summaryLeader = drawer.querySelector(
-      '.abyssa-sortie-info__minis > [data-leader="true"] .abyssa-sortie-slot__art'
+    const poster = container.querySelector('.abyssa-sortie-poster[data-member="eustice"]');
+    expect(poster).toHaveAttribute("data-chosen", "true");
+    expect(poster!.querySelector(".abyssa-sortie-poster__standee img")).toHaveAttribute(
+      "src", expect.stringMatching(/standee-eustice/)
     );
-    expect(summaryLeader).toHaveClass("abyssa-avatar");
-    expect(summaryLeader!.querySelector("img")).not.toBeNull();
-    const summaryAvatar = drawer.querySelector(
-      ".abyssa-sortie-info__minis [data-faction] .abyssa-sortie-slot__art"
-    );
-    expect(summaryAvatar).toHaveClass("abyssa-avatar");
-    expect(summaryAvatar!.querySelector(".abyssa-avatar__art")).not.toBeNull();
-    const summarySrc = summaryAvatar!.querySelector("img")!.getAttribute("src");
-    expect(summarySrc).toMatch(/avatar/);
-    expect(drawer.querySelector(".abyssa-sortie-info__mini")).toBeNull();
 
-    await user.click(done);
-
-    /* 未开放的委托书不摆队伍格，取可出发的那一份。 */
+    await user.click(screen.getByRole("button", { name: "完成编队" }));
     act(() => mocks.select?.({ id: "tower" }));
-    const quest = await screen.findByRole("complementary", { name: "裂隙远征 委托" });
+    const quest = await screen.findByRole("complementary", { name: "克雷格旧庄园 委托" });
     const party = within(quest).getByRole("group", { name: /^出战队伍：/ });
-
-    /* 头像框是共享件（切角六边形），不是自己画的圆或圆角矩形。 */
-    const filled = party.querySelector('[data-faction] .abyssa-sortie-slot__art');
-    expect(filled).toHaveClass("abyssa-avatar");
-    expect(filled!.querySelector(".abyssa-avatar__art")).not.toBeNull();
-    /* 素材走 avatar（1:1 裁好的脸），不是 png 下的全身立绘。 */
-    expect(filled!.querySelector("img")!.getAttribute("src")).toBe(summarySrc);
-
-    /* 玩家位同样走共享头像框，放校准过的档案立绘。 */
-    const leaderChip = party.querySelector('[data-leader="true"] .abyssa-sortie-slot__art');
-    expect(leaderChip).toHaveClass("abyssa-avatar");
-    expect(leaderChip!.querySelector("img")).not.toBeNull();
-
-    /* 四个槽位恒定画出，空位也要占地；第五席是玩家。 */
-    expect(party.querySelectorAll(".abyssa-sortie-dossier__chip").length).toBe(5);
-    expect(party.querySelectorAll('.abyssa-sortie-dossier__chip[data-empty="true"]').length).toBe(3);
+    const memberArt = party.querySelector('[data-faction] .abyssa-sortie-slot__art');
+    expect(memberArt).toHaveClass("abyssa-avatar");
+    expect(memberArt!.querySelector("img")).not.toBeNull();
+    const leaderArt = party.querySelector('[data-leader="true"] .abyssa-sortie-slot__art');
+    expect(leaderArt).toHaveClass("abyssa-avatar");
+    expect(leaderArt!.querySelector("img")).not.toBeNull();
+    expect(party.querySelectorAll(".abyssa-sortie-dossier__chip")).toHaveLength(5);
+    expect(party.querySelectorAll('.abyssa-sortie-dossier__chip[data-empty="true"]')).toHaveLength(3);
   });
-
   it("closes the drawer from the backdrop", async () => {
     const user = userEvent.setup();
     const { container } = render(<MapPage />);

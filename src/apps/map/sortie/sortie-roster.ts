@@ -30,9 +30,9 @@ type ProfileTone = SortieFaction;
 
 const FACTION_FALLBACK: SortieFaction = "hero-party";
 
-/** 地图队伍舞台专用的 Q 版立绘；海报名册仍读取档案的 portraitUrl。 */
+/** 队伍立牌：地图上的队伍与名单牌顶上的立牌都用它；牌面的立绘仍读档案的 portraitUrl。 */
 function readPartyFigureUrl(characterId: string): string | undefined {
-  return partyFigureCatalogById[characterId as PartyFigureId]?.url;
+  return partyFigureCatalogById[characterId as PartyFigureId]?.standee;
 }
 
 function readFaction(tone: string | undefined): SortieFaction {

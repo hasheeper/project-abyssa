@@ -48,7 +48,7 @@ export interface SortieMember {
   thumbnailUrl?: string;
   /** 档案全身立绘，用于海报位，也是队伍舞台缺图时的回退。 */
   portraitUrl?: string;
-  /** Q 版立绘，仅用于地图上的队伍舞台。 */
+  /** Q 版立牌（刀模切下的卡纸立绘）：地图上的队伍与名单牌顶的立牌共用。 */
   figureUrl?: string;
   primarySuit?: DieSuit;
   secondarySuit?: DieSuit;
@@ -73,7 +73,7 @@ export interface SortieLeader {
   title: string;
   /** 档案全身立绘，用于委托小槽，也是队伍舞台缺图时的回退。 */
   portraitUrl?: string;
-  /** Q 版立绘，仅用于地图上的队伍舞台。 */
+  /** Q 版立牌，用于地图上的队伍（玩家没有名单牌）。 */
   figureUrl?: string;
   faces: DieFace[];
   pact?: string;

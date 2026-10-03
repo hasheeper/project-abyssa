@@ -9,9 +9,7 @@ describe("SortiePartyStage", () => {
       mode: "map" as const,
       roster: sortieRoster,
       leader: sortieLeader,
-      onOpen: vi.fn(),
-      onRemoveMember: vi.fn(),
-      onToggleCommand: vi.fn()
+      onOpen: vi.fn()
     };
     const { container, rerender } = render(
       <SortiePartyStage
@@ -95,8 +93,6 @@ describe("SortiePartyStage", () => {
 
   it("keeps the same calibrated figures while moving from map to either quest side", () => {
     const onOpen = vi.fn();
-    const onRemoveMember = vi.fn();
-    const onToggleCommand = vi.fn();
     const stage = (mode: "map" | "pop", questSide?: "left" | "right") => (
       <SortiePartyStage
         mode={mode}
@@ -105,8 +101,6 @@ describe("SortiePartyStage", () => {
         leader={sortieLeader}
         party={{ memberIds: ["alvitr"], command: "personal" }}
         onOpen={onOpen}
-        onRemoveMember={onRemoveMember}
-        onToggleCommand={onToggleCommand}
       />
     );
 

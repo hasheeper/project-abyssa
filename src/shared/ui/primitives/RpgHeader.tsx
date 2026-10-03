@@ -26,6 +26,7 @@ const shadowPath = [
 export interface RpgHeaderProps
   extends Omit<HTMLAttributes<HTMLElement>, "children"> {
   label: string;
+  subtitle?: string;
   description?: string;
   variant?: AbyssaVariant;
   watermark?: DiamondWatermarkConfig;
@@ -33,6 +34,7 @@ export interface RpgHeaderProps
 
 export function RpgHeader({
   label,
+  subtitle,
   description,
   variant = "dark",
   watermark,
@@ -55,7 +57,7 @@ export function RpgHeader({
       <svg
         viewBox="0 0 660 116"
         role="img"
-        aria-label={description ? `${label}，${description}` : label}
+        aria-label={[label, subtitle, description].filter(Boolean).join("，")}
       >
         <defs>
           {watermarkOptions && <DiamondWatermark
@@ -164,18 +166,36 @@ export function RpgHeader({
         </g>
 
         <text
+          className="abyssa-rpg-header__label"
           x="330"
-          y="47"
+          y={subtitle ? 40 : 47}
           fill="var(--abyssa-header-text)"
           fontFamily="var(--abyssa-font-display)"
-          fontSize="24"
-          fontWeight="500"
-          letterSpacing="2.5"
+          fontSize={subtitle ? 32 : 24}
+          fontWeight={subtitle ? 600 : 500}
+          letterSpacing={subtitle ? 2 : 2.5}
           textAnchor="middle"
           dominantBaseline="middle"
         >
           {label}
         </text>
+        {subtitle && (
+          <text
+            className="abyssa-rpg-header__subtitle"
+            x="330"
+            y="63"
+            fill="var(--abyssa-header-text)"
+            opacity=".78"
+            fontFamily="var(--abyssa-font-display)"
+            fontSize="12"
+            fontWeight="600"
+            letterSpacing="2"
+            textAnchor="middle"
+            dominantBaseline="middle"
+          >
+            {subtitle}
+          </text>
+        )}
       </svg>
     </header>
   );

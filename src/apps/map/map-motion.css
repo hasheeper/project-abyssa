@@ -6,10 +6,14 @@
 .map-board[data-map-intro="playing"] .abyssa-map-scene {
   animation: abyssa-ui-appear 540ms 180ms ease-out both;
 }
+/* 队伍在地图之后到：立牌从画框下沿依次弹起（abyssa-standee-rise，见 sortie.css），
+   与每次编完队回到地图时同一个动作。整组再跟一层淡入，排在地图之后。 */
 .map-board[data-map-intro="playing"] .abyssa-sortie-stage__slots {
-  animation: map-party-arrive 560ms 320ms cubic-bezier(.2, .7, .2, 1) both;
+  animation: abyssa-ui-appear 360ms 320ms ease-out both;
 }
-@keyframes map-party-arrive { from { opacity: 0; translate: -22px 14px; } to { opacity: 1; translate: 0 0; } }
+.map-board[data-map-intro="playing"] .abyssa-sortie-stage__slot {
+  animation: abyssa-standee-rise 900ms calc(320ms + var(--sortie-lineup-index, 0) * 80ms) both;
+}
 
 .map-panel-layer { position: absolute; inset: 0; z-index: 10; pointer-events: none; }
 .map-panel-layer > * { pointer-events: auto; }

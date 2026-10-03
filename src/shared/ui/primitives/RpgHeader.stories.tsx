@@ -29,3 +29,4 @@ type Story = StoryObj<typeof meta>;
 export const Dark: Story = {};
 export const Light: Story = { args: { variant: "light" } };
 export const Teal: Story = { args: { variant: "teal" } };
+export const Bilingual: Story = { args: { label: "出征地图", subtitle: "SORTIE MAP" } };

@@ -1,0 +1,185 @@
+/* ============ 作战桌文书 ============
+   地图画框的缩小版：同一套木轨（MapWoodRails）、黄铜带（.abyssa-map-wood-frame__brass）
+   与金属角件（MapMetalCorners），只把令牌改细。黄铜带围出上下两格：
+   上格是纸 —— 地图底纸提亮一档，纸面贴着画框，不是木板上浮起的一张卡片；
+   下格是木台 —— 地图画框里垫边的同一种木色，放人、物与主按钮。
+   顶轨正中骑一块单行名牌。位置、宽高与版心由各文书自己写
+   （委托书见 sortie/sortie-dossier.css，名单资料页见 sortie/sortie-roster.css）；
+   名牌的上限读 --map-document-w。 */
+.abyssa-map-document {
+  /* 线宽与黄铜带沿用地图画框，只把木轨收窄到 10：外沿到纸面约 18px。 */
+  --abyssa-map-frame-rail: 10px;
+  --abyssa-map-frame-corner: 46px;
+  display: flex;
+  flex-direction: column;
+  padding: var(--abyssa-map-frame-rail);
+  box-sizing: border-box;
+  border: var(--abyssa-frame-border) solid #090603;
+  background: #1a1008;
+  box-shadow:
+    0 0 0 1px #3a2817,
+    0 0 0 2px #0b0704,
+    0 16px 30px rgb(4 2 1 / 55%),
+    0 4px 8px rgb(0 0 0 / 40%);
+  font-family: var(--abyssa-font-body, "Noto Serif SC", serif);
+}
+.abyssa-map-document ul,
+.abyssa-map-document ol { margin: 0; padding: 0; list-style: none; }
+
+/* 黄铜带：上格纸、下格木台，中间露出的一道就是黄铜横档。 */
+.abyssa-map-document__brass {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: var(--abyssa-frame-brass);
+  min-height: 0;
+}
+/* 角件压在两格的外角上，与地图画框里压住地图四角是同一个位置关系。 */
+.abyssa-map-document__corners.abyssa-map-wood-frame__corners { inset: var(--abyssa-frame-brass); z-index: 3; }
+
+/* ---- 名牌：单行，中线压在顶轨中线上；上不顶地图画框，下不压纸面与角件 ---- */
+.abyssa-map-document__head {
+  position: absolute;
+  top: calc(var(--abyssa-map-frame-rail) / 2);
+  left: 50%;
+  z-index: 5;
+  transform: translate(-50%, -50%);
+  filter: drop-shadow(0 3px 4px rgb(4 2 1 / 55%));
+  pointer-events: none;
+}
+.abyssa-map-document__plate.abyssa-nameplate {
+  --abyssa-frame-dark: #0d0805;
+  --abyssa-frame-light: #b89257;
+  --abyssa-frame-deep: #21140d;
+  --abyssa-nameplate-fill: #3a2717;
+  --abyssa-nameplate-ink: #f1dfc1;
+  width: max-content;
+  max-width: calc(var(--map-document-w) - 120px);
+}
+.abyssa-map-document__plate .abyssa-nameplate__content { min-height: 30px; padding: 5px 30px; }
+.abyssa-map-document__plate .abyssa-nameplate__content strong { font-size: 20px; letter-spacing: .16em; text-indent: .16em; line-height: 1; white-space: nowrap; }
+
+.abyssa-map-document__close.abyssa-icon-button[data-size] {
+  --abyssa-icon-size: 40px;
+  --abyssa-icon-fill: #2e1e11;
+  --abyssa-icon-middle: #a07a44;
+  --abyssa-icon-ornament: rgb(226 194 127 / 60%);
+  --abyssa-icon-ink: var(--map-cream);
+  --abyssa-icon-pattern-dark: rgb(0 0 0 / 10%);
+  --abyssa-icon-pattern-light: rgb(226 194 127 / 4%);
+  position: absolute;
+  top: -17px;
+  right: -17px;
+  z-index: 6;
+  filter: drop-shadow(0 3px 5px rgb(4 2 1 / 58%));
+}
+
+/* ---- 纸：地图底纸，贴着画框；只有画框投下的影子，没有描边和浮起 ---- */
+.abyssa-map-document__paper {
+  position: relative;
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+  border: 1px solid #1c0f08;
+  background: var(--map-paper) url("../../assets/map/dossier/paper-v2.webp") center top / cover;
+  /* 光从左上来：顶轨与左轨的影子落在纸上，四周再沉一点旧纸的边。 */
+  box-shadow:
+    inset 0 7px 8px -6px rgb(30 15 5 / 46%),
+    inset 6px 0 7px -6px rgb(30 15 5 / 30%),
+    inset 0 0 40px rgb(110 70 30 / 18%);
+  color: var(--map-ink);
+}
+
+/* 朱字小标：居中，两侧各一笔收尖的墨线 —— 告示的排法，不画表格线。 */
+.abyssa-map-rubric {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--map-cinnabar);
+  font-size: 17px;
+  /* 末字后的字距由首行缩进抵掉，字组才在两笔之间居中。 */
+  letter-spacing: .5em;
+  line-height: 22px;
+  text-indent: .5em;
+}
+.abyssa-map-rubric::before,
+.abyssa-map-rubric::after {
+  width: 38px;
+  height: 5px;
+  background: rgb(58 38 21 / 58%);
+  content: "";
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 6' preserveAspectRatio='none'%3E%3Cpath d='M0 3L100 1.6V4.4Z'/%3E%3C/svg%3E") 0 0 / 100% 100% no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 6' preserveAspectRatio='none'%3E%3Cpath d='M0 3L100 1.6V4.4Z'/%3E%3C/svg%3E") 0 0 / 100% 100% no-repeat;
+}
+.abyssa-map-rubric::after { transform: scaleX(-1); }
+
+/* ---- 木台：地图画框垫边的同一种木色与内阴影 ---- */
+.abyssa-map-document__ledge {
+  position: relative;
+  display: grid;
+  flex: none;
+  gap: 7px;
+  padding: 10px 12px 12px;
+  border: 2px solid #211307;
+  background-color: #49301f;
+  background-image: linear-gradient(135deg, rgb(214 171 111 / 9%), transparent 34% 72%, rgb(18 9 5 / 18%));
+  box-shadow: inset 0 0 0 1px rgb(224 187 111 / 34%), inset 0 0 24px rgb(7 4 2 / 48%);
+  color: var(--map-cream);
+}
+
+/* 木台上的工具：共享圆钮，与关闭钮同一枚；图标走 mask 着色。 */
+.abyssa-map-document__tool.abyssa-icon-button[data-size] {
+  --abyssa-icon-size: 44px;
+  --abyssa-icon-fill: #2e1e11;
+  --abyssa-icon-middle: #a07a44;
+  --abyssa-icon-ornament: rgb(226 194 127 / 55%);
+  --abyssa-icon-ink: var(--map-cream);
+  --abyssa-icon-pattern-dark: rgb(0 0 0 / 10%);
+  --abyssa-icon-pattern-light: rgb(226 194 127 / 4%);
+  --abyssa-frame-dark: #0d0805;
+  --abyssa-frame-deep: #24170c;
+}
+.abyssa-map-document__tool .abyssa-icon-button__custom i { display: block; width: 20px; height: 20px; background: var(--map-cream); }
+.abyssa-map-document__tool.abyssa-icon-button:hover:not(:disabled) { --abyssa-icon-middle: var(--map-brass-bright); }
+.abyssa-map-document__tool.abyssa-icon-button:disabled { --abyssa-icon-middle: #4d3a26; cursor: default; }
+.abyssa-map-document__tool.abyssa-icon-button:disabled .abyssa-icon-button__custom i { background: #7d6a52; }
+
+/* 主按钮：共享六角钮的原配方 —— 实底、两端菱纹、三层描边 —— 只换成黄铜色令牌，
+   不另画渐变。不可用时退回木色。上方可带一行提示。 */
+.abyssa-map-document__go { display: grid; gap: 8px; padding-top: 2px; }
+.abyssa-map-document__notice { margin: 0; color: var(--map-cream-muted); font-size: var(--map-type-min); line-height: 1.5; text-align: center; }
+.abyssa-map-document__notice[data-tone="error"] { color: #eba78e; }
+.abyssa-map-document .abyssa-map-document__action.abyssa-hex-button {
+  --abyssa-hex-fill: #c19b5c;
+  --abyssa-hex-text: #26160a;
+  --abyssa-hex-frame-middle: #e3c68a;
+  --abyssa-hex-pattern-dark: rgb(84 52 20 / 20%);
+  --abyssa-hex-pattern-light: rgb(255 238 200 / 22%);
+  --abyssa-frame-dark: #140b05;
+  --abyssa-frame-deep: #5b3d17;
+  filter: drop-shadow(0 3px 5px rgb(4 2 1 / 50%));
+}
+.abyssa-map-document .abyssa-map-document__action.abyssa-hex-button:hover:not(:disabled) { filter: drop-shadow(0 3px 5px rgb(4 2 1 / 50%)) brightness(1.06); }
+/* 共享六角钮下沿的五点饰纹，在这块铭牌的尺寸上只剩几粒碎屑，不画。 */
+.abyssa-map-document__action .abyssa-hex-button__dots { display: none; }
+.abyssa-map-document__action .abyssa-hex-button__label {
+  padding-inline: 48px;
+  font-family: var(--abyssa-font-body, "Noto Serif SC", serif);
+  font-size: 21px;
+  font-weight: 700;
+  letter-spacing: .5em;
+  text-indent: .5em;
+}
+.abyssa-map-document .abyssa-map-document__action.abyssa-hex-button:disabled {
+  --abyssa-hex-fill: #3b2919;
+  --abyssa-hex-text: #8f7a5e;
+  --abyssa-hex-frame-middle: #5a4430;
+  --abyssa-hex-pattern-dark: rgb(0 0 0 / 12%);
+  --abyssa-hex-pattern-light: rgb(226 194 127 / 4%);
+  --abyssa-frame-deep: #24170c;
+  cursor: default;
+  filter: drop-shadow(0 3px 4px rgb(4 2 1 / 45%));
+  opacity: 1;
+}
+.abyssa-map-document__action:disabled .abyssa-hex-button__label { font-weight: 600; letter-spacing: .3em; text-indent: .3em; }

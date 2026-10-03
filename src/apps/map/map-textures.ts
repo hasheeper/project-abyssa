@@ -12,81 +12,17 @@ export function requireCanvasContext(canvas: HTMLCanvasElement) {
   return context;
 }
 
-export function createParchmentSkyTexture() {
+export function createParchmentSkyTexture(image: CanvasImageSource) {
   const canvas = document.createElement("canvas");
-  canvas.width = 1280;
-  canvas.height = 640;
+  canvas.width = 2048;
+  canvas.height = 1024;
   const context = requireCanvasContext(canvas);
-  const background = context.createLinearGradient(0, 0, 0, canvas.height);
-  background.addColorStop(0, "#182426");
-  background.addColorStop(0.42, "#3d3025");
-  background.addColorStop(0.68, "#4a3728");
-  background.addColorStop(1, "#211710");
-  context.fillStyle = background;
-  context.fillRect(0, 0, canvas.width, canvas.height);
-
-  let seed = 0x51a7c3;
-  const random = () => {
-    seed = (seed * 1664525 + 1013904223) >>> 0;
-    return seed / 0x100000000;
-  };
-
-  const pixels = context.getImageData(0, 0, canvas.width, canvas.height);
-  for (let index = 0; index < pixels.data.length; index += 4) {
-    const grain = Math.round((random() - 0.5) * 18);
-    pixels.data[index] = Math.max(0, Math.min(255, pixels.data[index] + grain));
-    pixels.data[index + 1] = Math.max(0, Math.min(255, pixels.data[index + 1] + grain));
-    pixels.data[index + 2] = Math.max(0, Math.min(255, pixels.data[index + 2] + grain * 0.82));
-  }
-  context.putImageData(pixels, 0, 0);
-
-  for (let index = 0; index < 34; index += 1) {
-    const x = random() * canvas.width;
-    const y = random() * canvas.height;
-    const radius = 42 + random() * 150;
-    const stain = context.createRadialGradient(x, y, 0, x, y, radius);
-    stain.addColorStop(0, `rgba(${random() > 0.48 ? "112, 78, 48" : "8, 20, 22"}, ${0.025 + random() * 0.045})`);
-    stain.addColorStop(0.56, `rgba(45, 28, 17, ${0.018 + random() * 0.032})`);
-    stain.addColorStop(1, "rgba(22, 13, 8, 0)");
-    context.fillStyle = stain;
-    context.fillRect(x - radius, y - radius, radius * 2, radius * 2);
-  }
-
-  context.lineCap = "round";
-  for (let index = 0; index < 260; index += 1) {
-    const y = random() * canvas.height;
-    const x = random() * canvas.width;
-    const length = 35 + random() * 190;
-    context.beginPath();
-    context.moveTo(x, y);
-    context.bezierCurveTo(
-      x + length * 0.28,
-      y + (random() - 0.5) * 10,
-      x + length * 0.72,
-      y + (random() - 0.5) * 12,
-      x + length,
-      y + (random() - 0.5) * 7
-    );
-    context.strokeStyle = random() > 0.42
-      ? `rgba(224, 187, 137, ${0.012 + random() * 0.025})`
-      : `rgba(15, 12, 10, ${0.018 + random() * 0.032})`;
-    context.lineWidth = 0.45 + random() * 1.15;
-    context.stroke();
-  }
-
-  for (let index = 0; index < 1300; index += 1) {
-    const radius = random() > 0.94 ? 1.2 : 0.45;
-    context.beginPath();
-    context.arc(random() * canvas.width, random() * canvas.height, radius, 0, Math.PI * 2);
-    context.fillStyle = random() > 0.5 ? "rgba(238, 204, 153, 0.055)" : "rgba(13, 9, 7, 0.07)";
-    context.fill();
-  }
-
+  context.drawImage(image, 0, 0, canvas.width, canvas.height);
   const texture = new CanvasTexture(canvas);
   texture.encoding = sRGBEncoding;
   texture.wrapS = RepeatWrapping;
   texture.wrapT = ClampToEdgeWrapping;
-  texture.repeat.set(1.35, 1);
+  texture.repeat.set(1, 1);
   return texture;
 }
 

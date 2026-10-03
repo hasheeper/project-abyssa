@@ -3,7 +3,7 @@ import { PARTY_FIGURE_IDS } from "../../../content/characters/partyFigureCalibra
 import { partyFigureCatalog, partyFigureCatalogById } from "./catalog";
 
 describe("party figure catalog", () => {
-  it("maps every shared id to one named PNG and excludes Tibby", () => {
+  it("maps every shared id to one named PNG and its standee, and excludes Tibby", () => {
     expect(partyFigureCatalog.map(({ id }) => id)).toEqual(PARTY_FIGURE_IDS);
     expect(new Set(partyFigureCatalog.map(({ id }) => id)).size).toBe(10);
     expect(partyFigureCatalog.map(({ id }) => id)).not.toContain("tibby");
@@ -11,6 +11,7 @@ describe("party figure catalog", () => {
     for (const entry of partyFigureCatalog) {
       expect(entry.name).toBeTruthy();
       expect(entry.url).toMatch(/\.png(?:\?.*)?$/);
+      expect(entry.standee).toMatch(new RegExp(`standee-${entry.id}\\.webp(?:\\?.*)?$`));
       expect(partyFigureCatalogById[entry.id]).toBe(entry);
     }
     expect(partyFigureCatalogById.kael.name).toBe("你");

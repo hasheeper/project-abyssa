@@ -1,0 +1,495 @@
+/* ============ 出战名单 ============
+   编队态：作战桌下沿一排人物牌（左），一份资料页（右，MapDocument，框与纸见 ../map-document.css）。
+
+   牌是同一张羊皮纸按阵营染色印成的，三层叠起来：牌底 → 色场 → 立绘，名字压在牌脚。
+   牌底（染色、磨边与拱龛的线）每阵营一张，色场每人一张，都由
+   scripts/prepare-map-dossier.py 离线印好（src/assets/map/roster/）：
+     勇者小队  本色羊皮纸、圆拱、褐墨；
+     魔王干部  蓝纸、尖拱、白粉；
+     魔王      紫染羊皮纸、三叶拱、金线。
+   阵营只靠牌面本身区分，不贴徽章、序号或角标。
+
+   立绘的头与帽越出牌顶。牌的上方立着一枚带底座的立牌：地图上那个 Q 版小人，
+   同一个脚本用卡纸刀模切下来，下沿裁平插进胡桃木底座的槽里（底座也是离线印好的图）。
+   底座悬在出框的头上方 —— 牌、头、立牌由近到远一层层退后。
+   入队时整枚立牌从牌后升起、晃两下站稳；退队时沉回牌后。「谁在队里」只看牌上方有没有人站着。
+
+   几何（视口 1311.67 x 787，文书内缩左右 28、下 24，见 sortie.css）：
+     牌      158 x 270（1:1.71），间距 8 —— 一排五张 5*158 + 4*8 = 822
+     立绘    按牌宽放大 1.32，头与帽越出牌顶 34
+     立牌    228 见方，与地图立绘同一张画布，脚底在画布下沿以上 4.3%（490 / 512），在那里裁平插进槽；
+             底座图 150 x 58，槽在图顶下 15，槽到底座脚下 27，脚下离出框的头再空 8
+     资料页  416 x 320，与牌脚同在离底 24 处；牌架可用 1311.67 - 28*2 - 416 - 16 = 823.67
+     牌架    上沿让出 立牌连底座 + 弹起过冲 8% + 悬停抬起与放大 + 余量 6（令牌算出）；
+             一屏放得下时不是滚动容器，两侧与下沿不另留白 */
+.abyssa-sortie-roster {
+  --roster-card-w: 158px;
+  --roster-card-h: 270px;
+  --roster-card-gap: 8px;
+  /* 立绘按牌宽放大 1.32：露出头顶到大腿，头与帽越出牌顶 34。 */
+  --roster-zoom: 1.32;
+  --roster-breakout: 34px;
+  --roster-standee: 228px;
+  --roster-standee-foot: .043;
+  --roster-base-w: 150px;
+  --roster-base-h: 58px;
+  --roster-base-slot: 15px;
+  --roster-base-drop: 27px;
+  --roster-base-clear: 8px;
+  /* 立牌连底座的站位高：画布顶到槽，槽到底座脚下，再空过出框的头。 */
+  --roster-standee-h: calc(var(--roster-standee) * (1 - var(--roster-standee-foot)) + var(--roster-base-drop) + var(--roster-base-clear) + var(--roster-breakout));
+  --roster-hover-lift: 8px;
+  --roster-rail-top: calc(var(--roster-standee-h) * 1.08 + var(--roster-hover-lift) + (var(--roster-standee-h) + var(--roster-card-h) / 2) * .03 + 6px);
+  /* 牌多到要滚动时，牌架两侧让出的悬停余地。 */
+  --roster-rail-x: 10px;
+  /* 牌脚的名字区：立绘在它上沿化进纸里。 */
+  --roster-label-h: 72px;
+  --roster-sheet-w: 416px;
+  --roster-sheet-h: 320px;
+  /* 资料页的骰格：六格一排 6*52 + 5*7 = 347，落在版心净宽 348 之内。 */
+  --sortie-cell: 52px;
+
+  position: absolute;
+  right: var(--sortie-inset);
+  bottom: var(--sortie-inset-bottom);
+  left: var(--sortie-inset);
+  z-index: 10;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--roster-sheet-w);
+  column-gap: 16px;
+  align-items: end;
+  /* 整块接管指针（.map-panel-layer 的子层都是）：牌顶上方是立牌站的地方，
+     点在空处不收起名单；收起走「完成编队」、Esc 或点上方的地图。 */
+}
+
+/* ---- 牌架：只横向，不露滚动条；牌多于一屏时两端渐隐，压一枚翻页钮 ----
+   一屏放得下时不做滚动容器（data-scroll 由组件按最后一张牌量出）：立牌比牌宽，
+   做了滚动容器，两端的立牌会被裁掉，还会凭空撑出一截可滚的宽度。 */
+.abyssa-sortie-roster__shelf { position: relative; min-width: 0; }
+.abyssa-sortie-roster__rail {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  gap: var(--roster-card-gap);
+  padding: var(--roster-rail-top) 0 0;
+  scrollbar-width: none;
+}
+/* 滚动容器会裁掉自己以外的一切：两侧让出悬停放大，下沿让出牌的投影；
+   负外边距抵掉这圈留白，牌的位置与不滚动时一样。 */
+.abyssa-sortie-roster__shelf[data-scroll] .abyssa-sortie-roster__rail {
+  margin: 0 calc(-1 * var(--roster-rail-x)) calc(-1 * var(--sortie-inset-bottom));
+  padding: var(--roster-rail-top) var(--roster-rail-x) var(--sortie-inset-bottom);
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  scroll-padding-inline: var(--roster-rail-x);
+  scroll-snap-type: x proximity;
+}
+.abyssa-sortie-roster__rail::-webkit-scrollbar { display: none; }
+.abyssa-sortie-roster__shelf[data-more-before] .abyssa-sortie-roster__rail {
+  -webkit-mask: linear-gradient(90deg, transparent, #000 56px);
+  mask: linear-gradient(90deg, transparent, #000 56px);
+}
+.abyssa-sortie-roster__shelf[data-more-after] .abyssa-sortie-roster__rail {
+  -webkit-mask: linear-gradient(90deg, #000 calc(100% - 56px), transparent);
+  mask: linear-gradient(90deg, #000 calc(100% - 56px), transparent);
+}
+.abyssa-sortie-roster__shelf[data-more-before][data-more-after] .abyssa-sortie-roster__rail {
+  -webkit-mask: linear-gradient(90deg, transparent, #000 56px calc(100% - 56px), transparent);
+  mask: linear-gradient(90deg, transparent, #000 56px calc(100% - 56px), transparent);
+}
+.abyssa-sortie-roster__pager.abyssa-icon-button[data-size] {
+  position: absolute;
+  bottom: calc(var(--roster-card-h) / 2 - 22px);
+  z-index: 2;
+  pointer-events: auto;
+}
+.abyssa-sortie-roster__pager[data-direction="before"] { left: -8px; }
+.abyssa-sortie-roster__pager[data-direction="after"] { right: -8px; }
+
+/* ---- 牌 ---- */
+.abyssa-sortie-poster {
+  position: relative;
+  flex: none;
+  width: var(--roster-card-w);
+  height: var(--roster-card-h);
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  scroll-snap-align: start;
+  transition:
+    translate 260ms var(--sortie-stage-ease),
+    scale 260ms var(--sortie-stage-ease);
+}
+.abyssa-sortie-poster:focus-visible { outline: none; }
+
+/* 牌底：一张离线印好的纸；外沿一道暗线是裁口，内沿一道浅线是纸边。 */
+.abyssa-sortie-poster__sheet {
+  position: absolute;
+  inset: 0;
+  background: center / 100% 100% no-repeat;
+  box-shadow:
+    0 0 0 1px #0b0704,
+    inset 0 0 0 1px var(--poster-cut),
+    0 12px 22px rgb(0 0 0 / 52%);
+  transition: box-shadow 220ms ease;
+}
+.abyssa-sortie-poster[data-faction="hero-party"] .abyssa-sortie-poster__sheet { background-image: url("../../../assets/map/roster/paper-hero-party.webp"); }
+.abyssa-sortie-poster[data-faction="demon-cadre"] .abyssa-sortie-poster__sheet { background-image: url("../../../assets/map/roster/paper-demon-cadre.webp"); }
+.abyssa-sortie-poster[data-faction="demon-lord"] .abyssa-sortie-poster__sheet { background-image: url("../../../assets/map/roster/paper-demon-lord.webp"); }
+
+/* 字随纸：本色纸上是墨与朱砂，蓝纸上是白粉，紫纸上是金。 */
+.abyssa-sortie-poster[data-faction="hero-party"] {
+  --poster-cut: rgb(255 240 210 / 35%);
+  --poster-ink: var(--map-ink);
+  --poster-epithet: var(--map-cinnabar);
+  --poster-latin: rgb(75 53 35 / 72%);
+}
+.abyssa-sortie-poster[data-faction="demon-cadre"] {
+  --poster-cut: rgb(214 228 230 / 16%);
+  --poster-ink: #e8eeec;
+  --poster-epithet: #a6cdd2;
+  --poster-latin: rgb(206 222 224 / 62%);
+}
+.abyssa-sortie-poster[data-faction="demon-lord"] {
+  --poster-cut: rgb(236 202 134 / 18%);
+  --poster-ink: #ecca86;
+  --poster-epithet: #e8a0a4;
+  --poster-latin: rgb(236 202 134 / 62%);
+}
+
+/* 色场：印在拱龛里（牌内 9, 9，140 x 184），自己化进名字上方的纸里。 */
+.abyssa-sortie-poster__field {
+  position: absolute;
+  top: 9px;
+  left: 9px;
+  display: block;
+  width: 140px;
+  height: 184px;
+  transition: filter 220ms ease;
+}
+
+/* 立绘：锚在牌顶上方 --roster-breakout 处，头与帽越出牌顶；两侧随牌裁齐，
+   下沿在名字区上方化进纸里。width 与 transform 由 cardFraming() 行内注入。 */
+.abyssa-sortie-poster__art {
+  position: absolute;
+  top: calc(-1 * var(--roster-breakout));
+  right: 0;
+  bottom: var(--roster-label-h);
+  left: 0;
+  overflow: hidden;
+  -webkit-mask: linear-gradient(#000 0 74%, transparent);
+  mask: linear-gradient(#000 0 74%, transparent);
+  pointer-events: none;
+}
+.abyssa-sortie-poster__art img {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  display: block;
+  height: auto;
+  filter: drop-shadow(0 0 1px rgb(20 12 6 / 55%));
+  transition: filter 220ms ease;
+}
+
+/* ---- 立牌：牌顶上方的站位（__standee）里，升降台（__lift）托着一整枚立牌（__piece：底座 + 卡纸人） ----
+   站位的下沿就是牌顶，牌顶以下全部裁掉：立牌从牌后升起、沉回牌后都藏在牌里。
+   升起带摇摆，是 __piece 上的动画；沉下是 __lift 上的过渡。两样不能挂在同一个元素上：
+   入队动画在退队那一刻还算在样式里，会把同一属性的过渡吃掉，立牌就直接没了。
+   卡纸人的画布与地图立绘相同，逐角色的大小、偏移与朝向沿用共享校准
+   （partyFigureStyle 行内注入，以脚底为原点）；下沿在脚底裁平，插进底座的槽。
+   底座是一张定图，九个人插在同一条槽线上。弹起与摇摆绕底座脚下转。
+   没入队时整枚沉在牌后，不接管指针。 */
+.abyssa-sortie-poster__standee {
+  position: absolute;
+  bottom: 100%;
+  left: calc(50% - var(--roster-standee) / 2);
+  width: var(--roster-standee);
+  height: var(--roster-standee-h);
+  clip-path: inset(-48px -64px 0);
+  pointer-events: none;
+}
+.abyssa-sortie-poster__lift {
+  position: absolute;
+  inset: 0;
+  transform: translateY(105%);
+  visibility: hidden;
+  transition:
+    transform 220ms cubic-bezier(.5, 0, .75, 0),
+    visibility 0s linear 220ms;
+}
+.abyssa-sortie-poster__piece {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% calc(100% - var(--roster-breakout) - var(--roster-base-clear));
+}
+.abyssa-sortie-poster__base {
+  position: absolute;
+  bottom: calc(var(--roster-breakout) + var(--roster-base-clear) + var(--roster-base-drop) + var(--roster-base-slot) - var(--roster-base-h));
+  left: calc(50% - var(--roster-base-w) / 2);
+  width: var(--roster-base-w);
+  height: var(--roster-base-h);
+  background: url("../../../assets/map/party-figures/standee-base.webp") center / 100% 100% no-repeat;
+}
+.abyssa-sortie-poster__piece img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: block;
+  width: var(--roster-standee);
+  height: var(--roster-standee);
+  clip-path: inset(-12% -12% calc(var(--roster-standee-foot) * 100%));
+  filter: drop-shadow(0 3px 4px rgb(0 0 0 / 42%));
+  transform:
+    translateX(var(--sortie-figure-x, 0%))
+    translateY(calc(0% - var(--sortie-figure-y, 0%)))
+    scale(var(--sortie-figure-scale, 1))
+    scaleX(var(--sortie-figure-flip-x, 1));
+  transform-origin: 50% 100%;
+}
+/* 点立牌与点牌是同一件事（退队）。命中取人身与底座，透明的四角与出框的头仍归牌。 */
+.abyssa-sortie-poster__piece::after {
+  position: absolute;
+  inset: 8% 24% calc(var(--roster-breakout) + var(--roster-base-clear));
+  content: "";
+  pointer-events: auto;
+}
+
+/* 入队：升降台即刻就位，立牌从牌后升起越过站位，落下时绕底座晃两下站稳 ——
+   与地图上的队伍上台同一组关键帧（abyssa-standee-rise，见 sortie.css）。 */
+.abyssa-sortie-poster[data-chosen] .abyssa-sortie-poster__lift {
+  transform: none;
+  visibility: visible;
+  transition: none;
+}
+.abyssa-sortie-poster[data-chosen] .abyssa-sortie-poster__piece {
+  animation: abyssa-standee-rise var(--roster-standee-pop, 900ms) both;
+}
+/* 收起名单：立牌先沉回牌后，地图上的队伍随后从画框下沿弹起 —— 立牌换了个地方站。 */
+.map-panel-layer[data-exiting] .abyssa-sortie-poster[data-chosen] .abyssa-sortie-poster__lift {
+  transform: translateY(105%);
+  transition: transform 160ms cubic-bezier(.5, 0, .75, 0);
+}
+/* 翻开名单时，已在队的立牌等牌升到位，再从左到右依次弹起。 */
+.abyssa-sortie-roster[data-entering] .abyssa-sortie-poster__piece {
+  animation-delay: calc(var(--roster-standee-wait, 0ms) + var(--poster-index, 0) * var(--roster-standee-step, 0ms));
+}
+/* 指到已入队的牌：卡纸人在槽里轻轻晃一下。只动 rotate，校准用的 transform 不受影响。 */
+.abyssa-sortie-poster[data-chosen]:hover .abyssa-sortie-poster__piece img {
+  animation: abyssa-roster-standee-nudge 560ms ease-in-out;
+}
+
+@keyframes abyssa-roster-standee-nudge {
+  0%, 100% { rotate: 0deg; }
+  30% { rotate: -3deg; }
+  65% { rotate: 2deg; }
+}
+
+/* 牌脚：称号（朱字 / 浅色手写）、名字、英文名，居中。 */
+.abyssa-sortie-poster__label {
+  position: absolute;
+  right: 0;
+  bottom: 10px;
+  left: 0;
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  font-family: var(--abyssa-font-hand);
+  line-height: 1.2;
+}
+.abyssa-sortie-poster__label em {
+  color: var(--poster-epithet);
+  font-size: var(--map-type-min);
+  font-style: normal;
+  letter-spacing: .24em;
+  text-indent: .24em;
+  white-space: nowrap;
+}
+.abyssa-sortie-poster__nm {
+  color: var(--poster-ink);
+  font: 700 22px/1.1 var(--abyssa-font-body);
+  letter-spacing: .1em;
+  text-indent: .1em;
+  white-space: nowrap;
+}
+.abyssa-sortie-poster__label small {
+  margin-top: 1px;
+  color: var(--poster-latin);
+  font: 600 11px/1 var(--abyssa-font-display);
+  letter-spacing: .3em;
+  text-indent: .3em;
+}
+
+/* 入队：牌顶站着立牌，牌镶黄铜边，色场印足。牌不再抬起 —— 一排牌顶齐平，立牌才站在同一条线上。 */
+.abyssa-sortie-poster[data-chosen] .abyssa-sortie-poster__sheet {
+  box-shadow:
+    0 0 0 1px #0b0704,
+    0 0 0 3px var(--map-brass),
+    0 0 0 4px #0b0704,
+    inset 0 0 0 1px var(--poster-cut),
+    0 16px 26px rgb(0 0 0 / 58%);
+}
+/* 候选：色场褪掉、立绘略暗；牌底的纸色不变，阵营照样一眼认得出。 */
+.abyssa-sortie-poster:not([data-chosen]) .abyssa-sortie-poster__field { filter: saturate(.25) brightness(.94); }
+.abyssa-sortie-poster:not([data-chosen]) .abyssa-sortie-poster__art img { filter: saturate(.8) brightness(.95) drop-shadow(0 0 1px rgb(20 12 6 / 55%)); }
+
+/* 悬停 / 聚焦：抬一档，黄铜边转亮。 */
+.abyssa-sortie-poster:is(:hover, :focus-visible) {
+  z-index: 1;
+  translate: 0 calc(-1 * var(--roster-hover-lift));
+  scale: 1.03;
+}
+.abyssa-sortie-poster:is(:hover, :focus-visible) .abyssa-sortie-poster__sheet {
+  box-shadow:
+    0 0 0 1px #0b0704,
+    0 0 0 3px var(--map-brass-bright),
+    0 0 0 4px #0b0704,
+    inset 0 0 0 1px var(--poster-cut),
+    0 20px 30px rgb(0 0 0 / 60%);
+}
+
+/* ---- 资料页：一份作战桌文书，底与牌脚齐 ---- */
+.abyssa-sortie-roster__sheet {
+  --map-document-w: var(--roster-sheet-w);
+  --abyssa-map-frame-rail: 6px;
+  --abyssa-map-frame-corner: 36px;
+  position: relative;
+  height: var(--roster-sheet-h);
+  pointer-events: auto;
+}
+/* 纸上的版心：朱字小标与读数左对齐，长内容在纸面内部滚动。 */
+.abyssa-sortie-roster__page {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 26px;
+  min-height: 0;
+  padding: 24px 20px 16px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  font-family: var(--abyssa-font-hand);
+  text-align: left;
+}
+.abyssa-sortie-roster__page > * { flex-shrink: 0; }
+.abyssa-sortie-roster__facts { display: grid; gap: 20px; margin: 0; }
+.abyssa-sortie-roster__facts > div { display: grid; justify-items: stretch; gap: 6px; }
+.abyssa-sortie-roster__facts dd {
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0;
+  padding-left: 17px;
+  color: var(--map-ink);
+  font-size: 18px;
+  line-height: 27px;
+  text-wrap: pretty;
+}
+.abyssa-sortie-roster__clause { display: inline-block; max-width: 100%; vertical-align: top; }
+.abyssa-sortie-roster__page .abyssa-map-rubric {
+  gap: 10px;
+  font-size: 17px;
+  line-height: 22px;
+  letter-spacing: .15em;
+  text-indent: 0;
+}
+.abyssa-sortie-roster__page .abyssa-map-rubric::before {
+  flex: none;
+  width: 7px;
+  height: 7px;
+  background: var(--map-cinnabar);
+  transform: rotate(45deg);
+  -webkit-mask: none;
+  mask: none;
+  opacity: .8;
+}
+.abyssa-sortie-roster__page .abyssa-map-rubric::after {
+  flex: none;
+  width: 56px;
+  height: 1px;
+  background: linear-gradient(90deg, rgb(74 47 28 / 25%), transparent);
+  transform: none;
+  -webkit-mask: none;
+  mask: none;
+}
+
+/* 构成表与骰面条：与配队共用的件，落在纸上换墨色。 */
+.abyssa-sortie-roster .abyssa-sortie__strip {
+  position: relative;
+  grid-template-columns: repeat(6, minmax(0, var(--sortie-cell)));
+  justify-content: center;
+  gap: 7px;
+  margin-top: 8px;
+}
+.abyssa-sortie-roster .abyssa-sortie__strip-cell { width: 100%; height: auto; aspect-ratio: 1; }
+.abyssa-sortie-roster .abyssa-sortie__strip::after {
+  position: absolute;
+  right: 0;
+  bottom: -13px;
+  left: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgb(74 47 28 / 12%) 12% 88%, transparent);
+  content: "";
+}
+.abyssa-sortie-roster .abyssa-sortie__tally {
+  display: grid;
+  grid-template-columns: repeat(5, 60px);
+  justify-content: start;
+  align-items: center;
+  gap: 0;
+  line-height: 26px;
+}
+.abyssa-sortie-roster .abyssa-sortie__tally-item { gap: 5px; color: var(--map-ink); }
+.abyssa-sortie-roster .abyssa-sortie__tally-item b { color: var(--map-ink); font-size: 20px; font-weight: 400; line-height: 26px; }
+.abyssa-sortie-roster .abyssa-sortie__tally-icon { width: 20px; height: 20px; background-color: var(--map-ink-soft); }
+.abyssa-sortie-roster .abyssa-sortie__muted { color: var(--map-ink-mute); font-size: var(--map-type-label); }
+
+/* 木台：左侧两行状态，右侧档案钮与「完成编队」共用一条中心线。 */
+.abyssa-sortie-roster__sheet .abyssa-map-document__ledge { padding: 8px 20px; }
+.abyssa-sortie-roster__sheet .abyssa-map-document__go {
+  grid-template-columns: 104px minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  padding-top: 0;
+}
+.abyssa-sortie-roster__sheet .abyssa-map-document__notice {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  font-size: 15px;
+  line-height: 20px;
+  text-align: left;
+  white-space: nowrap;
+}
+.abyssa-sortie-roster__sheet .abyssa-map-document__notice span { color: var(--map-cream); }
+.abyssa-sortie-roster__sheet .abyssa-map-document__notice .abyssa-sortie-roster__meta { color: var(--map-cream-muted); font-size: 14px; }
+.abyssa-sortie-roster__actions { display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
+.abyssa-sortie-roster__actions .abyssa-map-document__tool.abyssa-icon-button[data-size] {
+  --abyssa-icon-size: 36px;
+  flex: none;
+}
+.abyssa-sortie-roster__actions .abyssa-icon-button__art { width: 100%; height: 100%; }
+.abyssa-sortie-roster__actions .abyssa-icon-button__custom { inset: 0; }
+.abyssa-sortie-roster__actions .abyssa-map-document__action.abyssa-hex-button {
+  flex: none;
+  width: 186px;
+  height: 40px;
+}
+.abyssa-sortie-roster__actions .abyssa-hex-button__label { padding-inline: 14px; font-size: 19px; letter-spacing: .12em; text-indent: .12em; }
+
+/* 少动画：立牌直接立着或直接不在，不弹、不晃。 */
+@media (prefers-reduced-motion: reduce) {
+  .abyssa-sortie-poster,
+  .abyssa-sortie-poster__sheet,
+  .abyssa-sortie-poster__field,
+  .abyssa-sortie-poster__art img { transition-duration: 1ms; }
+  .abyssa-sortie-poster__lift { transition: none; }
+  .abyssa-sortie-poster[data-chosen] .abyssa-sortie-poster__piece,
+  .abyssa-sortie-poster[data-chosen]:hover .abyssa-sortie-poster__piece img { animation: none; }
+}
+.abyssa-map-page[data-map-reduced="true"] :is(.abyssa-sortie-poster, .abyssa-sortie-poster__lift) { transition: none; }
+.abyssa-map-page[data-map-reduced="true"] .abyssa-sortie-poster[data-chosen] :is(.abyssa-sortie-poster__piece, .abyssa-sortie-poster__piece img) { animation: none; }

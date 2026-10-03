@@ -2,12 +2,11 @@ import type { ReactNode, Ref } from "react";
 import { AvatarFrame } from "../../../shared/ui/primitives/AvatarFrame";
 import { IconButton } from "../../../shared/ui/primitives/IconButton";
 import { ItemSlotStatic } from "../../../shared/ui/primitives/ItemSlot";
-import { Nameplate } from "../../../shared/ui/primitives/Nameplate";
 import { RpgHexButton } from "../../../shared/ui/primitives/RpgHexButton";
 import padlockIcon from "../../../assets/icons/items/padlock.svg";
 import formationIcon from "../../../assets/icons/crossed-swords.svg";
 import backpackIcon from "../../../assets/icons/items/backpack.svg";
-import { MapMetalCorners, MapWoodRails } from "../MapWoodFrame";
+import { MapDocument } from "../MapDocument";
 import { SORTIE_SPOIL_ICONS, maskStyle } from "./sortie-icons";
 import type { QuestBrief, QuestYieldGrade } from "./sortie-quests";
 import { SORTIE_COMMAND_LABELS, SORTIE_SLOT_COUNT, composeParty } from "./sortie-model";
@@ -17,13 +16,12 @@ import type { MapLocationConfig } from "../types";
 
 /* ============ 委托书 ============
  *
- * 点地标后摆上作战桌的一份文书，装在地图画框的缩小版里：
- * 同一套木轨、黄铜带与金属角件（MapWoodFrame），框内上格是纸，下格是木台。
+ * 点地标后摆上作战桌的一份文书（MapDocument：地图画框缩小版里的纸与木台）。
  *   纸 + 墨     —— 文书：版画、风味、路线、敌情、收获。纸裁自地图本身的羊皮纸；
- *                 版画边缘化进纸里，路线沿用地图的虚线与节点画法。版式左右对称，
- *                 小标居中、正文居中，不留左侧标签栏。
+ *                 版画边缘化进纸里，路线沿用地图的虚线与节点画法。正文沿左侧排开，
+ *                 朱字小标分段，敌情分条，收获按行对齐。
  *   木台 + 黄铜 —— 工具：队伍、行囊、出发。
- * 可出发时委托书占满视口高度，正文在版画下方的余白里居中；未开放时只有纸，高度随内容。
+ * 可出发时委托书占满视口高度，正文在版画下方自然往下排；未开放时只有纸，高度随内容。
  * 内容过长时只有纸面滚动，木台钉住不动。
  *
  * 回答「这地方是什么、带谁去、带什么、走不走」，不回答「难度几星、胜率多少」
@@ -88,7 +86,7 @@ function InkStars({ grade }: { grade: QuestYieldGrade }) {
   );
 }
 
-/** 行军线按层数定长：每层一步，居中；层数多到放不下时整体等比收窄，节点永远是圆的。
+/** 行军线沿版心展开：每层一步；层数多到放不下时整体等比收窄，节点永远是圆的。
  *  两端留出一个注字的半宽。 */
 const TRAIL_STEP = 68;
 const TRAIL_PAD = 24;
@@ -98,8 +96,8 @@ const TRAIL_H = 52;
 /** 路线：地图同款的虚线小径与节点（深色圆点 + 浅色芯）。可撤离层套虚线环、插朱砂小旗，
  *  庄园终场加实线环；只给这两种节点写注，层数一眼数得出，不再逐层标号。 */
 function RouteTrail({ route }: { route: SortieDossierRoute }) {
-  const step = TRAIL_STEP;
-  const width = TRAIL_PAD * 2 + step * Math.max(route.layerCount - 1, 0);
+  const width = Math.max(280, TRAIL_PAD * 2 + TRAIL_STEP * Math.max(route.layerCount - 1, 0));
+  const step = (width - TRAIL_PAD * 2) / Math.max(route.layerCount - 1, 1);
   const layers = Array.from({ length: route.layerCount }, (_, index) => ({
     layer: index + 1,
     x: TRAIL_PAD + index * step,
@@ -193,110 +191,94 @@ export function SortieDossier({
   const hasFacts = !!(route || brief?.event || brief?.threats.length || brief?.yields.length);
 
   return (
-    <aside className="abyssa-sortie-dossier" data-side={side} data-state={status}
-      role="complementary" aria-label={`${location.name} 委托`}>
-      <MapWoodRails />
-      <div className="abyssa-map-wood-frame__brass abyssa-sortie-dossier__brass">
-        <div className="abyssa-sortie-dossier__paper">
-          <div className="abyssa-sortie-dossier__scroll" tabIndex={0} aria-label="路线与委托详情">
-            {brief?.sceneImageUrl && (
-              <figure className="abyssa-sortie-dossier__print">
-                <img src={brief.sceneImageUrl} alt="" draggable={false} />
-                {closed && <span className="abyssa-sortie-dossier__stamp">未开放</span>}
-              </figure>
-            )}
-            <div className="abyssa-sortie-dossier__text">
-              {!closed && commissions && <div className="abyssa-sortie-dossier__slip">{commissions}</div>}
-              {brief?.flavor && <p className="abyssa-sortie-dossier__flavor">{brief.flavor}</p>}
-              {closed ? (
-                notice && <p className="abyssa-sortie-dossier__condition">
-                  <i style={maskStyle(padlockIcon)} aria-hidden="true" />{notice}
-                </p>
-              ) : hasFacts && (
-                /* 朱字小标居中、两侧各一笔收尖的墨线，正文在下方居中 —— 告示的排法，不画表格线。 */
-                <dl className="abyssa-sortie-dossier__facts">
-                  {(route || brief?.event) && <div data-fact="route">
-                    <dt>路线</dt>
-                    <dd>{route ? <RouteTrail route={route} /> : brief?.event}</dd>
-                  </div>}
-                  {!!brief?.threats.length && <div data-fact="threats">
-                    <dt>敌情</dt>
-                    {/* 一条敌情一行，行尾不加标点。 */}
-                    <dd><ul>{brief.threats.map((threat) => <li key={threat}>{threat}</li>)}</ul></dd>
-                  </div>}
-                  {!!brief?.yields.length && <div data-fact="yields">
-                    <dt>收获</dt>
-                    <dd><Yields brief={brief} /></dd>
-                  </div>}
-                </dl>
-              )}
-            </div>
+    <MapDocument as="aside" className="abyssa-sortie-dossier" data-side={side} data-state={status}
+      role="complementary" aria-label={`${location.name} 委托`}
+      title={location.name} closeLabel="关闭委托" onClose={onClose}
+      ledge={!closed && <>
+        {status !== "active" && <>
+          {/* 槽左端是竖排的木刻标签，右端是工具钮；骰数与亲征写进组名，
+              一眼看到的只有人和物。 */}
+          <div className="abyssa-sortie-dossier__row" role="group"
+            aria-label={`出战队伍：${composition.diceCount} 骰 · ${SORTIE_COMMAND_LABELS[party.command]}`}>
+            <b className="abyssa-sortie-dossier__row-label" aria-hidden="true">队伍</b>
+            {/* 四个可选席恒定画出，空位也占地 —— 玩家得看见还剩几个孔；第五席是玩家。 */}
+            <ul className="abyssa-sortie-dossier__chips">
+              {Array.from({ length: SORTIE_SLOT_COUNT }, (_, index) => {
+                const member = members[index];
+                return member
+                  ? <PartyChip key={member.id} name={member.name} member={member} />
+                  : <PartyChip key={`empty-${index}`} name="空位" />;
+              })}
+              <PartyChip name={enlisted ? `${leader.name} · 亲征` : `${leader.name} · 托管`} leader={leader} enlisted={enlisted} />
+            </ul>
+            {/* 工具钮嵌在凹槽末端，与关闭钮同一枚共享圆钮。 */}
+            <IconButton className="abyssa-map-document__tool" label="编队" title="编队" size="sm" onClick={onEditParty}>
+              <i style={maskStyle(formationIcon)} />
+            </IconButton>
           </div>
+          {bag && <div className="abyssa-sortie-dossier__row" role="group" aria-label={`出征行囊：${carried.length} / ${bag.limit}`}>
+            <b className="abyssa-sortie-dossier__row-label" aria-hidden="true">行囊</b>
+            <ul className="abyssa-sortie-dossier__bag">
+              {Array.from({ length: BAG_SOCKETS }, (_, index) => {
+                const item = carried[index];
+                const locked = index >= open;
+                return <li key={item?.id ?? `empty-${index}`} data-locked={locked || undefined}>
+                  <ItemSlotStatic icon={item?.icon} name={item?.name ?? (locked ? "未解锁" : "空位")} tone="interface" showRarity={false} />
+                  {locked && <i className="abyssa-sortie-dossier__lock" style={maskStyle(padlockIcon)} aria-hidden="true" />}
+                  {item && item.quantity > 1 && <span className="abyssa-item-count" aria-hidden="true">{item.quantity}</span>}
+                </li>;
+              })}
+            </ul>
+            <IconButton ref={bagTriggerRef} className="abyssa-map-document__tool" label="整备" title="整备" size="sm"
+              disabled={!onEditBag} onClick={onEditBag}>
+              <i style={maskStyle(backpackIcon)} />
+            </IconButton>
+          </div>}
+        </>}
+
+        <div className="abyssa-map-document__go">
+          {error ? <p className="abyssa-map-document__notice" data-tone="error" role="alert">{error}</p>
+            : status === "active" ? <p className="abyssa-map-document__notice" role="status">已有远征进行中，请先继续或完成结算。</p>
+            : notice && status === "ready" && <p className="abyssa-map-document__notice" role="status">{notice}</p>}
+          {status === "active"
+            ? <RpgHexButton className="abyssa-map-document__action" variant="dark" size="sm" fullWidth onClick={onResume}>{resumeLabel}</RpgHexButton>
+            : <RpgHexButton className="abyssa-map-document__action" variant="dark" size="sm" fullWidth
+              disabled={status !== "ready" || !!notice} title={notice ?? undefined} onClick={onDepart}>{plateLabel}</RpgHexButton>}
         </div>
-
-        {!closed && (
-          <footer className="abyssa-sortie-dossier__ledge">
-            {status !== "active" && <>
-              {/* 槽左端是竖排的木刻标签，右端是工具钮；骰数与亲征写进组名，
-                  一眼看到的只有人和物。 */}
-              <div className="abyssa-sortie-dossier__row" role="group"
-                aria-label={`出战队伍：${composition.diceCount} 骰 · ${SORTIE_COMMAND_LABELS[party.command]}`}>
-                <b className="abyssa-sortie-dossier__row-label" aria-hidden="true">队伍</b>
-                {/* 四个可选席恒定画出，空位也占地 —— 玩家得看见还剩几个孔；第五席是玩家。 */}
-                <ul className="abyssa-sortie-dossier__chips">
-                  {Array.from({ length: SORTIE_SLOT_COUNT }, (_, index) => {
-                    const member = members[index];
-                    return member
-                      ? <PartyChip key={member.id} name={member.name} member={member} />
-                      : <PartyChip key={`empty-${index}`} name="空位" />;
-                  })}
-                  <PartyChip name={enlisted ? `${leader.name} · 亲征` : `${leader.name} · 托管`} leader={leader} enlisted={enlisted} />
-                </ul>
-                {/* 工具钮嵌在凹槽末端，与关闭钮同一枚共享圆钮。 */}
-                <IconButton className="abyssa-sortie-dossier__tool" label="编队" title="编队" size="sm" onClick={onEditParty}>
-                  <i style={maskStyle(formationIcon)} />
-                </IconButton>
-              </div>
-              {bag && <div className="abyssa-sortie-dossier__row" role="group" aria-label={`出征行囊：${carried.length} / ${bag.limit}`}>
-                <b className="abyssa-sortie-dossier__row-label" aria-hidden="true">行囊</b>
-                <ul className="abyssa-sortie-dossier__bag">
-                  {Array.from({ length: BAG_SOCKETS }, (_, index) => {
-                    const item = carried[index];
-                    const locked = index >= open;
-                    return <li key={item?.id ?? `empty-${index}`} data-locked={locked || undefined}>
-                      <ItemSlotStatic icon={item?.icon} name={item?.name ?? (locked ? "未解锁" : "空位")} tone="interface" showRarity={false} />
-                      {locked && <i className="abyssa-sortie-dossier__lock" style={maskStyle(padlockIcon)} aria-hidden="true" />}
-                      {item && item.quantity > 1 && <span className="abyssa-item-count" aria-hidden="true">{item.quantity}</span>}
-                    </li>;
-                  })}
-                </ul>
-                <IconButton ref={bagTriggerRef} className="abyssa-sortie-dossier__tool" label="整备" title="整备" size="sm"
-                  disabled={!onEditBag} onClick={onEditBag}>
-                  <i style={maskStyle(backpackIcon)} />
-                </IconButton>
-              </div>}
-            </>}
-
-            <div className="abyssa-sortie-dossier__go">
-              {error ? <p className="abyssa-sortie-dossier__notice" data-tone="error" role="alert">{error}</p>
-                : status === "active" ? <p className="abyssa-sortie-dossier__notice" role="status">已有远征进行中，请先继续或完成结算。</p>
-                : notice && status === "ready" && <p className="abyssa-sortie-dossier__notice" role="status">{notice}</p>}
-              {status === "active"
-                ? <RpgHexButton className="abyssa-sortie-dossier__depart" variant="dark" size="sm" fullWidth onClick={onResume}>{resumeLabel}</RpgHexButton>
-                : <RpgHexButton className="abyssa-sortie-dossier__depart" variant="dark" size="sm" fullWidth
-                  disabled={status !== "ready" || !!notice} title={notice ?? undefined} onClick={onDepart}>{plateLabel}</RpgHexButton>}
-            </div>
-          </footer>
+      </>}>
+      <div className="abyssa-sortie-dossier__scroll" tabIndex={0} aria-label="路线与委托详情">
+        {brief?.sceneImageUrl && (
+          <figure className="abyssa-sortie-dossier__print">
+            <img src={brief.sceneImageUrl} alt="" draggable={false} />
+            {closed && <span className="abyssa-sortie-dossier__stamp">未开放</span>}
+          </figure>
         )}
-        <MapMetalCorners className="abyssa-sortie-dossier__corners" />
+        <div className="abyssa-sortie-dossier__text">
+          {!closed && commissions && <div className="abyssa-sortie-dossier__slip">{commissions}</div>}
+          {brief?.flavor && <p className="abyssa-sortie-dossier__flavor">{brief.flavor}</p>}
+          {closed ? (
+            notice && <p className="abyssa-sortie-dossier__condition">
+              <i style={maskStyle(padlockIcon)} aria-hidden="true" />{notice}
+            </p>
+          ) : hasFacts && (
+            <dl className="abyssa-sortie-dossier__facts">
+              {(route || brief?.event) && <div data-fact="route">
+                <dt className="abyssa-map-rubric">路线</dt>
+                <dd>{route ? <RouteTrail route={route} /> : brief?.event}</dd>
+              </div>}
+              {!!brief?.threats.length && <div data-fact="threats">
+                <dt className="abyssa-map-rubric">敌情</dt>
+                {/* 一条敌情一行，行尾不加标点。 */}
+                <dd><ul>{brief.threats.map((threat) => <li key={threat}>{threat}</li>)}</ul></dd>
+              </div>}
+              {!!brief?.yields.length && <div data-fact="yields">
+                <dt className="abyssa-map-rubric">收获</dt>
+                <dd><Yields brief={brief} /></dd>
+              </div>}
+            </dl>
+          )}
+        </div>
       </div>
-
-      {/* 名牌骑在顶轨正中，只写中文名一行 —— 与地图上的地标名牌、顶部地名牌同一种单行铭牌。 */}
-      <header className="abyssa-sortie-dossier__head">
-        <Nameplate className="abyssa-sortie-dossier__plate" role="heading" aria-level={2}
-          name={location.name} watermark={false} />
-      </header>
-      <IconButton className="abyssa-sortie-dossier__close" label="关闭委托" icon="close" size="sm" onClick={onClose} />
-    </aside>
+    </MapDocument>
   );
 }
