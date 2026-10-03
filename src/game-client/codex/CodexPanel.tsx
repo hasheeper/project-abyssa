@@ -35,7 +35,7 @@ export function CodexPanel({ entries, initialEntryId, onBack, sceneMotion, unava
   useCodexImage(entry?.image, sceneMotion.skip, sceneMotion.exiting, imageClock);
   if (!entry) return <section ref={root} className="codex-panel codex-panel--empty" aria-label="图鉴资料">
     <div className="codex-empty" data-codex-reveal="description"><h2>{unavailable ? "暂时无法读取图鉴" : "尚无图鉴条目"}</h2><p>{unavailable ?? "遇见生物后，会在这里留下记录。"}</p></div>
-    <div className="codex-footer"><span/><button type="button" onClick={onBack} data-codex-reveal="footer"><i aria-hidden="true"/>返回</button></div>
+    <div className="codex-footer"><button type="button" onClick={onBack} data-codex-reveal="footer"><i aria-hidden="true"/>返回</button></div>
   </section>;
   const stage = entry.stage ?? "defeated";
   const dropPlaceholder = stage === "unknown" ? "尚未收录" : stage === "seen" ? "击败后记录" : entry.dropsStatus === "none" ? "无掉落" : "尚未记录";
@@ -46,11 +46,9 @@ export function CodexPanel({ entries, initialEntryId, onBack, sceneMotion, unava
       <span className="codex-category" aria-disabled="true">地点</span>
       <span className="codex-category" aria-disabled="true">器物</span>
       <span className="codex-category" aria-disabled="true">世界知识</span>
-      <span className="codex-category-caption">生物图鉴</span>
     </div>
 
     <div className="codex-index">
-      <div className="codex-index__heading"><span data-codex-reveal="structure">生物</span><i aria-hidden="true" data-codex-reveal="structure">/</i><span data-codex-reveal="title">{entry.family}</span></div>
       <nav aria-label="生物条目" data-codex-reveal="index">
         {entries.map((item, index) => <button key={item.id} type="button" className="codex-index__entry"
           aria-current={item.id === selectedId ? "true" : undefined} aria-label={item.stage === "unknown" ? `未收录 No.${item.number}` : item.name} tabIndex={item.id === selectedId ? 0 : -1}
@@ -70,12 +68,11 @@ export function CodexPanel({ entries, initialEntryId, onBack, sceneMotion, unava
           <span><strong>{item.name}</strong><small>No.{item.number}</small></span>
         </button>)}
       </nav>
-      <div className="codex-index__count"><span data-codex-reveal="structure">条目索引</span><span data-codex-reveal="title">{String(selectedIndex + 1).padStart(2, "0")} / {entries.length}</span></div>
+      <div className="codex-index__count"><span data-codex-reveal="title">{String(selectedIndex + 1).padStart(2, "0")} / {entries.length}</span></div>
     </div>
 
     <div className="codex-observation">
       <figure>
-        <figcaption><span data-codex-reveal="title">No.{entry.number}</span><small data-codex-reveal="structure">形态观察</small></figcaption>
         <div className="codex-observation__field">
           <svg className="codex-observation__dial" viewBox="0 0 480 480" aria-hidden="true">
             <circle cx="240" cy="240" r="228"/>
@@ -102,10 +99,6 @@ export function CodexPanel({ entries, initialEntryId, onBack, sceneMotion, unava
           <h2 id="codex-specimen-title" data-codex-reveal="title">{entry.name}</h2>
           <p data-codex-reveal="title">{entry.englishName}</p>
         </header>
-        <div className="codex-tags" data-codex-reveal="title">{entry.tags.map(tag => <span key={tag}>
-          <svg viewBox="0 0 112 26" preserveAspectRatio="none" aria-hidden="true"><path d="M10 1H102L111 13L102 25H10L1 13Z"/></svg>
-          {tag}
-        </span>)}{entry.stage && <small className="codex-stage">{stage === "unknown" ? "未遇见" : stage === "seen" ? "已遇见 · 资料未完整" : "已击败 · 完整记录"}</small>}</div>
         <p className="codex-description" data-codex-reveal="description">{entry.description}</p>
         <section className="codex-facts" aria-label="已知情报">
           <h3 data-codex-reveal="structure">已知情报</h3>
@@ -144,7 +137,6 @@ export function CodexPanel({ entries, initialEntryId, onBack, sceneMotion, unava
     </div>
 
     <div className="codex-footer">
-      <span data-codex-reveal="title">生物 · {entry.family}</span>
       <button type="button" onClick={onBack} data-codex-reveal="footer"><i aria-hidden="true"/>返回</button>
     </div>
   </section>;

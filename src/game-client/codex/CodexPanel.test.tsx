@@ -10,6 +10,20 @@ afterEach(cleanup);
 const sceneMotion = { clock: motionValue(1), exiting: false, skip: true };
 
 describe("CodexPanel catalogue", () => {
+  it("keeps classification in the facts without repeating decorative labels", () => {
+    const entry = codexSamples[1];
+    render(<CodexPanel entries={codexSamples} initialEntryId={entry.id} onBack={() => {}} sceneMotion={sceneMotion}/>);
+    expect(screen.getByRole("heading", { level: 2 })).toHaveTextContent(entry.name);
+    expect(screen.getByText(entry.englishName)).toBeInTheDocument();
+    expect(screen.getAllByText(entry.family)).toHaveLength(1);
+    expect(screen.getAllByText(`No.${entry.number}`)).toHaveLength(1);
+    expect(screen.queryByText("形态观察")).not.toBeInTheDocument();
+    expect(screen.queryByText("生物图鉴")).not.toBeInTheDocument();
+    expect(screen.queryByText(`生物 · ${entry.family}`)).not.toBeInTheDocument();
+    expect(within(screen.getByRole("region", {name: "已知情报"})).getByText(entry.family)).toBeInTheDocument();
+    expect(screen.getByRole("button", {name: "返回"})).toBeInTheDocument();
+  });
+
   it("uses backend stages without leaking locked artwork, action text or drops", async () => {
     const source = await createCodexBackendPreviewRuntime("seen");
     const data = source.runtime.queries.codex(source.database.records.get(source.locator.saveId)!);

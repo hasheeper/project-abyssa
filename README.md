@@ -4,7 +4,11 @@
 
 正常新档统一为 **内容28／规则4**，起点为序章、清晨、教学、自由行动；完成或跳过教程后在同一存档进入正式 AIRP。无 LLM 和商店初见属于调试入口，使用内容27。AIRP 使用玩家在设置中保存的连接，由浏览器直连模型 API。内容质量、平衡与完整玩家体验仍需验收。
 
-当前发布阶段为 **Alpha**，试玩地址为 **[abyssa-airp-alpha.pages.dev](https://abyssa-airp-alpha.pages.dev/)**。源码仓库为 [GitHub](https://github.com/hasheeper/project-abyssa)，游戏 ABOUT 提供同一链接。仓库最新发布记录为10-01运行源码 `7fcfce1`；本轮工作区清理尚未发布。Cloudflare 采用独立 Direct Upload，Git 推送不会自动更新站点；部署版本、检查结果与限制见[发布记录](docs/deployment/AIRP_STATIC_HTTPS.md)。
+当前发布阶段为 **Alpha**，试玩地址为 **[abyssa-airp-alpha.pages.dev](https://abyssa-airp-alpha.pages.dev/)**。源码仓库为 [GitHub](https://github.com/hasheeper/project-abyssa)，游戏 ABOUT 提供同一链接。最后线上版本为 `v0.1.0-alpha.3`，对应源码 `775653eee0fab8deca6dadeec0335a09fad71280`。Cloudflare 采用独立 Direct Upload，Git 推送不会自动更新站点；部署版本、检查结果与限制见[发布记录](docs/deployment/AIRP_STATIC_HTTPS.md)。
+
+## 项目封存（2026-10-03）
+
+按作者要求停止维护，最终源码快照标记为 `archive-2026-10-03`，GitHub 仓库转为归档状态。最后的图鉴界面调整、测试与设计记录一并保存，但未另行部署，线上仍保留 `.3`。三个已发布版本的原始静态文件、逐文件摘要与 ZIP 校验值保存在 [GitHub 封存 Release](https://github.com/hasheeper/project-abyssa/releases/tag/archive-2026-10-03)。封存范围、安全检查与恢复方式见[封存审查](docs/audits/2026-10-03-project-archive.md)。本机私密连接配置、密钥与开发报告不进入公开封存包。
 
 ## 从这里开始
 
