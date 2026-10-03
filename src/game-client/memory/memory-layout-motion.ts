@@ -2,7 +2,7 @@ import { cubicBezier } from "motion/react";
 import { motionTokens } from "../../shared/ui/motion/presets";
 
 type Box = { x: number; y: number; width: number; height: number };
-type Row = { box: Box; parts: Map<string, Box>; copy: HTMLElement | null; copyAlpha: number };
+type Row = { box: Box; parts: Map<string, Box>; copy: HTMLElement | null; copyAlpha: number; when: HTMLElement | null; whenAlpha: number };
 type ReaderItem = { alpha: number; blur: number };
 export type MemoryLayoutSnapshot = { width: number; rows: Map<string, Row>; readerItems: Map<string, ReaderItem> };
 const [x1, y1, x2, y2] = motionTokens.memoryJournal.layoutEase;
@@ -19,7 +19,7 @@ const scaleOf = (root: HTMLElement) => root.getBoundingClientRect().width / root
 
 /** Preserve the old line breaks while the live copy takes its final layout.
  * This temporary, non-interactive layer fades in place; it never reflows. */
-function freezeCopy(source: HTMLElement) {
+function freezeText(source: HTMLElement, outgoingClass: string) {
   const clone = source.cloneNode(true) as HTMLElement;
   const originals = [source, ...source.querySelectorAll<HTMLElement>("*")];
   const copies = [clone, ...clone.querySelectorAll<HTMLElement>("*")];
@@ -33,7 +33,7 @@ function freezeCopy(source: HTMLElement) {
     copy.style.translate = "none";
     copy.style.opacity = "1";
   });
-  clone.classList.add("memory-entry__copy--outgoing");
+  clone.classList.add(outgoingClass);
   clone.setAttribute("aria-hidden", "true");
   clone.style.position = "absolute";
   clone.style.pointerEvents = "none";
@@ -41,14 +41,18 @@ function freezeCopy(source: HTMLElement) {
 }
 
 /** Read the live painted positions, including an interrupted transition. */
-export function captureMemoryLayout(root: HTMLElement, preserveCopy = true): MemoryLayoutSnapshot {
+export function captureMemoryLayout(root: HTMLElement, preserveText = true): MemoryLayoutSnapshot {
   const scale = scaleOf(root), list = root.querySelector<HTMLElement>(".memory-catalogue");
   const rows = new Map<string, Row>();
   root.querySelectorAll<HTMLElement>("[data-memory-id]").forEach(row => {
-    const copy = Array.from(row.querySelectorAll<HTMLElement>(".memory-entry__copy"))
-      .sort((a, b) => Number(getComputedStyle(b).opacity) - Number(getComputedStyle(a).opacity))[0];
-    rows.set(row.dataset.memoryId!, { box: box(row, scale), copy: copy && preserveCopy ? freezeCopy(copy) : null, copyAlpha: copy ? Number(getComputedStyle(copy).opacity) : 0, parts: new Map(parts.flatMap(selector => {
-      const element = selector === ".memory-entry__copy" ? copy : row.querySelector<HTMLElement>(selector);
+    const visibleText = (selector: string) => Array.from(row.querySelectorAll<HTMLElement>(selector))
+      .sort((first, second) => Number(getComputedStyle(second).opacity) - Number(getComputedStyle(first).opacity))[0];
+    const copy = visibleText(".memory-entry__copy"), when = visibleText(".memory-entry__when");
+    rows.set(row.dataset.memoryId!, { box: box(row, scale),
+      copy: copy && preserveText ? freezeText(copy, "memory-entry__copy--outgoing") : null, copyAlpha: copy ? Number(getComputedStyle(copy).opacity) : 0,
+      when: when && preserveText ? freezeText(when, "memory-entry__when--outgoing") : null, whenAlpha: when ? Number(getComputedStyle(when).opacity) : 0,
+      parts: new Map(parts.flatMap(selector => {
+      const element = selector === ".memory-entry__copy" ? copy : selector === ".memory-entry__when" ? when : row.querySelector<HTMLElement>(selector);
       return element ? [[selector, box(element, scale)] as const] : [];
     })) });
   });
@@ -77,11 +81,12 @@ export function bindMemoryLayout(root: HTMLElement, before: MemoryLayoutSnapshot
   const rows = Array.from(root.querySelectorAll<HTMLElement>("[data-memory-id]"), element => {
     const id = element.dataset.memoryId!;
     const old = before.rows.get(id), next = after.rows.get(id);
-    const copyBox = next?.parts.get(".memory-entry__copy");
-    if (old?.copy && next && copyBox) {
-      old.copy.style.left = `${copyBox.x - next.box.x}px`;
-      old.copy.style.top = `${copyBox.y - next.box.y}px`;
-      element.querySelector(".memory-entry")?.append(old.copy);
+    for (const [selector, clone] of [[".memory-entry__copy", old?.copy], [".memory-entry__when", old?.when]] as const) {
+      const textBox = next?.parts.get(selector);
+      if (!clone || !next || !textBox) continue;
+      clone.style.left = `${textBox.x - next.box.x}px`;
+      clone.style.top = `${textBox.y - next.box.y}px`;
+      element.querySelector(".memory-entry")?.append(clone);
     }
     return { element, button: element.querySelector<HTMLElement>(".memory-entry"), old, next, parts: parts.map(selector => ({ selector, element: element.querySelector<HTMLElement>(selector) })) };
   });
@@ -136,6 +141,13 @@ export function bindMemoryLayout(root: HTMLElement, before: MemoryLayoutSnapshot
               row.old.copy.style.opacity = String(row.old.copyAlpha * (1 - softRamp(elapsed, 0, timing.textOutMs)));
             }
           }
+          if (part.selector === ".memory-entry__when") {
+            part.element.style.opacity = String(1 - remaining);
+            if (row.old.when) {
+              move(row.old.when, old.x - next.x, old.y - next.y - dy, remaining);
+              row.old.when.style.opacity = String(row.old.whenAlpha * remaining);
+            }
+          }
         }
       }
       if (readerText) {
@@ -159,7 +171,7 @@ export function bindMemoryLayout(root: HTMLElement, before: MemoryLayoutSnapshot
       list.style.removeProperty("width"); track.style.removeProperty("width");
       root.style.removeProperty("--memory-meta-alpha");
       rows.forEach(({ element, button, old }) => {
-        old?.copy?.remove(); element.style.removeProperty("--memory-row-extension"); element.style.removeProperty("height");
+        old?.copy?.remove(); old?.when?.remove(); element.style.removeProperty("--memory-row-extension"); element.style.removeProperty("height");
         button?.style.removeProperty("height"); button?.style.removeProperty("min-height");
       });
       changed.forEach(element => {

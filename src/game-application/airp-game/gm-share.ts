@@ -8,11 +8,12 @@ import type { ExpeditionFrame, ExpeditionJob } from "../airp-expedition-gm/contr
 import type { GMShare } from "./gm-share-contracts";
 import { correctionEnvelope } from "../airp-memory/effective";
 import { carriesDirectorGMBaseline } from "../airp-director/contracts";
+import { compareEvidenceHeads, copyOriginHeads, withinEvidenceHead, withCopyEvidence } from "../versions/d5-copy-evidence";
 export type { GMShare } from "./gm-share-contracts";
 
 const equal = (a: unknown, b: unknown) => v.canonicalJson(a) === v.canonicalJson(b);
 function fail(message: string): never { return v.invalid("gmShare", message); }
-const within = (head: HeadRef, limit: HeadRef) => head.saveId === limit.saveId && head.epoch === limit.epoch && head.revision <= limit.revision;
+const within = (head: HeadRef, limit: HeadRef, origins: HeadRef[] = []) => withinEvidenceHead(head, [...origins, limit]) && compareEvidenceHeads(head, limit, [...origins, limit]) <= 0;
 
 function planContent(jobId: string, frameIndex: number, frame: ExpeditionFrame, proposal: v.ExpeditionPlanProposal) {
   const rules = frame.context.rules, d = rules.departure;
@@ -31,7 +32,7 @@ function nodeReads(record: D5GameRecord, head: HeadRef): GMShare["reads"] {
     const frame = plan?.frames.find(f => f.inputHash === plan.prepared?.inputHash);
     if (!frame || !node.frame || !node.text) return fail("Read node lacks its original plan/frame/text");
     return node.reads.flatMap((readHead, index) => {
-      if (!within(readHead, head)) return [];
+      if (!within(readHead, head, copyOriginHeads(record))) return [];
       const line = node.text!.lines[index];
       if (!line) return fail("Read cursor exceeds original text");
       return [{ sourceId: `read:${node.id}:${index}`, sceneId: node.id, runId: frame.context.rules.departure.runId,
@@ -133,17 +134,18 @@ export function readGMShare(facts: readonly D5Fact[], retracted: readonly string
 
 /** Verify immutable originals, including shares superseded by later refresh/cancellation. */
 export function validateGMShares(record: D5GameRecord): void {
-  const game = record.airpGame, effective = record.facts.filter(f => !record.retractedFactIds.includes(f.id));
+  const evidence = withCopyEvidence(record), origins = copyOriginHeads(record);
+  const game = record.airpGame, effective = evidence.facts.filter(f => !evidence.retractedFactIds.includes(f.id));
   const at = (head: HeadRef) => effective.find(f => sameHead(f.source, head));
   const checkedPlans = new Set<string>();
   let optedIn = false;
-  for (const fact of record.facts) {
+  for (const fact of evidence.facts) {
     if (fact.kind === "airp-director" && carriesDirectorGMBaseline(fact.payload.command)) optedIn = true;
     const share = factShare(fact);
     if (!share) continue;
     if (!optedIn) fail("GM handoff predates the new-context opt-in");
-    if (!within(share.sourceHead, record.head) || !at(share.sourceHead)) fail("Foreign or uncommitted share source");
-    const corrections = (game?.gm.jobs ?? []).flatMap(j => j.memoryCorrections ?? []).filter(r => within(r.recordedHead, share.sourceHead));
+    if (!within(share.sourceHead, record.head, origins) || !at(share.sourceHead)) fail("Foreign or uncommitted share source");
+    const corrections = (game?.gm.jobs ?? []).flatMap(j => j.memoryCorrections ?? []).filter(r => within(r.recordedHead, share.sourceHead, origins));
     if (!equal(share.memoryCorrections ?? [], corrections)) fail("Memory correction handoff differs from saved GM originals");
     for (const correction of corrections) {
       const source = at(correction.recordedHead);
@@ -151,7 +153,7 @@ export function validateGMShares(record: D5GameRecord): void {
     }
     for (const p of share.plans) {
       const job = game?.gm.jobs.find(j => j.id === p.jobId), frame = job?.frames[p.frameIndex];
-      if (!job || !frame || !within(p.frameHead, p.acceptedAt) || !within(p.acceptedAt, share.sourceHead)) fail("Missing or future adopted frame");
+      if (!job || !frame || !within(p.frameHead, p.acceptedAt, origins) || !within(p.acceptedAt, share.sourceHead, origins)) fail("Missing or future adopted frame");
       const adopted = at(p.acceptedAt);
       if (adopted?.kind !== "airp-game" || adopted.payload.kind !== "gm") fail("Adoption lacks an owning GM commit");
       const { status: _status, acceptedAt: _acceptedAt, startFactId: _start, ...content } = p;
@@ -166,8 +168,8 @@ export function validateGMShares(record: D5GameRecord): void {
       if (p.frameIndex === job.frames.length - 1 && job.acceptedAt && !sameHead(p.acceptedAt, job.acceptedAt)) fail("Adoption head differs from the retained original");
       if (p.status === "started") {
         const start = effective.find(f => f.id === p.startFactId);
-        if (start?.kind !== "journey" || start.payload.operation.type !== "start" || !within(start.source, share.sourceHead)
-          || start.source.revision <= p.acceptedAt.revision || start.payload.operation.input.runId !== p.departure.runId
+        if (start?.kind !== "journey" || start.payload.operation.type !== "start" || !within(start.source, share.sourceHead, origins)
+          || compareEvidenceHeads(start.source, p.acceptedAt, [...origins, record.head]) <= 0 || start.payload.operation.input.runId !== p.departure.runId
           || expeditionPlanHash((({commissionRewards: _rewards, ...departure}) => departure)(start.payload.operation.input)) !== p.departure.commandHash) fail("Started plan lacks its real historical departure");
       } else if (p.startFactId !== null) fail("Unstarted plan carries a departure binding");
     }
@@ -179,11 +181,11 @@ export function validateGMShares(record: D5GameRecord): void {
     }
     for (const pending of share.pendingSettlements) {
       const job = game?.settlement.jobs.find(j => j.id === pending.jobId), frame = job?.frames[pending.frameIndex];
-      if (!frame || !within(frame.input.state.head, share.sourceHead) || !at(frame.input.state.head) || !equal(frame.input.scope, pending.scope)) fail("Pending settlement lacks its historical frozen scope");
-      if (game!.settlement.receipts.some(r => r.taskId === pending.jobId && within(r.committedHead, share.sourceHead))) fail("Already applied settlement is presented as pending");
+      if (!frame || !within(frame.input.state.head, share.sourceHead, origins) || !at(frame.input.state.head) || !equal(frame.input.scope, pending.scope)) fail("Pending settlement lacks its historical frozen scope");
+      if (game!.settlement.receipts.some(r => r.taskId === pending.jobId && within(r.committedHead, share.sourceHead, origins))) fail("Already applied settlement is presented as pending");
     }
   }
-  const latest = readGMShare(record.facts, record.retractedFactIds);
+  const latest = readGMShare(evidence.facts, evidence.retractedFactIds);
   if (latest && !sameGMShareContent(latest, projectGMShare(record))) fail("Latest GM handoff differs from the current public state");
 }
 

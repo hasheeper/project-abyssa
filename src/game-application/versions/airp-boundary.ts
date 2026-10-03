@@ -3,6 +3,7 @@ import { hasManorPatrolAccess, type D5ExpeditionState, type D5Projection } from 
 import type { D5Fact } from "./d5-contracts";
 
 export type AirpReplayInput = {
+  originHeads?: AirpHead[];
   head: AirpHead; before: D5Projection; after: D5Projection;
   run: D5ExpeditionState | null; facts: readonly D5Fact[]; group: readonly D5Fact[]; retracted: readonly string[];
 };

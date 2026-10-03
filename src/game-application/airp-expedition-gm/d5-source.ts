@@ -3,6 +3,7 @@ import { airpPhaseIndex, createD5ExpeditionEngine, expeditionPlanHash, type D5De
 import type { D5GameRecord } from "../versions/d5-contracts";
 import { registeredPatrol } from "../airp-director/commissions";
 import { sameHead } from "../transaction";
+import { copyEvidenceRecords } from "../versions/d5-copy-evidence";
 import { validateSettlementSnapshot } from "../airp-settlement/service";
 import type { SettlementLedger } from "../airp-settlement/contracts";
 import { currentSettlementActors } from "../airp-settlement/actor-context";
@@ -134,10 +135,10 @@ export function projectD5ExpeditionPreparation(options: {
 
 /** Actual program provenance, not a user-supplied plan-start flag. */
 export function projectD5DepartureProofs(record: D5GameRecord) {
-  return record.facts.flatMap(f => {
-    if (f.kind !== "journey" || f.payload.operation.type !== "start" || record.retractedFactIds.includes(f.id) || f.source.saveId !== record.head.saveId || f.source.epoch !== record.head.epoch || !record.commits.some(c => sameHead(c.ref, f.source) && c.factIds.includes(f.id))) return [];
-    const beforeHead = record.commits.find(c => sameHead(c.ref, f.source) && c.factIds.includes(f.id))?.previous;
+  return copyEvidenceRecords(record).flatMap(owner => owner.facts.flatMap(f => {
+    if (f.kind !== "journey" || f.payload.operation.type !== "start" || owner.retractedFactIds.includes(f.id) || f.source.saveId !== owner.head.saveId || f.source.epoch !== owner.head.epoch || !owner.commits.some(c => sameHead(c.ref, f.source) && c.factIds.includes(f.id))) return [];
+    const beforeHead = owner.commits.find(c => sameHead(c.ref, f.source) && c.factIds.includes(f.id))?.previous;
     const {commissionRewards: _rewards, ...playerDeparture} = f.payload.operation.input;
     return beforeHead ? [{ runId: f.payload.operation.input.runId, commandHash: expeditionPlanHash(playerDeparture), factId: f.id, beforeHead }] : [];
-  });
+  }));
 }

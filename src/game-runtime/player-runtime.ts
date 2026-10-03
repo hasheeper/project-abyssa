@@ -4,6 +4,7 @@ import { SHOP_WAVE_CATALOG, SHOP_AIRP_CATALOG } from "./shop-wave-context";
 import { ORDINARY_DROPS_CATALOG } from "./ordinary-drops-context";
 import { AIRP_GAME_CATALOG } from "./airp-game-context";
 import { createAirpGameRuntime } from "./airp-game-runtime";
+import { createCatalogRegistry } from "./catalogs";
 import { guardAirpGameCommand } from "../game-application/airp-game/validation";
 import { COPPER_ECONOMY_CATALOG } from "./copper-economy-context";
 import { TIDE_REEF_CATALOG } from "./tide-reef-context";
@@ -47,7 +48,7 @@ export function createPlayerRuntime(store: VersionedGameStore, environment: {new
   const legacy = createGameRuntime(legacyStore, environment);
   return {
     ...environment,
-    airpGame: createAirpGameRuntime(store),
+    airpGame: createAirpGameRuntime(store, createCatalogRegistry(PLAYER_CATALOGS).readers),
     defaultCreation: {protocolVersion: 4 as const, contentVersion: 28 as const, profileId: "profile.demo.first-run"},
     queries: { ...runtime.queries, continuation(record: AnyGameRecord) {
       const next = runtime.queries.continuation(record);

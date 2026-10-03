@@ -6,6 +6,7 @@ import { parseDirectUsage } from "../airp-direct-gameplay/parse";
 import { sameHead } from "../transaction";
 import { cloneExpedition, compileExpeditionRequest, expeditionWorldFingerprint, freezeExpeditionFrame } from "./context";
 import { admitMemoryCorrections, correctionEnvelope } from "../airp-memory/effective";
+import { compareEvidenceHeads, withinEvidenceHead } from "../versions/d5-copy-evidence";
 import { EXPEDITION_RUNTIME_CAPACITY as C, ExpeditionGMError, type ExpeditionAttempt, type ExpeditionGMHostPort, type ExpeditionGMCommit, type ExpeditionGMLedger, type ExpeditionGMSnapshot, type ExpeditionJob } from "./contracts";
 
 export const emptyExpeditionGMLedger = (): ExpeditionGMLedger => ({ version: 1, jobs: [] });
@@ -19,13 +20,14 @@ export function nextExpeditionStage(j: ExpeditionJob): "plan" | "review" | null 
 export function validateExpeditionGMSnapshot(s: ExpeditionGMSnapshot) {
   assertJson(s);
   if (s.ledger.version !== 1 || s.ledger.jobs.length > C.jobs || utf8Size(JSON.stringify(s)) > C.bytes) fail("Expedition ledger capacity/version invalid", "capacity");
-  if (s.head.saveId !== s.context.rules.head.saveId || s.head.epoch !== s.context.rules.head.epoch || s.context.rules.head.revision > s.head.revision) fail("World/archive identity mismatch");
+  const limits = [...(s.originHeads ?? []), s.head];
+  if (!withinEvidenceHead(s.context.rules.head, limits)) fail("World/archive identity mismatch");
   if (new Set(s.ledger.jobs.map(j => j.id)).size !== s.ledger.jobs.length) fail("Duplicate trip job");
   for (const j of s.ledger.jobs) {
     if (!j.frames.length || j.frames.length > C.frames || j.attempts.length > C.attempts || new Set(j.attempts.map(a => a.id)).size !== j.attempts.length) fail("Invalid frozen job capacity/identity");
     for (const [index, f] of j.frames.entries()) {
       compileExpeditionRequest(f, index);
-      if (j.id !== expeditionTaskId(f.context.rules) || f.context.rules.head.saveId !== s.head.saveId || f.context.rules.head.epoch !== s.head.epoch) fail("Foreign frame");
+      if (j.id !== expeditionTaskId(f.context.rules) || !withinEvidenceHead(f.context.rules.head, limits)) fail("Foreign frame");
     }
     for (const a of j.attempts) {
       if (!j.frames[a.frame] || !Number.isSafeInteger(a.at) || a.at < 0 || a.endedAt !== null && a.endedAt < a.at || (a.status === "running") !== (a.endedAt === null)) fail("Invalid model attempt");
@@ -37,7 +39,7 @@ export function validateExpeditionGMSnapshot(s: ExpeditionGMSnapshot) {
       const saved = j.memoryCorrections?.filter(r => r.attemptId === a.id) ?? [];
       if (!memory) { if (saved.length) fail("Old GM frame cannot amend memory"); continue; }
       const recordedHead = saved[0]?.recordedHead ?? s.head;
-      if (recordedHead.saveId !== s.head.saveId || recordedHead.epoch !== s.head.epoch || recordedHead.revision > s.head.revision || recordedHead.revision <= memory.sourceHead.revision) fail("Invalid memory correction commit head");
+      if (!withinEvidenceHead(recordedHead, limits) || compareEvidenceHeads(recordedHead, memory.sourceHead, limits) <= 0) fail("Invalid memory correction commit head");
       const replay = admitMemoryCorrections(parseJson(a.output!), memory, {jobId: j.id, attemptId: a.id, recordedHead});
       if (!hashEqual(saved, replay)) fail("Memory corrections differ from original GM response");
     }

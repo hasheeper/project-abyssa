@@ -125,6 +125,7 @@ export type SettlementInput = {
 };
 export type SettlementCommitGate = {
   head: AirpHead;
+  originHeads?: readonly AirpHead[];
   /** Entire applied ledger for this save/epoch, including asset-domain operation receipts. */
   receipts: SettlementReceipt[];
   appliedItemOperations: SettlementItemRef[];

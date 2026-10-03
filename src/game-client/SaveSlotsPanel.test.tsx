@@ -7,11 +7,16 @@ import { createManualSaveAttempt } from "./manual-save";
 import { indexedClientFixture as clientFixture } from "./testing/indexed-client";
 import { browserArchiveStore, browserSaveSlots, writeSaveSlot } from "../game-runtime/save-slots";
 import { UiMotionProvider } from "../shared/ui/motion/UiMotionProvider";
+import { createPlayerRuntime } from "../game-runtime/player-runtime";
+import { IndexedDbGameStore } from "../game-infrastructure/storage/indexeddb";
+import type { AnyGameRecord, AnyReceipt } from "../game-application";
 
 let fixture: Awaited<ReturnType<typeof clientFixture>>;
-vi.mock("./title-save-list", () => ({ readTitleSaveList: () => fixture.runtime.application.list() }));
-vi.mock("../game-runtime/browser", () => ({ createBrowserGameRuntime: () => fixture.runtime }));
+let formalRuntime: ReturnType<typeof createPlayerRuntime> | null = null;
+vi.mock("./title-save-list", () => ({ readTitleSaveList: () => (formalRuntime ?? fixture.runtime).application.list() }));
+vi.mock("../game-runtime/browser", () => ({ createBrowserGameRuntime: () => formalRuntime ?? fixture.runtime }));
 beforeEach(async () => {
+  formalRuntime = null;
   vi.stubGlobal("indexedDB", new IDBFactory());
   vi.spyOn(HTMLElement.prototype, "offsetParent", "get").mockReturnValue(document.body);
   localStorage.clear(); sessionStorage.clear(); fixture = await clientFixture({ start: false });
@@ -34,15 +39,106 @@ async function saveSecondSlot(user: ReturnType<typeof userEvent.setup>) {
   return (await browserSaveSlots.read())!.slots[1]!;
 }
 describe("RPG save / load slots", () => {
-  it("renders two rows of five per page, with thirty stable positions and no opening writes", async () => {
-    const { user, container } = await mount();
-    expect(container.querySelectorAll(".save-slots__rail")).toHaveLength(2);
-    expect(screen.getAllByRole("button", { name: /^槽位 / })).toHaveLength(10);
+  it("opens with a writable slot selected instead of the protected running save", async () => {
+    const {user, attempt, rerender, onClose, onBusyChange, navigate} = await mount();
+    await waitFor(() => {
+      expect(screen.getByRole("button", {name: "槽位 02 · 空白存档"})).toHaveAttribute("aria-pressed", "true");
+      expect(screen.getByRole("button", {name: "确认存档"})).toBeEnabled();
+    });
+    rerender(<SaveSlotsPanel mode="load" onClose={onClose} onBusyChange={onBusyChange} navigate={navigate}/>);
+    await user.click(screen.getByRole("button", {name: "槽位 01 · 守望者之崖"}));
+    rerender(<SaveSlotsPanel mode="save" ready attempt={attempt} onClose={onClose} onBusyChange={onBusyChange} navigate={navigate}/>);
+    await waitFor(() => {
+      expect(screen.getByRole("button", {name: "槽位 02 · 空白存档"})).toHaveAttribute("aria-pressed", "true");
+      expect(screen.getByRole("button", {name: "确认存档"})).toBeEnabled();
+    });
+  });
+  it("waits for the archive list before automatically selecting a writable slot", async () => {
+    const opened = await fixture.runtime.application.open("save");
+    if (!opened.ok) throw new Error("fixture failed");
+    const listed = await fixture.runtime.application.list();
+    let releaseList!: () => void;
+    const list = vi.spyOn(fixture.runtime.application, "list").mockImplementationOnce(() => new Promise(resolve => {
+      releaseList = () => resolve(listed);
+    }));
+    const readSlots = vi.spyOn(browserSaveSlots, "read");
+    render(<UiMotionProvider preference="reduced"><SaveSlotsPanel mode="save" ready
+      attempt={createManualSaveAttempt(fixture.runtime, opened.record)} onClose={vi.fn()} onBusyChange={vi.fn()} navigate={vi.fn()}/></UiMotionProvider>);
+    await waitFor(() => {
+      expect(list).toHaveBeenCalledTimes(1);
+      expect(readSlots).toHaveBeenCalledTimes(1);
+    });
+    await act(async () => { await readSlots.mock.results[0].value; });
+    expect(screen.getByRole("button", {name: "确认存档"})).toBeDisabled();
+    await act(async () => { releaseList(); });
+    await waitFor(() => {
+      expect(screen.getByRole("button", {name: "槽位 02 · 空白存档"})).toHaveAttribute("aria-pressed", "true");
+      expect(screen.getByRole("button", {name: "确认存档"})).toBeEnabled();
+    });
     expect(await browserSaveSlots.read()).toBeNull();
-    await user.click(screen.getByRole("button", { name: "第 3 页，槽位 21 至 30" }));
-    expect(screen.getByRole("button", { name: "槽位 30 · 空白存档" })).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "槽位 31 · 空白存档" })).toBeNull();
+  });
+  it("saves formal AIRP snapshots into slots 31 and 32 and reads both back without modifying the live save", async () => {
+    const store = new IndexedDbGameStore<AnyGameRecord, AnyReceipt>();
+    let serial = 0;
+    formalRuntime = createPlayerRuntime(store, {newId: () => `formal-slot-${++serial}`, newSeed: () => 19, close: () => store.close()});
+    const created = await formalRuntime.application.createNewGame({saveId: "formal-source", epoch: "formal-epoch", clientRequestId: "create-formal", startAt: "hub"});
+    if (!created.ok) throw new Error(created.error.message);
+    await formalRuntime.airpGame.forSave("formal-source", 28).sync();
+    const opened = await formalRuntime.application.open("formal-source");
+    if (!opened.ok || opened.record.schemaVersion !== 4) throw new Error("Missing formal save");
+    const source = opened.record;
+    render(<UiMotionProvider preference="reduced"><SaveSlotsPanel mode="save" ready
+      attempt={createManualSaveAttempt(formalRuntime, source)} onClose={vi.fn()} onBusyChange={vi.fn()} navigate={vi.fn()}/></UiMotionProvider>);
+    await waitFor(() => expect(screen.getByRole("button", {name: "确认存档"})).toBeEnabled());
+    const user = userEvent.setup();
+    await user.click(screen.getByRole("button", {name: "第 4 页，槽位 25 至 32"}));
+    for (const position of [31, 32]) {
+      await user.click(screen.getByRole("button", {name: `槽位 ${position} · 空白存档`}));
+      await user.click(screen.getByRole("button", {name: "确认存档"}));
+      await screen.findByText(`已保存至槽位 ${position}`, {}, {timeout: 10000});
+      const binding = (await browserSaveSlots.read())!.slots[position - 1]!;
+      const restored = await formalRuntime.application.open(binding.saveId);
+      if (!restored.ok || restored.record.schemaVersion !== 4) throw new Error("Missing saved snapshot");
+      expect(restored.record.snapshot).toEqual(source.snapshot);
+      expect(restored.record.airpDirector).toEqual(source.airpDirector);
+      expect(restored.record.airpGame?.worldHead).toEqual(restored.record.head);
+    }
+    const slots = (await browserSaveSlots.read())!;
+    expect(slots.slots).toHaveLength(32);
+    expect(slots.slots[30]!.saveId).not.toBe(slots.slots[31]!.saveId);
+    expect(await formalRuntime.application.open("formal-source")).toEqual({ok: true, record: source});
+    store.close();
+  }, 30000);
+  it.each(["save", "load"] as const)("renders two rows of four in %s, with thirty-two stable positions and no opening writes", async mode => {
+    const { user, container } = await mount(mode);
+    expect(container.querySelectorAll(".save-slots__rail")).toHaveLength(2);
+    expect(screen.getAllByRole("button", { name: /^槽位 / })).toHaveLength(8);
+    for (const rail of container.querySelectorAll(".save-slots__rail")) expect(rail.querySelectorAll(".save-slots__slot")).toHaveLength(4);
+    expect(await browserSaveSlots.read()).toBeNull();
+    await user.click(screen.getByRole("button", { name: "第 2 页，槽位 9 至 16" }));
+    expect(screen.getByRole("button", { name: "槽位 09 · 空白存档" })).toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: /^槽位 / })).toHaveLength(8);
+    await user.click(screen.getByRole("button", { name: "第 3 页，槽位 17 至 24" }));
+    expect(screen.getByRole("button", { name: "槽位 24 · 空白存档" })).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "第 4 页，槽位 25 至 32" }));
+    expect(screen.getAllByRole("button", { name: /^槽位 / })).toHaveLength(8);
+    expect(screen.getByRole("button", { name: "槽位 32 · 空白存档" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "槽位 33 · 空白存档" })).toBeNull();
+    expect(await browserSaveSlots.read()).toBeNull();
     expect(await fixture.store.listSaveIds()).toEqual(["save"]);
+  });
+  it("preserves page selection and clamps keyboard navigation at the thirty-second slot", async () => {
+    const { user } = await mount();
+    await user.click(screen.getByRole("button", { name: "槽位 08 · 空白存档" }));
+    await user.click(screen.getByRole("button", { name: "第 4 页，槽位 25 至 32" }));
+    expect(screen.getByRole("button", { name: "槽位 32 · 空白存档" })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("button", { name: "确认存档" })).toHaveTextContent("保存 32");
+    await user.click(screen.getByRole("button", { name: "槽位 32 · 空白存档" }));
+    await user.keyboard("{End}{ArrowDown}{PageDown}");
+    expect(screen.getByRole("button", { name: "槽位 32 · 空白存档" })).toHaveFocus();
+    await user.keyboard("{Home}");
+    expect(screen.getByRole("button", { name: "槽位 25 · 空白存档" })).toHaveFocus();
+    expect(await browserSaveSlots.read()).toBeNull();
   });
   it("requires confirmation for an occupied position and Escape cancels without a write", async () => {
     const { user, onClose } = await mount();
@@ -123,11 +219,15 @@ describe("RPG save / load slots", () => {
     const { user } = await mount();
     await user.click(screen.getByRole("button", { name: "槽位 01 · 守望者之崖" }));
     await user.keyboard("{ArrowDown}");
-    expect(screen.getByRole("button", { name: "槽位 06 · 空白存档" })).toHaveFocus();
+    expect(screen.getByRole("button", { name: "槽位 05 · 空白存档" })).toHaveFocus();
     await user.keyboard("{PageDown}");
-    expect(screen.getByRole("button", { name: "槽位 16 · 空白存档" })).toHaveFocus();
+    expect(screen.getByRole("button", { name: "槽位 13 · 空白存档" })).toHaveFocus();
     await user.keyboard("{End}");
-    expect(screen.getByRole("button", { name: "槽位 20 · 空白存档" })).toHaveFocus();
+    expect(screen.getByRole("button", { name: "槽位 16 · 空白存档" })).toHaveFocus();
+    await user.keyboard("{PageUp}");
+    expect(screen.getByRole("button", { name: "槽位 08 · 空白存档" })).toHaveFocus();
+    await user.keyboard("{ArrowUp}");
+    expect(screen.getByRole("button", { name: "槽位 04 · 空白存档" })).toHaveFocus();
     expect(await fixture.store.listSaveIds()).toEqual(["save"]);
   });
   it("uses icon-only import/export buttons with accessible names and hover labels", async () => {

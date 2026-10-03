@@ -1,4 +1,4 @@
-import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
 import { UiMotionProvider } from "../../shared/ui/motion/UiMotionProvider";
 import { MemoryFooter } from "./MemoryFooter";
@@ -30,19 +30,21 @@ it("shows the filtered count and lets the undated shortcut toggle back to all me
   expect(screen.getByText("3 条记录")).toBeInTheDocument();
 });
 
-it("navigates records and returns through the catalogue while scene recollection stays unavailable", () => {
+it("groups the record position with navigation and returns through the catalogue", () => {
   render(<Harness/>, { wrapper });
   act(() => journal.open("0"));
-  expect(screen.getByLabelText("第 1 条，共 3 条记录")).toBeInTheDocument();
+  const navigation = screen.getByRole("navigation", { name: "相邻记录" });
+  expect(within(navigation).getByLabelText("第 1 条，共 3 条记录")).toBeInTheDocument();
   expect(screen.getByRole("button", { name: "前一条" })).toBeDisabled();
-  const replay = screen.getByRole("button", { name: "回想场景（仅文字记录）" });
-  expect(replay).toHaveAttribute("aria-disabled", "true");
-  fireEvent.click(replay);
-  expect(journal.selectedId).toBe("0");
+  expect(screen.queryByRole("button", { name: /回想场景/ })).not.toBeInTheDocument();
   fireEvent.click(screen.getByRole("button", { name: "后一条" }));
   expect(journal.selectedId).toBe("1");
   expect(screen.getByLabelText("第 2 条，共 3 条记录")).toBeInTheDocument();
   expect(screen.getByRole("button", { name: "前一条" })).toBeEnabled();
+  fireEvent.click(screen.getByRole("button", { name: "后一条" }));
+  expect(screen.getByRole("button", { name: "后一条" })).toBeDisabled();
+  fireEvent.click(screen.getByRole("button", { name: "前一条" }));
+  expect(journal.selectedId).toBe("1");
   fireEvent.click(screen.getByRole("button", { name: "返回目录" }));
   expect(journal.mode).toBe("catalogue");
   expect(onBack).not.toHaveBeenCalled();

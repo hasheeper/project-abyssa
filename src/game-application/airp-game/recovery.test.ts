@@ -57,7 +57,15 @@ it("restores an interrupted formal archive in a clean store without sending or r
   await driver.markInterrupted(flow.host.nodes, f.nodeId);
   expect((await flow.nodes.read()).ledger.jobs[0].attempts[0].status).toBe("interrupted");
   expect(await runtime.application.restoreSave({ archive: exported.archive, clientRequestId: "restore-formal-again" })).toMatchObject({ ok: false });
-  expect(await runtime.application.importSave({ archive: exported.archive, saveId: "copy", epoch: "copy-epoch", clientRequestId: "copy" })).toMatchObject({ ok: false });
+  expect(await runtime.application.importSave({ archive: exported.archive, saveId: "copy", epoch: "copy-epoch", clientRequestId: "copy" })).toMatchObject({ ok: true });
+  const copiedFlow = runtime.airpGame.forSave("copy");
+  await copiedFlow.sync();
+  expect((await copiedFlow.nodes.read()).ledger.jobs[0].attempts[0].status).toBe("running");
+  await driver.markInterrupted(copiedFlow.host.nodes, f.nodeId);
+  expect((await copiedFlow.nodes.read()).ledger.jobs[0].attempts[0].status).toBe("interrupted");
+  await copiedFlow.nodes.begin(f.nodeId, {id: "copy-retry", stage: "writing", model: "test-mock", connectionHash: "2".repeat(64), at: 2});
+  expect((await copiedFlow.nodes.read()).ledger.jobs[0].attempts.at(-1)!.status).toBe("running");
+  expect(calls).toBe(0);
   const forged = f.raw(); forged.airpGame!.gm.jobs[0].prepared!.proposal.focus.intent = "changed";
   expect(() => readD5Archive(JSON.stringify({ archiveVersion: 4, record: forged }), AIRP_GAME_CATALOG, D5_RUN_READERS)).toThrow();
 }, 20000);

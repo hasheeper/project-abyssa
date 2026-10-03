@@ -324,7 +324,7 @@ flowchart TD
 
 首次修缮、等级升级、受损维修是三件事。公款只付首次修缮和升级，事件损坏未开放；五房间基价、预算与未来房间分工见[设施合同](design/MANSION_FACILITIES_AND_UPKEEP.md)，旧物品名称对应见[来源说明](design/MANSION_SUPPLY_PRODUCTION.md)。
 
-正式生成使用居中面板、堆叠侧栏和背景展开阅读；AVG／NVL／LOG共用阅读器，正式任务阅读锁定并可刷新恢复。Menu内SAVE／LOAD／SETTINGS／MEMORY原位切换，手动档案30槽，标题完整档案列表另按需分页。详见[阅读恢复](architecture/AIRP_FLOW_AND_RECOVERY.md)。
+正式生成使用居中面板、堆叠侧栏和背景展开阅读；AVG／NVL／LOG共用阅读器，正式任务阅读锁定并可刷新恢复。Menu内SAVE／LOAD／SETTINGS／MEMORY原位切换，手动档案32槽（四页、每页八槽），标题完整档案列表另按需分页。详见[阅读恢复](architecture/AIRP_FLOW_AND_RECOVERY.md)。
 
 记忆按真实时间及稳定发生序号组织，默认全部经历、从现在向过去浏览，跨日事件按已收录日期筛选。目录统一行高、单行概述，超过三位参与者显示X人；详情以概述为主，原文另行展开，标题旁展示完整面部头像。教程目录为两个事件，AIRP和商店沿用事件→幕→切片，选择已收录幕后独立只读回想，不推进剧情、交易或奖励。来源不足只提供实际可还原文字，详见[叙事合同](architecture/MEMORY_NARRATIVE_AND_REPLAY.md)与[UI规范](design/MEMORY_PANEL_UI.md)。
 

@@ -24,7 +24,7 @@ export function MemoryPanel({ journal, data, onBack, sceneMotion }: {
   useLayoutEffect(() => {
     journal.restore();
     const intent = journal.focusIntent.current;
-    const target = intent === "replay" ? root.current?.querySelector<HTMLElement>(".memory-footer__replay") : intent === "reader" ? root.current?.querySelector<HTMLElement>("#memory-reader-title")
+    const target = intent === "replay" ? root.current?.querySelector<HTMLElement>(".memory-reader__replay") : intent === "reader" ? root.current?.querySelector<HTMLElement>("#memory-reader-title")
       : intent === "entry" ? root.current?.querySelector<HTMLElement>(".memory-entry[aria-current]") : null;
     let active = true;
     queueMicrotask(() => { if (active && target?.isConnected) target.focus({ preventScroll: true }); });

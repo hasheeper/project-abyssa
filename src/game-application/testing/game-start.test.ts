@@ -39,10 +39,7 @@ describe("new-game starting points", () => {
     expect(await recovery.runtime.application.restoreSave({archive: archive.archive, clientRequestId: "restore"})).toMatchObject({ok: true});
     expect(await recovery.read()).toEqual(record);
     const copied = await f.runtime.application.importSave({saveId: "copy", epoch: "copy-epoch", clientRequestId: "copy", archive: archive.archive});
-    // Normal starts carry the formal director. Identity recovery uses
-    // restoreSave above; the existing cross-identity AIRP copy gate still applies.
-    if (record.airpDirector) expect(copied).toMatchObject({ok: false, error: {code: "content-unavailable"}});
-    else expect(copied).toMatchObject({ok: true});
+    expect(copied).toMatchObject({ok: true});
   });
 
   it("rejects invalid names before creating any save", async () => {

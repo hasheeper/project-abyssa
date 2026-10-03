@@ -27,9 +27,9 @@ function Harness({ page = 0, ready = true, motion }: { page?: number; ready?: bo
   const root = useRef<HTMLElement>(null);
   const state = useSaveSlotMotion(root, page, ready, motion);
   return <main ref={root} data-phase={state.phase}>
-    <div className="abyssa-system-toolbar"><nav className="abyssa-system-tabs"><button>01—10</button><button>11—20</button><button>21—30</button></nav>
+    <div className="abyssa-system-toolbar"><nav className="abyssa-system-tabs"><button>01—08</button><button>09—16</button><button>17—24</button><button>25—32</button></nav>
       <div className="abyssa-system-toolbar__actions"><button>导入</button></div></div>
-    <SaveSlotGrid index={ready ? initialSaveSlots([]) : null} saves={[]} selected={page * 10} page={state.page} changing={state.changing}
+    <SaveSlotGrid index={ready ? initialSaveSlots([]) : null} saves={[]} selected={page * 8} page={state.page} changing={state.changing}
       loading={!ready} disabled={false} onSelect={vi.fn()} onActivate={vi.fn()} onExport={vi.fn()} />
     <footer className="abyssa-system-panel__footer"><div className="save-slots__footer-actions"><button>返回</button><button>保存</button></div></footer>
   </main>;
@@ -56,7 +56,7 @@ it("retires only old page records, leaving rails and every navigation control mo
   const controls = Array.from(view.container.querySelectorAll<HTMLElement>("[data-system-motion-item]"));
   const expectControlsVisible = () => {
     expect(Array.from(view.container.querySelectorAll("[data-system-motion-item]"))).toEqual(controls);
-    expect(controls.map(item => item.style.getPropertyValue("--system-item-opacity"))).toEqual(Array(6).fill("1"));
+    expect(controls.map(item => item.style.getPropertyValue("--system-item-opacity"))).toEqual(Array(7).fill("1"));
   };
   expectControlsVisible();
   view.rerender(<Harness motion={motion} page={1} />);
@@ -67,7 +67,7 @@ it("retires only old page records, leaving rails and every navigation control mo
   expectControlsVisible();
   await finish(flights[0]);
   expect(screen.queryByRole("button", { name: "槽位 01 · 空白存档" })).toBeNull();
-  const body = screen.getByRole("button", { name: "槽位 11 · 空白存档" }).querySelector<HTMLElement>(".save-slots__body")!;
+  const body = screen.getByRole("button", { name: "槽位 09 · 空白存档" }).querySelector<HTMLElement>(".save-slots__body")!;
   expect(body.style.opacity).toBe("0");
   expect(view.container.querySelector(".save-slots__rail")).toBe(rail);
   expectControlsVisible();
@@ -94,7 +94,7 @@ it("captures the visible pose before resetting a direction clock, including duri
   act(() => motion.clock.set(1));
   expect(body.style.opacity).toBe("0");
   await finish(flights[0]);
-  expect(screen.queryByRole("button", { name: "槽位 11 · 空白存档" })).toBeNull();
+  expect(screen.queryByRole("button", { name: "槽位 09 · 空白存档" })).toBeNull();
 });
 
 it("settles reduced motion and ignores a stopped page completion after unmount", async () => {
@@ -105,7 +105,7 @@ it("settles reduced motion and ignores a stopped page completion after unmount",
   view.rerender(<Harness motion={{ ...motion, skip: true }} page={1} />);
   expect(leaving.stop).toHaveBeenCalled();
   expect(view.container.querySelector("main")).toHaveAttribute("data-phase", "ready");
-  expect(screen.getByRole("button", { name: "槽位 11 · 空白存档" }).querySelector<HTMLElement>(".save-slots__body")!.style.opacity).toBe("1");
+  expect(screen.getByRole("button", { name: "槽位 09 · 空白存档" }).querySelector<HTMLElement>(".save-slots__body")!.style.opacity).toBe("1");
   view.unmount();
   await finish(leaving);
   expect(view.container.childElementCount).toBe(0);

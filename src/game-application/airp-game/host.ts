@@ -1,5 +1,5 @@
 import type { ValidatedD5Catalog } from "../../game-core/contracts";
-import { airpPhaseIndex, createD5ExpeditionEngine, type D5Departure } from "../../game-core/session";
+import { airpPhaseIndex, createD5ExpeditionEngine, type D5Departure, type D5RunReaders } from "../../game-core/session";
 import type { HeadRef } from "../contracts";
 import type { D5GameRecord, D5Receipt, D5Store } from "../versions/d5-contracts";
 import { d5FactId, validateD5Record, validateD5Receipt } from "../versions/d5-validate";
@@ -20,22 +20,23 @@ import { recordMemoryContext } from "../airp-memory/d5";
 import { createD5Application } from "../versions/d5-service";
 import type { DirectorCommand } from "../airp-director/contracts";
 import { directorStage } from "../airp-director/jobs";
+import { copyOriginHeads, copyWorldHead } from "../versions/d5-copy-evidence";
 
 /** Formal D5 owning-save adapters. No second gameplay root, wallet or drop implementation. */
-export function createAirpGameHost(store: D5Store, catalog: ValidatedD5Catalog, saveId: string) {
+export function createAirpGameHost(store: D5Store, catalog: ValidatedD5Catalog, saveId: string, readers: D5RunReaders = D5_RUN_READERS) {
   let cached: D5GameRecord | undefined, cachedJson: string | undefined;
   async function read() {
     const raw = await store.read(saveId);
     if (!raw || ![22, 24, 26, 28].includes(raw.contentRef.contentVersion)) throw Error("请选择新的 AIRP 游戏档；旧档不会自动升级。");
     const json = JSON.stringify(raw);
     if (cached && json === cachedJson) return cached;
-    cached = validateD5Record(raw, catalog, D5_RUN_READERS, cached); cachedJson = JSON.stringify(cached); return cached;
+    cached = validateD5Record(raw, catalog, readers, cached); cachedJson = JSON.stringify(cached); return cached;
   }
   async function registerCommissions() {
     const r = await read();
     if (!r.airpDirector || r.airpDirector.commissionVersion === 1) return r;
     if (r.snapshot.run) throw Error("请先结束当前远征，再更新委托登记。");
-    const result = await createD5Application(catalog, store).dispatch({protocolVersion: 4, saveId, expectedHead: r.head,
+    const result = await createD5Application(catalog, store, readers).dispatch({protocolVersion: 4, saveId, expectedHead: r.head,
       clientRequestId: `commission-registration:${r.head.epoch}:${r.head.revision}`, command: {type: "airp-director-enable-commissions"}});
     if (!result.ok) throw Error(result.error.message);
     return read();
@@ -49,7 +50,7 @@ export function createAirpGameHost(store: D5Store, catalog: ValidatedD5Catalog, 
       game?.settlement.jobs.some(j => j.status !== "applied") ||
       Object.values(game?.nodes ?? {}).some(n => n.jobs.some(j => j.status === "open")) ||
       game?.gm.jobs.some(j => !["cancelled", "started"].includes(j.status))) return r;
-    const result = await createD5Application(catalog, store).dispatch({protocolVersion: 4, saveId, expectedHead: r.head,
+    const result = await createD5Application(catalog, store, readers).dispatch({protocolVersion: 4, saveId, expectedHead: r.head,
       clientRequestId: `resident-registration:${r.head.epoch}:${r.head.revision}`, command});
     if (!result.ok) throw Error(result.error.message);
     return read();
@@ -71,14 +72,14 @@ export function createAirpGameHost(store: D5Store, catalog: ValidatedD5Catalog, 
     next.facts.push({ version: 4, id: factId, source: next.head, origin: "present", runRef: null, originRef: null, worldTime: before.snapshot.campaign.clock, visibility: "party", kind: "airp-game", payload: proof });
     next.commits.push({ ref: next.head, previous: before.head, requestId, kind: "airp-game", factIds: [factId] });
     const receipt: D5Receipt = { version: 4, contentRef: catalog.ref, saveId, epoch: next.head.epoch, requestId, fingerprint, status: "committed", before: before.head, after: next.head, error: null, events: [], factIds: [factId], airpGame: proof };
-    const candidate = validateD5Record(next, catalog, D5_RUN_READERS, before);
+    const candidate = validateD5Record(next, catalog, readers, before);
     const result = await store.commit({ saveId, epoch: next.head.epoch, expectedHead: before.head, requestId, fingerprint, candidate, receipt: validateD5Receipt(receipt, catalog) });
     if (result.receipt.status !== "committed") throw Error("存档提交冲突，请重新读取。");
     cached = candidate; cachedJson = JSON.stringify(candidate); return read();
   }
   const settlementSnapshot = (r: D5GameRecord) => {
     const memoryView = recordMemoryContext(r);
-    return { head: r.head, worldHead: r.airpGame!.worldHead, ledger: r.airpGame!.settlement, appliedItemOperations: [], ...(memoryView ? {memoryView} : {}) };
+    return { head: r.head, worldHead: r.airpGame!.worldHead, originHeads: copyOriginHeads(r), originWorldHead: copyWorldHead(r) ?? r.airpGame!.worldHead, ledger: r.airpGame!.settlement, appliedItemOperations: [], ...(memoryView ? {memoryView} : {}) };
   };
   const gm: ExpeditionGMHostPort = {
     async read(options) { return projectGameGm(await read(), catalog, options?.refresh); },

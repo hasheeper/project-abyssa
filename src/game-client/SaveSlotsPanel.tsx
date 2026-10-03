@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
-import { browserArchiveStore, slotRecord, type SaveSlotIndex, type ArchiveTarget } from "../game-runtime/save-slots";
+import { browserArchiveStore, slotRecord, SAVE_SLOT_COUNT, type SaveSlotIndex, type ArchiveTarget } from "../game-runtime/save-slots";
 import { savePresentation } from "../game-runtime/save-presentation";
 import type { PlayerSaveListEntry } from "../game-runtime/player-runtime";
 import { SystemPanel } from "../shared/ui/patterns/SystemPanel";
@@ -14,6 +14,7 @@ import { activeRunId } from "./session";
 import type { ManualSaveAttempt } from "./manual-save";
 import { useSaveSlotMotion } from "./useSaveSlotMotion";
 import { slotTiming, type SaveSlotSceneMotion } from "./save-slots-motion";
+import { SAVE_SLOT_COLUMNS, SAVE_SLOTS_PER_PAGE } from "./save-slots-layout";
 import { useArchiveFeedback } from "./ArchiveFeedback";
 import { announceDeletedSave } from "./deleted-save-hints";
 import { parseLocator } from "./navigation";
@@ -40,8 +41,8 @@ export function SaveSlotsPanel(props: Props) {
   const fileInput = useRef<HTMLInputElement>(null), primary = useRef<HTMLButtonElement>(null);
   const alive = useRef(false), locked = useRef(false), pending = useRef<PendingSlot | null>(null);
   const sourceAttempt = props.mode === "save" ? props.attempt : null;
-  const directorCopy = sourceAttempt?.source.schemaVersion === 4 && !!sourceAttempt.source.airpDirector;
   const attempt = useRef(sourceAttempt);
+  const autoSelected = useRef<ManualSaveAttempt | null>(null);
   const protectedSaveId = sourceAttempt?.source.head.saveId ?? parseLocator(routeSearch())?.saveId;
   useEffect(() => { onBusyChange(busy || archive.operationBusy || feedback.blocked); }, [busy, archive.operationBusy, feedback.blocked, onBusyChange]);
   useEffect(() => {
@@ -50,19 +51,27 @@ export function SaveSlotsPanel(props: Props) {
   }, [mode, sourceAttempt]);
   useEffect(() => { alive.current = true; return () => { alive.current = false; }; }, []);
   const index = slots.index, binding = index?.slots[selected] ?? null;
+  useEffect(() => {
+    if (mode !== "save") { autoSelected.current = null; return; }
+    if (!sourceAttempt || !index || archive.listState !== "ready" || autoSelected.current === sourceAttempt) return;
+    autoSelected.current = sourceAttempt;
+    const empty = index.slots.findIndex(slot => slot === null);
+    const writable = empty >= 0 ? empty : index.slots.findIndex(slot => slot?.saveId !== protectedSaveId);
+    if (writable >= 0) setSelected(writable);
+  }, [mode, sourceAttempt, index, protectedSaveId, archive.listState]);
   const record = slotRecord(binding, saves);
   const panelRef = useRef<HTMLElement>(null);
-  const page = Math.floor(selected / 10);
+  const page = Math.floor(selected / SAVE_SLOTS_PER_PAGE);
   const motionReady = (archive.listState !== "loading" && !!index) || !!slots.error || archive.listState === "error";
   const loading = !index || archive.listState !== "ready";
   const slotMotion = useSaveSlotMotion(panelRef, page, motionReady, props.sceneMotion, saves.map(save => save.saveId).join(","));
   const blocked = busy || feedback.blocked || archive.busy || archive.listState !== "ready" || !index || slotMotion.changing;
   const protectedSlot = mode === "save" && binding?.saveId === protectedSaveId;
-  const canAct = !blocked && !protectedSlot && !directorCopy && (props.mode === "save" ? props.ready : record?.status === "ready" && !archive.archivedIds.has(record.saveId));
+  const canAct = !blocked && !protectedSlot && (props.mode === "save" ? props.ready : record?.status === "ready" && !archive.archivedIds.has(record.saveId));
   function select(position: number) {
     if (locked.current || blocked) return;
     setSelected(position); setMessage(""); setFailed(false); pending.current = null;
-    if (Math.floor(position / 10) !== page) setImportOpen(false);
+    if (Math.floor(position / SAVE_SLOTS_PER_PAGE) !== page) setImportOpen(false);
   }
   function refresh() { pending.current = null; setMessage(""); setFailed(false); void slots.reload(); void archive.refresh(); }
   async function save(target: PendingSlot) {
@@ -133,11 +142,14 @@ export function SaveSlotsPanel(props: Props) {
     heading={props.fullScene ? <SystemSceneHeading label={mode.toUpperCase()} description={mode === "save" ? "保存档案" : "读取档案"} /> : undefined}
     data-slot-motion={!!props.sceneMotion || undefined} data-slot-reduced={slotMotion.skip || undefined} data-slot-page-phase={slotMotion.phase}
     data-slot-waiting={!motionReady || undefined} data-slot-exiting={props.sceneMotion?.exiting || undefined}
-    style={{ "--slot-select-ms": `${slotTiming.selectMs}ms`, "--slot-selected-scale": slotTiming.selectScale } as CSSProperties}
+    style={{ "--slot-columns": SAVE_SLOT_COLUMNS, "--slot-select-ms": `${slotTiming.selectMs}ms`, "--slot-selected-scale": slotTiming.selectScale } as CSSProperties}
     tabs={<div className="abyssa-system-toolbar" inert={slotMotion.changing}>
       <span className="abyssa-system-toolbar__label">{mode === "save" ? "选择存档位置" : "选择读取档案"}</span>
-      <SystemTabs pages label="存档分页" disabled={blocked} selected={String(page)} onChange={n => select(Number(n) * 10 + selected % 10)}
-        items={[0, 1, 2].map(n => ({ id: String(n), label: `${slotNumber(n * 10)}—${slotNumber(n * 10 + 9)}`, accessibleLabel: `第 ${n + 1} 页，槽位 ${n * 10 + 1} 至 ${n * 10 + 10}` }))} />
+      <SystemTabs pages label="存档分页" disabled={blocked} selected={String(page)} onChange={value => select(Math.min(SAVE_SLOT_COUNT - 1, Number(value) * SAVE_SLOTS_PER_PAGE + selected % SAVE_SLOTS_PER_PAGE))}
+        items={Array.from({ length: Math.ceil(SAVE_SLOT_COUNT / SAVE_SLOTS_PER_PAGE) }, (_, pageIndex) => {
+          const start = pageIndex * SAVE_SLOTS_PER_PAGE, end = Math.min(SAVE_SLOT_COUNT, start + SAVE_SLOTS_PER_PAGE) - 1;
+          return { id: String(pageIndex), label: `${slotNumber(start)}—${slotNumber(end)}`, accessibleLabel: `第 ${pageIndex + 1} 页，槽位 ${start + 1} 至 ${end + 1}` };
+        })} />
       <div className="abyssa-system-toolbar__actions">
         <button type="button" className="save-slots__import-button" disabled={busy || archive.busy || feedback.blocked} onClick={() => setImportOpen(!importOpen)}
           aria-label="导入档案" title="导入档案" aria-expanded={importOpen}><SaveFileIcon direction="import" /></button>
@@ -147,7 +159,6 @@ export function SaveSlotsPanel(props: Props) {
       <div className="save-slots__feedback">
         {(message || slots.error || archive.listState !== "loading" && archive.message) && <InlineFeedback message={message || slots.error || archive.message} action={message ? {label: "刷新档案", onClick: () => { pending.current = null; setMessage(""); setFailed(false); void slots.reload(); void archive.refresh(); }} : undefined} />}
         {protectedSlot && !message && <span>当前旅程正在使用此档案，请选择其他槽位。</span>}
-        {directorCopy && <span>总管理验证档会自动保存，暂不支持槽位副本。完整备份请从档案管理导出，并以原身份恢复。</span>}
       </div>
       <RpgHexButton size="sm" disabled={exitBlocked} onClick={back} aria-label={props.returnLabel ?? "返回主菜单"}>返回</RpgHexButton>
       <RpgHexButton ref={primary} size="sm" disabled={!canAct} onClick={() => void activate()}

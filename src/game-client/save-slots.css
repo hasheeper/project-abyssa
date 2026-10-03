@@ -4,11 +4,11 @@
 .save-slots__import button:hover { color: #f7edcf; }
 .menu-content > .save-slots > .abyssa-system-panel__body { display: flex; flex-direction: column; overflow: visible; }
 .save-slots__grid { display: grid; grid-template-rows: repeat(2, minmax(0, 1fr)); row-gap: 26px; flex: 1; min-height: 0; padding: 0 0 26px; }
-.save-slots__rail { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); column-gap: 20px; position: relative; min-height: 0; transition: grid-template-columns var(--slot-select-ms, 320ms) cubic-bezier(.2, .7, .2, 1); }
+.save-slots__rail { display: grid; grid-template-columns: repeat(var(--slot-columns, 4), minmax(0, 1fr)); column-gap: 20px; position: relative; min-height: 0; transition: grid-template-columns var(--slot-select-ms, 320ms) cubic-bezier(.2, .7, .2, 1); }
 /* Half a slot-pitch between the two rails. Padding keeps both endpoints inside
    the scene while their light tracks still extend uninterrupted to the edges. */
-.save-slots__rail:first-child { padding-right: calc((100% + 20px) / 11); }
-.save-slots__rail:last-child { padding-left: calc((100% + 20px) / 11); }
+.save-slots__rail:first-child { padding-right: calc((100% + 20px) / (var(--slot-columns, 4) * 2 + 1)); }
+.save-slots__rail:last-child { padding-left: calc((100% + 20px) / (var(--slot-columns, 4) * 2 + 1)); }
 .save-slots__rail::after {
   position: absolute; left: -128px; right: -64px; bottom: 0; height: 3px; pointer-events: none; content: "";
   background: linear-gradient(90deg, transparent, rgb(105 174 164 / 50%) 12%, #72b7aa 42%, #6ba498 84%, rgb(87 153 139 / 15%));

@@ -1,5 +1,5 @@
 import { GAME_DATABASE, openGameDatabase } from "./game-database";
-export const SAVE_SLOT_COUNT = 30;
+export const SAVE_SLOT_COUNT = 32;
 export const SAVE_SLOT_DATABASE = "abyssa-save-slots-v1";
 export type SaveSlotBinding = { saveId: string; epoch: string; savedAt: string | null };
 export type SaveSlotIndex = { version: 1; revision: number; slots: (SaveSlotBinding | null)[] };
@@ -14,11 +14,11 @@ export class SaveSlotConflict extends Error {
 export function validateSlotIndex(raw: unknown): SaveSlotIndex {
   const value = raw as SaveSlotIndex | null;
   if (!value || value.version !== 1 || !Number.isSafeInteger(value.revision) || value.revision < 0 ||
-      !Array.isArray(value.slots) || value.slots.length !== SAVE_SLOT_COUNT || value.slots.some(slot => slot !== null &&
+      !Array.isArray(value.slots) || ![30, SAVE_SLOT_COUNT].includes(value.slots.length) || value.slots.some(slot => slot !== null &&
         (!slot || typeof slot.saveId !== "string" || !slot.saveId || typeof slot.epoch !== "string" || !slot.epoch ||
           (slot.savedAt !== null && (typeof slot.savedAt !== "string" || !Number.isFinite(Date.parse(slot.savedAt)))))))
     throw new Error("槽位目录无法读取，原始档案未被修改。");
-  return value;
+  return value.slots.length === SAVE_SLOT_COUNT ? value : { ...value, slots: [...value.slots, null, null] };
 }
 
 /** Slot writes share the save transaction. The retired pre-cutover directory
@@ -75,8 +75,8 @@ export class IndexedDbSaveSlotStore implements SaveSlotStore {
     return current;
   }
   async compareAndSet(expectedRevision: number, next: SaveSlotIndex): Promise<void> {
-    validateSlotIndex(next);
-    if (next.revision !== expectedRevision + 1) throw new Error("Invalid slot revision");
+    const validated = validateSlotIndex(next);
+    if (validated.revision !== expectedRevision + 1) throw new Error("Invalid slot revision");
     const fallback = await this.read();
     const db = await openGameDatabase(this.factory, this.name);
     await new Promise<void>((resolve, reject) => {
@@ -87,7 +87,7 @@ export class IndexedDbSaveSlotStore implements SaveSlotStore {
         try {
           const prior = read.result === undefined ? fallback : validateSlotIndex(read.result);
           if ((prior?.revision ?? 0) !== expectedRevision) throw new SaveSlotConflict();
-          store.put(next, "manual");
+          store.put(validated, "manual");
         } catch (error) { failure = error; tx.abort(); }
       };
       tx.oncomplete = () => { db.close(); resolve(); };

@@ -2,7 +2,7 @@ import { IDBFactory, IDBObjectStore } from "fake-indexeddb";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { IndexedDbArchiveStore, ArchiveConflict, type PreparedSave } from "./archive-maintenance";
 import { openGameDatabase } from "./game-database";
-import { IndexedDbSaveSlotStore, SaveSlotConflict, SAVE_SLOT_DATABASE, type SaveSlotIndex } from "./save-slot-index";
+import { IndexedDbSaveSlotStore, SAVE_SLOT_COUNT, SaveSlotConflict, SAVE_SLOT_DATABASE, type SaveSlotIndex } from "./save-slot-index";
 import { requestKey } from "../../game-application/transaction";
 
 const copy = (id: string): PreparedSave => {
@@ -24,7 +24,7 @@ async function fixture() {
     tx.objectStore("receipts").put({...old.receipt, epoch: "older", requestId: "failed", status: "rejected"}, requestKey("old", "older", "failed"));
     tx.oncomplete = () => resolve(); tx.onabort = () => reject(tx.error);
   });
-  const index: SaveSlotIndex = {version: 1, revision: 0, slots: Array.from({length: 30}, (_, n) => n < 2 ? {saveId: "old", epoch: "epoch", savedAt: null} : n === 2 ? {saveId: "keep", epoch: "epoch", savedAt: null} : null)};
+  const index: SaveSlotIndex = {version: 1, revision: 0, slots: Array.from({length: SAVE_SLOT_COUNT}, (_, n) => n < 2 ? {saveId: "old", epoch: "epoch", savedAt: null} : n === 2 ? {saveId: "keep", epoch: "epoch", savedAt: null} : null)};
   const target = await store.inspect("old", old.record.head);
   const readAll = () => new Promise<{saves: unknown[]; receipts: unknown[]}>((resolve, reject) => {
     const tx = db.transaction(["saves", "receipts"], "readonly"), a = tx.objectStore("saves").getAll(), b = tx.objectStore("receipts").getAll();
@@ -34,6 +34,16 @@ async function fixture() {
 }
 afterEach(() => vi.restoreAllMocks());
 describe("permanent archive transactions", () => {
+  it.each([30, 31])("saves atomically to the added position %i without touching existing saves", async position => {
+    const f = await fixture();
+    const result = await f.store.change({index: f.index, replacement: {position, savedAt: "2026-10-03T00:00:00Z", save: f.next}});
+    expect(result.slots).toHaveLength(32);
+    expect(result.slots[position]?.saveId).toBe("next");
+    expect(result.slots.slice(0, 3)).toEqual(f.index.slots.slice(0, 3));
+    expect((await f.readAll()).saves).toHaveLength(3);
+    expect(await f.slots.read()).toEqual(result);
+    f.db.close();
+  });
   it("replaces atomically, removes all old receipts and aliases, retains unrelated saves, and retries idempotently", async () => {
     const f = await fixture();
     const change = {index: f.index, target: f.target, replacement: {position: 0, savedAt: "2026-09-20T00:00:00Z", save: f.next}};

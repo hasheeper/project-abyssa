@@ -1,0 +1,3 @@
+export const SAVE_SLOT_COLUMNS = 4;
+export const SAVE_SLOT_ROWS = 2;
+export const SAVE_SLOTS_PER_PAGE = SAVE_SLOT_COLUMNS * SAVE_SLOT_ROWS;

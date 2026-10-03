@@ -2,7 +2,7 @@ import type { StoredRecord, StoredReceipt, HeadRef } from "../../game-applicatio
 import { requestKey, sameHead } from "../../game-application/transaction";
 import { GAME_DATABASE, openGameDatabase } from "./game-database";
 import { decodeStoredRecord, encodeStoredRecord } from "../../game-application/save-codec";
-import { IndexedDbSaveSlotStore, SaveSlotConflict, validateSlotIndex, type SaveSlotIndex } from "./save-slot-index";
+import { IndexedDbSaveSlotStore, SAVE_SLOT_COUNT, SaveSlotConflict, validateSlotIndex, type SaveSlotIndex } from "./save-slot-index";
 
 export type PreparedSave = { record: StoredRecord; receipt: StoredReceipt };
 /** A detached exact read, captured before the player confirms. Never rendered. */
@@ -39,10 +39,10 @@ export class IndexedDbArchiveStore {
   async change(raw: ArchiveChange): Promise<SaveSlotIndex> {
     const input = structuredClone(raw), { target, replacement } = input;
     const replacementRecord = replacement ? encodeStoredRecord(replacement.save.record) : null;
-    validateSlotIndex(input.index);
+    input.index = validateSlotIndex(input.index);
     if (target && target.saveId === input.protectedSaveId) throw new Error("此档案正在用于当前旅程，请返回标题后再删除或覆盖。");
     if (!target && !replacement) throw new Error("缺少档案操作目标。");
-    if (replacement && (!Number.isInteger(replacement.position) || replacement.position < 0 || replacement.position >= 30 || !Number.isFinite(Date.parse(replacement.savedAt)))) throw new Error("无效的存档位置。");
+    if (replacement && (!Number.isInteger(replacement.position) || replacement.position < 0 || replacement.position >= SAVE_SLOT_COUNT || !Number.isFinite(Date.parse(replacement.savedAt)))) throw new Error("无效的存档位置。");
     const slots = new IndexedDbSaveSlotStore(this.factory, this.name), fallback = await slots.read();
     const db = await openGameDatabase(this.factory, this.name);
     const next = await new Promise<SaveSlotIndex>((resolve, reject) => {

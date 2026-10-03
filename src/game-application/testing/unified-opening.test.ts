@@ -125,7 +125,7 @@ describe("one opening and AIRP flow", () => {
     const recovery = fixture();
     expect(await recovery.runtime.application.restoreSave({archive: archive.archive, clientRequestId: "recover"})).toMatchObject({ok: true});
     expect(recovery.journal()).toEqual(journal);
-    expect(await f.runtime.application.importSave({saveId: "copy", epoch: "copy", clientRequestId: "copy", archive: archive.archive})).toMatchObject({ok: false, error: {code: "content-unavailable"}});
+    expect(await f.runtime.application.importSave({saveId: "copy", epoch: "copy", clientRequestId: "copy", archive: archive.archive})).toMatchObject({ok: true});
     await f.send({type: "airp-director-configure", material: directorTestMaterial()});
     await f.send({type: "airp-director-prepare-day"});
     const gm = f.read().airpDirector!.jobs.at(-1)!.planning!;

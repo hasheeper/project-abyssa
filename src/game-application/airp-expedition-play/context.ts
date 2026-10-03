@@ -2,6 +2,7 @@ import { canonicalJson, sha256, type ExpeditionSlot } from "../../game-core/cont
 import { projectSettlementActorState } from "../../game-core/session";
 import { check } from "../airp-generation/contracts";
 import { sameHead } from "../transaction";
+import { compareEvidenceHeads, withinEvidenceHead } from "../versions/d5-copy-evidence";
 import { compileLowFrame, lowHash } from "../airp-low/native";
 import type { NodeJob, NodeSnapshot } from "./contracts";
 import { nodeCurrentProgram, NODE_CURRENT_HANDOFF } from "./handoff";
@@ -29,7 +30,8 @@ export function nodeGate(s: NodeSnapshot, j: NodeJob): "ready" | "future" | "pas
 export function assertStartedNodePlan(s: NodeSnapshot) {
   const j = s.plan, frame = j.frames.at(-1)!, start = s.program.start;
   check(j.status === "started" && j.prepared && j.startFactId === start.factId && j.departureTicket && sameHead(j.departureTicket.expectedHead, start.beforeHead) && frame.context.rules.departure.commandHash === start.commandHash, "No matching CL-C started plan/proof");
-  check(j.departureTicket.proposalHash === j.prepared.proposalHash && j.departureTicket.commandHash === start.commandHash && start.beforeHead.saveId === s.head.saveId && start.beforeHead.epoch === s.head.epoch && start.beforeHead.revision < s.worldHead.revision, "Foreign/stale departure identity");
+  const limits = [...(s.originHeads ?? []), s.worldHead];
+  check(j.departureTicket.proposalHash === j.prepared.proposalHash && j.departureTicket.commandHash === start.commandHash && withinEvidenceHead(start.beforeHead, limits) && compareEvidenceHeads(start.beforeHead, s.worldHead, limits) < 0, "Foreign/stale departure identity");
   check(frame.departure.runId === s.program.runId && frame.departure.routeId === s.program.routeId, "Program run/route differs from plan");
 }
 export function compileNodeFrame(s: NodeSnapshot, j: NodeJob) {

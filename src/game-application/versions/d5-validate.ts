@@ -23,6 +23,7 @@ import { parseDirectorIntent } from "../airp-director/parse";
 import { emptyDirectorState, type DirectorState } from "../airp-director/contracts";
 import { parseAirpGameProof, validateAirpGame } from "../airp-game/validation";
 import { enemyTransitionEvidence, memoryVictoryEvidence, visibleJourneyBattle, type EnemyEvidence } from "./enemy-evidence";
+import { copyOriginHeads, withCopyEvidence } from "./d5-copy-evidence";
 
 export const d5FactId = demoFactId;
 export function d5EvidenceRunRef(e: D5ProgressEvent): D5RunRef | null {
@@ -75,8 +76,9 @@ export function validateD5Record(raw: unknown, catalog: ValidatedD5Catalog, read
   let online = catalog.data.airpOnline ? structuredClone(reuse?.online ?? emptyAirpOnline()) : undefined;
   // resolveOrigin above independently validated this safe-boundary ancestor.
   const ancestor = r.originRef ? (r.originRef as NonNullable<D5GameRecord["originRef"]>).source : null;
+  const originEvidence = ancestor?.schemaVersion === 4 ? withCopyEvidence(ancestor) : null;
   let direct = catalog.data.airpDirect ? structuredClone(reuse?.direct ?? (ancestor?.schemaVersion === 4 ? ancestor.airpDirect : undefined) ?? emptyAirpDirect()) : undefined;
-  let director = catalog.data.airpDirector ? structuredClone(reuse?.director ?? emptyDirectorState()) : undefined;
+  let director = catalog.data.airpDirector ? structuredClone(reuse?.director ?? (ancestor?.schemaVersion === 4 ? ancestor.airpDirector : undefined) ?? emptyDirectorState()) : undefined;
   const requests = new Set(reuse?.requests), entries = reuse ? [...reuse.entries] : [];
   // This counter is elapsed world phases, not a reward/settlement count. Older
   // archives without phase-advanced evidence retain exactly the same times.
@@ -186,8 +188,8 @@ export function validateD5Record(raw: unknown, catalog: ValidatedD5Catalog, read
     }
     }
     if (narrative && c.kind !== "airp-game") {
-      const reduced = reduceAirpApplicationCommit(catalog, narrative, online, { head: source, before: beforeAirp!, after: projection ??= projectD5Progress(catalog, entries, readers),
-        run: lastJourney, facts: facts.slice(0, factIndex) as D5GameRecord["facts"], group: facts.slice(groupStart, factIndex) as D5GameRecord["facts"], retracted }, direct, director);
+      const reduced = reduceAirpApplicationCommit(catalog, narrative, online, { head: source, originHeads: copyOriginHeads(raw as D5GameRecord), before: beforeAirp!, after: projection ??= projectD5Progress(catalog, entries, readers),
+        run: lastJourney, facts: [...(originEvidence?.facts ?? []), ...facts.slice(0, factIndex) as D5GameRecord["facts"]], group: facts.slice(groupStart, factIndex) as D5GameRecord["facts"], retracted: [...(originEvidence?.retractedFactIds ?? []), ...retracted] }, direct, director);
       narrative = reduced.narrative; online = reduced.online; direct = reduced.direct; director = reduced.director;
     }
   }

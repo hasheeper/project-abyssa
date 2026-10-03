@@ -3,10 +3,10 @@ import { bindSaveSlotMotion, slotOrder, slotPageVisibility, slotSceneProgress, s
 
 function fixture() {
   const root = document.createElement("main");
-  root.innerHTML = '<div class="abyssa-system-toolbar"><span class="abyssa-system-toolbar__label"></span><nav class="abyssa-system-tabs"><button>1</button><button>2</button><button>3</button></nav><div class="abyssa-system-toolbar__actions"><button>import</button></div></div><footer class="abyssa-system-panel__footer"><div class="save-slots__footer-actions"><span class="save-slots__feedback"></span><button>back</button><button>save</button></div></footer>';
+  root.innerHTML = '<div class="abyssa-system-toolbar"><span class="abyssa-system-toolbar__label"></span><nav class="abyssa-system-tabs"><button>1</button><button>2</button><button>3</button><button>4</button></nav><div class="abyssa-system-toolbar__actions"><button>import</button></div></div><footer class="abyssa-system-panel__footer"><div class="save-slots__footer-actions"><span class="save-slots__feedback"></span><button>back</button><button>save</button></div></footer>';
   for (let row = 0; row < 2; row++) {
     const rail = document.createElement("div"); rail.className = "save-slots__rail"; root.append(rail);
-    for (let column = 0; column < 5; column++) for (const name of ["save-slots__body", "save-slots__anchor"]) {
+    for (let column = 0; column < 4; column++) for (const name of ["save-slots__body", "save-slots__anchor"]) {
       const element = document.createElement("span"); element.className = name; rail.append(element);
     }
   }
@@ -14,7 +14,7 @@ function fixture() {
 }
 describe("save-slot choreography", () => {
   it("unfolds rails before alternating upper/lower nodes and leaves chrome until last", () => {
-    expect(Array.from({ length: 10 }, (_, i) => slotOrder(i))).toEqual([0, 2, 4, 6, 8, 1, 3, 5, 7, 9]);
+    expect(Array.from({ length: 8 }, (_, position) => slotOrder(position))).toEqual([0, 2, 4, 6, 1, 3, 5, 7]);
     expect(slotSceneProgress(.2, false, "rail")).toBeGreaterThan(.5);
     expect(slotSceneProgress(.2, false, "body")).toBe(0);
     expect(slotSceneProgress(.2, false, "anchor")).toBe(0);
@@ -81,8 +81,8 @@ describe("save-slot choreography", () => {
     expect(root.querySelector<HTMLElement>(".abyssa-system-tabs button")!.style.getPropertyValue("--system-item-opacity")).toBe("1");
     const tracks = slotSelectionTracks(2).split(" ").map(Number.parseFloat);
     expect(tracks[2]).toBeGreaterThan(1); expect(tracks[0]).toBeLessThan(1);
-    expect(tracks.reduce((a, b) => a + b)).toBeCloseTo(5);
-    expect(slotSelectionTracks(null)).toBe("1fr 1fr 1fr 1fr 1fr");
+    expect(tracks.reduce((total, weight) => total + weight)).toBeCloseTo(4);
+    expect(slotSelectionTracks(null)).toBe("1fr 1fr 1fr 1fr");
   });
   it("gives each tab and footer action its own scene and mode window, but no page fade", () => {
     const root = fixture(), tabs = Array.from(root.querySelectorAll<HTMLElement>(".abyssa-system-tabs button"));
@@ -96,7 +96,8 @@ describe("save-slot choreography", () => {
     expect(root.querySelector<HTMLElement>(".abyssa-system-toolbar")!.style.opacity).toBe("");
     expect(root.querySelector<HTMLElement>(".save-slots__footer-actions")!.style.opacity).toBe("");
     paint(1, 940 / slotTiming.pageEnterMs, "entering");
-    expect(values(tabs)).toEqual([1, 1, 1]);
+    expect(values(tabs)).toEqual([1, 1, 1, 1]);
+    expect(root.querySelector<HTMLElement>(".abyssa-system-toolbar__actions button")!.style.getPropertyValue("--system-item-opacity")).toBe("1");
     expect(values(buttons)).toEqual([1, 1]);
     paint(1, 1, "ready", false, .45);
     expect(values(tabs)[0]).toBeGreaterThan(values(tabs)[1]);

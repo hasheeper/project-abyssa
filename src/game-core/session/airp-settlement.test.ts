@@ -143,6 +143,23 @@ describe("CL-A isolated contract (no network, inventory writes or save installat
     if (which === "unread" && input.evidence[1].kind === "read-paragraph") input.evidence[1].readAtRevision++;
     expect(() => prepare(input, withAffinity(input))).toThrow();
   });
+  it("accepts inherited evidence only with an independently supplied origin head", () => {
+    const input = settlementFixture(), origin = {...input.state.head};
+    input.state.head = {saveId: "copied-save", epoch: "copied-epoch", revision: 0};
+    expect(() => prepare(input)).toThrow(/Cross-save\/epoch/);
+    const batch = prepare(input, settlementProposal(input), {...settlementGate(input), originHeads: [origin]});
+    expect(batch.expectedHead).toEqual(input.state.head);
+    expect(batch.effects).toEqual([]);
+    expect(input.evidence[0].head).toEqual(origin);
+  });
+  it.each(["future", "unread", "foreign"])("rejects %s inherited evidence beyond its authorized origin", which => {
+    const input = settlementFixture(), origin = {...input.state.head};
+    input.state.head = {saveId: "copied-save", epoch: "copied-epoch", revision: 0};
+    if (which === "future") input.evidence[0].head = {...origin, revision: origin.revision + 1};
+    if (which === "foreign") input.evidence[0].head = {...origin, epoch: "unrelated-epoch"};
+    if (which === "unread" && input.evidence[1].kind === "read-paragraph") input.evidence[1].readAtRevision++;
+    expect(() => prepare(input, settlementProposal(input), {...settlementGate(input), originHeads: [origin]})).toThrow();
+  });
   it("does not accept GM plans/ICOT/unselected choices as evidence kinds", () => {
     for (const kind of ["gm-plan", "icot", "candidate", "unselected-choice"]) {
       const input = settlementFixture(); Object.assign(input.evidence[0], { kind });

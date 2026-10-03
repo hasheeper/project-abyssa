@@ -23,6 +23,7 @@ import { parseDirectorIntent } from "../airp-director/parse";
 import { carriesDirectorGMBaseline } from "../airp-director/contracts";
 import { guardAirpGameCommand } from "../airp-game/validation";
 import { rebaseAirpGame } from "../airp-game/projection";
+import { copyOriginHeads, withCopyEvidence } from "./d5-copy-evidence";
 import { projectGMShare, readGMShare, sameGMShareContent } from "../airp-game/gm-share";
 
 export type D5Result = { ok: true; receipt: D5Receipt; replayed: boolean } | { ok: false; error: ReceiptError; receipt?: D5Receipt };
@@ -210,8 +211,9 @@ export function createD5Application(catalog: ValidatedD5Catalog, store: D5Store,
       }
       record.commits.push({ ref: source, previous: current.head, requestId: request.clientRequestId, kind: director ? "airp-director" : direct ? "airp-direct" : online ? "airp-online" : airp ? "airp" : journey ? "journey" : combat ? "combat" : event!.type, factIds });
       if (catalog.data.airp) {
+        const evidence = withCopyEvidence(record);
         const reduced = reduceAirpApplicationCommit(catalog, current.narrative!, current.airpOnline, { head: source, before: current.snapshot.campaign, after: record.snapshot.campaign,
-          run: record.snapshot.run?.kind === "expedition" ? record.snapshot.run.state : null, facts: record.facts, group: record.facts.slice(current.facts.length), retracted: record.retractedFactIds }, current.airpDirect, current.airpDirector);
+          originHeads: copyOriginHeads(record), run: record.snapshot.run?.kind === "expedition" ? record.snapshot.run.state : null, facts: evidence.facts, group: record.facts.slice(current.facts.length), retracted: evidence.retractedFactIds }, current.airpDirect, current.airpDirector);
         record.narrative = reduced.narrative; if (reduced.online) record.airpOnline = reduced.online; if (reduced.direct) record.airpDirect = reduced.direct; if (reduced.director) record.airpDirector = reduced.director;
       }
       rebaseAirpGame(record);

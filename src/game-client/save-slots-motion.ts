@@ -1,6 +1,7 @@
 import { cubicBezier, type MotionValue } from "motion/react";
 import { motionTokens } from "../shared/ui/motion/presets";
 import { systemControlItems, prepareSystemItem, paintSystemItem } from "./system-panel-motion";
+import { SAVE_SLOT_COLUMNS, SAVE_SLOT_ROWS } from "./save-slots-layout";
 export const slotTiming = motionTokens.saveSlots;
 export type SaveSlotSceneMotion = { clock: MotionValue<number>; modeOpacity?: MotionValue<number>; exiting: boolean; skip: boolean; onReady: (ready: boolean) => void };
 export type SlotPagePhase = "ready" | "leaving" | "entering";
@@ -8,7 +9,7 @@ export type SlotMotionPart = "rail" | "body" | "anchor" | "chrome" | "surface" |
 const ease = cubicBezier(.2, .7, .2, 1);
 const ramp = (ms: number, start: number, duration: number) => ease(Math.max(0, Math.min(1, (ms - start) / duration)));
 /** Alternating upper/lower nodes follow the staggered physical positions. */
-export const slotOrder = (position: number) => position % 5 * 2 + Math.floor(position / 5);
+export const slotOrder = (position: number) => position % SAVE_SLOT_COLUMNS * SAVE_SLOT_ROWS + Math.floor(position / SAVE_SLOT_COLUMNS);
 export function slotSceneProgress(clock: number, exiting: boolean, part: SlotMotionPart, order = 0): number {
   // One choreography, read backwards on exit: chrome → records → nodes → rails.
   // Reversing the easing too avoids an abrupt fast start on every outgoing item.
@@ -16,7 +17,7 @@ export function slotSceneProgress(clock: number, exiting: boolean, part: SlotMot
   const ms = clock * slotTiming.enterMs;
   if (part === "rail") return ramp(ms, order * 60, slotTiming.railEnterMs);
   if (part === "surface") return ramp(ms, 0, slotTiming.surfaceMs);
-  if (part === "chrome" || part === "export") return ramp(ms, slotTiming.chromeStartMs + (part === "export" ? 4 : order) * slotTiming.chromeStaggerMs, slotTiming.chromeMs);
+  if (part === "chrome" || part === "export") return ramp(ms, Math.min(slotTiming.chromeStartMs + (part === "export" ? 4 : order) * slotTiming.chromeStaggerMs, slotTiming.enterMs - slotTiming.chromeMs), slotTiming.chromeMs);
   const start = slotTiming.railHoldMs + order * slotTiming.staggerMs;
   return part === "anchor" ? ramp(ms, start, 150)
     : ramp(ms, start + 60, slotTiming.bodyMs);
@@ -30,8 +31,8 @@ export function slotPageVisibility(clock: number, phase: SlotPagePhase, part: Sl
   return part === "export" ? ramp(ms, 800 + order * 60, 240)
     : ramp(ms, order * 44 + (part === "body" ? 60 : 0), part === "anchor" ? 160 : 340);
 }
-export const slotSelectionTracks = (column: number | null) => Array.from({ length: 5 }, (_, i) => `${column === null ? 1 : i === column ? slotTiming.selectWeight : slotTiming.peerWeight}fr`).join(" ");
-export const slotControlModeVisibility = (reveal: number, order: number) => ramp(reveal * 360, order * 35, 200);
+export const slotSelectionTracks = (column: number | null) => Array.from({ length: SAVE_SLOT_COLUMNS }, (_, columnIndex) => `${column === null ? 1 : columnIndex === column ? slotTiming.selectWeight : (SAVE_SLOT_COLUMNS - slotTiming.selectWeight) / (SAVE_SLOT_COLUMNS - 1)}fr`).join(" ");
+export const slotControlModeVisibility = (reveal: number, order: number) => ramp(reveal * 360, Math.min(order * 35, 160), 200);
 
 type Binding = { element: HTMLElement; part: SlotMotionPart; order: number; start: number; startY?: number };
 /** Only composite properties per frame. Rails are not remounted during paging.

@@ -7,6 +7,7 @@ import { SETTLEMENT_CAPACITY as C, SettlementRuntimeError, type SettlementHostPo
 import { cloneSettlement, compileSettlementRequest, createSettlementFrame, mechanicalSettlement, programOnlySettlement, settlementHash } from "./context";
 import { memoryViewHash, normalizeSettlementMemory } from "./memory";
 import { effectiveSettlementMemories, effectiveThreads } from "../airp-memory/effective";
+import { withinEvidenceHead } from "../versions/d5-copy-evidence";
 
 const problem = (message: string, code: SettlementRuntimeError["code"] = "invalid-state"): never => { throw new SettlementRuntimeError(code, message); };
 const frameOf = (job: SettlementJob) => job.frames.at(-1)!;
@@ -14,6 +15,7 @@ const active = (job: SettlementJob) => job.status !== "applied";
 const savedOutput = (job: SettlementJob) => job.revalidatedAttemptId
   ? job.attempts.find(a => a.id === job.revalidatedAttemptId)?.output
   : job.attempts.filter(a => a.frame === job.frames.length - 1 && a.status === "succeeded").at(-1)?.output;
+const currentWorld = (snapshot: SettlementHostSnapshot, head: v.SettlementState["head"]) => sameHead(head, snapshot.worldHead) || sameHead(head, snapshot.originWorldHead ?? snapshot.worldHead);
 
 export function createSettlementLedger(policy: v.SettlementPolicy, state: v.SettlementState): SettlementLedger {
   const ledger: SettlementLedger = { version: 1, policy: v.parseSettlementPolicy(policy), state: v.parseSettlementState(state), memories: [], openThreads: [], receipts: [], jobs: [] };
@@ -26,6 +28,7 @@ export function validateSettlementSnapshot(snapshot: SettlementHostSnapshot): vo
   v.assertJson(snapshot);
   if (v.utf8Size(JSON.stringify(snapshot)) > C.bytes) problem("Settlement archive capacity exhausted; no history was deleted", "capacity");
   const { head, worldHead, ledger: l } = snapshot;
+  const limits = [...(snapshot.originHeads ?? []), worldHead];
   if (head.saveId !== worldHead.saveId || head.epoch !== worldHead.epoch || worldHead.revision > head.revision || !sameHead(worldHead, l.state.head)) problem("Host world identity mismatch");
   v.record(l, "settlement.ledger", ["version", "policy", "state", "memories", "openThreads", "receipts", "jobs"]);
   v.choice(l.version, [1], "ledger.version"); v.parseSettlementState(l.state); v.parseSettlementPolicy(l.policy);
@@ -37,13 +40,13 @@ export function validateSettlementSnapshot(snapshot: SettlementHostSnapshot): vo
     v.record(job, "settlement.job", ["id", "mode", "frames", "attempts", "status", "prepared", "problem"], ["revalidatedAttemptId", "fallback"]);
     v.choice(job.mode, ["mechanical", "model", "program-only"], "job.mode");
     if ((job.mode === "program-only") !== !!job.fallback) problem("Fallback needs explicit provenance");
-    if (job.fallback && (job.fallback.reason !== "player-facts-only" || job.fallback.head.saveId !== head.saveId || job.fallback.head.epoch !== head.epoch || job.fallback.head.revision > head.revision || !["ready", "applied", "stale"].includes(job.status))) problem("Invalid facts-only fallback");
+    if (job.fallback && (job.fallback.reason !== "player-facts-only" || !withinEvidenceHead(job.fallback.head, [...(snapshot.originHeads ?? []), head]) || !["ready", "applied", "stale"].includes(job.status))) problem("Invalid facts-only fallback");
     v.choice(job.status, ["pending", "running", "ready", "failed", "stale", "applied"], "job.status");
     if (!job.frames.length) problem("Missing frozen settlement frame");
     v.list(job.frames, "job.frames", C.frames); v.list(job.attempts, "job.attempts", C.attempts); unique(job.attempts.map(a => a.id));
     for (const [index, frame] of job.frames.entries()) {
       if (settlementTaskIdentity(frame.input).taskId !== job.id) problem("Foreign frame in settlement job");
-      if (frame.input.state.head.saveId !== head.saveId || frame.input.state.head.epoch !== head.epoch) problem("Foreign saved input");
+      if (!withinEvidenceHead(frame.input.state.head, [...(snapshot.originHeads ?? []), head])) problem("Foreign saved input");
       compileSettlementRequest(frame, index);
     }
     for (const a of job.attempts) {
@@ -67,11 +70,11 @@ export function validateSettlementSnapshot(snapshot: SettlementHostSnapshot): vo
     if (job.prepared) {
       const frame = frameOf(job);
       const output = job.mode === "program-only" ? programOnlySettlement(frame) : job.mode === "mechanical" ? mechanicalSettlement(frame) : v.parseJson(savedOutput(job) ?? "");
-      const replay = prepareAirpSettlement(frame.input, normalizeSettlementMemory(frame, output), { head: frame.input.state.head, receipts: frame.input.priorReceipts, appliedItemOperations: [] });
+      const replay = prepareAirpSettlement(frame.input, normalizeSettlementMemory(frame, output), { head: frame.input.state.head, originHeads: snapshot.originHeads ?? [], receipts: frame.input.priorReceipts, appliedItemOperations: [] });
       if (replay.status !== "prepared" || settlementHash(replay.batch) !== settlementHash(job.prepared)) problem("Saved batch differs from its original validated response");
     }
   }
-  if (l.receipts.some(r => !l.jobs.some(j => j.id === r.taskId) || r.committedHead.saveId !== head.saveId || r.committedHead.epoch !== head.epoch || r.committedHead.revision > worldHead.revision)) problem("Orphan/foreign settlement receipt");
+  if (l.receipts.some(receipt => !l.jobs.some(job => job.id === receipt.taskId) || !withinEvidenceHead(receipt.committedHead, limits))) problem("Orphan/foreign settlement receipt");
   if (l.memories.length !== l.receipts.length || l.memories.some(m => !l.receipts.some(r => r.memoryId === m.id))) problem("Orphan settlement memory");
   let threads: v.SettlementThread[] = [];
   for (const memory of l.memories) threads = [...threads.filter(t => !memory.closed.some(c => c.id === t.id)), ...memory.opened];
@@ -97,13 +100,14 @@ export function validateSettlementSnapshot(snapshot: SettlementHostSnapshot): vo
 
 function checkInput(snapshot: SettlementHostSnapshot, input: v.SettlementInput, materials: SettlementMaterials): void {
   if (memoryViewHash(snapshot.memoryView) !== memoryViewHash(materials.memoryView)) problem("Effective memory changed; refresh the settlement input", "stale-result");
-  if (!sameHead(snapshot.worldHead, input.state.head) || settlementHash(snapshot.ledger.state) !== settlementHash(input.state) || settlementHash(snapshot.ledger.policy) !== settlementHash(input.policy)) problem("Settlement input is not the current committed state", "stale-result");
+  if (!currentWorld(snapshot, input.state.head) || settlementHash(snapshot.ledger.state) !== settlementHash({...input.state, head: snapshot.ledger.state.head}) || settlementHash(snapshot.ledger.policy) !== settlementHash(input.policy)) problem("Settlement input is not the current committed state", "stale-result");
   if (settlementHash(input.openThreads) !== settlementHash(snapshot.ledger.openThreads) || settlementHash(input.priorReceipts) !== settlementHash(snapshot.ledger.receipts)) problem("Input omitted or changed prior receipts/unresolved matters");
 }
 function prepare(snapshot: SettlementHostSnapshot, job: SettlementJob, output?: string): v.SettlementBatch {
   const frame = frameOf(job);
   const proposal = job.mode === "program-only" ? programOnlySettlement(frame) : job.mode === "mechanical" ? mechanicalSettlement(frame) : v.parseJson(output ?? savedOutput(job) ?? "");
-  const result = prepareAirpSettlement(frame.input, normalizeSettlementMemory(frame, proposal), { head: snapshot.worldHead, receipts: snapshot.ledger.receipts, appliedItemOperations: snapshot.appliedItemOperations });
+  if (!currentWorld(snapshot, frame.input.state.head)) problem("Settlement world changed", "stale-result");
+  const result = prepareAirpSettlement(frame.input, normalizeSettlementMemory(frame, proposal), { head: frame.input.state.head, originHeads: snapshot.originHeads ?? [], receipts: snapshot.ledger.receipts, appliedItemOperations: snapshot.appliedItemOperations });
   if (result.status !== "prepared") return problem("Already applied job must be recovered from its receipt");
   return cloneSettlement(result.batch);
 }
@@ -115,7 +119,7 @@ export function createSettlementService(port: SettlementHostPort) {
   const persist = (s: SettlementHostSnapshot, next: SettlementLedger, kind: "metadata" | "settlement" = "metadata", effects: v.SettlementEffect[] = []) =>
     port.commit({ expectedHead: s.head, expectedWorldHead: s.worldHead, kind, next, effects });
   async function current(s: SettlementHostSnapshot, job: SettlementJob): Promise<void> {
-    if (!sameHead(frameOf(job).input.state.head, s.worldHead) || frameOf(job).materials.memoryView && memoryViewHash(frameOf(job).materials.memoryView) !== memoryViewHash(s.memoryView)) {
+    if (!currentWorld(s, frameOf(job).input.state.head) || frameOf(job).materials.memoryView && memoryViewHash(frameOf(job).materials.memoryView) !== memoryViewHash(s.memoryView)) {
       const next = cloneSettlement(s.ledger), target = next.jobs.find(j => j.id === job.id)!;
       target.status = "stale"; target.problem = "stale-result";
       for (const a of target.attempts.filter(a => a.status === "running")) { a.status = "interrupted"; a.endedAt = a.startedAt; a.error = "stale-result"; a.outcomeUnknown = true; }
@@ -134,7 +138,7 @@ export function createSettlementService(port: SettlementHostPort) {
       }
       checkInput(s, input, materials);
       if (s.ledger.jobs.length >= C.jobs) problem("Settlement job capacity exhausted", "capacity");
-      const frame = createSettlementFrame(input, materials);
+      const frame = createSettlementFrame(input, materials, s.originHeads);
       const mode = input.grants.length || input.evidence.some(e => e.role === "current" && e.kind === "read-paragraph") ? "model" : "mechanical";
       const job: SettlementJob = { id, mode, frames: [frame], attempts: [], status: "pending", prepared: null, problem: null };
       if (mode === "mechanical") { job.prepared = prepare(s, job); job.status = "ready"; }
@@ -146,7 +150,7 @@ export function createSettlementService(port: SettlementHostPort) {
       if (settlementTaskIdentity(input).taskId !== jobId) problem("Refresh cannot change event/action/run identity");
       checkInput(s, input, materials);
       const next = cloneSettlement(s.ledger), target = next.jobs.find(j => j.id === jobId)!;
-      target.frames.push(createSettlementFrame(input, materials)); target.prepared = null; target.status = "pending"; target.problem = null;
+      target.frames.push(createSettlementFrame(input, materials, s.originHeads)); target.prepared = null; target.status = "pending"; target.problem = null;
       delete target.revalidatedAttemptId;
       delete target.fallback;
       target.mode = input.grants.length || input.evidence.some(e => e.role === "current" && e.kind === "read-paragraph") ? "model" : "mechanical";
@@ -196,7 +200,7 @@ export function createSettlementService(port: SettlementHostPort) {
       v.text(command.output, "settlement.output", C.inputBytes); v.number(command.at, "result.at", original!.startedAt); parseDirectUsage(command.usage);
       const next = cloneSettlement(s.ledger), target = next.jobs.find(j => j.id === command.jobId)!, a = target.attempts.find(a => a.id === command.attemptId)!;
       a.output = command.output; a.usage = command.usage; a.endedAt = command.at;
-      const stale = a.frame !== target.frames.length - 1 || !sameHead(frameOf(target).input.state.head, s.worldHead)
+      const stale = a.frame !== target.frames.length - 1 || !currentWorld(s, frameOf(target).input.state.head)
         || !!frameOf(target).materials.memoryView && memoryViewHash(frameOf(target).materials.memoryView) !== memoryViewHash(s.memoryView);
       try {
         if (stale) problem("Late result", "stale-result");

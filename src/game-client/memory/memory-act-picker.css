@@ -1,37 +1,26 @@
 .memory-act-picker { position: relative; }
-.memory-act-picker__trigger {
+.memory-act-picker__trigger, .memory-act-picker__current {
   position: relative;
   display: flex;
-  align-items: baseline;
+  align-items: center;
+  justify-content: center;
   gap: 6px;
+  width: 108px;
   min-height: 44px;
-  padding: 8px 0;
+  padding: 8px 12px;
   border: 0;
   background: none;
-  color: #99a699;
-  font: 14px/1.5 var(--abyssa-font-body);
-  white-space: nowrap;
-  cursor: pointer;
-  transition: color var(--abyssa-motion-hover);
-}
-.memory-act-picker__trigger > strong {
-  color: #c9c5ad;
-  font: 400 21px/1 var(--abyssa-font-display);
+  color: var(--memory-control);
+  font: 400 15px/1.5 var(--abyssa-font-body);
   font-variant-numeric: tabular-nums;
+  letter-spacing: .04em;
+  white-space: nowrap;
   transition: color var(--abyssa-motion-hover);
 }
-.memory-act-picker__trigger::after {
-  content: "";
-  position: absolute;
-  left: -4px;
-  right: -4px;
-  bottom: 3px;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, #b7b697 28%, rgb(183 182 151 / 48%) 76%, transparent);
-  opacity: 0;
-  transition: opacity var(--abyssa-motion-hover);
-  pointer-events: none;
-}
+.memory-act-picker__current { color: var(--memory-muted); }
+.memory-act-picker__trigger { cursor: pointer; }
+.memory-act-picker__trigger:is(:hover, :focus-visible, [aria-expanded="true"]):not(:disabled) { color: var(--memory-accent); }
+.memory-act-picker__trigger:focus-visible { outline: 1px solid rgb(203 195 165 / 48%); outline-offset: -8px; }
 .memory-act-picker__caret {
   align-self: center;
   width: 6px;
@@ -44,13 +33,8 @@
   transition: rotate var(--abyssa-motion-hover), opacity var(--abyssa-motion-hover);
 }
 .memory-act-picker__trigger:disabled { cursor: default; }
-.memory-act-picker__trigger:disabled > .memory-act-picker__caret { visibility: hidden; }
-.memory-act-picker__trigger:is(:hover, :focus-visible, [aria-expanded="true"]):not(:disabled) { color: #d2ceb5; }
-.memory-act-picker__trigger:is(:hover, :focus-visible, [aria-expanded="true"]):not(:disabled) > strong { color: #e1d9be; }
-.memory-act-picker__trigger:is(:hover, [aria-expanded="true"]):not(:disabled)::after { opacity: .55; }
-.memory-act-picker__trigger:focus-visible { outline: none; }
-.memory-act-picker__trigger:focus-visible::after { opacity: 1; }
-.memory-act-picker__trigger[aria-expanded="true"] > .memory-act-picker__caret { rotate: 225deg; opacity: 1; }
+.memory-act-picker__trigger:disabled .memory-act-picker__caret { visibility: hidden; }
+.memory-act-picker__trigger[aria-expanded="true"] .memory-act-picker__caret { rotate: 225deg; opacity: 1; }
 
 /* The date editor and scene feedback share this feathered, sharp-scene backing. */
 .memory-act-picker__list.scene-feedback__surface {
@@ -58,11 +42,11 @@
   --feedback-edge-block: 18px;
   position: absolute;
   z-index: 20;
-  left: -28px;
-  bottom: calc(100% + 12px);
+  left: 0;
+  top: calc(100% + 6px);
   width: 320px;
   max-width: none;
-  padding: 18px 24px;
+  padding: 14px 16px;
   border: 0;
   background: none;
   box-shadow: none;
@@ -71,8 +55,8 @@
   /* Extend the feathered depth beyond the options so fragments of the open
      transcript do not read as prefixes or suffixes of an act title. */
   --feedback-edge-inline: 52px;
-  inset: -8px -72px -8px -88px;
-  background: rgb(10 18 19 / 92%);
+  inset: -20px -64px -20px -72px;
+  background: rgb(10 18 19 / 98%);
 }
 .memory-act-picker__list.scene-feedback__surface::after {
   background:
@@ -98,7 +82,7 @@
   border: 0;
   background: none;
   color: #a6b0a8;
-  font: 16px/1.5 var(--abyssa-font-body);
+  font: 400 15px/1.5 var(--abyssa-font-body);
   text-align: left;
   cursor: pointer;
   transition: color var(--abyssa-motion-hover);
@@ -128,7 +112,7 @@
   transition: opacity var(--abyssa-motion-hover);
   pointer-events: none;
 }
-.memory-act-picker__number { flex: 0 0 27px; color: #7f9185; font: 400 20px/1.2 var(--abyssa-font-display); font-variant-numeric: tabular-nums; transition: color var(--abyssa-motion-hover); }
+.memory-act-picker__number { flex: 0 0 24px; color: var(--memory-muted); font: inherit; font-variant-numeric: tabular-nums; transition: color var(--abyssa-motion-hover); }
 .memory-act-picker__title { flex: 1; }
 .memory-act-picker__items > button > small { flex-shrink: 0; font-size: 11px; color: #7e8e82; }
 .memory-act-picker__items > button[aria-pressed="true"] { color: #d8d1b9; }

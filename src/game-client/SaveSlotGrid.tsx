@@ -1,9 +1,10 @@
 import { useLayoutEffect, useRef, useState, type KeyboardEvent } from "react";
 import type { PlayerSaveListEntry } from "../game-runtime/player-runtime";
-import { slotRecord, type SaveSlotIndex } from "../game-runtime/save-slots";
+import { slotRecord, SAVE_SLOT_COUNT, type SaveSlotIndex } from "../game-runtime/save-slots";
 import { saveScene, savedDate, savePhases as phases } from "./save-scene";
 import { SaveFileIcon } from "./SaveFileIcon";
 import { slotSelectionTracks } from "./save-slots-motion";
+import { SAVE_SLOT_COLUMNS, SAVE_SLOT_ROWS, SAVE_SLOTS_PER_PAGE } from "./save-slots-layout";
 
 export const slotNumber = (index: number) => String(index + 1).padStart(2, "0");
 function SlotImage({ src }: { src: string }) {
@@ -21,29 +22,30 @@ export function SaveSlotGrid({ index, saves, selected, onSelect, disabled, onAct
 }) {
   const grid = useRef<HTMLDivElement>(null), focusNext = useRef(false);
   useLayoutEffect(() => {
-    if (!focusNext.current || changing || page !== Math.floor(selected / 10)) return;
+    if (!focusNext.current || changing || page !== Math.floor(selected / SAVE_SLOTS_PER_PAGE)) return;
     focusNext.current = false;
     grid.current?.querySelector<HTMLButtonElement>(`[data-slot="${selected}"]`)?.focus({ preventScroll: true });
   }, [selected, changing, page]);
   function move(event: KeyboardEvent<HTMLButtonElement>, position: number) {
     if (disabled || changing || event.nativeEvent.isComposing || event.altKey || event.ctrlKey || event.metaKey) return;
-    const deltas: Record<string, number> = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -5, ArrowDown: 5, PageUp: -10, PageDown: 10 };
+    const deltas: Record<string, number> = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -SAVE_SLOT_COLUMNS, ArrowDown: SAVE_SLOT_COLUMNS, PageUp: -SAVE_SLOTS_PER_PAGE, PageDown: SAVE_SLOTS_PER_PAGE };
     let next = position;
-    if (event.key in deltas) next = Math.max(0, Math.min(29, position + deltas[event.key]));
-    else if (event.key === "Home") next = page * 10;
-    else if (event.key === "End") next = page * 10 + 9;
+    if (event.key in deltas) next = Math.max(0, Math.min(SAVE_SLOT_COUNT - 1, position + deltas[event.key]));
+    else if (event.key === "Home") next = page * SAVE_SLOTS_PER_PAGE;
+    else if (event.key === "End") next = Math.min(SAVE_SLOT_COUNT, (page + 1) * SAVE_SLOTS_PER_PAGE) - 1;
     else if (event.key === "Enter") { event.preventDefault(); if (!event.repeat) onActivate(); return; }
     else return;
     event.preventDefault(); focusNext.current = true; onSelect(next);
   }
   const [settledSelection, setSettledSelection] = useState(selected);
   useLayoutEffect(() => { if (!changing) setSettledSelection(selected); }, [selected, changing]);
-  const visualSelection = changing && page === Math.floor(settledSelection / 10) ? settledSelection : selected;
+  const visualSelection = changing && page === Math.floor(settledSelection / SAVE_SLOTS_PER_PAGE) ? settledSelection : selected;
   return <div className="save-slots__grid" ref={grid} role="group" inert={changing || loading} aria-busy={changing || loading} data-loading={loading || undefined} aria-label={`本机存档 · 第 ${page + 1} 页`}>
-    {[0, 1].map(row => <div className="save-slots__rail" key={row} style={{ gridTemplateColumns: slotSelectionTracks(
-      Math.floor(visualSelection / 5) === page * 2 + row ? visualSelection % 5 : null) }}>
-      {Array.from({ length: 5 }, (_, column) => {
-        const position = page * 10 + row * 5 + column;
+    {Array.from({ length: SAVE_SLOT_ROWS }, (_, row) => <div className="save-slots__rail" key={row} style={{ gridTemplateColumns: slotSelectionTracks(
+      Math.floor(visualSelection / SAVE_SLOT_COLUMNS) === page * SAVE_SLOT_ROWS + row ? visualSelection % SAVE_SLOT_COLUMNS : null) }}>
+      {Array.from({ length: SAVE_SLOT_COLUMNS }, (_, column) => {
+        const position = page * SAVE_SLOTS_PER_PAGE + row * SAVE_SLOT_COLUMNS + column;
+        if (position >= SAVE_SLOT_COUNT) return null;
         const binding = index?.slots[position] ?? null;
         const save = slotRecord(binding, saves), scene = save?.status === "ready" ? saveScene(save) : null;
         const state = !binding ? "empty" : scene ? "occupied" : "unavailable";

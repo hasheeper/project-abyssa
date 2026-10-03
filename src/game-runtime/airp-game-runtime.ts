@@ -3,7 +3,7 @@ import { gameCommissionRewards } from "../game-application/airp-game/rewards";
 import { FACILITIES_AIRP_CATALOG } from "./facilities-context";
 import { SHOP_AIRP_CATALOG } from "./shop-wave-context";
 import type { D5GameRecord, D5Receipt, D5Store, VersionedGameStore } from "../game-application";
-import type { D5Departure } from "../game-core/session";
+import type { D5Departure, D5RunReaders } from "../game-core/session";
 import { createAirpGameHost } from "../game-application/airp-game/host";
 import { currentGamePlan, projectGameNode } from "../game-application/airp-game/projection";
 import { createExpeditionGMService } from "../game-application/airp-expedition-gm/service";
@@ -22,7 +22,7 @@ import { homeSettlementPacket, pendingHomeBoundary } from "../game-application/a
 export { nodeStage } from "../game-application/airp-expedition-play/service";
 
 /** Shared by normal map/battle pages. Configuration/keys are never part of the save. */
-export function createAirpGameRuntime(store: VersionedGameStore) {
+export function createAirpGameRuntime(store: VersionedGameStore, readers: D5RunReaders) {
   const bridge: D5Store = { read: async id => await store.read(id) as D5GameRecord | null, listSaveIds: () => store.listSaveIds(),
     receipt: async (...args) => await store.receipt(...args) as D5Receipt | null,
     async commit(c) { const r = await store.commit(c); return { ...r, receipt: r.receipt as D5Receipt }; } };
@@ -32,7 +32,7 @@ export function createAirpGameRuntime(store: VersionedGameStore) {
       async read(id) {const record=await bridge.read(id);if(record&&record.head.epoch!==epoch)throw Error("档案身份已变化，原任务已停止。");return record;},
       async commit(command) {if(command.epoch!==epoch)throw Error("档案身份已变化，拒绝写入原任务。");return bridge.commit(command);},
     };
-    const host = createAirpGameHost(scoped, contentVersion === 28 ? ESTATE_AIRP_CATALOG : contentVersion === 26 ? FACILITIES_AIRP_CATALOG : contentVersion === 24 ? SHOP_AIRP_CATALOG : AIRP_GAME_CATALOG, saveId);
+    const host = createAirpGameHost(scoped, contentVersion === 28 ? ESTATE_AIRP_CATALOG : contentVersion === 26 ? FACILITIES_AIRP_CATALOG : contentVersion === 24 ? SHOP_AIRP_CATALOG : AIRP_GAME_CATALOG, saveId, readers);
     const source = airpMaterialForVersion(contentVersion);
     async function configureDirector() {
       const record = await host.read();

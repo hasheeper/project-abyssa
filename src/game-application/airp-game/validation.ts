@@ -7,13 +7,14 @@ import { sameHead } from "../transaction";
 import { validateSettlementSnapshot } from "../airp-settlement/service";
 import { validateExpeditionGMSnapshot } from "../airp-expedition-gm/service";
 import { assertNodeProgramMayAdvance, validateNodeSnapshot } from "../airp-expedition-play/service";
-import { airpGameHash, currentGamePlan, gameHash, projectGameGm, projectGameNode } from "./projection";
+import { airpGameHash, currentGamePlan, gameHash, projectGameGm, projectGameNode, rebaseAirpGame } from "./projection";
 import { shareSettlement } from "../airp-settlement/share";
 import { pendingHomeBoundary } from "./home";
 import { parseGMShare, validateGMShares } from "./gm-share";
 import { registeredPatrol, singlePathPatrol } from "../airp-director/commissions";
 import { expeditionAppraisalSlots } from "../../game-core/session";
 import { gameAppraisal } from "./appraisals";
+import { copyEvidenceRecords, copyOriginHeads } from "../versions/d5-copy-evidence";
 
 export function parseAirpGameProof(raw: unknown): AirpGameProof {
   const p = v.record(raw, "airpGameProof", ["version", "kind", "world", "stateHash"], ["settlement", "gmShare"]);
@@ -25,16 +26,59 @@ export function parseAirpGameProof(raw: unknown): AirpGameProof {
   }
   return { version: v.choice(p.version, [1], "version"), kind: v.choice(p.kind, ["prepare", "gm", "node", "settlement"], "kind"), world: v.boolean(p.world, "world"), stateHash: settlementDigest(p.stateHash, "stateHash"), ...(p.settlement === undefined ? {} : { settlement: structuredClone(p.settlement) as AirpGameProof["settlement"] }), ...(p.gmShare === undefined ? {} : { gmShare: parseGMShare(p.gmShare) }) };
 }
+function validateCopyHistory(record: D5GameRecord): void {
+  const game = record.airpGame;
+  if (!game || record.originRef?.kind !== "copy") return;
+  const origins = copyEvidenceRecords(record).slice(0, -1);
+  const owner = (head: D5GameRecord["head"]) => origins.find(source => source.head.saveId === head.saveId && source.head.epoch === head.epoch);
+  const local = (head: D5GameRecord["head"]) => head.saveId === record.head.saveId && head.epoch === record.head.epoch;
+  for (const job of game.gm.jobs) for (const [index, frame] of job.frames.entries()) {
+    if (local(frame.context.rules.head)) continue;
+    const original = owner(frame.context.rules.head)?.airpGame?.gm.jobs.find(source => source.id === job.id)?.frames[index];
+    if (!original || gameHash(original) !== gameHash(frame)) v.invalid("airpGame.gm", "Inherited GM frame differs from its validated original");
+  }
+  for (const [planId, ledger] of Object.entries(game.nodes)) for (const job of ledger.jobs) {
+    if (job.frame && job.frozenWorld && !local(job.frozenWorld)) {
+      const original = owner(job.frozenWorld)?.airpGame?.nodes[planId]?.jobs.find(source => source.id === job.id);
+      if (!original || gameHash(original.frame) !== gameHash(job.frame) || gameHash(original.triggerSources) !== gameHash(job.triggerSources)) v.invalid("airpGame.nodes", "Inherited scene frame differs from its validated original");
+    }
+    for (const [cursor, head] of job.reads.entries()) {
+      if (local(head)) continue;
+      const original = owner(head)?.airpGame?.nodes[planId]?.jobs.find(source => source.id === job.id)?.reads[cursor];
+      if (!original || !sameHead(original, head)) v.invalid("airpGame.nodes", "Inherited read lacks its original cursor");
+    }
+  }
+  for (const job of game.settlement.jobs) for (const [index, frame] of job.frames.entries()) {
+    if (local(frame.input.state.head)) continue;
+    const original = owner(frame.input.state.head)?.airpGame?.settlement.jobs.find(source => source.id === job.id)?.frames[index];
+    if (!original || gameHash(original) !== gameHash(frame)) v.invalid("airpGame.settlement", "Inherited settlement frame differs from its validated original");
+  }
+  for (const receipt of game.settlement.receipts) {
+    if (local(receipt.committedHead)) continue;
+    const original = owner(receipt.committedHead)?.airpGame?.settlement.receipts.find(source => source.id === receipt.id);
+    if (!original || gameHash(original) !== gameHash(receipt)) v.invalid("airpGame.settlement", "Inherited receipt differs from its validated original");
+  }
+}
 export function validateAirpGame(r: D5GameRecord, catalog: v.ValidatedD5Catalog): void {
   if (![22, 24, 26, 28].includes(catalog.ref.contentVersion)) return;
   const proofs = r.facts.filter(f => f.kind === "airp-game"), s = r.airpGame;
+  const ancestor = r.originRef?.kind === "copy" && r.originRef.source.schemaVersion === 4 ? r.originRef.source : null;
+  if (!proofs.length && ancestor?.airpGame) {
+    const inherited = { ...r, head: [...r.facts].reverse().find(f => f.kind !== "airp-game" || f.payload.world)!.source,
+      airpGame: structuredClone(ancestor.airpGame) };
+    rebaseAirpGame(inherited);
+    if (gameHash(s) !== gameHash(inherited.airpGame)) v.invalid("airpGame", "Inherited AIRP state differs from its validated source");
+    validateGMShares(r);
+    return;
+  }
   if (s === null && !proofs.length) { validateGMShares(r); return; }
   if (!s || !proofs.length) return v.invalid("airpGame", "Missing formal AIRP state/proof");
   v.record(s, "airpGame", ["version", "worldHead", "material", "preparation", "gm", "nodes", "settlement"]);
   if (s.version !== 1 || airpGameHash(s) !== proofs.at(-1)!.payload.stateHash) v.invalid("airpGame", "AIRP state differs from committed proof");
+  validateCopyHistory(r);
   const latestWorld = [...r.facts].reverse().find(f => f.kind !== "airp-game" || f.payload.world)!;
   if (!sameHead(s.worldHead, latestWorld.source) || !sameHead(s.settlement.state.head, s.worldHead) || s.settlement.state.phase !== airpPhaseIndex(r.snapshot.campaign.clock.day, r.snapshot.campaign.clock.phase)) v.invalid("airpGame", "World projection differs");
-  validateSettlementSnapshot({ head: r.head, worldHead: s.worldHead, ledger: s.settlement, appliedItemOperations: [] });
+  validateSettlementSnapshot({ head: r.head, worldHead: s.worldHead, originHeads: copyOriginHeads(r), ledger: s.settlement, appliedItemOperations: [] });
   for (const proof of proofs) if (proof.payload.settlement) {
     const shared = proof.payload.settlement;
     if (!sameHead(shared.state.head, proof.source) || gameHash(shared) !== gameHash(shareSettlement(s.settlement, shared.taskId))) v.invalid("settlementShare", "Daily handoff differs from the committed assessment");

@@ -9,6 +9,7 @@ import { gameNodeGrants } from "./policy";
 import { projectD5NodeProgram } from "../airp-expedition-play/d5-source";
 import { sameHead } from "../transaction";
 import { recordMemoryContext } from "../airp-memory/d5";
+import { copyOriginHeads, copyWorldHead, withCopyEvidence } from "../versions/d5-copy-evidence";
 
 export const gameHash = (value: unknown) => sha256(canonicalJson(value));
 export const gameClone = <T>(value: T): T => structuredClone(value);
@@ -34,14 +35,15 @@ export function projectGameGm(r: D5GameRecord, catalog: ValidatedD5Catalog, refr
   const frozen = (started ?? s.gm.jobs.at(-1))?.frames.at(-1);
   const sameTrip = frozen?.departure.runId === departure.runId;
   // GM's own bookkeeping/acceptance must not invalidate or expand its frozen input.
-  const frozenGlobal = sameTrip && frozen?.context.gmContext && sameHead(frozen.context.rules.head, s.worldHead);
+  const worldHead = copyWorldHead(r);
+  const frozenGlobal = sameTrip && frozen?.context.gmContext && worldHead && sameHead(frozen.context.rules.head, worldHead);
   const gmContextVersion = sameTrip ? frozen?.context.gmContext ? 1 as const : undefined : (r.airpDirector?.lowContextVersion ?? 0) >= 17 ? 1 as const : undefined;
   const memoryVersion = sameTrip ? frozen?.context.gmContext?.memoryContext ? 19 as const : undefined : (r.airpDirector?.lowContextVersion ?? 0) >= 19 ? 19 as const : undefined;
   const commissionRewardVersion = refresh ? 1 as const : sameTrip && frozen ? frozen.context.rules.commissionRewardVersion : s.preparation.commissionRewardVersion;
   const appraisalPlanVersion = sameTrip && frozen ? frozen.context.rules.appraisalPlanVersion : s.preparation.appraisalPlanVersion;
   const packet = (inRun || frozenGlobal && !refresh) && frozen ? { context: frozen.context, documents: frozen.documents, departure: frozen.departure }
     : projectD5ExpeditionPreparation({ catalog, record: { ...r, head: s.worldHead }, gmRecord: r, ...s.preparation, settlement: s.settlement, limits: { nodes: 4, events: 0, definitions: commissionRewardVersion ? 4 : 0 }, checkAvailability: false, gmContextVersion, memoryVersion, commissionRewardVersion, appraisalPlanVersion });
-  return { ...packet, head: r.head, ledger: s.gm, activeRunId: r.snapshot.run?.id ?? null, startProofs: projectD5DepartureProofs(r), itemDefinitions: s.gm.jobs.filter(j => ["accepted", "started"].includes(j.status)).flatMap(j => j.prepared?.itemDefinitions ?? []) };
+  return { ...packet, head: r.head, originHeads: copyOriginHeads(r), ledger: s.gm, activeRunId: r.snapshot.run?.id ?? null, startProofs: projectD5DepartureProofs(r), itemDefinitions: s.gm.jobs.filter(j => ["accepted", "started"].includes(j.status)).flatMap(j => j.prepared?.itemDefinitions ?? []) };
 }
 export function currentGamePlan(r: D5GameRecord): ExpeditionJob | undefined {
   const runId = r.snapshot.run?.kind === "expedition" ? r.snapshot.run.id : r.airpGame?.preparation?.departure.runId;
@@ -49,9 +51,10 @@ export function currentGamePlan(r: D5GameRecord): ExpeditionJob | undefined {
 }
 export function projectGameNode(r: D5GameRecord, catalog: ValidatedD5Catalog, plan = currentGamePlan(r)!): NodeSnapshot {
   const s = r.airpGame!;
-  const program = projectD5NodeProgram({ catalog, record: r, plan, commits: r.commits.filter(c => c.previous).map(c => ({ head: c.ref, before: c.previous!, gameplayHead: c.ref, factIds: c.factIds })) });
+  const evidence = withCopyEvidence(r);
+  const program = projectD5NodeProgram({ catalog, record: evidence, plan, commits: evidence.commits.filter(c => c.previous).map(c => ({ head: c.ref, before: c.previous!, gameplayHead: c.ref, factIds: c.factIds })) });
   const ledger = s.nodes[plan.id] ?? { version: 1 as const, jobs: [] };
   const memoryView = recordMemoryContext(r);
-  return { head: r.head, worldHead: s.worldHead, plan, program, ledger, material: s.material, settlement: s.settlement, ...(memoryView ? {memoryView} : {}),
+  return { head: r.head, worldHead: s.worldHead, originHeads: copyOriginHeads(r), originWorldHead: copyWorldHead(r) ?? s.worldHead, plan, program, ledger, material: s.material, settlement: s.settlement, ...(memoryView ? {memoryView} : {}),
     grants: Object.fromEntries(ledger.jobs.map(j => [j.node.id, gameNodeGrants(s.settlement, j)])) };
 }

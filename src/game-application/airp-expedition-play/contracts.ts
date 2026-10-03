@@ -35,6 +35,8 @@ export type NodeJob = {
 };
 export type NodeLedger = { version: 1; jobs: NodeJob[] };
 export type NodeSnapshot = { head: HeadRef; worldHead: HeadRef; plan: ExpeditionJob; program: NodeProgram; ledger: NodeLedger;
+  originHeads?: HeadRef[];
+  originWorldHead?: HeadRef;
   memoryView?: import("../airp-memory/contracts").MemoryView;
   material: LowMaterial; settlement: SettlementLedger; grants: Record<string, SettlementGrant[]> };
 export type NodeCommit = { expectedHead: HeadRef; expectedWorldHead: HeadRef; next: NodeLedger; kind: "metadata" | "observation" };

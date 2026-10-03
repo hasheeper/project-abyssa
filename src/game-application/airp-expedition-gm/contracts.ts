@@ -34,6 +34,7 @@ export type ExpeditionJob = {
 };
 export type ExpeditionGMLedger = { version: 1; jobs: ExpeditionJob[] };
 export type ExpeditionGMSnapshot = {
+  originHeads?: HeadRef[];
   head: HeadRef; context: ExpeditionContext; documents: ExpeditionDocument[]; departure: D5Departure;
   ledger: ExpeditionGMLedger; activeRunId: string | null;
   startProofs: { runId: string; commandHash: string; factId: string; beforeHead: HeadRef }[];

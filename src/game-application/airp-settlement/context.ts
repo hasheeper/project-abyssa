@@ -52,9 +52,9 @@ function messages(frame: SettlementFrame): Message[] {
     outputSchema: frame.outputSchema ?? LEGACY_SETTLEMENT_OUTPUT_SCHEMA,
   }) }];
 }
-export function createSettlementFrame(input: v.SettlementInput, materials: SettlementMaterials): SettlementFrame {
+export function createSettlementFrame(input: v.SettlementInput, materials: SettlementMaterials, originHeads: readonly v.AirpHead[] = []): SettlementFrame {
   // Exercise semantic CL-A validation before saving or sending anything, even for an empty response.
-  prepareAirpSettlement(input, emptySettlementProposal(input), { head: input.state.head, receipts: input.priorReceipts, appliedItemOperations: [] });
+  prepareAirpSettlement(input, emptySettlementProposal(input), { head: input.state.head, originHeads, receipts: input.priorReceipts, appliedItemOperations: [] });
   validateSettlementMaterials(input, materials);
   const frame = cloneSettlement({ input, materials, promptVersion: SETTLEMENT_PROMPT_VERSION, instruction: SETTLEMENT_INSTRUCTION, requestHash: "", outputSchema: settlementOutputSchema(materials.memoryView ? {...input, openThreads: effectiveThreads(materials.memoryView)} : input) });
   if (materials.memoryView) { frame.promptVersion = "cl-b-settlement-memory-19"; frame.instruction += `\n${SETTLEMENT_MEMORY_INSTRUCTION}`; }

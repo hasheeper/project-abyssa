@@ -6,15 +6,17 @@ import type { D5GameRecord } from "../versions/d5-contracts";
 import { readGMShare } from "../airp-game/gm-share";
 import type { MemoryContext, MemoryEvidence } from "./contracts";
 import { effectiveMemory, memoryTargets } from "./effective";
+import { compareEvidenceHeads, copyOriginHeads, withinEvidenceHead, withCopyEvidence } from "../versions/d5-copy-evidence";
 
 /** Read the validated historical prefix, never a later mutable settlement ledger. */
 export function directorMemoryContext(state: DirectorState, input: AirpReplayInput): MemoryContext {
-  const facts = input.facts.filter(f => !input.retracted.includes(f.id) && f.source.saveId === input.head.saveId && f.source.epoch === input.head.epoch && f.source.revision <= input.head.revision);
+  const limits = [...(input.originHeads ?? []), input.head];
+  const facts = input.facts.filter(f => !input.retracted.includes(f.id) && withinEvidenceHead(f.source, limits));
   const memories: Pick<SettlementMemory, "id" | "phase" | "scope" | "points">[] = [], allThreads = new Map<string, SettlementThread>(), rawClosed = new Set<string>();
   const evidence = new Map<string, MemoryEvidence>(), readHeads: Record<string, HeadRef> = {};
   const add = (id: string, knownBy: string[], head: HeadRef, speakerId?: string) => {
     const old = evidence.get(id);
-    if (!old || head.revision < old.head.revision) evidence.set(id, {id, knownBy: [...new Set(knownBy)], head, ...(speakerId ? {speakerId} : {})});
+    if (!old || compareEvidenceHeads(head, old.head, limits) < 0) evidence.set(id, {id, knownBy: [...new Set(knownBy)], head, ...(speakerId ? {speakerId} : {})});
   };
   for (const f of facts) {
     if (f.kind === "airp-game" && f.payload.settlement) {
@@ -58,7 +60,8 @@ export function directorMemoryContext(state: DirectorState, input: AirpReplayInp
 export function recordMemoryContext(record: D5GameRecord): MemoryContext | undefined {
   if (!record.airpDirector || (record.airpDirector.lowContextVersion ?? 0) < 19) return undefined;
   const c = record.snapshot.campaign;
-  return directorMemoryContext(record.airpDirector, {head: record.head, before: c, after: c, facts: record.facts, group: [], retracted: record.retractedFactIds, run: null});
+  const evidence = withCopyEvidence(record);
+  return directorMemoryContext(record.airpDirector, {head: record.head, originHeads: copyOriginHeads(record), before: c, after: c, facts: evidence.facts, group: [], retracted: evidence.retractedFactIds, run: null});
 }
 /** Only this ID admits the unread draft; candidates/GM guidance are not evidence. */
 export function sceneMemoryContext(context: MemoryContext, sceneId: string, actorIds: string[], lines: {speaker: string; text: string}[]): MemoryContext {

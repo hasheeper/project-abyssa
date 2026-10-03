@@ -37,12 +37,15 @@ export function MemoryActPicker({ journal }: { journal: MemoryJournalController 
     return () => document.removeEventListener("pointerdown", outside);
   }, [open]);
   if (!act) return null;
+  if (journal.acts.length === 1) return <span className="memory-act-picker__current" aria-label={`第 1 幕：${act.title}`}>
+    <span>第</span><span>01</span><span>幕</span>
+  </span>;
   return <div className="memory-act-picker" ref={root} data-ui-motion={reduced ? "reduced" : undefined} onKeyDown={e => {
     if (e.key === "Escape" && open) { e.preventDefault(); e.stopPropagation(); setOpen(false); trigger.current?.focus(); }
   }}>
     <button type="button" ref={trigger} className="memory-act-picker__trigger" aria-label={`选择回想的幕，当前第 ${index + 1} 幕：${act.title}`}
-      aria-expanded={open} aria-controls={id} disabled={journal.changing || journal.acts.length < 2} onClick={() => setOpen(value => !value)}>
-      <span>第</span><strong>{String(index + 1).padStart(2, "0")}</strong><span>幕</span><i className="memory-act-picker__caret" aria-hidden="true"/>
+      aria-expanded={open} aria-controls={id} disabled={journal.changing} onClick={() => setOpen(value => !value)}>
+      <span>第</span><span>{String(index + 1).padStart(2, "0")}</span><span>幕</span><i className="memory-act-picker__caret" aria-hidden="true"/>
     </button>
     <AnimatePresence>{open && <ActList key={journal.selectedId} journal={journal} id={id}
       onSelect={actId => { journal.selectAct(actId); setOpen(false); trigger.current?.focus({ preventScroll: true }); }}/>}</AnimatePresence>

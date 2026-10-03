@@ -43,6 +43,8 @@ export type SettlementLedger = {
   receipts: SettlementReceipt[]; jobs: SettlementJob[];
 };
 export type SettlementHostSnapshot = {
+  originHeads?: HeadRef[];
+  originWorldHead?: HeadRef;
   memoryView?: import("../airp-memory/contracts").MemoryView;
   /** Root aggregate CAS head, including bookkeeping commits. */
   head: HeadRef;

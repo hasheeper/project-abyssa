@@ -5,6 +5,7 @@ import { sha256 } from "../contracts/sha256";
 import { assertJson, canonicalJson, freezeData, invalid } from "../contracts/validation";
 
 const sameSave = (a: AirpHead, b: AirpHead) => a.saveId === b.saveId && a.epoch === b.epoch;
+const evidenceLimit = (head: AirpHead, current: AirpHead, origins: readonly AirpHead[]) => sameSave(head, current) ? current : origins.find(origin => sameSave(head, origin));
 const copy = <T>(value: T): T => JSON.parse(canonicalJson(value)) as T;
 const fail = (message: string): never => invalid("settlement", message, "airp-settlement");
 const fingerprint = (value: unknown) => sha256(canonicalJson(value));
@@ -37,7 +38,7 @@ export function projectSettlementActorState(actor: SettlementActorState, phase: 
   return copy({ ...actor, activity: actor.activity && live(actor.activity) ? actor.activity : null, conditions: actor.conditions.filter(live) });
 }
 
-function validateInput(input: SettlementInput): void {
+function validateInput(input: SettlementInput, originHeads: readonly AirpHead[]): void {
   const { state, policy, scope } = input;
   if (state.policyId !== policy.id) fail("Policy identity mismatch; no implicit rebalance/migration");
   const actor = (id: string) => { if (!policy.actorIds.includes(id)) fail(`Unknown actor: ${id}`); };
@@ -60,8 +61,10 @@ function validateInput(input: SettlementInput): void {
   input.fullActorCards.forEach(card => actor(card.actorId));
   input.actorLocks.forEach(lock => actor(lock.actorId));
   for (const source of input.evidence) {
-    if (!sameSave(source.head, state.head) || source.head.revision > state.head.revision || source.phase > state.phase) fail("Cross-save/epoch or future evidence");
-    if (source.kind === "read-paragraph" && source.readAtRevision > state.head.revision) fail("Unread paragraph is not experience");
+    const limit = evidenceLimit(source.head, state.head, originHeads);
+    if (!limit) return fail("Cross-save/epoch or future evidence");
+    if (source.head.revision > limit.revision || source.phase > state.phase) fail("Cross-save/epoch or future evidence");
+    if (source.kind === "read-paragraph" && source.readAtRevision > limit.revision) fail("Unread paragraph is not experience");
     if (source.role === "current" && (source.eventId !== scope.eventId || source.runId !== scope.runId || source.actionId !== scope.actionId)) fail("Current evidence belongs to another event/action/run");
     knowledge(source.knownBy);
     if (source.speakerId !== null) {
@@ -81,12 +84,13 @@ function validateInput(input: SettlementInput): void {
 }
 
 /** Receipts are internal, validated replay data. A model proposal cannot supply this ledger. */
-function validateLedger(receipts: SettlementReceipt[], head: AirpHead): void {
+function validateLedger(receipts: SettlementReceipt[], head: AirpHead, originHeads: readonly AirpHead[]): void {
   settlementUnique(receipts, r => r.id, "ledger.receipts");
   settlementUnique(receipts, r => r.taskId, "ledger.tasks");
   for (const r of receipts) {
     settlementHead(r.committedHead, "ledger.head");
-    if (!sameSave(r.committedHead, head) || r.committedHead.revision > head.revision) fail("Foreign/future applied receipt");
+    const limit = evidenceLimit(r.committedHead, head, originHeads);
+    if (!limit || r.committedHead.revision > limit.revision) fail("Foreign/future applied receipt");
   }
   settlementUnique(receipts.flatMap(r => r.effects), e => e.id, "ledger.effects");
 }
@@ -98,12 +102,13 @@ function validateLedger(receipts: SettlementReceipt[], head: AirpHead): void {
  */
 export function prepareAirpSettlement(rawInput: SettlementInput, rawProposal: unknown, gate: SettlementCommitGate): SettlementPreparation {
   const input = validateSettlementInputShape(rawInput), proposal = parseSettlementProposal(rawProposal);
-  validateInput(input);
   assertJson(gate);
+  const originHeads = (gate.originHeads ?? []).map((head, index) => settlementHead(head, `gate.originHeads.${index}`));
+  validateInput(input, originHeads);
   const liveHead = settlementHead(gate.head, "gate.head"), expected = input.state.head;
   if (!sameSave(expected, liveHead)) fail("Cross-save/epoch result");
-  validateLedger(gate.receipts, liveHead);
-  validateLedger(input.priorReceipts, expected);
+  validateLedger(gate.receipts, liveHead, originHeads);
+  validateLedger(input.priorReceipts, expected, originHeads);
   const task = identity(input);
   if (proposal.taskId !== task.taskId || proposal.inputHash !== task.inputHash) fail("Wrong task or changed frozen input");
   const already = gate.receipts.find(r => r.taskId === task.taskId);
