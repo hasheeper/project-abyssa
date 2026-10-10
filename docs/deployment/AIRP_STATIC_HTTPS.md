@@ -1,6 +1,18 @@
 # AIRP：Cloudflare Pages 静态发布
 
-当前发布阶段：**Alpha**。正式试玩站为[abyssa-airp-alpha.pages.dev](https://abyssa-airp-alpha.pages.dev/)，源码仓库为[hasheeper/project-abyssa](https://github.com/hasheeper/project-abyssa)。ABOUT 标识 `ABYSSA · ALPHA`。当前编号版本为 **v0.1.0-alpha.2**。
+当前发布阶段：**Alpha**。正式试玩站为[abyssa-airp-alpha.pages.dev](https://abyssa-airp-alpha.pages.dev/)，源码仓库为[hasheeper/project-abyssa](https://github.com/hasheeper/project-abyssa)。ABOUT 标识 `ABYSSA · ALPHA`。当前编号版本为 **v0.1.0-alpha.4**。
+
+## 2026-10-10 当前发布：显示交互
+
+源码 `624073477481b34ab65c9474389de07f062c454f`、附注标签 `v0.1.0-alpha.4` 已推送。新版本加入设置中的原生全屏与退出、手机横屏限制，以及浏览器默认选区／拖拽／触摸高亮的抑制；游戏原有反馈及输入框编辑保留。仓库按作者要求解除归档，历史封存资料继续保留。
+
+从干净提交以 Node 22.23.2／npm 10.9.8 构建；40 项单元测试、前端与工具类型检查、模块边界、3 项定向浏览器检查、产物与 Pages 发布门禁通过。CSP 浏览器预检通过，外部／模型请求、页面错误、CSP 违规均为 0。手机横竖屏检查为触摸模拟，不代表 iPhone 真机验收。
+
+Wrangler 4.140.0 已成功发布 production／main，部署 ID `a1d607d5-9797-4093-a23d-db9d9b9b9ff0`，独立地址为 [a1d607d5.abyssa-airp-alpha.pages.dev](https://a1d607d5.abyssa-airp-alpha.pages.dev/)。完整包为 1043 文件／168.04 MiB，最大 7.81 MiB，清单 SHA-256 为 `4beaffc5ec0205b32fed1f4369b1d83555013b6115fad1b3fa174696c99451eb`；构建时间 `2026-10-10T15:04:10.755Z`。正式域名和独立地址各 15 个入口／全屏／设置／缓存关键文件摘要与发布包一致，各 2 个私有路径真正返回 404，CSP 与 nosniff 生效。编号登记见 `game-releases.json`，实现和验证范围见[显示交互审查](../audits/2026-10-10-display-fullscreen.md)。
+
+上一 production 为 `v0.1.0-alpha.3`，部署 `ac9c2c45-99cb-4c6d-8224-0299e7f0525a`，保留为回退候选。本次未做完整游戏回归、模型生成或回退演练。
+
+## 2026-10-03 历史发布：alpha.2
 
 更新：2026-10-03。当前运行源码 `c1fa3c93d83269e6a22b4e592878144f85cc4b8b` 和附注标签 `v0.1.0-alpha.2` 已推送 GitHub main；从干净提交使用 Node 22.23.2／npm 10.9.8 构建，来源、产物、隐私和 `check:pages:publish` 门禁均通过。仅上传 `dist/game`，Wrangler 4.140.0 确认 production 部署成功，source 为 `c1fa3c9`。部署 ID 为 `c10d4bf7-794b-4728-a037-e82219723407`，独立地址为 [c10d4bf7.abyssa-airp-alpha.pages.dev](https://c10d4bf7.abyssa-airp-alpha.pages.dev/)；后续登记与文档提交不改变该源码身份。
 

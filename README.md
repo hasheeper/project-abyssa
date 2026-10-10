@@ -4,7 +4,7 @@
 
 正常新档统一为 **内容28／规则4**，起点为序章、清晨、教学、自由行动；完成或跳过教程后在同一存档进入正式 AIRP。无 LLM 和商店初见属于调试入口，使用内容27。AIRP 使用玩家在设置中保存的连接，由浏览器直连模型 API。内容质量、平衡与完整玩家体验仍需验收。
 
-当前发布阶段为 **Alpha**，试玩地址为 **[abyssa-airp-alpha.pages.dev](https://abyssa-airp-alpha.pages.dev/)**。源码仓库为 [GitHub](https://github.com/hasheeper/project-abyssa)，游戏 ABOUT 提供同一链接。最后线上版本为 `v0.1.0-alpha.3`，对应源码 `775653eee0fab8deca6dadeec0335a09fad71280`。Cloudflare 采用独立 Direct Upload，Git 推送不会自动更新站点；部署版本、检查结果与限制见[发布记录](docs/deployment/AIRP_STATIC_HTTPS.md)。
+当前发布阶段为 **Alpha**，试玩地址为 **[abyssa-airp-alpha.pages.dev](https://abyssa-airp-alpha.pages.dev/)**。源码仓库为 [GitHub](https://github.com/hasheeper/project-abyssa)，游戏 ABOUT 提供同一链接。当前线上版本为 `v0.1.0-alpha.4`，对应源码 `624073477481b34ab65c9474389de07f062c454f`。Cloudflare 采用独立 Direct Upload，Git 推送不会自动更新站点；部署版本、检查结果与限制见[发布记录](docs/deployment/AIRP_STATIC_HTTPS.md)。
 
 ## 显示交互更新（2026-10-10）
 
