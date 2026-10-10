@@ -4,13 +4,11 @@ import { SettingsRow } from "../controls/SettingsRow";
 import type { SectionProps } from "./PerformanceSection";
 import { setUiMotionPreference, useUiMotionPreference } from "../../../shared/preferences/ui-motion";
 import { useUiMotion } from "../../../shared/ui/motion/UiMotionProvider";
+import { setFullscreenEnabled, useFullscreen } from "../../../shared/display/fullscreen";
 
 /**
- * 显示 —— 只做两件事:减弱动画、关掉渲染开销大的样式。
- *
- * 刻意没有分辨率、全屏、垂直同步。本项目跑在固定画布上(shared/stage:
- * 外 16:9 贴设备、内容等比缩放),"分辨率"在这个架构里不是可调量;
- * 全屏是浏览器的事,不该由页面内的设置伪装成自己的能力。
+ * 显示 —— 全屏、减弱动画、关掉渲染开销大的样式。
+ * 固定画布保持等比缩放；全屏直接连接浏览器 API，不改变游戏分辨率。
  *
  * 界面动效偏好由产品入口持久化；共享 UI 同时响应系统偏好。
  * 其他演出开关仍为本页预览设置，不扩展到 Logo 或玩法存档。
@@ -18,9 +16,24 @@ import { useUiMotion } from "../../../shared/ui/motion/UiMotionProvider";
 export function DisplaySection({ state, onChange }: SectionProps) {
   const { preference } = useUiMotionPreference();
   const { reduced } = useUiMotion();
+  const fullscreen = useFullscreen();
   return (
     <div className="settings-grid">
       <div className="settings-list">
+        <SettingsRow label="全屏模式" caption="FULLSCREEN">
+          <Toggle
+            variant="teal"
+            onLabel={fullscreen.mode === "standalone" ? "全屏中" : "退出全屏"}
+            offLabel="进入全屏"
+            aria-label="全屏模式"
+            aria-describedby="settings-fullscreen-help"
+            aria-busy={fullscreen.pending}
+            checked={fullscreen.enabled}
+            disabled={fullscreen.pending || fullscreen.mode === "standalone"}
+            onCheckedChange={(enabled) => { void setFullscreenEnabled(enabled); }}
+          />
+        </SettingsRow>
+
         <SettingsRow label="界面动效" caption="UI MOTION">
           <Toggle
             variant="teal"
@@ -80,6 +93,16 @@ export function DisplaySection({ state, onChange }: SectionProps) {
 
       <aside className="settings-side">
         <span className="settings-side__label">显示状态</span>
+
+        <p id="settings-fullscreen-help" className="settings-note" role="status">
+          {fullscreen.error ?? (fullscreen.mode === "standalone"
+            ? "已从主屏幕以全屏打开。可使用系统手势返回桌面。"
+            : fullscreen.mode === "immersive"
+              ? "已开启沉浸显示。此浏览器无法隐藏地址栏；iPhone / iPad 可在 Safari 中将页面添加到主屏幕，再从主屏幕全屏打开。"
+              : fullscreen.mode === "native"
+                ? "已进入全屏。电脑按 Esc 或关闭开关退出；手机可使用浏览器的退出全屏操作。"
+                : "电脑和支持的手机浏览器可直接全屏。手机横屏显示更完整；iPhone / iPad 可在 Safari 中添加到主屏幕后全屏打开。")}
+        </p>
 
         {/* 关掉的项越多,渲染负载越低。这是把四个开关汇总成一个可读的量 ——
             比逐项说明「这个开销大」更直观。 */}

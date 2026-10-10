@@ -6,7 +6,11 @@
 
 当前发布阶段为 **Alpha**，试玩地址为 **[abyssa-airp-alpha.pages.dev](https://abyssa-airp-alpha.pages.dev/)**。源码仓库为 [GitHub](https://github.com/hasheeper/project-abyssa)，游戏 ABOUT 提供同一链接。最后线上版本为 `v0.1.0-alpha.3`，对应源码 `775653eee0fab8deca6dadeec0335a09fad71280`。Cloudflare 采用独立 Direct Upload，Git 推送不会自动更新站点；部署版本、检查结果与限制见[发布记录](docs/deployment/AIRP_STATIC_HTTPS.md)。
 
-## 项目封存（2026-10-03）
+## 显示交互更新（2026-10-10）
+
+按作者要求解除仓库归档，继续维护。设置 → Display 新增「进入全屏／退出全屏」，电脑与支持的手机浏览器使用原生全屏；iPhone Safari 可添加到主屏幕后全屏打开。手机仅支持横屏，竖屏提示旋转并阻止背后的操作。游戏界面关闭浏览器默认文字选区、图片／链接拖拽、触摸高亮和鼠标点击产生的自动焦点框；游戏自带边框、选中态及键盘焦点反馈保留，输入框继续支持编辑和选取。
+
+## 历史封存（2026-10-03）
 
 按作者要求停止维护，最终源码快照标记为 `archive-2026-10-03`，GitHub 仓库转为归档状态。最后的图鉴界面调整、测试与设计记录一并保存，但未另行部署，线上仍保留 `.3`。三个已发布版本的原始静态文件、逐文件摘要与 ZIP 校验值保存在 [GitHub 封存 Release](https://github.com/hasheeper/project-abyssa/releases/tag/archive-2026-10-03)。封存范围、安全检查与恢复方式见[封存审查](docs/audits/2026-10-03-project-archive.md)。本机私密连接配置、密钥与开发报告不进入公开封存包。
 

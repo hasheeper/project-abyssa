@@ -161,3 +161,20 @@
   margin: 0;
   background: #000;
 }
+
+/* Native fullscreen includes every route and portal, not only the settings panel. */
+.abyssa-stage-root:fullscreen,
+.abyssa-stage-root:-webkit-full-screen {
+  width: 100%;
+  height: 100%;
+  background: #000;
+}
+
+/* Unsupported mobile browsers still get a viewport-sized, scroll-free game surface. */
+.abyssa-stage-root[data-abyssa-immersive] #root {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100dvh;
+  overflow: hidden;
+}

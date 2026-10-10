@@ -20,7 +20,7 @@ import "../../shared/ui/styles/rp-typing.css";
 
 const TABS = [
   { id: "performance", label: "Scene", title: "演出节奏", description: "本页预览，尚未应用到游戏" },
-  { id: "display", label: "Display", title: "视觉显示", description: "界面动效全局生效，其余为本页预览" },
+  { id: "display", label: "Display", title: "视觉显示", description: "全屏与界面动效全局生效，其余为本页预览" },
   { id: "ai", label: "Model", title: "模型设置", description: "浏览器直连" },
   { id: "about", label: "About", title: "关于", description: "版本与说明" }
 ] as const;

@@ -177,13 +177,13 @@ describe("settings page", () => {
     expect(canvas).toHaveStyle({ background: "var(--abyssa-system-backdrop-plain)" });
   });
 
-  /* 本页刻意不提供分辨率/全屏/音量之类没有下游的条目 ——
+  /* 本页刻意不提供分辨率/音量之类没有下游的条目 ——
      固定画布架构下"分辨率"不是可调量,项目也没有任何音频代码。
      假开关比缺失更糟:它让人以为调了有用。 */
   it("does not invent settings without a downstream knob", () => {
     render(<SettingsPage />);
 
-    for (const absent of ["分辨率", "全屏", "音量", "垂直同步"]) {
+    for (const absent of ["分辨率", "音量", "垂直同步"]) {
       expect(screen.queryByText(new RegExp(absent))).toBeNull();
     }
   });
