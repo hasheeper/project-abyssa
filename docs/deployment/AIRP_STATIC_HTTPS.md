@@ -1,8 +1,18 @@
 # AIRP：Cloudflare Pages 静态发布
 
-当前发布阶段：**Alpha**。正式试玩站为[abyssa-airp-alpha.pages.dev](https://abyssa-airp-alpha.pages.dev/)，源码仓库为[hasheeper/project-abyssa](https://github.com/hasheeper/project-abyssa)。ABOUT 标识 `ABYSSA · ALPHA`。当前编号版本为 **v0.1.0-alpha.4**。
+当前发布阶段：**Alpha**。正式试玩站为[abyssa-airp-alpha.pages.dev](https://abyssa-airp-alpha.pages.dev/)，源码仓库为[hasheeper/project-abyssa](https://github.com/hasheeper/project-abyssa)。ABOUT 标识 `ABYSSA · ALPHA`。当前编号版本为 **v0.1.0-alpha.5**。
 
-## 2026-10-10 当前发布：显示交互
+## 2026-10-10 当前发布：设置返回菜单
+
+游戏侧栏移除 TITLE；原入口改为设置底部的「返回菜单」，前往标题菜单。「返回」仍关闭设置并恢复当前场景；标题内打开的设置就地关闭，保留 Stage 和焦点。源码 `6b52618573562525a59ccb38cba8d87e1ca098fa`、标签 `v0.1.0-alpha.5` 已推送。
+
+51 项相关单元检查、应用类型检查、模块边界、3 项定向浏览器检查、产物与 Pages 发布门禁通过。真实 CSP 浏览器预检通过，无外部／模型请求、页面错误或 CSP 违规。完整菜单测试额外发现旧存档页码断言和超时，范围及复检结果见[本轮审查](../audits/2026-10-10-settings-return-menu.md)。
+
+production／main 部署 ID `5f70ee15-7a6d-487b-9363-6a2d41ee7097`，独立地址为 [5f70ee15.abyssa-airp-alpha.pages.dev](https://5f70ee15.abyssa-airp-alpha.pages.dev/)。干净源码以 Node 22.23.2／npm 10.9.8 构建于 `2026-10-10T15:19:59.323Z`；完整包为 1043 文件／168.04 MiB，清单 SHA-256 为 `fc8622741e054451a36a301ba095e80fb1a921457252ba9da11ebc413eb325b7`。正式域名和独立地址各 23 个关键文件与发布包摘要一致，私有配置和报告路径返回 404，安全响应头生效。线上「返回菜单」和版本标识已核对。
+
+上一 production `v0.1.0-alpha.4` 保留为回退候选；本次未进行完整游戏回归、模型生成或回退演练。
+
+## 2026-10-10 历史发布：显示交互
 
 源码 `624073477481b34ab65c9474389de07f062c454f`、附注标签 `v0.1.0-alpha.4` 已推送。新版本加入设置中的原生全屏与退出、手机横屏限制，以及浏览器默认选区／拖拽／触摸高亮的抑制；游戏原有反馈及输入框编辑保留。仓库按作者要求解除归档，历史封存资料继续保留。
 
