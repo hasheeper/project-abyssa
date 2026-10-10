@@ -154,7 +154,7 @@ function TitlePageContent() {
       </AbyssaProvider>
       <TitleArchive archive={archive} onPresentChange={setArchivePresented}
         onNewGame={() => { archive.setOpen(false); setStartAttempted(false); setStartOpen(true); }} />
-      <SettingsScene open={settingsOpen} onClose={() => setSettingsOpen(false)} onPresentChange={setSettingsPresented} />
+      <SettingsScene open={settingsOpen} onClose={() => setSettingsOpen(false)} onReturnMenu={() => setSettingsOpen(false)} onPresentChange={setSettingsPresented} />
       </div>
     </Stage>
   );

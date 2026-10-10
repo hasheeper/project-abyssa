@@ -57,7 +57,7 @@ it("keeps the bilingual title, backdrop and navigation fixed during category tra
   expect(root().style.getPropertyValue("--system-scene-surface")).toBe("1");
   expect(document.querySelector(".system-scene__backdrop")).toBe(backdrop);
   expect(tabs.map(opacity)).toEqual([1, 1, 1, 1]);
-  expect(buttons.map(opacity)).toEqual([1, 1]);
+  expect(buttons.map(opacity)).toEqual([1, 1, 1]);
   expect(screen.getByRole("tabpanel")).toHaveAttribute("inert");
   await finish(flights[1]); await finish(flights[2]);
   expect(screen.getByRole("heading", { name: "视觉显示" })).toBeInTheDocument();

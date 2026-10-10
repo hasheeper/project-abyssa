@@ -5,12 +5,12 @@ import { useUiMotion } from "../../shared/ui/motion/UiMotionProvider";
 import { SettingsPanel } from "./SettingsPanel";
 import { settingsSceneVisibility, settingsTiming } from "./settings-motion";
 
-type Props = { open: boolean; onClose: () => void; onPresentChange?: (present: boolean) => void; onExited?: () => void; onBackdropTextureChange?: (enabled: boolean) => void; initialTab?: "performance" | "display" | "ai" | "about" };
+type Props = { open: boolean; onClose: () => void; onReturnMenu?: () => void; onPresentChange?: (present: boolean) => void; onExited?: () => void; onBackdropTextureChange?: (enabled: boolean) => void; initialTab?: "performance" | "display" | "ai" | "about" };
 export function SettingsScene(props: Props) {
   return <AnimatePresence onExitComplete={props.onExited}>{props.open && <PresentedSettings key="settings" {...props} />}</AnimatePresence>;
 }
 
-function PresentedSettings({ onClose, onPresentChange, onBackdropTextureChange, initialTab }: Props) {
+function PresentedSettings({ onClose, onReturnMenu, onPresentChange, onBackdropTextureChange, initialTab }: Props) {
   const [present, remove] = usePresence(), { reduced } = useUiMotion();
   const [hidden, setHidden] = useState(() => document.hidden), [settled, setSettled] = useState(false);
   const root = useRef<HTMLDivElement>(null), clock = useMotionValue(0);
@@ -39,6 +39,6 @@ function PresentedSettings({ onClose, onPresentChange, onBackdropTextureChange, 
   }, [clock, present, skip, remove]);
   return <SystemSceneFrame root={root} className="settings-scene" title="系统设置" present={present} interactive={settled} reduced={skip}
     onClose={onClose} onPresentChange={onPresentChange}>
-    <SettingsPanel fullScene initialTab={initialTab} onBack={onClose} onBackdropTextureChange={onBackdropTextureChange} sceneMotion={{ clock, exiting: !present, skip }} />
+    <SettingsPanel fullScene initialTab={initialTab} onBack={onClose} onReturnMenu={onReturnMenu} onBackdropTextureChange={onBackdropTextureChange} sceneMotion={{ clock, exiting: !present, skip }} />
   </SystemSceneFrame>;
 }

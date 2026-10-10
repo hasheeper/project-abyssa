@@ -44,9 +44,9 @@ it("教学侧栏只保留帮助与系统入口，结束回合留在底部，退�
   </UiMotionProvider></GameSessionScope>);
   const rail = screen.getByRole("complementary", {name: "游戏导航"});
   const menu = within(rail);
-  const expected = ["handbook", "battle-guide", "exit-guided", "archive", "save", "load", "settings"];
+  const expected = ["handbook", "battle-guide", "exit-guided", "save", "load", "settings"];
   expect(entryIds(rail)).toEqual(expected);
-  expect(menu.getByRole("link", {name: "返回标题"})).toHaveAttribute("href", expect.stringContaining("title"));
+  expect(menu.queryByRole("link", {name: "返回标题"})).toBeNull();
   const endTurn = screen.getByRole("button", {name: "END TURN"});
   expect(rail.contains(endTurn)).toBe(false);
 
@@ -73,7 +73,7 @@ it("教学存档位于洋馆页面时不套用战斗侧栏限制", async () => {
   try {
     render(<GameSessionScope session={mansion}><CampaignMenuScope><CampaignPanel/></CampaignMenuScope></GameSessionScope>);
     const rail = screen.getByRole("complementary", {name: "游戏导航"});
-    expect(entryIds(rail)).toEqual(["menu", "mansion", "journey", "archive", "save", "load", "settings"]);
+    expect(entryIds(rail)).toEqual(["menu", "mansion", "journey", "save", "load", "settings"]);
     expect(within(rail).getByRole("link", {name: "继续远征"})).toHaveAttribute("href", expect.stringContaining("expedition=tide-run"));
   } finally { cleanup(); mansion.dispose(); }
 });

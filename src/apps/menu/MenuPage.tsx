@@ -326,6 +326,7 @@ export function MenuPageContent({ memoryData: previewData, codexEntries, preview
               sceneMotion={view.archiveMotion}
               navigate={href => navigate(href, { destination: "存档进度", channel: "正在读取", entry: "restore" })} />
             : view.displayed === "settings" ? <SettingsPanel onBack={back} sceneMotion={view.settingsMotion}
+                onReturnMenu={() => { if (!operationLock.current) navigate(gameHref("title"), { destination: "主菜单", channel: "正在返回" }); }}
                 saveIdentity={{protocolVersion: record.schemaVersion, rulesVersion: record.contentRef.rulesVersion, contentVersion: record.contentRef.contentVersion, catalogDigest: record.contentRef.digest}} />
             : view.displayed === "codex" ? <CodexPanel key={`${record.head.saveId}:${record.head.epoch}`} entries={creatureEntries} onBack={back} sceneMotion={view.codexMotion}
               unavailable={codexData?.status === "unavailable" ? codexData.message : undefined}/>

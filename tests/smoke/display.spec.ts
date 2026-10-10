@@ -20,6 +20,9 @@ test("fullscreen enters, exits, and stays synchronized across settings categorie
   await fullscreen.click();
   await expect(fullscreen).toHaveText("进入全屏");
   await page.screenshot({ path: info.outputPath("desktop-settings.png") });
+  await page.getByRole("button", { name: "返回菜单", exact: true }).click();
+  await expect(page).toHaveURL(/#\/title$/);
+  await expect(page.getByRole("button", { name: "新的开始", exact: true })).toBeVisible();
 });
 
 test("browser selection is disabled while authored game feedback and editable text survive", async ({ page }) => {

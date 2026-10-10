@@ -47,7 +47,6 @@ function LegacyCampaignPanel({ report, record }: { report?: CampaignReportContro
       {id:"menu", label:"返回菜单", shortLabel:"MENU", href:gameHref("menu", locator)},
       {id:"mansion", label:"洋馆", href:gameHref("mansion", locator)},
       {id:"journey", label:record.snapshot.expedition ? record.pendingSettlement ? "完成远征结算" : "继续远征" : "出征编队", shortLabel:record.snapshot.expedition ? record.pendingSettlement ? "CLAIM" : "RESUME" : "SORTIE", href:gameHref(record.snapshot.expedition ? "battle" : "map", locator)},
-      {id:"archive", label:"返回标题", shortLabel:"TITLE", href:gameHref("title")},
     ]}/>
   </aside>
     {report && <>
@@ -85,7 +84,6 @@ export function CampaignPanel({report, onReviewGrowth}: {report?: CampaignReport
         {id:"mansion", label:"洋馆", href:gameHref("mansion", locator)},
         {id:"journey", label:memory?.runRef?.kind === "memory" ? "继续回忆" : e ? e.node === "finished" ? "完成远征结算" : "继续远征" : "出征编队", shortLabel:memory?.runRef?.kind === "memory" ? "MEMORY" : e ? e.node === "finished" ? "CLAIM" : "RESUME" : "SORTIE", href:gameHref(activeRunId(record) ? "battle" : "map", locator)},
       ] : []),
-      {id:"archive", label:"返回标题", shortLabel:"TITLE", href:gameHref("title")},
     ]}/>
   </aside>
     {report && <CampaignReport record={record} {...report} onReviewGrowth={onReviewGrowth}/>}

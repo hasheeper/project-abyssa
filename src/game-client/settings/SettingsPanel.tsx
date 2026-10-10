@@ -13,6 +13,7 @@ import { useUiMotion } from "../../shared/ui/motion/UiMotionProvider";
 import type { SystemSceneMotion } from "../system-panel-motion";
 import { useSettingsMotion } from "./useSettingsMotion";
 import { SystemSceneHeading } from "../SystemSceneFrame";
+import { navigateTo, routeHref } from "../../shared/routing/location";
 import "./settings.css";
 import "./settings-menu.css";
 import "./settings-scene.css";
@@ -25,9 +26,11 @@ const TABS = [
   { id: "about", label: "About", title: "关于", description: "版本与说明" }
 ] as const;
 type TabId = typeof TABS[number]["id"];
+const returnToMenu = () => { navigateTo(routeHref("title"), { destination: "主菜单", channel: "正在返回" }); };
 
-export function SettingsPanel({ fullScene = false, onBack, sceneMotion, onBackdropTextureChange, initialTab = "performance", saveIdentity }: {
+export function SettingsPanel({ fullScene = false, onBack, onReturnMenu = returnToMenu, sceneMotion, onBackdropTextureChange, initialTab = "performance", saveIdentity }: {
   fullScene?: boolean; onBack: () => void; sceneMotion?: SystemSceneMotion; onBackdropTextureChange?: (enabled: boolean) => void; initialTab?: TabId;
+  onReturnMenu?: () => void;
   saveIdentity?: SaveReleaseIdentity;
 }) {
   const [state, dispatch] = useReducer(settingsReducer, DEFAULT_SETTINGS);
@@ -57,6 +60,7 @@ export function SettingsPanel({ fullScene = false, onBack, sceneMotion, onBackdr
       </div>}
       heading={fullScene ? <SystemSceneHeading label="SETTINGS" description="系统设置" /> : sectionHeading}
       footer={<>{shownTab === "ai" && <AiConnectionStorage/>}<button type="button" className="settings-reset" aria-label="恢复默认设置" hidden={shownTab === "ai"} disabled={pristine} onClick={reset}>恢复默认</button>
+        <RpgHexButton variant="dark" size="sm" fullWidth onClick={onReturnMenu}>返回菜单</RpgHexButton>
         <RpgHexButton variant="teal" size="sm" fullWidth onClick={onBack}>返回</RpgHexButton></>}
     >
       {fullScene && <header className="settings-section-heading">{sectionHeading}</header>}

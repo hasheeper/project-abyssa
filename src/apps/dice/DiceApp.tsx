@@ -183,7 +183,6 @@ export function DiceApp() {
         }},
       ]} navigation={[
         {id:"menu",label:"返回菜单",shortLabel:"MENU",href:gameHref("menu",recentSave())},
-        {id:"archive",label:"返回标题",shortLabel:"TITLE",href:gameHref("title")},
       ]}/>
       <TurnBanner {...banner} />
       {resultOpen && game.winner && (

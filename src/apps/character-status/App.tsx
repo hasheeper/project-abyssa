@@ -145,7 +145,6 @@ function ArchiveScreen({
               {id:"menu", label:"返回菜单", shortLabel:"MENU", href:gameHref("menu", locator)},
               {id:"mansion", label:"洋馆", href:gameHref("mansion", locator)},
               {id:"journey", label:view.runRef?.kind === "memory" ? "继续回忆" : view.runRef ? "继续远征" : "出征编队", shortLabel:view.runRef?.kind === "memory" ? "MEMORY" : view.runRef ? "RESUME" : "SORTIE", href:gameHref(view.runRef ? "battle" : "map", locator)},
-              {id:"archive", label:"返回标题", shortLabel:"TITLE", href:gameHref("title")},
             ]}
           />
         </aside>

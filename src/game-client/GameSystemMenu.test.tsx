@@ -95,6 +95,10 @@ it("retains LOAD and SETTINGS without a campaign and returns settings focus to i
   await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
   await waitFor(() => expect(settings).toHaveFocus());
   expect(navigateTo).not.toHaveBeenCalled();
+  await user.click(settings);
+  await waitFor(() => expect(document.querySelector(".system-scene__interaction")).not.toHaveAttribute("inert"));
+  await user.click(screen.getByRole("button", {name: "返回菜单"}));
+  expect(navigateTo).toHaveBeenCalledExactlyOnceWith("#/title", {destination: "主菜单", channel: "正在返回"});
 });
 
 it("disables all system entries while a scene action is running", async () => {
